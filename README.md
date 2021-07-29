@@ -1,7 +1,9 @@
-**@eclipsetrading/hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [design overview](OVERVIEW.md)
+**HypeGrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [design overview](OVERVIEW.md)
 ### Current Release
 
-Forked as `eclipsetrading-hypergrid`. With the aim of converting to TypeScript and updating to use ES6 classes over `extend-me`.
+Forked from `eclipsetrading-hypergrid` which was forked from `fin-hypergrid` with the aim of porting to TypeScript
+
+Porting in process.
 
 ### Distribution
 

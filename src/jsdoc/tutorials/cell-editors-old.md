@@ -53,7 +53,7 @@ function hhmm_formatter(mins) {
 We can use this localizer to create a new text cell editor:
 
 ```javascript
-var cellEditors = require('fin-hypergrid/src/cellEditors');
+import { cellEditors } from 'fin-hypergrid/src/cellEditors';
 var Textfield = cellEditors.get('textfield'),
     HoursMinutes = TextField.extend({ localizer: localizer });
 cellEditors.register(HoursMinutes, 'hhmm');

@@ -186,7 +186,7 @@ var Textfield = grid.cellEditors.get('textfield');
 You don't have to use `get`; it merely looks in the registry and returns a reference to the constructor. Registering modules by name allows string references which are easy to persist. If you're not interesting in persisting these mappings, you can reference your cell editor constructors directly. For example, if you're using the npm module with Browserify, you can also do:
 
 ```javascript
-var Textfield = require('fin-hypergrid/src/cellEditors/Textfield');
+import { Textfield } from 'fin-hypergrid/src/cellEditors/Textfield';
 ```
 
 #### Create a custom cell editor

@@ -1,0 +1,12 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+      "outDir": "dist/esm",
+      "module": "es2020",
+      "declaration": true,
+      "declarationMap": true,
+      "declarationDir": "lib",
+      "sourceMap": true,
+      "inlineSourceMap": false
+    },
+  }
