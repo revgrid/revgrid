@@ -18,13 +18,13 @@
     "alwaysStrict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
+    // "esModuleInterop": true,
+    // "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
     "resolveJsonModule": true
   },
   "include": [
-      "src/**/*.ts"
+      "src/code/**/*.ts"
   ]
 }

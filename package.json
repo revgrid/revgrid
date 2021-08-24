@@ -1,11 +1,11 @@
 {
   "name": "hypegrid",
-  "version": "4.0.0-beta.1",
+  "version": "0.1.0",
   "description": "Canvas-based high-performance grid",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "browser": "dist/bundle/golden-layout.js",
-  "typings": "lib/index.d.ts",
+  "main": "dist/cjs/public-api.js",
+  "module": "dist/esm/public-api.js",
+  "browser": "dist/bundle/hypergrid.js",
+  "typings": "dist/types/public-api.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/xilytix/hypergrid.git"
@@ -15,23 +15,26 @@
     "Dwayne Jones (https://github.com/dwaynekj)",
     "Naveen Michaud-Agrawal (https://github.com/nmichaud)",
     "Hugo Nogueira (https://github.com/hugoeanogueira)",
-    "Paul Klink (https://github.com/pbklink)"
+    "Paul Klink (https://paul.klink.id.au)"
   ],
   "license": "MIT",
   "readmeFilename": "README.md",
-  "gitHead": "",
   "keywords": [
     "spreadsheet",
     "grid"
   ],
+  "files": [
+    "dist/**/*",
+    "src/**/*"
+  ],
   "scripts": {
     "lint": "eslint -c .eslintrc --ext .ts src/",
-    "cjs": "tsc --project ./tsconfig.cjs.json",
     "esm": "tsc --project ./tsconfig.esm.json",
     "lib": "tsc --project ./tsconfig.esm.json --emitDeclarationOnly",
     "rollup": "npx api-extractor run --local --verbose",
     "libapi": "npm run lib && npm run rollup",
     "api": "npm run esm && npm run rollup",
+    "bundles": "webpack --config ./bundles-webpack.config.js",
     "testapp": "tsc --project ./test-app/tsconfig.json",
     "testapp:build": "webpack --mode development --config ./test-app/webpack.config.js",
     "testapp:serve": "webpack serve --mode development --config ./test-app/webpack.config.js"

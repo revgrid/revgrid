@@ -1,62 +1,104 @@
-import { DataModel } from "..";
+import { DataModel, SchemaModel } from "..";
 
 export class DataSource implements DataModel {
+    private readonly _data: Record[] = [];
+    private _fishCount = 0;
+    private _dataModelCallbackListener: DataModel.CallbackListener;
+
+    constructor() {
+        const initialDataCount = initialData.length;
+        this._data.length = initialDataCount;
+        for (let i = 0; i < initialDataCount; i++) {
+            const record = initialData[i];
+            record.receiveDate = this.calculateReceiveDate(record.age);
+            this._data[i] = record;
+        }
+    }
+
+    addDataCallbackListener(listener: DataModel.CallbackListener) {
+        this._dataModelCallbackListener = listener;
+    }
+
     getRowCount() {
-        return data.length;
+        return this._data.length;
     }
 
     getSchema() {
-        const columnSchema: DataModel.ColumnSchema[] = [
+        const columnSchema: ColumnSchema[] = [
             {
                 name: 'name',
+                index: 0,
                 header: 'Name',
             },
             {
                 name: 'type',
+                index: 1,
                 header: 'Type',
             },
             {
                 name: 'color',
+                index: 2,
                 header : 'Color',
             },
             {
                 name: 'age',
+                index: 3,
                 header: 'Age',
             },
             {
                 name: 'receiveDate',
+                index: 4,
                 header: 'Receive Date',
             },
             {
                 name: 'favoriteFood',
+                index: 5,
                 header: 'Favorite Food',
             },
             {
                 name: 'restrictMovement',
+                index: 6,
                 header: 'Restrict Movement',
             },
         ];
         return columnSchema;
     }
 
-    getValue(columnIndex: number, rowIndex: number) {
-        const record = data[rowIndex];
-        const fieldName = this.columnIndexToFieldName(columnIndex);
+    getValue(columnSchema: ColumnSchema, rowIndex: number) {
+        const record = this._data[rowIndex];
+        const fieldName = columnSchema.name;
         return record[fieldName];
     }
 
-    private columnIndexToFieldName(columnIndex: number): keyof Record {
-        switch (columnIndex) {
-            case 0: return 'name';
-            case 1: return 'type';
-            case 2: return 'color';
-            case 3: return 'age';
-            case 4: return 'receiveDate';
-            case 5: return 'favoriteFood';
-            case 6: return 'restrictMovement';
-            default:
-                throw new Error(`Out of range column index: ${columnIndex}`);
+    addFish() {
+        const addCount = 20;
+        let addIdx = this._data.length;
+        this._data.length += addCount;
+        for (let i = 0; i < addCount; i++) {
+            const record = this.createFishRecord();
+            this._data[addIdx++] = record;
         }
+
+        this._dataModelCallbackListener.dataShapeChanged();
+    }
+
+    private createFishRecord(): Record {
+        const age = Math.round(0.2 + Math.random() * 100) / 100;
+        const receiveDate = this.calculateReceiveDate(age);
+        return {
+            name: 'Bubbles' + (++this._fishCount).toString(),
+            type: 'Fish',
+            color: 'Grey',
+            age,
+            receiveDate,
+            favoriteFood: 'Pellets',
+            restrictMovement: true,
+        }
+    }
+
+    private calculateReceiveDate(age: number) {
+        const ageInMilliseconds = age * 1000 * 60 * 60 * 24 * 365;
+        return new Date(Date.now() - ageInMilliseconds);
     }
 }
 
@@ -70,15 +112,21 @@ export interface Record {
     restrictMovement: boolean;
 }
 
-export type Data = Record[];
+interface ColumnSchema extends SchemaModel.Column {
+    name: keyof Record;
+    index: number;
+    header: string;
+}
 
-const data: Data = [
+const dummyDate = new Date();
+
+const initialData: Record[] = [
     {
         name: 'Rover',
         type: 'Dog',
         color: 'red',
         age: 5,
-        receiveDate: new Date('2020-03-04'),
+        receiveDate: dummyDate,
         favoriteFood: 'meat',
         restrictMovement: true,
     },
@@ -87,7 +135,7 @@ const data: Data = [
         type: 'Cat',
         color: 'white and black',
         age: 7,
-        receiveDate: new Date('2019-09-04'),
+        receiveDate: dummyDate,
         favoriteFood: 'gravied meat',
         restrictMovement: false,
     },
@@ -96,8 +144,8 @@ const data: Data = [
         type: 'Canary',
         color: 'yellow',
         age: 0.5,
-        receiveDate: new Date('2021-05-06'),
+        receiveDate: dummyDate,
         favoriteFood: 'pellets',
         restrictMovement: true,
     },
-]
+];

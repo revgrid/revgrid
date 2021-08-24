@@ -7,7 +7,8 @@ body {
     height: 100%;
     width: 100%;
     margin: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 #bodySection {
@@ -18,11 +19,14 @@ body {
 }
 
 #gridHost {
+    position: relative;
     height: 100%;
     width: 100%;
+    min-width: 0;
 }
 
 #controls {
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     padding: 2px;
@@ -32,90 +36,32 @@ body {
     margin: 2px;
 }
 
-.radioLine {
-    display: flex;
-    flex-wrap: nowrap;
-}
-
-.radioLine > *:not(:first-child) {
-    margin-left: 0.4em;
-}
-
-.labelledRadio {
+.labelledTextbox {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
 }
 
-.labelledRadio > input {
+.labelledCheckbox {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.labelledCheckbox > input {
     margin: 0;
 }
 
-.labelledRadio > label {
+.labelledCheckbox > label {
     margin-left: 0.2em;
 }
 
-#registerSection {
-    display: flex;
-    flex-direction: column;
-}
-
-#registerNotVirtualRadioSection {
-    display: flex;
-    margin-left: 1em;
-}
-
-#registerVirtualRadioSection {
-    display: flex;
-    margin-left: 1em;
-}
-
-#eventBindingSection {
-    display: flex;
-}
-
-#eventBindingSpan {
-    white-space: nowrap;
-}
-
-#eventBindingRadios {
-    display: flex;
-    margin-left: 0.5em;
-}
-
-#addComponentSection {
-    display: flex;
-}
-
-#replaceComponentSection {
-    display: flex;
-}
-
-#predefinedLayoutsSection {
-    display: flex;
-}
-
-#saveAndReloadLayoutSection {
-    display: flex;
-}
-
-#clickCount {
+#addFishButtons {
     display: flex;
     flex-wrap: nowrap;
-    white-space: pre;
+    align-items: center;
 }
 
-#captureClickCountSpan,
-#bubbleClickCountSpan {
-    min-width: 2em;
-}
-
-#stackHeaderClick {
-    display: flex;
-    flex-wrap: nowrap;
-    white-space: pre;
-}
-
-#stackHeaderClickedDiv {
-    display: inline-flex;
+#addFishButtons > *:not(:first-child) {
+    margin-left: 0.4em;
 }
