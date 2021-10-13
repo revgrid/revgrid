@@ -2,11 +2,14 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Hypegrid Test application</title>
+        <title>Revgrid Test application</title>
     </head>
     <body>
         <section id="bodySection">
             <section id="controls">
+                <section>
+                    <button id="newGridButton">New Grid</button>
+                </section>
                 <section class="labelledTextbox">
                     Fixed column count <input id="fixedColumnCountTextbox" type="text" size="3">
                 </section>
@@ -24,6 +27,10 @@
                 </section>
                 <section class="labelledCheckbox">
                     <input id="visibleColumnWidthAdjustCheckbox" type="checkbox">Visible column width adjust<br>
+                </section>
+                <section class="buttonedTextbox">
+                    <button id="deleteRowButton">Delete Row</button>
+                    <input id="deleteRowIndexTextbox" type="text" size="3">
                 </section>
                 <section id="addFishButtons">
                     <button id="addFishButton">Add Fish</button>

@@ -1,75 +1,52 @@
-import { CellEditor } from '../cell-editor/cell-editor';
-import { cellEditorFactory } from '../cell-editor/cell-editor-factory';
-import { CellPainter } from '../cell-painter/cell-painter';
-import { Hooks } from '../lib/hooks';
-import { DataModel } from '../model/data-model';
-import { SchemaModel } from '../model/schema-model';
-import { CellEvent } from '../renderer/cell-event';
-import { CellPaintConfig } from '../renderer/cell-paint-config';
-import { CellPaintConfigAccessor } from '../renderer/cell-paint-config-accessor';
-import { RenderCell } from '../renderer/render-cell';
-import { Hypegrid } from './hypegrid';
+import { CellModel } from '../grid/model/cell-model';
+import { DataModel } from '../grid/model/data-model';
+import { MetaModel } from '../grid/model/meta-model';
+import { ModelCallbackRouter } from '../grid/model/model-callback-router';
+import { ModelUpdateId, SchemaModel } from '../grid/model/schema-model';
+import { CellEditor } from './cell-editor/cell-editor';
+import { cellEditorFactory } from './cell-editor/cell-editor-factory';
+import { CellPainter } from './cell-painter/cell-painter';
+import { BeingPaintedCell } from './cell/being-painted-cell';
+import { CellEvent } from './cell/cell-event';
+import { ColumnsManager } from './column/columns-manager';
+import { CellPaintConfig } from './renderer/cell-paint-config';
+import { CellPaintConfigAccessor } from './renderer/cell-paint-config-accessor';
+import { Revgrid } from './revgrid';
 
 /** @public */
 export class Subgrid {
-    readonly isData: boolean = false;
+    readonly isMain: boolean = false;
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
     readonly isSummary: boolean = false;
 
     /** @internal */
+    protected _destroyed = false;
+
+    /** @internal */
     private rowProxy: Subgrid.DataRowProxy; // used if DataModel.getRowProperties not implemented
     /** @internal */
-    private rowMetadata: DataModel.RowMetadata[] = [];
+    private rowMetadata: MetaModel.RowMetadata[] = [];
 
-    /** @internal */
-    private readonly schemaModelCallbackListenerAdded: boolean;
-    /** @internal */
-    private readonly dataModelCallbackListenerAdded: boolean;
-
-    /** @internal */
-    private readonly schemaModelCallbackListener: SchemaModel.CallbackListener = {
-        schemaLoaded: () => this.notifySchemaLoaded(),
-        getSchemaColumn: (columnIndex) => this.notifyGetSchemaColumn(columnIndex),
-        getSchemaColumns: () => this.notifyGetSchemaColumns(),
-        headerChanged: (schemaColumn) => this.notifyHeaderChanged(schemaColumn),
-    }
-
-    /** @internal */
-    private readonly dataModelCallbackListener: DataModel.CallbackListener = {
-        dataLoaded: () => this.notifyDataLoaded(),
-        dataShapeChanged: () => this.notifyDataShapeChanged(),
-        dataPrereindex: () => this.notifyDataPrereindex(),
-        dataPostreindex: () => this.notifyDataPostreindex(),
-        invalidateAll: () => this.notifyInvalidateAll(),
-    }
+    private _columnsManagerBeforeCreateColumnsListener = () => this.rowProxy.updateSchema();
 
     /** @internal */
     constructor(
+        /** @internal */
+        protected readonly _grid: Revgrid,
+        /** @internal */
+        protected readonly _columnsManager: ColumnsManager,
+        /** @internal */
+        private readonly _modelCallbackManager: ModelCallbackRouter,
+        public readonly role: Subgrid.Role,
         public readonly schemaModel: SchemaModel,
         public readonly dataModel: DataModel,
-        public readonly role: Subgrid.Role,
-        /** @internal */
-        private readonly _grid: Hypegrid,
-        /** @internal */
-        private _hooks: Hooks | undefined,
-        /** @internal */
-        private readonly _dataModelEventDispatchHandler:
-            (eventName: DataModel.EventName | SchemaModel.EventName, eventDetail: SchemaModel.EventDetail | DataModel.EventDetail) => undefined | boolean,
-        /** @internal */
-        private readonly _dataLoadedEventHandler: Subgrid.DataModelEventHandler,
-        /** @internal */
-        private readonly _dataPostreindexEventHandler: Subgrid.DataModelEventHandler,
-        /** @internal */
-        private readonly _dataPrereindexEventHandler: Subgrid.DataModelEventHandler,
-        /** @internal */
-        private readonly _dataShapeChangedEventHandler: Subgrid.DataModelEventHandler,
-        /** @internal */
-        private readonly _schemaLoadedEventHandler: Subgrid.DataModelEventHandler,
+        public readonly metaModel: MetaModel | undefined,
+        public readonly cellModel: CellModel | undefined,
     ) {
         switch (role) {
             case 'main':
-                this.isData = true;
+                this.isMain = true;
                 break;
             case 'header':
                 this.isHeader = true;
@@ -87,45 +64,15 @@ export class Subgrid {
                 const never: never = role
         }
 
-        if (schemaModel.addSchemaCallbackListener !== undefined) {
-            this.schemaModel.addSchemaCallbackListener(this.schemaModelCallbackListener);
-            this.schemaModelCallbackListenerAdded = true;
-        } else {
-            this.schemaModelCallbackListenerAdded = false;
-        }
-
-        if (dataModel.addDataCallbackListener !== undefined) {
-            this.dataModel.addDataCallbackListener(this.dataModelCallbackListener);
-            this.dataModelCallbackListenerAdded = true;
-        } else {
-            this.dataModelCallbackListenerAdded = false;
-        }
-
         this.rowProxy = new Subgrid.DataRowProxy(this.schemaModel, this.dataModel);
+        this._columnsManager.addBeforeCreateColumnsListener(this._columnsManagerBeforeCreateColumnsListener);
+        this._modelCallbackManager.registerDataModel(this.dataModel);
     }
 
     /** @internal */
-    dispose() {
-        if (this.schemaModelCallbackListenerAdded) {
-            if (this.schemaModel.removeSchemaCallbackListener !== undefined) {
-                this.schemaModel.removeSchemaCallbackListener(this.schemaModelCallbackListener);
-            } else {
-                console.warn(`Hypegrid: Subgrid "${this.role}". Could not dispose SchemaModel callback listener. SchemaModel.removeSchemaCallbackListener() not implemented`);
-            }
-        }
-
-        if (this.dataModelCallbackListenerAdded) {
-            if (this.dataModel.removeDataCallbackListener !== undefined) {
-                this.dataModel.removeDataCallbackListener(this.dataModelCallbackListener);
-            } else {
-                console.warn(`Hypegrid: Subgrid "${this.role}". Could not dispose DataModel callback listener. DataModel.removeDataCallbackListener() not implemented`);
-            }
-        }
-    }
-
-    /** @internal */
-    setHooks(value: Hooks | undefined) {
-        this._hooks = value;
+    destroy() {
+        this._columnsManager.removeBeforeCreateColumnsListener(this._columnsManagerBeforeCreateColumnsListener);
+        this._destroyed = true;
     }
 
     /** @internal */
@@ -139,18 +86,18 @@ export class Subgrid {
     }
 
     /** @internal */
-    getRowMetadata(rowIndex: number, prototype?: DataModel.RowMetadataPrototype): undefined | false | DataModel.RowMetadata {
-        if (this.dataModel.getRowMetadata !== undefined) {
-            return this.dataModel.getRowMetadata(rowIndex, prototype);
+    getRowMetadata(rowIndex: number, prototype?: MetaModel.RowMetadataPrototype): undefined | false | MetaModel.RowMetadata {
+        if (this.metaModel !== undefined && this.metaModel.getRowMetadata !== undefined) {
+            return this.metaModel.getRowMetadata(rowIndex, prototype);
         } else {
             return this.rowMetadata[rowIndex];
         }
     }
 
     /** @internal */
-    setRowMetadata(rowIndex: number, newMetadata?: DataModel.RowMetadata) {
-        if (this.dataModel.setRowMetadata !== undefined) {
-            this.dataModel.setRowMetadata(rowIndex, newMetadata);
+    setRowMetadata(rowIndex: number, newMetadata?: MetaModel.RowMetadata) {
+        if (this.metaModel !== undefined && this.metaModel.setRowMetadata !== undefined) {
+            this.metaModel.setRowMetadata(rowIndex, newMetadata);
         } else {
             this.rowMetadata[rowIndex] = newMetadata;
         }
@@ -203,7 +150,7 @@ export class Subgrid {
      *
      * The pattern, in general:
      * ```js
-     * exports['fin-hypergrid-data-myevent'] = function(event) {
+     * exports['rev-hypergrid-data-myevent'] = function(event) {
      *     var notCanceled;
      *
      *     PerformHousekeepingTasks();
@@ -248,58 +195,6 @@ export class Subgrid {
     // }
 
     // Same events as above except using notifier
-
-    /** @internal */
-    private notifySchemaLoaded(eventDetail?: SchemaModel.EventDetail) {
-        this.rowProxy.updateSchema();
-        const dispatched = this._schemaLoadedEventHandler();
-        return dispatched !== undefined ? dispatched : this._dataModelEventDispatchHandler('hypegrid-schema-loaded', eventDetail);
-    }
-
-    /** @internal */
-    private notifyDataLoaded(eventDetail?: DataModel.EventDetail) {
-        const dispatched = this._dataLoadedEventHandler();
-        return dispatched !== undefined ? dispatched : this._dataModelEventDispatchHandler('hypegrid-data-loaded', eventDetail);
-    }
-
-    /** @internal */
-    private notifyDataShapeChanged(eventDetail?: DataModel.EventDetail) {
-        const dispatched = this._dataShapeChangedEventHandler();
-        return dispatched !== undefined ? dispatched : this._dataModelEventDispatchHandler('hypegrid-data-shape-changed', eventDetail);
-    }
-
-    /** @internal */
-    private notifyDataPrereindex(eventDetail?: DataModel.EventDetail) {
-        const dispatched = this._dataPrereindexEventHandler();
-        return dispatched !== undefined ? dispatched : this._dataModelEventDispatchHandler('hypegrid-data-prereindex', eventDetail);
-    }
-
-    /** @internal */
-    private notifyDataPostreindex(eventDetail?: DataModel.EventDetail) {
-        const dispatched = this._dataPostreindexEventHandler();
-        return dispatched !== undefined ? dispatched : this._dataModelEventDispatchHandler('hypegrid-data-postreindex', eventDetail);
-    }
-
-    /** @internal */
-    private notifyGetSchemaColumn(columnIndex: number) {
-        return this._grid.behavior.getActiveColumns()[columnIndex].schemaColumn;
-    }
-
-    /** @internal */
-    private notifyGetSchemaColumns() {
-        return this._grid.behavior.getActiveColumns().map((column) => column.schemaColumn);
-    }
-
-    /** @internal */
-    private notifyInvalidateAll() {
-        this._grid.repaint();
-    }
-
-    /** @internal */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private notifyHeaderChanged(schemaColumn: SchemaModel.Column) {
-        // TODO
-    }
 
     // abstract getRowCount(): number;
     // abstract getValue(columnIndex: number, rowIndex: number): unknown;
@@ -399,17 +294,17 @@ export class Subgrid {
 
     // Hooks
     /** @internal */
-    getCellPaintConfig(renderCell: RenderCell): CellPaintConfig {
+    getCellPaintConfig(beingPaintedCell: BeingPaintedCell): CellPaintConfig {
         let config: CellPaintConfig;
-        const hooks = this._hooks;
-        if (hooks !== undefined) {
-            if (hooks.getCellPaintConfig !== undefined) {
-                config = hooks.getCellPaintConfig(this.dataModel, renderCell);
+        const cellModel = this.cellModel;
+        if (cellModel !== undefined) {
+            if (cellModel.getCellPaintConfig !== undefined) {
+                config = cellModel.getCellPaintConfig(beingPaintedCell);
             }
         }
 
         if (config === undefined) {
-            return new CellPaintConfigAccessor(renderCell);
+            return new CellPaintConfigAccessor(beingPaintedCell);
         } else {
             return config;
         }
@@ -417,11 +312,11 @@ export class Subgrid {
 
     /** @internal */
     getCellPainter(cellPaintConfig: CellPaintConfig, gridPainterKey: string): CellPainter {
-        const hooks = this._hooks;
         let painter: CellPainter;
-        if (hooks !== undefined) {
-            if (hooks.getCellPainter !== undefined) {
-                painter = hooks.getCellPainter(this.dataModel, cellPaintConfig, gridPainterKey);
+        const cellModel = this.cellModel;
+        if (cellModel !== undefined) {
+            if (cellModel.getCellPainter !== undefined) {
+                painter = cellModel.getCellPainter(cellPaintConfig, gridPainterKey);
             }
         }
 
@@ -434,12 +329,12 @@ export class Subgrid {
 
     /** @internal */
     getCellEditorAt(columnIndex: number, rowIndex: number, editorName: string, cellEvent: CellEvent): CellEditor {
-        const hooks = this._hooks;
         let editor: CellEditor;
 
-        if (hooks !== undefined) {
-            if (hooks.getCellEditorAt !== undefined) {
-                editor = hooks.getCellEditorAt(this.dataModel, columnIndex, rowIndex, editorName, cellEvent);
+        const cellModel = this.cellModel;
+        if (cellModel !== undefined) {
+            if (cellModel.getCellEditorAt !== undefined) {
+                editor = cellModel.getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
             }
         }
 
@@ -449,12 +344,6 @@ export class Subgrid {
             return editor;
         }
     }
-
-    // // FriendlierDrillDownMapKeys
-    // get drillDownCharMap() {
-    //     return Subgrid.drillDownCharMap;
-    // }
-
 }
 
 /** @public */
@@ -469,36 +358,33 @@ export namespace Subgrid {
 
     export type Role = keyof typeof RoleEnum;
 
-    export interface FullSpec {
-        dataModel: DataModel | DataModel.Constructor,
+    export interface Spec {
         role?: Role, // defaults to main
+        dataModel: DataModel | DataModel.Constructor,
+        metaModel?: MetaModel | MetaModel.Constructor,
+        cellModel?: CellModel | CellModel.Constructor,
     }
 
-    export type Spec = Role | FullSpec;
+    /** @internal */
+    export type SchemaLoadedHandler = (this: void) => ModelUpdateId;
+    /** @internal */
+    export type RowCountChangedHandler = (this: void) => ModelUpdateId;
+    /** @internal */
+    export type AllDataInvalidatedHandler = (this: void, subgrid: Subgrid) => ModelUpdateId;
+    /** @internal */
+    export type RowDataInvalidatedHandler = (this: void, subgrid: Subgrid, rowIndex: number) => ModelUpdateId;
+    /** @internal */
+    export type CellDataInvalidatedHandler = (this: void, subgrid: Subgrid, allColumnIndex: number, rowIndex: number) => ModelUpdateId;
 
     /** @internal */
-    export const drillDownCharMap: DataModel.DrillDownCharMap = {
-        true: '\u25bc', // BLACK DOWN-POINTING TRIANGLE aka '▼'
-        false: '\u25b6', // BLACK RIGHT-POINTING TRIANGLE aka '▶'
-        undefined: '', // leaf rows have no control glyph
-        null: '   ', // indent
-        OPEN: '\u25bc', // friendlier alias
-        CLOSE: '\u25b6', // friendlier alias
-        INDENT: '   ', // friendlier alias
-    };
-
-    /** @internal */
-    export type DataModelEventHandler = (this: void) => boolean | undefined;
-
-    /** @internal */
-    export class DataRowProxy implements DataModel.DataRowObject {
+    export class DataRowProxy {
         [columnName: string]: DataModel.DataValue;
 
         ____rowIndex: number;
         ____columnNames: string[] = [];
 
         constructor(public schemaModel: SchemaModel, public dataModel: DataModel) {
-            this.updateSchema(); // is this necessary? If we do not always get the "hypegrid-schema-loaded" event then it is necessary
+            this.updateSchema(); // is this necessary? If we do not always get the "rev-schema-loaded" event then it is necessary
         }
 
         updateSchema() {
@@ -524,20 +410,4 @@ export namespace Subgrid {
         }
     }
 
-}
-
-/** @public */
-export class SubgridArray extends Array<Subgrid> {
-    lookup = new Map<string, Subgrid>();
-
-    override push(value: Subgrid) {
-        const result = super.push(value);
-        this.lookup.set(value.role, value);
-        return result;
-    }
-
-    clear() {
-        this.length = 0;
-        this.lookup.clear();
-    }
 }

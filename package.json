@@ -1,5 +1,5 @@
 {
-  "name": "hypegrid",
+  "name": "revgrid",
   "version": "0.1.0",
   "description": "Canvas-based high-performance grid",
   "main": "dist/cjs/public-api.js",
@@ -8,7 +8,7 @@
   "typings": "dist/types/public-api.d.ts",
   "repository": {
     "type": "git",
-    "url": "git://github.com/xilytix/hypergrid.git"
+    "url": "git://github.com/revgrid/revgrid.git"
   },
   "contributors": [
     "Jonathan Eiten (https://github.com/joneit)",
@@ -29,33 +29,40 @@
   ],
   "scripts": {
     "lint": "eslint -c .eslintrc --ext .ts src/",
-    "esm": "tsc --project ./tsconfig.esm.json",
+    "esm": "tsc --build ./tsconfig.esm.json",
+    "force-esm": "tsc --build --force ./tsconfig.esm.json",
     "lib": "tsc --project ./tsconfig.esm.json --emitDeclarationOnly",
     "rollup": "npx api-extractor run --local --verbose",
-    "libapi": "npm run lib && npm run rollup",
+    "types": "npm run lib && npm run rollup",
     "api": "npm run esm && npm run rollup",
+    "force-api": "npm run force-esm && npm run rollup",
+    "clean": "npx trash-cli ./dist && npx trash-cli ./lib",
+    "dist": "npm run clean && npm run api",
     "bundles": "webpack --config ./bundles-webpack.config.js",
     "testapp": "tsc --project ./test-app/tsconfig.json",
     "testapp:build": "webpack --mode development --config ./test-app/webpack.config.js",
-    "testapp:serve": "webpack serve --mode development --config ./test-app/webpack.config.js"
+    "testapp:serve": "webpack serve --mode development --config ./test-app/webpack.config.js",
+    "recordtestapp": "tsc --project ./record-test-app/tsconfig.json",
+    "recordtestapp:build": "webpack --mode development --config ./record-test-app/webpack.config.js",
+    "recordtestapp:serve": "webpack serve --mode development --config ./record-test-app/webpack.config.js"
   },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.12.7",
     "@microsoft/api-extractor": "^7.13.1",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
-    "css-loader": "6.2.0",
+    "css-loader": "6.3.0",
     "eslint": "^7.20.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "html-webpack-plugin": "^5.2.0",
     "source-map-loader": "^3.0.0",
-    "style-loader": "^2.0.0",
+    "style-loader": "3.3.0",
     "ts-loader": "^9.2.3",
-    "typescript": "4.3.5",
+    "typescript": "4.4.3",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.5.0",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "4.3.1"
   },
   "browserslist": [
     "last 1 Chrome version",
@@ -64,5 +71,8 @@
     "last 2 Safari major versions",
     "last 2 iOS major versions",
     "Firefox ESR"
-  ]
+  ],
+  "dependencies": {
+    "trash-cli": "4.0.0"
+  }
 }

@@ -7,8 +7,6 @@ body {
     height: 100%;
     width: 100%;
     margin: 0;
-    overflow-x: hidden;
-    overflow-y: hidden;
 }
 
 #bodySection {
@@ -23,6 +21,7 @@ body {
     height: 100%;
     width: 100%;
     min-width: 0;
+    min-height: 0;
 }
 
 #controls {
@@ -37,6 +36,12 @@ body {
 }
 
 .labelledTextbox {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.buttonedTextbox {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;

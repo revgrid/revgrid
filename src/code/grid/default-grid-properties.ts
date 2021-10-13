@@ -1,6 +1,8 @@
 
-import { AssertError } from '../lib/hypegrid-error';
 import { GridProperties } from './grid-properties';
+import { AssertError } from './lib/revgrid-error';
+import { HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
+import { SchemaModel } from './model/schema-model';
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -70,10 +72,10 @@ export const defaultGridProperties: Required<GridProperties> = {
      * @summary List of subgrids by
      * @desc Restrict usage here to strings (naming data models) or arrays consisting of such a string + constructor arguments. That is, avoid {@link subgridSpec}'s function and object overloads and {@link subgridConstructorRef} function overload.
      */
-    subgrids: [
-        'header',
-        'main'
-    ],
+    adapterSet: {
+        schemaModel: undefined as SchemaModel,
+        subgrids: [],
+    },
 
     /**
      * The font for data cells.
@@ -148,7 +150,7 @@ export const defaultGridProperties: Required<GridProperties> = {
     columnHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
     columnHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
     columnHeaderHalign: 'center',
-    columnHeaderRenderer: 'SimpleCell',
+    columnHeaderCellPainter: 'SimpleCell',
     /** There is no standard format called "header"; unless defined, defaults to "string" (pass-thru formatter). */
     columnHeaderFormat: 'header',
     backgroundColor2: 'rgb(201, 201, 201)',
@@ -158,7 +160,7 @@ export const defaultGridProperties: Required<GridProperties> = {
     filterForegroundSelectionColor: 'rgb(25, 25, 25)',
     filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
     filterHalign: 'center',
-    filterRenderer: 'SimpleCell',
+    filterCellPainter: 'SimpleCell',
     filterEditor: 'TextField',
     filterable: true,
     showFilterRow: false,
@@ -167,6 +169,7 @@ export const defaultGridProperties: Required<GridProperties> = {
     scrollbarHoverOver: 'visible',
     scrollbarHoverOff: 'hidden',
     scrollingEnabled: true,
+    horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed.CtrlKeyDown,
     vScrollbarClassPrefix: '',
     hScrollbarClassPrefix: '',
 
@@ -314,13 +317,6 @@ export const defaultGridProperties: Required<GridProperties> = {
     gridLinesColumnHeader: true,
 
     /**
-     * When {@link module:defaults.gridLinesH} is truthy, determines if lines render in the row headers area.
-     * @type {boolean}
-     * @default
-     */
-    gridLinesRowHeader: true,
-
-    /**
      * When {@link module:defaults.gridLinesV} or {@link module:defaults.gridLinesH} are truthy, determines if lines render in the user data area.
      * @type {boolean}
      * @default
@@ -449,31 +445,21 @@ export const defaultGridProperties: Required<GridProperties> = {
     resizeColumnInPlace: false,
 
     //for immediate painting, set these values to 0, true respectively
-
-    /**
-     * @default
-     * @type {number}
-     */
     repaintIntervalRate: 60,
-
-    /**
-     * Normally multiple calls to {@link Hypergrid#repaint grid.repaint()}, {@link Hypergrid#reindex grid.reindex()}, {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()}, and/or {@link Hypergrid#behaviorStateChanged grid.behaviorStateChanged()} defer their actions until just before the next scheduled render. For debugging purposes, set `repaintImmediately` to truthy to carry out these actions immediately while leaving the paint loop running for when you resume execution. Alternatively, call {@link Canvas#stopPaintLoop grid.canvas.stopPaintLoop()}. Caveat: Both these modes are for debugging purposes only and may not render the grid perfectly for all interactions.
-     * @default
-     * @type {boolean}
-     */
     repaintImmediately: false,
-
-    /**
-     * @default
-     * @type {boolean}
-     */
     useHiDPI: true,
 
+    emitModelEvents: false,
+
     navKeyMap: {
-        RETURN: 'DOWN',
-        RETURNSHIFT: 'UP',
-        TAB: 'RIGHT',
-        TABSHIFT: 'LEFT'
+        // RETURN: 'DOWN',
+        // RETURNSHIFT: 'UP',
+        // TAB: 'RIGHT',
+        // TABSHIFT: 'LEFT'
+        'ArrowUp': 'UP',
+        'ArrowDown': 'DOWN',
+        'ArrowLeft': 'LEFT',
+        'ArrowRight': 'RIGHT',
     },
 
     /** @summary Validation failure feedback.
@@ -624,7 +610,7 @@ export const defaultGridProperties: Required<GridProperties> = {
      * @default
      * @type {boolean}
      */
-    unsortable: false,
+    sortable: true,
 
     /**
      * Sort column on double-click rather than single-click.
@@ -757,7 +743,7 @@ export const defaultGridProperties: Required<GridProperties> = {
 
     /** @summary Display cell value as a link (with underline).
      * @desc One of:
-     * * `boolean` - No action occurs on click; you would need to attach a 'fin-click' listener to the hypergrid object.
+     * * `boolean` - No action occurs on click; you would need to attach a 'rev-click' listener to the hypergrid object.
      *   * `true` - Displays the cell as a link.
      *   * _falsy_ - Displays the cell normally.
      * * `string` -  The URL is decorated (see {}) and then opened in a separate window/tab. See also {@link module:defaults.linkTarget|linkTarget}.
@@ -824,20 +810,7 @@ export const defaultGridProperties: Required<GridProperties> = {
      */
     strikeThrough: false,
 
-    /** Allow multiple cell region selections.
-     * @type {boolean}
-     * @default
-     */
     multipleSelections: false,
-
-    /** @summary Re-render grid at maximum speed.
-     * @desc In this mode:
-     * * The "dirty" flag, set by calling `grid.repaint()`, is ignored.
-     * * `grid.getCanvas().currentFPS` is a measure of the number times the grid is being re-rendered each second.
-     * * The Hypergrid renderer gobbles up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). For this reason, we emphatically advise against shipping applications using this mode.
-     * @type {boolean}
-     * @default
-     */
     enableContinuousRepaint: false,
 
     /** @summary Allow user to move columns .
@@ -846,10 +819,11 @@ export const defaultGridProperties: Required<GridProperties> = {
      * * behavior.columns API
      */
     columnsReorderable: true,
+    columnsReorderableHideable: false,
 
     /** @summary Column grab within this number of pixels from top of cell.
      */
-    columnGrabMargin: 5,
+    columnGrabMargin: 10,
 
     /** @summary Set up a clipping region around each column before painting cells.
      * @desc One of:
@@ -907,22 +881,13 @@ export const defaultGridProperties: Required<GridProperties> = {
         'cellclick',
         'cellediting',
         'onhover',
-        'touchscrolling'
+        'touchscrolling',
+        'thumbwheelscrolling'
     ],
 
-    /** @summary Restore row selections across data transformations (`reindex` calls).
-     * @desc The restoration is based on the underlying data row indexes.
-     * @type {boolean}
-     * @default
-     */
     restoreRowSelections: true,
-
-    /** @summary Restore column selections across data transformations (`reindex` calls).
-     * @desc The restoration is based on the column names.
-     * @type {boolean}
-     * @default
-     */
     restoreColumnSelections: true,
+    restoreSingleCellSelection: true,
 
     /** @summary How to truncate text.
      * @desc A "quaternary" value, one of:
@@ -933,7 +898,7 @@ export const defaultGridProperties: Required<GridProperties> = {
      * @type {boolean|null|undefined}
      * @default
      */
-    truncateText: GridProperties.TextTruncateType.WithEllipsis,
+    textTruncateType: TextTruncateType.WithEllipsis,
 
     calculators: {},
     columnAutosized: false,

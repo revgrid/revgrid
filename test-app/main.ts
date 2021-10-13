@@ -1,18 +1,24 @@
-import { defaultGridProperties, Hypegrid } from "..";
-import { DataSource } from './data-source';
+import { defaultGridProperties, HalignEnum, Revgrid } from '..';
+import { HeaderDataAdapter } from './header-data-adapter';
+import { MainDataAdapter } from './main-data-adapter';
+import { SchemaAdapter } from './schema-adapter';
 
 export class Main {
     private readonly _controlsElement: HTMLElement;
+    private readonly _newGridButtonElement: HTMLButtonElement;
     private readonly _fixedColumnCountTextboxElement: HTMLInputElement;
     private readonly _cellPaddingTextboxElement: HTMLInputElement;
     private readonly _rightHalignCheckboxElement: HTMLInputElement;
     private readonly _gridRightAlignedCheckboxElement: HTMLInputElement;
     private readonly _scrollHorizontallySmoothlyCheckboxElement: HTMLInputElement;
     private readonly _visibleColumnWidthAdjustCheckboxElement: HTMLInputElement;
+    private readonly _deleteRowButtonElement: HTMLButtonElement;
+    private readonly _deleteRowIndexTextboxElement: HTMLInputElement;
     private readonly _addFishButtonElement: HTMLButtonElement;
     private readonly _gridHostElement: HTMLElement;
-    private readonly _grid: Hypegrid;
-    private readonly _dataSource: DataSource;
+
+    private _mainDataAdapter: MainDataAdapter;
+    private _grid: Revgrid;
 
     constructor() {
         const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
@@ -21,53 +27,25 @@ export class Main {
         }
         this._gridHostElement = gridHostElement;
 
-        this._dataSource = new DataSource;
-
-        const defaultGridRightAligned = defaultGridProperties.gridRightAligned;
-        const defaultScrollHorizontallySmoothly = defaultGridProperties.scrollHorizontallySmoothly;
-        const defaultVisibleColumnWidthAdjust = defaultGridProperties.visibleColumnWidthAdjust;
-        const defaultCellPadding = defaultGridProperties.cellPadding;
-        const defaultFixedColumnCount: typeof defaultGridProperties.fixedColumnCount = 2;
-        const defaultHalign: typeof defaultGridProperties.halign = 'left';
-        const defaultRightHalign = false; // make sure it corresponds to defaultHalign
-
-        const gridOptions: Hypegrid.Options = {
-            container: this._gridHostElement,
-            model: {
-                schema: this._dataSource,
-                subgrids: [
-                    'header', // use builtin header data model
-                    {
-                        dataModel: this._dataSource,
-                        role: 'main',
-                    }
-                ],
-            },
-            gridProperties: {
-                renderFalsy: true,
-                singleRowSelectionMode: false,
-                columnSelection: false,
-                cellPadding: defaultCellPadding,
-                halign: defaultHalign,
-                fixedColumnCount: defaultFixedColumnCount,
-                gridRightAligned: defaultGridRightAligned,
-                scrollHorizontallySmoothly: defaultScrollHorizontallySmoothly,
-                visibleColumnWidthAdjust: defaultVisibleColumnWidthAdjust,
-            }
-        }
-        this._grid = new Hypegrid(this._gridHostElement, gridOptions);
-
         const controlsElement = document.querySelector('#controls') as HTMLElement;
         if (controlsElement === null) {
             throw new Error('controlsElement not found');
         }
         this._controlsElement = controlsElement;
 
+        this._newGridButtonElement = document.querySelector('#newGridButton') as HTMLButtonElement;
+        if (this._newGridButtonElement === null) {
+            throw new Error('newGridButtonElement not found');
+        } else {
+            this._newGridButtonElement.onclick = () => {
+                this.newGrid();
+            };
+        }
+
         this._fixedColumnCountTextboxElement = document.querySelector('#fixedColumnCountTextbox') as HTMLInputElement;
         if (this._fixedColumnCountTextboxElement === null) {
             throw new Error('fixedColumnCountTextboxElement not found');
         } else {
-            this._fixedColumnCountTextboxElement.value = defaultFixedColumnCount.toString();
             this._fixedColumnCountTextboxElement.onchange = () => {
                 this._grid.properties.fixedColumnCount = parseInt(this._fixedColumnCountTextboxElement.value);
                 this._grid.computeCellsBounds();
@@ -79,7 +57,6 @@ export class Main {
         if (this._cellPaddingTextboxElement === null) {
             throw new Error('cellPaddingTextboxElement not found');
         } else {
-            this._cellPaddingTextboxElement.value = defaultCellPadding.toString();
             this._cellPaddingTextboxElement.onchange = () => {
                 this._grid.properties.cellPadding = parseInt(this._cellPaddingTextboxElement.value);
                 this._grid.computeCellsBounds();
@@ -91,7 +68,6 @@ export class Main {
         if (this._rightHalignCheckboxElement === null) {
             throw new Error('rightHalignCheckBoxElement not found');
         } else {
-            this._rightHalignCheckboxElement.checked = defaultRightHalign;
             this._rightHalignCheckboxElement.onchange = () => {
                 this._grid.properties.halign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
                 this._grid.computeCellsBounds();
@@ -103,7 +79,6 @@ export class Main {
         if (this._gridRightAlignedCheckboxElement === null) {
             throw new Error('gridRightAlignedCheckBoxElement not found');
         } else {
-            this._gridRightAlignedCheckboxElement.checked = defaultGridRightAligned;
             this._gridRightAlignedCheckboxElement.onchange = () => {
                 this._grid.properties.gridRightAligned = this._gridRightAlignedCheckboxElement.checked;
                 this._grid.computeCellsBounds();
@@ -115,7 +90,6 @@ export class Main {
         if (this._scrollHorizontallySmoothlyCheckboxElement === null) {
             throw new Error('scrollHorizontallySmoothlyCheckBoxElement not found');
         } else {
-            this._scrollHorizontallySmoothlyCheckboxElement.checked = defaultScrollHorizontallySmoothly;
             this._scrollHorizontallySmoothlyCheckboxElement.onchange = () => {
                 this._grid.properties.scrollHorizontallySmoothly = this._scrollHorizontallySmoothlyCheckboxElement.checked;
                 this._grid.computeCellsBounds();
@@ -127,11 +101,25 @@ export class Main {
         if (this._visibleColumnWidthAdjustCheckboxElement === null) {
             throw new Error('visibleColumnWidthAdjustCheckBoxElement not found');
         } else {
-            this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.properties.visibleColumnWidthAdjust;
             this._visibleColumnWidthAdjustCheckboxElement.onchange = () => {
                 this._grid.properties.visibleColumnWidthAdjust = this._visibleColumnWidthAdjustCheckboxElement.checked;
                 this._grid.computeCellsBounds();
                 this._grid.repaint();
+            };
+        }
+
+        this._deleteRowIndexTextboxElement = document.querySelector('#deleteRowIndexTextbox') as HTMLInputElement;
+        if (this._deleteRowIndexTextboxElement === null) {
+            throw new Error('deleteRowIndexTextboxElement not found');
+        }
+
+        this._deleteRowButtonElement = document.querySelector('#deleteRowButton') as HTMLButtonElement;
+        if (this._deleteRowButtonElement === null) {
+            throw new Error('deleteRowButtonElement not found');
+        } else {
+            this._deleteRowButtonElement.onclick = () => {
+                const deleteRowIndex = parseInt(this._deleteRowIndexTextboxElement.value);
+                this._mainDataAdapter.deleteRow(deleteRowIndex);
             };
         }
 
@@ -140,16 +128,74 @@ export class Main {
             throw new Error('addFishButtonElement not found');
         } else {
             this._addFishButtonElement.onclick = () => {
-                this._dataSource.addFish();
+                this._mainDataAdapter.addFish();
             };
         }
     }
 
     start(): void {
-        this._grid.allowEvents(true);
+        this.newGrid();
     }
 
-    // private numberToPixels(value: number): string {
-    //     return value.toString(10) + 'px';
-    // }
+    private newGrid() {
+        if (this._grid !== undefined) {
+            this._grid.destroy();
+        }
+
+        this._mainDataAdapter = new MainDataAdapter();
+
+        const gridOptions: Revgrid.Options = {
+            container: this._gridHostElement,
+            adapterSet: {
+                schemaModel: new SchemaAdapter(),
+                subgrids: [
+                    {
+                        dataModel: new HeaderDataAdapter(),
+                        role: 'header',
+                    },
+                    {
+                        dataModel: this._mainDataAdapter,
+                        role: 'main',
+                    }
+                ],
+            },
+            gridProperties: {
+                renderFalsy: true,
+                singleRowSelectionMode: false,
+                autoSelectRows: false,
+                columnSelection: false,
+                rowSelection: false,
+                restoreColumnSelections: false,
+                multipleSelections: false,
+                sortOnDoubleClick: false,
+                cellPadding: defaultCellPadding,
+                halign: defaultHalign,
+                fixedColumnCount: defaultFixedColumnCount,
+                gridRightAligned: defaultGridRightAligned,
+                scrollHorizontallySmoothly: defaultScrollHorizontallySmoothly,
+                visibleColumnWidthAdjust: defaultVisibleColumnWidthAdjust,
+            }
+        }
+
+        this._grid = new Revgrid(this._gridHostElement, gridOptions);
+
+        this._fixedColumnCountTextboxElement.value = this._grid.properties.fixedColumnCount.toString();
+        this._cellPaddingTextboxElement.value = this._grid.properties.cellPadding.toString();
+        this._rightHalignCheckboxElement.checked = this._grid.properties.halign === HalignEnum.right;
+        this._gridRightAlignedCheckboxElement.checked = this._grid.properties.gridRightAligned;
+        this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.properties.scrollHorizontallySmoothly;
+        this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.properties.visibleColumnWidthAdjust;
+        this._deleteRowIndexTextboxElement.value = '0';
+
+        this._grid.addEventListener('rev-column-sort', (event) => this._mainDataAdapter.sort(event.detail.column) )
+
+        this._grid.allowEvents(true);
+    }
 }
+
+const defaultGridRightAligned = defaultGridProperties.gridRightAligned;
+const defaultScrollHorizontallySmoothly = defaultGridProperties.scrollHorizontallySmoothly;
+const defaultVisibleColumnWidthAdjust = defaultGridProperties.visibleColumnWidthAdjust;
+const defaultCellPadding = defaultGridProperties.cellPadding;
+const defaultFixedColumnCount: typeof defaultGridProperties.fixedColumnCount = 2;
+const defaultHalign: typeof defaultGridProperties.halign = 'left';

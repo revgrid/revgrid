@@ -128,7 +128,7 @@ function createThemeableRules(key, img, setSvgProps, styles) {
     var sheet = styleEl.sheet;
 
     return (styles.length ? styles : ['background-image']).reduce(function(rules, styleName) {
-        var selectorText = '.hypergrid-' + styleName + '-' + key;
+        var selectorText = '.hypegrid-' + styleName + '-' + key;
 
         // find and delete existing rule, if any
         var ruleIndex = Array.prototype.findIndex.call(sheet.cssRules, function(rule) {

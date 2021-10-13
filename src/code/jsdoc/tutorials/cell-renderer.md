@@ -296,7 +296,7 @@ When wanting to do an animation within a cell renderer, you will need to set you
 You can additionally check for grid repaint events by listening on the `fin-grid-rendered` event like so 
 
 ```javascript
-    grid.addEventListener('fin-grid-rendered', function(e) {
+    grid.addEventListener('hyg-grid-rendered', function(e) {
        //Do something 
     });
 ```
@@ -305,14 +305,14 @@ You can additionally check for grid repaint events by listening on the `fin-grid
 ### Cells as Links
 Hypergrid supports clickable link cells, to achieve this you need to...
 
-* register a listener to the table for 'fin-cell-click'
+* register a listener to the table for 'hyg-cell-click'
 ```javascript
-jsonGrid.addFinEventListener('fin-cell-click', function(e){
+jsonGrid.addFinEventListener('hyg-cell-click', function(e){
     var cell = e.detail.cell;
     if (cell.x !== 0) {
         return;
     }
-    alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
+    alert('hyg-cell-click at (' + cell.x + ', ' + cell.y + ')');
 });
 ```
 * override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links

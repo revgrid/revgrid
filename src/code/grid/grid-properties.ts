@@ -1,8 +1,9 @@
-import { Effect } from '../lib/dom/effects';
-import { deepClone } from '../lib/utils';
-import { SchemaModel } from '../model/schema-model';
-import { CellEvent } from '../renderer/cell-event';
+import { CellEvent } from './cell/cell-event';
 import { defaultGridProperties } from './default-grid-properties';
+import { Effect } from './lib/dom/effects';
+import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
+import { deepClone } from './lib/utils';
+import { SchemaModel } from './model/schema-model';
 import { Subgrid } from './subgrid';
 
 /** @public */
@@ -39,14 +40,16 @@ export interface GridProperties {
     columnHeaderForegroundSelectionColor: GridProperties.Color;
     columnHeaderForegroundSelectionFont: string;
     columnHeaderFormat: string;
-    columnHeaderHalign: GridProperties.Halign;
-    columnHeaderRenderer: string;
+    columnHeaderHalign: Halign;
+    columnHeaderCellPainter: string;
     /** Active column indices */
     columnIndexes: number[];
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
     columnSelection: boolean;
     /** Allow user to move columns. */
     columnsReorderable: boolean;
+    /** Columns can be hidden when being reordered. */
+    columnsReorderableHideable: boolean;
     centerIcon: string;
     defaultRowHeight: number;
     defaultColumnWidth: number;
@@ -58,7 +61,14 @@ export interface GridProperties {
     editOnNextCell: boolean;
     /** Name of a cell editor. */
     editor: string;
-    /** Re-render grid at maximum speed. */
+    /** Emit events arising from SchemaModel and DataModel callbacks */
+    emitModelEvents: boolean;
+    /** @summary Re-render grid at maximum speed.
+     * @desc In this mode:
+     * * The "dirty" flag, set by calling `grid.repaint()`, is ignored.
+     * * `grid.getCanvas().currentFPS` is a measure of the number times the grid is being re-rendered each second.
+     * * The Hypergrid renderer gobbles up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). For this reason, we emphatically advise against shipping applications using this mode.
+     */
     enableContinuousRepaint: boolean;
     features: string[];
     /** Validation failure feedback. */
@@ -72,8 +82,8 @@ export interface GridProperties {
     filterEditor: string;
     filterFont: string;
     filterForegroundSelectionColor: GridProperties.Color;
-    filterHalign: GridProperties.Halign;
-    filterRenderer: string;
+    filterHalign: Halign;
+    filterCellPainter: string;
 
     fixedColumnCount: number;
     /**
@@ -126,7 +136,6 @@ export interface GridProperties {
     gridBorderRight: boolean | string;
     gridBorderTop: boolean | string;
     gridLinesColumnHeader: boolean;
-    gridLinesRowHeader: boolean;
     gridLinesH: boolean;
     gridLinesHColor: GridProperties.Color;
     gridLinesHWidth: number;
@@ -137,7 +146,7 @@ export interface GridProperties {
     /** Name of grid renderer. */
     gridPainter: string;
     /** The cell's horizontal alignment, as interpreted by the cell renderer */
-    halign: GridProperties.Halign;
+    halign: Halign;
     headerify: string;
     /** Whether text in header cells is wrapped. */
     headerTextWrapping: boolean;
@@ -180,6 +189,9 @@ export interface GridProperties {
     cellPainter: string;
     /** Set to `true` to render `0` and `false`. Otherwise these value appear as blank cells. */
     renderFalsy: boolean;
+    /**
+     * Normally multiple calls to {@link Hypergrid#repaint grid.repaint()}, {@link Hypergrid#reindex grid.reindex()}, {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()}, and/or {@link Hypergrid#behaviorStateChanged grid.behaviorStateChanged()} defer their actions until just before the next scheduled render. For debugging purposes, set `repaintImmediately` to truthy to carry out these actions immediately while leaving the paint loop running for when you resume execution. Alternatively, call {@link Canvas#stopPaintLoop grid.canvas.stopPaintLoop()}. Caveat: Both these modes are for debugging purposes only and may not render the grid perfectly for all interactions.
+     */
     repaintImmediately: boolean;
     repaintIntervalRate: number;
     rightIcon: string;
@@ -188,6 +200,8 @@ export interface GridProperties {
     restoreColumnSelections: boolean;
     /** Restore row selections across data transformations (`reindex` calls). */
     restoreRowSelections: boolean;
+    /** Restore single cell selection across data transformations (`reindex` calls). Takes priority over restoreColumnSelections and restoreRowSelections. */
+    restoreSingleCellSelection: boolean;
     rowResize: boolean;
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors. */
     rowSelection: boolean;
@@ -198,6 +212,7 @@ export interface GridProperties {
     scrollbarHoverOver: string,
     scrollbarHoverOff: string,
     scrollingEnabled: boolean,
+    horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
     /** Stroke color for last selection overlay. */
     selectionRegionOutlineColor: GridProperties.Color;
     /** Fill color for last selection overlay. */
@@ -211,11 +226,11 @@ export interface GridProperties {
     sortOnHiddenColumns: boolean;
     /** Display cell font with strike-through line drawn over it. */
     strikeThrough: boolean;
-    subgrids: Subgrid.Spec[];
+    adapterSet: GridProperties.AdapterSet;
     themeName: string;
     /** How to truncate text. */
-    truncateText: GridProperties.TextTruncateType | undefined;
-    unsortable: boolean;
+    textTruncateType: TextTruncateType | undefined;
+    sortable: boolean;
     useBitBlit: boolean;
     useHiDPI: boolean;
     voffset: number;
@@ -230,24 +245,13 @@ export interface GridProperties {
 export namespace GridProperties {
     export type Color = /* CanvasGradient | CanvasPattern |*/ string;
 
+    export interface AdapterSet {
+        schemaModel: (SchemaModel | SchemaModel.Constructor),
+        subgrids: Subgrid.Spec[],
+    }
+
     export interface Calculators {
         [calculatorName: string]: SchemaModel.Column.CalculateFunction;
-    }
-
-    export const enum HalignEnum {
-        'left',
-        'right',
-        'center',
-        'start',
-        'end'
-    }
-
-    export type Halign = keyof typeof HalignEnum;
-
-    export const enum TextTruncateType {
-        WithEllipsis,
-        BeforeLastPartiallyVisibleCharacter,
-        AfterLastPartiallyVisibleCharacter,
     }
 
     export const enum propClassEnum {
@@ -356,7 +360,8 @@ export namespace GridProperties {
      * }
      */
 
-    export type NavKeyMap = Record<string, string>;
+    export type NavType = 'LEFT' | 'RIGHT' | 'UP' | 'DOWN' | 'PAGELEFT' | 'PAGERIGHT' | 'PAGEUP' | 'PAGEDOWN';
+    export type NavKeyMap = Record<string, NavType>;
 
     /**
      * Returns any value of `keyChar` that passes the following logic test:
@@ -374,13 +379,13 @@ export namespace GridProperties {
      * @param ctrlKey - The CTRL key was down.
      * @returns `undefined` means not a nav key; otherwise returns `keyChar`.
      */
-    export function navKey(properties: GridProperties, keyChar: string, ctrlKey = false): undefined|string {
-        let result: string | undefined;
-        if (keyChar.length > 1 || !properties.editOnKeydown || ctrlKey) {
-            result = keyChar; // return the mapped value
-        }
-        return result;
-    }
+    // export function navKey(properties: GridProperties, keyChar: string, ctrlKey = false): undefined|string {
+    //     if (keyChar.length > 1 || !properties.editOnKeydown || ctrlKey) {
+    //         return keyChar; // return the mapped value
+    //     } else {
+    //         return undefined;
+    //     }
+    // }
 
     /**
      * Returns only values of `keyChar` that, when run through {@link module:defaults.navKeyMap|navKeyMap}, pass the {@link module:defaults.navKey|navKey} logic test.
@@ -390,10 +395,13 @@ export namespace GridProperties {
      * @returns `undefined` means not a nav key; otherwise returns `keyChar`.
      */
     /** @internal */
-    export function mappedNavKey(properties: GridProperties, keyChar: string, ctrlKey = false): undefined | string {
-        keyChar = properties.navKeyMap[keyChar];
-        return keyChar && navKey(properties, keyChar, ctrlKey);
-    }
+    // export function mappedNavKey(properties: GridProperties, keyChar: string, shiftKey?: boolean, ctrlKey?: boolean): undefined | string {
+    //     let navKey = properties.navKeyMap[keyChar];
+    //     if (shiftKey) {
+    //         navKey += 'SHIFT';
+    //     }
+    //     return navKey;
+    // }
 
     /** @internal */
     export function assign(source: Partial<GridProperties>, target: GridProperties): void {

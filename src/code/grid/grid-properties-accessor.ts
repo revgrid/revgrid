@@ -1,13 +1,13 @@
 import { defaultGridProperties } from './default-grid-properties';
 import { GridProperties } from './grid-properties';
-import { Hypegrid } from './hypegrid';
-import { Subgrid } from './subgrid';
+import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
+import { Revgrid } from './revgrid';
 
 export class GridPropertiesAccessor implements GridProperties {
     private readonly _raw: GridProperties = {} as GridProperties;
     private readonly var = GridPropertiesAccessor.Var.createDefault();
 
-    constructor(private grid: Hypegrid) {
+    constructor(private grid: Revgrid) {
     }
 
     get autoSelectColumns() { return this._raw.autoSelectColumns; }
@@ -64,15 +64,17 @@ export class GridPropertiesAccessor implements GridProperties {
     get columnHeaderFormat() { return this._raw.columnHeaderFormat; }
     set columnHeaderFormat(value: string) { this._raw.columnHeaderFormat = value; }
     get columnHeaderHalign() { return this._raw.columnHeaderHalign; }
-    set columnHeaderHalign(value: GridProperties.Halign) { this._raw.columnHeaderHalign = value; }
-    get columnHeaderRenderer() { return this._raw.columnHeaderRenderer; }
-    set columnHeaderRenderer(value: string) { this._raw.columnHeaderRenderer = value; }
+    set columnHeaderHalign(value: Halign) { this._raw.columnHeaderHalign = value; }
+    get columnHeaderCellPainter() { return this._raw.columnHeaderCellPainter; }
+    set columnHeaderCellPainter(value: string) { this._raw.columnHeaderCellPainter = value; }
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
     get columnSelection() { return this._raw.columnSelection; }
     set columnSelection(value: boolean) { this._raw.columnSelection = value; }
     /** Allow user to move columns. */
     get columnsReorderable() { return this._raw.columnsReorderable; }
     set columnsReorderable(value: boolean) { this._raw.columnsReorderable = value; }
+    get columnsReorderableHideable() { return this._raw.columnsReorderableHideable; }
+    set columnsReorderableHideable(value: boolean) { this._raw.columnsReorderableHideable = value; }
     get gridRightAligned() { return this._raw.gridRightAligned; }
     set gridRightAligned(value: boolean) { this._raw.gridRightAligned = value; }
     get centerIcon() { return this._raw.centerIcon; }
@@ -94,6 +96,8 @@ export class GridPropertiesAccessor implements GridProperties {
     /** Name of a cell editor. */
     get editor() { return this._raw.editor; }
     set editor(value: string) { this._raw.editor = value; }
+    get emitModelEvents() { return this._raw.emitModelEvents; }
+    set emitModelEvents(value: boolean) { this._raw.emitModelEvents = value; }
     /** Re-render grid at maximum speed. */
     get enableContinuousRepaint() { return this._raw.enableContinuousRepaint; }
     set enableContinuousRepaint(value: boolean) { this._raw.enableContinuousRepaint = value; }
@@ -119,9 +123,9 @@ export class GridPropertiesAccessor implements GridProperties {
     get filterForegroundSelectionColor() { return this._raw.filterForegroundSelectionColor; }
     set filterForegroundSelectionColor(value: GridProperties.Color) { this._raw.filterForegroundSelectionColor = value; }
     get filterHalign() { return this._raw.filterHalign; }
-    set filterHalign(value: GridProperties.Halign) { this._raw.filterHalign = value; }
-    get filterRenderer() { return this._raw.filterRenderer; }
-    set filterRenderer(value: string) { this._raw.filterRenderer = value; }
+    set filterHalign(value: Halign) { this._raw.filterHalign = value; }
+    get filterCellPainter() { return this._raw.filterCellPainter; }
+    set filterCellPainter(value: string) { this._raw.filterCellPainter = value; }
 
     get fixedColumnCount() { return this._raw.fixedColumnCount; }
     set fixedColumnCount(value: number) { this._raw.fixedColumnCount = value; }
@@ -150,8 +154,6 @@ export class GridPropertiesAccessor implements GridProperties {
     set format(value: string) { this._raw.format = value; }
     get gridLinesColumnHeader() { return this._raw.gridLinesColumnHeader; }
     set gridLinesColumnHeader(value: boolean) { this._raw.gridLinesColumnHeader = value; }
-    get gridLinesRowHeader() { return this._raw.gridLinesRowHeader; }
-    set gridLinesRowHeader(value: boolean) { this._raw.gridLinesRowHeader = value; }
     get gridLinesH() { return this._raw.gridLinesH; }
     set gridLinesH(value: boolean) { this._raw.gridLinesH = value; }
     get gridLinesHColor() { return this._raw.gridLinesHColor; }
@@ -168,7 +170,7 @@ export class GridPropertiesAccessor implements GridProperties {
     set gridLinesVWidth(value: number) { this._raw.gridLinesVWidth = value; }
     /** The cell's horizontal alignment, as interpreted by the cell renderer */
     get halign() { return this._raw.halign; }
-    set halign(value: GridProperties.Halign) { this._raw.halign = value; }
+    set halign(value: Halign) { this._raw.halign = value; }
     get headerify() { return this._raw.headerify; }
     set headerify(value: string) { this._raw.headerify = value; }
     /** Whether text in header cells is wrapped. */
@@ -247,6 +249,8 @@ export class GridPropertiesAccessor implements GridProperties {
     /** Restore row selections across data transformations (`reindex` calls). */
     get restoreRowSelections() { return this._raw.restoreRowSelections; }
     set restoreRowSelections(value: boolean) { this._raw.restoreRowSelections = value; }
+    get restoreSingleCellSelection() { return this._raw.restoreSingleCellSelection; }
+    set restoreSingleCellSelection(value: boolean) { this._raw.restoreSingleCellSelection = value; }
     get rowResize() { return this._raw.rowResize; }
     set rowResize(value: boolean) { this._raw.rowResize = value; }
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors. */
@@ -263,6 +267,8 @@ export class GridPropertiesAccessor implements GridProperties {
     set scrollbarHoverOff(value: string) { this._raw.scrollbarHoverOff = value; }
     get scrollingEnabled() { return this._raw.scrollingEnabled; }
     set scrollingEnabled(value: boolean) { this._raw.scrollingEnabled = value; }
+    get horizontalWheelScrollingAllowed() { return this._raw.horizontalWheelScrollingAllowed; }
+    set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed) { this._raw.horizontalWheelScrollingAllowed = value; }
     /** Stroke color for last selection overlay. */
     get selectionRegionOutlineColor() { return this._raw.selectionRegionOutlineColor; }
     set selectionRegionOutlineColor(value: GridProperties.Color) { this._raw.selectionRegionOutlineColor = value; }
@@ -287,10 +293,10 @@ export class GridPropertiesAccessor implements GridProperties {
     get themeName() { return this._raw.themeName; }
     set themeName(value: string) { this._raw.themeName = value; }
     /** How to truncate text. */
-    get truncateText() { return this._raw.truncateText; }
-    set truncateText(value: GridProperties.TextTruncateType | undefined) { this._raw.truncateText = value; }
-    get unsortable() { return this._raw.unsortable; }
-    set unsortable(value: boolean) { this._raw.unsortable = value; }
+    get textTruncateType() { return this._raw.textTruncateType; }
+    set textTruncateType(value: TextTruncateType | undefined) { this._raw.textTruncateType = value; }
+    get sortable() { return this._raw.sortable; }
+    set sortable(value: boolean) { this._raw.sortable = value; }
     get useBitBlit() { return this._raw.useBitBlit; }
     set useBitBlit(value: boolean) { this._raw.useBitBlit = value; }
     get useHiDPI() { return this._raw.useHiDPI; }
@@ -312,12 +318,12 @@ export class GridPropertiesAccessor implements GridProperties {
     get wheelVFactor() { return this.grid.sbVScroller?.deltaYFactor ?? defaultGridProperties.wheelVFactor; }
     set wheelVFactor(factor) { this.grid.sbVScroller.deltaYFactor = factor; }
 
-    get subgrids() { return this.var.subgrids; }
-    set subgrids(subgrids: Subgrid.Spec[]) {
-        this.var.subgrids = subgrids;
+    get adapterSet() { return this.var.adapterSet; }
+    set adapterSet(adapter: GridProperties.AdapterSet) {
+        this.var.adapterSet = adapter;
 
         if (this.grid.behavior) {
-            this.grid.behavior.setSubgrids(subgrids);
+            this.grid.setSubgrids(adapter.subgrids);
         }
     }
 
@@ -327,7 +333,7 @@ export class GridPropertiesAccessor implements GridProperties {
     get features() { return this.var.features; }
     set features(features: string[]) {
         this.var.features = features.slice();
-        this.grid.behavior.initializeFeatureChain(/*features*/);
+        this.grid.loadFeatures();
         this.grid.allowEvents(this.grid.getRowCount() > 0);
     }
 
@@ -344,30 +350,30 @@ export class GridPropertiesAccessor implements GridProperties {
      * @memberOf module:dynamicProperties
      */
     get columnIndexes() {
-        return this.grid.behavior.getActiveColumns().map(
+        return this.grid.getActiveColumns().map(
             (column) => {
                 return column.index;
             }
         );
     }
-    set columnIndexes(columnIndexes: number[]) {
-        this.grid.behavior.setColumnOrder(columnIndexes);
-        this.grid.behavior.changed();
+    set columnIndexes(schemaColumnIndexes: number[]) {
+        this.grid.setColumnOrder(schemaColumnIndexes);
+        this.grid.behaviorChanged();
     }
 
     /**
      * @memberOf module:dynamicProperties
      */
     get columnNames() {
-        return this.grid.behavior.getActiveColumns().map(
+        return this.grid.getActiveColumns().map(
             (column) => {
                 return column.name;
             }
         );
     }
     set columnNames(columnNames) {
-        this.grid.behavior.setColumnOrderByName(columnNames);
-        this.grid.behavior.changed();
+        this.grid.setColumnOrderByName(columnNames);
+        this.grid.behaviorChanged();
     }
 
     /**
@@ -587,10 +593,10 @@ export class GridPropertiesAccessor implements GridProperties {
 }
 
 export namespace GridPropertiesAccessor {
-    export type Constructor = new(grid: Hypegrid) => GridPropertiesAccessor;
+    export type Constructor = new(grid: Revgrid) => GridPropertiesAccessor;
 
     export interface Var {
-        subgrids: Subgrid.Spec[];
+        adapterSet: GridProperties.AdapterSet;
         features: string[];
         gridPainter: string;
         gridBorder: boolean | string;
@@ -603,7 +609,7 @@ export namespace GridPropertiesAccessor {
     export namespace Var {
         export function createDefault(): Var {
             const result: Var = {
-                subgrids: defaultGridProperties.subgrids,
+                adapterSet: defaultGridProperties.adapterSet,
                 features: defaultGridProperties.features,
                 gridPainter: defaultGridProperties.gridPainter,
                 gridBorder: defaultGridProperties.gridBorder,
