@@ -1242,8 +1242,6 @@ export namespace EventName {
 
 // @public (undocumented)
 export interface GridProperties {
-    // (undocumented)
-    adapterSet: GridProperties.AdapterSet;
     autoSelectColumns: boolean;
     autoSelectRows: boolean;
     // (undocumented)
@@ -1490,7 +1488,7 @@ export namespace GridProperties {
         subgrids: Subgrid.Spec[];
     }
     // @internal (undocumented)
-    export function assign(source: Partial<GridProperties>, target: GridProperties): void;
+    export function assign(source: Partial<GridProperties>, target: GridProperties): boolean;
     // (undocumented)
     export interface Calculators {
         // (undocumented)
@@ -2551,7 +2549,7 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
-    reset(options?: Revgrid.Options, loadProperties?: boolean): void;
+    reset(adapterSet: GridProperties.AdapterSet | undefined, nonDefaultProperties: Partial<GridProperties> | undefined, removeAllEventListeners?: boolean): void;
     // (undocumented)
     resetGridBorder(edge?: string): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration

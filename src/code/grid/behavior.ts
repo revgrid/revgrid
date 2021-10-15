@@ -187,7 +187,7 @@ export class Behavior {
     addState(properties: Record<string, unknown>, settingState: boolean) {
         if (settingState) {
             // clear all table state
-            this.grid.loadDefaultProperties();
+            this.grid.properties.loadDefaults();
             this.grid.createColumns();
         }
 
