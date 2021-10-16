@@ -18,6 +18,9 @@ export class RevRecordMainAdapter implements MainDataModel {
     private readonly _recordRowMap = new RevRecordRowMap();
     private readonly _sortFieldSpecifiers: RevRecordMainAdapter.SortFieldSpecifier[] = [];
 
+    private _beginChangeCount = 0;
+    private _consistencyCheckRequired = false;
+
     private _comparer: RevRecordRow.Comparer | undefined;
     private _filterCallback: RevRecordMainAdapter.RecordFilterCallback | undefined;
     private _continuousFiltering = false;
@@ -83,6 +86,7 @@ export class RevRecordMainAdapter implements MainDataModel {
     }
 
     beginChange() {
+        this._beginChangeCount++
         this._callbackListener.beginChange();
     }
 
@@ -156,6 +160,11 @@ export class RevRecordMainAdapter implements MainDataModel {
 
     endChange() {
         this._callbackListener.endChange();
+        if (this._beginChangeCount-- === 0) {
+            if (this._consistencyCheckRequired) {
+                this.checkConsistency();
+            }
+        }
     }
 
     getFieldSortAscending(field: RevRecordFieldIndex | RevRecordField): boolean | undefined {
@@ -1102,22 +1111,27 @@ export class RevRecordMainAdapter implements MainDataModel {
     }
 
     private checkConsistency() {
-        // this._rowLookup.verify();
-        this._recentChanges.checkConsistency();
-        this._recordRowMap.checkConsistency();
-
-        const storeRecords = this._recordStore.getRecords();
-
-        const recordCount = storeRecords.length;
-        const records = this._recordRowMap.records;
-        if (records.length !== recordCount) {
-            throw new RevRecordAssertError('MRACC32001');
+        if (this._beginChangeCount > 0) {
+            this._consistencyCheckRequired = true;
         } else {
-            for (let i = 0; i < recordCount; i++) {
-                if (storeRecords[i] !== records[i]) {
-                    throw new RevRecordAssertError('MRACC32002');
+            this._recentChanges.checkConsistency();
+            this._recordRowMap.checkConsistency();
+
+            const storeRecords = this._recordStore.getRecords();
+
+            const recordCount = storeRecords.length;
+            const records = this._recordRowMap.records;
+            if (records.length !== recordCount) {
+                throw new RevRecordAssertError('MRACC32001');
+            } else {
+                for (let i = 0; i < recordCount; i++) {
+                    if (storeRecords[i] !== records[i]) {
+                        throw new RevRecordAssertError('MRACC32002');
+                    }
                 }
             }
+
+            this._consistencyCheckRequired = false;
         }
     }
 }

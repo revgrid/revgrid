@@ -516,9 +516,11 @@ export class Revgrid implements SelectionDetail {
 
         this.renderer.reset();
         this.canvas.resize();
-        this.behaviorChanged();
+        // this.behaviorChanged();
 
-        this.refreshProperties();
+        this.behaviorShapeChanged();
+        // this.behavior.defaultRowHeight = null;
+        // this._columnsManager.autosizeAllColumns();
     }
 
     /** pluginSpec
@@ -730,20 +732,13 @@ export class Revgrid implements SelectionDetail {
      * @param properties - A simple properties hash.
      */
     addProperties(properties: Partial<GridProperties>) {
-        const anyModified = this.properties.merge(properties);
-        if (anyModified) {
-            this.refreshProperties();
+        const result = this.properties.merge(properties);
+        if (result) {
+            this.behaviorShapeChanged();
+            // this.behavior.defaultRowHeight = null;
+            // this._columnsManager.autosizeAllColumns();
         }
-    }
-
-    /**
-     * @todo deprecate this in favor of making properties dynamic instead (for those that need to be)
-     * @desc Utility function to push out properties if we change them.
-     */
-    refreshProperties() {
-        this.behaviorShapeChanged();
-        this.behavior.defaultRowHeight = null;
-        this._columnsManager.autosizeAllColumns();
+        return result;
     }
 
     /**
@@ -762,8 +757,10 @@ export class Revgrid implements SelectionDetail {
      */
     addState(state: Record<string, unknown>, settingState = false) {
         this.behavior.addState(state, settingState);
-        this.refreshProperties();
-        this.behaviorChanged();
+        this.behaviorShapeChanged();
+        // this.behavior.defaultRowHeight = null;
+        // this._columnsManager.autosizeAllColumns();
+        // this.behaviorChanged();
     }
 
     getState() {

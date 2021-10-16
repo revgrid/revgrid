@@ -2050,7 +2050,7 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addInternalEventListener<T extends EventName>(eventName: T, listener: Canvas.EventListener<T>): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    addProperties(properties: Partial<GridProperties>): void;
+    addProperties(properties: Partial<GridProperties>): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addState(state: Record<string, unknown>, settingState?: boolean): void;
     // (undocumented)
@@ -2520,9 +2520,6 @@ export class Revgrid implements SelectionDetail {
     //
     // (undocumented)
     readonly properties: LoadableGridProperties;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@todo" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    refreshProperties(): void;
     // (undocumented)
     registerCellPainter(typeName: string, constructor: CellPainter.Constructor): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
