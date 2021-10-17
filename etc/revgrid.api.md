@@ -888,7 +888,9 @@ export interface DataModel {
     // (undocumented)
     getRowCount(): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    getRowId?(rowIndex: number): number;
+    getRowIdFromIndex?(rowIndex: number): unknown;
+    // (undocumented)
+    getRowIndexFromId?(rowId: unknown): number | undefined;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getValue(schema: SchemaModel.Column, rowIndex: number): DataModel.DataValue;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -1695,6 +1697,10 @@ export class MainSubgrid extends Subgrid {
     // (undocumented)
     lastEdgeSelection: [x: number, y: number];
     // (undocumented)
+    requestStashSelections(): void;
+    // (undocumented)
+    requestUnstashSelections(): void;
+    // (undocumented)
     reset(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     select(ox: number, oy: number, ex: number, ey: number): void;
@@ -1711,15 +1717,11 @@ export class MainSubgrid extends Subgrid {
     // (undocumented)
     selectRows(y1: number, y2?: number): void;
     // (undocumented)
-    stashSelections(): void;
-    // (undocumented)
     toggleSelectAllRows(): void;
     // (undocumented)
     toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean): void;
     // (undocumented)
     toggleSelectRow(y: number, shiftKeyDown: boolean): void;
-    // (undocumented)
-    unstashSelections(): void;
 }
 
 // @public (undocumented)
@@ -1729,7 +1731,7 @@ export namespace MainSubgrid {
         // (undocumented)
         columnName: string;
         // (undocumented)
-        rowId: number;
+        rowId: unknown;
     }
 }
 
@@ -3014,7 +3016,9 @@ export class RevRecordMainAdapter implements MainDataModel {
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
-    getRowId(rowIndex: number): number;
+    getRowIdFromIndex(rowIndex: number): unknown;
+    // (undocumented)
+    getRowIndexFromId(rowId: unknown): number | undefined;
     // (undocumented)
     getRowIndexFromRecordIndex(recordIndex: RevRecordIndex): number | undefined;
     // (undocumented)

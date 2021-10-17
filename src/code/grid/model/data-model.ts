@@ -91,7 +91,8 @@ export interface DataModel {
      * @param rowIndex - Grid row index.
      * @returns Unique Id of row specified by rowIndex.
      */
-    getRowId?(rowIndex: number): number;
+    getRowIdFromIndex?(rowIndex: number): unknown;
+    getRowIndexFromId?(rowId: unknown): number | undefined;
 
     /**
      * @desc Get a cell's value given its column & row indexes.
