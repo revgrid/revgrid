@@ -210,9 +210,8 @@ export namespace DataModel {
         rowsInserted: (this: void, rowIndex: number, rowCount: number) => void;
         rowsDeleted: (this: void, rowIndex: number, rowCount: number) => void;
         allRowsDeleted: (this: void) => void;
-        /** Try to use rowsInserted, rowsDeleted, allRowsDeleted instead of rowCountChanged. These provide better optimisations and control of selection. */
-        rowCountChanged: (this: void) => void;
         rowsMoved: (this: void, oldRowIndex: number, newRowIndex: number, rowCount: number) => void;
+        rowsLoaded: (this: void) => void;
         invalidateAll: (this: void) => void;
         invalidateRows: (this: void, rowIndex: number, count: number) => void;
         invalidateRow: (this: void, rowIndex: number) => void;

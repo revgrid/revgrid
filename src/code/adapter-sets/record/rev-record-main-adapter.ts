@@ -51,7 +51,7 @@ export class RevRecordMainAdapter implements MainDataModel {
     set rowOrderReversed(value: boolean) {
         if (value !== this._rowOrderReversed) {
             this._rowOrderReversed = value;
-            this.invalidateExisting();
+            this.invalidateAll();
         }
     }
 
@@ -221,11 +221,7 @@ export class RevRecordMainAdapter implements MainDataModel {
         return this._sortFieldSpecifiers[index];
     }
 
-    invalidateAll(recent?: boolean): void {
-        this.repopulateAll(false, recent === true);
-    }
-
-    invalidateExisting(): void {
+    invalidateAll(): void {
         if ((this._filterCallback !== undefined && this._continuousFiltering) || this._comparer !== undefined) {
             this.repopulateRows();
         } else {
@@ -262,7 +258,7 @@ export class RevRecordMainAdapter implements MainDataModel {
                 break;
             }
             default: {
-                this.invalidateExisting(); // needs optimisation
+                this.invalidateAll(); // needs optimisation
             }
         }
 
@@ -573,6 +569,83 @@ export class RevRecordMainAdapter implements MainDataModel {
         this.checkConsistency();
     }
 
+    recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number) {
+        if (deleteCount <= 0) {
+            if (insertCount <= 0) {
+                return;
+            } else {
+                this.recordsInserted(recordIndex, insertCount, false);
+            }
+        } else {
+            if (insertCount <= 0) {
+                this.recordsDeleted(recordIndex, deleteCount);
+            } else {
+                this.beginChange();
+                try {
+                    this.recordsDeleted(recordIndex, deleteCount);
+                    this.recordsInserted(recordIndex, insertCount);
+                } finally {
+                    this.endChange();
+                }
+            }
+        }
+    }
+
+    recordsLoaded(recent?: boolean): void {
+        // Regenerate the row list. Filter it if filter defined
+        // Only get RecordStore records once as getRecords may return different references to records
+        const storeRecords = this._recordStore.getRecords();
+
+        const recordCount = storeRecords.length;
+        const filterCallback = this._filterCallback;
+
+        const records = this._recordRowMap.records;
+        records.length = recordCount;
+        const rows = this._recordRowMap.rows;
+        rows.length = recordCount;
+
+        if (filterCallback === undefined) {
+            for (let i = 0; i < recordCount; i++) {
+                const record = storeRecords[i];
+                records[i] = record;
+
+                const row: RevRecordRow = {
+                    record: record,
+                    index: i,
+                }
+                rows[i] = row;
+                record.__row = row;
+            }
+        } else {
+            let rowCount = 0;
+            for (let i = 0; i < recordCount; i++) {
+                const record = storeRecords[i];
+                records[i] = record;
+
+                if (filterCallback(record)) {
+                    const row: RevRecordRow = {
+                        record: record,
+                        index: rowCount,
+                    }
+                    rows[rowCount++] = row;
+                    record.__row = row;
+                } else {
+                    record.__row = undefined;
+                }
+            }
+            rows.length = rowCount;
+        }
+
+        if (this._comparer !== undefined) {
+            rows.sort(this._comparer);
+            this._recordRowMap.reindexAllRows();
+        }
+
+        this._recentChanges.processAllChanged(recent === true);
+        this._callbackListener.rowsLoaded();
+        this.checkConsistency();
+    }
+
     reset(): void {
         this._recordRowMap.clear();
         this._sortFieldSpecifiers.length = 0;
@@ -698,85 +771,6 @@ export class RevRecordMainAdapter implements MainDataModel {
         if (beginChangeActive) {
             this.endChange();
         }
-    }
-
-    private repopulateAll(reindex: boolean, recent: boolean): void {
-        const prevRowCount = this._rows.length;
-
-        if (reindex) {
-            this._callbackListener.beginChange();
-            this._callbackListener.preReindex();
-            this._recentChanges.processPreReindex();
-        }
-        try {
-            // Regenerate the row list. Filter it if filter defined
-            // Only get RecordStore records once as getRecords may return different references to records
-            const storeRecords = this._recordStore.getRecords();
-
-            const recordCount = storeRecords.length;
-            const filterCallback = this._filterCallback;
-
-            const records = this._recordRowMap.records;
-            records.length = recordCount;
-            const rows = this._recordRowMap.rows;
-            rows.length = recordCount;
-
-            if (filterCallback === undefined) {
-                for (let i = 0; i < recordCount; i++) {
-                    const record = storeRecords[i];
-                    records[i] = record;
-
-                    const row: RevRecordRow = {
-                        record: record,
-                        index: i,
-                    }
-                    rows[i] = row;
-                    record.__row = row;
-                }
-            } else {
-                let rowCount = 0;
-                for (let i = 0; i < recordCount; i++) {
-                    const record = storeRecords[i];
-                    records[i] = record;
-
-                    if (filterCallback(record)) {
-                        const row: RevRecordRow = {
-                            record: record,
-                            index: rowCount,
-                        }
-                        rows[rowCount++] = row;
-                        record.__row = row;
-                    } else {
-                        record.__row = undefined;
-                    }
-                }
-                rows.length = rowCount;
-            }
-
-            if (this._comparer !== undefined) {
-                rows.sort(this._comparer);
-                this._recordRowMap.reindexAllRows();
-            }
-
-        } finally {
-            if (reindex) {
-                this._recentChanges.processPostReindex(false);
-                this._callbackListener.postReindex();
-                this._callbackListener.invalidateAll();
-                this._callbackListener.endChange();
-            } else {
-                this._recentChanges.processAllChanged(recent);
-
-                // Different callback if we've also changed the number of rows
-                if (prevRowCount !== this._rows.length) {
-                    this._callbackListener.rowCountChanged();
-                } else {
-                    this._callbackListener.invalidateAll();
-                }
-            }
-        }
-
-        this.checkConsistency();
     }
 
     private repopulateRows(): void {

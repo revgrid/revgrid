@@ -4150,19 +4150,6 @@ export class Revgrid implements SelectionDetail {
             }
         }
 
-        router.rowCountChangedEvent = (dataModel) => {
-            this.beginDataChange();
-            try {
-                this.renderer.modelUpdated();
-                if (dataModel === this.mainDataModel) {
-                    this.selectionModel.clear();
-                }
-                this.renderer.renderRowCountChanged();
-            } finally {
-                this.endDataChange();
-            }
-        };
-
         router.rowsMovedEvent = (dataModel, oldRowIndex, newRowIndex, rowCount) => {
             this.beginDataChange();
             try {
@@ -4175,6 +4162,19 @@ export class Revgrid implements SelectionDetail {
                 this.endDataChange();
             }
         }
+
+        router.rowsLoadedEvent = (dataModel) => {
+            this.beginDataChange();
+            try {
+                this.renderer.modelUpdated();
+                if (dataModel === this.mainDataModel) {
+                    this.selectionModel.clear();
+                }
+                this.renderer.renderRowsLoaded();
+            } finally {
+                this.endDataChange();
+            }
+        };
 
         router.invalidateAllEvent = () => {
             this.renderer.modelUpdated();

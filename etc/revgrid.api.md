@@ -937,11 +937,12 @@ export namespace DataModel {
         invalidateRowColumns: (this: void, rowIndex: number, schemaColumnIndex: number, columnCount: number) => void;
         // (undocumented)
         invalidateRows: (this: void, rowIndex: number, count: number) => void;
-        rowCountChanged: (this: void) => void;
         // (undocumented)
         rowsDeleted: (this: void, rowIndex: number, rowCount: number) => void;
         // (undocumented)
         rowsInserted: (this: void, rowIndex: number, rowCount: number) => void;
+        // (undocumented)
+        rowsLoaded: (this: void) => void;
         // (undocumented)
         rowsMoved: (this: void, oldRowIndex: number, newRowIndex: number, rowCount: number) => void;
     }
@@ -3021,9 +3022,7 @@ export class RevRecordMainAdapter implements MainDataModel {
     // (undocumented)
     getValue(schemaColumn: RevRecordFieldAdapter.SchemaColumn, rowIndex: number): DataModel.DataValue;
     // (undocumented)
-    invalidateAll(recent?: boolean): void;
-    // (undocumented)
-    invalidateExisting(): void;
+    invalidateAll(): void;
     // (undocumented)
     invalidateFields(fieldIndexes: RevRecordFieldIndex[]): void;
     // (undocumented)
@@ -3067,6 +3066,10 @@ export class RevRecordMainAdapter implements MainDataModel {
     recordsDeleted(recordIndex: number, count: number): void;
     // (undocumented)
     recordsInserted(firstInsertedRecordIndex: RevRecordIndex, count: number, recent?: boolean): void;
+    // (undocumented)
+    recordsLoaded(recent?: boolean): void;
+    // (undocumented)
+    recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number): void;
     // (undocumented)
     get recordUpdatedRecentDuration(): number;
     set recordUpdatedRecentDuration(value: number);
@@ -3361,10 +3364,6 @@ export class Subgrid {
 // @public (undocumented)
 export namespace Subgrid {
     // @internal (undocumented)
-    export type AllDataInvalidatedHandler = (this: void, subgrid: Subgrid) => ModelUpdateId;
-    // @internal (undocumented)
-    export type CellDataInvalidatedHandler = (this: void, subgrid: Subgrid, allColumnIndex: number, rowIndex: number) => ModelUpdateId;
-    // @internal (undocumented)
     export class DataRowProxy {
         // (undocumented)
         ____columnNames: string[];
@@ -3395,12 +3394,6 @@ export namespace Subgrid {
         // (undocumented)
         summary = "summary"
     }
-    // @internal (undocumented)
-    export type RowCountChangedHandler = (this: void) => ModelUpdateId;
-    // @internal (undocumented)
-    export type RowDataInvalidatedHandler = (this: void, subgrid: Subgrid, rowIndex: number) => ModelUpdateId;
-    // @internal (undocumented)
-    export type SchemaLoadedHandler = (this: void) => ModelUpdateId;
     // (undocumented)
     export interface Spec {
         // (undocumented)
