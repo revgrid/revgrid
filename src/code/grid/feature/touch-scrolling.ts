@@ -2,7 +2,7 @@
 import { RenderedCell } from '../cell/rendered-cell';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
-import { FinBar } from '../finbar/finbar';
+import { FinBar } from '../finbar/finbar-api';
 
 export class TouchScrolling extends Feature {
 

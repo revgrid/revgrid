@@ -17,7 +17,7 @@ import { EventDetail } from './event/event-detail';
 import { EventName } from './event/event-name';
 import { FeaturesManager } from './feature/features-manager';
 import { FeaturesSharedState } from './feature/features-shared-state';
-import { FinBar } from './finbar/finbar';
+import { FinBar } from './finbar/finbar-api';
 import { GridPainter } from './grid-painter/grid-painter';
 import { GridProperties, LoadableGridProperties } from './grid-properties';
 import { GridPropertiesAccessor } from './grid-properties-accessor';
