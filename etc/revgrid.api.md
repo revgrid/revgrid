@@ -2876,11 +2876,13 @@ export abstract class RevRecordExternalError extends RevRecordError {
 
 // @public
 export interface RevRecordField {
-    compareField?(left: RevRecord, right: RevRecord): number;
-    compareFieldDesc?(left: RevRecord, right: RevRecord): number;
-    getFieldValue?(record: RevRecord): DataModel.DataValue;
+    compare?(left: RevRecord, right: RevRecord): number;
+    compareDesc?(left: RevRecord, right: RevRecord): number;
+    getValue(record: RevRecord): DataModel.DataValue;
     // (undocumented)
     readonly name: string;
+    valueDependsOnRecordIndex?: boolean;
+    valueDependsOnRowIndex?: boolean;
 }
 
 // @public (undocumented)
@@ -2914,9 +2916,9 @@ export class RevRecordFieldAdapter implements SchemaModel {
     // (undocumented)
     getFieldNames(): string[];
     // (undocumented)
-    getFilteredFields(filterCallback: (field: RevRecordField) => boolean): RevRecordField[];
+    getFieldValueDependsOnRecordIndexFieldIndexes(): number[];
     // (undocumented)
-    getRecordIndexFieldIndexes(): number[];
+    getFilteredFields(filterCallback: (field: RevRecordField) => boolean): RevRecordField[];
     // (undocumented)
     getSchema(): readonly SchemaModel.Column[];
     // (undocumented)
@@ -2945,11 +2947,11 @@ export type RevRecordFieldIndex = number;
 export abstract class RevRecordFunctionizeField implements RevRecordField {
     constructor(name: string);
     // (undocumented)
-    compareField: (this: void, left: never, right: never) => number;
+    compare: (this: void, left: never, right: never) => number;
     // (undocumented)
-    compareFieldDesc: (this: void, left: never, right: never) => number;
+    compareDesc: (this: void, left: never, right: never) => number;
     // (undocumented)
-    getFieldValue: (this: void, record: never) => unknown;
+    getValue: (this: void, record: never) => unknown;
     // (undocumented)
     readonly name: string;
 }
