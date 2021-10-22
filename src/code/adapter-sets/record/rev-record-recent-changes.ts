@@ -35,7 +35,7 @@ export class RevRecordRecentChanges {
     private _throttlingMaxMinimumTimeout = 0;
     private _throttlingMaxMinimumTimeoutForced = false;
 
-    private _nextExpiryTimeoutHandle: ReturnType<typeof setInterval> | undefined;
+    private _nextExpiryTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
     private _nextExpiryTimeoutTargetTime: RevRecordSysTick.Time = RevRecordSysTick.now();
 
     constructor(
