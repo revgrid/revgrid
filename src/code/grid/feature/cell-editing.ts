@@ -38,7 +38,10 @@ export class CellEditingFeature extends Feature {
 
                 if (editor instanceof CellEditor) {
                     if (isVisibleChar) {
-                        editor.input.value = char;
+                        const element = editor.el;
+                        if (element instanceof HTMLInputElement) {
+                            element.value = char;
+                        }
                     } else if (isDeleteChar) {
                         editor.setEditorValue('');
                     }

@@ -1,19 +1,18 @@
 
-import { CellEvent } from '../cell/cell-event';
+import { RenderedCell } from '../cell/rendered-cell';
 import { Revgrid } from '../revgrid';
 import { CellEditor } from './cell-editor';
 
-/**
- * @constructor
- * @extends CellEditor
- */
 export class Slider extends CellEditor {
-    constructor(grid: Revgrid, options: CellEvent) {
-        super(grid, options, template);
+    constructor(grid: Revgrid, renderedCell: RenderedCell) {
+        const element = document.createElement('input') as HTMLInputElement;
+        element.type = 'range';
+
+        super(grid, renderedCell, element);
     }
 }
 
-const template = '<input type="range" lang="{{locale}}" style="{{style}}">'
+// const template = '<input type="range" lang="{{locale}}" style="{{style}}">'
 
 
 export namespace Slider {

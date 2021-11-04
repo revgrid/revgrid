@@ -649,6 +649,8 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
     // (undocumented)
     readonly columnHeader: ColumnProperties.ColumnHeader;
     // (undocumented)
+    editable: boolean;
+    // (undocumented)
     editOnKeydown: boolean;
     // (undocumented)
     editOnNextCell: boolean;

@@ -1,3 +1,4 @@
+import { CellEvent } from '../cell/cell-event';
 import { Registry } from '../lib/registry';
 import { Revgrid } from '../revgrid';
 import { CellEditor } from './cell-editor';
@@ -24,18 +25,18 @@ export class CellEditorFactory {
         this.constructorRegistry.register(TextField.typeName, TextField);
     }
 
-    tryCreate(grid: Revgrid, type: string) {
+    tryCreate(grid: Revgrid, type: string, cellEvent: CellEvent) {
         const constructor = this.constructorRegistry.get(type);
         if (constructor === undefined) {
             return undefined;
         } else {
-            return new constructor(grid);
+            return new constructor(grid, cellEvent);
         }
     }
 
-    create(grid: Revgrid, type: string) {
+    create(grid: Revgrid, type: string, cellEvent: CellEvent) {
         const constructor = this.constructorRegistry.get(type);
-        return new constructor(grid);
+        return new constructor(grid, cellEvent);
     }
 }
 

@@ -336,7 +336,7 @@ export class Subgrid {
         }
 
         if (editor === undefined) {
-            return cellEditorFactory.create(this._grid, editorName);
+            return cellEditorFactory.create(this._grid, editorName, cellEvent);
         } else {
             return editor;
         }

@@ -549,17 +549,10 @@ export const defaultGridProperties: Required<GridProperties> = {
 
     /* CELL EDITING */
 
-    /**
-     * @default
-     * @type {boolean}
-     */
-    editable: true,
+    editable: false,
 
     /**
      * Edit cell on double-click rather than single-click.
-     *
-     * @default
-     * @type {boolean}
      */
     editOnDoubleClick: true,
 
@@ -572,9 +565,6 @@ export const defaultGridProperties: Required<GridProperties> = {
      *    2. Clear it on BACKSPACE, DELETE, or other invalid character (_e.g._ when user types a letter but the cell editor only accepts digits).
      *
      * > In invoked, user has the option to back out by pressing the ESCAPE key.
-     *
-     * @default
-     * @type {boolean}
      */
     editOnKeydown: true,
 
@@ -585,8 +575,6 @@ export const defaultGridProperties: Required<GridProperties> = {
      * 2. Additional keys mapped to the four directs in {@link module:defaults.navKeyMap}
      *
      * Generally set at the grid level. If set at the column (or cell) level, note that the property pertains to the cell navigated _to,_ not the cell navigated _away from._
-     * @default
-     * @type {boolean}
      */
     editOnNextCell: false,
 
