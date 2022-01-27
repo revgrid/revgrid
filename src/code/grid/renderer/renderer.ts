@@ -1317,7 +1317,7 @@ export class Renderer {
         const behavior = grid.behavior;
         const leftMostColIndex = 0;
 
-        const editorCellEvent = grid.cellEditor && grid.cellEditor.event;
+        const editorCellEvent = grid.cellEditor && grid.cellEditor.renderedCell;
 
         let vcEd: Renderer.VisibleColumn;
         let xEd: number;

@@ -1,6 +1,7 @@
+import { RenderedCell } from '../cell/rendered-cell';
 import { DateFormatter } from '../lib/localization';
 import { Revgrid } from '../revgrid';
-import { CellEditor } from './cell-editor';
+import { DateInputEditor } from './date-input-editor';
 
 const isChromium: boolean | undefined = undefined; // window.chrome;
 const winNav = window.navigator;
@@ -13,9 +14,9 @@ const isChrome = !isIOSChrome &&
         isChromium !== undefined &&
         vendorName === 'Google Inc.' &&
         isOpera == false && isIEedge == false; // eslint-disable-line eqeqeq
-const  template = isChrome ? '<input type="date">' : '<input type="text" lang="{{locale}}">';
+// const  template = isChrome ? '<input type="date">' : '<input type="text" lang="{{locale}}">';
 
-export class Date extends CellEditor {
+export class Date extends DateInputEditor {
     /**
      * As of spring 2016:
      * Functions well in Chrome except no localization (day, month names; date format).
@@ -28,8 +29,8 @@ export class Date extends CellEditor {
      */
 
 
-    constructor(grid: Revgrid) {
-        super(grid, undefined, template);
+    constructor(grid: Revgrid, renderedCell: RenderedCell) {
+        super(grid, renderedCell);
 
         if (this.localizer === undefined) {
             let localizerName: string;
@@ -40,10 +41,10 @@ export class Date extends CellEditor {
             } else {
                 localizerName = DateFormatter.type;
 
-                this.selectAll = function() {
-                    const lastCharPlusOne = this.getEditorValue().length;
-                    this.input.setSelectionRange(0, lastCharPlusOne);
-                };
+                // this.selectAll = function() {
+                //     const lastCharPlusOne = this.getEditorValue().length;
+                //     this.input.setSelectionRange(0, lastCharPlusOne);
+                // };
             }
 
             this.localizer = grid.localization.get(localizerName);

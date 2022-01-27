@@ -1,15 +1,15 @@
 
-import { CellEvent } from '../cell/cell-event';
+import { RenderedCell } from '../cell/rendered-cell';
 import { Revgrid } from '../revgrid';
-import { CellEditor } from './cell-editor';
+import { NumberInputEditor } from './number-input-editor';
 
-export class Spinner extends CellEditor {
-    constructor(grid: Revgrid, options: CellEvent) {
-        super(grid, options, template);
+export class Spinner extends NumberInputEditor {
+    constructor(grid: Revgrid, renderedCell: RenderedCell) {
+        super(grid, renderedCell);
     }
 }
 
-const template = '<input type="number" lang="{{locale}}" style="{{style}}">'
+// const template = '<input type="number" lang="{{locale}}" style="{{style}}">'
 
 
 export namespace Spinner {

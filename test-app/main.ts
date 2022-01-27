@@ -161,6 +161,7 @@ export class Main {
             },
             gridProperties: {
                 renderFalsy: true,
+                editable: true,
                 singleRowSelectionMode: false,
                 autoSelectRows: false,
                 columnSelection: false,
@@ -190,6 +191,15 @@ export class Main {
         this._grid.addEventListener('rev-column-sort', (event) => this._mainDataAdapter.sort(event.detail.column) )
 
         this._grid.allowEvents(true);
+
+        const columns = this._grid.getAllColumns();
+
+        for (const column of columns) {
+            switch (column.name) {
+                case 'name':
+                    column.properties.editor = 'TextField';
+            }
+        }
     }
 }
 

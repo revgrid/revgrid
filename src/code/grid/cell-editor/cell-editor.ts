@@ -1,6 +1,7 @@
 import { CellEvent } from '../cell/cell-event';
-import { EventDetail } from '../event/event-detail';
+import { RenderedCell } from '../cell/rendered-cell';
 import { Effect, effectFactory } from '../effects/effects';
+import { EventDetail } from '../event/event-detail';
 import { Formatter } from '../lib/localization';
 import { WritablePoint } from '../lib/point';
 import { RectangleInterface } from '../lib/rectangle';
@@ -9,9 +10,6 @@ import { Revgrid } from '../revgrid';
 
 export abstract class CellEditor {
 
-    event: CellEvent;
-    el: HTMLElement;
-    input: HTMLInputElement;
     errors: number;
 
     /**
@@ -42,15 +40,13 @@ export abstract class CellEditor {
      * @this CellEditor
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    constructor(public readonly grid: Revgrid, options?: CellEvent, template?: string) {
+    constructor(public readonly grid: Revgrid, public readonly renderedCell: RenderedCell, readonly el: HTMLElement) {
         // Mix in all enumerable properties for mustache use, typically `column` and `format`.
-        for (const key in options) {
-            this[key] = options[key];
-        }
+        // for (const key in cellEvent) {
+        //     this[key] = cellEvent[key];
+        // }
 
-        this.event = options;
-
-        let value = this.event.value;
+        let value = this.renderedCell.value;
         if (value instanceof Array) {
             value = value[1]; //it's a nested object
         }
@@ -61,7 +57,7 @@ export abstract class CellEditor {
 
         // Only override cell editor's default 'null' localizer if the custom localizer lookup succeeds.
         // Failure is when it returns the default ('string') localizer when 'string' is not what was requested.
-        this.localizer = this.grid.localization.get(options.format); // try to get named localizer, if unsuccessful, descendants will assign
+        this.localizer = this.grid.localization.get(renderedCell.format); // try to get named localizer, if unsuccessful, descendants will assign
 
         this.initialValue = value;
 
@@ -81,8 +77,6 @@ export abstract class CellEditor {
          * @default null
          */
         this.el = container.firstChild as HTMLElement;
-
-        this.input = this.el as HTMLInputElement;
 
         this.errors = 0;
 
@@ -116,7 +110,7 @@ export abstract class CellEditor {
 
     keyup(e: KeyboardEvent) {
         const grid = this.grid;
-        const cellProps = this.event.columnProperties;
+        const cellProps = this.renderedCell.columnProperties;
         const feedbackCount = cellProps.feedbackCount;
         let specialKeyup: (feedback?: number) => void
         let stopped = this[e.keyCode](feedbackCount);
@@ -174,14 +168,14 @@ export abstract class CellEditor {
      * @desc move the editor to the current editor point
      */
     moveEditor() {
-        this.setBounds(this.event.bounds);
+        this.setBounds(this.renderedCell.bounds);
     }
 
     /**
      * @this CellEditor
      */
     beginEditing() {
-        if (this.grid.fireRequestCellEdit(this, this.event, this.initialValue)) {
+        if (this.grid.fireRequestCellEdit(this, this.renderedCell, this.initialValue)) {
             this.checkEditorPositionFlag = true;
             this.checkEditor();
         }
@@ -192,13 +186,9 @@ export abstract class CellEditor {
      * @desc Formats the value and displays it.
      * The localizer's {@link localizerInterface#format|format} method will be called.
      *
-     * Override this method if your editor has additional or alternative GUI elements.
-     *
      * @param value - The raw unformatted value from the data source that we want to edit.
      */
-    setEditorValue(value: unknown) {
-        this.input.value = this.localizer.format(value);
-    }
+    abstract setEditorValue(value: unknown): void;
 
     /**
      * @desc display the editor
@@ -239,19 +229,9 @@ export abstract class CellEditor {
      * @returns Truthy means successful stop. Falsy means syntax error prevented stop. Note that editing is canceled when no feedback requested and successful stop includes (successful) cancel.
      */
     stopEditing(feedback?: number): boolean {
-        const str = this.input.value;
+        const { value, errorText } = this.getEditorValueOrError();
 
-        let error: boolean;
-        let value: unknown;
-        try {
-            error = this.validateEditorValue(str);
-            if (!error) {
-                value = this.getEditorValue(str);
-            }
-        } catch (err) {
-            error = !!err;
-        }
-
+        let error = errorText !== undefined;
         if (!error && this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
             try {
                 this.saveEditorValue(value);
@@ -368,12 +348,12 @@ export abstract class CellEditor {
     saveEditorValue(value: unknown): boolean {
         const save = (
             !(value && value === this.initialValue) && // data changed
-            this.grid.fireBeforeCellEdit(this.event.gridCell, this.initialValue, value, this) // proceed
+            this.grid.fireBeforeCellEdit(this.renderedCell.gridCell, this.initialValue, value, this) // proceed
         );
 
         if (save) {
-            this.event.value = value;
-            this.grid.fireAfterCellEdit(this.event.gridCell, this.initialValue, value, this);
+            this.renderedCell.value = value;
+            this.grid.fireAfterCellEdit(this.renderedCell.gridCell, this.initialValue, value, this);
         }
 
         return save;
@@ -390,11 +370,8 @@ export abstract class CellEditor {
      * @returns the current editor's value
      * @throws Throws an error on parse failure. If the error's `message` is defined, the message will eventually be displayed (every `feedbackCount`th attempt).
      */
-    getEditorValue(): string;
-    getEditorValue(str: string): unknown;
-    getEditorValue(str?: string): unknown | string {
-        return this.localizer.parse(str ?? this.input.value);
-    }
+    abstract getEditorValue(): unknown;
+    abstract getEditorValueOrError(): { value: unknown,  errorText: string };
 
     /**
      * If there is no validator on the localizer, returns falsy (not invalid; possibly valid).
@@ -402,10 +379,10 @@ export abstract class CellEditor {
      * @returns Truthy value means invalid. If a string, this will be an error message. If not a string, it merely indicates a generic invalid result.
      * @throws {boolean|string|Error} May throw an error on syntax failure as an alternative to returning truthy. Define the error's `message` field as an alternative to returning string.
      */
-    validateEditorValue(str: string): boolean {
-        const invalidFtn = this.localizer.invalid;
-        return invalidFtn !== undefined && invalidFtn(str || this.input.value);
-    }
+    // validateEditorValue(str: string): boolean {
+    //     const invalidFtn = this.localizer.invalid;
+    //     return invalidFtn !== undefined && invalidFtn(str || this.input.value);
+    // }
 
     /**
      * @summary Request focus for my input control.
@@ -419,7 +396,7 @@ export abstract class CellEditor {
         el.style.left = el.style.top = '0'; // work-around: move to upper left
 
         const x = window.scrollX, y = window.scrollY;
-        this.input.focus();
+        this.el.focus();
         window.scrollTo(x, y);
         this.selectAll();
 
@@ -453,7 +430,7 @@ export abstract class CellEditor {
     checkEditor() {
         if (this.checkEditorPositionFlag) {
             this.checkEditorPositionFlag = false;
-            if (this.event.isCellVisible) {
+            if (this.renderedCell.isCellVisible) {
                 this.setEditorValue(this.initialValue);
                 this.attachEditor();
                 this.moveEditor();
@@ -471,7 +448,7 @@ export abstract class CellEditor {
 }
 
 export namespace CellEditor {
-    export type Constructor = new (grid: Revgrid, options?: CellEvent, template?: string) => CellEditor;
+    export type Constructor = new (grid: Revgrid, cellEvent?: CellEvent) => CellEditor;
 
     export interface EventDetail {
         editor: CellEditor;

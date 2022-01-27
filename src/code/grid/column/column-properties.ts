@@ -26,6 +26,7 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
     editOnNextCell: boolean;
     editor: string;
     feedbackCount: number;
+    editable: boolean;
     filterable: boolean;
     font: string;
     format: string;

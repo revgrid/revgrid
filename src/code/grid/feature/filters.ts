@@ -23,7 +23,7 @@ export class Filters extends Feature {
         let handled = false;
 
         if (eventDetail.editor !== undefined) {
-            const cellEvent = eventDetail.editor.event;
+            const cellEvent = eventDetail.editor.renderedCell;
             if (cellEvent.isFilterCell) {
                 const navKey = this.grid.generateNavKey(eventDetail.primitiveEvent);
                 const handler: ((cellEvent: CellEvent) => void) = this['handle' + navKey];

@@ -1178,8 +1178,8 @@ export class Revgrid implements SelectionDetail {
         this.containerHtmlElement.style.cursor = cursorName;
     }
 
-    createCellEditor(name: string) {
-        return cellEditorFactory.tryCreate(this, name);
+    createCellEditor(name: string, cellEvent: CellEvent) {
+        return cellEditorFactory.tryCreate(this, name, cellEvent);
     }
 
     /**
