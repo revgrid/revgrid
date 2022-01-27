@@ -1665,7 +1665,7 @@ export class MainSubgrid extends Subgrid {
     // (undocumented)
     getLastSelection(): Selection_2;
     // (undocumented)
-    getLastSelectionType(n?: number): "" | "cell" | "column" | "row";
+    getLastSelectionType(n?: number): "column" | "row" | "" | "cell";
     // (undocumented)
     getMatrixSelectionAsTSV(selections: Array<Array<DataModel.DataValue>>): string;
     // (undocumented)
@@ -2177,7 +2177,7 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@private" is not defined in this configuration
     createCanvas(options?: Revgrid.Options): Canvas;
     // (undocumented)
-    createCellEditor(name: string): CellEditor;
+    createCellEditor(name: string, cellEvent: CellEvent): CellEditor;
     // @internal (undocumented)
     createColumns(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -2393,7 +2393,7 @@ export class Revgrid implements SelectionDetail {
     // (undocumented)
     getHiDPI(): number;
     // (undocumented)
-    getLastSelectionType(): "" | "cell" | "column" | "row";
+    getLastSelectionType(): "column" | "row" | "" | "cell";
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getLogicalRowCount(): number;
@@ -3259,6 +3259,111 @@ export const enum RevRecordValueRecentChangeTypeId {
 }
 
 // @public (undocumented)
+export class RevSimpleAdapterSet {
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (ae-forgotten-export) The symbol "GetInitialDefinedRowsResult" needs to be exported by the entry point public-api.d.ts
+    getInitialDefinedRows(sourceRows: RevSimpleAdapterSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult;
+    // (undocumented)
+    get headerAdapter(): RevSimpleHeaderAdapter;
+    // (undocumented)
+    get mainAdapter(): RevSimpleMainAdapter;
+    // (undocumented)
+    get schemaAdapter(): RevSimpleSchemaAdapter;
+    setData(data: RevSimpleAdapterSet.DataRow[] | (() => RevSimpleAdapterSet.DataRow[]), headerRowCount?: number): void;
+}
+
+// @public (undocumented)
+export namespace RevSimpleAdapterSet {
+    // (undocumented)
+    export interface DataRow extends RevSimpleMainAdapter.DataRow {
+        // (undocumented)
+        [columnName: string]: DataModel.DataValue | string;
+    }
+}
+
+// @public (undocumented)
+export class RevSimpleHeaderAdapter implements DataModel {
+    // (undocumented)
+    addDataCallbackListener(listener: DataModel.CallbackListener): void;
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getValue(schemaColumn: RevSimpleSchemaAdapter.Column, rowIndex: number): string;
+    // (undocumented)
+    removeDataCallbackListener(listener: DataModel.CallbackListener): void;
+    // (undocumented)
+    reset(rowCount: number): void;
+}
+
+// @public (undocumented)
+export class RevSimpleMainAdapter implements MainDataModel {
+    // (undocumented)
+    addDataCallbackListener(listener: DataModel.CallbackListener): void;
+    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
+    addRow(dataRow: RevSimpleMainAdapter.DataRow): void;
+    // (undocumented)
+    addRow(index: number, dataRow: RevSimpleMainAdapter.DataRow): void;
+    // (undocumented)
+    beginDataChange(): void;
+    delRow(index: number, count?: number): RevSimpleMainAdapter.DataRow[];
+    // (undocumented)
+    endDataChange(): void;
+    // (undocumented)
+    getRow(index: number): RevSimpleMainAdapter.DataRow;
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getRowMetadata(index: number, prototype?: null): any;
+    // (undocumented)
+    getValue(schemaColumn: SchemaModel.Column, y: number): unknown;
+    // (undocumented)
+    readonly mainDataModel = true;
+    // (undocumented)
+    removeDataCallbackListener(listener: DataModel.CallbackListener): void;
+    // (undocumented)
+    reset(data: RevSimpleMainAdapter.DataRow[]): void;
+    setRow(index: number, dataRow: RevSimpleMainAdapter.DataRow): void;
+    // (undocumented)
+    setRowMetadata(index: number, metadata: MetaModel.RowMetadata): boolean;
+    // (undocumented)
+    setValue(schemaColumn: SchemaModel.Column, y: number, value: unknown): void;
+}
+
+// @public (undocumented)
+export namespace RevSimpleMainAdapter {
+    // (undocumented)
+    export interface DataRow extends DataModel.ObjectDataRow {
+        // (undocumented)
+        [columnName: string]: DataModel.DataValue;
+        // (undocumented)
+        __META?: MetaModel.RowMetadata;
+    }
+}
+
+// @public (undocumented)
+export class RevSimpleSchemaAdapter implements SchemaModel {
+    // (undocumented)
+    addSchemaCallbackListener(listener: SchemaModel.CallbackListener): void;
+    // (undocumented)
+    getSchema(): readonly RevSimpleSchemaAdapter.Column[];
+    // (undocumented)
+    removeSchemaCallbackListener(listener: SchemaModel.CallbackListener): void;
+    // (undocumented)
+    reset(schema: RevSimpleSchemaAdapter.Column[]): void;
+    // (undocumented)
+    setSchema(schema: RevSimpleSchemaAdapter.Column[]): void;
+}
+
+// @public (undocumented)
+export namespace RevSimpleSchemaAdapter {
+    // (undocumented)
+    export interface Column extends SchemaModel.Column {
+        // (undocumented)
+        headers: string[];
+    }
+}
+
+// @public (undocumented)
 export interface SchemaModel {
     // (undocumented)
     addSchemaCallbackListener(listener: SchemaModel.CallbackListener): void;
@@ -3351,35 +3456,6 @@ export interface SelectionDetail {
     readonly selectedRows: number[];
     // (undocumented)
     readonly selections: Selection_2[];
-}
-
-// @public (undocumented)
-export class SimpleAdapter {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (ae-forgotten-export) The symbol "GetInitialDefinedRowsResult" needs to be exported by the entry point public-api.d.ts
-    getInitialDefinedRows(sourceRows: SimpleAdapter.DataRow[], maxCount: number): GetInitialDefinedRowsResult;
-    // Warning: (ae-forgotten-export) The symbol "HeaderSimpleAdapter" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    get headerAdapter(): HeaderSimpleAdapter;
-    // Warning: (ae-forgotten-export) The symbol "MainSimpleAdapter" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    get mainAdapter(): MainSimpleAdapter;
-    // Warning: (ae-forgotten-export) The symbol "SchemaStaticAdapter" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    get schemaAdapter(): SchemaStaticAdapter;
-    setData(data: SimpleAdapter.DataRow[] | (() => SimpleAdapter.DataRow[]), headerRowCount?: number): void;
-}
-
-// @public (undocumented)
-export namespace SimpleAdapter {
-    // (undocumented)
-    export interface DataRow extends MainSimpleAdapter.DataRow {
-        // (undocumented)
-        [columnName: string]: DataModel.DataValue | string;
-    }
 }
 
 // @public (undocumented)
@@ -3497,7 +3573,6 @@ export type Writable<T> = {
 
 // Warnings were encountered during analysis:
 //
-// src/code/adapter-sets/simple/rev-simple-main-adapter.ts:179:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 // src/code/grid/behavior.ts:19:4 - (tsdoc-undefined-tag) The TSDoc tag "@mixes" is not defined in this configuration
 // src/code/grid/behavior.ts:20:4 - (tsdoc-undefined-tag) The TSDoc tag "@mixes" is not defined in this configuration
 // src/code/grid/behavior.ts:21:4 - (tsdoc-undefined-tag) The TSDoc tag "@mixes" is not defined in this configuration
@@ -3546,7 +3621,7 @@ export type Writable<T> = {
 // src/code/grid/behavior.ts:34:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
 // src/code/grid/behavior.ts:34:50 - (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
 // src/code/grid/behavior.ts:35:4 - (tsdoc-undefined-tag) The TSDoc tag "@abstract" is not defined in this configuration
-// src/code/grid/cell-editor/cell-editor-factory.ts:12:4 - (tsdoc-undefined-tag) The TSDoc tag "@classdesc" is not defined in this configuration
+// src/code/grid/cell-editor/cell-editor-factory.ts:13:4 - (tsdoc-undefined-tag) The TSDoc tag "@classdesc" is not defined in this configuration
 // src/code/grid/effects/effects.ts:4:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 // src/code/grid/effects/effects.ts:5:4 - (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
 // src/code/grid/effects/effects.ts:5:20 - (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.

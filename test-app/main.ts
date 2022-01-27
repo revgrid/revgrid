@@ -197,7 +197,25 @@ export class Main {
         for (const column of columns) {
             switch (column.name) {
                 case 'name':
+                case 'type':
+                case 'favoriteFood':
                     column.properties.editor = 'TextField';
+                    break;
+                case 'id':
+                case 'age':
+                    column.properties.editor = 'Number';
+                    break;
+                case 'receiveDate':
+                    column.properties.editor = 'Date';
+                    break;
+                case 'color':
+                    column.properties.editor = 'Color';
+                    break;
+                case 'restrictMovement':
+                    column.properties.editor = 'TextField'; // need something else for boolean
+                    break;
+                default:
+                    throw new Error(`Editor does not support field: ${column.name}`);
             }
         }
     }
