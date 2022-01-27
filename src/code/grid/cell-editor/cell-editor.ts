@@ -186,13 +186,9 @@ export abstract class CellEditor {
      * @desc Formats the value and displays it.
      * The localizer's {@link localizerInterface#format|format} method will be called.
      *
-     * Override this method if your editor has additional or alternative GUI elements.
-     *
      * @param value - The raw unformatted value from the data source that we want to edit.
      */
-    setEditorValue(value: unknown) {
-        this.input.value = this.localizer.format(value);
-    }
+    abstract setEditorValue(value: unknown): void;
 
     /**
      * @desc display the editor
@@ -233,19 +229,9 @@ export abstract class CellEditor {
      * @returns Truthy means successful stop. Falsy means syntax error prevented stop. Note that editing is canceled when no feedback requested and successful stop includes (successful) cancel.
      */
     stopEditing(feedback?: number): boolean {
-        const str = this.input.value;
+        const { value, errorText } = this.getEditorValueOrError();
 
-        let error: boolean;
-        let value: unknown;
-        try {
-            error = this.validateEditorValue(str);
-            if (!error) {
-                value = this.getEditorValue(str);
-            }
-        } catch (err) {
-            error = !!err;
-        }
-
+        let error = errorText !== undefined;
         if (!error && this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
             try {
                 this.saveEditorValue(value);
@@ -384,11 +370,8 @@ export abstract class CellEditor {
      * @returns the current editor's value
      * @throws Throws an error on parse failure. If the error's `message` is defined, the message will eventually be displayed (every `feedbackCount`th attempt).
      */
-    getEditorValue(): string;
-    getEditorValue(str: string): unknown;
-    getEditorValue(str?: string): unknown | string {
-        return this.localizer.parse(str ?? this.input.value);
-    }
+    abstract getEditorValue(): unknown;
+    abstract getEditorValueOrError(): { value: unknown,  errorText: string };
 
     /**
      * If there is no validator on the localizer, returns falsy (not invalid; possibly valid).
@@ -396,10 +379,10 @@ export abstract class CellEditor {
      * @returns Truthy value means invalid. If a string, this will be an error message. If not a string, it merely indicates a generic invalid result.
      * @throws {boolean|string|Error} May throw an error on syntax failure as an alternative to returning truthy. Define the error's `message` field as an alternative to returning string.
      */
-    validateEditorValue(str: string): boolean {
-        const invalidFtn = this.localizer.invalid;
-        return invalidFtn !== undefined && invalidFtn(str || this.input.value);
-    }
+    // validateEditorValue(str: string): boolean {
+    //     const invalidFtn = this.localizer.invalid;
+    //     return invalidFtn !== undefined && invalidFtn(str || this.input.value);
+    // }
 
     /**
      * @summary Request focus for my input control.
@@ -465,7 +448,7 @@ export abstract class CellEditor {
 }
 
 export namespace CellEditor {
-    export type Constructor = new (grid: Revgrid, cellEvent?: CellEvent, template?: string) => CellEditor;
+    export type Constructor = new (grid: Revgrid, cellEvent?: CellEvent) => CellEditor;
 
     export interface EventDetail {
         editor: CellEditor;

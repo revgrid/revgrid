@@ -1,14 +1,11 @@
 
 import { RenderedCell } from '../cell/rendered-cell';
 import { Revgrid } from '../revgrid';
-import { CellEditor } from './cell-editor';
+import { RangeInputEditor } from './range-input-editor';
 
-export class Slider extends CellEditor {
+export class Slider extends RangeInputEditor {
     constructor(grid: Revgrid, renderedCell: RenderedCell) {
-        const element = document.createElement('input') as HTMLInputElement;
-        element.type = 'range';
-
-        super(grid, renderedCell, element);
+        super(grid, renderedCell);
     }
 }
 

@@ -1,14 +1,11 @@
 
 import { RenderedCell } from '../cell/rendered-cell';
 import { Revgrid } from '../revgrid';
-import { CellEditor } from './cell-editor';
+import { NumberInputEditor } from './number-input-editor';
 
-export class Spinner extends CellEditor {
+export class Spinner extends NumberInputEditor {
     constructor(grid: Revgrid, renderedCell: RenderedCell) {
-        const element = document.createElement('input') as HTMLInputElement;
-        element.type = 'number';
-
-        super(grid, renderedCell, element);
+        super(grid, renderedCell);
     }
 }
 

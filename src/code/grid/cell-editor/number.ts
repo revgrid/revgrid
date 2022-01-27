@@ -1,15 +1,17 @@
 
 import { RenderedCell } from '../cell/rendered-cell';
 import { Revgrid } from '../revgrid';
-import { NumberTextfield } from './number-text-field';
+import { TextInputEditor } from './text-input-editor';
 
 /**
  * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  */
 
-export class Number extends NumberTextfield {
+export class Number extends TextInputEditor {
     constructor(grid: Revgrid, renderedCell: RenderedCell) {
         super(grid, renderedCell);
+
+        this.input.classList.add('revgrid-number-editor');
 
         if (this.localizer === undefined) {
             this.localizer = grid.localization.numberFormatter;
