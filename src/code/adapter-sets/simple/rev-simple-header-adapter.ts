@@ -1,8 +1,9 @@
 
 import { AssertError, DataModel } from '../../grid/grid-public-api';
-import { SchemaStaticAdapter } from './rev-simple-schema-adapter';
+import { RevSimpleSchemaAdapter } from './rev-simple-schema-adapter';
 
-export class HeaderSimpleAdapter implements DataModel {
+/** @public */
+export class RevSimpleHeaderAdapter implements DataModel {
 
     private _rowCount = 0;
     private _callbackListeners: DataModel.CallbackListener[] = [];
@@ -24,7 +25,7 @@ export class HeaderSimpleAdapter implements DataModel {
         return this._rowCount;
     }
 
-    getValue(schemaColumn: SchemaStaticAdapter.Column, rowIndex: number) {
+    getValue(schemaColumn: RevSimpleSchemaAdapter.Column, rowIndex: number) {
         const headers = schemaColumn.headers;
         if (rowIndex >= headers.length) {
             return schemaColumn.name;

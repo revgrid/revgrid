@@ -31,13 +31,14 @@ Note that the `lib` subfolder only holds the TypeScript declaration files genera
 
 # Test applications
 
-Revgrid has 2 test applications which can be easily built to see it in action:
+Revgrid has 3 test applications which can be easily built to see it in action:
 * **testapp**: Test application for the grid.
+* **simpletestapp**: Test application for the simple adapter set.
 * **recordtestapp**: Test application for the record adapter set.
 
 Follow the steps below to build and run these applications:
 1. Install the source as described above.
-1. Run the respective NPM script (`testapp:serve` or `recordtestapp:serve`) to build the test application and start the server.
+1. Run the respective NPM script (`testapp:serve` or `simpletestapp:serve` or `recordtestapp:serve`) to build the test application and start the server.
 1. Start the application by opening the following link in your browser:
     http://localhost:3001/
 

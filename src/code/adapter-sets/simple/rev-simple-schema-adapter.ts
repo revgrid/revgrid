@@ -1,8 +1,9 @@
 import { AssertError, SchemaModel } from '../../grid/grid-public-api';
 
-export class SchemaStaticAdapter implements SchemaModel {
+/** @public */
+export class RevSimpleSchemaAdapter implements SchemaModel {
     private _schemaCallbackListeners: SchemaModel.CallbackListener[] = [];
-    private _columns = new Array<SchemaStaticAdapter.Column>();
+    private _columns = new Array<RevSimpleSchemaAdapter.Column>();
 
     addSchemaCallbackListener(listener: SchemaModel.CallbackListener) {
         this._schemaCallbackListeners.push(listener)
@@ -17,7 +18,7 @@ export class SchemaStaticAdapter implements SchemaModel {
         }
     }
 
-    reset(schema: SchemaStaticAdapter.Column[]) {
+    reset(schema: RevSimpleSchemaAdapter.Column[]) {
         this._columns = schema;
         this._schemaCallbackListeners.forEach((listener) => listener.schemaChanged());
     }
@@ -25,17 +26,18 @@ export class SchemaStaticAdapter implements SchemaModel {
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getSchema}
      */
-    getSchema(): readonly SchemaStaticAdapter.Column[] {
+    getSchema(): readonly RevSimpleSchemaAdapter.Column[] {
         return this._columns;
     }
 
-    setSchema(schema: SchemaStaticAdapter.Column[]) {
+    setSchema(schema: RevSimpleSchemaAdapter.Column[]) {
         this._columns = schema;
         this._schemaCallbackListeners.forEach((listener) => listener.schemaChanged());
     }
 }
 
-export namespace SchemaStaticAdapter {
+/** @public */
+export namespace RevSimpleSchemaAdapter {
     export interface Column extends SchemaModel.Column {
         headers: string[];
     }

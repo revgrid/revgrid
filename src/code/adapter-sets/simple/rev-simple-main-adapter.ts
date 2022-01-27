@@ -1,9 +1,10 @@
 import { AssertError, DataModel, MainDataModel, MetaModel, SchemaModel } from '../../grid/grid-public-api';
 
-export class MainSimpleAdapter implements MainDataModel {
+/** @public */
+export class RevSimpleMainAdapter implements MainDataModel {
     public readonly mainDataModel = true;
 
-    private _data: MainSimpleAdapter.DataRow[] = [];
+    private _data: RevSimpleMainAdapter.DataRow[] = [];
     private _callbackListeners: DataModel.CallbackListener[] = [];
 
     addDataCallbackListener(listener: DataModel.CallbackListener) {
@@ -27,7 +28,7 @@ export class MainSimpleAdapter implements MainDataModel {
         this._callbackListeners.forEach((listener) => listener.endChange());
     }
 
-    reset(data: MainSimpleAdapter.DataRow[]) {
+    reset(data: RevSimpleMainAdapter.DataRow[]) {
         /**
          * @summary The array of uniform data objects.
          * @name data
@@ -36,40 +37,6 @@ export class MainSimpleAdapter implements MainDataModel {
         this._data = data;
         this._callbackListeners.forEach((listener) => listener.rowsLoaded());
     }
-
-    // setData(data: LocalDataRowObject[] | (() => LocalDataRowObject[]), apply?: boolean) {
-    //     // if (!this.behavior) {
-    //     //     this.setBehavior(options);
-    //     // }
-    //     // this.behavior.setData(data, apply);
-
-    //     if (data === undefined) {
-    //         return;
-    //     } else {
-    //         const dataRows = typeof data === 'function' ? data() : data;
-
-    //         if (!Array.isArray(dataRows)) {
-    //             throw new AssertError('BSD73766', 'Expected data to be an array of data row objects');
-    //         } else {
-    //             // Inform interested subgrids of data.
-    //             this.mainDataModel.setData(dataRows);
-    //             this._columnsManager.schemaModel = this.mainDataModel as LocalMainDataSource;
-    //             this._modelCallbackManager.setSchemaModel(this._columnsManager.schemaModel);
-    //             // The following should be moved to DataModel notfication
-    //             if (this.cellEditor) {
-    //                 this.cellEditor.cancelEditing();
-    //             }
-
-    //             if (apply === true) { // default is `true`
-    //                 this.reindex();
-    //             }
-
-    //             this.allowEvents(this.getRowCount() > 0);
-    //         }
-    //     }
-    //     this.behaviorShapeChanged();
-    // }
-
 
     getRow(index: number) {
         return this._data[index];
@@ -81,7 +48,7 @@ export class MainSimpleAdapter implements MainDataModel {
      * _Note parameter order is the reverse of `addRow`._
      * @param dataRow - if omitted or otherwise falsy, row renders as blank
      */
-    setRow(index: number, dataRow: MainSimpleAdapter.DataRow) {
+    setRow(index: number, dataRow: RevSimpleMainAdapter.DataRow) {
         this._data[index] = dataRow || undefined;
         this._callbackListeners.forEach((listener) => listener.invalidateRow(index));
     }
@@ -112,15 +79,15 @@ export class MainSimpleAdapter implements MainDataModel {
      * _Note parameter order is the reverse of `setRow`._
      * @param index - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
      */
-    addRow(dataRow: MainSimpleAdapter.DataRow): void;
-    addRow(index: number, dataRow: MainSimpleAdapter.DataRow): void;
-    addRow(indexOrDataRow: number | MainSimpleAdapter.DataRow, dataRowOrUndefined?: MainSimpleAdapter.DataRow): void {
+    addRow(dataRow: RevSimpleMainAdapter.DataRow): void;
+    addRow(index: number, dataRow: RevSimpleMainAdapter.DataRow): void;
+    addRow(indexOrDataRow: number | RevSimpleMainAdapter.DataRow, dataRowOrUndefined?: RevSimpleMainAdapter.DataRow): void {
         const rowCount = this.getRowCount();
         let index: number;
-        let dataRow: MainSimpleAdapter.DataRow;
+        let dataRow: RevSimpleMainAdapter.DataRow;
         if (typeof indexOrDataRow === 'number') {
             index = indexOrDataRow;
-            dataRow = dataRowOrUndefined as MainSimpleAdapter.DataRow;
+            dataRow = dataRowOrUndefined as RevSimpleMainAdapter.DataRow;
         } else {
             index = rowCount;
             dataRow = indexOrDataRow;
@@ -183,7 +150,8 @@ export class MainSimpleAdapter implements MainDataModel {
  * All row objects should be congruent, meaning that each data row should have the same property keys.
  */
 
-export namespace MainSimpleAdapter {
+/** @public */
+export namespace RevSimpleMainAdapter {
     export interface DataRow extends DataModel.ObjectDataRow {
         [columnName: string]: DataModel.DataValue;
         __META?: MetaModel.RowMetadata;
