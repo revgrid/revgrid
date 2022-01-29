@@ -1,12 +1,22 @@
 import { GridSettings } from 'grid-settings';
 import {
     CellEvent,
+    CellPainter,
     Column,
     EventDetail,
     GridProperties,
-    Halign, Revgrid, RevRecordCellAdapter, RevRecordCellPainter, RevRecordField,
+    Halign,
+    Revgrid,
+    RevRecordCellAdapter,
+    RevRecordField,
     RevRecordFieldAdapter,
-    RevRecordFieldIndex, RevRecordHeaderAdapter, RevRecordIndex, RevRecordMainAdapter, RevRecordStore, SelectionDetail, Subgrid
+    RevRecordFieldIndex,
+    RevRecordHeaderAdapter,
+    RevRecordIndex,
+    RevRecordMainAdapter,
+    RevRecordStore,
+    SelectionDetail,
+    Subgrid,
 } from "..";
 
 export class RecordGrid extends Revgrid {
@@ -37,7 +47,7 @@ export class RecordGrid extends Revgrid {
     constructor(
         gridElement: HTMLElement,
         recordStore: RevRecordStore,
-        mainCellPainter: RevRecordCellPainter,
+        mainCellPainter: CellPainter,
         gridProperties: Partial<GridProperties>,
     ) {
         const fieldAdapter = new RevRecordFieldAdapter(recordStore);

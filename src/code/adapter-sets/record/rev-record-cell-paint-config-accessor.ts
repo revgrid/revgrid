@@ -4,7 +4,6 @@ import { RevRecordMainAdapter } from './rev-record-main-adapter';
 import { RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
 export class RevRecordCellPaintConfigAccessor extends CellPaintConfigAccessor implements RevRecordCellPaintConfig {
-    readonly isRowFocused: boolean
     readonly valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId;
     readonly recordRecentChangeTypeId?: RevRecordRecentChangeTypeId;
 
@@ -12,10 +11,6 @@ export class RevRecordCellPaintConfigAccessor extends CellPaintConfigAccessor im
         super(beingPaintedCell)
 
         let rowIndex = beingPaintedCell.dataCell.y;
-
-        const grid = beingPaintedCell.grid;
-        const selections = grid.selections;
-        this.isRowFocused = selections.length > 0 && selections[0].firstSelectedCell.y === rowIndex;
 
         if (mainAdapter.rowOrderReversed) {
             const rowCount = mainAdapter.getRowCount();

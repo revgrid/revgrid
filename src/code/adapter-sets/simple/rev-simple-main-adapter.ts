@@ -28,14 +28,19 @@ export class RevSimpleMainAdapter implements MainDataModel {
         this._callbackListeners.forEach((listener) => listener.endChange());
     }
 
-    reset(data: RevSimpleMainAdapter.DataRow[]) {
-        /**
-         * @summary The array of uniform data objects.
-         * @name data
-         * @type {object[]}
-         */
-        this._data = data;
-        this._callbackListeners.forEach((listener) => listener.rowsLoaded());
+    reset(data?: RevSimpleMainAdapter.DataRow[]) {
+        if (data === undefined) {
+            this.invalidateAll();
+        } else {
+            this._data = data;
+            this._callbackListeners.forEach((listener) => listener.rowsLoaded());
+        }
+    }
+
+    invalidateAll(): void {
+        for (const callbackListener of this._callbackListeners) {
+            callbackListener.invalidateAll();
+        }
     }
 
     getRow(index: number) {

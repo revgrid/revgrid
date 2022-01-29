@@ -18,8 +18,10 @@ export class RevSimpleSchemaAdapter implements SchemaModel {
         }
     }
 
-    reset(schema: RevSimpleSchemaAdapter.Column[]) {
-        this._columns = schema;
+    reset(schema?: RevSimpleSchemaAdapter.Column[]) {
+        if (schema !== undefined) {
+            this._columns = schema;
+        }
         this._schemaCallbackListeners.forEach((listener) => listener.schemaChanged());
     }
 

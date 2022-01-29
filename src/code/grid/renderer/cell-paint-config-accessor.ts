@@ -55,6 +55,7 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     isHeaderRow: boolean;
     isInCurrentSelectionRectangle: boolean;
     isRowHovered: boolean;
+    isRowFocused: boolean;
     isRowSelected: boolean;
     isSelected: boolean;
     isTreeColumn: boolean;

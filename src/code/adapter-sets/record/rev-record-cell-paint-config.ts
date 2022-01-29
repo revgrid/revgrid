@@ -3,8 +3,6 @@ import { RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from '.
 
 /** @public */
 export interface RevRecordCellPaintConfig extends CellPaintConfig {
-    /** True if any cell in row is focused */
-    readonly isRowFocused: boolean;
     // /** Has color if internal border to be drawn  */
     // readonly internalBorder: string | undefined;
     /** Flags if cell has recently been changed and the change type */

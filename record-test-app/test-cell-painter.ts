@@ -1,14 +1,13 @@
 import { GridSettings } from 'grid-settings';
 import {
     CanvasRenderingContext2DEx,
-    RevRecordCellPaintConfig,
-    RevRecordCellPainter,
-    RevRecordRecentChangeTypeId,
+    CellPainter,
+    RevRecordCellPaintConfig, RevRecordRecentChangeTypeId,
     RevRecordValueRecentChangeTypeId,
     UnreachableCaseError
 } from "..";
 
-export class TestCellPainter extends RevRecordCellPainter {
+export class TestCellPainter extends CellPainter {
     constructor(private readonly _settings: GridSettings) {
         super();
     }
