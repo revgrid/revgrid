@@ -24,6 +24,7 @@ export interface CellPaintConfig {
     isHeaderRow: boolean;
     isInCurrentSelectionRectangle: boolean;
     isRowHovered: boolean;
+    isRowFocused: boolean;
     isRowSelected: boolean;
     isSelected: boolean;
     isUserDataArea: boolean;

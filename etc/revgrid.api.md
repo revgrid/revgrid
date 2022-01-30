@@ -337,6 +337,8 @@ export interface CellPaintConfig {
     // (undocumented)
     isMainRow: boolean;
     // (undocumented)
+    isRowFocused: boolean;
+    // (undocumented)
     isRowHovered: boolean;
     // (undocumented)
     isRowSelected: boolean;
@@ -469,6 +471,8 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     isInCurrentSelectionRectangle: boolean;
     // (undocumented)
     isMainRow: boolean;
+    // (undocumented)
+    isRowFocused: boolean;
     // (undocumented)
     isRowHovered: boolean;
     // (undocumented)
@@ -1665,7 +1669,7 @@ export class MainSubgrid extends Subgrid {
     // (undocumented)
     getLastSelection(): Selection_2;
     // (undocumented)
-    getLastSelectionType(n?: number): "column" | "row" | "" | "cell";
+    getLastSelectionType(n?: number): "" | "cell" | "column" | "row";
     // (undocumented)
     getMatrixSelectionAsTSV(selections: Array<Array<DataModel.DataValue>>): string;
     // (undocumented)
@@ -2393,7 +2397,7 @@ export class Revgrid implements SelectionDetail {
     // (undocumented)
     getHiDPI(): number;
     // (undocumented)
-    getLastSelectionType(): "column" | "row" | "" | "cell";
+    getLastSelectionType(): "" | "cell" | "column" | "row";
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getLogicalRowCount(): number;
@@ -2824,7 +2828,7 @@ export class RevRecordAssertError extends RevRecordInternalError {
 
 // @public (undocumented)
 export class RevRecordCellAdapter implements CellModel {
-    constructor(_mainAdapter: RevRecordMainAdapter, _mainCellPainter: RevRecordCellPainter);
+    constructor(_mainAdapter: RevRecordMainAdapter, _mainCellPainter: CellPainter);
     // (undocumented)
     getCellPaintConfig(beingPaintedCell: BeingPaintedCell): CellPaintConfig | undefined;
     // (undocumented)
@@ -2833,13 +2837,8 @@ export class RevRecordCellAdapter implements CellModel {
 
 // @public (undocumented)
 export interface RevRecordCellPaintConfig extends CellPaintConfig {
-    readonly isRowFocused: boolean;
     readonly recordRecentChangeTypeId?: RevRecordRecentChangeTypeId;
     readonly valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId;
-}
-
-// @public (undocumented)
-export abstract class RevRecordCellPainter extends CellPainter {
 }
 
 // @public (undocumented)
@@ -3317,11 +3316,13 @@ export class RevSimpleMainAdapter implements MainDataModel {
     // (undocumented)
     getValue(schemaColumn: SchemaModel.Column, y: number): unknown;
     // (undocumented)
+    invalidateAll(): void;
+    // (undocumented)
     readonly mainDataModel = true;
     // (undocumented)
     removeDataCallbackListener(listener: DataModel.CallbackListener): void;
     // (undocumented)
-    reset(data: RevSimpleMainAdapter.DataRow[]): void;
+    reset(data?: RevSimpleMainAdapter.DataRow[]): void;
     setRow(index: number, dataRow: RevSimpleMainAdapter.DataRow): void;
     // (undocumented)
     setRowMetadata(index: number, metadata: MetaModel.RowMetadata): boolean;
@@ -3349,7 +3350,7 @@ export class RevSimpleSchemaAdapter implements SchemaModel {
     // (undocumented)
     removeSchemaCallbackListener(listener: SchemaModel.CallbackListener): void;
     // (undocumented)
-    reset(schema: RevSimpleSchemaAdapter.Column[]): void;
+    reset(schema?: RevSimpleSchemaAdapter.Column[]): void;
     // (undocumented)
     setSchema(schema: RevSimpleSchemaAdapter.Column[]): void;
 }

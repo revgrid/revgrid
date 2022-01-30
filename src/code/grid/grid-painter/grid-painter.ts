@@ -115,6 +115,7 @@ export abstract class GridPainter {
         config.bounds = beingPaintedCell.bounds;
         config.isCellHovered = beingPaintedCell.isCellHovered;
         config.isCellSelected = isCellSelected;
+        config.isRowFocused = selectionModel.isRowFocused(r);
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);

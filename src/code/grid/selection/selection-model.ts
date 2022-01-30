@@ -366,6 +366,11 @@ export class SelectionModel {
         return this._allRowsSelected || this.rowSelectionModel.isSelected(y);
     }
 
+    isRowFocused(y: number) {
+        const selections = this._selections
+        return selections.length > 0 && selections[0].firstSelectedCell.y === y;
+    }
+
     selectColumns(x1: number, x2?: number) {
         this.columnSelectionModel.select(x1, x2);
         this.setLastSelectionType('column', !this.columnSelectionModel.selection.length);
