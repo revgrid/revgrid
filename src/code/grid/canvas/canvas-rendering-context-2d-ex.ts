@@ -411,7 +411,7 @@ export namespace CanvasRenderingContext2DEx {
             }
             return value;
         }
-        set globalCompositeOperation(value: string) {
+        set globalCompositeOperation(value: GlobalCompositeOperation) {
             if (value !== this.globalCompositeOperation) {
                 this._canvasRenderingContext2D.globalCompositeOperation = value;
                 this.values.globalCompositeOperation = value;
@@ -644,7 +644,7 @@ export namespace CanvasRenderingContext2DEx {
             fillStyle: string | CanvasGradient /* | CanvasPattern*/;
             font: string;
             globalAlpha: number;
-            globalCompositeOperation: string;
+            globalCompositeOperation: GlobalCompositeOperation;
             imageSmoothingEnabled: boolean;
             // lineCap: string;
             lineDashOffset: number;

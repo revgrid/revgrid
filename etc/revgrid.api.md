@@ -108,8 +108,8 @@ export namespace CanvasRenderingContext2DEx {
         get globalAlpha(): number;
         set globalAlpha(value: number);
         // (undocumented)
-        get globalCompositeOperation(): string;
-        set globalCompositeOperation(value: string);
+        get globalCompositeOperation(): GlobalCompositeOperation;
+        set globalCompositeOperation(value: GlobalCompositeOperation);
         // (undocumented)
         get imageSmoothingEnabled(): boolean;
         set imageSmoothingEnabled(value: boolean);
@@ -163,7 +163,7 @@ export namespace CanvasRenderingContext2DEx {
             // (undocumented)
             globalAlpha: number;
             // (undocumented)
-            globalCompositeOperation: string;
+            globalCompositeOperation: GlobalCompositeOperation;
             // (undocumented)
             imageSmoothingEnabled: boolean;
             // (undocumented)
