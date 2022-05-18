@@ -30,7 +30,6 @@ export class Canvas {
     dragstart = Point.create(-1, -1);
     // origin = null;
     bounds = new Rectangle(0, 0, 0, 0);
-    size: Canvas.Box = null;
     mousedown = false;
     dragging = false;
     repeatKeyCount = 0;
@@ -48,6 +47,8 @@ export class Canvas {
     height: number;
     // bodyZoomFactor: number;
     private _devicePixelRatio: number;
+    private _containerWidth: number;
+    private _containerHeight: number;
 
     private _resizeObserver = new ResizeObserver(() => this.resize());
 
@@ -121,38 +122,6 @@ export class Canvas {
         this.canvas.removeEventListener(name, listener as EventListener);
     }
 
-    // stopPaintLoop: stopPaintLoop,
-    // restartPaintLoop: restartPaintLoop,
-
-    // stopResizeLoop: stopResizeLoop,
-    // restartResizeLoop: restartResizeLoop,
-
-    // beginPainting() {
-    //     this.requestRepaint();
-    //     paintables.push(this);
-    // }
-
-    // tickPainter(now: number) {
-    //     this.tickPaint(now)
-    // }
-
-    // stopPainting() {
-    //     paintables.splice(paintables.indexOf(this), 1);
-    // }
-
-    // beginResizing() {
-    //     resizables.push(this);
-    // }
-
-    // tickResizer() {
-    //     this.checksize();
-    // }
-
-
-    // stopResizing() {
-    //     resizables.splice(resizables.indexOf(this), 1);
-    // }
-
     start() {
         this.resize();
         this._resizeObserver.observe(this._containerElement);
@@ -162,43 +131,25 @@ export class Canvas {
         this._resizeObserver.disconnect();
     }
 
-    getBoundingClientRect(el: HTMLElement) {
-        const rect = el.getBoundingClientRect();
-        return rect;
-    }
-
-    getDivBoundingClientRect(): Canvas.Box {
-        // Make sure our canvas has integral dimensions
-        const rect = this.getBoundingClientRect(this._containerElement);
-        const top = Math.ceil(rect.top);
-        const left = Math.ceil(rect.left);
-        const width = Math.floor(rect.width);
-        const height = Math.floor(rect.height);
-
-        return {
-            top: top,
-            right: left + width,
-            bottom: top + height,
-            left: left,
-            width: width,
-            height: height,
-            x: rect.x,
-            y: rect.y
-        };
-    }
-
     checksize() {
-        const sizeNow = this.getDivBoundingClientRect();
-        if (sizeNow.width !== this.size.width || sizeNow.height !== this.size.height) {
-            this.resize(sizeNow);
+        const containerRect = this.getContainerBoundingClientRect();
+        if (containerRect.width !== this._containerWidth || containerRect.height !== this._containerHeight) {
+            this.resize(containerRect);
         }
     }
 
-    resize(box?: Canvas.Box) {
-        box = this.size = box || this.getDivBoundingClientRect();
+    resize(containerRect?: DOMRect) {
+        if (containerRect === undefined) {
+            containerRect = this.getContainerBoundingClientRect();
+        }
+        this._containerWidth = containerRect.width;
+        this._containerHeight = containerRect.height;
 
-        this.width = box.width;
-        this.height = box.height;
+        const width = Math.floor(this._containerWidth);
+        const height = Math.floor(this._containerHeight);
+
+        this.width = width;
+        this.height = height;
 
         // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
         const isHIDPI = window.devicePixelRatio && this.renderer.properties.useHiDPI;
@@ -207,15 +158,15 @@ export class Canvas {
         this._devicePixelRatio = ratio;
         // this._devicePixelRatio = ratio *= this.bodyZoomFactor;
 
-        this.canvas.width = Math.round(this.width * ratio);
-        this.canvas.height = Math.round(this.height * ratio);
+        this.canvas.width = Math.floor(width * ratio);
+        this.canvas.height = Math.floor(height * ratio);
 
-        this.canvas.style.width = this.width + 'px';
-        this.canvas.style.height = this.height + 'px';
+        this.canvas.style.width = width + 'px';
+        this.canvas.style.height = height + 'px';
 
         this.gc.scale(ratio, ratio);
 
-        this.bounds = new Rectangle(0, 0, this.width, this.height);
+        this.bounds = new Rectangle(0, 0, width, height);
         this.renderer.setBounds(this.bounds);
         this.resizeNotification();
         this.renderer.repaint();
@@ -515,7 +466,7 @@ export class Canvas {
     }
 
     getOrigin() {
-        const rect = this.getBoundingClientRect(this.canvas);
+        const rect = this.getCanvasBoundingClientRect();
         const p = Point.create(rect.left, rect.top);
         return p;
     }
@@ -525,7 +476,7 @@ export class Canvas {
      * @this CanvasType
      */
     getLocal<T extends MouseEvent|Touch>(e: T) {
-        const rect = this.getBoundingClientRect(this.canvas);
+        const rect = this.getCanvasBoundingClientRect();
 
         const p = Point.create(
             e.clientX /* / this.bodyZoomFactor*/ - rect.left,
@@ -603,6 +554,14 @@ export class Canvas {
             case 'Tab':
                 e.preventDefault();
         }
+    }
+
+    private getContainerBoundingClientRect() {
+        return this._containerElement.getBoundingClientRect();
+    }
+
+    private getCanvasBoundingClientRect() {
+        return this.canvas.getBoundingClientRect();
     }
 
     // fixCurrentKeys(keyChar: string, keydown: boolean) {
