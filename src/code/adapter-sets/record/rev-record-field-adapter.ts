@@ -64,7 +64,7 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
         return schemaColumn;
     }
 
-    addFields(fields: RevRecordField[]): RevRecordFieldIndex {
+    addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex {
         if (fields.length <= 0) {
             throw new RevRecordSchemaError('FSMAF26774', 'No fields provided');
         } else {
@@ -96,7 +96,7 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
         this._callbackListener.endChange();
     }
 
-    getActiveSchemaColumns() {
+    getActiveSchemaColumns(): readonly RevRecordField.SchemaColumn[] {
         return this._callbackListener.getActiveSchemaColumns() as RevRecordField.SchemaColumn[];
     }
 
@@ -154,7 +154,7 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
         return this._fields.filter((field) => filterCallback(field));
     }
 
-    getFieldValueDependsOnRecordIndexFieldIndexes() {
+    getFieldValueDependsOnRecordIndexFieldIndexes(): readonly RevRecordFieldIndex[] {
         return this._fieldValueDependsOnRecordIndexFieldIndexes;
     }
 

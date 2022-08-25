@@ -50,7 +50,7 @@ export class RevRecordRowMap {
         }
     }
 
-    insertRecordsButNotRows(recordIndex: RevRecordIndex, records: RevRecord[]) {
+    insertRecordsButNotRows(recordIndex: RevRecordIndex, records: readonly RevRecord[]) {
         this.records.splice(recordIndex, 0, ...records);
     }
 
@@ -78,7 +78,7 @@ export class RevRecordRowMap {
         this.reindexRows(rowIndex + 1);
     }
 
-    insertRowRangeButIgnoreRecords(rowIndex: number, rows: RevRecordRow[], rangeStartIndex: number, rangeExclusiveEndIndex: number) {
+    insertRowRangeButIgnoreRecords(rowIndex: number, rows: readonly RevRecordRow[], rangeStartIndex: number, rangeExclusiveEndIndex: number) {
         this.rows.splice(rowIndex, 0, ...rows.slice(rangeStartIndex, rangeExclusiveEndIndex));
         this.reindexRows(rowIndex + (rangeExclusiveEndIndex - rangeStartIndex));
     }
