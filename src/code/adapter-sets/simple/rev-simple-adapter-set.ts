@@ -42,7 +42,7 @@ export class RevSimpleAdapterSet {
                     }
                 }
 
-                if (schema === []) {
+                if (schema.length === 0) {
                     headerRowCount = 0;
                 } else {
                     headerRowCount = schema[0].headers.length;

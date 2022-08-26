@@ -54,8 +54,8 @@
     "simpletestapp:serve": "webpack serve --mode development --config ./simple-test-app/webpack.config.js"
   },
   "devDependencies": {
-    "@microsoft/api-documenter": "^7.17.13",
-    "@microsoft/api-extractor": "7.23.2",
+    "@microsoft/api-documenter": "7.19.7",
+    "@microsoft/api-extractor": "7.29.5",
     "@typescript-eslint/eslint-plugin": "^5.23.0",
     "@typescript-eslint/parser": "^5.23.0",
     "css-loader": "^6.7.1",
@@ -63,7 +63,7 @@
     "eslint": "^8.15.0",
     "eslint-plugin-import": "^2.26.0",
     "html-webpack-plugin": "5.5.0",
-    "source-map-loader": "3.0.1",
+    "source-map-loader": "4.0.0",
     "style-loader": "3.3.1",
     "ts-loader": "^9.3.0",
     "typescript": "^4.6.4",
