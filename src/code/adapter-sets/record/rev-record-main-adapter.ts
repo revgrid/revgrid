@@ -14,8 +14,10 @@ import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevReco
 export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.RecordsEventers {
     readonly mainDataModel = true;
 
+    private readonly _recordRowBindingKey = Symbol();
+
     private readonly _rows: RevRecordRow[]; // Rows in grid - used for comparison and holding recent change info
-    private readonly _recordRowMap = new RevRecordRowMap();
+    private readonly _recordRowMap: RevRecordRowMap;
     private readonly _sortFieldSpecifiers: RevRecordMainAdapter.SortFieldSpecifier[] = [];
 
     private _beginChangeCount = 0;
@@ -76,6 +78,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
         private readonly _fieldAdapter: RevRecordFieldAdapter,
         private readonly _recordStore: RevRecordStore,
     ) {
+        this._recordRowMap = new RevRecordRowMap(this._recordRowBindingKey);
         this._rows = this._recordRowMap.rows;
         this._recentChanges = new RevRecordRecentChanges(
             this._recordRowMap,
@@ -122,7 +125,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
             // this is a reference to a deleted record
             return undefined;
         } else {
-            const row = record.__row;
+            const row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
             if (row === undefined) {
                 return undefined;
             } else {
@@ -539,7 +542,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
         try {
             const record = this._recordStore.getRecord(recordIndex);
             const row = this.tryCreateRecordRow(record);
-            record.__row = row;
+            RevRecord.bindRow(record, this._recordRowBindingKey, row);
             this._recordRowMap.insertRecord(record);
 
             if (row !== undefined) {
@@ -588,7 +591,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
                         const record = insertedRecords[recIdx];
                         const row = this.tryCreateRecordRow(record);
                         if (row === undefined) {
-                            record.__row = undefined;
+                            RevRecord.unbindRow(record, this._recordRowBindingKey);
                         } else {
                             this._recordRowMap.insertRow(row);
                             insertedRows[insertedRowCount++] = row;
@@ -693,7 +696,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
                     index: i,
                 }
                 rows[i] = row;
-                record.__row = row;
+                RevRecord.bindRow(record, this._recordRowBindingKey, row);
             }
         } else {
             let rowCount = 0;
@@ -707,9 +710,9 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
                         index: rowCount,
                     }
                     rows[rowCount++] = row;
-                    record.__row = row;
+                    RevRecord.bindRow(record, this._recordRowBindingKey, row);
                 } else {
-                    record.__row = undefined;
+                    RevRecord.unbindRow(record, this._recordRowBindingKey);
                 }
             }
             rows.length = rowCount;
@@ -878,7 +881,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
                         index: i,
                     }
                     rows[i] = row;
-                    record.__row = row;
+                    RevRecord.bindRow(record, this._recordRowBindingKey, row);
                 }
             } else {
                 let rowCount = 0;
@@ -891,9 +894,9 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
                             index: rowCount,
                         }
                         rows[rowCount++] = row;
-                        record.__row = row;
+                        RevRecord.bindRow(record, this._recordRowBindingKey, row);
                     } else {
-                        record.__row = undefined;
+                        RevRecord.unbindRow(record, this._recordRowBindingKey);
                     }
                 }
                 if (rowCount !== rows.length) {
@@ -1028,7 +1031,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
         areAnyInvalidatedFieldsSorted: boolean,
     ): number {
         const record = this._recordRowMap.records[recordIndex];
-        const oldRow = record.__row;
+        const oldRow = RevRecord.getBoundRow(record, this._recordRowBindingKey);
 
         if (this._filterCallback !== undefined && this._continuousFiltering) {
             const isVisible = this._filterCallback(record);

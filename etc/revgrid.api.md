@@ -2813,12 +2813,26 @@ export abstract class RevgridError extends Error {
 
 // @public (undocumented)
 export interface RevRecord {
-    // Warning: (ae-forgotten-export) The symbol "RevRecordRow" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
-    __row?: RevRecordRow;
+    __rows?: RevRecord.BoundRows;
     // (undocumented)
     index: number;
+}
+
+// @public (undocumented)
+export namespace RevRecord {
+    // (undocumented)
+    export function bindRow(record: RevRecord, rowKey: symbol, row: RevRecordRow | undefined): void;
+    export interface BoundRows {
+        // Warning: (ae-forgotten-export) The symbol "RevRecordRow" needs to be exported by the entry point public-api.d.ts
+        //
+        // (undocumented)
+        [key: symbol]: RevRecordRow | undefined;
+    }
+    // (undocumented)
+    export function getBoundRow(record: RevRecord, rowKey: symbol): RevRecordRow | undefined;
+    // (undocumented)
+    export function unbindRow(record: RevRecord, rowKey: symbol): void;
 }
 
 // @public (undocumented)

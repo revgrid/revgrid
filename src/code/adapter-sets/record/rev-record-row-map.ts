@@ -8,6 +8,10 @@ export class RevRecordRowMap {
     readonly records = new Array<RevRecord>();
     readonly rows = new Array<RevRecordRow>();
 
+    constructor(private readonly _recordRowBindingKey: symbol) {
+
+    }
+
     clear() {
         this.records.length = 0;
         this.rows.length = 0;
@@ -22,7 +26,8 @@ export class RevRecordRowMap {
     }
 
     getRowIndexFromRecordIndex(recordIndex: RevRecordIndex) {
-        const row = this.records[recordIndex].__row;
+        const record = this.records[recordIndex];
+        const row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
         if (row === undefined) {
             return undefined;
         } else {
@@ -42,7 +47,7 @@ export class RevRecordRowMap {
 
     insertRecord(record: RevRecord) {
         this.records.splice(record.index, 0, record);
-        const row = record.__row;
+        const row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
         if (row !== undefined) {
             const rowIndex = row.index;
             this.rows.splice(rowIndex, 0, row);
@@ -55,7 +60,8 @@ export class RevRecordRowMap {
     }
 
     removeRecord(recordIndex: RevRecordIndex) {
-        const row = this.records[recordIndex].__row;
+        const record = this.records[recordIndex];
+        const row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
         this.records.splice(recordIndex, 1);
         if (row === undefined) {
             return undefined;
@@ -74,7 +80,7 @@ export class RevRecordRowMap {
     insertRow(row: RevRecordRow) {
         const rowIndex = row.index;
         this.rows.splice(rowIndex, 0, row);
-        row.record.__row = row;
+        RevRecord.bindRow(row.record, this._recordRowBindingKey, row);
         this.reindexRows(rowIndex + 1);
     }
 
@@ -86,7 +92,7 @@ export class RevRecordRowMap {
     deleteRow(rowIndex: number) {
         const row = this.rows[rowIndex];
         const record = row.record;
-        record.__row = undefined;
+        RevRecord.unbindRow(record, this._recordRowBindingKey);
         this.rows.splice(rowIndex, 1);
         this.reindexRows(rowIndex);
     }
@@ -127,7 +133,7 @@ export class RevRecordRowMap {
             return this.rows.length;
         } else {
             let record = records[recordIndex];
-            let row = record.__row;
+            let row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
             if (row !== undefined) {
                 return row.index;
             } else {
@@ -141,7 +147,7 @@ export class RevRecordRowMap {
                         const lowerRangeStart = recordIndex -  recordCount / 20.0;
                         for (let i = recordIndex - 1; i > lowerRangeStart; i--) {
                             record = records[i];
-                            row = record.__row;
+                            row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
                             if (row !== undefined) {
                                 return row.index + 1;
                             }
@@ -149,7 +155,7 @@ export class RevRecordRowMap {
                     }
                     for (let i = recordIndex + 1; i < recordCount; i++) {
                         record = records[i];
-                        row = record.__row;
+                        row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
                         if (row !== undefined) {
                             return row.index;
                         }
@@ -158,7 +164,7 @@ export class RevRecordRowMap {
                 } else {
                     for (let i = recordIndex - 1; i >= 0; i--) {
                         record = records[i];
-                        row = record.__row;
+                        row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
                         if (row !== undefined) {
                             return row.index + 1;
                         }
@@ -194,7 +200,8 @@ export class RevRecordRowMap {
                 if (record === undefined) {
                     throw new RevRecordAssertError('RRMCC31002');
                 } else {
-                    if (record.__row !== row) {
+                    const recordRow = RevRecord.getBoundRow(record, this._recordRowBindingKey);
+                    if (recordRow !== row) {
                         throw new RevRecordAssertError('RRMCC31003');
                     }
                 }
@@ -208,7 +215,7 @@ export class RevRecordRowMap {
             if (record.index !== i) {
                 throw new RevRecordAssertError('RRMCC31005');
             } else {
-                const row = record.__row;
+                const row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
                 if (row !== undefined) {
                     if (row.record !== record) {
                         throw new RevRecordAssertError('RRMCC31006');
