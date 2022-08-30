@@ -51,7 +51,7 @@ export namespace SchemaModel {
         allColumnsDeleted: (this: void) => void;
         /** Try to use columnsInserted, columnsDeleted, allColumnsDeleted instead of schemaChanged. These provide better optimisations and control of selection. */
         schemaChanged: (this: void) => void;
-        getActiveSchemaColumns: (this: void) => SchemaModel.Column[];
+        getActiveSchemaColumns: (this: void) => readonly SchemaModel.Column[];
     }
 
     export type Constructor = new() => SchemaModel;

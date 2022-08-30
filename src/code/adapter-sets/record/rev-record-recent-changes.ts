@@ -100,7 +100,7 @@ export class RevRecordRecentChanges {
         }
     }
 
-    addRecordValuesChanges(rowIndex: number, invalidatedValues: RevRecordInvalidatedValue[]) {
+    addRecordValuesChanges(rowIndex: number, invalidatedValues: readonly RevRecordInvalidatedValue[]) {
         const valueChangedDuration = this.valueChangedRecentDuration;
         if (valueChangedDuration > 0) {
             const expiryTime = RevRecordSysTick.now() + valueChangedDuration;
@@ -475,8 +475,8 @@ export class RevRecordRecentChanges {
         const now = RevRecordSysTick.now();
         const count = this._expiryQueue.length;
 
-        const _expiredCellPositions = new Array<RevRecordRecentChanges.ExpiredCellPosition>();
-        const _expiredRowIndexes = new Array<RevRecordRecentChanges.ExpiredRowIndex>();
+        const expiredCellPositions = new Array<RevRecordRecentChanges.ExpiredCellPosition>();
+        const expiredRowIndexes = new Array<RevRecordRecentChanges.ExpiredRowIndex>();
         let expiredCellChangeCount = 0;
         let expiredRowChangeCount = 0;
 
@@ -485,22 +485,22 @@ export class RevRecordRecentChanges {
             if (change.expiryTime <= now) {
                 switch (change.typeId) {
                     case RevRecordRecentChange.TypeId.Value: {
-                        if (_expiredCellPositions.length === 0) {
-                            _expiredCellPositions.length = count; // set to maximum possible
+                        if (expiredCellPositions.length === 0) {
+                            expiredCellPositions.length = count; // set to maximum possible
                         }
                         const cellChange = change as RevRecordValueRecentChange;
                         const fieldIndex = cellChange.fieldIndex;
                         const rowIndex = cellChange.rowIndex;
-                        _expiredCellPositions[expiredCellChangeCount++] = [fieldIndex, rowIndex];
+                        expiredCellPositions[expiredCellChangeCount++] = [fieldIndex, rowIndex];
                         break;
                     }
                     case RevRecordRecentChange.TypeId.Row: {
-                        if (_expiredRowIndexes.length === 0) {
-                            _expiredRowIndexes.length = count; // set to maximum possible
+                        if (expiredRowIndexes.length === 0) {
+                            expiredRowIndexes.length = count; // set to maximum possible
                         }
                         const rowChange = change as RevRecordRowRecentChange;
                         const rowIndex = rowChange.rowIndex;
-                        _expiredRowIndexes[expiredRowChangeCount++] = rowIndex;
+                        expiredRowIndexes[expiredRowChangeCount++] = rowIndex;
                         break;
                     }
                     default:
@@ -516,9 +516,9 @@ export class RevRecordRecentChanges {
         }
 
         if (expiredCellChangeCount > 0 || expiredRowChangeCount > 0) {
-            this.expireRecentChanges(_expiredCellPositions, expiredCellChangeCount, _expiredRowIndexes, expiredRowChangeCount);
-            _expiredCellPositions.length = 0;
-            _expiredRowIndexes.length = 0;
+            this.expireRecentChanges(expiredCellPositions, expiredCellChangeCount, expiredRowIndexes, expiredRowChangeCount);
+            expiredCellPositions.length = 0;
+            expiredRowIndexes.length = 0;
         }
 
         if (this._expiryQueue.length > 0) {

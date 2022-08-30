@@ -751,7 +751,7 @@ export class ColumnsManager {
     // @internal
     constructor(_grid: Revgrid);
     // @internal (undocumented)
-    get activeColumns(): Column[];
+    get activeColumns(): readonly Column[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     //
@@ -760,7 +760,7 @@ export class ColumnsManager {
     // @internal (undocumented)
     addBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener): void;
     // @internal (undocumented)
-    get allColumns(): Column[];
+    get allColumns(): readonly Column[];
     // @internal (undocumented)
     allSchemaColumnsDeleted(): void;
     // @internal (undocumented)
@@ -843,9 +843,9 @@ export class ColumnsManager {
     // @internal
     setColumnIndexes(allColumnIndexes: number[], silent?: boolean): void;
     // @internal (undocumented)
-    setColumnOrder(allColumnIndexes: number[]): void;
+    setColumnOrder(allColumnIndexes: readonly number[]): void;
     // @internal (undocumented)
-    setColumnOrderByName(allColumnNames: string[]): void;
+    setColumnOrderByName(allColumnNames: readonly string[]): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     //
     // @internal (undocumented)
@@ -884,9 +884,9 @@ export interface DataModel {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@Summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-    fetchData?(rectangles: Rectangle[], callback?: (failure: boolean) => void): void;
+    fetchData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    getData?(metadataFieldName?: string): DataModel.DataRow[];
+    getData?(metadataFieldName?: string): readonly DataModel.DataRow[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
     // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
@@ -2365,7 +2365,7 @@ export class Revgrid implements SelectionDetail {
     // (undocumented)
     getColumnScrollableLeft(activeIndex: number): number;
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    getData(): DataModel.DataRow[];
+    getData(): readonly DataModel.DataRow[];
     // (undocumented)
     getDataBounds(): Rectangle;
     // (undocumented)
@@ -2630,9 +2630,9 @@ export class Revgrid implements SelectionDetail {
     // (undocumented)
     setCellProperty(allX: number, y: number, key: string | number, value: MetaModel.CellOwnProperty, subgrid: Subgrid): MetaModel.CellOwnProperties;
     // (undocumented)
-    setColumnOrder(allColumnIndexes: number[]): void;
+    setColumnOrder(allColumnIndexes: readonly number[]): void;
     // (undocumented)
-    setColumnOrderByName(allColumnNames: string[]): void;
+    setColumnOrderByName(allColumnNames: readonly string[]): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     //
     // (undocumented)
@@ -2653,7 +2653,7 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setState(state: GridProperties): void;
     // (undocumented)
-    setSubgrids(subgridSpecs: Subgrid.Spec[]): void;
+    setSubgrids(subgridSpecs: readonly Subgrid.Spec[]): void;
     // (undocumented)
     setValue(x: number, y: number, value: number, subgrid?: Subgrid): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2667,7 +2667,7 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     stopEditing(): boolean;
     // (undocumented)
-    get subgrids(): Subgrid[];
+    get subgrids(): readonly Subgrid[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     swapColumns(source: number, target: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2902,7 +2902,7 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
     // (undocumented)
     addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
     // (undocumented)
-    addFields(fields: RevRecordField[]): RevRecordFieldIndex;
+    addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex;
     // (undocumented)
     addSchemaCallbackListener(value: SchemaModel.CallbackListener): void;
     // (undocumented)
@@ -2914,7 +2914,7 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
     // (undocumented)
     get fields(): readonly RevRecordField[];
     // (undocumented)
-    getActiveSchemaColumns(): RevRecordField.SchemaColumn[];
+    getActiveSchemaColumns(): readonly RevRecordField.SchemaColumn[];
     // (undocumented)
     getColumnCount(): number;
     // (undocumented)
@@ -2928,7 +2928,7 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
     // (undocumented)
     getFieldNames(): string[];
     // (undocumented)
-    getFieldValueDependsOnRecordIndexFieldIndexes(): number[];
+    getFieldValueDependsOnRecordIndexFieldIndexes(): readonly RevRecordFieldIndex[];
     // (undocumented)
     getFilteredFields(filterCallback: (field: RevRecordField) => boolean): RevRecordField[];
     // (undocumented)
@@ -3033,25 +3033,25 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
     // (undocumented)
     invalidateAll(): void;
     // (undocumented)
-    invalidateFields(fieldIndexes: RevRecordFieldIndex[]): void;
+    invalidateFields(fieldIndexes: readonly RevRecordFieldIndex[]): void;
     // (undocumented)
     invalidateFiltering(): void;
     // (undocumented)
     invalidateRecord(recordIndex: RevRecordIndex, recent?: boolean): void;
     // (undocumented)
-    invalidateRecordAndValues(recordIndex: RevRecordIndex, invalidatedValues: RevRecordInvalidatedValue[], recordUpdateRecent?: boolean): void;
+    invalidateRecordAndValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[], recordUpdateRecent?: boolean): void;
     // (undocumented)
     invalidateRecordFields(recordIndex: RevRecordIndex, fieldIndex: RevRecordFieldIndex, fieldCount: number): void;
     // (undocumented)
     invalidateRecords(recordIndex: RevRecordIndex, count: number, recent?: boolean): void;
     // (undocumented)
-    invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: RevRecordInvalidatedValue[]): void;
+    invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[]): void;
     // (undocumented)
     invalidateValue(fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex, valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId): void;
     // (undocumented)
     isAnyFieldInRangeSorted(rangeFieldIndex: number, rangeCount: number): boolean;
     // (undocumented)
-    isAnyFieldSorted(fieldIndexes: RevRecordFieldIndex[]): boolean;
+    isAnyFieldSorted(fieldIndexes: readonly RevRecordFieldIndex[]): boolean;
     // (undocumented)
     isFieldSorted(fieldIndex: RevRecordFieldIndex): boolean;
     // (undocumented)
@@ -3098,7 +3098,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
     // (undocumented)
     sortBy(fieldIndex?: number, isAscending?: boolean): boolean;
     // (undocumented)
-    sortByMany(specifiers: RevRecordMainAdapter.SortFieldSpecifier[]): boolean;
+    sortByMany(specifiers: readonly RevRecordMainAdapter.SortFieldSpecifier[]): boolean;
     // (undocumented)
     get sortColumnCount(): number;
     // (undocumented)
@@ -3173,7 +3173,7 @@ export namespace RevRecordStore {
         // (undocumented)
         addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
         // (undocumented)
-        addFields(fields: RevRecordField[]): RevRecordFieldIndex;
+        addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex;
         // (undocumented)
         beginChange(): void;
         // (undocumented)
@@ -3190,19 +3190,19 @@ export namespace RevRecordStore {
         // (undocumented)
         invalidateAll(): void;
         // (undocumented)
-        invalidateFields(fieldIndexes: RevRecordFieldIndex[]): void;
+        invalidateFields(fieldIndexes: readonly RevRecordFieldIndex[]): void;
         // (undocumented)
         invalidateFiltering(): void;
         // (undocumented)
         invalidateRecord(recordIndex: RevRecordIndex, recent?: boolean): void;
         // (undocumented)
-        invalidateRecordAndValues(recordIndex: RevRecordIndex, invalidatedValues: RevRecordInvalidatedValue[], recordUpdateRecent?: boolean): void;
+        invalidateRecordAndValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[], recordUpdateRecent?: boolean): void;
         // (undocumented)
         invalidateRecordFields(recordIndex: RevRecordIndex, fieldIndex: RevRecordFieldIndex, fieldCount: number): void;
         // (undocumented)
         invalidateRecords(recordIndex: RevRecordIndex, count: number, recent?: boolean): void;
         // (undocumented)
-        invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: RevRecordInvalidatedValue[]): void;
+        invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[]): void;
         // (undocumented)
         invalidateValue(fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex, valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId): void;
         // (undocumented)
@@ -3261,7 +3261,7 @@ export const enum RevRecordValueRecentChangeTypeId {
 export class RevSimpleAdapterSet {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (ae-forgotten-export) The symbol "GetInitialDefinedRowsResult" needs to be exported by the entry point public-api.d.ts
-    getInitialDefinedRows(sourceRows: RevSimpleAdapterSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult;
+    getInitialDefinedRows(sourceRows: readonly RevSimpleAdapterSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult;
     // (undocumented)
     get headerAdapter(): RevSimpleHeaderAdapter;
     // (undocumented)
@@ -3391,7 +3391,7 @@ export namespace SchemaModel {
         // (undocumented)
         endChange: (this: void) => void;
         // (undocumented)
-        getActiveSchemaColumns: (this: void) => SchemaModel.Column[];
+        getActiveSchemaColumns: (this: void) => readonly SchemaModel.Column[];
         schemaChanged: (this: void) => void;
     }
     // (undocumented)

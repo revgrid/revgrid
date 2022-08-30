@@ -136,9 +136,11 @@ export class ModelCallbackRouter {
     }
 
     private enableSchemaCallbacks() {
-        if (this._schemaModel.addSchemaCallbackListener !== undefined) {
-            this._schemaCallbackListenerAdded = true;
-            this._schemaModel.addSchemaCallbackListener(this.schemaModelCallbackListener);
+        if (this._schemaModel !== undefined) {
+            if (this._schemaModel.addSchemaCallbackListener !== undefined) {
+                this._schemaCallbackListenerAdded = true;
+                this._schemaModel.addSchemaCallbackListener(this.schemaModelCallbackListener);
+            }
         }
     }
 

@@ -268,7 +268,7 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    setColumnOrder(allColumnIndexes: number[]) {
+    setColumnOrder(allColumnIndexes: readonly number[]) {
         const activeColumns = this._activeColumns;
         const allColumns = this._allColumns;
         // const arrayDecorator = new ArrayDecorator;
@@ -282,7 +282,7 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    setColumnOrderByName(allColumnNames: string[]) {
+    setColumnOrderByName(allColumnNames: readonly string[]) {
         const allColumns = this._allColumns;
         this.setColumnOrder(allColumnNames.map((name) => { return allColumns[name].index; }));
     }
@@ -578,12 +578,12 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    get allColumns() {
+    get allColumns(): readonly Column[] {
         return this._allColumns;
     }
 
     /** @internal */
-    get activeColumns() {
+    get activeColumns(): readonly Column[] {
         return this._activeColumns;
     }
 

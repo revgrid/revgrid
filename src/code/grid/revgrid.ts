@@ -1417,11 +1417,11 @@ export class Revgrid implements SelectionDetail {
         this.behaviorChanged();
     }
 
-    setColumnOrder(allColumnIndexes: number[]) {
+    setColumnOrder(allColumnIndexes: readonly number[]) {
         this._columnsManager.setColumnOrder(allColumnIndexes);
     }
 
-    setColumnOrderByName(allColumnNames: string[]) {
+    setColumnOrderByName(allColumnNames: readonly string[]) {
         this._columnsManager.setColumnOrderByName(allColumnNames);
     }
 
@@ -2880,7 +2880,7 @@ export class Revgrid implements SelectionDetail {
     // End Events Mixin
 
     // Begin Subgrids Mixin
-    setSubgrids(subgridSpecs: Subgrid.Spec[]) {
+    setSubgrids(subgridSpecs: readonly Subgrid.Spec[]) {
         this.destroySubgrids();
 
         let mainSubgrid: MainSubgrid | undefined;
@@ -2908,7 +2908,7 @@ export class Revgrid implements SelectionDetail {
         }
     }
 
-    get subgrids() {
+    get subgrids(): readonly Subgrid[] {
         return this._subgrids;
     }
 

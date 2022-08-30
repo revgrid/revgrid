@@ -154,7 +154,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
         this._callbackListener.allRowsDeleted();
     }
 
-    isAnyFieldSorted(fieldIndexes: RevRecordFieldIndex[]): boolean {
+    isAnyFieldSorted(fieldIndexes: readonly RevRecordFieldIndex[]): boolean {
         for (const field of fieldIndexes) {
             if (this.isFieldSorted(field)) {
                 return true;
@@ -312,7 +312,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
         this.checkConsistency();
     }
 
-    invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: RevRecordInvalidatedValue[]): void {
+    invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[]): void {
         this.checkConsistency();
 
         if (invalidatedValues.length > 0) {
@@ -354,7 +354,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
 
     invalidateRecordAndValues(
         recordIndex: RevRecordIndex,
-        invalidatedValues: RevRecordInvalidatedValue[],
+        invalidatedValues: readonly RevRecordInvalidatedValue[],
         recordUpdateRecent?: boolean
     ) {
         this.checkConsistency();
@@ -381,7 +381,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
         this.repopulateRows();
     }
 
-    invalidateFields(fieldIndexes: RevRecordFieldIndex[]) {
+    invalidateFields(fieldIndexes: readonly RevRecordFieldIndex[]) {
         if (fieldIndexes.length > 0) {
             this.invalidateAll(); // in future optimise this to only invalidate affected fields
         }
@@ -815,7 +815,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
         }
     }
 
-    sortByMany(specifiers: RevRecordMainAdapter.SortFieldSpecifier[]): boolean {
+    sortByMany(specifiers: readonly RevRecordMainAdapter.SortFieldSpecifier[]): boolean {
         this.updateSortComparer(specifiers);
         if (this._comparer === undefined) {
             return false;
@@ -917,7 +917,7 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
         this.checkConsistency();
     }
 
-    private updateSortComparer(specifiers: RevRecordMainAdapter.SortFieldSpecifier[]): void {
+    private updateSortComparer(specifiers: readonly RevRecordMainAdapter.SortFieldSpecifier[]): void {
         const specifierCount = specifiers.length;
 
         if (specifiers.length === 0) {

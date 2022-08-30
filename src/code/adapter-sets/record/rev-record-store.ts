@@ -34,7 +34,7 @@ export namespace RevRecordStore {
         endChange(): void;
 
         addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
-        addFields(fields: RevRecordField[]): RevRecordFieldIndex;
+        addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex;
     }
 
     export interface RecordsEventers {
@@ -57,15 +57,15 @@ export namespace RevRecordStore {
             recordIndex: RevRecordIndex,
             valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId
         ): void;
-        invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: RevRecordInvalidatedValue[]): void;
+        invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[]): void;
         invalidateRecordFields(recordIndex: RevRecordIndex, fieldIndex: RevRecordFieldIndex, fieldCount: number): void;
         invalidateRecordAndValues(
             recordIndex: RevRecordIndex,
-            invalidatedValues: RevRecordInvalidatedValue[],
+            invalidatedValues: readonly RevRecordInvalidatedValue[],
             recordUpdateRecent?: boolean
         ): void;
         invalidateFiltering(): void;
-        invalidateFields(fieldIndexes: RevRecordFieldIndex[]): void;
+        invalidateFields(fieldIndexes: readonly RevRecordFieldIndex[]): void;
     }
 }
 

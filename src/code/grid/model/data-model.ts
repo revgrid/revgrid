@@ -56,7 +56,7 @@ export interface DataModel {
      * @param rectangles - Unordered list of rectangular regions of cells to fetch in a single (atomic) operation.
      * @param callback - Optional callback. If provided, implementation calls it with `false` on success (requested data fully fetched) or `true` on failure.
      */
-    fetchData?(rectangles: Rectangle[], callback?: (failure: boolean) => void): void;
+    fetchData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -65,7 +65,7 @@ export interface DataModel {
      * @param metadataFieldName - If provided, the output will include the row metadata object in a "hidden" field with this name.
      * @returns All the grid's data rows.
      */
-    getData?(metadataFieldName?: string): DataModel.DataRow[];
+    getData?(metadataFieldName?: string): readonly DataModel.DataRow[];
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._

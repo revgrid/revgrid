@@ -42,7 +42,7 @@ export class RevSimpleAdapterSet {
                     }
                 }
 
-                if (schema === []) {
+                if (schema.length === 0) {
                     headerRowCount = 0;
                 } else {
                     headerRowCount = schema[0].headers.length;
@@ -116,7 +116,7 @@ export class RevSimpleAdapterSet {
      * @returns The initial rows (up to maxCount) and the number of source rows these covered (may be more
      * than max count if some rows are undefined).
      */
-    getInitialDefinedRows(sourceRows: RevSimpleAdapterSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult {
+    getInitialDefinedRows(sourceRows: readonly RevSimpleAdapterSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult {
         const rows = new Array<RevSimpleAdapterSet.DataRow>(maxCount);
 
         const sourceCount = sourceRows.length;

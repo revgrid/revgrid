@@ -69,7 +69,7 @@ export namespace RevRecordRow {
         return recentChange === undefined ? undefined : recentChange.valueRecentChangeTypeId;
     }
 
-    export function adjustForInsertion(rows: RevRecordRow[], count: number, insertIndex: number) {
+    export function adjustForInsertion(rows: readonly RevRecordRow[], count: number, insertIndex: number) {
         for (let i = 0; i < count; i++) {
             const row = rows[i];
             if (row.index >= insertIndex) {

@@ -511,13 +511,12 @@ export class MainSubgrid extends Subgrid {
      * * `string` - name of a column from the all column list
      * @internal
      */
-    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[]): Column[] {
-        let columns: Column[];
+    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[]): readonly Column[] {
         const allColumns = this._columnsManager.allColumns;
         const activeColumns = this._columnsManager.activeColumns;
 
         if (Array.isArray(hiddenColumns)) {
-            columns = [];
+            let columns: Column[] = [];
             hiddenColumns.forEach((index: number | string) => {
                 const key = typeof index === 'number' ? 'index' : 'name';
                 const column = allColumns.find((column) => { return column[key] === index; });
@@ -526,11 +525,11 @@ export class MainSubgrid extends Subgrid {
                 }
             });
             columns = columns.concat(activeColumns);
+            return columns;
         } else {
-            columns = hiddenColumns ? allColumns : activeColumns;
+            return hiddenColumns ? allColumns : activeColumns;
         }
 
-        return columns;
     }
 
     /** @internal */
