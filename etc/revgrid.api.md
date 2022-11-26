@@ -612,6 +612,8 @@ export class Column {
     setValue(y: number, value: unknown): void;
     // (undocumented)
     setWidth(width: number): boolean;
+    // (undocumented)
+    setWidthToAutoSizing(): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-characters-after-block-tag) The token "@todo" looks like a TSDoc tag but contains an invalid character ":"; if it is not a tag, use a backslash to escape the "@"
@@ -624,6 +626,18 @@ export class Column {
     get type(): string;
     // (undocumented)
     typeOf(something: unknown): string;
+}
+
+// @public (undocumented)
+export const enum ColumnListChangedTypeId {
+    // (undocumented)
+    Clear = 2,
+    // (undocumented)
+    Insert = 0,
+    // (undocumented)
+    Remove = 1,
+    // (undocumented)
+    Set = 3
 }
 
 // @public (undocumented)
@@ -749,7 +763,7 @@ export namespace ColumnProperties {
 // @public (undocumented)
 export class ColumnsManager {
     // @internal
-    constructor(_grid: Revgrid);
+    constructor(_grid: Revgrid, _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler, _columnListChangedEventHandler: ColumnsManager.ColumnListChangedEventHandler, _columnWidthChangedEventHandler: ColumnsManager.ColumnWidthChangedEventHandler);
     // @internal (undocumented)
     get activeColumns(): readonly Column[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -869,6 +883,12 @@ export class ColumnsManager {
 export namespace ColumnsManager {
     // (undocumented)
     export type BeforeCreateColumnsListener = (this: void) => void;
+    // (undocumented)
+    export type BehaviorChangedEventHandler = (this: void) => void;
+    // (undocumented)
+    export type ColumnListChangedEventHandler = (this: void, typeId: ColumnListChangedTypeId, index: number, count: number) => void;
+    // (undocumented)
+    export type ColumnWidthChangedEventHandler = (this: void, column: Column) => void;
 }
 
 // @public (undocumented)
@@ -2063,6 +2083,8 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addState(state: Record<string, unknown>, settingState?: boolean): void;
     // (undocumented)
+    get allColumns(): readonly Column[];
+    // (undocumented)
     allowEventHandlers: boolean;
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     //
@@ -2523,6 +2545,10 @@ export class Revgrid implements SelectionDetail {
     paintNow(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     popMouseDown(): Point;
+    // (undocumented)
+    protected processColumnListChanged(_typeId: ColumnListChangedTypeId, _index: number, _count: number): void;
+    // (undocumented)
+    protected processColumnWidthChanged(_column: Column): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     processHoverCell(cellEvent: CellEvent | undefined): void;
     // Warning: (ae-forgotten-export) The symbol "LoadableGridProperties" needs to be exported by the entry point public-api.d.ts
@@ -2717,6 +2743,8 @@ export namespace Revgrid {
     const // (undocumented)
     defaultProperties: Required<GridProperties>;
     // (undocumented)
+    export type ColumnListChangedEventHandler = ColumnsManager.ColumnListChangedEventHandler;
+    // (undocumented)
     export interface ColumnsDataValuesObject {
         // (undocumented)
         [columnName: string]: DataModel.DataValue[];
@@ -2731,15 +2759,6 @@ export namespace Revgrid {
         right?: string;
         // (undocumented)
         top?: string;
-    }
-    // (undocumented)
-    export abstract class ListenerInfo {
-        // (undocumented)
-        abstract decorator: Canvas.EventListener<never>;
-        // (undocumented)
-        internal: boolean;
-        // (undocumented)
-        abstract listener: Canvas.EventListener<never>;
     }
     const // (undocumented)
     gridElementCssClass = "revgrid";
@@ -2757,6 +2776,17 @@ export namespace Revgrid {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@property" is not defined in this configuration
     defaultLocalizationOptions: LocalizationOptions;
     // (undocumented)
+    export abstract class ListenerInfo {
+        // (undocumented)
+        abstract decorator: Canvas.EventListener<never>;
+        // (undocumented)
+        internal: boolean;
+        // (undocumented)
+        abstract listener: Canvas.EventListener<never>;
+    }
+    const // (undocumented)
+    edgeStyleKeys: Array<keyof EdgeStyleValues>;
+    // (undocumented)
     export interface LocalizationOptions {
         // Warning: (ae-forgotten-export) The symbol "DateFormatter" needs to be exported by the entry point public-api.d.ts
         //
@@ -2770,7 +2800,7 @@ export namespace Revgrid {
         numberOptions?: NumberFormatter.Options;
     }
     const // (undocumented)
-    edgeStyleKeys: Array<keyof EdgeStyleValues>;
+    boundingRectStyleKeys: Array<keyof BoundingRectStyleValues>;
     // (undocumented)
     export interface Options {
         adapterSet?: GridProperties.AdapterSet;
@@ -2792,7 +2822,7 @@ export namespace Revgrid {
         state?: Record<string, unknown>;
     }
     const // (undocumented)
-    boundingRectStyleKeys: Array<keyof BoundingRectStyleValues>;
+    grids: Revgrid[];
     // (undocumented)
     export class TypedListenerInfo<T extends EventName> extends ListenerInfo {
         // (undocumented)
@@ -2800,8 +2830,6 @@ export namespace Revgrid {
         // (undocumented)
         listener: Canvas.EventListener<T>;
     }
-    const // (undocumented)
-    grids: Revgrid[];
 }
 
 // @public (undocumented)
@@ -2912,7 +2940,8 @@ export namespace RevRecordField {
 
 // @public (undocumented)
 export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.FieldsEventers {
-    constructor(_recordStore: RevRecordStore);
+    constructor(
+    _recordStore?: RevRecordStore | undefined);
     // (undocumented)
     addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
     // (undocumented)
@@ -3174,23 +3203,23 @@ export interface RevRecordStore {
     getRecord(index: RevRecordIndex): RevRecord;
     getRecords(): readonly RevRecord[];
     readonly recordCount: number;
-    // (undocumented)
-    setFieldEventers(fieldsEventers: RevRecordStore.FieldsEventers): void;
+    // @deprecated (undocumented)
+    setFieldEventers?(fieldsEventers: RevRecordStore.FieldsEventers): void;
     // (undocumented)
     setRecordEventers(recordsEventers: RevRecordStore.RecordsEventers): void;
 }
 
 // @public (undocumented)
 export namespace RevRecordStore {
-    // (undocumented)
+    // @deprecated (undocumented)
     export interface FieldsEventers {
-        // (undocumented)
+        // @deprecated (undocumented)
         addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
-        // (undocumented)
+        // @deprecated (undocumented)
         addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex;
-        // (undocumented)
+        // @deprecated (undocumented)
         beginChange(): void;
-        // (undocumented)
+        // @deprecated (undocumented)
         endChange(): void;
     }
     // (undocumented)

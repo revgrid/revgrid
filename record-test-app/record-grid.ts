@@ -3,6 +3,7 @@ import {
     CellEvent,
     CellPainter,
     Column,
+    ColumnListChangedTypeId,
     EventDetail,
     GridProperties,
     Halign,
@@ -17,7 +18,18 @@ import {
     RevRecordStore,
     SelectionDetail,
     Subgrid,
-} from "..";
+    UnreachableCaseError
+} from '..';
+import {
+    DateValGridField,
+    GridField,
+    HiddenStrValGridField,
+    IntValGridField,
+    NumberValGridField,
+    RecordIndexGridField,
+    StatusIdValGridField,
+    StrValGridField
+} from './grid-field';
 
 export class RecordGrid extends Revgrid {
     fieldSortedEventer: RecordGrid.FieldSortedEventer | undefined;
@@ -36,6 +48,14 @@ export class RecordGrid extends Revgrid {
     private readonly _headerRecordAdapter: RevRecordHeaderAdapter;
     private readonly _mainRecordAdapter: RevRecordMainAdapter;
 
+    private readonly _recordIndexGridField = new RecordIndexGridField();
+    private readonly _hiddenStrValGridField = new HiddenStrValGridField();
+    private readonly _intValGridField = new IntValGridField();
+    private readonly _strValGridField = new StrValGridField();
+    private readonly _numberValGridField = new NumberValGridField();
+    private readonly _dateValGridField = new DateValGridField();
+    private readonly _statusIdValGridField = new StatusIdValGridField();
+
     private readonly _selectionChangedListener: (event: CustomEvent<SelectionDetail>) => void;
     private readonly _clickListener: (event: CustomEvent<CellEvent>) => void;
     private readonly _dblClickListener: (event: CustomEvent<CellEvent>) => void;
@@ -50,7 +70,7 @@ export class RecordGrid extends Revgrid {
         mainCellPainter: CellPainter,
         gridProperties: Partial<GridProperties>,
     ) {
-        const fieldAdapter = new RevRecordFieldAdapter(recordStore);
+        const fieldAdapter = new RevRecordFieldAdapter();
         const mainRecordAdapter = new RevRecordMainAdapter(fieldAdapter, recordStore);
         const headerRecordAdapter = new RevRecordHeaderAdapter();
 
@@ -91,10 +111,15 @@ export class RecordGrid extends Revgrid {
 
         this.allowEvents(true);
 
+        this.addFieldsToAdapter();
+
         this.addEventListener('rev-column-sort', this._columnSortListener);
     }
 
     get fieldCount(): number { return this._fieldAdapter.fieldCount; }
+
+    get strValGridField() { return this._strValGridField; }
+    get hiddenStrValGridField() { return this._hiddenStrValGridField; }
 
     get sortable(): boolean { return this.properties.sortable; }
     set sortable(value: boolean) { this.properties.sortable = value; }
@@ -252,8 +277,8 @@ export class RecordGrid extends Revgrid {
         this.autosizeColumn(columnIndex);
     }
 
-    getField(fieldIdx: number): RevRecordField {
-        return this._fieldAdapter.getField(fieldIdx);
+    getField(fieldIdx: number) {
+        return this._fieldAdapter.getField(fieldIdx) as GridField;
     }
 
     getFieldIndex(field: RevRecordField): RevRecordFieldIndex {
@@ -306,66 +331,22 @@ export class RecordGrid extends Revgrid {
         return rowHeight + lineWidth;
     }
 
-    // getLayoutWithHeadersMap(): RecordGrid.LayoutWithHeadersMap {
-    //     return {
-    //         layout: this.saveLayout(),
-    //         headersMap: this.getFieldNameToHeaderMap()
-    //     };
-    // }
-
     getVisibleFields(): RevRecordFieldIndex[] {
         return this.getActiveColumns().map(column => (column.schemaColumn as RevRecordField.SchemaColumn).index);
+    }
+
+    isIntValGridField(field: GridField) {
+        return field === this._intValGridField;
+    }
+
+    isRecordIndexGridFieldIndex(fieldIndex: RevRecordFieldIndex) {
+        const field = this.getField(fieldIndex);
+        return field === this._recordIndexGridField;
     }
 
     isHeaderRow(rowIndex: number): boolean {
         return rowIndex > this.headerRowCount;
     }
-
-    // loadLayout(layout: GridLayout): void {
-    //     const columns = layout.getColumns().filter(column => this._fieldAdapter.hasField(column.field.name));
-
-    //     // Show all visible columns. Also sets their positions
-    //     // TODO: Should we care about the position of hidden columns?
-    //     this.showColumns(false, columns.filter(column => column.visible).map(column => {
-    //         return this._fieldAdapter.getFieldIndexByName(column.field.name);
-    //     }));
-    //     this.showColumns(false, columns.filter(column => !column.visible).map(column => {
-    //         return this._fieldAdapter.getFieldIndexByName(column.field.name);
-    //     }), -1);
-
-    //     const gridColumns = this.getAllColumns();
-
-    //     // Apply width settings
-    //     for (const column of columns) {
-    //         const fieldIndex = this._fieldAdapter.getFieldIndexByName(column.field.name)
-    //         const gridColumn = gridColumns[fieldIndex];
-
-    //         if (column.width === undefined) {
-    //             gridColumn.checkColumnAutosizing(true);
-    //         } else {
-    //             gridColumn.setWidth(column.width);
-    //         }
-    //     }
-
-    //     // Apply sorting
-    //     const sortedColumns = columns.filter(column => column.sortPriority !== undefined) as GridLayout.SortPrioritizedColumn[];
-
-    //     if (sortedColumns.length === 0) {
-    //         this._mainRecordAdapter.clearSort();
-    //     } else {
-    //         sortedColumns.sort((left, right) => right.sortPriority - left.sortPriority);
-
-    //         const sortSpecifiers = sortedColumns.map<MainRecordAdapter.SortFieldSpecifier>(column => {
-    //             const fieldIndex = this._fieldAdapter.getFieldIndexByName(column.field.name)
-    //             return { FieldIndex: fieldIndex, Ascending: column.sortAscending === true };
-    //         });
-
-    //         this._mainRecordAdapter.sortByMany(sortSpecifiers);
-    //     }
-
-    //     // this.renderer.resetAllCellPropertiesCaches();
-    //     this.repaint();
-    // }
 
     moveActiveColumn(fromColumnIndex: number, toColumnIndex: number): void {
         this.showColumns(true, fromColumnIndex, toColumnIndex, false);
@@ -405,45 +386,6 @@ export class RecordGrid extends Revgrid {
             return recIdx;
         }
     }
-
-    // saveLayout(): GridLayout {
-    //     const layout = new GridLayout(this._fieldAdapter.getFieldNames());
-
-    //     // Apply the order of the visible columns
-    //     const visibleColumnFields = this.getActiveColumns().map(
-    //         column => this._fieldAdapter.getFieldByName(column.schemaColumn.name)
-    //     );
-    //     layout.setFieldColumnsByFieldNames(visibleColumnFields.map<string>(field => field.name));
-
-    //     // Hide all hidden fields
-    //     const visibleSet = new Set(visibleColumnFields);
-    //     const hiddenColumnFields = this._fieldAdapter.getFilteredFields((field) => !visibleSet.has(field));
-    //     layout.setFieldsVisible(hiddenColumnFields.map(field => field.name), false);
-
-    //     // Apply width settings
-    //     for (const column of this.getAllColumns()) {
-    //         const field = this._fieldAdapter.getFieldByName(column.schemaColumn.name);
-    //         const columnProperties = column.properties;
-
-    //         if (columnProperties.columnAutosizing && columnProperties.columnAutosized) {
-    //             layout.setFieldWidthByFieldName(field.name);
-    //         } else {
-    //             layout.setFieldWidthByFieldName(field.name, columnProperties.width);
-    //         }
-    //     }
-
-    //     // Apply the sorting
-    //     layout.setFieldSorting(this._mainRecordAdapter.sortFieldSpecifiers);
-
-    //     return layout;
-    // }
-
-    // setColumnWidth(indexOrColumn: number | Column, width: number): void {
-    //     const widthChangedColumn = this.setActiveColumnWidth(indexOrColumn, width);
-    //     if (this.columnWidthChangedEventer !== undefined && widthChangedColumn !== undefined) {
-    //         this.columnWidthChangedEventer(widthChangedColumn.index);
-    //     }
-    // }
 
     setFieldHeader(fieldOrIdx: RevRecordFieldIndex | RevRecordField, header: string): void {
         const fieldIndex = this._fieldAdapter.setFieldHeader(fieldOrIdx, header);
@@ -532,14 +474,42 @@ export class RecordGrid extends Revgrid {
         this.showColumns(false, fieldIndex);
     }
 
-    /** @internal */
+    protected override processColumnListChanged(typeId: ColumnListChangedTypeId, index: number, count: number) {
+        // how to set initial width of a column
+        switch (typeId) {
+            case ColumnListChangedTypeId.Insert:
+            case ColumnListChangedTypeId.Set:
+                // use existing index and count to check for columns whose width is to be set
+                break;
+            case ColumnListChangedTypeId.Remove:
+            case ColumnListChangedTypeId.Clear:
+                // Do not check any columns
+                index = 0;
+                count = 0;
+                break;
+            default:
+                throw new UnreachableCaseError('RCPCLC65599', typeId);
+        }
+        if (count > 0) {
+            const allColumns = this.allColumns;
+            const afterIndex = index + count;
+            for (let allIndex = index; allIndex < afterIndex; allIndex++) {
+                const column = allColumns[allIndex];
+                if (column.name === this._strValGridField.name) {
+                    column.setWidth(150);
+                }
+            }
+        }
+
+        super.processColumnListChanged(typeId, index, count);
+    }
+
     private handleHypegridColumnSortEvent(column: Column): void {
         const fieldIndex = column.schemaColumn.index;
 
         this._mainRecordAdapter.sortBy(fieldIndex);
     }
 
-    /** @internal */
     private handleGridClickEvent(event: CustomEvent<CellEvent>): void {
         const gridY = event.detail.gridCell.y;
         if (gridY !== 0) { // Skip clicks to the column headers
@@ -556,7 +526,6 @@ export class RecordGrid extends Revgrid {
         }
     }
 
-    /** @internal */
     private handleMouseDown(/*rowIndex: number, fieldIndex: number, gridY: number*/): void {
         /*if (gridY === 0) {
             return;
@@ -567,7 +536,6 @@ export class RecordGrid extends Revgrid {
         this.recordFocusEventer!(recordIndex, fieldIndex);*/
     }
 
-    /** @internal */
     private handleGridDblClickEvent(event: CustomEvent<CellEvent>): void {
         if (event.detail.gridCell.y !== 0) { // Skip clicks to the column headers
             if (this._recordFocusClickEventer !== undefined) {
@@ -582,7 +550,6 @@ export class RecordGrid extends Revgrid {
         }
     }
 
-    /** @internal */
     private handleHypegridSelectionChanged(event: CustomEvent<SelectionDetail>) {
         const selections = event.detail.selections;
 
@@ -610,14 +577,12 @@ export class RecordGrid extends Revgrid {
         }
     }
 
-    /** @internal */
     private handleHypegridResizedEvent(event: CustomEvent<EventDetail.Resize>) {
         if (this._resizedEventer !== undefined) {
             this._resizedEventer(event.detail)
         }
     }
 
-    /** @internal */
     private handleHypegridColumnsViewWidthsChangedEvent(event: CustomEvent<EventDetail.ColumnsViewWidthsChanged>) {
         if (this._columnsViewWidthsChangedEventer !== undefined) {
             const detail = event.detail;
@@ -625,14 +590,12 @@ export class RecordGrid extends Revgrid {
         }
     }
 
-    /** @internal */
     private handleHypegridRenderedEvent() {
         if (this._renderedEventer !== undefined) {
             this._renderedEventer();
         }
     }
 
-    /** @internal */
     // private handleHypegridNextRenderedEvent() {
     //     if (this._nextRenderedResolves.length > 0) {
     //         this.removeEventListener('hyg-grid-rendered', this._nextRenderedListener);
@@ -644,7 +607,6 @@ export class RecordGrid extends Revgrid {
     //     }
     // }
 
-    /** @internal */
     private createGridPropertiesFromSettings(settings: Partial<GridSettings>): Partial<GridProperties> {
         const properties: Partial<GridProperties> = {};
 
@@ -726,213 +688,17 @@ export class RecordGrid extends Revgrid {
         return properties;
     }
 
-    // /** @internal */
-    // private applyRecentRecordChange(now: number, rowIndex: number, row: MainDataSource.Row, changeType: RowRecentChangeTypeId) {
-    //     const duration = this._settings.highlightAddDuration; // only change type currently in use
-    //     if (this._settings.highlightMethod !== GridSettings.HighlightMethod.None && changeType !== RowRecentChangeTypeId.None && duration > 0) {
-    //         // Apply change to Row (clear other properties)
-    //         const rowMetadata: MainDataSource.Row.Meta.Row = {
-    //             ____recentRecordChangeType: changeType,
-    //         };
-
-    //         row.meta = rowMetadata;
-
-    //         // const row = this._rows[rowIndex];
-    //         const highlight: Highlight = {
-    //             index: rowIndex,
-    //             field: undefined,
-    //             expires: now + duration,
-    //         };
-
-    //         // Highlights must be ordered based on their expiry time
-    //         let index = ArrayUtil.binarySearch(this._highlights, highlight, highlightSort);
-
-    //         if (index < 0) {
-    //             index = ~index;
-    //         }
-
-    //         this._highlights.splice(index, 0, highlight);
-
-    //         // We changed the most recent highlight
-    //         if (index === 0) {
-    //             this.updateHighlights(now);
-    //         }
-    //     }
-    // }
-
-    // private applyRecentValueChange(now: number, fieldIndex: number, field: GridField,
-    //     rowIndex: number, row: MainDataSource.Row, changeType: ValueRecentChangeTypeId
-    // ) {
-    //     const duration = (changeType === ValueRecentChangeTypeId.None) ? -1 : this._settings.highlightUpdateDuration;
-    //     if (this._settings.highlightMethod !== GridSettings.HighlightMethod.None && duration > 0) {
-    //         // const row = this._rows[rowIndex];
-    //         const highlight: Highlight = {
-    //             index: rowIndex,
-    //             field: field,
-    //             expires: now + duration
-    //         };
-
-    //         // Highlights must be ordered based on their expiry time
-    //         let index = ArrayUtil.binarySearch(this._highlights, highlight, highlightSort);
-
-    //         if (index < 0) {
-    //             index = ~index;
-    //         }
-
-    //         this._highlights.splice(index, 0, highlight);
-
-    //         // Apply highlight to Cell (clear other attributes)
-    //         let rowMetadata = row.meta as MainDataSource.Row.Meta.Cells;
-
-    //         if (rowMetadata === undefined) {
-    //             rowMetadata = {};
-    //             row.meta = rowMetadata;
-    //         }
-
-    //         // TODO: Should we use the column properties?
-    //         rowMetadata[field.name] = {
-    //             recentValueChangeType: changeType,
-    //         }
-
-    //         // this.renderer.resetCellPropertiesCache(fieldIndex, rowIndex);
-
-    //         // We changed the most recent highlight
-    //         if (index === 0) {
-    //             this.updateHighlights(now);
-    //         }
-    //     }
-    // }
-
-    // private removeHighlight(rowIndex: number) {
-    //     const numHighlights = this._highlights.length;
-    //     let remainingHighlights = 0;
-
-    //     // Remove our highlights and adjust others down
-    //     for (let index = 0; index < numHighlights; index++) {
-    //         const value = this._highlights[index];
-
-    //         if (value.index == rowIndex) {
-    //             continue; // Remove this highlight, since we're removing this record
-    //         }
-
-    //         if (value.index > rowIndex) {
-    //             value.index--; // Reduce these records down
-    //         }
-
-    //         if (index != remainingHighlights) {
-    //             this._highlights[remainingHighlights] = value;
-    //         }
-
-    //         remainingHighlights++;
-    //     }
-
-
-
-    //     if (numHighlights !== remainingHighlights) {
-    //         this._highlights.splice(remainingHighlights); // Trim the removed items
-
-    //         this.updateHighlights(SysTick.now()); // Update the timer
-    //     }
-    // }
-
-    // private checkNotifiedFocusedRecordIndex() {
-    //     const actualSelectedRecordIndex = this.focusedRecordIndex;
-    //     if (actualSelectedRecordIndex !== this._lastNotifiedFocusedRecordIndex) {
-    //         const oldFocusedRecordIndex = this._lastNotifiedFocusedRecordIndex;
-    //         this._lastNotifiedFocusedRecordIndex = actualSelectedRecordIndex;
-    //         const recordFocusEventer = this._recordFocusEventer;
-    //         if (recordFocusEventer !== undefined) {
-    //             recordFocusEventer(actualSelectedRecordIndex, oldFocusedRecordIndex);
-    //         }
-    //     }
-    // }
-
-    // private handleAllRowsDeleted() {
-    //     this._recentChanges.processAllRowsDeleted();
-    // }
-
-    // private handleRowInsertedEvent(rowIndex: number) {
-    //     this._recentChanges.addInsertedRowChange(rowIndex)
-    //     // Adjust the highlighted rows up
-    //     // for (const highlight of this._highlights) {
-    //     //     if (highlight.index >= rowIndex) {
-    //     //         highlight.index++;
-    //     //     }
-    //     // }
-
-    //     // this.applyRecentRecordChange(now, rowIndex, row, RecentRecordChangeType.Add);
-    // }
-
-    // private handleRowMovedEvent(oldRowIndex: number, newRowIndex: number) {
-    //     // Adjust the highlighted rows
-    //     for (const highlight of this._highlights) {
-    //         if (highlight.index > oldRowIndex) {
-    //             highlight.index--;
-    //         }
-
-    //         if (highlight.index >= newRowIndex) {
-    //             highlight.index++;
-    //         }
-    //     }
-    // }
-
-    // private handleRowDeletedEvent(rowIndex: number) {
-    //     this.removeHighlight(rowIndex);
-
-    //     this._mainDataModel.notifyRowCountChanged();
-
-    //     if (this._mainDataModel.rowCount === 0) {
-    //         this.clearSelections();
-    //     }
-    // }
-
-    // /** @internal */
-    // private handleValueChangedEvent(now: SysTick.Time, fieldIndex: number, field: GridField,
-    //     rowIndex: number, row: MainDataSource.Row, changeType: ValueRecentChangeTypeId
-    // ) {
-    //     this.applyRecentValueChange(now, fieldIndex, field, rowIndex, row, changeType);
-    // }
-
-    // /** @internal */
-    // private tickHighlights(): void {
-    //     const now = SysTick.now();
-    //     let index = 0;
-    //     const highlights = this._highlights;
-
-    //     // Find all the highlights that have expired, or will expire in the next 10 msec
-    //     while (index < highlights.length && highlights[index].expires <= now + 10) {
-    //         const highlight = highlights[index++];
-
-    //         // For now, just completely re-evaluate the row metadata
-    //         this._mainDataModel.clearRowMetadata(highlight.index, highlight.field);
-    //     }
-
-    //     highlights.splice(0, index);
-
-    //     // this.renderer.resetAllCellPropertiesCaches();
-    //     this.repaint();
-
-    //     this.updateHighlights(now);
-    // }
-
-    // /** @internal */
-    // private updateHighlights(now: number): void {
-    //     if (this._highlightTimer !== undefined) {
-    //         clearTimeout(this._highlightTimer);
-    //     }
-
-    //     if (this._highlights.length === 0) {
-    //         this._highlightTimer = undefined;
-    //     } else {
-    //         const next = this._highlights[0].expires - now;
-
-    //         if (next > 0) {
-    //             this._highlightTimer = window.setTimeout(() => this.tickHighlights(), next);
-    //         } else {
-    //             this.tickHighlights();
-    //         }
-    //     }
-    // }
+    private addFieldsToAdapter() {
+        this._fieldAdapter.addFields([
+            this._recordIndexGridField,
+            this._hiddenStrValGridField,
+            this._intValGridField,
+            this._strValGridField,
+            this._numberValGridField,
+            this._dateValGridField,
+            this._statusIdValGridField,
+        ]);
+    }
 
     private getColumnFieldIndex(activeColumnIndex: number): RevRecordFieldIndex {
         const column = this.getActiveColumn(activeColumnIndex);

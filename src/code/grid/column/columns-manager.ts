@@ -1,5 +1,6 @@
 import { dispatchGridEvent } from '../canvas/dispatch-grid-event';
 import { AssertError } from '../lib/revgrid-error';
+import { ColumnListChangedTypeId } from '../lib/types';
 import { SchemaModel } from '../model/schema-model';
 import { Revgrid } from '../revgrid';
 import { Column } from './column';
@@ -25,7 +26,12 @@ export class ColumnsManager {
     private _beforeCreateColumnsListeners = new Array<ColumnsManager.BeforeCreateColumnsListener>();
 
     /** @internal */
-    constructor(private readonly _grid: Revgrid) { }
+    constructor(
+        private readonly _grid: Revgrid,
+        private readonly _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler,
+        private readonly _columnListChangedEventHandler: ColumnsManager.ColumnListChangedEventHandler,
+        private readonly _columnWidthChangedEventHandler: ColumnsManager.ColumnWidthChangedEventHandler,
+    ) { }
 
     /** @internal */
     addBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener) {
@@ -172,15 +178,25 @@ export class ColumnsManager {
 
         this.clearColumns();
 
-        schema.forEach((schemaColumn) => {
+        const count = schema.length;
+        this._activeColumns.length = count;
+        this._allColumns.length = count;
+
+        for (let i = 0; i < count; i++) {
+            const schemaColumn = schema[i];
             const column = this.newColumn(schemaColumn);
-            this._activeColumns.push(column);
-            this._allColumns.splice(column.index, 0, column);
-        });
+            this._activeColumns[i] = column;
+            const allIndex = column.index;
+            if (this._allColumns[allIndex] !== undefined) {
+                throw new Error(`ColumnsManager.createColumns: Duplicate column index ${allIndex}`);
+            } else {
+                this._allColumns[allIndex] = column;
+            }
+        }
 
         this.columnsCreated = true;
 
-        this._grid.behaviorChanged();
+        this._columnListChangedEventHandler(ColumnListChangedTypeId.Set, 0, count);
 
         dispatchGridEvent(this._grid, 'rev-hypergrid-columns-created', false, undefined);
     }
@@ -208,7 +224,7 @@ export class ColumnsManager {
         }
         const changed = column.setWidth(width);
         if (changed) {
-            this._grid.behaviorStateChanged();
+            this._columnWidthChangedEventHandler(column);
             return column;
         } else {
             return undefined;
@@ -437,7 +453,7 @@ export class ColumnsManager {
 
         // column.clearProperties(); // needs implementation
         column.properties.merge(properties);
-        this._grid.behaviorChanged();
+        this._behaviorChangedEventHandler();
         return column.properties;
     }
 
@@ -521,7 +537,7 @@ export class ColumnsManager {
             return;
         }
         columns[target] = sourceColumn;
-        this._grid.behaviorChanged();
+        this._behaviorChangedEventHandler();
     }
 
     /** @internal */
@@ -563,7 +579,7 @@ export class ColumnsManager {
     /** @internal */
     autosizeAllColumns() {
         this.checkColumnAutosizing(true);
-        this._grid.behaviorChanged();
+        this._behaviorChangedEventHandler();
     }
 
     /** @internal */
@@ -607,5 +623,9 @@ export class ColumnsManager {
 
 /** @public */
 export namespace ColumnsManager {
+    export type BehaviorChangedEventHandler = (this: void) => void;
+    export type ColumnListChangedEventHandler = (this: void, typeId: ColumnListChangedTypeId, index: number, count: number) => void;
+    export type ColumnWidthChangedEventHandler = (this: void, column: Column) => void;
+
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

@@ -115,6 +115,16 @@ export class Column {
         }
     }
 
+    setWidthToAutoSizing() {
+        if (this.properties.columnAutosizing) {
+            return false;
+        } else {
+            this.properties.columnAutosizing = true;
+            this.properties.columnAutosized = false; // make sure an initial autosize happens
+            return true;
+        }
+    }
+
     checkColumnAutosizing(force?: boolean) {
         const properties = this.properties;
         let autoSized: boolean;
@@ -130,6 +140,8 @@ export class Column {
                 }
                 properties.columnAutosized = !isNaN(properties.width);
                 autoSized = properties.width !== width;
+            } else {
+                autoSized = false;
             }
         } else {
             autoSized = false;

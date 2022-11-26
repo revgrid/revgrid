@@ -14,18 +14,21 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
     private readonly _fieldValueDependsOnRowIndexFieldIndexes: RevRecordFieldIndex[] = [];
 
     private _callbackListener: SchemaModel.CallbackListener;
+    /** @deprecated removed when RecordStore is removed from this class */
     private _recordStoreEventersSet = false;
 
     get schema(): readonly RevRecordField.SchemaColumn[] { return this._schema }
     get fieldCount(): number { return this._fields.length; }
     get fields(): readonly RevRecordField[] { return this._fields; }
 
-    constructor(private readonly _recordStore: RevRecordStore) {
+    constructor(
+        /** @deprecated use Field functions directly from this class */
+        private readonly _recordStore?: RevRecordStore) {
     }
 
     addSchemaCallbackListener(value: SchemaModel.CallbackListener): void {
         this._callbackListener = value;
-        if (!this._recordStoreEventersSet) {
+        if (this._recordStore?.setFieldEventers !== undefined && !this._recordStoreEventersSet) {
             this._recordStore.setFieldEventers(this);
             this._recordStoreEventersSet = true;
         }

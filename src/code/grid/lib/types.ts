@@ -29,3 +29,11 @@ export const enum HorizontalWheelScrollingAllowed {
 export type Writable<T> = {
     -readonly [P in keyof T]: T[P];
 };
+
+/** @public */
+export const enum ColumnListChangedTypeId {
+    Insert,
+    Remove,
+    Clear,
+    Set,
+}

@@ -7,7 +7,8 @@ import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevReco
  * @public
  */
 export interface RevRecordStore {
-    setFieldEventers(fieldsEventers: RevRecordStore.FieldsEventers): void;
+    /** @deprecated use Field functions in RevRecordFieldAdapter directly */
+    setFieldEventers?(fieldsEventers: RevRecordStore.FieldsEventers): void;
     setRecordEventers(recordsEventers: RevRecordStore.RecordsEventers): void;
 
     /**
@@ -29,11 +30,16 @@ export interface RevRecordStore {
 
 /** @public */
 export namespace RevRecordStore {
+    /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
     export interface FieldsEventers {
+        /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
         beginChange(): void;
+        /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
         endChange(): void;
 
+        /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
         addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
+        /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
         addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex;
     }
 

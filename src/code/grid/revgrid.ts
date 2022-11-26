@@ -21,17 +21,18 @@ import { FinBar } from './finbar/finbar-api';
 import { GridPainter } from './grid-painter/grid-painter';
 import { GridProperties, LoadableGridProperties } from './grid-properties';
 import { GridPropertiesAccessor } from './grid-properties-accessor';
-import { SchemaModel } from './grid-public-api';
 import { DateFormatter, Localization, NumberFormatter } from './lib/localization';
 import { Point, WritablePoint } from './lib/point';
 import { Rectangle, RectangleInterface } from './lib/rectangle';
 import { AssertError } from './lib/revgrid-error';
+import { ColumnListChangedTypeId } from './lib/types';
 import { MainSubgrid } from './main-subgrid';
 import { CellModel } from './model/cell-model';
 import { DataModel } from './model/data-model';
 import { MainDataModel } from './model/main-data-model';
 import { MetaModel } from './model/meta-model';
 import { ModelCallbackRouter } from './model/model-callback-router';
+import { SchemaModel } from './model/schema-model';
 import { Renderer } from './renderer/renderer';
 import { SelectionDetail, SelectionDetailAccessor } from './selection/selection-detail';
 import { Subgrid } from './subgrid';
@@ -76,21 +77,17 @@ export class Revgrid implements SelectionDetail {
 
     cellEditorFactory = cellEditorFactory;
 
-    // Begin Events mixin
     eventlistenerInfos = new Map<EventName | string, Revgrid.ListenerInfo[]>();
-    // End Events mixin
 
     /** @internal */
     get columnsManager() { return this._columnsManager; }
+    get allColumns(): readonly Column[] { return this._columnsManager.allColumns; }
 
-    // Begin Selection mixin
     /** @internal */
     get selectionModel() { return this.mainSubgrid.selectionModel; }
     get selectedRows() { return this.mainSubgrid.getSelectedRows(); }
     get selectedColumns() { return this.mainSubgrid.getSelectedColumns(); }
     get selections() { return this.mainSubgrid.selections; }
-
-    // End Selection mixin
 
 
     // Begin Themes mixin
@@ -220,7 +217,12 @@ export class Revgrid implements SelectionDetail {
         }
 
         this.behavior = new Behavior(this);
-        this._columnsManager = new ColumnsManager(this);
+        this._columnsManager = new ColumnsManager(
+            this,
+            () => this.behaviorChanged(),
+            (typeId, index, count) => this.processColumnListChanged(typeId, index, count),
+            (column) => this.processColumnWidthChanged(column),
+        );
         this._featureManager = new FeaturesManager(this, this.featuresSharedState);
 
         //Set up the container for a grid instance
@@ -4014,6 +4016,18 @@ export class Revgrid implements SelectionDetail {
         return navKey;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected processColumnListChanged(_typeId: ColumnListChangedTypeId, _index: number, _count: number) {
+        // descendants can override - make sure this function is called in any override function (probably at end)
+        this.behaviorChanged();
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected processColumnWidthChanged(_column: Column) {
+        // descendants can override - make sure this function is called in any override function (probably at end)
+        this.behaviorStateChanged();
+    }
+
     private handleGridEventDispatchEvent<T extends EventName>(name: T, detail: EventName.DetailMap[T]) {
         dispatchGridEvent(this, name, false, detail);
     }
@@ -4451,6 +4465,8 @@ export namespace Revgrid {
     }
 
     export const grids = Array<Revgrid>();
+
+    export type ColumnListChangedEventHandler = ColumnsManager.ColumnListChangedEventHandler;
 }
 
 // Begin Selection functions

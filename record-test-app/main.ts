@@ -1,6 +1,9 @@
 import {
     defaultGridProperties,
-    GridProperties, RevRecordFieldIndex, RevRecordIndex, RevRecordMainAdapter
+    GridProperties,
+    RevRecordFieldIndex,
+    RevRecordIndex,
+    RevRecordMainAdapter
 } from '..';
 import { GridSettings } from './grid-settings';
 import { RecordGrid } from './record-grid';
@@ -559,7 +562,7 @@ export class Main {
 
     private handleUiHideStringFieldChange() {
         const visible = !this._hideStringFieldCheckboxElement.checked;
-        this._grid.setFieldVisible(RecordStore.strValGridField, visible);
+        this._grid.setFieldVisible(this._grid.strValGridField, visible);
     }
 
     private handleUiVertScrollbarWidthChange() {
@@ -605,7 +608,7 @@ export class Main {
     }
 
     private handleUiAutoSizeStringAction() {
-        this._grid.autoSizeFieldColumnWidth(RecordStore.strValGridField);
+        this._grid.autoSizeFieldColumnWidth(this._grid.strValGridField);
     }
 
     private handleUiAutoWidenStringAction() {
@@ -808,7 +811,7 @@ export class Main {
         grid.columnWidthChangedEventer = () => this.handleColumnWidthChanged();
         grid.renderedEventer = () => this.handleGridRendered();
 
-        grid.setFieldsVisible([RecordStore.hiddenStrValGridField], false);
+        grid.setFieldsVisible([grid.hiddenStrValGridField], false);
         grid.setFixedColumnCount(defaultGridSettings.fixedColumnCount);
 
         return grid;
@@ -868,11 +871,11 @@ export class Main {
     }
 
     private handleRecordFocusClick(fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex): void {
-        console.log(`Click for Record ${recordIndex} field ${RecordStore.fieldDefinitions[fieldIndex].name}`);
+        console.log(`Click for Record ${recordIndex} field ${this._grid.getField(fieldIndex).name}`);
     }
 
     private handleRecordFocusDblClick(fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex): void {
-        console.log(`DoubleClick for Record ${recordIndex} field ${RecordStore.fieldDefinitions[fieldIndex].name}`);
+        console.log(`DoubleClick for Record ${recordIndex} field ${this._grid.getField(fieldIndex).name}`);
     }
 
     private handleGridResized(/*event: MotifGrid.ResizedEventDetail*/): void {
@@ -977,7 +980,7 @@ export class Main {
         if (fieldCount > 0 && this._recordStore.recordCount > 0) {
             let fieldIdx = Math.floor(Math.random() * fieldCount);
 
-            if (this._grid.getField(fieldIdx) === RecordStore.recordIndexGridField) {
+            if (this._grid.isRecordIndexGridFieldIndex(fieldIdx)) {
                 fieldIdx += 2;
             }
 
@@ -1006,13 +1009,13 @@ export class Main {
         if (this._debugEnabled) {
             console.debug(`ModifyValue: ${fieldIndex}, ${recIdx}, ${this._recordStore.recordCount}`);
         }
+        const record = this._recordStore.getRecord(recIdx);
         const field = this._grid.getField(fieldIndex);
-        const isIntValueField = field === RecordStore.intValGridField;
 
-        const valueRecentChangeTypeId = this._recordStore.modifyValue(field, recIdx);
+        const valueRecentChangeTypeId = field.modifyValue(record);
 
         if (valueRecentChangeTypeId !== undefined) {
-            if (isIntValueField && recIdx === this._grid.focusedRecordIndex) {
+            if (this._grid.isIntValGridField(field) && recIdx === this._grid.focusedRecordIndex) {
                 this.updateCaptionValue(recIdx);
             }
 
