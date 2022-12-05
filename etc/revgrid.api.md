@@ -629,15 +629,20 @@ export class Column {
 }
 
 // @public (undocumented)
+export type ColumnListChangedEventHandler = (this: void, typeId: ColumnListChangedTypeId, index: number, count: number, targetIndex?: number) => void;
+
+// @public (undocumented)
 export const enum ColumnListChangedTypeId {
     // (undocumented)
-    Clear = 2,
+    Clear = 4,
     // (undocumented)
-    Insert = 0,
+    Insert = 1,
     // (undocumented)
-    Remove = 1,
+    Move = 3,
     // (undocumented)
-    Set = 3
+    Remove = 2,
+    // (undocumented)
+    Set = 0
 }
 
 // @public (undocumented)
@@ -763,7 +768,7 @@ export namespace ColumnProperties {
 // @public (undocumented)
 export class ColumnsManager {
     // @internal
-    constructor(_grid: Revgrid, _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler, _columnListChangedEventHandler: ColumnsManager.ColumnListChangedEventHandler, _columnWidthChangedEventHandler: ColumnsManager.ColumnWidthChangedEventHandler);
+    constructor(_grid: Revgrid, _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler, _columnListChangedEventHandler: ColumnListChangedEventHandler, _columnWidthChangedEventHandler: ColumnsManager.ColumnWidthChangedEventHandler);
     // @internal (undocumented)
     get activeColumns(): readonly Column[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -813,10 +818,6 @@ export class ColumnsManager {
     getAllColumn(allX: number): Column;
     // @internal
     getAllColumnCount(): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    //
-    // @internal
-    getHiddenColumnDescriptors(): any[];
     // @internal (undocumented)
     getHiddenColumns(): Column[];
     // @internal (undocumented)
@@ -845,6 +846,8 @@ export class ColumnsManager {
     // @internal (undocumented)
     schemaModel: SchemaModel;
     // @internal (undocumented)
+    setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]): void;
+    // @internal (undocumented)
     setActiveColumnWidth(columnOrIndex: Column | number, width: number): Column;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -856,10 +859,6 @@ export class ColumnsManager {
     //
     // @internal
     setColumnIndexes(allColumnIndexes: number[], silent?: boolean): void;
-    // @internal (undocumented)
-    setColumnOrder(allColumnIndexes: readonly number[]): void;
-    // @internal (undocumented)
-    setColumnOrderByName(allColumnNames: readonly string[]): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     //
     // @internal (undocumented)
@@ -885,8 +884,6 @@ export namespace ColumnsManager {
     export type BeforeCreateColumnsListener = (this: void) => void;
     // (undocumented)
     export type BehaviorChangedEventHandler = (this: void) => void;
-    // (undocumented)
-    export type ColumnListChangedEventHandler = (this: void, typeId: ColumnListChangedTypeId, index: number, count: number) => void;
     // (undocumented)
     export type ColumnWidthChangedEventHandler = (this: void, column: Column) => void;
 }
@@ -2546,11 +2543,13 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     popMouseDown(): Point;
     // (undocumented)
-    protected processColumnListChanged(_typeId: ColumnListChangedTypeId, _index: number, _count: number): void;
+    protected processColumnListChanged(_typeId: ColumnListChangedTypeId, _index: number, _count: number, _targetIndex: number): void;
     // (undocumented)
     protected processColumnWidthChanged(_column: Column): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     processHoverCell(cellEvent: CellEvent | undefined): void;
+    // (undocumented)
+    processRendered(): void;
     // Warning: (ae-forgotten-export) The symbol "LoadableGridProperties" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -2641,6 +2640,8 @@ export class Revgrid implements SelectionDetail {
     selectToViewportCell(x: number, y: number): void;
     // (undocumented)
     selectViewportCell(x: number, y: number): void;
+    // (undocumented)
+    setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     setActiveColumnWidth(columnOrIndex: number | Column, columnWidth: number): Column;
@@ -2655,9 +2656,9 @@ export class Revgrid implements SelectionDetail {
     setCellProperty(cellEvent: CellEvent, key: string | number, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties;
     // (undocumented)
     setCellProperty(allX: number, y: number, key: string | number, value: MetaModel.CellOwnProperty, subgrid: Subgrid): MetaModel.CellOwnProperties;
-    // (undocumented)
+    // @deprecated (undocumented)
     setColumnOrder(allColumnIndexes: readonly number[]): void;
-    // (undocumented)
+    // @deprecated (undocumented)
     setColumnOrderByName(allColumnNames: readonly string[]): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     //
@@ -2743,8 +2744,6 @@ export namespace Revgrid {
     const // (undocumented)
     defaultProperties: Required<GridProperties>;
     // (undocumented)
-    export type ColumnListChangedEventHandler = ColumnsManager.ColumnListChangedEventHandler;
-    // (undocumented)
     export interface ColumnsDataValuesObject {
         // (undocumented)
         [columnName: string]: DataModel.DataValue[];
@@ -2759,6 +2758,15 @@ export namespace Revgrid {
         right?: string;
         // (undocumented)
         top?: string;
+    }
+    // (undocumented)
+    export abstract class ListenerInfo {
+        // (undocumented)
+        abstract decorator: Canvas.EventListener<never>;
+        // (undocumented)
+        internal: boolean;
+        // (undocumented)
+        abstract listener: Canvas.EventListener<never>;
     }
     const // (undocumented)
     gridElementCssClass = "revgrid";
@@ -2776,17 +2784,6 @@ export namespace Revgrid {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@property" is not defined in this configuration
     defaultLocalizationOptions: LocalizationOptions;
     // (undocumented)
-    export abstract class ListenerInfo {
-        // (undocumented)
-        abstract decorator: Canvas.EventListener<never>;
-        // (undocumented)
-        internal: boolean;
-        // (undocumented)
-        abstract listener: Canvas.EventListener<never>;
-    }
-    const // (undocumented)
-    edgeStyleKeys: Array<keyof EdgeStyleValues>;
-    // (undocumented)
     export interface LocalizationOptions {
         // Warning: (ae-forgotten-export) The symbol "DateFormatter" needs to be exported by the entry point public-api.d.ts
         //
@@ -2800,7 +2797,7 @@ export namespace Revgrid {
         numberOptions?: NumberFormatter.Options;
     }
     const // (undocumented)
-    boundingRectStyleKeys: Array<keyof BoundingRectStyleValues>;
+    edgeStyleKeys: Array<keyof EdgeStyleValues>;
     // (undocumented)
     export interface Options {
         adapterSet?: GridProperties.AdapterSet;
@@ -2822,7 +2819,7 @@ export namespace Revgrid {
         state?: Record<string, unknown>;
     }
     const // (undocumented)
-    grids: Revgrid[];
+    boundingRectStyleKeys: Array<keyof BoundingRectStyleValues>;
     // (undocumented)
     export class TypedListenerInfo<T extends EventName> extends ListenerInfo {
         // (undocumented)
@@ -2830,6 +2827,8 @@ export namespace Revgrid {
         // (undocumented)
         listener: Canvas.EventListener<T>;
     }
+    const // (undocumented)
+    grids: Revgrid[];
 }
 
 // @public (undocumented)

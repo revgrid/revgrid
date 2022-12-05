@@ -32,8 +32,13 @@ export type Writable<T> = {
 
 /** @public */
 export const enum ColumnListChangedTypeId {
+    Set,
     Insert,
     Remove,
+    Move,
     Clear,
-    Set,
 }
+
+/** @public */
+export type ColumnListChangedEventHandler = (this: void, typeId: ColumnListChangedTypeId, index: number, count: number, targetIndex?: number) => void;
+

@@ -348,8 +348,8 @@ export class GridPropertiesAccessor implements GridProperties {
         );
     }
     set columnIndexes(schemaColumnIndexes: number[]) {
-        this.grid.setColumnOrder(schemaColumnIndexes);
-        this.grid.behaviorChanged();
+        this.grid.setActiveColumns(schemaColumnIndexes);
+        // this.grid.behaviorChanged();
     }
 
     /**
@@ -363,8 +363,8 @@ export class GridPropertiesAccessor implements GridProperties {
         );
     }
     set columnNames(columnNames) {
-        this.grid.setColumnOrderByName(columnNames);
-        this.grid.behaviorChanged();
+        this.grid.setActiveColumns(columnNames);
+        // this.grid.behaviorChanged();
     }
 
     /**

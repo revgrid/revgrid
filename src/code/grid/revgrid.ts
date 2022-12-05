@@ -220,7 +220,7 @@ export class Revgrid implements SelectionDetail {
         this._columnsManager = new ColumnsManager(
             this,
             () => this.behaviorChanged(),
-            (typeId, index, count) => this.processColumnListChanged(typeId, index, count),
+            (typeId, index, count, targetIndex) => this.processColumnListChanged(typeId, index, count, targetIndex),
             (column) => this.processColumnWidthChanged(column),
         );
         this._featureManager = new FeaturesManager(this, this.featuresSharedState);
@@ -1419,12 +1419,20 @@ export class Revgrid implements SelectionDetail {
         this.behaviorChanged();
     }
 
-    setColumnOrder(allColumnIndexes: readonly number[]) {
-        this._columnsManager.setColumnOrder(allColumnIndexes);
+    setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]) {
+        this._columnsManager.setActiveColumns(columnNameOrAllIndexArray);
+        this.updateHorizontalScroll(true);
+        this.behaviorChanged();
     }
 
+    /** @deprecated use setActiveColumns()*/
+    setColumnOrder(allColumnIndexes: readonly number[]) {
+        this.setActiveColumns(allColumnIndexes);
+    }
+
+    /** @deprecated use setActiveColumns()*/
     setColumnOrderByName(allColumnNames: readonly string[]) {
-        this._columnsManager.setColumnOrderByName(allColumnNames);
+        this.setActiveColumns(allColumnNames);
     }
 
     autosizeAllColumns() {
@@ -2418,6 +2426,11 @@ export class Revgrid implements SelectionDetail {
         if (!this.abortEditing()) { return undefined; }
 
         return dispatchGridEvent(this, 'rev-double-click', false, cellEvent);
+    }
+
+    processRendered() {
+        // descendants can override
+        this.fireSyntheticGridRenderedEvent();
     }
 
     /**
@@ -4017,7 +4030,7 @@ export class Revgrid implements SelectionDetail {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected processColumnListChanged(_typeId: ColumnListChangedTypeId, _index: number, _count: number) {
+    protected processColumnListChanged(_typeId: ColumnListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
         // descendants can override - make sure this function is called in any override function (probably at end)
         this.behaviorChanged();
     }
@@ -4465,8 +4478,6 @@ export namespace Revgrid {
     }
 
     export const grids = Array<Revgrid>();
-
-    export type ColumnListChangedEventHandler = ColumnsManager.ColumnListChangedEventHandler;
 }
 
 // Begin Selection functions

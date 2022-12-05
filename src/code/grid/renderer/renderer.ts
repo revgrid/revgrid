@@ -740,7 +740,7 @@ export class Renderer {
                         this.paintGrid(gc);
                     }
 
-                    this.grid.fireSyntheticGridRenderedEvent();
+                    this.grid.processRendered();
 
                     const lastModelUpdateId = this._lastModelUpdateId;
                     if (this._lastRenderedModelUpdateId !== lastModelUpdateId) {

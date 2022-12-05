@@ -1,6 +1,6 @@
 import { dispatchGridEvent } from '../canvas/dispatch-grid-event';
 import { AssertError } from '../lib/revgrid-error';
-import { ColumnListChangedTypeId } from '../lib/types';
+import { ColumnListChangedEventHandler, ColumnListChangedTypeId } from '../lib/types';
 import { SchemaModel } from '../model/schema-model';
 import { Revgrid } from '../revgrid';
 import { Column } from './column';
@@ -29,7 +29,7 @@ export class ColumnsManager {
     constructor(
         private readonly _grid: Revgrid,
         private readonly _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler,
-        private readonly _columnListChangedEventHandler: ColumnsManager.ColumnListChangedEventHandler,
+        private readonly _columnListChangedEventHandler: ColumnListChangedEventHandler,
         private readonly _columnWidthChangedEventHandler: ColumnsManager.ColumnWidthChangedEventHandler,
     ) { }
 
@@ -283,26 +283,6 @@ export class ColumnsManager {
         }
     }
 
-    /** @internal */
-    setColumnOrder(allColumnIndexes: readonly number[]) {
-        const activeColumns = this._activeColumns;
-        const allColumns = this._allColumns;
-        // const arrayDecorator = new ArrayDecorator;
-
-        // avoid recreating the `columns` array object to keep refs valid; just empty it
-        activeColumns.length = 0;
-
-        allColumnIndexes.forEach((index) => {
-            activeColumns.push(allColumns[index]);
-        });
-    }
-
-    /** @internal */
-    setColumnOrderByName(allColumnNames: readonly string[]) {
-        const allColumns = this._allColumns;
-        this.setColumnOrder(allColumnNames.map((name) => { return allColumns[name].index; }));
-    }
-
     /**
      * @desc Rebuild the column order indexes
      * @param - list of column indexes
@@ -430,6 +410,35 @@ export class ColumnsManager {
         this._activeColumns.splice(columnIndex, 1);
     }
 
+    /** @internal */
+    setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]) {
+        const newActiveCount = columnNameOrAllIndexArray.length;
+        const newActiveColumns = new Array<Column>(newActiveCount);
+        for (let i = 0; i < newActiveCount; i++) {
+            const columnNameOrAllIndex = columnNameOrAllIndexArray[i];
+            let column: Column;
+            if (typeof columnNameOrAllIndex === 'number') {
+                column = this._allColumns[columnNameOrAllIndex];
+            } else {
+                if (typeof columnNameOrAllIndex === 'string') {
+                    const foundColumn = this._allColumns.find((column) => column.name === columnNameOrAllIndex);
+                    if (foundColumn === undefined) {
+                        throw new Error(`ColumnsManager.setActiveColumns: Column with name not found: ${columnNameOrAllIndex}`);
+                    } else {
+                        column = foundColumn;
+                    }
+                } else {
+                    column = columnNameOrAllIndex;
+                }
+            }
+
+            newActiveColumns[i] = column;
+        }
+
+        const oldActiveCount = this._activeColumns.length;
+        this._activeColumns.splice(0, oldActiveCount, ...newActiveColumns);
+    }
+
     /**
      * @param allX - Data x coordinate.
      * @return The properties for a specific column.
@@ -479,27 +488,6 @@ export class ColumnsManager {
             }
             allX++
         }
-    }
-
-    /**
-     * @return All the currently hidden column header labels.
-     * @internal
-     */
-    getHiddenColumnDescriptors() {
-        const tableState = this._grid.properties;
-        const indexes = tableState.columnIndexes;
-        const labels = [];
-        const columnCount = this.getActiveColumnCount();
-        for (let i = 0; i < columnCount; i++) {
-            if (indexes.indexOf(i) === -1) {
-                const column = this.getActiveColumn(i);
-                labels.push({
-                    id: i,
-                    field: column.name
-                });
-            }
-        }
-        return labels;
     }
 
     /**
@@ -573,6 +561,7 @@ export class ColumnsManager {
         const old = arr[oldIndex];
         arr.splice(oldIndex, 1);
         arr.splice(newIndex > oldIndex ? newIndex - 1 : newIndex, 0, old);
+        this._columnListChangedEventHandler(ColumnListChangedTypeId.Move, oldIndex, 1, newIndex);
         return arr;
     }
 
@@ -624,7 +613,6 @@ export class ColumnsManager {
 /** @public */
 export namespace ColumnsManager {
     export type BehaviorChangedEventHandler = (this: void) => void;
-    export type ColumnListChangedEventHandler = (this: void, typeId: ColumnListChangedTypeId, index: number, count: number) => void;
     export type ColumnWidthChangedEventHandler = (this: void, column: Column) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;

@@ -474,13 +474,14 @@ export class RecordGrid extends Revgrid {
         this.showColumns(false, fieldIndex);
     }
 
-    protected override processColumnListChanged(typeId: ColumnListChangedTypeId, index: number, count: number) {
+    protected override processColumnListChanged(typeId: ColumnListChangedTypeId, index: number, count: number, targetIndex: number) {
         // how to set initial width of a column
         switch (typeId) {
             case ColumnListChangedTypeId.Insert:
             case ColumnListChangedTypeId.Set:
                 // use existing index and count to check for columns whose width is to be set
                 break;
+            case ColumnListChangedTypeId.Move:
             case ColumnListChangedTypeId.Remove:
             case ColumnListChangedTypeId.Clear:
                 // Do not check any columns
@@ -501,7 +502,7 @@ export class RecordGrid extends Revgrid {
             }
         }
 
-        super.processColumnListChanged(typeId, index, count);
+        super.processColumnListChanged(typeId, index, count, targetIndex);
     }
 
     private handleHypegridColumnSortEvent(column: Column): void {
