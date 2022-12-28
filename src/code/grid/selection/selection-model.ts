@@ -1,5 +1,4 @@
 
-import { dispatchGridEvent } from '../canvas/dispatch-grid-event';
 import { InclusiveRectangle } from '../lib/inclusive-rectangle';
 import { AssertError } from '../lib/revgrid-error';
 import { Revgrid } from '../revgrid';
@@ -90,7 +89,7 @@ export class SelectionModel {
                 }
 
                 if (!silentlyChanged) {
-                    dispatchGridEvent(this.grid, 'rev-selection-changed', false, new SelectionDetailAccessor(this));
+                    this.grid.fireSyntheticSelectionChangedEvent(new SelectionDetailAccessor(this))
                 }
             }
         } else {

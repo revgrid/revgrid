@@ -31,7 +31,7 @@ export type Writable<T> = {
 };
 
 /** @public */
-export const enum ColumnListChangedTypeId {
+export const enum ListChangedTypeId {
     Set,
     Insert,
     Remove,
@@ -40,5 +40,26 @@ export const enum ColumnListChangedTypeId {
 }
 
 /** @public */
-export type ColumnListChangedEventHandler = (this: void, typeId: ColumnListChangedTypeId, index: number, count: number, targetIndex?: number) => void;
+export type ListChangedEventHandler = (
+    this: void,
+    typeId: ListChangedTypeId,
+    index: number,
+    count: number,
+    targetIndex: number | undefined
+) => void;
 
+/** @public */
+export type UiableListChangedEventHandler = (
+    this: void,
+    typeId: ListChangedTypeId,
+    index: number,
+    count: number,
+    targetIndex: number | undefined,
+    ui: boolean
+) => void;
+
+/** @public */
+export interface ColumnNameWidth {
+    name: string;
+    width: number | undefined;
+}

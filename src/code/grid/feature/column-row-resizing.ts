@@ -1,11 +1,13 @@
 
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
-import { Column } from '../column/column';
+import { Column, ColumnWidth } from '../column/column';
+import { ColumnsManager } from '../grid-public-api';
 import { Revgrid } from '../revgrid';
 import { Feature } from './feature';
 
 export abstract class ColumnRowResizing extends Feature {
     private dragColumn: Column | undefined;
+    private readonly _columnsManager: ColumnsManager;
 
     /**
      * the pixel location of the where the drag was initiated
@@ -19,6 +21,11 @@ export abstract class ColumnRowResizing extends Feature {
 
     inPlaceAdjacentStartWidth: number;
     inPlaceAdjacentColumn: Column;
+
+    constructor(grid: Revgrid) {
+        super(grid)
+        this._columnsManager = grid.columnsManager;
+    }
 
     /**
      * @desc get the mouse x,y coordinate
@@ -51,7 +58,7 @@ export abstract class ColumnRowResizing extends Feature {
             const dragWidth = this.dragStartWidth + delta;
             const inPlaceAdjacentWidth = this.inPlaceAdjacentStartWidth - delta;
             if (!this.inPlaceAdjacentColumn) { // nextColumn et al instance vars defined when resizeColumnInPlace (by handleMouseDown)
-                grid.setActiveColumnWidth(this.dragColumn, dragWidth);
+                this._columnsManager.setActiveColumnWidth(this.dragColumn, dragWidth, true);
             } else {
                 const np = this.inPlaceAdjacentColumn.properties;
                 const dp = this.dragColumn.properties;
@@ -62,8 +69,11 @@ export abstract class ColumnRowResizing extends Feature {
                     0 > delta && delta >= -(this.dragStartWidth - dp.minimumColumnWidth) &&
                     (!np.maximumColumnWidth || inPlaceAdjacentWidth < np.maximumColumnWidth)
                 ) {
-                    grid.setActiveColumnWidth(this.dragColumn, dragWidth);
-                    grid.setActiveColumnWidth(this.inPlaceAdjacentColumn, inPlaceAdjacentWidth);
+                    const columnWidths: ColumnWidth[] = [
+                        { column: this.dragColumn, width: dragWidth },
+                        { column: this.inPlaceAdjacentColumn, width: inPlaceAdjacentWidth },
+                    ];
+                    this._columnsManager.setColumnWidths(columnWidths, true);
                 }
             }
         } else if (this.next) {

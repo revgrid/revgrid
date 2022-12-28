@@ -1,4 +1,4 @@
-import { SchemaModel } from '../../grid/grid-public-api';
+import { ListChangedEventHandler, ListChangedTypeId, SchemaModel } from '../../grid/grid-public-api';
 import { RevRecordSchemaError, RevRecordUnexpectedUndefinedError } from './rev-record-error';
 import { RevRecordField } from './rev-record-field';
 import { RevRecordStore } from './rev-record-store';
@@ -6,6 +6,9 @@ import { RevRecordFieldIndex } from './rev-record-types';
 
 /** @public */
 export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.FieldsEventers {
+    /** @internal */
+    fieldListChangedEventer: ListChangedEventHandler | undefined;
+
     private readonly _schema: RevRecordField.SchemaColumn[] = [];
     private readonly _fields: RevRecordField[] = [];
     private readonly _fieldNameLookup = new Map<string, RevRecordField>();
@@ -35,59 +38,74 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
     }
 
     addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn {
-        const fieldIndex = this._fields.length;
-
-        this._fieldIndexLookup.set(field, fieldIndex);
-        this._fieldNameLookup.set(field.name, field);
-        this._fields.push(field);
-
-        if (field.valueDependsOnRecordIndex) {
-            if (!this._fieldValueDependsOnRecordIndexFieldIndexes.includes(fieldIndex)) {
-                this._fieldValueDependsOnRecordIndexFieldIndexes.push(fieldIndex);
-            }
-        }
-
-        if (field.valueDependsOnRowIndex) {
-            if (!this._fieldValueDependsOnRowIndexFieldIndexes.includes(fieldIndex)) {
-                this._fieldValueDependsOnRowIndexFieldIndexes.push(fieldIndex);
-            }
-        }
-
-        // Update Hypergrid Schema
-        const schemaColumn: RevRecordField.SchemaColumn = {
-            name: field.name,
-            index: fieldIndex,
-            header,
-        };
-
-        this._schema.push(schemaColumn);
-
-        this._callbackListener.columnsInserted(fieldIndex, 1);
-
-        return schemaColumn;
+        return this.internalAddField(field, header, false);
     }
 
-    addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex {
-        if (fields.length <= 0) {
+    addFields(addFields: readonly RevRecordField[]): RevRecordFieldIndex {
+        const addCount = addFields.length;
+        if (addCount <= 0) {
             throw new RevRecordSchemaError('FSMAF26774', 'No fields provided');
         } else {
 
             let firstIndex: RevRecordFieldIndex;
             this.beginChange();
             try {
-                const firstField = fields[0];
-                firstIndex = this.addField(firstField, firstField.name).index;
+                const firstField = addFields[0];
+                firstIndex = this.internalAddField(firstField, firstField.name, false).index;
 
-                for (let index = 1; index < fields.length; index++) {
-                    const field = fields[index];
-                    this.addField(field, field.name);
+                for (let index = 1; index < addCount; index++) {
+                    const field = addFields[index];
+                    this.internalAddField(field, field.name, false);
                 }
 
             } finally {
                 this.endChange();
             }
 
+            if (this.fieldListChangedEventer !== undefined) {
+                this.fieldListChangedEventer(ListChangedTypeId.Insert, firstIndex, addCount, undefined);
+            }
+
             return firstIndex;
+        }
+    }
+
+    setFields(fields: readonly RevRecordField[]): void {
+        const oldCount = this._fields.length;
+        let clearNeeded: boolean;
+        if (oldCount === 0) {
+            clearNeeded = true;
+        } else {
+            if (this.fieldListChangedEventer !== undefined) {
+                this.fieldListChangedEventer(ListChangedTypeId.Clear, 0, oldCount, undefined);
+            }
+            clearNeeded = false;
+        }
+
+        const newCount = fields.length;
+        const addNeeded = newCount > 0;
+        const beginEndNeeded = clearNeeded && addNeeded;
+        let firstIndex: number;
+
+        if (beginEndNeeded) {
+            this.beginChange();
+        }
+        try {
+            if (clearNeeded) {
+                this._callbackListener.allColumnsDeleted();
+            }
+            if (addNeeded) {
+                firstIndex = this.addFields(fields);
+            } else {
+                firstIndex = 0; // make sure initialised
+            }
+        } finally {
+            if (beginEndNeeded) {
+                this.endChange();
+            }
+        }
+        if (addNeeded && this.fieldListChangedEventer !== undefined) {
+            this.fieldListChangedEventer(ListChangedTypeId.Insert, firstIndex, fields.length, undefined);
         }
     }
 
@@ -178,10 +196,51 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
         }
     }
 
-    setFieldHeader(fieldOrIndex: RevRecordFieldIndex | RevRecordField, header: string): number {
+    setFieldHeader(fieldOrIndex: RevRecordFieldIndex | RevRecordField, header: string, ): number {
         const fieldIndex = typeof fieldOrIndex === 'number' ? fieldOrIndex : this.getFieldIndex(fieldOrIndex);
         const columnSchema = this._schema[fieldIndex];
         columnSchema.header = header;
         return fieldIndex;
+    }
+
+    private internalAddField(
+        field: RevRecordField,
+        header: string,
+        notifyFieldListChange: boolean
+    ): RevRecordField.SchemaColumn {
+        const fieldIndex = this._fields.length;
+
+        this._fieldIndexLookup.set(field, fieldIndex);
+        this._fieldNameLookup.set(field.name, field);
+        this._fields.push(field);
+
+        if (field.valueDependsOnRecordIndex) {
+            if (!this._fieldValueDependsOnRecordIndexFieldIndexes.includes(fieldIndex)) {
+                this._fieldValueDependsOnRecordIndexFieldIndexes.push(fieldIndex);
+            }
+        }
+
+        if (field.valueDependsOnRowIndex) {
+            if (!this._fieldValueDependsOnRowIndexFieldIndexes.includes(fieldIndex)) {
+                this._fieldValueDependsOnRowIndexFieldIndexes.push(fieldIndex);
+            }
+        }
+
+        // Update Hypergrid Schema
+        const schemaColumn: RevRecordField.SchemaColumn = {
+            name: field.name,
+            index: fieldIndex,
+            header,
+        };
+
+        this._schema.push(schemaColumn);
+
+        this._callbackListener.columnsInserted(fieldIndex, 1);
+
+        if (notifyFieldListChange && this.fieldListChangedEventer !== undefined) {
+            this.fieldListChangedEventer(ListChangedTypeId.Insert, fieldIndex, 1, undefined);
+        }
+
+        return schemaColumn;
     }
 }

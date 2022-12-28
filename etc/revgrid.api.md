@@ -611,7 +611,7 @@ export class Column {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@this" is not defined in this configuration
     setValue(y: number, value: unknown): void;
     // (undocumented)
-    setWidth(width: number): boolean;
+    setWidth(width: number | undefined): boolean;
     // (undocumented)
     setWidthToAutoSizing(): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -629,20 +629,11 @@ export class Column {
 }
 
 // @public (undocumented)
-export type ColumnListChangedEventHandler = (this: void, typeId: ColumnListChangedTypeId, index: number, count: number, targetIndex?: number) => void;
-
-// @public (undocumented)
-export const enum ColumnListChangedTypeId {
+export interface ColumnNameWidth {
     // (undocumented)
-    Clear = 4,
+    name: string;
     // (undocumented)
-    Insert = 1,
-    // (undocumented)
-    Move = 3,
-    // (undocumented)
-    Remove = 2,
-    // (undocumented)
-    Set = 0
+    width: number | undefined;
 }
 
 // @public (undocumented)
@@ -768,7 +759,7 @@ export namespace ColumnProperties {
 // @public (undocumented)
 export class ColumnsManager {
     // @internal
-    constructor(_grid: Revgrid, _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler, _columnListChangedEventHandler: ColumnListChangedEventHandler, _columnWidthChangedEventHandler: ColumnsManager.ColumnWidthChangedEventHandler);
+    constructor(_grid: Revgrid, _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler, _allColumnListChangedEventHandler: ListChangedEventHandler, _activeColumnListChangedEventHandler: UiableListChangedEventHandler, _columnsWidthChangedEventHandler: ColumnsManager.ColumnsWidthChangedEventHandler);
     // @internal (undocumented)
     get activeColumns(): readonly Column[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -830,9 +821,9 @@ export class ColumnsManager {
     // @internal
     hideColumns(allColumnIndexes: number | number[]): void;
     // @internal (undocumented)
-    moveColumnAfter(sourceIndex: number, targetIndex: number): void;
+    moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean): void;
     // @internal (undocumented)
-    moveColumnBefore(sourceIndex: number, targetIndex: number): void;
+    moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean): void;
     // @internal (undocumented)
     newColumn(schemaColumn: SchemaModel.Column): Column;
     // @internal (undocumented)
@@ -847,8 +838,10 @@ export class ColumnsManager {
     schemaModel: SchemaModel;
     // @internal (undocumented)
     setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]): void;
+    // (undocumented)
+    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean): void;
     // @internal (undocumented)
-    setActiveColumnWidth(columnOrIndex: Column | number, width: number): Column;
+    setActiveColumnWidth(columnOrIndex: Column | number, width: number | undefined, ui: boolean): Column;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     //
@@ -863,6 +856,12 @@ export class ColumnsManager {
     //
     // @internal (undocumented)
     setColumnProperties(allX: number, properties: ColumnProperties): ColumnProperties;
+    // Warning: (ae-forgotten-export) The symbol "ColumnWidth" needs to be exported by the entry point public-api.d.ts
+    //
+    // @internal (undocumented)
+    setColumnWidths(columnWidths: ColumnWidth[], ui: boolean): boolean;
+    // @internal (undocumented)
+    setColumnWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     //
@@ -885,7 +884,7 @@ export namespace ColumnsManager {
     // (undocumented)
     export type BehaviorChangedEventHandler = (this: void) => void;
     // (undocumented)
-    export type ColumnWidthChangedEventHandler = (this: void, column: Column) => void;
+    export type ColumnsWidthChangedEventHandler = (this: void, columns: Column[], ui: boolean) => void;
 }
 
 // @public (undocumented)
@@ -1632,6 +1631,23 @@ export class InclusiveRectangle extends Rectangle {
 export const invalidModelUpdateId = -1;
 
 // @public (undocumented)
+export type ListChangedEventHandler = (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
+
+// @public (undocumented)
+export const enum ListChangedTypeId {
+    // (undocumented)
+    Clear = 4,
+    // (undocumented)
+    Insert = 1,
+    // (undocumented)
+    Move = 3,
+    // (undocumented)
+    Remove = 2,
+    // (undocumented)
+    Set = 0
+}
+
+// @public (undocumented)
 export const lowestValidModelUpdateId = 0;
 
 // @public (undocumented)
@@ -2064,6 +2080,8 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     abortEditing(): boolean;
     // (undocumented)
+    get activeColumns(): readonly Column[];
+    // (undocumented)
     get activeColumnsViewWidth(): number;
     // (undocumented)
     addCellProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid?: Subgrid): MetaModel.CellOwnProperties;
@@ -2154,6 +2172,8 @@ export class Revgrid implements SelectionDetail {
     columnDragAutoScrolling: boolean;
     // (undocumented)
     columnPropertiesConstructor: ColumnProperties.Constructor;
+    get columnScrollAnchorIndex(): number;
+    get columnScrollAnchorOffset(): number;
     // @internal (undocumented)
     get columnsManager(): ColumnsManager;
     // (undocumented)
@@ -2287,9 +2307,9 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     fireSyntheticColumnSelectionChangedEvent(): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
-    // (undocumented)
     fireSyntheticColumnSortEvent(eventDetail: EventDetail.ColumnSort): boolean;
+    // (undocumented)
+    fireSyntheticColumnsViewWidthsChangedEvent(eventDetail: EventDetail.ColumnsViewWidthsChanged): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     fireSyntheticContextMenuEvent(event: CellEvent): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2326,6 +2346,8 @@ export class Revgrid implements SelectionDetail {
     fireSyntheticOnColumnsChangedEvent(): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     fireSyntheticRowSelectionChangedEvent(): boolean;
+    // (undocumented)
+    fireSyntheticSelectionChangedEvent(selectionDetail: SelectionDetail): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     fireSyntheticTickEvent(): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2446,15 +2468,13 @@ export class Revgrid implements SelectionDetail {
     getVisibleColumnsCount(): number;
     // (undocumented)
     getVisibleRowsCount(): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    //
-    // @internal
-    getVScrollValue(): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     //
     // @internal
     handleHScrollerChange(x: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    //
+    // @internal
     handleVScrollerChange(y: number): void;
     // (undocumented)
     hasFocus(): boolean;
@@ -2501,9 +2521,9 @@ export class Revgrid implements SelectionDetail {
     // (undocumented)
     mouseDownState: CellEvent;
     // (undocumented)
-    moveColumnAfter(sourceIndex: number, targetIndex: number): void;
+    moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean): void;
     // (undocumented)
-    moveColumnBefore(sourceIndex: number, targetIndex: number): void;
+    moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     moveSingleSelect(offsetX: number, offsetY: number): void;
@@ -2543,13 +2563,13 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     popMouseDown(): Point;
     // (undocumented)
-    protected processColumnListChanged(_typeId: ColumnListChangedTypeId, _index: number, _count: number, _targetIndex: number): void;
+    protected processActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean): void;
     // (undocumented)
-    protected processColumnWidthChanged(_column: Column): void;
+    protected processAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined): void;
+    // (undocumented)
+    protected processColumnsWidthChanged(_columns: Column[], _ui: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     processHoverCell(cellEvent: CellEvent | undefined): void;
-    // (undocumented)
-    processRendered(): void;
     // Warning: (ae-forgotten-export) The symbol "LoadableGridProperties" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -2587,6 +2607,8 @@ export class Revgrid implements SelectionDetail {
     resized(): void;
     // @internal (undocumented)
     resizeScrollbars(): void;
+    get rowScrollAnchorIndex(): number;
+    set rowScrollAnchorIndex(value: number);
     sbHScroller: FinBar;
     // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
     // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
@@ -2642,6 +2664,8 @@ export class Revgrid implements SelectionDetail {
     selectViewportCell(x: number, y: number): void;
     // (undocumented)
     setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]): void;
+    // (undocumented)
+    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnNameWidth[]): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     setActiveColumnWidth(columnOrIndex: number | Column, columnWidth: number): Column;
@@ -2664,6 +2688,12 @@ export class Revgrid implements SelectionDetail {
     //
     // (undocumented)
     setColumnProperties(x: number, properties: ColumnProperties): void;
+    // (undocumented)
+    setColumnScrollAnchor(index: number, offset: number): void;
+    // (undocumented)
+    setColumnWidths(columnWidths: ColumnWidth[]): boolean;
+    // (undocumented)
+    setColumnWidthsByName(columnNameWidths: ColumnNameWidth[]): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     setDragExtent(point: Point): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2683,6 +2713,8 @@ export class Revgrid implements SelectionDetail {
     setSubgrids(subgridSpecs: readonly Subgrid.Spec[]): void;
     // (undocumented)
     setValue(x: number, y: number, value: number, subgrid?: Subgrid): void;
+    // (undocumented)
+    setViewport(columnIndex: number, columnOffset: number, rowIndex: number, _rowOffset: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     //
     // @internal
@@ -2725,7 +2757,6 @@ export class Revgrid implements SelectionDetail {
     updateSize(): void;
     // (undocumented)
     updateVerticalScroll(recalculateView: boolean): void;
-    vScrollValue: number;
     waitModelRendered(): Promise<number>;
     windowOpen(url: string, name: string, features?: string): Window;
 }
@@ -2944,7 +2975,7 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
     // (undocumented)
     addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
     // (undocumented)
-    addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex;
+    addFields(addFields: readonly RevRecordField[]): RevRecordFieldIndex;
     // (undocumented)
     addSchemaCallbackListener(value: SchemaModel.CallbackListener): void;
     // (undocumented)
@@ -2953,6 +2984,8 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
     endChange(): void;
     // (undocumented)
     get fieldCount(): number;
+    // @internal (undocumented)
+    fieldListChangedEventer: ListChangedEventHandler | undefined;
     // (undocumented)
     get fields(): readonly RevRecordField[];
     // (undocumented)
@@ -2983,6 +3016,8 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
     get schema(): readonly RevRecordField.SchemaColumn[];
     // (undocumented)
     setFieldHeader(fieldOrIndex: RevRecordFieldIndex | RevRecordField, header: string): number;
+    // (undocumented)
+    setFields(fields: readonly RevRecordField[]): void;
 }
 
 // @public
@@ -3605,6 +3640,9 @@ export const enum TextTruncateType {
 }
 
 // @public (undocumented)
+export type UiableListChangedEventHandler = (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
+
+// @public (undocumented)
 export class UnreachableCaseError extends RevgridError {
     constructor(code: string, value: never);
 }
@@ -3686,8 +3724,8 @@ export type Writable<T> = {
 // src/code/grid/effects/effects.ts:9:11 - (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
 // src/code/grid/effects/effects.ts:9:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
 // src/code/grid/effects/effects.ts:9:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/renderer/renderer.ts:30:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/selection/selection-model.ts:12:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/renderer/renderer.ts:29:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/selection/selection-model.ts:11:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

@@ -1,9 +1,9 @@
 import { dispatchGridEvent } from '../canvas/dispatch-grid-event';
 import { AssertError } from '../lib/revgrid-error';
-import { ColumnListChangedEventHandler, ColumnListChangedTypeId } from '../lib/types';
+import { ColumnNameWidth, ListChangedEventHandler, ListChangedTypeId, UiableListChangedEventHandler } from '../lib/types';
 import { SchemaModel } from '../model/schema-model';
 import { Revgrid } from '../revgrid';
-import { Column } from './column';
+import { Column, ColumnWidth } from './column';
 import { ColumnProperties } from './column-properties';
 
 /** @public */
@@ -29,8 +29,9 @@ export class ColumnsManager {
     constructor(
         private readonly _grid: Revgrid,
         private readonly _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler,
-        private readonly _columnListChangedEventHandler: ColumnListChangedEventHandler,
-        private readonly _columnWidthChangedEventHandler: ColumnsManager.ColumnWidthChangedEventHandler,
+        private readonly _allColumnListChangedEventHandler: ListChangedEventHandler,
+        private readonly _activeColumnListChangedEventHandler: UiableListChangedEventHandler,
+        private readonly _columnsWidthChangedEventHandler: ColumnsManager.ColumnsWidthChangedEventHandler,
     ) { }
 
     /** @internal */
@@ -196,7 +197,8 @@ export class ColumnsManager {
 
         this.columnsCreated = true;
 
-        this._columnListChangedEventHandler(ColumnListChangedTypeId.Set, 0, count);
+        this._allColumnListChangedEventHandler(ListChangedTypeId.Set, 0, count, undefined);
+        this._activeColumnListChangedEventHandler(ListChangedTypeId.Set, 0, count, undefined, false);
 
         dispatchGridEvent(this._grid, 'rev-hypergrid-columns-created', false, undefined);
     }
@@ -211,7 +213,7 @@ export class ColumnsManager {
      * @param columnOrIndex - The column or active column index.
      * @internal
      */
-    setActiveColumnWidth(columnOrIndex: Column | number, width: number) {
+    setActiveColumnWidth(columnOrIndex: Column | number, width: number | undefined, ui: boolean) {
         let column: Column
         if (typeof columnOrIndex === 'number') {
             if (columnOrIndex >= -2) {
@@ -224,10 +226,53 @@ export class ColumnsManager {
         }
         const changed = column.setWidth(width);
         if (changed) {
-            this._columnWidthChangedEventHandler(column);
+            this._columnsWidthChangedEventHandler([column], ui);
             return column;
         } else {
             return undefined;
+        }
+    }
+
+    /** @internal */
+    setColumnWidths(columnWidths: ColumnWidth[], ui: boolean) {
+        const changedColumns = new Array<Column>(columnWidths.length);
+        let changedColumnsCount = 0;
+        for (const columnWidth of columnWidths) {
+            const { column, width } = columnWidth;
+            if (column.setWidth(width)) {
+                changedColumns[changedColumnsCount++] = column;
+            }
+        }
+        if (changedColumnsCount === 0) {
+            return false;
+        } else {
+            changedColumns.length = changedColumnsCount;
+            this._columnsWidthChangedEventHandler(changedColumns, ui);
+            return true;
+        }
+    }
+
+    /** @internal */
+    setColumnWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean) {
+        const changedColumns = new Array<Column>(columnNameWidths.length);
+        let changedColumnsCount = 0;
+        for (const columnNameWidth of columnNameWidths) {
+            const { name, width } = columnNameWidth;
+            const column = this._allColumns.find((column) => column.name === name)
+            if (column === undefined) {
+                throw new Error(`Behavior.setColumnWidthsByName: Column name not found: ${name}`);
+            } else {
+                if (column.setWidth(width)) {
+                    changedColumns[changedColumnsCount++] = column;
+                }
+            }
+        }
+        if (changedColumnsCount === 0) {
+            return false;
+        } else {
+            changedColumns.length = changedColumnsCount;
+            this._columnsWidthChangedEventHandler(changedColumns, ui);
+            return true;
         }
     }
 
@@ -395,6 +440,23 @@ export class ColumnsManager {
         this._grid.properties.columnIndexes = activeColumns.map((column) => column.index );
     }
 
+    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean) {
+        const activeColumns = this._activeColumns;
+        const count = columnNameWidths.length;
+        activeColumns.length = count;
+        for (let i = 0; i < count; i++) {
+            const { name, width } = columnNameWidths[i];
+            const column = this._allColumns.find((column) => column.name === name)
+            if (column === undefined) {
+                throw new Error(`Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${name}`);
+            } else {
+                activeColumns[i] = column;
+                column.setWidth(width);
+            }
+        }
+        this._activeColumnListChangedEventHandler(ListChangedTypeId.Set, 0, count, undefined, ui);
+    }
+
     /**
      * @summary Hide active column(s).
      * @desc Removes one or several columns from the "active" column list.
@@ -529,7 +591,7 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    moveColumnBefore(sourceIndex: number, targetIndex: number) {
+    moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean) {
         const columns = this._activeColumns;
         const sourceColumn = columns[sourceIndex];
         if (sourceColumn === undefined) {
@@ -539,11 +601,11 @@ export class ColumnsManager {
         if (targetColumn === undefined) {
             return;
         }
-        this.move(columns, sourceIndex, targetIndex);
+        this.moveActive(columns, sourceIndex, targetIndex, ui);
     }
 
     /** @internal */
-    moveColumnAfter(sourceIndex: number, targetIndex: number) {
+    moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean) {
         const columns = this._activeColumns;
         const sourceColumn = columns[sourceIndex];
         if (sourceColumn === undefined) {
@@ -553,15 +615,15 @@ export class ColumnsManager {
         if (targetColumn === undefined) {
             return;
         }
-        this.move(columns, sourceIndex, targetIndex + 1);
+        this.moveActive(columns, sourceIndex, targetIndex + 1, ui);
     }
 
     /** @internal */
-    private move<T>(arr: T[], oldIndex: number, newIndex: number) {
+    private moveActive<T>(arr: T[], oldIndex: number, newIndex: number, ui: boolean) {
         const old = arr[oldIndex];
         arr.splice(oldIndex, 1);
         arr.splice(newIndex > oldIndex ? newIndex - 1 : newIndex, 0, old);
-        this._columnListChangedEventHandler(ColumnListChangedTypeId.Move, oldIndex, 1, newIndex);
+        this._activeColumnListChangedEventHandler(ListChangedTypeId.Move, oldIndex, 1, newIndex, ui);
         return arr;
     }
 
@@ -613,7 +675,7 @@ export class ColumnsManager {
 /** @public */
 export namespace ColumnsManager {
     export type BehaviorChangedEventHandler = (this: void) => void;
-    export type ColumnWidthChangedEventHandler = (this: void, column: Column) => void;
+    export type ColumnsWidthChangedEventHandler = (this: void, columns: Column[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

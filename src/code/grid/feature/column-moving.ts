@@ -232,9 +232,9 @@ export class ColumnMoving extends Feature {
                 break;
             case DragActionType.Move:
                 if (dragAction.location === MoveLocation.Before) {
-                    grid.moveColumnBefore(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex);
+                    grid.moveColumnBefore(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex, true);
                 } else {
-                    grid.moveColumnAfter(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex);
+                    grid.moveColumnAfter(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex, true);
                 }
                 break;
         }

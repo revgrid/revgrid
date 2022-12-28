@@ -104,14 +104,23 @@ export class Column {
         return this.properties.width || this.grid.properties.defaultColumnWidth;
     }
 
-    setWidth(width: number) {
-        width = Math.min(Math.max(this.properties.minimumColumnWidth, width), this.properties.maximumColumnWidth || Infinity);
-        if (width === this.properties.width) {
-            return false;
+    setWidth(width: number | undefined) {
+        if (width === undefined) {
+            if (this.properties.columnAutosizing) {
+                return false;
+            } else {
+                this.properties.columnAutosizing = true;
+                return true;
+            }
         } else {
-            this.properties.width = width;
-            this.properties.columnAutosizing = false;
-            return true;
+            width = Math.min(Math.max(this.properties.minimumColumnWidth, width), this.properties.maximumColumnWidth || Infinity);
+            if (!this.properties.columnAutosizing && width === this.properties.width) {
+                return false;
+            } else {
+                this.properties.width = width;
+                this.properties.columnAutosizing = false;
+                return true;
+            }
         }
     }
 
@@ -568,6 +577,11 @@ export class Column {
     }
 
     // End CellProperties Mixin
+}
+
+export interface ColumnWidth {
+    column: Column;
+    width: number | undefined;
 }
 
 const REGEX_ARROW_FUNC = /^(\(.*\)|\w+)\s*=>/;

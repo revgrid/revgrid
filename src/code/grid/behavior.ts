@@ -36,8 +36,6 @@ const noExportProperties = [
  */
 export class Behavior {
     /** @internal */
-    private _scrollPositionY: number;
-    /** @internal */
     private _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype;
 
     // Start RowProperties Mixin
@@ -82,8 +80,6 @@ export class Behavior {
     reset() {
         // this.checkLoadDataModelMetadata(options);
         // const dataModelChanged = this.resetMainDataModel(options);
-
-        this._scrollPositionY = 0;
 
         this._rowPropertiesPrototype = DefaultRowProperties;
 
@@ -243,18 +239,6 @@ export class Behavior {
     // setScrollPositionX(x: number) {
     //     this.scrollPositionX = x;
     // }
-
-    /**
-     * @desc Quietly set the vertical scroll position.
-     * @param y - The new position in pixels.
-     */
-    setScrollPositionY(y: number) {
-        this._scrollPositionY = y;
-    }
-
-    getScrollPositionY() {
-        return this._scrollPositionY;
-    }
 
     /**
      * @return The cell editor for the cell at the given coordinates.

@@ -1,4 +1,4 @@
-import { DataModel, MainDataModel } from '../../grid/grid-public-api';
+import { DataModel, ListChangedTypeId, MainDataModel, UnreachableCaseError } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 import { RevRecordArrayUtil } from './rev-record-array-utils';
 import { RevRecordAssertError } from './rev-record-error';
@@ -86,9 +86,11 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
                 expiredCellPositions, expiredCellCount, expiredRowIndexes, expiredRowCount
             )
         );
+        this._fieldAdapter.fieldListChangedEventer = (typeId, index, count) => this.processFieldListChangedEvent(typeId, index, count);
     }
 
     destroy() {
+        this._fieldAdapter.fieldListChangedEventer = undefined;
         this._recentChanges.destroy();
     }
 
@@ -855,6 +857,59 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
         }
     }
 
+    private processFieldListChangedEvent(typeId: ListChangedTypeId, index: number, count: number) {
+        switch (typeId) {
+            case ListChangedTypeId.Set:
+            case ListChangedTypeId.Clear: {
+                this.clearSortFieldSpecifiers();
+                break;
+            }
+            case ListChangedTypeId.Insert: {
+                const specifiers = this._sortFieldSpecifiers.slice();
+                const specifierCount = specifiers.length;
+                let modified = false;
+                for (let i = 0; i < specifierCount; i++) {
+                    const specifier = specifiers[i];
+                    if (specifier.fieldIndex >= index) {
+                        specifier.fieldIndex += count;
+                        modified = true;
+                    }
+                }
+                if (modified) {
+                    this.updateSortComparer(specifiers);
+                }
+                break;
+            }
+            case ListChangedTypeId.Remove: {
+                const specifiers = this._sortFieldSpecifiers.slice();
+                const specifierCount = specifiers.length;
+                const adjustRangeStartIndex = index + count;
+                let modified = false;
+                for (let i = specifierCount - 1; i >= 0; i--) {
+                    const specifier = specifiers[i];
+                    if (specifier.fieldIndex >= adjustRangeStartIndex) {
+                        specifier.fieldIndex -= count;
+                        modified = true;
+                    } else {
+                        if (specifier.fieldIndex >= index) {
+                            specifiers.splice(i, 1);
+                            modified = true;
+                        }
+                    }
+                }
+                if (modified) {
+                    this.updateSortComparer(specifiers);
+                }
+                break;
+            }
+            case ListChangedTypeId.Move: {
+                throw new Error('RevRecordMainAdapater.processFieldListChangedEvent(): Move not implemented');
+            }
+            default:
+                throw new UnreachableCaseError('RRMAPFLCE73390', typeId);
+        }
+    }
+
     private repopulateRows(): void {
         this.checkConsistency();
 
@@ -1186,8 +1241,9 @@ export class RevRecordMainAdapter implements MainDataModel, RevRecordStore.Recor
     }
 
     private updateContinuousSortingOrFilteringActive() {
-        this._continuousSortingOrFilteringActive = this._comparer !== undefined
-            || (this._filterCallback !== undefined && this._continuousFiltering);
+        this._continuousSortingOrFilteringActive =
+            this._comparer !== undefined||
+            (this._filterCallback !== undefined && this._continuousFiltering);
     }
 
     private checkConsistency() {

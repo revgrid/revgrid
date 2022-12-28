@@ -8,7 +8,7 @@ import { CellPainter } from './cell-painter/cell-painter';
 import { CellEvent, MouseCellEvent } from './cell/cell-event';
 import { CellProperties } from './cell/cell-properties';
 import { RenderedCell } from './cell/rendered-cell';
-import { Column } from './column/column';
+import { Column, ColumnWidth } from './column/column';
 import { ColumnProperties } from './column/column-properties';
 import { ColumnPropertiesAccessor } from './column/column-properties-accessor';
 import { ColumnsManager } from './column/columns-manager';
@@ -25,7 +25,7 @@ import { DateFormatter, Localization, NumberFormatter } from './lib/localization
 import { Point, WritablePoint } from './lib/point';
 import { Rectangle, RectangleInterface } from './lib/rectangle';
 import { AssertError } from './lib/revgrid-error';
-import { ColumnListChangedTypeId } from './lib/types';
+import { ColumnNameWidth, ListChangedTypeId } from './lib/types';
 import { MainSubgrid } from './main-subgrid';
 import { CellModel } from './model/cell-model';
 import { DataModel } from './model/data-model';
@@ -58,6 +58,8 @@ export class Revgrid implements SelectionDetail {
     private _featureManager: FeaturesManager;
     /** @internal */
     readonly featuresSharedState: FeaturesSharedState = {} as FeaturesSharedState; // Will be initialised in constructor
+    /** @internal */
+    private _rowScrollAnchorIndex = 0;
 
     localization: Localization;
 
@@ -82,28 +84,14 @@ export class Revgrid implements SelectionDetail {
     /** @internal */
     get columnsManager() { return this._columnsManager; }
     get allColumns(): readonly Column[] { return this._columnsManager.allColumns; }
+    get activeColumns(): readonly Column[] { return this._columnsManager.activeColumns; }
+
 
     /** @internal */
     get selectionModel() { return this.mainSubgrid.selectionModel; }
     get selectedRows() { return this.mainSubgrid.getSelectedRows(); }
     get selectedColumns() { return this.mainSubgrid.getSelectedColumns(); }
     get selections() { return this.mainSubgrid.selections; }
-
-
-    // Begin Themes mixin
-    //_theme: Theme;
-    // End Themes mixin
-
-    // Begin Scrolling mixin
-    /**
-     * A float value between 0.0 - 1.0 of the vertical scroll position.
-     */
-    vScrollValue = 0;
-
-    /**
-     * A float value between 0.0 - 1.0 of the horizontal scroll position.
-     */
-    // hScrollValue = 0;
 
     /**
      * The vertical scroll bar model/controller.
@@ -127,10 +115,27 @@ export class Revgrid implements SelectionDetail {
     columnPropertiesConstructor: ColumnProperties.Constructor = ColumnPropertiesAccessor;
 
     private _repaintSetTimeoutId: ReturnType<typeof setTimeout>;
-    private _resizeScrollbarsTimeoutHandle: ReturnType<typeof setTimeout>;
+    private _resizeScrollbarsTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
     private mouseCatcher = () => this.abortEditing();
 
+    /**
+     * The index of the row at the top of the view in the main sub grid.
+     */
+    get rowScrollAnchorIndex() { return this._rowScrollAnchorIndex; }
+    set rowScrollAnchorIndex(value: number) {
+        this.handleVScrollerChange(value);
+    }
+
+    /**
+     * The index of the active column which is first in view (either on left or right depending on Grid alignment)
+     */
+    get columnScrollAnchorIndex() { return this.renderer.columnScrollAnchorIndex; }
+    /**
+     * The number of pixels that the scroll anchored column is offset.
+     * Changes to allow smooth scrolling
+     */
+    get columnScrollAnchorOffset() { return this.renderer.columnScrollAnchorOffset; }
     get fixedColumnsViewWidth() { return this.renderer.fixedColumnsViewWidth; }
     get nonFixedColumnsViewWidth() { return this.renderer.nonFixedColumnsViewWidth; }
     get activeColumnsViewWidth() { return this.renderer.activeColumnsViewWidth; }
@@ -220,8 +225,9 @@ export class Revgrid implements SelectionDetail {
         this._columnsManager = new ColumnsManager(
             this,
             () => this.behaviorChanged(),
-            (typeId, index, count, targetIndex) => this.processColumnListChanged(typeId, index, count, targetIndex),
-            (column) => this.processColumnWidthChanged(column),
+            (typeId, index, count, targetIndex) => this.processAllColumnListChanged(typeId, index, count, targetIndex),
+            (typeId, index, count, targetIndex, ui) => this.processActiveColumnListChanged(typeId, index, count, targetIndex, ui),
+            (columns, ui) => this.processColumnsWidthChanged(columns, ui),
         );
         this._featureManager = new FeaturesManager(this, this.featuresSharedState);
 
@@ -239,7 +245,6 @@ export class Revgrid implements SelectionDetail {
         this.renderer = new Renderer(this,
             this._columnsManager,
             this.canvas.gc,
-            (name, detail) => this.handleGridEventDispatchEvent(name, detail),
         );
         this.canvas.renderer = this.renderer;
         this._modelCallbackRouter = this.createModelCallbackRouter();
@@ -483,7 +488,7 @@ export class Revgrid implements SelectionDetail {
         this.numRows = 0;
         this.numColumns = 0;
 
-        this.vScrollValue = 0;
+        this._rowScrollAnchorIndex = 0;
         // this.hScrollValue = 0;
 
         this.cancelEditing();
@@ -1392,6 +1397,10 @@ export class Revgrid implements SelectionDetail {
         this.behaviorChanged();
     }
 
+    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnNameWidth[]) {
+        this._columnsManager.setActiveColumnsAndWidthsByName(columnNameWidths, false);
+    }
+
     showColumns(columnIndexes: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
     showColumns(isActiveColumnIndexes: boolean, columnIndexes?: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
     showColumns(
@@ -1407,14 +1416,14 @@ export class Revgrid implements SelectionDetail {
         this._columnsManager.clearColumns();
     }
 
-    moveColumnBefore(sourceIndex: number, targetIndex: number) {
-        this._columnsManager.moveColumnBefore(sourceIndex, targetIndex);
+    moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean) {
+        this._columnsManager.moveColumnBefore(sourceIndex, targetIndex, ui);
         this.updateHorizontalScroll(true);
         this.behaviorChanged();
     }
 
-    moveColumnAfter(sourceIndex: number, targetIndex: number) {
-        this._columnsManager.moveColumnAfter(sourceIndex, targetIndex);
+    moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean) {
+        this._columnsManager.moveColumnAfter(sourceIndex, targetIndex, ui);
         this.updateHorizontalScroll(true);
         this.behaviorChanged();
     }
@@ -1439,6 +1448,28 @@ export class Revgrid implements SelectionDetail {
         this._columnsManager.autosizeAllColumns();
     }
 
+    setColumnScrollAnchor(index: number, offset: number) {
+        const changed = this.renderer.setColumnScrollAnchor(index, offset);
+        if (changed) {
+            this.computeCellsBounds();
+            const viewportStart = this.calculateColumnScrollAnchorViewportStart();
+            this.sbHScroller.setViewportStart(viewportStart);
+        }
+    }
+
+    setViewport(columnIndex: number, columnOffset: number, rowIndex: number, _rowOffset: number) {
+        const columnChanged = this.renderer.setColumnScrollAnchor(columnIndex, columnOffset);
+        this.rowScrollAnchorIndex = rowIndex;
+        const rowChanged = true; // fix in future
+        if (columnChanged || rowChanged) {
+            this.computeCellsBounds();
+
+            if (columnChanged) {
+                const viewportStart = this.calculateColumnScrollAnchorViewportStart();
+                this.sbHScroller.setViewportStart(viewportStart);
+            }
+        }
+    }
 
     /**
      * @desc Request input focus.
@@ -1683,10 +1714,18 @@ export class Revgrid implements SelectionDetail {
      */
     setActiveColumnWidth(columnOrIndex: number | Column, columnWidth: number) {
         if (this.abortEditing()) {
-            return this._columnsManager.setActiveColumnWidth(columnOrIndex, columnWidth);
+            return this._columnsManager.setActiveColumnWidth(columnOrIndex, columnWidth, false);
         } else {
             return undefined;
         }
+    }
+
+    setColumnWidths(columnWidths: ColumnWidth[]) {
+        return this._columnsManager.setColumnWidths(columnWidths, false);
+    }
+
+    setColumnWidthsByName(columnNameWidths: ColumnNameWidth[]) {
+        return this._columnsManager.setColumnWidthsByName(columnNameWidths, false);
     }
 
     /**
@@ -1897,7 +1936,7 @@ export class Revgrid implements SelectionDetail {
             hoverGridCell.y > -1
         ) {
             const x = hoverGridCell.x + this.renderer.firstNonFixedColumnIndex;
-            cursor = this.behavior.getCursorAt(x, hoverGridCell.y + this.getVScrollValue());
+            cursor = this.behavior.getCursorAt(x, hoverGridCell.y + this._rowScrollAnchorIndex);
         }
         this.beCursor(cursor);
     }
@@ -2230,13 +2269,32 @@ export class Revgrid implements SelectionDetail {
         this.behaviorChanged();
     }
 
+
     /**
-     * @param c - grid column index.
      * @desc Synthesize and fire a `fin-column-sort` event.
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticColumnSortEvent(eventDetail: EventDetail.ColumnSort): boolean {
         return dispatchGridEvent(this, 'rev-column-sort', false, eventDetail);
+    }
+
+    fireSyntheticColumnsViewWidthsChangedEvent(eventDetail: EventDetail.ColumnsViewWidthsChanged): boolean {
+        return dispatchGridEvent(this, 'rev-columns-view-widths-changed', false, eventDetail)
+    }
+
+    protected processAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
+        // descendants can override - make sure this function is called in any override function (probably at end)
+        this.behaviorChanged();
+    }
+
+    protected processActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean) {
+        // descendants can override - make sure this function is called in any override function (probably at end)
+        this.behaviorChanged();
+    }
+
+    protected processColumnsWidthChanged(_columns: Column[], _ui: boolean) {
+        // descendants can override - make sure this function is called in any override function (probably at end)
+        this.behaviorStateChanged();
     }
 
     /**
@@ -2290,6 +2348,10 @@ export class Revgrid implements SelectionDetail {
         };
 
         return dispatchGridEvent(this, 'rev-editor-data-change', true, eventDetail);
+    }
+
+    fireSyntheticSelectionChangedEvent(selectionDetail: SelectionDetail) {
+        return dispatchGridEvent(this, 'rev-selection-changed', false, selectionDetail);
     }
 
     /**
@@ -2428,16 +2490,11 @@ export class Revgrid implements SelectionDetail {
         return dispatchGridEvent(this, 'rev-double-click', false, cellEvent);
     }
 
-    processRendered() {
-        // descendants can override
-        this.fireSyntheticGridRenderedEvent();
-    }
-
     /**
      * @desc Synthesize and fire a fin-grid-rendered event.
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
-    fireSyntheticGridRenderedEvent() {
+    fireSyntheticGridRenderedEvent(): boolean {
         const eventDetail: EventDetail.Grid = {
             time: Date.now(),
             source: this,
@@ -3658,7 +3715,7 @@ export class Revgrid implements SelectionDetail {
      */
     scrollVBy(offsetY: number) {
         const max = this.sbVScroller.contentRange.finish;
-        const oldValue = this.getVScrollValue();
+        const oldValue = this._rowScrollAnchorIndex;
         const newValue = Math.min(max, Math.max(0, oldValue + offsetY));
         if (newValue !== oldValue) {
             this.handleVScrollerChange(newValue);
@@ -3753,27 +3810,19 @@ export class Revgrid implements SelectionDetail {
     /**
      * @desc Set the vertical scroll value.
      * @param newValue - The new scroll value.
+     * @internal
      */
     handleVScrollerChange(y: number) {
         y = Math.min(this.sbVScroller.contentRange.finish, Math.max(0, Math.round(y)));
-        if (y !== this.vScrollValue) {
-            this.behavior.setScrollPositionY(y);
+        if (y !== this._rowScrollAnchorIndex) {
             this.behaviorChanged();
             // const oldY = this.vScrollValue;
-            this.vScrollValue = y;
+            this._rowScrollAnchorIndex = y; // may need to be before this.behaviorChanged()
             this.scrollValueChangedNotification(false);
             setTimeout(() => {
                 this.fireScrollEvent('rev-scroll-y', y, -1, -1);
             }, 0);
         }
-    }
-
-    /**
-     * @return The vertical scroll value.
-     * @internal
-     */
-    getVScrollValue(): number {
-        return this.vScrollValue;
     }
 
     /**
@@ -3869,9 +3918,9 @@ export class Revgrid implements SelectionDetail {
     scrollValueChangedNotification(force: boolean) {
         if (
             force ||
-            this.vScrollValue !== this.sbPrevVScrollValue
+            this._rowScrollAnchorIndex !== this.sbPrevVScrollValue
         ) {
-            this.sbPrevVScrollValue = this.vScrollValue;
+            this.sbPrevVScrollValue = this._rowScrollAnchorIndex;
 
             if (this.cellEditor) {
                 this.cellEditor.scrollValueChangedNotification();
@@ -3981,7 +4030,7 @@ export class Revgrid implements SelectionDetail {
 
         const vMax = Math.max(0, numRows - gridProps.fixedRowCount - lastPageRowCount);
         this.setVScrollbarContentRange(vMax);
-        this.handleVScrollerChange(Math.min(this.getVScrollValue(), vMax));
+        this.handleVScrollerChange(Math.min(this._rowScrollAnchorIndex, vMax));
 
         if (recalculateView) {
             this.computeCellsBounds();
@@ -4027,22 +4076,6 @@ export class Revgrid implements SelectionDetail {
             navKey += 'SHIFT';
         }
         return navKey;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected processColumnListChanged(_typeId: ColumnListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
-        // descendants can override - make sure this function is called in any override function (probably at end)
-        this.behaviorChanged();
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected processColumnWidthChanged(_column: Column) {
-        // descendants can override - make sure this function is called in any override function (probably at end)
-        this.behaviorStateChanged();
-    }
-
-    private handleGridEventDispatchEvent<T extends EventName>(name: T, detail: EventName.DetailMap[T]) {
-        dispatchGridEvent(this, name, false, detail);
     }
 
     /** @internal */

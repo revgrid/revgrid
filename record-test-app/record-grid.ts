@@ -2,11 +2,10 @@ import { GridSettings } from 'grid-settings';
 import {
     CellEvent,
     CellPainter,
-    Column,
-    ColumnListChangedTypeId,
     EventDetail,
     GridProperties,
     Halign,
+    ListChangedTypeId,
     Revgrid,
     RevRecordCellAdapter,
     RevRecordField,
@@ -19,7 +18,7 @@ import {
     SelectionDetail,
     Subgrid,
     UnreachableCaseError
-} from '..';
+} from "..";
 import {
     DateValGridField,
     GridField,
@@ -35,14 +34,14 @@ export class RecordGrid extends Revgrid {
     fieldSortedEventer: RecordGrid.FieldSortedEventer | undefined;
     columnWidthChangedEventer: RecordGrid.ColumnWidthChangedEventer | undefined;
 
-    private _lastNotifiedFocusedRecordIndex: number | undefined;
+    recordFocusEventer: RecordGrid.RecordFocusEventer | undefined;
+    recordFocusClickEventer: RecordGrid.RecordFocusClickEventer | undefined;
+    recordFocusDblClickEventer: RecordGrid.RecordFocusDblClickEventer | undefined;
+    resizedEventer: RecordGrid.ResizedEventer | undefined;
+    columnsViewWidthsChangedEventer: RecordGrid.ColumnsViewWidthsChangedEventer | undefined;
+    renderedEventer: RecordGrid.RenderedEventer | undefined;
 
-    private _recordFocusEventer: RecordGrid.RecordFocusEventer | undefined;
-    private _recordFocusClickEventer: RecordGrid.RecordFocusClickEventer | undefined;
-    private _recordFocusDblClickEventer: RecordGrid.RecordFocusDblClickEventer | undefined;
-    private _resizedEventer: RecordGrid.ResizedEventer | undefined;
-    private _columnsViewWidthsChangedEventer: RecordGrid.ColumnsViewWidthsChangedEventer | undefined;
-    private _renderedEventer: RecordGrid.RenderedEventer | undefined;
+    private _lastNotifiedFocusedRecordIndex: number | undefined;
 
     private readonly _fieldAdapter: RevRecordFieldAdapter;
     private readonly _headerRecordAdapter: RevRecordHeaderAdapter;
@@ -55,14 +54,6 @@ export class RecordGrid extends Revgrid {
     private readonly _numberValGridField = new NumberValGridField();
     private readonly _dateValGridField = new DateValGridField();
     private readonly _statusIdValGridField = new StatusIdValGridField();
-
-    private readonly _selectionChangedListener: (event: CustomEvent<SelectionDetail>) => void;
-    private readonly _clickListener: (event: CustomEvent<CellEvent>) => void;
-    private readonly _dblClickListener: (event: CustomEvent<CellEvent>) => void;
-    private readonly _resizedListener: (event: CustomEvent<EventDetail.Resize>) => void;
-    private readonly _columnsViewWidthsChangedListener: (event: CustomEvent<EventDetail.ColumnsViewWidthsChanged>) => void;
-    private readonly _renderedListener: () => void;
-    private readonly _columnSortListener: (event: CustomEvent<EventDetail.ColumnSort>) => void;
 
     constructor(
         gridElement: HTMLElement,
@@ -101,19 +92,9 @@ export class RecordGrid extends Revgrid {
         this._headerRecordAdapter = headerRecordAdapter;
         this._mainRecordAdapter = mainRecordAdapter;
 
-        this._selectionChangedListener = (event: CustomEvent<SelectionDetail>) => this.handleHypegridSelectionChanged(event);
-        this._clickListener = (event: CustomEvent<CellEvent>) => this.handleGridClickEvent(event);
-        this._dblClickListener = (event: CustomEvent<CellEvent>) => this.handleGridDblClickEvent(event);
-        this._resizedListener = (event: CustomEvent<EventDetail.Resize>) => this.handleHypegridResizedEvent(event);
-        this._columnsViewWidthsChangedListener = (event: CustomEvent<EventDetail.ColumnsViewWidthsChanged>) => this.handleHypegridColumnsViewWidthsChangedEvent(event);
-        this._renderedListener = () => this.handleHypegridRenderedEvent();
-        this._columnSortListener = (event: CustomEvent<EventDetail.ColumnSort>) => this.handleHypegridColumnSortEvent(event.detail.column);
-
         this.allowEvents(true);
 
         this.addFieldsToAdapter();
-
-        this.addEventListener('rev-column-sort', this._columnSortListener);
     }
 
     get fieldCount(): number { return this._fieldAdapter.fieldCount; }
@@ -177,78 +158,6 @@ export class RecordGrid extends Revgrid {
 
     get gridRightAligned(): boolean { return this.properties.gridRightAligned; }
     get rowHeight(): number { return this.properties.defaultRowHeight; }
-
-    get recordFocusEventer(): RecordGrid.RecordFocusEventer | undefined { return this._recordFocusEventer; }
-    set recordFocusEventer(value: RecordGrid.RecordFocusEventer | undefined) {
-        if (this._recordFocusEventer !== undefined) {
-            this.removeEventListener('rev-selection-changed', this._selectionChangedListener)
-        }
-        this._recordFocusEventer = value;
-
-        if (this._recordFocusEventer !== undefined) {
-            this.addEventListener('rev-selection-changed', this._selectionChangedListener);
-        }
-    }
-
-    get recordFocusClickEventer(): RecordGrid.RecordFocusClickEventer | undefined { return this._recordFocusClickEventer; }
-    set recordFocusClickEventer(value: RecordGrid.RecordFocusClickEventer | undefined) {
-        if (this._recordFocusClickEventer !== undefined) {
-            this.removeEventListener('rev-click', this._clickListener)
-        }
-        this._recordFocusClickEventer = value;
-
-        if (this._recordFocusClickEventer !== undefined) {
-            this.addEventListener('rev-click', this._clickListener);
-        }
-    }
-
-    get recordFocusDblClickEventer(): RecordGrid.RecordFocusDblClickEventer | undefined { return this._recordFocusDblClickEventer; }
-    set recordFocusDblClickEventer(value: RecordGrid.RecordFocusDblClickEventer | undefined) {
-        if (this._recordFocusDblClickEventer !== undefined) {
-            this.removeEventListener('rev-double-click', this._dblClickListener)
-        }
-        this._recordFocusDblClickEventer = value;
-
-        if (this._recordFocusDblClickEventer !== undefined) {
-            this.addEventListener('rev-double-click', this._dblClickListener);
-        }
-    }
-
-    get resizedEventer(): RecordGrid.ResizedEventer | undefined { return this._resizedEventer; }
-    set resizedEventer(value: RecordGrid.ResizedEventer | undefined) {
-        if (this._resizedEventer !== undefined) {
-            this.removeEventListener('rev-grid-resized', this._resizedListener)
-        }
-        this._resizedEventer = value;
-
-        if (this._resizedEventer !== undefined) {
-            this.addEventListener('rev-grid-resized', this._resizedListener);
-        }
-    }
-
-    get columnsViewWidthsChangedEventer(): RecordGrid.ColumnsViewWidthsChangedEventer | undefined { return this._columnsViewWidthsChangedEventer; }
-    set columnsViewWidthsChangedEventer(value: RecordGrid.ColumnsViewWidthsChangedEventer | undefined) {
-        if (this._columnsViewWidthsChangedEventer !== undefined) {
-            this.removeEventListener('rev-columns-view-widths-changed', this._columnsViewWidthsChangedListener)
-        }
-        this._columnsViewWidthsChangedEventer = value;
-
-        if (this._columnsViewWidthsChangedEventer !== undefined) {
-            this.addEventListener('rev-columns-view-widths-changed', this._columnsViewWidthsChangedListener);
-        }
-    }
-
-    get renderedEventer(): RecordGrid.RenderedEventer | undefined { return this._renderedEventer; }
-    set renderedEventer(value: RecordGrid.RenderedEventer | undefined) {
-        if (this._renderedEventer !== undefined) {
-            this.removeEventListener('rev-grid-rendered', this._renderedListener)
-        }
-        this._renderedEventer = value;
-
-        if (this._renderedEventer !== undefined) {
-            this.addEventListener('rev-grid-rendered', this._renderedListener);
-        }
-    }
 
     get rowRecIndices(): number[] {
         return [];
@@ -474,57 +383,30 @@ export class RecordGrid extends Revgrid {
         this.showColumns(false, fieldIndex);
     }
 
-    protected override processColumnListChanged(typeId: ColumnListChangedTypeId, index: number, count: number, targetIndex: number) {
-        // how to set initial width of a column
-        switch (typeId) {
-            case ColumnListChangedTypeId.Insert:
-            case ColumnListChangedTypeId.Set:
-                // use existing index and count to check for columns whose width is to be set
-                break;
-            case ColumnListChangedTypeId.Move:
-            case ColumnListChangedTypeId.Remove:
-            case ColumnListChangedTypeId.Clear:
-                // Do not check any columns
-                index = 0;
-                count = 0;
-                break;
-            default:
-                throw new UnreachableCaseError('RCPCLC65599', typeId);
-        }
-        if (count > 0) {
-            const allColumns = this.allColumns;
-            const afterIndex = index + count;
-            for (let allIndex = index; allIndex < afterIndex; allIndex++) {
-                const column = allColumns[allIndex];
-                if (column.name === this._strValGridField.name) {
-                    column.setWidth(150);
-                }
-            }
-        }
-
-        super.processColumnListChanged(typeId, index, count, targetIndex);
-    }
-
-    private handleHypegridColumnSortEvent(column: Column): void {
+    override fireSyntheticColumnSortEvent(eventDetail: EventDetail.ColumnSort): boolean {
+        const column = eventDetail.column;
         const fieldIndex = column.schemaColumn.index;
 
         this._mainRecordAdapter.sortBy(fieldIndex);
+
+        return super.fireSyntheticColumnSortEvent(eventDetail);
     }
 
-    private handleGridClickEvent(event: CustomEvent<CellEvent>): void {
-        const gridY = event.detail.gridCell.y;
+    override fireSyntheticClickEvent(event: CellEvent): boolean {
+        const gridY = event.gridCell.y;
         if (gridY !== 0) { // Skip clicks to the column headers
-            if (this._recordFocusClickEventer !== undefined) {
-                const rowIndex = event.detail.dataCell.y;
+            if (this.recordFocusClickEventer !== undefined) {
+                const rowIndex = event.dataCell.y;
                 const recordIndex = this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex);
                 if (recordIndex === undefined) {
-                    throw new Error('HandleGridClickEvent');
+                    throw new Error('fireSyntheticClickEvent');
                 } else {
-                    const fieldIndex = event.detail.dataCell.x;
-                    this._recordFocusClickEventer(fieldIndex, recordIndex);
+                    const fieldIndex = event.dataCell.x;
+                    this.recordFocusClickEventer(fieldIndex, recordIndex);
                 }
             }
         }
+        return super.fireSyntheticClickEvent(event);
     }
 
     private handleMouseDown(/*rowIndex: number, fieldIndex: number, gridY: number*/): void {
@@ -537,22 +419,24 @@ export class RecordGrid extends Revgrid {
         this.recordFocusEventer!(recordIndex, fieldIndex);*/
     }
 
-    private handleGridDblClickEvent(event: CustomEvent<CellEvent>): void {
-        if (event.detail.gridCell.y !== 0) { // Skip clicks to the column headers
-            if (this._recordFocusClickEventer !== undefined) {
-                const rowIndex = event.detail.dataCell.y;
+    override fireSyntheticDoubleClickEvent(event: CellEvent): boolean {
+        if (event.gridCell.y !== 0) { // Skip clicks to the column headers
+            if (this.recordFocusDblClickEventer !== undefined) {
+                const rowIndex = event.dataCell.y;
                 const recordIndex = this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex);
                 if (recordIndex === undefined) {
                     throw new Error('handleGridDblClickEvent');
                 } else {
-                    this._recordFocusClickEventer(event.detail.dataCell.x, recordIndex);
+                    this.recordFocusDblClickEventer(event.dataCell.x, recordIndex);
                 }
             }
         }
+
+        return super.fireSyntheticDoubleClickEvent(event);
     }
 
-    private handleHypegridSelectionChanged(event: CustomEvent<SelectionDetail>) {
-        const selections = event.detail.selections;
+    override fireSyntheticSelectionChangedEvent(event: SelectionDetail): boolean {
+        const selections = event.selections;
 
         if (selections.length === 0) {
             if (this._lastNotifiedFocusedRecordIndex !== undefined) {
@@ -576,25 +460,31 @@ export class RecordGrid extends Revgrid {
                 }
             }
         }
+
+        return super.fireSyntheticSelectionChangedEvent(event);
     }
 
-    private handleHypegridResizedEvent(event: CustomEvent<EventDetail.Resize>) {
-        if (this._resizedEventer !== undefined) {
-            this._resizedEventer(event.detail)
+    override fireSyntheticGridResizedEvent(eventDetail: EventDetail.Resize): boolean {
+        if (this.resizedEventer !== undefined) {
+            this.resizedEventer(eventDetail);
         }
+
+        return super.fireSyntheticGridResizedEvent(eventDetail);
     }
 
-    private handleHypegridColumnsViewWidthsChangedEvent(event: CustomEvent<EventDetail.ColumnsViewWidthsChanged>) {
-        if (this._columnsViewWidthsChangedEventer !== undefined) {
-            const detail = event.detail;
-            this._columnsViewWidthsChangedEventer(detail.fixedChanged, detail.nonFixedChanged, detail.activeChanged);
+    override fireSyntheticColumnsViewWidthsChangedEvent(eventDetail: EventDetail.ColumnsViewWidthsChanged): boolean {
+        if (this.columnsViewWidthsChangedEventer !== undefined) {
+            this.columnsViewWidthsChangedEventer(eventDetail.fixedChanged, eventDetail.nonFixedChanged, eventDetail.activeChanged);
         }
+
+        return super.fireSyntheticColumnsViewWidthsChangedEvent(eventDetail);
     }
 
-    private handleHypegridRenderedEvent() {
-        if (this._renderedEventer !== undefined) {
-            this._renderedEventer();
+    override fireSyntheticGridRenderedEvent(): boolean {
+        if (this.renderedEventer !== undefined) {
+            this.renderedEventer();
         }
+        return super.fireSyntheticGridRenderedEvent();
     }
 
     // private handleHypegridNextRenderedEvent() {
@@ -607,6 +497,37 @@ export class RecordGrid extends Revgrid {
     //         }
     //     }
     // }
+
+    protected override processColumnListChanged(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number) {
+        // how to set initial width of a column
+        switch (typeId) {
+            case ListChangedTypeId.Insert:
+            case ListChangedTypeId.Set:
+                // use existing index and count to check for columns whose width is to be set
+                break;
+            case ListChangedTypeId.Move:
+            case ListChangedTypeId.Remove:
+            case ListChangedTypeId.Clear:
+                // Do not check any columns
+                index = 0;
+                count = 0;
+                break;
+            default:
+                throw new UnreachableCaseError('RCPCLC65599', typeId);
+        }
+        if (count > 0) {
+            const allColumns = this.allColumns;
+            const afterIndex = index + count;
+            for (let allIndex = index; allIndex < afterIndex; allIndex++) {
+                const column = allColumns[allIndex];
+                if (column.name === this._strValGridField.name) {
+                    column.setWidth(150);
+                }
+            }
+        }
+
+        super.processColumnListChanged(typeId, index, count, targetIndex);
+    }
 
     private createGridPropertiesFromSettings(settings: Partial<GridSettings>): Partial<GridProperties> {
         const properties: Partial<GridProperties> = {};

@@ -7,7 +7,6 @@ import { RenderedCell } from '../cell/rendered-cell';
 import { Column } from '../column/column';
 import { ColumnsManager } from '../column/columns-manager';
 import { EventDetail } from '../event/event-detail';
-import { EventName } from '../event/event-name';
 import { GridPainter } from '../grid-painter/grid-painter';
 import { GridPainterRepository } from '../grid-painter/grid-painter-repository';
 import { InclusiveRectangle } from '../lib/inclusive-rectangle';
@@ -152,7 +151,6 @@ export class Renderer {
         public readonly grid: Revgrid,
         private readonly _columnsManager: ColumnsManager,
         private readonly _gc: CanvasRenderingContext2DEx,
-        private readonly _gridEventDispatchHandler: <T extends EventName>(name: T, detail: EventName.DetailMap[T]) => void,
     ) {
         this._renderActioner.actionsEvent = (actions) => this.processRenderActions(actions);
 
@@ -740,7 +738,7 @@ export class Renderer {
                         this.paintGrid(gc);
                     }
 
-                    this.grid.processRendered();
+                    this.grid.fireSyntheticGridRenderedEvent();
 
                     const lastModelUpdateId = this._lastModelUpdateId;
                     if (this._lastRenderedModelUpdateId !== lastModelUpdateId) {
@@ -1228,7 +1226,7 @@ export class Renderer {
      * @returns Current vertical scroll value.
      */
     getScrollTop(): number {
-        return this.grid.getVScrollValue();
+        return this.grid.rowScrollAnchorIndex;
     }
 
     /**
@@ -1731,7 +1729,7 @@ export class Renderer {
                 nonFixedChanged: nonFixedColumnsViewWidthChanged,
                 activeChanged: activeColumnsViewWidthChanged,
             };
-            this._gridEventDispatchHandler('rev-columns-view-widths-changed', detail);
+            this.grid.fireSyntheticColumnsViewWidthsChangedEvent(detail);
         }
     }
 

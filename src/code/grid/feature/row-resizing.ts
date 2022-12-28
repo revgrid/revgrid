@@ -38,7 +38,7 @@ export class RowResizing extends ColumnRowResizing {
      * @desc return the grids x,y scroll value
      */
     getScrollValue(grid: Revgrid): number {
-        return grid.getVScrollValue();
+        return grid.rowScrollAnchorIndex;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
