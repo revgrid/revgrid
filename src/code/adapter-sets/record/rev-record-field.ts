@@ -36,7 +36,7 @@ export interface RevRecordField {
 /** @public */
 export namespace RevRecordField {
     export interface SchemaColumn extends SchemaModel.Column {
-        header: string;
+        field: RevRecordField;
     }
 
     export type Comparer = (this: void, left: RevRecord, right: RevRecord) => number;

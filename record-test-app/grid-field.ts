@@ -1,17 +1,17 @@
 import {
     DataModel, RevRecordField, RevRecordValueRecentChangeTypeId
-} from '../dist/types/public-api';
+} from '..';
 import { RecordStore } from './record-store';
 
 export abstract class GridField implements RevRecordField {
-    constructor(readonly name: string) {}
+    constructor(readonly name: string, public heading: string) {}
     abstract getValue(record: RecordStore.Record): DataModel.DataValue;
     abstract modifyValue(record: RecordStore.Record): RevRecordValueRecentChangeTypeId | undefined;
 }
 
 export class RecordIndexGridField extends GridField {
     constructor() {
-        super("RecIndex");
+        super('RecIndex', 'Index');
     }
 
     getValue(record: RecordStore.Record): DataModel.DataValue {
@@ -25,7 +25,7 @@ export class RecordIndexGridField extends GridField {
 
 export class IntValGridField extends GridField {
     constructor() {
-        super("IntVal");
+        super('IntVal', 'Int');
     }
 
     getValue(record: RecordStore.Record): DataModel.DataValue {
@@ -55,7 +55,7 @@ export class IntValGridField extends GridField {
 
 export class StrValGridField extends GridField {
     constructor() {
-        super("fiStrVal");
+        super('fiStrVal', 'Str');
     }
 
     getValue(record: RecordStore.Record): DataModel.DataValue {
@@ -84,7 +84,7 @@ export class StrValGridField extends GridField {
 
 export class NumberValGridField extends GridField {
     constructor() {
-        super('fiDblVal');
+        super('fiDblVal', 'Number');
     }
 
     getValue(record: RecordStore.Record): DataModel.DataValue {
@@ -114,7 +114,7 @@ export class NumberValGridField extends GridField {
 
 export class DateValGridField extends GridField {
     constructor() {
-        super('fiDateVal');
+        super('fiDateVal', 'Date');
     }
 
     getValue(record: RecordStore.Record): DataModel.DataValue {
@@ -144,7 +144,7 @@ export class DateValGridField extends GridField {
 
 export class StatusIdValGridField extends GridField {
     constructor() {
-        super('fiStatusIdVal');
+        super('fiStatusIdVal', 'StatusId');
     }
 
     getValue(record: RecordStore.Record): DataModel.DataValue {
@@ -173,7 +173,7 @@ export class StatusIdValGridField extends GridField {
 
 export class HiddenStrValGridField extends GridField {
     constructor() {
-        super('fiHidden');
+        super('fiHidden', 'Hidden');
     }
 
     getValue(record: RecordStore.Record): DataModel.DataValue {

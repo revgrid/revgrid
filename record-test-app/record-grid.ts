@@ -4,7 +4,6 @@ import {
     CellPainter,
     EventDetail,
     GridProperties,
-    Halign,
     ListChangedTypeId,
     Revgrid,
     RevRecordCellAdapter,
@@ -29,6 +28,7 @@ import {
     StatusIdValGridField,
     StrValGridField
 } from './grid-field';
+import { RecordHeaderAdapter } from './record-header-adapter';
 
 export class RecordGrid extends Revgrid {
     fieldSortedEventer: RecordGrid.FieldSortedEventer | undefined;
@@ -63,7 +63,7 @@ export class RecordGrid extends Revgrid {
     ) {
         const fieldAdapter = new RevRecordFieldAdapter();
         const mainRecordAdapter = new RevRecordMainAdapter(fieldAdapter, recordStore);
-        const headerRecordAdapter = new RevRecordHeaderAdapter();
+        const headerRecordAdapter = new RecordHeaderAdapter();
 
         const recordCellAdapter = new RevRecordCellAdapter(mainRecordAdapter, mainCellPainter);
 
@@ -194,29 +194,6 @@ export class RecordGrid extends Revgrid {
         return this._fieldAdapter.getFieldIndex(field);
     }
 
-    getFieldNameToHeaderMap(): RecordGrid.FieldNameToHeaderMap {
-        const result = new Map<string, string | undefined>();
-        const fields = this._fieldAdapter.fields;
-        for (let i = 0; i < fields.length; i++) {
-            const state = this.getFieldState(i);
-            const field = fields[i];
-            result.set(field.name, state.header);
-        }
-        return result;
-    }
-
-    getFieldState(field: RevRecordFieldIndex | RevRecordField): RecordGrid.FieldState {
-        const fieldIndex = typeof field === 'number' ? field : this.getFieldIndex(field);
-        const column = this.getAllColumn(fieldIndex);
-        const columnProperties = column.properties;
-
-        return {
-            width: !columnProperties.columnAutosized ? columnProperties.width : undefined,
-            header: (column.schemaColumn as RevRecordField.SchemaColumn).header,
-            alignment: columnProperties.halign
-        };
-    }
-
     getFieldWidth(field: RevRecordFieldIndex | RevRecordField): number | undefined {
         const fieldIndex = typeof field === 'number' ? field : this.getFieldIndex(field);
         const columnProperties = this.getAllColumn(fieldIndex).properties;
@@ -296,47 +273,10 @@ export class RecordGrid extends Revgrid {
         }
     }
 
-    setFieldHeader(fieldOrIdx: RevRecordFieldIndex | RevRecordField, header: string): void {
-        const fieldIndex = this._fieldAdapter.setFieldHeader(fieldOrIdx, header);
-
-        this._headerRecordAdapter.invalidateCell(fieldIndex);
-    }
-
-    setFieldState(field: RevRecordField, state: RecordGrid.FieldState): void {
-        // const fieldIndex = typeof field === 'number' ? field : this.getFieldIndex(field);
+    setFieldHeading(field: GridField, heading: string): void {
+        field.heading = heading;
         const fieldIndex = this.getFieldIndex(field);
-
-        if (state === undefined) {
-            state = {};
-        }
-
-        const columnIndex = this.getActiveColumnIndexUsingFieldIndex(fieldIndex);
-
-        if (columnIndex < 0) {
-            return;
-        }
-
-        const column = this.getAllColumn(columnIndex);
-
-        // Update the schema
-        const header = state.header ?? field.name
-        this.setFieldHeader(fieldIndex, header);
-
-        // Update any properties
-        if (state.alignment !== undefined) {
-            column.properties.halign = state.alignment;
-        }
-
-        // Update the width
-        if (state.width === undefined) {
-            column.checkColumnAutosizing(true);
-        } else {
-            column.setWidth(state.width);
-        }
-
-        // Update Hypergrid schema
-        // if (this.updateCounter == 0 && this.dispatchEvent !== undefined)
-        // 	this.dispatchEvent('fin-hypergrid-schema-loaded');
+        this._headerRecordAdapter.invalidateCell(fieldIndex);
     }
 
     setFieldsVisible(fields: (RevRecordFieldIndex | RevRecordField)[], visible: boolean): void {
@@ -498,7 +438,7 @@ export class RecordGrid extends Revgrid {
     //     }
     // }
 
-    protected override processColumnListChanged(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number) {
+    protected override processAllColumnListChanged(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number) {
         // how to set initial width of a column
         switch (typeId) {
             case ListChangedTypeId.Insert:
@@ -526,7 +466,7 @@ export class RecordGrid extends Revgrid {
             }
         }
 
-        super.processColumnListChanged(typeId, index, count, targetIndex);
+        super.processAllColumnListChanged(typeId, index, count, targetIndex);
     }
 
     private createGridPropertiesFromSettings(settings: Partial<GridSettings>): Partial<GridProperties> {
@@ -652,16 +592,6 @@ export namespace RecordGrid {
     //     layout: GridLayout;
     //     headersMap: FieldNameToHeaderMap;
     // }
-
-    /** Defines the display details of a Field */
-    export interface FieldState {
-        /** Determines the header text of a Field. Undefined to use the raw field name */
-        header?: string;
-        /** Determines the width of a Field. Undefined to auto-size */
-        width?: number;
-        /** The text alignment within a cell */
-        alignment?: Halign;
-    }
 
     export type RenderedCallback = (this: void) => void;
 }

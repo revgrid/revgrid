@@ -6,19 +6,23 @@ export class RevRecordHeaderAdapter implements DataModel {
 
     private _dataCallbackListener: DataModel.CallbackListener;
 
+    constructor(private _rowCount = 1) {
+
+    }
+
     addDataCallbackListener(value: DataModel.CallbackListener): void {
         this._dataCallbackListener = value;
     }
 
-    getValue(schemaColumn: RevRecordField.SchemaColumn): string {
-        return schemaColumn.header;
+    getValue(schemaColumn: RevRecordField.SchemaColumn, _rowCount: number): string {
+        return schemaColumn.name;
     }
 
     getRowCount() {
-        return 1;
+        return this._rowCount;
     }
 
-    invalidateCell(schemaColumnIndex: number) {
-        this._dataCallbackListener.invalidateCell(schemaColumnIndex, 0);
+    invalidateCell(schemaColumnIndex: number, rowIndex = 0) {
+        this._dataCallbackListener.invalidateCell(schemaColumnIndex, rowIndex);
     }
 }

@@ -196,13 +196,6 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
         }
     }
 
-    setFieldHeader(fieldOrIndex: RevRecordFieldIndex | RevRecordField, header: string, ): number {
-        const fieldIndex = typeof fieldOrIndex === 'number' ? fieldOrIndex : this.getFieldIndex(fieldOrIndex);
-        const columnSchema = this._schema[fieldIndex];
-        columnSchema.header = header;
-        return fieldIndex;
-    }
-
     private internalAddField(
         field: RevRecordField,
         header: string,
@@ -230,7 +223,7 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
         const schemaColumn: RevRecordField.SchemaColumn = {
             name: field.name,
             index: fieldIndex,
-            header,
+            field,
         };
 
         this._schema.push(schemaColumn);

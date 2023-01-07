@@ -142,7 +142,7 @@ export class Main {
             StrCol: string;
             NumberCol: number;
             BoolCol: boolean;
-            BigIntCol: BigInt;
+            BigIntCol: bigint;
             DateCol: Date;
         }
 

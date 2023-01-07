@@ -2964,7 +2964,7 @@ export namespace RevRecordField {
     // (undocumented)
     export interface SchemaColumn extends SchemaModel.Column {
         // (undocumented)
-        header: string;
+        field: RevRecordField;
     }
 }
 
@@ -3015,8 +3015,6 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
     // (undocumented)
     get schema(): readonly RevRecordField.SchemaColumn[];
     // (undocumented)
-    setFieldHeader(fieldOrIndex: RevRecordFieldIndex | RevRecordField, header: string): number;
-    // (undocumented)
     setFields(fields: readonly RevRecordField[]): void;
 }
 
@@ -3038,14 +3036,15 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
 
 // @public (undocumented)
 export class RevRecordHeaderAdapter implements DataModel {
+    constructor(_rowCount?: number);
     // (undocumented)
     addDataCallbackListener(value: DataModel.CallbackListener): void;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
-    getValue(schemaColumn: RevRecordField.SchemaColumn): string;
+    getValue(schemaColumn: RevRecordField.SchemaColumn, _rowCount: number): string;
     // (undocumented)
-    invalidateCell(schemaColumnIndex: number): void;
+    invalidateCell(schemaColumnIndex: number, rowIndex?: number): void;
 }
 
 // @public
