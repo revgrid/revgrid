@@ -1597,15 +1597,15 @@ export type Halign = keyof typeof HalignEnum;
 // @public (undocumented)
 export const enum HalignEnum {
     // (undocumented)
-    'center' = "center",
+    center = "center",
     // (undocumented)
-    'end' = "end",
+    end = "end",
     // (undocumented)
-    'left' = "left",
+    left = "left",
     // (undocumented)
-    'right' = "right",
+    right = "right",
     // (undocumented)
-    'start' = "start"
+    start = "start"
 }
 
 // @public (undocumented)

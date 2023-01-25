@@ -1,10 +1,10 @@
 /** @public */
 export const enum HalignEnum {
-    'left' = 'left',
-    'right' = 'right',
-    'center' = 'center',
-    'start' = 'start',
-    'end' = 'end'
+    left = 'left',
+    right = 'right',
+    center = 'center',
+    start = 'start',
+    end = 'end'
 }
 
 /** @public */
