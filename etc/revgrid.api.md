@@ -608,7 +608,7 @@ export class Column {
     setCellProperties(rowIndex: number, properties: MetaModel.CellOwnProperties | undefined, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined;
     // @internal (undocumented)
     setCellProperty(rowIndex: number, key: string, value: unknown, subgrid: Subgrid): MetaModel.CellOwnProperties;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@this" is not defined in this configuration
+    // (undocumented)
     setValue(y: number, value: unknown): void;
     // (undocumented)
     setWidth(width: number | undefined): boolean;
@@ -2969,7 +2969,7 @@ export namespace RevRecordField {
 }
 
 // @public (undocumented)
-export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.FieldsEventers {
+export class RevRecordFieldAdapter implements SchemaModel {
     constructor(
     _recordStore?: RevRecordStore | undefined);
     // (undocumented)
@@ -3236,25 +3236,12 @@ export interface RevRecordStore {
     getRecord(index: RevRecordIndex): RevRecord;
     getRecords(): readonly RevRecord[];
     readonly recordCount: number;
-    // @deprecated (undocumented)
-    setFieldEventers?(fieldsEventers: RevRecordStore.FieldsEventers): void;
     // (undocumented)
     setRecordEventers(recordsEventers: RevRecordStore.RecordsEventers): void;
 }
 
 // @public (undocumented)
 export namespace RevRecordStore {
-    // @deprecated (undocumented)
-    export interface FieldsEventers {
-        // @deprecated (undocumented)
-        addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
-        // @deprecated (undocumented)
-        addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex;
-        // @deprecated (undocumented)
-        beginChange(): void;
-        // @deprecated (undocumented)
-        endChange(): void;
-    }
     // (undocumented)
     export interface RecordsEventers {
         // (undocumented)

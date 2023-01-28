@@ -5,7 +5,7 @@ import { RevRecordStore } from './rev-record-store';
 import { RevRecordFieldIndex } from './rev-record-types';
 
 /** @public */
-export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.FieldsEventers {
+export class RevRecordFieldAdapter implements SchemaModel {
     /** @internal */
     fieldListChangedEventer: ListChangedEventHandler | undefined;
 
@@ -31,10 +31,6 @@ export class RevRecordFieldAdapter implements SchemaModel, RevRecordStore.Fields
 
     addSchemaCallbackListener(value: SchemaModel.CallbackListener): void {
         this._callbackListener = value;
-        if (this._recordStore?.setFieldEventers !== undefined && !this._recordStoreEventersSet) {
-            this._recordStore.setFieldEventers(this);
-            this._recordStoreEventersSet = true;
-        }
     }
 
     addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn {

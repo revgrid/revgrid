@@ -106,7 +106,7 @@ export namespace RevRecordArrayUtil {
 					mid++;
                 } else {
 					return ~mid;
- 				} // Item should be inserted where the skip point is
+                } // Item should be inserted where the skip point is
 			}
 
 			const result = comparer(values[mid], item);

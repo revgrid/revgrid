@@ -1,5 +1,4 @@
 import { RevRecord, RevRecordData } from './rev-record';
-import { RevRecordField } from './rev-record-field';
 import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
 /**
@@ -7,8 +6,6 @@ import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevReco
  * @public
  */
 export interface RevRecordStore {
-    /** @deprecated use Field functions in RevRecordFieldAdapter directly */
-    setFieldEventers?(fieldsEventers: RevRecordStore.FieldsEventers): void;
     setRecordEventers(recordsEventers: RevRecordStore.RecordsEventers): void;
 
     /**
@@ -30,19 +27,6 @@ export interface RevRecordStore {
 
 /** @public */
 export namespace RevRecordStore {
-    /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
-    export interface FieldsEventers {
-        /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
-        beginChange(): void;
-        /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
-        endChange(): void;
-
-        /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
-        addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
-        /** @deprecated use Field functions in RevRecordFieldAdapter directly  */
-        addFields(fields: readonly RevRecordField[]): RevRecordFieldIndex;
-    }
-
     export interface RecordsEventers {
         beginChange(): void;
         endChange(): void;

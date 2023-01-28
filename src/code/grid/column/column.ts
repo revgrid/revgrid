@@ -93,11 +93,8 @@ export class Column {
         return this.dataModel.getValue(this.schemaColumn, y/*, dataModel*/);
     }
 
-    /**
-     * @this ColumnType
-     */
     setValue(y: number, value: unknown) {
-        return this.dataModel.setValue(this.schemaColumn, y, value/*, dataModel*/);
+        this.dataModel.setValue(this.schemaColumn, y, value/*, dataModel*/);
     }
 
     getWidth() {
@@ -510,13 +507,13 @@ export class Column {
                 throw new AssertError('CTF27754', 'Expected string, function, or undefined.');
         }
 
-        let args = string.match(/^function\s*\w*\s*\(([^]*?)\)/);
-        if (!args) {
+        const delimitedStuff = string.match(/^function\s*\w*\s*\(([^]*?)\)/);
+        if (!delimitedStuff) {
             throw new AssertError('CTF27755', 'Expected function keyword with formal parameter list.');
         }
-        args = args[1].split(',').map((s, i) => {
+        let args = delimitedStuff[1].split(',').map((s, i) => {
             const matches = s.match(/\s*(\w*)\s*/); // trim each argument
-            if (!matches && i) {
+            if (!matches /*&& i*/) {
                 throw new AssertError('CTF27756', 'Expected formal parameter.');
             }
             return matches[1];

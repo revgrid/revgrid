@@ -358,9 +358,10 @@ export class RevRecordRecentChanges {
                         row.recentChange = rowChange;
                         break;
                     }
-                    default:
+                    default: {
                         const switchCompletenessTest: never = change.typeId;
                         throw new RevRecordAssertError('RCPPROD75529', `${switchCompletenessTest}`);
+                    }
                 }
             }
         }
@@ -401,9 +402,10 @@ export class RevRecordRecentChanges {
                         }
                         break;
                     }
-                    default:
+                    default: {
                         const switchCompletenessTest: never = change.typeId;
                         throw new RevRecordAssertError('RCCEC75529', `${switchCompletenessTest}`);
+                    }
                 }
             }
 
@@ -503,9 +505,10 @@ export class RevRecordRecentChanges {
                         expiredRowIndexes[expiredRowChangeCount++] = rowIndex;
                         break;
                     }
-                    default:
+                    default: {
                         const switchCompletenessTest: never = change.typeId;
                         throw new RevRecordAssertError('RCEHTD98833', `${switchCompletenessTest}`);
+                    }
                 }
             }
         }
