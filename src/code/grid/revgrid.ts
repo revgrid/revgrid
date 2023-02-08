@@ -266,7 +266,7 @@ export class Revgrid implements SelectionDetail {
         //         this.setBehavior(options); // also sets options.data
         //     }
         // }
-        this.reset(options.adapterSet, undefined, false);
+        this.internalReset(options.adapterSet, undefined, false);
 
         this.reindex();
 
@@ -473,62 +473,7 @@ export class Revgrid implements SelectionDetail {
         nonDefaultProperties: Partial<GridProperties> | undefined,
         removeAllEventListeners = false
     ) {
-        if (nonDefaultProperties !== undefined) {
-            this.properties.loadDefaults();
-            this.properties.merge(nonDefaultProperties);
-        }
-
-        if (removeAllEventListeners) {
-            this.removeAllEventListeners();
-        }
-
-        this.clearMouseDown();
-        this.dragExtent = Point.create(0, 0);
-
-        this.numRows = 0;
-        this.numColumns = 0;
-
-        this._rowScrollAnchorIndex = 0;
-        // this.hScrollValue = 0;
-
-        this.cancelEditing();
-
-        this.sbPrevVScrollValue = null;
-
-        this.setHoverCell(undefined);
-        this.scrollingNow = false;
-
-        this.behavior.reset();
-        this._columnsManager.clearColumns();
-        this.renderer.reset();
-
-        if (adapterSet !== undefined) {
-            this._modelCallbackRouter.reset(); // will unsubscribe from SchemaModel and DataModels
-            this.destroySubgrids();
-
-            let schemaModel = adapterSet.schemaModel;
-            if (typeof schemaModel === 'function') {
-                schemaModel = new schemaModel();
-            }
-            this._columnsManager.schemaModel = schemaModel;
-            this._modelCallbackRouter.setSchemaModel(this._columnsManager.schemaModel);
-
-            if  (adapterSet.subgrids.length > 0) {
-                this.setSubgrids(adapterSet.subgrids);
-            }
-        }
-
-        // this._columnsManager.createColumns();
-        // if (options?.data !== undefined) {
-        //     this.setData(options.data);
-        // }
-
-        this.canvas.resize();
-        // this.behaviorChanged();
-
-        this.behaviorShapeChanged();
-        // this.behavior.defaultRowHeight = null;
-        // this._columnsManager.autosizeAllColumns();
+        this.internalReset(adapterSet, nonDefaultProperties, removeAllEventListeners);
     }
 
     /** pluginSpec
@@ -4076,6 +4021,76 @@ export class Revgrid implements SelectionDetail {
             navKey += 'SHIFT';
         }
         return navKey;
+    }
+
+    /**
+     * @desc Clear out all state settings, data (rows), and schema (columns) of a grid instance.
+     * @param options
+     * @param options.subgrids - Consumed by {@link Behavior#reset}.
+     * If omitted, previously established subgrids list is reused.
+     * @internal
+     */
+    private internalReset(
+        adapterSet: GridProperties.AdapterSet | undefined,
+        nonDefaultProperties: Partial<GridProperties> | undefined,
+        removeAllEventListeners = false
+    ) {
+        if (nonDefaultProperties !== undefined) {
+            this.properties.loadDefaults();
+            this.properties.merge(nonDefaultProperties);
+        }
+
+        if (removeAllEventListeners) {
+            this.removeAllEventListeners();
+        }
+
+        this.clearMouseDown();
+        this.dragExtent = Point.create(0, 0);
+
+        this.numRows = 0;
+        this.numColumns = 0;
+
+        this._rowScrollAnchorIndex = 0;
+        // this.hScrollValue = 0;
+
+        this.cancelEditing();
+
+        this.sbPrevVScrollValue = null;
+
+        this.setHoverCell(undefined);
+        this.scrollingNow = false;
+
+        this.behavior.reset();
+        this._columnsManager.clearColumns();
+        this.renderer.reset();
+
+        if (adapterSet !== undefined) {
+            this._modelCallbackRouter.reset(); // will unsubscribe from SchemaModel and DataModels
+            this.destroySubgrids();
+
+            let schemaModel = adapterSet.schemaModel;
+            if (typeof schemaModel === 'function') {
+                schemaModel = new schemaModel();
+            }
+            this._columnsManager.schemaModel = schemaModel;
+            this._modelCallbackRouter.setSchemaModel(this._columnsManager.schemaModel);
+
+            if  (adapterSet.subgrids.length > 0) {
+                this.setSubgrids(adapterSet.subgrids);
+            }
+        }
+
+        // this._columnsManager.createColumns();
+        // if (options?.data !== undefined) {
+        //     this.setData(options.data);
+        // }
+
+        this.canvas.resize();
+        // this.behaviorChanged();
+
+        this.behaviorShapeChanged();
+        // this.behavior.defaultRowHeight = null;
+        // this._columnsManager.autosizeAllColumns();
     }
 
     /** @internal */
