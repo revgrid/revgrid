@@ -70,12 +70,12 @@ export class RevRecordFieldAdapter implements SchemaModel {
         const oldCount = this._fields.length;
         let clearNeeded: boolean;
         if (oldCount === 0) {
-            clearNeeded = true;
+            clearNeeded = false;
         } else {
             if (this.fieldListChangedEventer !== undefined) {
                 this.fieldListChangedEventer(ListChangedTypeId.Clear, 0, oldCount, undefined);
             }
-            clearNeeded = false;
+            clearNeeded = true;
         }
 
         const newCount = fields.length;
@@ -88,7 +88,7 @@ export class RevRecordFieldAdapter implements SchemaModel {
         }
         try {
             if (clearNeeded) {
-                this._callbackListener.allColumnsDeleted();
+                this.internalClearFields();
             }
             if (addNeeded) {
                 firstIndex = this.addFields(fields);
@@ -185,11 +185,18 @@ export class RevRecordFieldAdapter implements SchemaModel {
 
     reset(): void {
         if (this._schema.length > 0) {
-            this._fieldIndexLookup.clear();
-            this._fields.length = 0;
-            this._schema.length = 0;
-            this._callbackListener.allColumnsDeleted();
+            this.internalClearFields();
         }
+    }
+
+    private internalClearFields() {
+        this._fields.length = 0;
+        this._fieldNameLookup.clear();
+        this._fieldIndexLookup.clear();;
+        this._fieldValueDependsOnRecordIndexFieldIndexes.length = 0;
+        this._fieldValueDependsOnRowIndexFieldIndexes.length = 0;
+        this._schema.length = 0;
+        this._callbackListener.allColumnsDeleted();
     }
 
     private internalAddField(
