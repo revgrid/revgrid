@@ -3386,6 +3386,10 @@ export class Revgrid implements SelectionDetail {
         this.mainSubgrid.selectRows(y1, y2);
     }
 
+    selectAllRows() {
+        this.mainSubgrid.selectAllRows();
+    }
+
     selectColumns(x1: number, x2?: number) {
         this.mainSubgrid.selectColumns(x1, x2);
     }

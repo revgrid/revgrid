@@ -2632,6 +2632,8 @@ export class Revgrid implements SelectionDetail {
     scrollViewHorizontallyBy(delta: number): void;
     // (undocumented)
     select(ox: number, oy: number, ex: number, ey: number): void;
+    // (undocumented)
+    selectAllRows(): void;
     // @internal (undocumented)
     selectCellAndScrollToMakeVisible(c: number, r: number): void;
     // (undocumented)

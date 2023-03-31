@@ -1117,8 +1117,8 @@ export class Renderer {
 
         switch (sm.getLastSelectionType()) {
             case 'column':
-                const columnSelections = sm.columnSelectionModel.selection;
-                const lastColumnSelection = columnSelections[columnSelections.length - 1];
+                const columnRanges = sm.columnSelection.ranges;
+                const lastColumnSelection = columnRanges[columnRanges.length - 1];
 
                 left = lastColumnSelection[0];
                 top = 0;
@@ -1129,8 +1129,8 @@ export class Renderer {
 
             case 'row':
                 if (!(gridProps.collapseCellSelections && sm.getLastSelectionType(1) === 'cell')) {
-                    const rowSelections = sm.rowSelectionModel.selection;
-                    const lastRowSelection = rowSelections[rowSelections.length - 1];
+                    const rowRanges = sm.rowSelection.ranges;
+                    const lastRowSelection = rowRanges[rowRanges.length - 1];
 
                     left = 0;
                     top = lastRowSelection[0];

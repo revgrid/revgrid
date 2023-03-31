@@ -299,8 +299,8 @@ export class RowSelection extends Feature {
      */
     override moveSingleSelect(offsetY: number, shift?: boolean) {
         const grid = this.grid;
-        const selections = grid.selectionModel.rowSelectionModel.selection;
-        let lastSelection = selections[selections.length - 1];
+        const ranges = grid.selectionModel.rowSelection.ranges;
+        let lastSelection = ranges[ranges.length - 1];
         let top = lastSelection[0];
         let bottom = lastSelection[1];
 
@@ -321,14 +321,14 @@ export class RowSelection extends Feature {
             return;
         }
 
-        selections.length -= 1;
-        if (selections.length) {
-            lastSelection = selections[selections.length - 1];
+        ranges.length -= 1;
+        if (ranges.length) {
+            lastSelection = ranges[ranges.length - 1];
             delete lastSelection.offsetY;
         }
         grid.selectRows(top, bottom);
         if (shift && top !== bottom) {
-            lastSelection = selections[selections.length - 1];
+            lastSelection = ranges[ranges.length - 1];
             lastSelection.offsetY = firstOffsetY;
         }
 

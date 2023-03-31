@@ -2,7 +2,7 @@
 import { InclusiveRectangle } from '../lib/inclusive-rectangle';
 import { AssertError } from '../lib/revgrid-error';
 import { Revgrid } from '../revgrid';
-import { RangeSelectionModel } from './range-selection-model';
+import { RangesSelection } from './ranges-selection';
 import { Selection } from './selection';
 import { SelectionDetailAccessor } from './selection-detail';
 
@@ -12,8 +12,8 @@ import { SelectionDetailAccessor } from './selection-detail';
  */
 
 export class SelectionModel {
-    rowSelectionModel: RangeSelectionModel;
-    columnSelectionModel: RangeSelectionModel;
+    rowSelection: RangesSelection;
+    columnSelection: RangesSelection;
 
     private _selections: Selection[];
     private _flattenedX: InclusiveRectangle[];
@@ -54,13 +54,13 @@ export class SelectionModel {
          * @summary The selection rectangles.
          * @desc Created as a new RangeSelectionModel upon instantiation by the {@link SelectionModel|constructor}.
          */
-        this.rowSelectionModel = new RangeSelectionModel();
+        this.rowSelection = new RangesSelection();
 
         /**
          * @summary The selection rectangles.
          * @desc Created as a new RangeSelectionModel upon instantiation by the {@link SelectionModel|constructor}.
          */
-        this.columnSelectionModel = new RangeSelectionModel();
+        this.columnSelection = new RangesSelection();
 
         this._lastSelectionType = [];
     }
@@ -257,18 +257,18 @@ export class SelectionModel {
     }
 
     clearMostRecentColumnSelection() {
-        this.columnSelectionModel.clearMostRecentSelection();
-        this.setLastSelectionType('column', !this.columnSelectionModel.selection.length);
+        this.columnSelection.clearMostRecentSelection();
+        this.setLastSelectionType('column', !this.columnSelection.ranges.length);
     }
 
     clearMostRecentRowSelection() {
-        this.rowSelectionModel.clearMostRecentSelection();
-        this.setLastSelectionType('row', !this.rowSelectionModel.selection.length);
+        this.rowSelection.clearMostRecentSelection();
+        this.setLastSelectionType('row', !this.rowSelection.ranges.length);
     }
 
     clearRowSelection() {
-        this.rowSelectionModel.clear();
-        this.setLastSelectionType('row', !this.rowSelectionModel.selection.length);
+        this.rowSelection.clear();
+        this.setLastSelectionType('row', !this.rowSelection.ranges.length);
     }
 
     hasSelections() {
@@ -276,11 +276,11 @@ export class SelectionModel {
     }
 
     hasRowSelections() {
-        return !this.rowSelectionModel.isEmpty();
+        return !this.rowSelection.isEmpty();
     }
 
     hasColumnSelections() {
-        return !this.columnSelectionModel.isEmpty();
+        return !this.columnSelection.isEmpty();
     }
 
     /**
@@ -324,11 +324,11 @@ export class SelectionModel {
             this._selections.length = 0;
             this._flattenedX.length = 0;
             this._flattenedY.length = 0;
-            this.columnSelectionModel.clear();
+            this.columnSelection.clear();
             if (!keepRowSelections) {
                 this._lastSelectionType.length = 0;
                 this.setAllRowsSelected(false);
-                this.rowSelectionModel.clear();
+                this.rowSelection.clear();
             } else if (this._lastSelectionType.indexOf('row') >= 0) {
                 this._lastSelectionType = ['row'];
             } else {
@@ -358,11 +358,11 @@ export class SelectionModel {
     }
 
     isColumnSelected(x: number) {
-        return this.columnSelectionModel.isSelected(x);
+        return this.columnSelection.isSelected(x);
     }
 
     isRowSelected(y: number) {
-        return this._allRowsSelected || this.rowSelectionModel.isSelected(y);
+        return this._allRowsSelected || this.rowSelection.isSelected(y);
     }
 
     isRowFocused(y: number) {
@@ -371,8 +371,8 @@ export class SelectionModel {
     }
 
     selectColumns(x1: number, x2?: number) {
-        this.columnSelectionModel.select(x1, x2);
-        this.setLastSelectionType('column', !this.columnSelectionModel.selection.length);
+        this.columnSelection.select(x1, x2);
+        this.setLastSelectionType('column', !this.columnSelection.ranges.length);
     }
 
     selectAllRows() {
@@ -389,13 +389,13 @@ export class SelectionModel {
     }
 
     selectRows(y1: number, y2?: number) {
-        this.rowSelectionModel.select(y1, y2);
-        this.setLastSelectionType('row', !this.rowSelectionModel.selection.length);
+        this.rowSelection.select(y1, y2);
+        this.setLastSelectionType('row', !this.rowSelection.ranges.length);
     }
 
     deselectColumn(x1: number, x2?: number) {
-        this.columnSelectionModel.deselect(x1, x2);
-        this.setLastSelectionType('column', !this.columnSelectionModel.selection.length);
+        this.columnSelection.deselect(x1, x2);
+        this.setLastSelectionType('column', !this.columnSelection.ranges.length);
     }
 
     deselectRow(y1: number, y2?: number) {
@@ -403,10 +403,10 @@ export class SelectionModel {
             // To deselect a row, we must first remove the all rows flag...
             this.setAllRowsSelected(false);
             // ...and create a single range representing all rows
-            this.rowSelectionModel.select(0, this.grid.getRowCount() - 1);
+            this.rowSelection.select(0, this.grid.getRowCount() - 1);
         }
-        this.rowSelectionModel.deselect(y1, y2);
-        this.setLastSelectionType('row', !this.rowSelectionModel.selection.length);
+        this.rowSelection.deselect(y1, y2);
+        this.setLastSelectionType('row', !this.rowSelection.ranges.length);
     }
 
     getSelectedRows() {
@@ -418,15 +418,15 @@ export class SelectionModel {
             }
             return result;
         }
-        return this.rowSelectionModel.getSelections();
+        return this.rowSelection.getSelectedIndices();
     }
 
     getSelectedColumns() {
-        return this.columnSelectionModel.getSelections();
+        return this.columnSelection.getSelectedIndices();
     }
 
     isColumnOrRowSelected() {
-        return !this.columnSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty();
+        return !this.columnSelection.isEmpty() || !this.rowSelection.isEmpty();
     }
 
     getFlattenedYs() {
@@ -454,7 +454,7 @@ export class SelectionModel {
     selectRowsFromCells(offset: number, keepRowSelections: boolean) {
         offset = offset || 0;
 
-        const sm = this.rowSelectionModel;
+        const sm = this.rowSelection;
 
         if (!keepRowSelections) {
             this.setAllRowsSelected(false);
@@ -472,7 +472,7 @@ export class SelectionModel {
     selectColumnsFromCells(offset?: number) {
         offset = offset || 0;
 
-        const sm = this.columnSelectionModel;
+        const sm = this.columnSelection;
         sm.clear();
 
         this._selections.forEach((selection) => {

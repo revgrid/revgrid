@@ -1,6 +1,5 @@
 import { Column } from './column/column';
 import { ColumnsManager } from './column/columns-manager';
-import { Rectangle } from './lib/rectangle';
 import { CellModel } from './model/cell-model';
 import { DataModel } from './model/data-model';
 import { MainDataModel } from './model/main-data-model';
@@ -9,7 +8,6 @@ import { ModelCallbackRouter } from './model/model-callback-router';
 import { SchemaModel } from './model/schema-model';
 import { Revgrid } from './revgrid';
 import { SelectionModel } from './selection/selection-model';
-import { SelectionRectangle } from './selection/selection-rectangle';
 import { Subgrid } from './subgrid';
 
 /** @public */
@@ -279,16 +277,15 @@ export class MainSubgrid extends Subgrid {
 
         selections.forEach(
             (selectionRect, i) => {
-                const rect = this.normalizeRect(selectionRect);
-                const colCount = rect.width;
-                const rowCount = rect.height;
+                const colCount = selectionRect.width;
+                const rowCount = selectionRect.height;
                 const columns: Revgrid.ColumnsDataValuesObject = {};
 
-                for (let c = 0, x = rect.origin.x; c < colCount; c++, x++) {
+                for (let c = 0, x = selectionRect.origin.x; c < colCount; c++, x++) {
                     const column = columnsManager.getActiveColumn(x);
                     const values = columns[column.name] = new Array<DataModel.DataValue>(rowCount);
 
-                    for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
+                    for (let r = 0, y = selectionRect.origin.y; r < rowCount; r++, y++) {
                         const dataRow = this.getRow(y);
                         values[r] = this.valOrFunc(dataRow, column);
                     }
@@ -311,8 +308,7 @@ export class MainSubgrid extends Subgrid {
         const rects = new Array<Array<Array<DataModel.DataValue>>>(selections.length);
 
         selections.forEach(
-            (selectionRect, i) => {
-                const rect = this.normalizeRect(selectionRect);
+            (rect, i) => {
                 const colCount = rect.width;
                 const rowCount = rect.height;
                 const rows = new Array<Array<DataModel.DataValue>>();
@@ -530,20 +526,6 @@ export class MainSubgrid extends Subgrid {
             return hiddenColumns ? allColumns : activeColumns;
         }
 
-    }
-
-    /** @internal */
-    private normalizeRect(rect: Rectangle) {
-        const o = rect.origin;
-        const c = rect.corner;
-
-        const ox = Math.min(o.x, c.x);
-        const oy = Math.min(o.y, c.y);
-
-        const cx = Math.max(o.x, c.x);
-        const cy = Math.max(o.y, c.y);
-
-        return new SelectionRectangle(ox, oy, cx - ox, cy - oy);
     }
 
     /**
