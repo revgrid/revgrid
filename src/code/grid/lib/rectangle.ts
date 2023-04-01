@@ -136,7 +136,11 @@ export class Rectangle implements RectangleInterface {
      * @returns `true` iff given `point` entirely contained within this rect.
      * @param pointOrRect - The point or rect to test for containment.
      */
-    contains(point: Point): boolean {
+    containsPoint(point: Point): boolean {
+        return this.containsXY(point.x, point.y);
+    }
+
+    containsXY(x: number, y: number) {
         let minX = this.origin.x;
         let maxX = minX + this.extent.x;
         let minY = this.origin.y;
@@ -153,8 +157,10 @@ export class Rectangle implements RectangleInterface {
         }
 
         return (
-            minX <= this.x && point.x < maxX &&
-            minY <= this.y && point.y < maxY
+            x >= minX &&
+            y >= minY &&
+            x < maxX &&
+            y < maxY
         );
     }
 

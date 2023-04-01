@@ -54,7 +54,7 @@ export abstract class GridPainter {
      */
     protected paintCell(gc: CanvasRenderingContext2DEx, beingPaintedCell: BeingPaintedCell, config: CellPaintConfig, prefillColor: string | undefined): number {
         const grid = this.grid;
-        const selectionModel = grid.selectionModel;
+        const selection = grid.selection;
 
         const isColumnSelected = beingPaintedCell.isColumnSelected;
 
@@ -83,7 +83,7 @@ export abstract class GridPainter {
         } else if (isColumnSelected) {
             isSelected = true;
         } else {
-            isSelected = selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
+            isSelected = selection.isCellSelectedInColumn(x); // header or summary or other non-meta
         }
 
         // Set cell contents:
@@ -102,7 +102,7 @@ export abstract class GridPainter {
         // } else
         if (isHeaderRow) {
             // row handle for header row: gets "master" checkbox
-            config.allRowsSelected = selectionModel.areAllRowsSelected();
+            config.allRowsSelected = selection.areAllRowsSelected();
         }
 
         config.isSelected = isSelected;
@@ -115,10 +115,10 @@ export abstract class GridPainter {
         config.bounds = beingPaintedCell.bounds;
         config.isCellHovered = beingPaintedCell.isCellHovered;
         config.isCellSelected = isCellSelected;
-        config.isRowFocused = selectionModel.isRowFocused(r);
+        config.isRowFocused = selection.isRowFocused(r);
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
-        config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
+        config.isInCurrentSelectionRectangle = selection.isInCurrentSelectionRectangle(x, r);
         config.prefillColor = prefillColor;
 
         if (grid.mouseDownState) {

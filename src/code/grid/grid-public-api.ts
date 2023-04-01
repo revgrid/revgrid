@@ -25,7 +25,7 @@ export { invalidModelUpdateId, lowestValidModelUpdateId, ModelUpdateId, SchemaMo
 export { CellPaintConfig } from './renderer/cell-paint-config';
 export { CellPaintConfigAccessor } from './renderer/cell-paint-config-accessor';
 export { Revgrid } from './revgrid';
-export { Selection } from './selection/selection';
 export { SelectionDetail } from './selection/selection-detail';
+export { SelectionRectangle as Selection } from './selection/selection-rectangle';
 export { Subgrid } from './subgrid';
 

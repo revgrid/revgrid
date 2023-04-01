@@ -131,7 +131,7 @@ export class ColumnSelection extends Feature {
         const grid = this.grid;
         if (
             grid.properties.scrollingEnabled &&
-            grid.getDataBounds().contains(mouse)
+            grid.getDataBounds().containsPoint(mouse)
         ) {
             if (grid.isScrollingNow()) {
                 grid.setScrollingNow(false);
@@ -335,7 +335,7 @@ export class ColumnSelection extends Feature {
 
         grid.beginSelectionChange();
         try {
-            grid.clearSelections();
+            grid.clearSelection();
             grid.selectColumns(newX);
         } finally {
             grid.endSelectionChange();

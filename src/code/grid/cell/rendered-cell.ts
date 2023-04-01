@@ -8,7 +8,7 @@ import { DataModel } from '../model/data-model';
 import { MetaModel } from '../model/meta-model';
 import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
-import { SelectionModel } from '../selection/selection-model';
+import { Selection } from '../selection/selection';
 import { Subgrid } from '../subgrid';
 
 export abstract class RenderedCell {
@@ -20,9 +20,9 @@ export abstract class RenderedCell {
 
     // this.disabled: boolean;
 
-    private renderer: Renderer;
-    private selectionModel: SelectionModel;
-    private behavior: Behavior;
+    private readonly renderer: Renderer;
+    private readonly selection: Selection;
+    private readonly behavior: Behavior;
 
     cellPainter: CellPainter;
     clickRect: Rectangle;
@@ -48,7 +48,7 @@ export abstract class RenderedCell {
      */
     constructor(public grid: Revgrid, public gridX?: number, public gridY?: number) {
         this.renderer = grid.renderer;
-        this.selectionModel = grid.selectionModel;
+        this.selection = grid.selection;
         this.behavior = grid.behavior;
         if (arguments.length > 1) {
             this.resetGridCY(gridX, gridY);
@@ -384,15 +384,15 @@ export abstract class RenderedCell {
     }
 
     get isRowSelected() {
-        return this.isMainRow && this.selectionModel.isRowSelected(this.dataCell.y);
+        return this.isMainRow && this.selection.isRowSelected(this.dataCell.y);
     }
 
     get isColumnSelected() {
-        return this.isDataColumn && this.selectionModel.isColumnSelected(this.gridCell.x);
+        return this.isDataColumn && this.selection.isColumnSelected(this.gridCell.x);
     }
 
     get isCellSelected() {
-        return this.selectionModel.isCellSelected(this.gridCell.x, this.dataCell.y);
+        return this.selection.isCellSelected(this.gridCell.x, this.dataCell.y);
     }
 
     get isRowHovered() {
@@ -469,9 +469,9 @@ export abstract class RenderedCell {
 
 
     // From selectionDetailGetters in Hypergrid - used by fin-context-menu, fin-mouseup, fin-mousedown
-    get rows() { return this.grid.mainSubgrid.getSelectedRows(); }
-    get columns() { return this.grid.mainSubgrid.getSelectedColumns(); }
-    get selections() { return this.grid.mainSubgrid.selectionModel.selections; }
+    get rows() { return this.grid.mainSubgrid.getSelectedRowIndices(); }
+    get columns() { return this.grid.mainSubgrid.getSelectedColumnIndices(); }
+    get selectionRectangles() { return this.grid.mainSubgrid.selection.rectangles; }
 }
 
 export namespace RenderedCell {

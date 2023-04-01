@@ -267,7 +267,7 @@ export class Canvas {
             };
             this.dispatchNewEvent('rev-canvas-drag', detail);
         }
-        if (this.bounds.contains(this.mouseLocation)) {
+        if (this.bounds.containsPoint(this.mouseLocation)) {
             const detail: EventDetail.Mouse = {
                 time: Date.now(),
                 primitiveEvent: e,

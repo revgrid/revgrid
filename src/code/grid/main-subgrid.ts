@@ -7,7 +7,7 @@ import { MetaModel } from './model/meta-model';
 import { ModelCallbackRouter } from './model/model-callback-router';
 import { SchemaModel } from './model/schema-model';
 import { Revgrid } from './revgrid';
-import { SelectionModel } from './selection/selection-model';
+import { Selection } from './selection/selection';
 import { Subgrid } from './subgrid';
 
 /** @public */
@@ -26,7 +26,7 @@ export class MainSubgrid extends Subgrid {
      * The instance of the grid's selection model.
      * May or may not contain any cell, row, and/or column selections.
      */
-    selectionModel: SelectionModel;
+    readonly selection: Selection;
     lastEdgeSelection: [x: number, y: number] = [0, 0]; // 1st element is x, 2nd element is y
 
 
@@ -44,7 +44,7 @@ export class MainSubgrid extends Subgrid {
     ) {
         super(grid, columnsManager, role, schemaModel, dataModel, metaModel, cellModel);
 
-        this.selectionModel = new SelectionModel(grid);
+        this.selection = new Selection(grid);
 
         modelCallbackManager.preReindexEvent = () => this.handleDataPreReindexEvent();
         modelCallbackManager.postReindexEvent = () => this.handleDataPostReindexEvent();
@@ -52,27 +52,27 @@ export class MainSubgrid extends Subgrid {
 
     reset() {
         this.lastEdgeSelection = [0, 0];
-        this.selectionModel.reset();
+        this.selection.reset();
     }
 
-    get selections() { return this.selectionModel.selections; }
+    get selectionRectangles() { return this.selection.rectangles; }
     /**
      * @returns We have any selections.
      */
-    hasSelections() {
+    hasRectangles() {
         // if (!this.getSelectionModel) { // set in constructor
         //     return; // were not fully initialized yet
         // }
-        return this.selectionModel.hasSelections();
+        return this.selection.hasRectangles();
     }
 
     /**
      * @returns Tab separated value string from the selection and our data.
      */
     getSelectionAsTSV(): string {
-        switch (this.selectionModel.getLastSelectionType()) {
+        switch (this.selection.getLastSelectionType()) {
             case 'cell':
-                const selectionMatrix = this.getSelectionMatrix();
+                const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix();
                 const selections = selectionMatrix[selectionMatrix.length - 1];
                 return this.getMatrixSelectionAsTSV(selections);
             case 'row':
@@ -116,36 +116,36 @@ export class MainSubgrid extends Subgrid {
      * Pair with endSelectionChange().
      */
     beginSelectionChange() {
-        this.selectionModel.beginChange();
+        this.selection.beginChange();
     }
 
     /** Call after multiple selection changes to consolidate SelectionChange events.
      * Pair with beginSelectionChange().
      */
     endSelectionChange() {
-        this.selectionModel.endChange();
+        this.selection.endChange();
     }
 
     /**
      * @desc Clear all the selections.
      */
-    clearSelections() {
+    clearSelection() {
         const keepRowSelections = this._grid.properties.checkboxOnlyRowSelections;
-        this.selectionModel.clear(keepRowSelections);
+        this.selection.clear(keepRowSelections);
     }
 
     /**
      * @desc Clear the most recent selection.
      */
     clearMostRecentSelection(keepRowSelections: boolean) {
-        this.selectionModel.clearMostRecentSelection(keepRowSelections);
+        this.selection.clearMostRecentSelection(keepRowSelections);
     }
 
     /**
      * @desc Clear the most recent column selection.
      */
     clearMostRecentColumnSelection() {
-        this.selectionModel.clearMostRecentColumnSelection();
+        this.selection.restorePreviousColumnSelection();
     }
 
     /**
@@ -162,13 +162,13 @@ export class MainSubgrid extends Subgrid {
      * @param ex - extent x
      * @param ex - extent y
      */
-    select(ox: number, oy: number, ex: number, ey: number) {
+    selectRectangle(ox: number, oy: number, ex: number, ey: number) {
         if (ox < 0 || oy < 0) {
             //we don't select negative area
             //also this means there is no origin mouse down for a selection rect
             return;
         }
-        this.selectionModel.select(ox, oy, ex, ey);
+        this.selection.selectRectangle(ox, oy, ex, ey);
     }
 
     /**
@@ -177,7 +177,7 @@ export class MainSubgrid extends Subgrid {
      * @param y - The vertical coordinate.
      */
     isSelected(x: number, y: number): boolean {
-        return this.selectionModel.isSelected(x, y);
+        return this.selection.isSelected(x, y);
     }
 
     /**
@@ -185,7 +185,7 @@ export class MainSubgrid extends Subgrid {
      * @param y - The row index.
      */
     isCellSelectedInRow(y: number): boolean {
-        return this.selectionModel.isCellSelectedInRow(y);
+        return this.selection.isCellSelectedInRow(y);
     }
 
     /**
@@ -193,11 +193,11 @@ export class MainSubgrid extends Subgrid {
      * @param x - The column index.
      */
     isCellSelectedInColumn(x: number): boolean {
-        return this.selectionModel.isCellSelectedInColumn(x);
+        return this.selection.isCellSelectedInColumn(x);
     }
 
-    getRowSelection(hiddenColumns: boolean | number[] | string[]): DataModel.DataRow {
-        const selectedRowIndexes = this.selectionModel.getSelectedRows();
+    getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataModel.DataRow {
+        const selectedRowIndexes = this.selection.getRowIndices();
         const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
         const result: DataModel.DataRow = {};
 
@@ -214,7 +214,7 @@ export class MainSubgrid extends Subgrid {
     }
 
     getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataModel.DataValue>> {
-        const selectedRowIndexes = this.selectionModel.getSelectedRows();
+        const selectedRowIndexes = this.selection.getRowIndices();
         const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
         const result = new Array<Array<DataModel.DataValue>>(columns.length);
 
@@ -234,7 +234,7 @@ export class MainSubgrid extends Subgrid {
 
     getColumnSelectionMatrix(): DataModel.DataValue[][] {
         const columnsManager = this._columnsManager;
-        const selectedColumnIndexes = this.getSelectedColumns();
+        const selectedColumnIndexes = this.getSelectedColumnIndices();
         const numRows = this.dataModel.getRowCount();
         const result = new Array<Array<DataModel.DataValue>>(selectedColumnIndexes.length);
 
@@ -251,9 +251,9 @@ export class MainSubgrid extends Subgrid {
         return result;
     }
 
-    getColumnSelection() {
+    getSelectedColumnsValues() {
         const columnsManager = this._columnsManager;
-        const selectedColumnIndexes = this.getSelectedColumns();
+        const selectedColumnIndexes = this.getSelectedColumnIndices();
         const result: Revgrid.ColumnsDataValuesObject = {};
         const rowCount = this.dataModel.getRowCount();
 
@@ -270,12 +270,12 @@ export class MainSubgrid extends Subgrid {
         return result;
     }
 
-    getSelection(): Revgrid.ColumnsDataValuesObject[] {
+    getSelectedValuesByRectangleAndColumn(): Revgrid.ColumnsDataValuesObject[] {
         const columnsManager = this._columnsManager;
-        const selections = this.selectionModel.selections;
-        const rects = new Array<Revgrid.ColumnsDataValuesObject>(selections.length);
+        const selectionRectangles = this.selection.rectangles;
+        const rects = new Array<Revgrid.ColumnsDataValuesObject>(selectionRectangles.length);
 
-        selections.forEach(
+        selectionRectangles.forEach(
             (selectionRect, i) => {
                 const colCount = selectionRect.width;
                 const rowCount = selectionRect.height;
@@ -298,16 +298,16 @@ export class MainSubgrid extends Subgrid {
         return rects;
     }
 
-    getLastSelection() {
-        return this.selectionModel.getLastSelection();
+    getLastSelectionRectangle() {
+        return this.selection.getLastRectangle();
     }
 
-    getSelectionMatrix(): DataModel.DataValue[][][] {
+    getSelectedValuesByRectangleColumnRowMatrix(): DataModel.DataValue[][][] {
         const columnsManager = this._columnsManager;
-        const selections = this.selectionModel.selections;
-        const rects = new Array<Array<Array<DataModel.DataValue>>>(selections.length);
+        const rectangles = this.selection.rectangles;
+        const rects = new Array<Array<Array<DataModel.DataValue>>>(rectangles.length);
 
-        selections.forEach(
+        rectangles.forEach(
             (rect, i) => {
                 const colCount = rect.width;
                 const rowCount = rect.height;
@@ -334,15 +334,15 @@ export class MainSubgrid extends Subgrid {
         const keepRowSelections = this._grid.properties.checkboxOnlyRowSelections;
         this.beginSelectionChange();
         try {
-            this.selectionModel.clear(keepRowSelections);
-            this.selectionModel.select(x, y, 0, 0, silent);
+            this.selection.clear(keepRowSelections);
+            this.selection.selectRectangle(x, y, 0, 0, silent);
         } finally {
             this.endSelectionChange();
         }
     }
 
     toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
-        const model = this.selectionModel;
+        const model = this.selection;
         const alreadySelected = model.isColumnSelected(x);
         this.beginSelectionChange();
         try {
@@ -376,7 +376,7 @@ export class MainSubgrid extends Subgrid {
 
     toggleSelectRow(y: number, shiftKeyDown: boolean) {
         //we can select the totals rows if they exist, but not rows above that
-        const sm = this.selectionModel;
+        const sm = this.selection;
         const alreadySelected = sm.isRowSelected(y);
 
         this.beginSelectionChange();
@@ -408,13 +408,13 @@ export class MainSubgrid extends Subgrid {
     /**
      * @returns An object that represents the currently selection row.
      */
-    getSelectedRow() {
-        const sels = this.selectionModel.selections;
-        if (sels.length) {
+    getFirstSelectionRectangleTopRowValues() {
+        const rectangles = this.selection.rectangles;
+        if (rectangles.length > 0) {
             const dataModel = this.dataModel;
             const columnsManager = this._columnsManager;
             const colCount = this._columnsManager.getActiveColumnCount();
-            const topSelectedRow = sels[0].origin.y;
+            const topSelectedRow = rectangles[0].origin.y;
             const row = {
                     //hierarchy: behavior.getFixedColumnValue(0, topRow)
                 };
@@ -431,15 +431,15 @@ export class MainSubgrid extends Subgrid {
     }
 
     isColumnOrRowSelected() {
-        return this.selectionModel.isColumnOrRowSelected();
+        return this.selection.isColumnOrRowSelected();
     }
 
     selectColumns(x1: number, x2?: number) {
-        this.selectionModel.selectColumns(x1, x2);
+        this.selection.selectColumns(x1, x2);
     }
 
     selectRows(y1: number, y2?: number) {
-        const sm = this.selectionModel;
+        const sm = this.selection;
 
         if (this._grid.properties.singleRowSelectionMode) {
             sm.clearRowSelection();
@@ -453,33 +453,37 @@ export class MainSubgrid extends Subgrid {
         sm.selectRows(Math.min(y1, y2), Math.max(y1, y2));
     }
 
-    getSelectedRows() {
-        return this.selectionModel.getSelectedRows();
+    getSelectedRowCount() {
+        return this.selection.getRowCount();
     }
 
-    getSelectedColumns() {
-        return this.selectionModel.getSelectedColumns();
+    getSelectedRowIndices() {
+        return this.selection.getRowIndices();
+    }
+
+    getSelectedColumnIndices() {
+        return this.selection.getSelectedColumnIndices();
     }
 
     getLastSelectionType(n?: number) {
-        return this.selectionModel.getLastSelectionType(n);
+        return this.selection.getLastSelectionType(n);
     }
 
     isInCurrentSelectionRectangle(x: number, y: number) {
-        return this.selectionModel.isInCurrentSelectionRectangle(x, y);
+        return this.selection.isInCurrentSelectionRectangle(x, y);
     }
 
     selectAllRows() {
-        this.selectionModel.selectAllRows();
+        this.selection.selectAllRows();
     }
 
     areAllRowsSelected() {
-        return this.selectionModel.areAllRowsSelected();
+        return this.selection.areAllRowsSelected();
     }
 
     toggleSelectAllRows() {
         if (this.areAllRowsSelected()) {
-            this.selectionModel.clear();
+            this.selection.clear();
         } else {
             this.selectAllRows();
         }
@@ -567,12 +571,12 @@ export class MainSubgrid extends Subgrid {
             this.stashRowSelections();
             this.stashColumnSelections();
         }
-        this.selectionModel.clear();
+        this.selection.clear();
     }
 
     private unstashSelections() {
-        this.selectionModel.reset();
-        this.selectionModel.beginChange();
+        this.selection.reset();
+        this.selection.beginChange();
         try {
             if (!this.unstashSingleFirstCellSelection()) {
                 // only unstash Row and Column if single cell was not unstashed
@@ -580,7 +584,7 @@ export class MainSubgrid extends Subgrid {
                 this.unstashColumnSelections();
             }
         } finally {
-            this.selectionModel.endChange();
+            this.selection.endChange();
         }
 
         // make sure nothing stashed
@@ -600,8 +604,8 @@ export class MainSubgrid extends Subgrid {
         const gridProps = this._grid.properties;
         if (gridProps.restoreRowSelections) {
             if (gridProps.rowSelection) {
-                const selectedRows = this.getSelectedRows();
-                this._stashedSelectedRowIds = selectedRows.map( (selectedRowIndex) => this.dataModel.getRowIdFromIndex(selectedRowIndex) );
+                const selectedRowIndices = this.getSelectedRowIndices();
+                this._stashedSelectedRowIds = selectedRowIndices.map( (selectedRowIndex) => this.dataModel.getRowIdFromIndex(selectedRowIndex) );
             }
         }
     }
@@ -622,7 +626,7 @@ export class MainSubgrid extends Subgrid {
             let rowIdCount = rowIds.length;
             const gridRowIndexes = [];
             const dataModel = this.dataModel;
-            const selectionModel = this.selectionModel;
+            const selectionModel = this.selection;
 
             if (dataModel.getRowIndexFromId !== undefined) {
                 for (let i = 0; i < rowIdCount; i++) {
@@ -655,7 +659,7 @@ export class MainSubgrid extends Subgrid {
     private stashColumnSelections() {
         // selectionModel should be moved into Subgrid
         if (this._grid.properties.restoreColumnSelections) {
-            const selectedColumns = this.getSelectedColumns();
+            const selectedColumns = this.getSelectedColumnIndices();
             this._stashedSelectedColumnNames = selectedColumns.map( (selectedColumnIndex) => this._columnsManager.getActiveColumn(selectedColumnIndex).name );
         }
     }
@@ -673,7 +677,7 @@ export class MainSubgrid extends Subgrid {
             this._stashedSelectedColumnNames = undefined;
 
             const columnsManager = this._columnsManager;
-            const selectionModel = this.selectionModel;
+            const selectionModel = this.selection;
 
             for (const columnName in selectedColumnNames) {
                 const activeColumnIndex = columnsManager.getActiveColumnIndexByName(columnName);
@@ -696,10 +700,10 @@ export class MainSubgrid extends Subgrid {
         const gridProps = this._grid.properties;
         if (gridProps.restoreSingleCellSelection) {
             if (gridProps.cellSelection && !gridProps.multipleSelections) {
-                const selections = this.selectionModel.selections;
-                if (selections.length === 1) {
-                    const selection = selections[0];
-                    const firstSelectedCell = selection.firstSelectedCell;
+                const rectangles = this.selection.rectangles;
+                if (rectangles.length === 1) {
+                    const rectangle = rectangles[0];
+                    const firstSelectedCell = rectangle.firstSelectedCell;
                     this._stashedSelectedSingleFirstCellPosition = {
                         columnName: this._columnsManager.getActiveColumn(firstSelectedCell.x).name,
                         rowId: this.dataModel.getRowIdFromIndex(firstSelectedCell.y),
@@ -728,14 +732,14 @@ export class MainSubgrid extends Subgrid {
                 if (dataModel.getRowIndexFromId !== undefined) {
                     const rowIndex = dataModel.getRowIndexFromId(selectedRowId);
                     if (rowIndex !== undefined) {
-                        this.select(selectedColumnIndex, rowIndex, 0, 0);
+                        this.selectRectangle(selectedColumnIndex, rowIndex, 0, 0);
                     }
                 } else {
                     const rowCount = this._grid.getRowCount();
                     for (let rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
                         const rowId = dataModel.getRowIdFromIndex(rowIndex);
                         if (rowId === selectedRowId) {
-                            this.select(selectedColumnIndex, rowIndex, 0, 0);
+                            this.selectRectangle(selectedColumnIndex, rowIndex, 0, 0);
                             break;
                         }
                     }

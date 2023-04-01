@@ -123,7 +123,7 @@ export class RowSelection extends Feature {
         const grid = this.grid;
         if (
             grid.properties.scrollingEnabled &&
-            grid.getDataBounds().contains(mousePoint)
+            grid.getDataBounds().containsPoint(mousePoint)
         ) {
             if (grid.isScrollingNow()) {
                 grid.setScrollingNow(false);
@@ -236,8 +236,8 @@ export class RowSelection extends Feature {
 
         grid.beginSelectionChange();
         try {
-            grid.clearSelections();
-            grid.select(newX, newY, 0, 0);
+            grid.clearSelection();
+            grid.selectRectangle(newX, newY, 0, 0);
         } finally {
             grid.endSelectionChange();
         }
@@ -299,7 +299,7 @@ export class RowSelection extends Feature {
      */
     override moveSingleSelect(offsetY: number, shift?: boolean) {
         const grid = this.grid;
-        const ranges = grid.selectionModel.rowSelection.ranges;
+        const ranges = grid.selection.rows.ranges;
         let lastSelection = ranges[ranges.length - 1];
         let top = lastSelection[0];
         let bottom = lastSelection[1];
@@ -347,24 +347,24 @@ export class RowSelection extends Feature {
     }
 
     private moveCellSelection() {
-        let rows: number[];
+        let rowIndices: number[];
 
         const grid = this.grid;
         if (
             grid.properties.collapseCellSelections &&
             grid.properties.singleRowSelectionMode && // let's only attempt this when in this mode
             !grid.properties.multipleSelections && // and only when in single selection mode
-            (rows = grid.getSelectedRows()).length && // user just selected a row (must be single row due to mode we're in)
-            grid.selectionModel.selections.length  // there was a cell region selected (must be the only one)
+            (rowIndices = grid.getSelectedRowIndices()).length && // user just selected a row (must be single row due to mode we're in)
+            grid.selection.rectangles.length  // there was a cell region selected (must be the only one)
         ) {
-            const rect = grid.selectionModel.getLastSelection(); // the only cell selection
+            const rect = grid.selection.getLastRectangle(); // the only cell selection
             const x = rect.left;
-            const y = rows[0]; // we know there's only 1 row selected
+            const y = rowIndices[0]; // we know there's only 1 row selected
             const width = rect.right - x;
             const height = 0; // collapse the new region to occupy a single row
             const fireSelectionChangedEvent = false;
 
-            grid.selectionModel.select(x, y, width, height, fireSelectionChangedEvent);
+            grid.selection.selectRectangle(x, y, width, height, fireSelectionChangedEvent);
             grid.repaint();
         }
     }

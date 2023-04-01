@@ -1,20 +1,20 @@
 import { Selection } from './selection';
-import { SelectionModel } from './selection-model';
+import { SelectionRectangle } from './selection-rectangle';
 
 /** @public */
 export interface SelectionDetail {
-    readonly selectedRows: number[]
-    readonly selectedColumns: number[]
-    readonly selections: Selection[]
+    getSelectedRowIndices(): number[]
+    getSelectedColumnIndices(): number[]
+    getSelectedRectangles(): SelectionRectangle[]
 }
 
 /** @internal */
 export class SelectionDetailAccessor implements SelectionDetail {
-    constructor(private readonly _selectionModel: SelectionModel) {
+    constructor(private readonly _selection: Selection) {
 
     }
 
-    get selectedRows() { return this._selectionModel.getSelectedRows(); }
-    get selectedColumns() { return this._selectionModel.getSelectedColumns(); }
-    get selections() { return this._selectionModel.selections; }
+    getSelectedRowIndices() { return this._selection.getRowIndices(); }
+    getSelectedColumnIndices() { return this._selection.getSelectedColumnIndices(); }
+    getSelectedRectangles() { return this._selection.rectangles; }
 }

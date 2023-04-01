@@ -115,7 +115,7 @@ export class CellSelection extends Feature {
         grid.beginSelectionChange();
         try {
             grid.clearMostRecentSelection();
-            grid.select(mouseDown.x, mouseDown.y, newX, newY);
+            grid.selectRectangle(mouseDown.x, mouseDown.y, newX, newY);
         } finally {
             grid.endSelectionChange();
         }
@@ -133,7 +133,7 @@ export class CellSelection extends Feature {
             return;
         }
         const b = grid.getDataBounds();
-        const inside = b.contains(mouse);
+        const inside = b.containsPoint(mouse);
         if (inside) {
             if (grid.isScrollingNow()) {
                 grid.setScrollingNow(false);
@@ -228,15 +228,15 @@ export class CellSelection extends Feature {
             }
 
             if (!ctrlKeyDown && !shiftKeyDown) {
-                grid.clearSelections();
+                grid.clearSelection();
             }
 
             if (shiftKeyDown) {
                 grid.clearMostRecentSelection();
-                grid.select(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
+                grid.selectRectangle(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
                 grid.setDragExtent(Point.create(x - mousePoint.x, y - mousePoint.y));
             } else {
-                grid.select(x, y, 0, 0);
+                grid.selectRectangle(x, y, 0, 0);
                 grid.setMouseDown(Point.create(x, y));
                 grid.setDragExtent(Point.create(0, 0));
             }

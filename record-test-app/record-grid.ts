@@ -119,12 +119,12 @@ export class RecordGrid extends Revgrid {
     // get fieldCount(): number { return this._fieldAdapter.fieldCount; }
 
     get focusedRecordIndex(): RevRecordIndex | undefined {
-        const selections = this.selections;
+        const rectangles = this.getSelectedRectangles();
 
-        if (selections === null || selections.length === 0) {
+        if (rectangles === null || rectangles.length === 0) {
             return undefined;
         } else {
-            const rowIndex = selections[0].firstSelectedCell.y;
+            const rowIndex = rectangles[0].firstSelectedCell.y;
 
             // RevGrid doesn't adjust the current selection index if rows are deleted, so make sure it's still valid
             if (rowIndex >= this._mainRecordAdapter.rowCount) {
@@ -137,12 +137,12 @@ export class RecordGrid extends Revgrid {
 
     set focusedRecordIndex(recordIndex: number | undefined) {
         if (recordIndex === undefined) {
-            this.clearSelections();
+            this.clearSelection();
         } else {
             const rowIndex = this._mainRecordAdapter.getRowIndexFromRecordIndex(recordIndex);
 
             if (rowIndex === undefined) {
-                this.clearSelections();
+                this.clearSelection();
             } else {
                 this.selectRows(rowIndex, rowIndex);
             }
@@ -376,9 +376,9 @@ export class RecordGrid extends Revgrid {
     }
 
     override fireSyntheticSelectionChangedEvent(event: SelectionDetail): boolean {
-        const selections = event.selections;
+        const rectangles = event.getSelectedRectangles();
 
-        if (selections.length === 0) {
+        if (rectangles.length === 0) {
             if (this._lastNotifiedFocusedRecordIndex !== undefined) {
                 const oldSelectedRecordIndex = this._lastNotifiedFocusedRecordIndex;
                 this._lastNotifiedFocusedRecordIndex = undefined;
@@ -388,8 +388,8 @@ export class RecordGrid extends Revgrid {
                 }
             }
         } else {
-            const selection = selections[0];
-            const rowIndex = selection.firstSelectedCell.y;
+            const rectangle = rectangles[0];
+            const rowIndex = rectangle.firstSelectedCell.y;
             const newFocusedRecordIndex = this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex);
             if (newFocusedRecordIndex !== this._lastNotifiedFocusedRecordIndex) {
                 const oldFocusedRecordIndex = this._lastNotifiedFocusedRecordIndex;

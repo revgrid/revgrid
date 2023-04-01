@@ -88,10 +88,11 @@ export class Revgrid implements SelectionDetail {
 
 
     /** @internal */
-    get selectionModel() { return this.mainSubgrid.selectionModel; }
-    get selectedRows() { return this.mainSubgrid.getSelectedRows(); }
-    get selectedColumns() { return this.mainSubgrid.getSelectedColumns(); }
-    get selections() { return this.mainSubgrid.selections; }
+    get selection() { return this.mainSubgrid.selection; }
+    getSelectedRowCount() { return this.mainSubgrid.getSelectedRowCount(); }
+    getSelectedRowIndices() { return this.mainSubgrid.getSelectedRowIndices(); }
+    getSelectedColumnIndices() { return this.mainSubgrid.getSelectedColumnIndices(); }
+    getSelectedRectangles() { return this.mainSubgrid.selectionRectangles; }
 
     /**
      * The vertical scroll bar model/controller.
@@ -2304,7 +2305,7 @@ export class Revgrid implements SelectionDetail {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticRowSelectionChangedEvent() {
-        const selectionDetail = new SelectionDetailAccessor(this.mainSubgrid.selectionModel);
+        const selectionDetail = new SelectionDetailAccessor(this.mainSubgrid.selection);
         return dispatchGridEvent(this, 'rev-row-selection-changed', false, selectionDetail);
     }
 
@@ -2313,7 +2314,7 @@ export class Revgrid implements SelectionDetail {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticColumnSelectionChangedEvent() {
-        const selectionDetail = new SelectionDetailAccessor(this.mainSubgrid.selectionModel);
+        const selectionDetail = new SelectionDetailAccessor(this.mainSubgrid.selection);
         return dispatchGridEvent(this, 'rev-column-selection-changed', false, selectionDetail);
     }
 
@@ -3218,12 +3219,8 @@ export class Revgrid implements SelectionDetail {
         return this.mainSubgrid.getLastSelectionType();
     }
 
-    getSelectedRows() {
-        return this.mainSubgrid.getSelectedRows();
-    }
-
-    clearSelections() {
-        this.mainSubgrid.clearSelections();
+    clearSelection() {
+        this.mainSubgrid.clearSelection();
         this.clearMouseDown();
     }
 
@@ -3243,8 +3240,8 @@ export class Revgrid implements SelectionDetail {
         this.mainSubgrid.clearMostRecentRowSelection();
     }
 
-    select(ox: number, oy: number, ex: number, ey: number) {
-        this.mainSubgrid.select(ox, oy, ex, ey);
+    selectRectangle(ox: number, oy: number, ex: number, ey: number) {
+        this.mainSubgrid.selectRectangle(ox, oy, ex, ey);
     }
 
     selectViewportCell(x: number, y: number) {
@@ -3265,19 +3262,19 @@ export class Revgrid implements SelectionDetail {
     }
 
     selectToViewportCell(x: number, y: number) {
-        let selections: Rectangle[];
+        let selectionRectangles: Rectangle[];
         let vc: Renderer.VisibleColumn;
         let vr: Renderer.VisibleRow;
         if (
-            (selections = this.mainSubgrid.selections) && selections.length &&
+            (selectionRectangles = this.mainSubgrid.selectionRectangles) && selectionRectangles.length &&
             (vc = this.renderer.visibleColumns[x]) &&
             (vr = this.renderer.visibleRows[y + this.getHeaderRowCount()])
         ) {
-            const origin = selections[0].origin;
+            const origin = selectionRectangles[0].origin;
             x = vc.activeColumnIndex;
             y = vr.rowIndex;
             this.setDragExtent(Point.create(x - origin.x, y - origin.y));
-            this.mainSubgrid.select(origin.x, origin.y, x - origin.x, y - origin.y);
+            this.mainSubgrid.selectRectangle(origin.x, origin.y, x - origin.x, y - origin.y);
             this.repaint();
         }
     }
@@ -3291,10 +3288,10 @@ export class Revgrid implements SelectionDetail {
         if (!mainSubgrid.dataModel.getRowCount()) {
             return;
         }
-        const selectionModel = mainSubgrid.selectionModel;
-        const selections = selectionModel.selections;
-        if (selections && selections.length) {
-            const selection = selections[0];
+        const selectionModel = mainSubgrid.selection;
+        const rectangles = selectionModel.rectangles;
+        if (rectangles && rectangles.length) {
+            const selection = rectangles[0];
             const origin = selection.origin;
             const extent = selection.extent;
             const columnCount = this._columnsManager.getActiveColumnCount();
@@ -3303,11 +3300,11 @@ export class Revgrid implements SelectionDetail {
 
             selectionModel.beginChange();
             try {
-                this.clearSelections();
+                this.clearSelection();
                 if (to) {
-                    selectionModel.select(origin.x, origin.y, columnCount - origin.x - 1, extent.y);
+                    selectionModel.selectRectangle(origin.x, origin.y, columnCount - origin.x - 1, extent.y);
                 } else {
-                    selectionModel.select(columnCount - 1, origin.y, 0, 0);
+                    selectionModel.selectRectangle(columnCount - 1, origin.y, 0, 0);
                 }
             } finally {
                 selectionModel.endChange();
@@ -3326,20 +3323,20 @@ export class Revgrid implements SelectionDetail {
         if (!mainSubgrid.dataModel.getRowCount()) {
             return;
         }
-        const selectionModel = mainSubgrid.selectionModel;
-        const selections = selectionModel.selections;
-        if (selections && selections.length) {
-            const selection = selections[0];
+        const selectionModel = mainSubgrid.selection;
+        const rectangles = selectionModel.rectangles;
+        if (rectangles && rectangles.length) {
+            const selection = rectangles[0];
             const origin = selection.origin;
             const extent = selection.extent;
 
             selectionModel.beginChange();
             try {
-                this.clearSelections();
+                this.clearSelection();
                 if (to) {
-                    selectionModel.select(origin.x, origin.y, -origin.x, extent.y);
+                    selectionModel.selectRectangle(origin.x, origin.y, -origin.x, extent.y);
                 } else {
-                    selectionModel.select(0, origin.y, 0, 0);
+                    selectionModel.selectRectangle(0, origin.y, 0, 0);
                 }
             } finally {
                 selectionModel.endChange();
@@ -3362,17 +3359,17 @@ export class Revgrid implements SelectionDetail {
         const mainSubgrid = this.mainSubgrid;
         const rowCount = mainSubgrid.dataModel.getRowCount();
         if (rowCount > 0) {
-            const selectionModel = mainSubgrid.selectionModel;
-            const selections = selectionModel.selections;
-            if (selections && selections.length) {
-                const selection = selections[0];
+            const selectionModel = mainSubgrid.selection;
+            const rectangles = selectionModel.rectangles;
+            if (rectangles && rectangles.length) {
+                const selection = rectangles[0];
                 const origin = selection.origin;
                 const columnCount = this._columnsManager.getActiveColumnCount();
 
                 selectionModel.beginChange();
                 try {
-                    this.clearSelections();
-                    selectionModel.select(origin.x, origin.y, columnCount - origin.x - 1, rowCount - origin.y - 1);
+                    this.clearSelection();
+                    selectionModel.selectRectangle(origin.x, origin.y, columnCount - origin.x - 1, rowCount - origin.y - 1);
                 } finally {
                     selectionModel.endChange();
                 }
@@ -3437,11 +3434,11 @@ export class Revgrid implements SelectionDetail {
         newX = Math.min(maxColumns, Math.max(0, newX));
         newY = Math.min(maxRows, Math.max(0, newY));
 
-        const selectionModel = this.mainSubgrid.selectionModel;
+        const selectionModel = this.mainSubgrid.selection;
         selectionModel.beginChange();
         try {
-            this.clearSelections();
-            selectionModel.select(newX, newY, 0, 0);
+            this.clearSelection();
+            selectionModel.selectRectangle(newX, newY, 0, 0);
             this.setMouseDown(Point.create(newX, newY));
             this.setDragExtent(Point.create(0, 0));
 
@@ -3479,11 +3476,11 @@ export class Revgrid implements SelectionDetail {
         newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
         newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
 
-        const selectionModel = this.mainSubgrid.selectionModel;
+        const selectionModel = this.mainSubgrid.selection;
         selectionModel.beginChange();
         try {
             this.clearMostRecentSelection();
-            selectionModel.select(origin.x, origin.y, newX, newY);
+            selectionModel.selectRectangle(origin.x, origin.y, newX, newY);
         } finally {
             selectionModel.endChange();
         }
@@ -3501,7 +3498,7 @@ export class Revgrid implements SelectionDetail {
      * @param useAllCells - Search in all rows and columns instead of only rendered ones.
      */
     getGridCellFromLastSelection(useAllCells: boolean) {
-        const sel = this.mainSubgrid.getLastSelection();
+        const sel = this.mainSubgrid.getLastSelectionRectangle();
         if (sel === undefined) {
             return undefined;
         } else {
@@ -4169,7 +4166,7 @@ export class Revgrid implements SelectionDetail {
                     // In the future, should consolidate into activeIndex ranges instead of doing individually
                     const activeIndex = this._columnsManager.getActiveColumnIndexByAllIndex(i);
                     if (activeIndex >= 0) {
-                        this.selectionModel.adjustForColumnsDeleted(activeIndex, 1);
+                        this.selection.adjustForColumnsDeleted(activeIndex, 1);
                         this.renderer.renderColumnsDeleted(activeIndex, 1);
                     }
                 }
@@ -4183,7 +4180,7 @@ export class Revgrid implements SelectionDetail {
             try {
                 this.renderer.modelUpdated();
                 this._columnsManager.allSchemaColumnsDeleted();
-                this.selectionModel.clear();
+                this.selection.clear();
                 this.renderer.renderAllColumnsDeleted();
             } finally {
                 this.endSchemaChange();
@@ -4195,7 +4192,7 @@ export class Revgrid implements SelectionDetail {
             try {
                 this.renderer.modelUpdated();
                 this._columnsManager.schemaColumnsChanged();
-                this.selectionModel.clear();
+                this.selection.clear();
                 this.renderer.renderColumnsChanged();
             } finally {
                 this.endSchemaChange();
@@ -4211,7 +4208,7 @@ export class Revgrid implements SelectionDetail {
             try {
                 this.renderer.modelUpdated();
                 if (dataModel === this.mainDataModel) {
-                    this.selectionModel.adjustForRowsInserted(index, count);
+                    this.selection.adjustForRowsInserted(index, count);
                 }
                 this.renderer.renderRowsInserted(index, count);
             } finally {
@@ -4224,7 +4221,7 @@ export class Revgrid implements SelectionDetail {
             try {
                 this.renderer.modelUpdated();
                 if (dataModel === this.mainDataModel) {
-                    this.selectionModel.adjustForRowsDeleted(index, count);
+                    this.selection.adjustForRowsDeleted(index, count);
                 }
                 this.renderer.renderRowsDeleted(index, count);
             } finally {
@@ -4237,7 +4234,7 @@ export class Revgrid implements SelectionDetail {
             try {
                 this.renderer.modelUpdated();
                 if (dataModel === this.mainDataModel) {
-                    this.selectionModel.clear();
+                    this.selection.clear();
                 }
                 this.renderer.renderAllRowsDeleted();
             } finally {
@@ -4250,7 +4247,7 @@ export class Revgrid implements SelectionDetail {
             try {
                 this.renderer.modelUpdated();
                 if (dataModel === this.mainDataModel) {
-                    this.selectionModel.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount);
+                    this.selection.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount);
                 }
                 this.renderer.renderRowsMoved(oldRowIndex, newRowIndex, rowCount);
             } finally {
@@ -4263,7 +4260,7 @@ export class Revgrid implements SelectionDetail {
             try {
                 this.renderer.modelUpdated();
                 if (dataModel === this.mainDataModel) {
-                    this.selectionModel.clear();
+                    this.selection.clear();
                 }
                 this.renderer.renderRowsLoaded();
             } finally {
@@ -4317,23 +4314,23 @@ export class Revgrid implements SelectionDetail {
 
     private beginSchemaChange() {
         this._columnsManager.beginSchemaChange();
-        this.selectionModel.beginChange();
+        this.selection.beginChange();
         this.renderer.beginChange();
     }
 
     private endSchemaChange() {
         this._columnsManager.endSchemaChange();
-        this.selectionModel.endChange();
+        this.selection.endChange();
         this.renderer.endChange();
     }
 
     private beginDataChange() {
-        this.selectionModel.beginChange();
+        this.selection.beginChange();
         this.renderer.beginChange();
     }
 
     private endDataChange() {
-        this.selectionModel.endChange();
+        this.selection.endChange();
         this.renderer.endChange();
     }
 

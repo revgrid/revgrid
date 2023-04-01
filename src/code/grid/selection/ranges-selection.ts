@@ -18,17 +18,9 @@ export class RangesSelection {
     /**
      * @summary Unordered list of ranges.
      */
-    ranges: RangesSelection.Range[];
+    readonly ranges = new Array<RangesSelection.Range>(0);
 
-    history: Array<RangesSelection.Range[]>;
-
-    constructor() {
-        this.ranges = [];
-
-        //we need to be able to go back in time
-        //the states field
-        this.history = [];
-    }
+    private readonly _history = new Array<RangesSelection.Range[]>();
 
     /**
      * @summary Add a contiguous range of points to the selection.
@@ -91,17 +83,21 @@ export class RangesSelection {
      * @summary Empties `this.ranges`, effectively removing all ranges.
      * @returns Self (i.e., `this`), for chaining.
      */
-    clear(): RangesSelection {
-        this.history.length = 0;
+    clear() {
+        this._history.length = 0;
         this.ranges.length = 0;
-        return this;
     }
 
-    clearMostRecentSelection() {
-        if (this.history.length === 0) {
-            return;
+    restorePreviousSelection() {
+        const previousRanges = this._history.pop();
+        if (previousRanges !== undefined) {
+            const previousCount = previousRanges.length;
+            const ranges = this.ranges;
+            ranges.length = previousCount;
+            for (let i = 0; i < previousCount; i++) {
+                ranges[i] = previousRanges[i];
+            }
         }
-        this.ranges = this.history.pop();
     }
 
     /**
@@ -125,11 +121,12 @@ export class RangesSelection {
      * @summary Return the indexes that are selected.
      * @desc Return the indexes that are selected.
      */
-    getSelectedIndices() {
+    getIndices() {
         const result: number[] = [];
         this.ranges.forEach(
-            (each) => {
-                for (let i = each[0]; i <= each[1]; i++) {
+            (range) => {
+                const rangeStop = range[1];
+                for (let i = range[0]; i <= rangeStop; i++) {
                     result.push(i);
                 }
             }
@@ -142,11 +139,11 @@ export class RangesSelection {
         return result;
     }
 
-    getSelectedCount() {
+    getCount() {
         let result = 0;
         const ranges = this.ranges;
         for (const range of ranges) {
-            result += range[1] - range[0] + 1;
+            result += (range[1] - range[0] + 1);
         }
         return result;
     }
@@ -161,7 +158,7 @@ export class RangesSelection {
             // const copy = [].concat(sels[i]);
             selection.push(copy);
         }
-        this.history.push(selection);
+        this._history.push(selection);
     }
 }
 

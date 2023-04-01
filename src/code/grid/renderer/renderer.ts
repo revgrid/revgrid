@@ -1106,120 +1106,122 @@ export class Renderer {
             return undefined;
         }
 
-        let selection: Rectangle;
+        let rectangle: Rectangle | undefined;
         let left: number;
         let top: number;
         let width: number;
         let height: number;
         const grid = this.grid;
         const gridProps = grid.properties;
-        const sm = grid.selectionModel;
+        const sm = grid.selection;
 
         switch (sm.getLastSelectionType()) {
-            case 'column':
-                const columnRanges = sm.columnSelection.ranges;
+            case 'column': {
+                const columnRanges = sm.columns.ranges;
                 const lastColumnSelection = columnRanges[columnRanges.length - 1];
 
                 left = lastColumnSelection[0];
                 top = 0;
                 width = lastColumnSelection[1] - left + 1;
                 height = grid.getRowCount();
-                selection = new InclusiveRectangle(left, top, width, height);
+                rectangle = new InclusiveRectangle(left, top, width, height);
                 break;
-
-            case 'row':
+            }
+            case 'row': {
                 if (!(gridProps.collapseCellSelections && sm.getLastSelectionType(1) === 'cell')) {
-                    const rowRanges = sm.rowSelection.ranges;
+                    const rowRanges = sm.rows.ranges;
                     const lastRowSelection = rowRanges[rowRanges.length - 1];
 
                     left = 0;
                     top = lastRowSelection[0];
                     width = this._columnsManager.activeColumns.length;
                     height = lastRowSelection[1] - top + 1;
-                    selection = new InclusiveRectangle(left, top, width, height);
+                    rectangle = new InclusiveRectangle(left, top, width, height);
                 } else {
-                    selection = sm.getLastSelection();
+                    rectangle = sm.getLastRectangle();
                 }
                 break;
-
-            case 'cell':
-                selection = sm.getLastSelection();
+            }
+            case 'cell': {
+                rectangle = sm.getLastRectangle();
                 break;
+            }
         }
 
-        if (!selection) {
+        if (rectangle === undefined) {
             return undefined; // no selection
+        } else {
+
+            // todo not sure what this is for; might be defunct logic
+            if (rectangle.origin.x === -1) {
+                // no selected area, lets exit
+                return undefined;
+            } else {
+                let vc: Renderer.VisibleColumn;
+                const vci = this._visibleColumnsByIndex;
+                let vr: Renderer.VisibleRow;
+                const vri = this._visibleRowsByDataRowIndex;
+                const lastScrollableColumn = this.visibleColumns[visibleColumnsCount - 1]; // last column in scrollable section
+                const lastScrollableRow = this.visibleRows[visibleRowsCount - 1]; // last row in scrollable data section
+                const firstScrollableColumn = vci[this.dataWindow.origin.x];
+                const firstScrollableRow = vri.get(this.dataWindow.origin.y);
+                const fixedColumnCount = gridProps.fixedColumnCount;
+                const fixedRowCount = gridProps.fixedRowCount;
+                const headerRowCount = grid.getHeaderRowCount();
+
+                if (
+                    // entire selection scrolled out of view to left of visible columns; or
+                    (vc = this.visibleColumns[0]) &&
+                    rectangle.corner.x < vc.activeColumnIndex ||
+
+                    // entire selection scrolled out of view between fixed columns and scrollable columns; or
+                    fixedColumnCount &&
+                    firstScrollableColumn &&
+                    (vc = this.visibleColumns[fixedColumnCount - 1]) &&
+                    rectangle.origin.x > vc.activeColumnIndex &&
+                    rectangle.corner.x < firstScrollableColumn.activeColumnIndex ||
+
+                    // entire selection scrolled out of view to right of visible columns; or
+                    lastScrollableColumn &&
+                    rectangle.origin.x > lastScrollableColumn.activeColumnIndex ||
+
+                    // entire selection scrolled out of view above visible rows; or
+                    (vr = this.visibleRows[headerRowCount]) &&
+                    rectangle.corner.y < vr.rowIndex ||
+
+                    // entire selection scrolled out of view between fixed rows and scrollable rows; or
+                    fixedRowCount &&
+                    firstScrollableRow &&
+                    (vr = this.visibleRows[headerRowCount + fixedRowCount - 1]) &&
+                    rectangle.origin.y > vr.rowIndex &&
+                    rectangle.corner.y < firstScrollableRow.rowIndex ||
+
+                    // entire selection scrolled out of view below visible rows
+                    lastScrollableRow &&
+                    rectangle.origin.y > lastScrollableRow.rowIndex
+                ) {
+                    return undefined;
+                } else {
+                    const vcOrigin = vci[rectangle.origin.x] || firstScrollableColumn;
+                    const vrOrigin = vri.get(rectangle.origin.y) || firstScrollableRow;
+                    const vcCorner = vci[rectangle.corner.x] || (rectangle.corner.x > lastScrollableColumn.activeColumnIndex ? lastScrollableColumn : vci[fixedColumnCount - 1]);
+                    const vrCorner = vri.get(rectangle.corner.y) || (rectangle.corner.y > lastScrollableRow.rowIndex ? lastScrollableRow : vri.get(fixedRowCount - 1));
+
+                    if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
+                        return undefined;
+                    } else {
+                        const bounds: RenderedCell.Bounds = {
+                            x: vcOrigin.left,
+                            y: vrOrigin.top,
+                            width: vcCorner.rightPlus1 - vcOrigin.left,
+                            height: vrCorner.bottom - vrOrigin.top
+                        };
+
+                        return bounds;
+                    }
+                }
+            }
         }
-
-        // todo not sure what this is for; might be defunct logic
-        if (selection.origin.x === -1) {
-            // no selected area, lets exit
-            return undefined;
-        }
-
-        let vc: Renderer.VisibleColumn;
-        const vci = this._visibleColumnsByIndex;
-        let vr: Renderer.VisibleRow;
-        const vri = this._visibleRowsByDataRowIndex;
-        const lastScrollableColumn = this.visibleColumns[visibleColumnsCount - 1]; // last column in scrollable section
-        const lastScrollableRow = this.visibleRows[visibleRowsCount - 1]; // last row in scrollable data section
-        const firstScrollableColumn = vci[this.dataWindow.origin.x];
-        const firstScrollableRow = vri.get(this.dataWindow.origin.y);
-        const fixedColumnCount = gridProps.fixedColumnCount;
-        const fixedRowCount = gridProps.fixedRowCount;
-        const headerRowCount = grid.getHeaderRowCount();
-
-        if (
-            // entire selection scrolled out of view to left of visible columns; or
-            (vc = this.visibleColumns[0]) &&
-            selection.corner.x < vc.activeColumnIndex ||
-
-            // entire selection scrolled out of view between fixed columns and scrollable columns; or
-            fixedColumnCount &&
-            firstScrollableColumn &&
-            (vc = this.visibleColumns[fixedColumnCount - 1]) &&
-            selection.origin.x > vc.activeColumnIndex &&
-            selection.corner.x < firstScrollableColumn.activeColumnIndex ||
-
-            // entire selection scrolled out of view to right of visible columns; or
-            lastScrollableColumn &&
-            selection.origin.x > lastScrollableColumn.activeColumnIndex ||
-
-            // entire selection scrolled out of view above visible rows; or
-            (vr = this.visibleRows[headerRowCount]) &&
-            selection.corner.y < vr.rowIndex ||
-
-            // entire selection scrolled out of view between fixed rows and scrollable rows; or
-            fixedRowCount &&
-            firstScrollableRow &&
-            (vr = this.visibleRows[headerRowCount + fixedRowCount - 1]) &&
-            selection.origin.y > vr.rowIndex &&
-            selection.corner.y < firstScrollableRow.rowIndex ||
-
-            // entire selection scrolled out of view below visible rows
-            lastScrollableRow &&
-            selection.origin.y > lastScrollableRow.rowIndex
-        ) {
-            return undefined;
-        }
-
-        const vcOrigin = vci[selection.origin.x] || firstScrollableColumn;
-        const vrOrigin = vri.get(selection.origin.y) || firstScrollableRow;
-        const vcCorner = vci[selection.corner.x] || (selection.corner.x > lastScrollableColumn.activeColumnIndex ? lastScrollableColumn : vci[fixedColumnCount - 1]);
-        const vrCorner = vri.get(selection.corner.y) || (selection.corner.y > lastScrollableRow.rowIndex ? lastScrollableRow : vri.get(fixedRowCount - 1));
-
-        if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
-            return undefined;
-        }
-
-        const bounds: RenderedCell.Bounds = {
-            x: vcOrigin.left,
-            y: vrOrigin.top,
-            width: vcCorner.rightPlus1 - vcOrigin.left,
-            height: vrCorner.bottom - vrOrigin.top
-        };
-
-        return bounds;
     }
 
     /**
