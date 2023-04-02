@@ -3,7 +3,7 @@ import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { ColumnRowResizing } from '../feature/column-row-resizing';
 import { Point } from '../lib/point';
 import { Revgrid } from '../revgrid';
-import { Subgrid } from '../subgrid';
+import { Subgrid } from '../subgrid/subgrid';
 
 export class RowResizing extends ColumnRowResizing {
 

@@ -15,8 +15,8 @@ import { Rectangle, RectangleInterface } from '../lib/rectangle';
 import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
 import { invalidModelUpdateId, lowestValidModelUpdateId, ModelUpdateId } from '../model/schema-model';
 import { Revgrid } from '../revgrid';
-import { SelectionType } from '../selection/selection-type';
-import { Subgrid } from '../subgrid';
+import { SelectionType } from '../subgrid/selection/selection-type';
+import { Subgrid } from '../subgrid/subgrid';
 import { RenderAction } from './render-action';
 import { RenderActioner } from './render-actioner';
 

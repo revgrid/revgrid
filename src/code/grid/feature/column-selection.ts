@@ -4,7 +4,7 @@ import { ColumnProperties } from '../column/column-properties';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
 import { Point } from '../lib/point';
-import { SelectionType } from '../selection/selection-type';
+import { SelectionType } from '../subgrid/selection/selection-type';
 import { ColumnMoving } from './column-moving';
 
 export class ColumnSelection extends Feature {

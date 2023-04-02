@@ -81,7 +81,7 @@ export class AsNeededGridPainter extends GridPainter {
 
             // Optionally clip to visible portion of column to prevent text from overflowing to right.
             const columnClip = vc.column.properties.columnClip;
-            gc.clipSave(columnClip || columnClip === null && c === cLast, 0, 0, vc.rightPlus1, viewHeight);
+            gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
             // For each row of each subgrid (of each column)...
             for (let r = 0; r < R; r++, p++) {
@@ -97,7 +97,7 @@ export class AsNeededGridPainter extends GridPainter {
                 }
             }
 
-            gc.clipRestore(columnClip);
+            gc.clipRestore();
 
             renderedCell.column.properties.preferredWidth = Math.ceil(preferredWidth);
         });

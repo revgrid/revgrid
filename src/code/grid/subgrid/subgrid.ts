@@ -1,21 +1,22 @@
-import { CellModel } from '../grid/model/cell-model';
-import { DataModel } from '../grid/model/data-model';
-import { MetaModel } from '../grid/model/meta-model';
-import { SchemaModel } from '../grid/model/schema-model';
-import { CellEditor } from './cell-editor/cell-editor';
-import { cellEditorFactory } from './cell-editor/cell-editor-factory';
-import { CellPainter } from './cell-painter/cell-painter';
-import { BeingPaintedCell } from './cell/being-painted-cell';
-import { CellEvent } from './cell/cell-event';
-import { ColumnsManager } from './column/columns-manager';
-import { CellPaintConfig } from './renderer/cell-paint-config';
-import { CellPaintConfigAccessor } from './renderer/cell-paint-config-accessor';
-import { Revgrid } from './revgrid';
-import { Selection } from './selection/selection';
-import { SelectionStash } from './selection/selection-stash';
-import { SelectionType } from './selection/selection-type';
-import { AssertError, UnreachableCaseError } from './lib/revgrid-error';
-import { Column } from './column/column';
+import { CellModel } from '../../grid/model/cell-model';
+import { DataModel } from '../../grid/model/data-model';
+import { MetaModel } from '../../grid/model/meta-model';
+import { SchemaModel } from '../../grid/model/schema-model';
+import { CellEditor } from '../cell-editor/cell-editor';
+import { cellEditorFactory } from '../cell-editor/cell-editor-factory';
+import { CellPainter } from '../cell-painter/cell-painter';
+import { BeingPaintedCell } from '../cell/being-painted-cell';
+import { CellEvent } from '../cell/cell-event';
+import { Column } from '../column/column';
+import { ColumnsManager } from '../column/columns-manager';
+import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
+import { CellPaintConfig } from '../renderer/cell-paint-config';
+import { CellPaintConfigAccessor } from '../renderer/cell-paint-config-accessor';
+import { Revgrid } from '../revgrid';
+import { Selection } from '../subgrid/selection/selection';
+import { SelectionStash } from '../subgrid/selection/selection-stash';
+import { SelectionType } from '../subgrid/selection/selection-type';
+import { Focus } from './focus';
 
 /** @public */
 export class Subgrid {
@@ -33,6 +34,7 @@ export class Subgrid {
     // readonly focusedCell: FocusedCell;
     /** @internal */
     readonly selection: Selection;
+    private readonly focus: Focus;
 
     lastEdgeSelection: [x: number, y: number] = [0, 0]; // 1st element is x, 2nd element is y
 
@@ -42,7 +44,7 @@ export class Subgrid {
     /** @internal */
     private rowProxy: Subgrid.DataRowProxy; // used if DataModel.getRowProperties not implemented
     /** @internal */
-    private rowMetadata: MetaModel.RowMetadata[] = [];
+    private rowMetadata: (MetaModel.RowMetadata | undefined)[] = [];
 
     private _columnsManagerBeforeCreateColumnsListener = () => this.rowProxy.updateSchema();
 
@@ -128,7 +130,7 @@ export class Subgrid {
     // Hooks
     /** @internal */
     getCellPaintConfig(beingPaintedCell: BeingPaintedCell): CellPaintConfig {
-        let config: CellPaintConfig;
+        let config: CellPaintConfig | undefined;
         const cellModel = this.cellModel;
         if (cellModel !== undefined) {
             if (cellModel.getCellPaintConfig !== undefined) {
@@ -145,7 +147,7 @@ export class Subgrid {
 
     /** @internal */
     getCellPainter(cellPaintConfig: CellPaintConfig, gridPainterKey: string): CellPainter {
-        let painter: CellPainter;
+        let painter: CellPainter | undefined;
         const cellModel = this.cellModel;
         if (cellModel !== undefined) {
             if (cellModel.getCellPainter !== undefined) {
@@ -162,7 +164,7 @@ export class Subgrid {
 
     /** @internal */
     getCellEditorAt(columnIndex: number, rowIndex: number, editorName: string, cellEvent: CellEvent): CellEditor {
-        let editor: CellEditor;
+        let editor: CellEditor | undefined;
 
         const cellModel = this.cellModel;
         if (cellModel !== undefined) {
@@ -176,6 +178,11 @@ export class Subgrid {
         } else {
             return editor;
         }
+    }
+
+    // Focus
+    isRowFocused(rowIndex: number) {
+        return this.focus.isRowFocused(rowIndex);
     }
 
     // Selection
@@ -445,7 +452,7 @@ export class Subgrid {
             const column = columns[c];
             const rows = result[column.name] = new Array(selectedRowIndexes.length);
             selectedRowIndexes.forEach( (selectedRowIndex, j) => {
-                const dataRow = this.getRow(selectedRowIndex);
+                const dataRow = this.getRow(selectedRowIndex) as DataModel.DataRow; // should always exist
                 rows[j] = this.valOrFunc(dataRow, column);
             });
         }
@@ -463,7 +470,7 @@ export class Subgrid {
             result[c] = new Array<DataModel.DataValue>(selectedRowIndexes.length);
             selectedRowIndexes.forEach(
                 (selectedRowIndex, r) => {
-                    const dataRow = this.getRow(selectedRowIndex);
+                    const dataRow = this.getRow(selectedRowIndex) as DataModel.DataRow; // should always exist
                     result[c][r] = this.valOrFunc(dataRow, column);
                 }
             );
@@ -483,7 +490,7 @@ export class Subgrid {
             const values = result[c] = new Array<DataModel.DataValue>(numRows);
 
             for (let r = 0; r < numRows; r++) {
-                const dataRow = this.getRow(r);
+                const dataRow = this.getRow(r) as DataModel.DataRow; // should always exist;
                 values[r] = this.valOrFunc(dataRow, column);
             }
         });
@@ -502,7 +509,7 @@ export class Subgrid {
             const values = result[column.name] = new Array<DataModel.DataValue>(rowCount);
 
             for (let r = 0; r < rowCount; r++) {
-                const dataRow = this.getRow(r);
+                const dataRow = this.getRow(r) as DataModel.DataRow; // should always exist;
                 values[r] = this.valOrFunc(dataRow, column);
             }
         });
@@ -526,7 +533,7 @@ export class Subgrid {
                     const values = columns[column.name] = new Array<DataModel.DataValue>(rowCount);
 
                     for (let r = 0, y = selectionRect.origin.y; r < rowCount; r++, y++) {
-                        const dataRow = this.getRow(y);
+                        const dataRow = this.getRow(y) as DataModel.DataRow; // should always exist;
                         values[r] = this.valOrFunc(dataRow, column);
                     }
                 }
@@ -554,7 +561,7 @@ export class Subgrid {
                     const column = columnsManager.getActiveColumn(x);
 
                     for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                        const dataRow = this.getRow(y);
+                        const dataRow = this.getRow(y) as DataModel.DataRow; // should always exist;
                         values[r] = this.valOrFunc(dataRow, column);
                     }
                 }
@@ -849,32 +856,37 @@ export class Subgrid {
 
     /**
      * @param hiddenColumns - One of:
-     * `false` - Active column list
+     * `false or undefined` - Active column list
      * `true` - All column list
      * `Array` - Active column list with listed columns prefixed as needed (when not already in the list). Each item in the array may be either:
      * * `number` - index into all column list
      * * `string` - name of a column from the all column list
      * @internal
      */
-    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[]): readonly Column[] {
+    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column[] {
         const allColumns = this._columnsManager.allColumns;
         const activeColumns = this._columnsManager.activeColumns;
 
-        if (Array.isArray(hiddenColumns)) {
-            let columns: Column[] = [];
-            hiddenColumns.forEach((index: number | string) => {
-                const key = typeof index === 'number' ? 'index' : 'name';
-                const column = allColumns.find((column) => { return column[key] === index; });
-                if (activeColumns.indexOf(column) < 0) {
-                    columns.push(column);
-                }
-            });
-            columns = columns.concat(activeColumns);
-            return columns;
+        if (hiddenColumns === undefined) {
+            return activeColumns;
         } else {
-            return hiddenColumns ? allColumns : activeColumns;
+            if (Array.isArray(hiddenColumns)) {
+                let columns: Column[] = [];
+                hiddenColumns.forEach((index: number | string) => {
+                    const key = typeof index === 'number' ? 'index' : 'name';
+                    const column = allColumns.find((allColumn) => { return allColumn[key] === index; });
+                    if (column !== undefined) {
+                        if (activeColumns.indexOf(column) < 0) {
+                            columns.push(column);
+                        }
+                    }
+                });
+                columns = columns.concat(activeColumns);
+                return columns;
+            } else {
+                return hiddenColumns ? allColumns : activeColumns;
+            }
         }
-
     }
 }
 
@@ -925,7 +937,12 @@ export namespace Subgrid {
                     // enumerable: true, // is a real data field
                     configurable: true,
                     get: () => { return this.dataModel.getValue(schemaColumn, this.____rowIndex); },
-                    set: (value: DataModel.DataValue) => { return this.dataModel.setValue(schemaColumn, this.____rowIndex, value); }
+                    set: (value: DataModel.DataValue) => {
+                        if (this.dataModel.setValue !== undefined) {
+                            this.dataModel.setValue(schemaColumn, this.____rowIndex, value);
+                        }
+                        return undefined;
+                    }
                 });
             }
         }

@@ -45,7 +45,7 @@ export class GridPropertiesAccessor implements GridProperties {
     set columnAutosizingMax(value: number) { this._raw.columnAutosizingMax = value; }
     /** Set up a clipping region around each column before painting cells. */
     get columnClip() { return this._raw.columnClip; }
-    set columnClip(value: boolean | null) { this._raw.columnClip = value; }
+    set columnClip(value: boolean | undefined) { this._raw.columnClip = value; }
     /** Column grab within this number of pixels from top of cell. */
     get columnGrabMargin() { return this._raw.columnGrabMargin; }
     set columnGrabMargin(value: number) { this._raw.columnGrabMargin = value; }

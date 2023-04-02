@@ -1,10 +1,10 @@
-import { ColumnsManager } from './column/columns-manager';
-import { CellModel } from './model/cell-model';
-import { MainDataModel } from './model/main-data-model';
-import { MetaModel } from './model/meta-model';
-import { ModelCallbackRouter } from './model/model-callback-router';
-import { SchemaModel } from './model/schema-model';
-import { Revgrid } from './revgrid';
+import { ColumnsManager } from '../column/columns-manager';
+import { CellModel } from '../model/cell-model';
+import { MainDataModel } from '../model/main-data-model';
+import { MetaModel } from '../model/meta-model';
+import { ModelCallbackRouter } from '../model/model-callback-router';
+import { SchemaModel } from '../model/schema-model';
+import { Revgrid } from '../revgrid';
 import { Subgrid } from './subgrid';
 
 /** @public */

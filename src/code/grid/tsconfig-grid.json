@@ -16,7 +16,7 @@
     "grid-public-api.ts",
     "main-subgrid.ts",
     "revgrid.ts",
-    "subgrid.ts",
+    "subgrid/**/*.ts",
     "canvas/**/*.ts",
     "cell/**/*.ts",
     "cell-editor/**/*.ts",

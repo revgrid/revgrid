@@ -26,7 +26,6 @@ import { Point, WritablePoint } from './lib/point';
 import { Rectangle, RectangleInterface } from './lib/rectangle';
 import { AssertError } from './lib/revgrid-error';
 import { ColumnNameWidth, ListChangedTypeId } from './lib/types';
-import { MainSubgrid } from './main-subgrid';
 import { CellModel } from './model/cell-model';
 import { DataModel } from './model/data-model';
 import { MainDataModel } from './model/main-data-model';
@@ -34,8 +33,9 @@ import { MetaModel } from './model/meta-model';
 import { ModelCallbackRouter } from './model/model-callback-router';
 import { SchemaModel } from './model/schema-model';
 import { Renderer } from './renderer/renderer';
-import { SelectionDetail, SelectionDetailAccessor } from './selection/selection-detail';
-import { Subgrid } from './subgrid';
+import { MainSubgrid } from './subgrid/main-subgrid';
+import { SelectionDetail, SelectionDetailAccessor } from './subgrid/selection/selection-detail';
+import { Subgrid } from './subgrid/subgrid';
 
 /** @public */
 export class Revgrid implements SelectionDetail {
@@ -3289,26 +3289,26 @@ export class Revgrid implements SelectionDetail {
         if (!mainSubgrid.dataModel.getRowCount()) {
             return;
         }
-        const selectionModel = mainSubgrid.selection;
-        const rectangles = selectionModel.rectangles;
-        if (rectangles && rectangles.length) {
-            const selection = rectangles[0];
-            const origin = selection.origin;
-            const extent = selection.extent;
+        const selection = mainSubgrid.selection;
+        const rectangles = selection.rectangles;
+        if (rectangles.length > 0) {
+            const rectangle = rectangles[0];
+            const origin = rectangle.origin;
+            const extent = rectangle.extent;
             const columnCount = this._columnsManager.getActiveColumnCount();
 
             this.scrollColumnsBy(columnCount);
 
-            selectionModel.beginChange();
+            selection.beginChange();
             try {
                 this.clearSelection();
                 if (to) {
-                    selectionModel.selectRectangle(origin.x, origin.y, columnCount - origin.x - 1, extent.y);
+                    selection.selectRectangle(origin.x, origin.y, columnCount - origin.x - 1, extent.y);
                 } else {
-                    selectionModel.selectRectangle(columnCount - 1, origin.y, 0, 0);
+                    selection.selectRectangle(columnCount - 1, origin.y, 0, 0);
                 }
             } finally {
-                selectionModel.endChange();
+                selection.endChange();
             }
 
             this.repaint();

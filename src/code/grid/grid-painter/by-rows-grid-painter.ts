@@ -96,7 +96,7 @@ export class ByRowsGridPainter extends GridPainter {
 
                 // Optionally clip to visible portion of column to prevent text from overflowing to right.
                 const columnClip = vc.column.properties.columnClip;
-                gc.clipSave(columnClip || columnClip === null && c === cLast, 0, 0, vc.rightPlus1, viewHeight);
+                gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
                 const config = beingPaintedCell.subgrid.getCellPaintConfig(beingPaintedCell);
 
@@ -106,7 +106,7 @@ export class ByRowsGridPainter extends GridPainter {
                     this.paintErrorCell(e as Error, gc, vc, visibleRows[r]);
                 }
 
-                gc.clipRestore(columnClip);
+                gc.clipRestore();
             });
         }
 

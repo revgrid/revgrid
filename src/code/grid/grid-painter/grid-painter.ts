@@ -54,7 +54,8 @@ export abstract class GridPainter {
      */
     protected paintCell(gc: CanvasRenderingContext2DEx, beingPaintedCell: BeingPaintedCell, config: CellPaintConfig, prefillColor: string | undefined): number {
         const grid = this.grid;
-        const selection = grid.selection;
+        const subgrid = beingPaintedCell.subgrid;
+        const selection = subgrid.selection;
 
         const isColumnSelected = beingPaintedCell.isColumnSelected;
 
@@ -115,7 +116,7 @@ export abstract class GridPainter {
         config.bounds = beingPaintedCell.bounds;
         config.isCellHovered = beingPaintedCell.isCellHovered;
         config.isCellSelected = isCellSelected;
-        config.isRowFocused = selection.isRowFocused(r);
+        config.isRowFocused = subgrid.isRowFocused(r);
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selection.isInCurrentSelectionRectangle(x, r);

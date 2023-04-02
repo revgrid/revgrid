@@ -8,8 +8,8 @@ import { DataModel } from '../model/data-model';
 import { MetaModel } from '../model/meta-model';
 import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
-import { Selection } from '../selection/selection';
-import { Subgrid } from '../subgrid';
+import { Selection } from '../subgrid/selection/selection';
+import { Subgrid } from '../subgrid/subgrid';
 
 export abstract class RenderedCell {
 

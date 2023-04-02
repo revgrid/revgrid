@@ -7,7 +7,7 @@ import { DataModel } from '../model/data-model';
 import { MetaModel } from '../model/meta-model';
 import { SchemaModel } from '../model/schema-model';
 import { Revgrid } from '../revgrid';
-import { Subgrid } from '../subgrid';
+import { Subgrid } from '../subgrid/subgrid';
 import { ColumnProperties } from './column-properties';
 
 /** @public */

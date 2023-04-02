@@ -4,7 +4,7 @@ import { Effect } from './effects/effects';
 import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
 import { deepClone } from './lib/utils';
 import { SchemaModel } from './model/schema-model';
-import { Subgrid } from './subgrid';
+import { Subgrid } from './subgrid/subgrid';
 
 /** @public */
 export interface GridProperties {
@@ -30,7 +30,7 @@ export interface GridProperties {
     /** The widest the column will be auto-sized to. */
     columnAutosizingMax: number;
     /** Set up a clipping region around each column before painting cells. */
-    columnClip: boolean | null;
+    columnClip: boolean | undefined;
     /** Column grab within this number of pixels from top of cell. */
     columnGrabMargin: number;
     columnHeaderBackgroundColor: GridProperties.Color;

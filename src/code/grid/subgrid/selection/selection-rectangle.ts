@@ -1,5 +1,5 @@
-import { InclusiveRectangle } from '../lib/inclusive-rectangle';
-import { Point } from '../lib/point';
+import { InclusiveRectangle } from '../../lib/inclusive-rectangle';
+import { Point } from '../../lib/point';
 
 /** @public */
 export class SelectionRectangle extends InclusiveRectangle {

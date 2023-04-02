@@ -63,7 +63,7 @@ export interface CellPaintConfig {
     readonly renderFalsy: boolean;
     readonly rightIcon: string;
     readonly strikeThrough: boolean;
-    readonly textTruncateType: TextTruncateType;
+    readonly textTruncateType: TextTruncateType | undefined;
     readonly voffset: number;
 
     // grid overrides set by renderer

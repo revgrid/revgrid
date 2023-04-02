@@ -1,10 +1,10 @@
 
-import { ColumnsManager } from '../grid-public-api';
-import { InclusiveRectangle } from '../lib/inclusive-rectangle';
-import { AssertError } from '../lib/revgrid-error';
-import { calculateNumberArrayUniqueCount } from '../lib/utils';
-import { DataModel } from '../model/data-model';
-import { Revgrid } from '../revgrid';
+import { ColumnsManager } from '../../grid-public-api';
+import { InclusiveRectangle } from '../../lib/inclusive-rectangle';
+import { AssertError } from '../../lib/revgrid-error';
+import { calculateNumberArrayUniqueCount } from '../../lib/utils';
+import { DataModel } from '../../model/data-model';
+import { Revgrid } from '../../revgrid';
 import { RangesSelection } from './ranges-selection';
 import { SelectionDetailAccessor } from './selection-detail';
 import { SelectionRectangle } from './selection-rectangle';

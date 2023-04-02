@@ -49,9 +49,9 @@ export class CanvasRenderingContext2DEx {
     // (undocumented)
     clip(): void;
     // (undocumented)
-    clipRestore(conditional: CanvasRenderingContext2DEx.Conditional): void;
+    clipRestore(): void;
     // (undocumented)
-    clipSave(conditional: CanvasRenderingContext2DEx.Conditional, x: number, y: number, width: number, height: number): void;
+    clipSave(conditional: boolean, x: number, y: number, width: number, height: number): void;
     // (undocumented)
     closePath(): void;
     // (undocumented)
@@ -379,7 +379,7 @@ export interface CellPaintConfig {
     // (undocumented)
     subrows: number;
     // (undocumented)
-    readonly textTruncateType: TextTruncateType;
+    readonly textTruncateType: TextTruncateType | undefined;
     // (undocumented)
     value: unknown;
     // (undocumented)
@@ -659,7 +659,7 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
     // (undocumented)
     columnAutosizingMax: number;
     // (undocumented)
-    columnClip: boolean | null;
+    columnClip: boolean | undefined;
     // (undocumented)
     readonly columnHeader: ColumnProperties.ColumnHeader;
     // (undocumented)
@@ -1291,7 +1291,7 @@ export interface GridProperties {
     columnAutosized: boolean;
     columnAutosizing: boolean;
     columnAutosizingMax: number;
-    columnClip: boolean | null;
+    columnClip: boolean | undefined;
     columnGrabMargin: number;
     // (undocumented)
     columnHeaderBackgroundColor: GridProperties.Color;
@@ -2378,7 +2378,7 @@ export class Revgrid implements SelectionDetail {
     // (undocumented)
     getSelectedColumnIndices(): number[];
     // (undocumented)
-    getSelectedRectangles(): Selection_2[];
+    getSelectedRectangles(): SelectionRectangle[];
     // (undocumented)
     getSelectedRowCount(): number;
     // (undocumented)
@@ -2565,10 +2565,10 @@ export class Revgrid implements SelectionDetail {
     selectFinalCellOfCurrentRow(to?: boolean): void;
     // (undocumented)
     selectFirstCellOfCurrentRow(to?: boolean): void;
-    // Warning: (ae-forgotten-export) The symbol "Selection_3" needs to be exported by the entry point public-api.d.ts
+    // Warning: (ae-forgotten-export) The symbol "Selection_2" needs to be exported by the entry point public-api.d.ts
     //
     // @internal (undocumented)
-    get selection(): Selection_3;
+    get selection(): Selection_2;
     // (undocumented)
     selectRectangle(ox: number, oy: number, ex: number, ey: number): void;
     // (undocumented)
@@ -3412,7 +3412,17 @@ export namespace SchemaModel {
 }
 
 // @public (undocumented)
-class Selection_2 extends InclusiveRectangle {
+export interface SelectionDetail {
+    // (undocumented)
+    getSelectedColumnIndices(): number[];
+    // (undocumented)
+    getSelectedRectangles(): SelectionRectangle[];
+    // (undocumented)
+    getSelectedRowIndices(): number[];
+}
+
+// @public (undocumented)
+export class SelectionRectangle extends InclusiveRectangle {
     constructor(x: number, y: number, width: number, height: number);
     adjustForColumnsDeleted(deletionLeft: number, deletionCount: number): boolean | null;
     adjustForColumnsInserted(columnIndex: number, count: number): boolean;
@@ -3430,17 +3440,6 @@ class Selection_2 extends InclusiveRectangle {
     moveX(offset: number): void;
     // (undocumented)
     moveY(offset: number): void;
-}
-export { Selection_2 as Selection }
-
-// @public (undocumented)
-export interface SelectionDetail {
-    // (undocumented)
-    getSelectedColumnIndices(): number[];
-    // (undocumented)
-    getSelectedRectangles(): Selection_2[];
-    // (undocumented)
-    getSelectedRowIndices(): number[];
 }
 
 // @public (undocumented)
@@ -3483,7 +3482,7 @@ export class Subgrid {
     // (undocumented)
     getFirstSelectionRectangleTopRowValues(): {};
     // (undocumented)
-    getLastSelectionRectangle(): Selection_2;
+    getLastSelectionRectangle(): SelectionRectangle;
     // (undocumented)
     getLastSelectionType(n?: number): SelectionType;
     // (undocumented)
@@ -3527,6 +3526,8 @@ export class Subgrid {
     // (undocumented)
     readonly isMain: boolean;
     // (undocumented)
+    isRowFocused(rowIndex: number): boolean;
+    // (undocumented)
     isSelected(x: number, y: number): boolean;
     // (undocumented)
     readonly isSummary: boolean;
@@ -3549,11 +3550,11 @@ export class Subgrid {
     // (undocumented)
     selectColumns(x1: number, x2?: number): void;
     // @internal (undocumented)
-    readonly selection: Selection_3;
+    readonly selection: Selection_2;
     // (undocumented)
     get selectionHasRectangles(): boolean;
     // (undocumented)
-    get selectionRectangles(): Selection_2[];
+    get selectionRectangles(): SelectionRectangle[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     selectRectangle(ox: number, oy: number, ex: number, ey: number): void;
     // (undocumented)
@@ -3710,7 +3711,7 @@ export type Writable<T> = {
 // src/code/grid/effects/effects.ts:9:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
 // src/code/grid/effects/effects.ts:9:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
 // src/code/grid/renderer/renderer.ts:30:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/selection/selection.ts:16:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/subgrid/selection/selection.ts:16:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

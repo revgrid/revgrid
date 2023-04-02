@@ -13,7 +13,7 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
     private _cellPadding: number | undefined;
     private _cellSelection: boolean | undefined;
     private _columnAutosizingMax: number | undefined;
-    private _columnClip: boolean | null | undefined;
+    private _columnClip: boolean | undefined;
     private _editable: boolean | undefined;
     private _editOnKeydown: boolean | undefined;
     private _editOnNextCell: boolean | undefined;
@@ -70,7 +70,7 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
     get columnAutosizingMax() { return this._columnAutosizingMax ?? this._gridProperties.columnAutosizingMax; }
     set columnAutosizingMax(value: number) { this._columnAutosizingMax = value; }
     get columnClip() { return this._columnClip ?? this._gridProperties.columnClip; }
-    set columnClip(value: boolean | null) { this._columnClip = value; }
+    set columnClip(value: boolean | undefined) { this._columnClip = value; }
     get editable() { return this._editable ?? this._gridProperties.editable; }
     set editable(value: boolean) { this._editable = value; }
     get editOnKeydown() { return this._editOnKeydown ?? this._gridProperties.editOnKeydown; }

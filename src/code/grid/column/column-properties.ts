@@ -21,7 +21,7 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
     cellPadding: number;
     cellSelection: boolean;
     columnAutosizingMax: number;
-    columnClip: boolean | null;
+    columnClip: boolean | undefined;
     editOnKeydown: boolean;
     editOnNextCell: boolean;
     editor: string;

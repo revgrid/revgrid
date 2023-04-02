@@ -318,7 +318,7 @@ export class CanvasRenderingContext2DEx {
         return result;
     }
 
-    clipSave(conditional: CanvasRenderingContext2DEx.Conditional, x: number, y: number, width: number, height: number) {
+    clipSave(conditional: boolean, x: number, y: number, width: number, height: number) {
         this.conditionalsStack.push(conditional);
         if (conditional) {
             this.cache.save();
@@ -328,8 +328,7 @@ export class CanvasRenderingContext2DEx {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    clipRestore(conditional: CanvasRenderingContext2DEx.Conditional) {
+    clipRestore() {
         if (this.conditionalsStack.pop()) {
             this.cache.restore(); // Remove clip region
         }

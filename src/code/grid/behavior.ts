@@ -5,7 +5,7 @@ import { assignOrDelete } from './lib/utils';
 import { MetaModel } from './model/meta-model';
 import { SchemaModel } from './model/schema-model';
 import { Revgrid } from './revgrid';
-import { Subgrid } from './subgrid';
+import { Subgrid } from './subgrid/subgrid';
 
 const noExportProperties = [
     'columnHeader',

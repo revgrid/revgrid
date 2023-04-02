@@ -1,6 +1,6 @@
 import { CellEditor } from '../cell-editor/cell-editor';
 import { CellEvent } from '../cell/cell-event';
-import { SelectionDetail } from '../selection/selection-detail';
+import { SelectionDetail } from '../subgrid/selection/selection-detail';
 import { EventDetail } from './event-detail';
 
 /** @public */
