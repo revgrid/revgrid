@@ -15,6 +15,7 @@ import { Rectangle, RectangleInterface } from '../lib/rectangle';
 import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
 import { invalidModelUpdateId, lowestValidModelUpdateId, ModelUpdateId } from '../model/schema-model';
 import { Revgrid } from '../revgrid';
+import { SelectionType } from '../selection/selection-type';
 import { Subgrid } from '../subgrid';
 import { RenderAction } from './render-action';
 import { RenderActioner } from './render-actioner';
@@ -1113,11 +1114,12 @@ export class Renderer {
         let height: number;
         const grid = this.grid;
         const gridProps = grid.properties;
-        const sm = grid.selection;
+        const selection = grid.selection;
 
-        switch (sm.getLastSelectionType()) {
-            case 'column': {
-                const columnRanges = sm.columns.ranges;
+        const selectionType = selection.getLastSelectionType();
+        switch (selectionType) {
+            case SelectionType.Column: {
+                const columnRanges = selection.columns.ranges;
                 const lastColumnSelection = columnRanges[columnRanges.length - 1];
 
                 left = lastColumnSelection[0];
@@ -1127,9 +1129,9 @@ export class Renderer {
                 rectangle = new InclusiveRectangle(left, top, width, height);
                 break;
             }
-            case 'row': {
-                if (!(gridProps.collapseCellSelections && sm.getLastSelectionType(1) === 'cell')) {
-                    const rowRanges = sm.rows.ranges;
+            case SelectionType.Row: {
+                if (!(gridProps.collapseCellSelections && selection.getLastSelectionType(1) === SelectionType.Cell)) {
+                    const rowRanges = selection.rows.ranges;
                     const lastRowSelection = rowRanges[rowRanges.length - 1];
 
                     left = 0;
@@ -1138,14 +1140,19 @@ export class Renderer {
                     height = lastRowSelection[1] - top + 1;
                     rectangle = new InclusiveRectangle(left, top, width, height);
                 } else {
-                    rectangle = sm.getLastRectangle();
+                    rectangle = selection.getLastRectangle();
                 }
                 break;
             }
-            case 'cell': {
-                rectangle = sm.getLastRectangle();
+            case SelectionType.Cell: {
+                rectangle = selection.getLastRectangle();
                 break;
             }
+            case undefined: {
+                break;
+            }
+            default:
+                throw new UnreachableCaseError('RCLSB13998', selectionType);
         }
 
         if (rectangle === undefined) {

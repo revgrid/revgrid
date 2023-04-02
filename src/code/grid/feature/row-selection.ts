@@ -3,6 +3,7 @@ import { MouseCellEvent } from '../cell/cell-event';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
 import { Point } from '../lib/point';
+import { SelectionType } from '../selection/selection-type';
 
 export class RowSelection extends Feature {
 
@@ -92,7 +93,7 @@ export class RowSelection extends Feature {
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
         let handler: (this: void, detail: EventDetail.Keyboard) => void;
         if (
-            this.grid.getLastSelectionType() === 'row' &&
+            this.grid.getLastSelectionType() === SelectionType.Row &&
             (handler = this['handle' + eventDetail.primitiveEvent.key])
         ) {
             handler(eventDetail);

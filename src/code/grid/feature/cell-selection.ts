@@ -114,7 +114,7 @@ export class CellSelection extends Feature {
 
         grid.beginSelectionChange();
         try {
-            grid.clearMostRecentSelection();
+            grid.clearMostRecentRectangleSelection();
             grid.selectRectangle(mouseDown.x, mouseDown.y, newX, newY);
         } finally {
             grid.endSelectionChange();
@@ -221,7 +221,7 @@ export class CellSelection extends Feature {
                 x === mousePoint.x &&
                 y === mousePoint.y
             ) {
-                grid.clearMostRecentSelection();
+                grid.clearMostRecentRectangleSelection();
                 grid.popMouseDown();
                 grid.repaint();
                 return;
@@ -232,7 +232,7 @@ export class CellSelection extends Feature {
             }
 
             if (shiftKeyDown) {
-                grid.clearMostRecentSelection();
+                grid.clearMostRecentRectangleSelection();
                 grid.selectRectangle(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
                 grid.setDragExtent(Point.create(x - mousePoint.x, y - mousePoint.y));
             } else {

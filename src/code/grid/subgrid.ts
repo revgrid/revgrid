@@ -11,6 +11,11 @@ import { ColumnsManager } from './column/columns-manager';
 import { CellPaintConfig } from './renderer/cell-paint-config';
 import { CellPaintConfigAccessor } from './renderer/cell-paint-config-accessor';
 import { Revgrid } from './revgrid';
+import { Selection } from './selection/selection';
+import { SelectionStash } from './selection/selection-stash';
+import { SelectionType } from './selection/selection-type';
+import { AssertError, UnreachableCaseError } from './lib/revgrid-error';
+import { Column } from './column/column';
 
 /** @public */
 export class Subgrid {
@@ -18,6 +23,18 @@ export class Subgrid {
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
     readonly isSummary: boolean = false;
+
+    /** @internal */
+    private _nestedStashSelectionsRequestCount = 0;
+    /** @internal */
+    private _selectionStash: SelectionStash | undefined;
+
+    /** @internal */
+    // readonly focusedCell: FocusedCell;
+    /** @internal */
+    readonly selection: Selection;
+
+    lastEdgeSelection: [x: number, y: number] = [0, 0]; // 1st element is x, 2nd element is y
 
     /** @internal */
     protected _destroyed = false;
@@ -57,14 +74,22 @@ export class Subgrid {
             case 'summary':
                 this.isSummary = true;
                 break;
-            default:
+            default: {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const never: never = role
+            }
         }
 
         this.rowProxy = new Subgrid.DataRowProxy(this.schemaModel, this.dataModel);
         this._columnsManager.addBeforeCreateColumnsListener(this._columnsManagerBeforeCreateColumnsListener);
+
+        this.selection = new Selection(_grid, _columnsManager, dataModel);
     }
+
+    get selectionRectangles() { return this.selection.rectangles; }
+    get selectionHasRectangles() {return this.selection.hasRectangles; }
+
+    get allRowsSelected() { return this.selection.allRowsSelected; }
 
     /** @internal */
     destroy() {
@@ -98,6 +123,500 @@ export class Subgrid {
         } else {
             this.rowMetadata[rowIndex] = newMetadata;
         }
+    }
+
+    // Hooks
+    /** @internal */
+    getCellPaintConfig(beingPaintedCell: BeingPaintedCell): CellPaintConfig {
+        let config: CellPaintConfig;
+        const cellModel = this.cellModel;
+        if (cellModel !== undefined) {
+            if (cellModel.getCellPaintConfig !== undefined) {
+                config = cellModel.getCellPaintConfig(beingPaintedCell);
+            }
+        }
+
+        if (config === undefined) {
+            return new CellPaintConfigAccessor(beingPaintedCell);
+        } else {
+            return config;
+        }
+    }
+
+    /** @internal */
+    getCellPainter(cellPaintConfig: CellPaintConfig, gridPainterKey: string): CellPainter {
+        let painter: CellPainter;
+        const cellModel = this.cellModel;
+        if (cellModel !== undefined) {
+            if (cellModel.getCellPainter !== undefined) {
+                painter = cellModel.getCellPainter(cellPaintConfig, gridPainterKey);
+            }
+        }
+
+        if (painter === undefined) {
+            return this._grid.renderer.cellPainterRepository.get(gridPainterKey);
+        } else {
+            return painter;
+        }
+    }
+
+    /** @internal */
+    getCellEditorAt(columnIndex: number, rowIndex: number, editorName: string, cellEvent: CellEvent): CellEditor {
+        let editor: CellEditor;
+
+        const cellModel = this.cellModel;
+        if (cellModel !== undefined) {
+            if (cellModel.getCellEditorAt !== undefined) {
+                editor = cellModel.getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
+            }
+        }
+
+        if (editor === undefined) {
+            return cellEditorFactory.create(this._grid, editorName, cellEvent);
+        } else {
+            return editor;
+        }
+    }
+
+    // Selection
+
+    getSelectedRowCount() {
+        return this.selection.getRowCount();
+    }
+
+    getSelectedRowIndices() {
+        return this.selection.getRowIndices();
+    }
+
+    getSelectedColumnIndices() {
+        return this.selection.getSelectedColumnIndices();
+    }
+
+    getLastSelectionType(n = 0) {
+        return this.selection.getLastSelectionType(n);
+    }
+
+    getLastSelectionRectangle() {
+        return this.selection.getLastRectangle();
+    }
+
+    /** Call before multiple selection changes to consolidate SelectionChange events.
+     * Pair with endSelectionChange().
+     */
+    beginSelectionChange() {
+        this.selection.beginChange();
+    }
+
+    /** Call after multiple selection changes to consolidate SelectionChange events.
+     * Pair with beginSelectionChange().
+     */
+    endSelectionChange() {
+        this.selection.endChange();
+    }
+
+    requestStashSelection() {
+        if (this._nestedStashSelectionsRequestCount++ === 0) {
+            this.stashSelection();
+        }
+    }
+
+    requestUnstashSelection() {
+        if (--this._nestedStashSelectionsRequestCount === 0) {
+            this.unstashSelection();
+        }
+    }
+
+    /**
+     * @summary Select given region.
+     * @param ox - origin x
+     * @param oy - origin y
+     * @param ex - extent x
+     * @param ex - extent y
+     */
+    selectRectangle(ox: number, oy: number, ex: number, ey: number) {
+        if (ox < 0 || oy < 0) {
+            //we don't select negative area
+            //also this means there is no origin mouse down for a selection rect
+            return;
+        }
+        this.selection.selectRectangle(ox, oy, ex, ey);
+    }
+
+    selectCell(x: number, y: number, silent = false) {
+        const keepRowSelections = this._grid.properties.checkboxOnlyRowSelections;
+        this.beginSelectionChange();
+        try {
+            this.selection.clear(keepRowSelections);
+            this.selection.selectRectangle(x, y, 0, 0, silent);
+        } finally {
+            this.endSelectionChange();
+        }
+    }
+
+    selectColumns(x1: number, x2?: number) {
+        this.selection.selectColumns(x1, x2);
+    }
+
+    selectRows(y1: number, y2?: number) {
+        const sm = this.selection;
+
+        if (this._grid.properties.singleRowSelectionMode) {
+            sm.clearRowSelection();
+            y2 = y1;
+        } else {
+            if (y2 === undefined) {
+                y2 = y1;
+            }
+        }
+
+        sm.selectRows(Math.min(y1, y2), Math.max(y1, y2));
+    }
+
+    selectAllRows() {
+        this.selection.selectAllRows();
+    }
+
+    toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
+        const model = this.selection;
+        const alreadySelected = model.isColumnSelected(x);
+        this.beginSelectionChange();
+        try {
+            if (!ctrlKeyDown && !shiftKeyDown) {
+                model.clear();
+                if (!alreadySelected) {
+                    model.selectColumns(x);
+                }
+            } else {
+                if (ctrlKeyDown) {
+                    if (alreadySelected) {
+                        model.deselectColumn(x);
+                    } else {
+                        model.selectColumns(x);
+                    }
+                }
+                if (shiftKeyDown) {
+                    model.clear();
+                    model.selectColumns(this.lastEdgeSelection[0], x);
+                }
+            }
+            if (!alreadySelected && !shiftKeyDown) {
+                this.lastEdgeSelection[0] = x;
+            }
+        } finally {
+            this.endSelectionChange();
+        }
+        this._grid.repaint();
+        this._grid.fireSyntheticColumnSelectionChangedEvent();
+    }
+
+    toggleSelectRow(y: number, shiftKeyDown: boolean) {
+        //we can select the totals rows if they exist, but not rows above that
+        const sm = this.selection;
+        const alreadySelected = sm.isRowSelected(y);
+
+        this.beginSelectionChange();
+        try {
+            if (alreadySelected) {
+                sm.deselectRow(y);
+            } else {
+                if (this._grid.properties.singleRowSelectionMode) {
+                    sm.clearRowSelection();
+                }
+                sm.selectRows(y);
+            }
+
+            if (shiftKeyDown) {
+                sm.clear();
+                sm.selectRows(this.lastEdgeSelection[1], y);
+            }
+
+            if (!alreadySelected && !shiftKeyDown) {
+                this.lastEdgeSelection[1] = y;
+            }
+        } finally {
+            this.endSelectionChange();
+        }
+
+        this._grid.repaint();
+    }
+
+    toggleSelectAllRows() {
+        if (this.allRowsSelected) {
+            this.selection.clear();
+        } else {
+            this.selectAllRows();
+        }
+        this._grid.repaint();
+    }
+
+    /**
+     * @desc Clear all the selections.
+     */
+    clearSelection() {
+        const keepRowSelections = this._grid.properties.checkboxOnlyRowSelections;
+        this.selection.clear(keepRowSelections);
+    }
+
+    /**
+     * @desc Clear the most recent selection.
+     */
+    clearMostRecentRectangleSelection(keepRowSelections: boolean) {
+        this.selection.clearMostRecentRectangleSelection(keepRowSelections);
+    }
+
+    /**
+     * @desc Clear the most recent column selection.
+     */
+    clearMostRecentColumnSelection() {
+        this.selection.restorePreviousColumnSelection();
+    }
+
+    /**
+     * @desc Clear the most recent row selection.
+     */
+    clearMostRecentRowSelection() {
+        //this.selectionModel.clearMostRecentRowSelection(); // commented off as per GRID-112
+    }
+
+    /**
+     * @returns Given point is selected.
+     * @param x - The horizontal coordinate.
+     * @param y - The vertical coordinate.
+     */
+    isSelected(x: number, y: number): boolean {
+        return this.selection.isSelected(x, y);
+    }
+
+    /**
+     * @returns The given column is selected anywhere in the entire table.
+     * @param y - The row index.
+     */
+    isCellSelectedInRow(y: number): boolean {
+        return this.selection.isCellSelectedInRow(y);
+    }
+
+    /**
+     * @returns The given row is selected anywhere in the entire table.
+     * @param x - The column index.
+     */
+    isCellSelectedInColumn(x: number): boolean {
+        return this.selection.isCellSelectedInColumn(x);
+    }
+
+    isColumnOrRowSelected() {
+        return this.selection.isColumnOrRowSelected();
+    }
+
+    isInCurrentSelectionRectangle(x: number, y: number) {
+        return this.selection.isInCurrentSelectionRectangle(x, y);
+    }
+
+    /**
+     * @returns An object that represents the currently selection row.
+     */
+    getFirstSelectionRectangleTopRowValues() {
+        const rectangles = this.selection.rectangles;
+        if (rectangles.length > 0) {
+            const dataModel = this.dataModel;
+            const columnsManager = this._columnsManager;
+            const colCount = this._columnsManager.getActiveColumnCount();
+            const topSelectedRow = rectangles[0].origin.y;
+            const row = {
+                    //hierarchy: behavior.getFixedColumnValue(0, topRow)
+                };
+
+            for (let c = 0; c < colCount; c++) {
+                const column = columnsManager.getActiveColumn(c);
+                row[column.name] = dataModel.getValue(column.schemaColumn, topSelectedRow);
+            }
+
+            return row;
+        } else {
+            return undefined;
+        }
+    }
+
+    getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataModel.DataRow {
+        const selectedRowIndexes = this.selection.getRowIndices();
+        const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
+        const result: DataModel.DataRow = {};
+
+        for (let c = 0, C = columns.length; c < C; c++) {
+            const column = columns[c];
+            const rows = result[column.name] = new Array(selectedRowIndexes.length);
+            selectedRowIndexes.forEach( (selectedRowIndex, j) => {
+                const dataRow = this.getRow(selectedRowIndex);
+                rows[j] = this.valOrFunc(dataRow, column);
+            });
+        }
+
+        return result;
+    }
+
+    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataModel.DataValue>> {
+        const selectedRowIndexes = this.selection.getRowIndices();
+        const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
+        const result = new Array<Array<DataModel.DataValue>>(columns.length);
+
+        for (let c = 0, C = columns.length; c < C; c++) {
+            const column = columns[c];
+            result[c] = new Array<DataModel.DataValue>(selectedRowIndexes.length);
+            selectedRowIndexes.forEach(
+                (selectedRowIndex, r) => {
+                    const dataRow = this.getRow(selectedRowIndex);
+                    result[c][r] = this.valOrFunc(dataRow, column);
+                }
+            );
+        }
+
+        return result;
+    }
+
+    getColumnSelectionMatrix(): DataModel.DataValue[][] {
+        const columnsManager = this._columnsManager;
+        const selectedColumnIndexes = this.getSelectedColumnIndices();
+        const numRows = this.dataModel.getRowCount();
+        const result = new Array<Array<DataModel.DataValue>>(selectedColumnIndexes.length);
+
+        selectedColumnIndexes.forEach((selectedColumnIndex, c) => {
+            const column = columnsManager.getActiveColumn(selectedColumnIndex);
+            const values = result[c] = new Array<DataModel.DataValue>(numRows);
+
+            for (let r = 0; r < numRows; r++) {
+                const dataRow = this.getRow(r);
+                values[r] = this.valOrFunc(dataRow, column);
+            }
+        });
+
+        return result;
+    }
+
+    getSelectedColumnsValues() {
+        const columnsManager = this._columnsManager;
+        const selectedColumnIndexes = this.getSelectedColumnIndices();
+        const result: Revgrid.ColumnsDataValuesObject = {};
+        const rowCount = this.dataModel.getRowCount();
+
+        selectedColumnIndexes.forEach((selectedColumnIndex) => {
+            const column = columnsManager.getActiveColumn(selectedColumnIndex);
+            const values = result[column.name] = new Array<DataModel.DataValue>(rowCount);
+
+            for (let r = 0; r < rowCount; r++) {
+                const dataRow = this.getRow(r);
+                values[r] = this.valOrFunc(dataRow, column);
+            }
+        });
+
+        return result;
+    }
+
+    getSelectedValuesByRectangleAndColumn(): Revgrid.ColumnsDataValuesObject[] {
+        const columnsManager = this._columnsManager;
+        const selectionRectangles = this.selection.rectangles;
+        const rects = new Array<Revgrid.ColumnsDataValuesObject>(selectionRectangles.length);
+
+        selectionRectangles.forEach(
+            (selectionRect, i) => {
+                const colCount = selectionRect.width;
+                const rowCount = selectionRect.height;
+                const columns: Revgrid.ColumnsDataValuesObject = {};
+
+                for (let c = 0, x = selectionRect.origin.x; c < colCount; c++, x++) {
+                    const column = columnsManager.getActiveColumn(x);
+                    const values = columns[column.name] = new Array<DataModel.DataValue>(rowCount);
+
+                    for (let r = 0, y = selectionRect.origin.y; r < rowCount; r++, y++) {
+                        const dataRow = this.getRow(y);
+                        values[r] = this.valOrFunc(dataRow, column);
+                    }
+                }
+
+                rects[i] = columns;
+            }
+        );
+
+        return rects;
+    }
+
+    getSelectedValuesByRectangleColumnRowMatrix(): DataModel.DataValue[][][] {
+        const columnsManager = this._columnsManager;
+        const rectangles = this.selection.rectangles;
+        const rects = new Array<Array<Array<DataModel.DataValue>>>(rectangles.length);
+
+        rectangles.forEach(
+            (rect, i) => {
+                const colCount = rect.width;
+                const rowCount = rect.height;
+                const rows = new Array<Array<DataModel.DataValue>>();
+
+                for (let c = 0, x = rect.origin.x; c < colCount; c++, x++) {
+                    const values = rows[c] = new Array<DataModel.DataValue>(rowCount);
+                    const column = columnsManager.getActiveColumn(x);
+
+                    for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
+                        const dataRow = this.getRow(y);
+                        values[r] = this.valOrFunc(dataRow, column);
+                    }
+                }
+
+                rects[i] = rows;
+            }
+        );
+
+        return rects;
+    }
+
+    /**
+     * @returns Tab separated value string from the selection and our data.
+     */
+    getSelectionAsTSV(): string {
+        const selectionType = this.selection.getLastSelectionType();
+        switch (selectionType) {
+            case SelectionType.Cell: {
+                const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix();
+                const selections = selectionMatrix[selectionMatrix.length - 1];
+                return this.getMatrixSelectionAsTSV(selections);
+            }
+            case SelectionType.Row: {
+                return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
+            }
+            case SelectionType.Column: {
+                return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
+            }
+            case undefined: {
+                return '';
+            }
+            default:
+                throw new UnreachableCaseError('MSGSATSV12998', selectionType);
+        }
+    }
+
+    getMatrixSelectionAsTSV(selections: Array<Array<DataModel.DataValue>>) {
+        let result = '';
+
+        //only use the data from the last selection
+        if (selections.length) {
+            const width = selections.length;
+            const height = selections[0].length;
+            const area = width * height;
+            const lastCol = width - 1;
+                //Whitespace will only be added on non-singular rows, selections
+            const whiteSpaceDelimiterForRow = (height > 1 ? '\n' : '');
+
+            //disallow if selection is too big
+            if (area > 20000) {
+                alert('selection size is too big to copy to the paste buffer'); // eslint-disable-line no-alert
+                return '';
+            }
+
+            for (let h = 0; h < height; h++) {
+                for (let w = 0; w < width; w++) {
+                    result += selections[w][h] + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
+                }
+            }
+        }
+
+        return result;
     }
 
     /** @internal */
@@ -289,57 +808,73 @@ export class Subgrid {
     //     this.metadata = newMetadataStore ?? [];
     // }
 
-    // Hooks
-    /** @internal */
-    getCellPaintConfig(beingPaintedCell: BeingPaintedCell): CellPaintConfig {
-        let config: CellPaintConfig;
-        const cellModel = this.cellModel;
-        if (cellModel !== undefined) {
-            if (cellModel.getCellPaintConfig !== undefined) {
-                config = cellModel.getCellPaintConfig(beingPaintedCell);
-            }
-        }
-
-        if (config === undefined) {
-            return new CellPaintConfigAccessor(beingPaintedCell);
+    /**
+     * @returns '' if data value is undefined
+     * @internal
+     */
+    private valOrFunc(dataRow: DataModel.DataRow, column: Column): (DataModel.DataValue | '') {
+        if (Array.isArray(dataRow)) {
+            return dataRow[column.schemaColumn.index];
         } else {
-            return config;
+            let result: DataModel.DataValue;
+            if (dataRow) {
+                result = dataRow[column.name];
+                const calculator = (((typeof result)[0] === 'f' && result) || column.calculator) as SchemaModel.Column.CalculateFunction;
+                if (calculator) {
+                    result = calculator(dataRow, column.name);
+                }
+            }
+            return result || result === 0 || result === false ? result : '';
         }
     }
 
-    /** @internal */
-    getCellPainter(cellPaintConfig: CellPaintConfig, gridPainterKey: string): CellPainter {
-        let painter: CellPainter;
-        const cellModel = this.cellModel;
-        if (cellModel !== undefined) {
-            if (cellModel.getCellPainter !== undefined) {
-                painter = cellModel.getCellPainter(cellPaintConfig, gridPainterKey);
-            }
-        }
-
-        if (painter === undefined) {
-            return this._grid.renderer.cellPainterRepository.get(gridPainterKey);
+    private stashSelection() {
+        if (this._selectionStash !== undefined) {
+            throw new AssertError('MSSS86665');
         } else {
-            return painter;
+            this._selectionStash = this.selection.createStash();
+            this.selection.clear();
         }
     }
 
-    /** @internal */
-    getCellEditorAt(columnIndex: number, rowIndex: number, editorName: string, cellEvent: CellEvent): CellEditor {
-        let editor: CellEditor;
-
-        const cellModel = this.cellModel;
-        if (cellModel !== undefined) {
-            if (cellModel.getCellEditorAt !== undefined) {
-                editor = cellModel.getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
-            }
-        }
-
-        if (editor === undefined) {
-            return cellEditorFactory.create(this._grid, editorName, cellEvent);
+    private unstashSelection() {
+        const selectionStash = this._selectionStash;
+        if (selectionStash === undefined) {
+            throw new AssertError('MSUS86665');
         } else {
-            return editor;
+            this._selectionStash = undefined;
+            this.selection.restoreStash(selectionStash);
         }
+    }
+
+    /**
+     * @param hiddenColumns - One of:
+     * `false` - Active column list
+     * `true` - All column list
+     * `Array` - Active column list with listed columns prefixed as needed (when not already in the list). Each item in the array may be either:
+     * * `number` - index into all column list
+     * * `string` - name of a column from the all column list
+     * @internal
+     */
+    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[]): readonly Column[] {
+        const allColumns = this._columnsManager.allColumns;
+        const activeColumns = this._columnsManager.activeColumns;
+
+        if (Array.isArray(hiddenColumns)) {
+            let columns: Column[] = [];
+            hiddenColumns.forEach((index: number | string) => {
+                const key = typeof index === 'number' ? 'index' : 'name';
+                const column = allColumns.find((column) => { return column[key] === index; });
+                if (activeColumns.indexOf(column) < 0) {
+                    columns.push(column);
+                }
+            });
+            columns = columns.concat(activeColumns);
+            return columns;
+        } else {
+            return hiddenColumns ? allColumns : activeColumns;
+        }
+
     }
 }
 

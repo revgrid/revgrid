@@ -1684,98 +1684,7 @@ export class MainSubgrid extends Subgrid {
     constructor(
     grid: Revgrid, columnsManager: ColumnsManager, modelCallbackManager: ModelCallbackRouter, role: Subgrid.Role, schemaModel: SchemaModel, dataModel: MainDataModel, metaModel: MetaModel | undefined, cellModel: CellModel | undefined);
     // (undocumented)
-    areAllRowsSelected(): boolean;
-    beginSelectionChange(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    clearMostRecentColumnSelection(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    clearMostRecentRowSelection(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    clearMostRecentSelection(keepRowSelections: boolean): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    clearSelection(): void;
-    // (undocumented)
     readonly dataModel: MainDataModel;
-    endSelectionChange(): void;
-    // (undocumented)
-    getColumnSelectionMatrix(): DataModel.DataValue[][];
-    // (undocumented)
-    getFirstSelectionRectangleTopRowValues(): {};
-    // (undocumented)
-    getLastSelectionRectangle(): Selection_2;
-    // (undocumented)
-    getLastSelectionType(n?: number): "" | "cell" | "column" | "row";
-    // (undocumented)
-    getMatrixSelectionAsTSV(selections: Array<Array<DataModel.DataValue>>): string;
-    // (undocumented)
-    getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataModel.DataRow;
-    // (undocumented)
-    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataModel.DataValue>>;
-    // (undocumented)
-    getSelectedColumnIndices(): number[];
-    // (undocumented)
-    getSelectedColumnsValues(): Revgrid.ColumnsDataValuesObject;
-    // (undocumented)
-    getSelectedRowCount(): number;
-    // (undocumented)
-    getSelectedRowIndices(): number[];
-    // (undocumented)
-    getSelectedValuesByRectangleAndColumn(): Revgrid.ColumnsDataValuesObject[];
-    // (undocumented)
-    getSelectedValuesByRectangleColumnRowMatrix(): DataModel.DataValue[][][];
-    // (undocumented)
-    getSelectionAsTSV(): string;
-    // (undocumented)
-    hasRectangles(): boolean;
-    // (undocumented)
-    isCellSelectedInColumn(x: number): boolean;
-    // (undocumented)
-    isCellSelectedInRow(y: number): boolean;
-    // (undocumented)
-    isColumnOrRowSelected(): boolean;
-    // (undocumented)
-    isInCurrentSelectionRectangle(x: number, y: number): boolean;
-    // (undocumented)
-    isSelected(x: number, y: number): boolean;
-    // (undocumented)
-    lastEdgeSelection: [x: number, y: number];
-    // (undocumented)
-    requestStashSelections(): void;
-    // (undocumented)
-    requestUnstashSelections(): void;
-    // (undocumented)
-    reset(): void;
-    // (undocumented)
-    selectAllRows(): void;
-    // (undocumented)
-    selectCell(x: number, y: number, silent?: boolean): void;
-    // (undocumented)
-    selectColumns(x1: number, x2?: number): void;
-    // Warning: (ae-forgotten-export) The symbol "Selection_3" needs to be exported by the entry point public-api.d.ts
-    readonly selection: Selection_3;
-    // (undocumented)
-    get selectionRectangles(): Selection_2[];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    selectRectangle(ox: number, oy: number, ex: number, ey: number): void;
-    // (undocumented)
-    selectRows(y1: number, y2?: number): void;
-    // (undocumented)
-    toggleSelectAllRows(): void;
-    // (undocumented)
-    toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean): void;
-    // (undocumented)
-    toggleSelectRow(y: number, shiftKeyDown: boolean): void;
-}
-
-// @public (undocumented)
-export namespace MainSubgrid {
-    // (undocumented)
-    export interface StashedSelectedSingleFirstCellPosition {
-        // (undocumented)
-        columnName: string;
-        // (undocumented)
-        rowId: unknown;
-    }
 }
 
 // @public (undocumented)
@@ -2166,10 +2075,10 @@ export class Revgrid implements SelectionDetail {
     clearColumns(): void;
     // (undocumented)
     clearMostRecentColumnSelection(): void;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    clearMostRecentRectangleSelection(): void;
     // (undocumented)
     clearMostRecentRowSelection(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    clearMostRecentSelection(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     clearMouseDown(): void;
     // (undocumented)
@@ -2443,8 +2352,10 @@ export class Revgrid implements SelectionDetail {
     getHiddenColumns(): Column[];
     // (undocumented)
     getHiDPI(): number;
+    // Warning: (ae-forgotten-export) The symbol "SelectionType" needs to be exported by the entry point public-api.d.ts
+    //
     // (undocumented)
-    getLastSelectionType(): "" | "cell" | "column" | "row";
+    getLastSelectionType(): SelectionType;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getLogicalRowCount(): number;
@@ -2654,6 +2565,8 @@ export class Revgrid implements SelectionDetail {
     selectFinalCellOfCurrentRow(to?: boolean): void;
     // (undocumented)
     selectFirstCellOfCurrentRow(to?: boolean): void;
+    // Warning: (ae-forgotten-export) The symbol "Selection_3" needs to be exported by the entry point public-api.d.ts
+    //
     // @internal (undocumented)
     get selection(): Selection_3;
     // (undocumented)
@@ -3538,7 +3451,18 @@ export class Subgrid {
     _columnsManager: ColumnsManager,
     role: Subgrid.Role, schemaModel: SchemaModel, dataModel: DataModel, metaModel: MetaModel | undefined, cellModel: CellModel | undefined);
     // (undocumented)
+    get allRowsSelected(): boolean;
+    beginSelectionChange(): void;
+    // (undocumented)
     readonly cellModel: CellModel | undefined;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    clearMostRecentColumnSelection(): void;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    clearMostRecentRectangleSelection(keepRowSelections: boolean): void;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    clearMostRecentRowSelection(): void;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    clearSelection(): void;
     // @internal (undocumented)
     protected readonly _columnsManager: ColumnsManager;
     // (undocumented)
@@ -3547,34 +3471,101 @@ export class Subgrid {
     destroy(): void;
     // @internal (undocumented)
     protected _destroyed: boolean;
+    endSelectionChange(): void;
     // @internal (undocumented)
     getCellEditorAt(columnIndex: number, rowIndex: number, editorName: string, cellEvent: CellEvent): CellEditor;
     // @internal (undocumented)
     getCellPaintConfig(beingPaintedCell: BeingPaintedCell): CellPaintConfig;
     // @internal (undocumented)
     getCellPainter(cellPaintConfig: CellPaintConfig, gridPainterKey: string): CellPainter;
+    // (undocumented)
+    getColumnSelectionMatrix(): DataModel.DataValue[][];
+    // (undocumented)
+    getFirstSelectionRectangleTopRowValues(): {};
+    // (undocumented)
+    getLastSelectionRectangle(): Selection_2;
+    // (undocumented)
+    getLastSelectionType(n?: number): SelectionType;
+    // (undocumented)
+    getMatrixSelectionAsTSV(selections: Array<Array<DataModel.DataValue>>): string;
     // @internal (undocumented)
     getRow(rowIndex: number): DataModel.DataRow;
     // @internal (undocumented)
     getRowMetadata(rowIndex: number, prototype?: MetaModel.RowMetadataPrototype): undefined | false | MetaModel.RowMetadata;
+    // (undocumented)
+    getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataModel.DataRow;
+    // (undocumented)
+    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataModel.DataValue>>;
+    // (undocumented)
+    getSelectedColumnIndices(): number[];
+    // (undocumented)
+    getSelectedColumnsValues(): Revgrid.ColumnsDataValuesObject;
+    // (undocumented)
+    getSelectedRowCount(): number;
+    // (undocumented)
+    getSelectedRowIndices(): number[];
+    // (undocumented)
+    getSelectedValuesByRectangleAndColumn(): Revgrid.ColumnsDataValuesObject[];
+    // (undocumented)
+    getSelectedValuesByRectangleColumnRowMatrix(): DataModel.DataValue[][][];
+    // (undocumented)
+    getSelectionAsTSV(): string;
     // @internal (undocumented)
     protected readonly _grid: Revgrid;
+    // (undocumented)
+    isCellSelectedInColumn(x: number): boolean;
+    // (undocumented)
+    isCellSelectedInRow(y: number): boolean;
+    // (undocumented)
+    isColumnOrRowSelected(): boolean;
     // (undocumented)
     readonly isFilter: boolean;
     // (undocumented)
     readonly isHeader: boolean;
     // (undocumented)
+    isInCurrentSelectionRectangle(x: number, y: number): boolean;
+    // (undocumented)
     readonly isMain: boolean;
+    // (undocumented)
+    isSelected(x: number, y: number): boolean;
     // (undocumented)
     readonly isSummary: boolean;
     // (undocumented)
+    lastEdgeSelection: [x: number, y: number];
+    // (undocumented)
     readonly metaModel: MetaModel | undefined;
+    // (undocumented)
+    requestStashSelection(): void;
+    // (undocumented)
+    requestUnstashSelection(): void;
     // @internal (undocumented)
     readonly role: Subgrid.Role;
     // (undocumented)
     readonly schemaModel: SchemaModel;
+    // (undocumented)
+    selectAllRows(): void;
+    // (undocumented)
+    selectCell(x: number, y: number, silent?: boolean): void;
+    // (undocumented)
+    selectColumns(x1: number, x2?: number): void;
+    // @internal (undocumented)
+    readonly selection: Selection_3;
+    // (undocumented)
+    get selectionHasRectangles(): boolean;
+    // (undocumented)
+    get selectionRectangles(): Selection_2[];
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    selectRectangle(ox: number, oy: number, ex: number, ey: number): void;
+    // (undocumented)
+    selectRows(y1: number, y2?: number): void;
     // @internal (undocumented)
     setRowMetadata(rowIndex: number, newMetadata?: MetaModel.RowMetadata): void;
+    // (undocumented)
+    toggleSelectAllRows(): void;
+    // (undocumented)
+    toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean): void;
+    // (undocumented)
+    toggleSelectRow(y: number, shiftKeyDown: boolean): void;
 }
 
 // @public (undocumented)
@@ -3718,8 +3709,8 @@ export type Writable<T> = {
 // src/code/grid/effects/effects.ts:9:11 - (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
 // src/code/grid/effects/effects.ts:9:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
 // src/code/grid/effects/effects.ts:9:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/renderer/renderer.ts:29:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/selection/selection.ts:11:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/renderer/renderer.ts:30:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/selection/selection.ts:16:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

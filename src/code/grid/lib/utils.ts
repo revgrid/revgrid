@@ -59,6 +59,22 @@ export function assignOrDelete(dest: Record<string, unknown>, src: Record<string
 }
 
 /** @internal */
+export function calculateNumberArrayUniqueCount<T extends number>(array: T[]) {
+    array.sort((left, right) => left - right);
+    const allCount = array.length;
+    let previousIndex = array[0];
+    let uniqueCount = 1;
+    for (let i = 1; i < allCount; i++) {
+        const index = array[i];
+        if (index !== previousIndex) {
+            uniqueCount++;
+            previousIndex = index;
+        }
+    }
+    return uniqueCount;
+}
+
+/** @internal */
 export function getErrorMessage(e: unknown): string {
     if (e instanceof Error) {
         return e.message;

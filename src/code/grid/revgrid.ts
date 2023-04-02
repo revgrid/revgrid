@@ -89,6 +89,7 @@ export class Revgrid implements SelectionDetail {
 
     /** @internal */
     get selection() { return this.mainSubgrid.selection; }
+
     getSelectedRowCount() { return this.mainSubgrid.getSelectedRowCount(); }
     getSelectedRowIndices() { return this.mainSubgrid.getSelectedRowIndices(); }
     getSelectedColumnIndices() { return this.mainSubgrid.getSelectedColumnIndices(); }
@@ -3227,9 +3228,9 @@ export class Revgrid implements SelectionDetail {
     /**
      * @desc Clear the most recent selection.
      */
-    clearMostRecentSelection() {
+    clearMostRecentRectangleSelection() {
         const keepRowSelections = this.properties.checkboxOnlyRowSelections;
-        this.mainSubgrid.clearMostRecentSelection(keepRowSelections);
+        this.mainSubgrid.clearMostRecentRectangleSelection(keepRowSelections);
     }
 
     clearMostRecentColumnSelection() {
@@ -3479,7 +3480,7 @@ export class Revgrid implements SelectionDetail {
         const selectionModel = this.mainSubgrid.selection;
         selectionModel.beginChange();
         try {
-            this.clearMostRecentSelection();
+            this.clearMostRecentRectangleSelection();
             selectionModel.selectRectangle(origin.x, origin.y, newX, newY);
         } finally {
             selectionModel.endChange();

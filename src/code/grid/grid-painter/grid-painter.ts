@@ -102,7 +102,7 @@ export abstract class GridPainter {
         // } else
         if (isHeaderRow) {
             // row handle for header row: gets "master" checkbox
-            config.allRowsSelected = selection.areAllRowsSelected();
+            config.allRowsSelected = selection.allRowsSelected;
         }
 
         config.isSelected = isSelected;

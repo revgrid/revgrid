@@ -34,22 +34,26 @@ export class RangesSelection {
      * Note that `this.range` is updated in place, preserving validity of any external references.
      * @param start - Start of range. May be greater than `stop`.
      * @param stop - End of range (inclusive). May be less than `start`.
-     * @returns Self (i.e., `this`), for chaining.
+     * @returns true if this.ranges was changed.
      */
-    select(start: number | RangesSelection.Range, stop?: number): RangesSelection {
+    select(start: number | RangesSelection.Range, stop?: number): boolean {
         this.storeState();
-        let range = makeRange(start, stop);
+        let newRange = makeRange(start, stop);
         const newSelection: RangesSelection.Range[] = [];
-        this.ranges.forEach(function (each) {
-            if (overlaps(each, range) || abuts(each, range)) {
-                range = merge(each, range);
+        for (const range of this.ranges) {
+            if (contains(range, newRange)) {
+                return false;
             } else {
-                newSelection.push(each);
+                if (overlaps(range, newRange) || abuts(range, newRange)) {
+                    newRange = merge(range, newRange);
+                } else {
+                    newSelection.push(range);
+                }
             }
-        });
-        newSelection.push(range);
+        }
+        newSelection.push(newRange);
         this.ranges.splice(0, this.ranges.length, ...newSelection); // update in place to preserve external references
-        return this;
+        return true;
     }
 
     /**
@@ -287,6 +291,15 @@ function merge(range1: RangesSelection.Range, range2: RangesSelection.Range): Ra
     const min = Math.min(Math.min(...range1), Math.min(...range2));
     const max = Math.max(Math.max(...range1), Math.max(...range2));
     return [min, max];
+}
+
+/**
+ * @summary Comparison operator that determines if outerRange completely contains a range.
+ * @returns `true` iff `outerRange` completely contains `range`
+ * @desc Both parameters are assumed to be _ordered_ arrays.
+ */
+function contains(outerRange: RangesSelection.Range, range: RangesSelection.Range) {
+    return range[0] >= outerRange[0] && range[1] <= outerRange[1];
 }
 
 //     // Interface

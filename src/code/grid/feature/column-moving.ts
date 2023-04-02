@@ -74,7 +74,7 @@ export class ColumnMoving extends Feature {
         ) {
             this._dragArmed = true;
             this.cursor = ColumnMoving.GRABBING;
-            this.grid.mainSubgrid.requestStashSelections();
+            this.grid.mainSubgrid.requestStashSelection();
             this.grid.featuresSharedState.mouseDownUpClickUsedForMoveOrResize = true;
         }
         super.handleMouseDown(event);
@@ -87,7 +87,7 @@ export class ColumnMoving extends Feature {
 
             this.endGridScrolling();
             this.endDragColumn(dragAction);
-            this.grid.mainSubgrid.requestUnstashSelections();
+            this.grid.mainSubgrid.requestUnstashSelection();
             this.cursor = null
             // End Column Drag
             setTimeout(() => {
