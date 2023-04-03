@@ -1,6 +1,7 @@
 
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Renderer } from '../renderer/renderer';
+import { Selection } from '../selection/selection';
 import { GridPainter } from './grid-painter';
 
 /** @summary Render the grid.
@@ -20,8 +21,8 @@ import { GridPainter } from './grid-painter';
  * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
  */
 export class ByRowsGridPainter extends GridPainter {
-    constructor(renderer: Renderer) {
-        super(renderer, ByRowsGridPainter.key, false, undefined);
+    constructor(renderer: Renderer, selection: Selection) {
+        super(renderer, selection, ByRowsGridPainter.key, false, undefined);
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
@@ -37,7 +38,7 @@ export class ByRowsGridPainter extends GridPainter {
         const cLast = C - 1;
         const R = visibleRows.length;
         const pool = this.renderedCellPool;
-        const preferredWidth = Array(C - c0).fill(0);
+        const preferredWidths = new Array<number | undefined>(C - c0);
         // columnClip,
         // clipToGrid,
         let firstVisibleColumnLeft: number;
@@ -101,7 +102,15 @@ export class ByRowsGridPainter extends GridPainter {
                 const config = beingPaintedCell.subgrid.getCellPaintConfig(beingPaintedCell);
 
                 try {
-                    preferredWidth[c] = Math.max(preferredWidth[c], this.paintCell(gc, beingPaintedCell, config, prefillColor));
+                    const paintWidth = this.paintCell(gc, beingPaintedCell, config, prefillColor);
+                    if (paintWidth !== undefined) {
+                        const previousColumnPreferredWidth = preferredWidths[c];
+                        if (previousColumnPreferredWidth === undefined) {
+                            preferredWidths[c] = paintWidth;
+                        } else {
+                            preferredWidths[c] = Math.max(previousColumnPreferredWidth, paintWidth);
+                        }
+                    }
                 } catch (e) {
                     this.paintErrorCell(e as Error, gc, vc, visibleRows[r]);
                 }
@@ -113,7 +122,10 @@ export class ByRowsGridPainter extends GridPainter {
         // gc.clipRestore(clipToGrid);
 
         this.visibleColumns.forEach((vc, c) => {
-            vc.column.properties.preferredWidth = Math.round(preferredWidth[c]);
+            const preferredWidth = preferredWidths[c];
+            if (preferredWidth !== undefined) {
+                vc.column.properties.preferredWidth = Math.round(preferredWidth);
+            }
         });
     }
 }

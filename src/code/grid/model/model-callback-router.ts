@@ -2,7 +2,6 @@ import { EventDetail } from '../event/event-detail';
 import { EventName } from '../event/event-name';
 import { GridProperties } from '../grid-properties';
 import { DataModel } from './data-model';
-import { MainDataModel } from './main-data-model';
 import { ModelUpdateId, SchemaModel } from './schema-model';
 
 export class ModelCallbackRouter {
@@ -113,12 +112,8 @@ export class ModelCallbackRouter {
                     this.handleInvalidateRowColumns(rowIndex, schemaColumnIndex, columnCount),
                 invalidateRowCells: (rowIndex, schemaColumnIndexes) => this.handleInvalidateRowCells(rowIndex, schemaColumnIndexes),
                 invalidateCell: (schemaColumnIndex, rowIndex) => this.handleInvalidateCell(schemaColumnIndex, rowIndex),
-            }
-
-            if (MainDataModel.isMain(dataModel)) {
-                const mainCallbackListener = callbackListener as MainDataModel.CallbackListener;
-                mainCallbackListener.preReindex = () => this.handleDataPreReindex();
-                mainCallbackListener.postReindex = () => this.handleDataPostReindex();
+                preReindex:  () => this.handleDataPreReindex(),
+                postReindex: () => this.handleDataPostReindex(),
             }
 
             if (this._enabled && dataModel.addDataCallbackListener !== undefined) {
@@ -436,7 +431,7 @@ export namespace ModelCallbackRouter {
     export type InvalidateCellEvent = (this: void, schemaColumnIndex: number, rowIndex: number) => void;
     export type PreReindexEvent = (this: void) => void;
     export type PostReindexEvent = (this: void) => void;
-    export type GridEvent = <T extends EventName>(this: void, eventName: T, eventDetail: EventName.DetailMap[T]) => void;
+    export type GridEvent = <T extends EventName>(this: void, eventName: T, eventDetail: EventName.DetailMap[T] | undefined) => void;
 
     export type SchemaUpdatedListener = (this: void) => void;
 }

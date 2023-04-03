@@ -8,7 +8,7 @@ import { CellPainter } from './cell-painter';
  * {@link http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR|Edward Tufte sparkline}
  */
 export class SparkLineCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig) {
+    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         let x = config.bounds.x;
         const y = config.bounds.y;
         const width = config.bounds.width;
@@ -17,7 +17,7 @@ export class SparkLineCellPainter extends CellPainter {
         gc.beginPath();
         const val = config.value as number[];
         if (!val || !val.length) {
-            return;
+            return undefined;
         }
         const count = val.length;
         const eWidth = width / count;
@@ -30,19 +30,20 @@ export class SparkLineCellPainter extends CellPainter {
         gc.cache.strokeStyle = fgColor;
         gc.cache.fillStyle = fgColor;
         gc.beginPath();
-        let prev: number;
+        let prev: number | undefined;
         for (let i = 0; i < val.length; i++) {
             const barheight = val[i] / 110 * height;
-            if (!prev) {
+            if (prev === undefined) {
                 prev = barheight;
             }
             gc.lineTo(x + 5, y + height - barheight);
             gc.arc(x + 5, y + height - barheight, 1, 0, 2 * Math.PI, false);
             x += eWidth;
         }
-        config.minWidth = count * 10;
         gc.stroke();
         gc.closePath();
+
+        return count * 10;
     }
 }
 

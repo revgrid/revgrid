@@ -29,9 +29,9 @@ export interface MetaModel {
      * @returns One of:
      * * object - existing metadata object or new metadata object created from `prototype`; else
      * * `false` - row found but no existing metadata and `prototype` was not defined; else
-     * * `undefined`  - no such row
+     * * `null`  - no such row
      */
-    getRowMetadata?(rowIndex: number, prototype?: MetaModel.RowMetadataPrototype): undefined | false | MetaModel.RowMetadata;
+    getRowMetadata?(rowIndex: number, prototype?: MetaModel.RowMetadataPrototype): null | false | MetaModel.RowMetadata;
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -66,8 +66,12 @@ export interface MetaModel {
 export namespace MetaModel {
     export type Constructor = new () => MetaModel;
 
-    export interface RowProperties {
+    export interface HeightRowProperties {
         height?: number; // will use default height if undefined
+    }
+
+    export interface RowProperties extends HeightRowProperties {
+        [key: string]: unknown;
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-types

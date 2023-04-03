@@ -28,7 +28,7 @@ export abstract class InputEditor extends CellEditor {
     override getEditorValueOrError() {
         // This needs improvement
         const value = this.localizer.parse(this.input.value);
-        const errorText = undefined;
+        const errorText: string | undefined = undefined;
         return { value, errorText };
     }
 

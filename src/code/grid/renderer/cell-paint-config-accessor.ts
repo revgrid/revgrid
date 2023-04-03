@@ -60,12 +60,9 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     isSelected: boolean;
     isTreeColumn: boolean;
     isUserDataArea: boolean;
-    minWidth: number;
     mouseDown: boolean;
     prefillColor: GridProperties.Color;
-    snapshot: BeingPaintedCell.SubrowSnapshot; // BeingPaintedCell
-    subrow: number;
-    subrows: number;
+    snapshot: BeingPaintedCell.Snapshot; // BeingPaintedCell
     value: unknown;
 
     clickRect?: Rectangle;

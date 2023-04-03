@@ -10,7 +10,7 @@ export class BeingPaintedCell extends RenderedCell {
 
     override reset(visibleColumn: Renderer.VisibleColumn, visibleRow: Renderer.VisibleRow) {
         // partial render support
-        this.snapshot = [];
+        this.snapshot = {};
         this.minWidth = undefined;
 
         super.reset(visibleColumn, visibleRow);
@@ -19,6 +19,5 @@ export class BeingPaintedCell extends RenderedCell {
 
 /** @public */
 export namespace BeingPaintedCell {
-    export type SubrowSnapshot = Record<string, unknown>
-    export type Snapshot = SubrowSnapshot[];
+    export type Snapshot = Record<string, unknown>;
 }

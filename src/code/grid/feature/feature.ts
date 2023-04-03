@@ -1,8 +1,15 @@
 
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
+import { ColumnsManager } from '../column/columns-manager';
 import { EventDetail } from '../event/event-detail';
+import { Focus } from '../focus';
+import { GridProperties } from '../grid-properties';
 import { Point } from '../lib/point';
+import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
+import { Selection } from '../selection/selection';
+import { FeatureServices } from './feature-services';
+import { FeaturesSharedState } from './features-shared-state';
 
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
@@ -11,36 +18,51 @@ export abstract class Feature {
 
     abstract readonly typeName: string;
 
-    constructor(protected readonly grid: Revgrid) {
+    protected readonly sharedState: FeaturesSharedState;
+    protected readonly selection: Selection;
+    protected readonly focus: Focus;
+    protected readonly columnsManager: ColumnsManager;
+    protected readonly renderer: Renderer;
+    protected readonly gridProperties: GridProperties;
 
+    constructor(
+        protected readonly grid: Revgrid,
+        services: FeatureServices,
+    ) {
+        this.sharedState = services.sharedState;
+        this.selection = services.selection;
+        this.focus = services.focus;
+        this.columnsManager = services.columnsManager;
+        this.renderer = services.renderer;
+        this.gridProperties = services.gridProperties;
     }
 
     /**
      * the next feature to be given a chance to handle incoming events
      */
-    next: Feature | null = null;
+    next: Feature | undefined;
 
     /**
      * a temporary holding field for my next feature when I'm in a disconnected state
      */
-    detached: Feature | null = null;
+    detached: Feature | undefined;
 
     /**
      * the cursor I want to be displayed
      */
-    cursor: string | null = null;
+    cursor: string | undefined;
 
     /**
      * the cell location where the cursor is currently
      */
-    currentHoverCell: Point | null = null;
+    currentHoverCell: Point | undefined;
 
     /**
      * @desc set my next field, or if it's populated delegate to the feature in my next field
      * @param nextFeature - this is how we build the chain of responsibility
      */
     setNext(nextFeature: Feature) {
-        if (this.next !== null) {
+        if (this.next !== undefined) {
             this.next.setNext(nextFeature);
         } else {
             this.next = nextFeature;
@@ -52,7 +74,7 @@ export abstract class Feature {
      * @desc disconnect my child
      */
     detachChain() {
-        this.next = null;
+        this.next = undefined;
     }
 
     /**
@@ -175,10 +197,10 @@ export abstract class Feature {
     }
 
     setCursor() {
-        if (this.next) {
+        if (this.next !== undefined) {
             this.next.setCursor();
         }
-        if (this.cursor) {
+        if (this.cursor !== undefined) {
             this.grid.beCursor(this.cursor);
         }
     }
@@ -191,5 +213,5 @@ export abstract class Feature {
 }
 
 export namespace Feature {
-    export type Constructor = new (grid: Revgrid) => Feature;
+    export type Constructor = new (grid: Revgrid, services: FeatureServices) => Feature;
 }

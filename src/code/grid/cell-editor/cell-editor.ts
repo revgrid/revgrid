@@ -101,19 +101,19 @@ export abstract class CellEditor {
         event.stopPropagation(); // Catch mousedown here before it gets to the document listener defined in Hypergrid().
     }
 
-    specialKeyups = {
+    specialKeyups: CellEditor.SpecialKeyUps = {
         //0x08: 'clearStopEditing', // backspace
-        0x09: this.stopEditing, // tab
-        0x0d: this.stopEditing, // return/enter
-        0x1b: this.cancelEditing // escape
+        Tab: this.stopEditing, // tab
+        Enter: this.stopEditing, // return/enter
+        Escape: this.cancelEditing // escape
     }
 
     keyup(e: KeyboardEvent) {
         const grid = this.grid;
         const cellProps = this.renderedCell.columnProperties;
         const feedbackCount = cellProps.feedbackCount;
-        let specialKeyup: (feedback?: number) => void
-        let stopped = this[e.keyCode](feedbackCount);
+        const stopCancelFtn = this.specialKeyups[e.key as keyof CellEditor.SpecialKeyUps];
+        let stopped = (stopCancelFtn) ? stopCancelFtn.call(this, feedbackCount) : false;
 
         // STEP 1: Call the special key handler as needed
         if (stopped) {
@@ -123,7 +123,7 @@ export abstract class CellEditor {
         // STEP 2: If this is a possible "nav key" consumable by CellSelection#handleKeyDown, try to stop editing and send it along
         if (grid.generateNavKey(e)) {
             if (
-                !specialKeyup &&
+                // !specialKeyup &&
                 // We didn't try to stop editing above so try to stop it now
                 (stopped = this.stopEditing(feedbackCount))
             ) {
@@ -242,12 +242,14 @@ export abstract class CellEditor {
 
         if (!error) {
             this.hideEditor();
-            this.grid.cellEditor = null;
+            this.grid.cellEditor = undefined;
             this.el.remove();
-        } else if (feedback >= 0) { // false when `feedback` undefined
-            this.errorEffectBegin(++this.errors % feedback === 0 && error);
-        } else { // invalid but no feedback
-            this.cancelEditing();
+        } else {
+            if (feedback !== undefined && feedback >= 0) { // false when `feedback` undefined
+                this.errorEffectBegin(++this.errors % feedback === 0 && error);
+            } else { // invalid but no feedback
+                this.cancelEditing();
+            }
         }
 
         return !error;
@@ -259,7 +261,7 @@ export abstract class CellEditor {
     cancelEditing(): boolean {
         this.setEditorValue(this.initialValue);
         this.hideEditor();
-        this.grid.cellEditor = null;
+        this.grid.cellEditor = undefined;
         this.el.remove();
         this.grid.takeFocus();
 
@@ -371,7 +373,7 @@ export abstract class CellEditor {
      * @throws Throws an error on parse failure. If the error's `message` is defined, the message will eventually be displayed (every `feedbackCount`th attempt).
      */
     abstract getEditorValue(): unknown;
-    abstract getEditorValueOrError(): { value: unknown,  errorText: string };
+    abstract getEditorValueOrError(): { value: unknown,  errorText: string | undefined };
 
     /**
      * If there is no validator on the localizer, returns falsy (not invalid; possibly valid).
@@ -448,7 +450,7 @@ export abstract class CellEditor {
 }
 
 export namespace CellEditor {
-    export type Constructor = new (grid: Revgrid, cellEvent?: CellEvent) => CellEditor;
+    export type Constructor = new (grid: Revgrid, cellEvent: CellEvent) => CellEditor;
 
     export interface EventDetail {
         editor: CellEditor;
@@ -468,5 +470,12 @@ export namespace CellEditor {
     export interface RequestCellEditDetail extends EventDetail {
         value: unknown;
         cellEvent: CellEvent;
+    }
+
+    export type StopCancelFunction = (feedback?: number) => boolean
+    export interface SpecialKeyUps {
+        Tab: StopCancelFunction; // tab
+        Enter: StopCancelFunction; // return/enter
+        Escape: StopCancelFunction; // escape
     }
 }

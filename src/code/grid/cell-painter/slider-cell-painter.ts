@@ -8,7 +8,7 @@ import { CellPainter } from './cell-painter';
  * Currently however the user cannot interact with it.
  */
 export class SliderCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig) {
+    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         const x = config.bounds.x;
         const y = config.bounds.y;
         const width = config.bounds.width;
@@ -35,7 +35,7 @@ export class SliderCellPainter extends CellPainter {
         gc.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
         gc.fill();
         gc.closePath();
-        config.minWidth = 100;
+        return 100;
     }
 }
 

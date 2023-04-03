@@ -8,24 +8,22 @@ import { DataModel } from '../model/data-model';
 import { MetaModel } from '../model/meta-model';
 import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
-import { Selection } from '../subgrid/selection/selection';
 import { Subgrid } from '../subgrid/subgrid';
 
 export abstract class RenderedCell {
 
     // getter caches
-    private _columnProperties: ColumnProperties;
-    private _cellOwnProperties: MetaModel.CellOwnProperties | undefined;
-    _bounds: RenderedCell.Bounds;
+    private _columnProperties: ColumnProperties | undefined;
+    private _cellOwnProperties: MetaModel.CellOwnProperties | undefined | null | false;
+    _bounds: RenderedCell.Bounds | undefined;
 
     // this.disabled: boolean;
 
     private readonly renderer: Renderer;
-    private readonly selection: Selection;
     private readonly behavior: Behavior;
 
     cellPainter: CellPainter;
-    clickRect: Rectangle;
+    clickRect: Rectangle | undefined;
     clientPoint: Point;
     column: Column;
     dataCell: WritablePoint = {} as WritablePoint; // no need for initialization
@@ -48,9 +46,8 @@ export abstract class RenderedCell {
      */
     constructor(public grid: Revgrid, public gridX?: number, public gridY?: number) {
         this.renderer = grid.renderer;
-        this.selection = grid.selection;
         this.behavior = grid.behavior;
-        if (arguments.length > 1) {
+        if (gridX !== undefined && gridY !== undefined) {
             this.resetGridCY(gridX, gridY);
         }
     }
@@ -154,14 +151,11 @@ export abstract class RenderedCell {
      * @returns True if cell was reset.
      */
     resetGridXDataY(gridX: number, dataY: number, subgrid: Subgrid | undefined, useAllCells?: boolean) {
-        let vc: Renderer.VisibleColumn;
-        let vr: Renderer.VisibleRow;
-
         if (useAllCells) {
             // When expanding selections larger than the viewport, the origin/corner
             // points may not be rendered and would normally fail to reset cell's position.
             // Mock column and row objects for this.reset() to use:
-            vc = {
+            const vc = {
                 column: this.grid.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
                 activeColumnIndex: gridX,
                 index: -1,
@@ -171,7 +165,7 @@ export abstract class RenderedCell {
                 bottom: -1,
                 width: -1,
             };
-            vr = {
+            const vr = {
                 subgrid: subgrid ?? this.grid.mainSubgrid,
                 rowIndex: dataY,
                 index: -1,
@@ -205,12 +199,16 @@ export abstract class RenderedCell {
      * The raw value of the cell, unformatted.
      */
     get value() { return this.subgrid.dataModel.getValue(this.column.schemaColumn, this.dataCell.y); }
-    set value(value: unknown) { this.subgrid.dataModel.setValue(this.column.schemaColumn, this.dataCell.y, value); }
+    set value(value: unknown) {
+        if (this.subgrid.dataModel.setValue !== undefined) {
+            this.subgrid.dataModel.setValue(this.column.schemaColumn, this.dataCell.y, value);
+        }
+    }
 
     /**
      * The formatted value of the cell.
      */
-    get formattedValue() { return this.grid.formatValue(this._columnProperties.format, this.value); } // was this.properties
+    get formattedValue() { return this.grid.formatValue(this._columnProperties?.format, this.value); } // was this.properties
 
     /**
      * An object representing the whole data row, including hidden columns.
@@ -264,9 +262,14 @@ export abstract class RenderedCell {
      * @param key - Property name.
      * @returns Property value.
      */
-    getCellProperty(key: string): unknown {
+    getCellProperty(key: string): unknown | undefined {
         // included for completeness but `.properties[key]` is preferred
-        return this.cellOwnProperties[key];
+        const cellOwnProperties = this.cellOwnProperties;
+        if (cellOwnProperties) {
+            return cellOwnProperties[key];
+        } else {
+            return undefined;
+        }
     }
 
     setCellProperty(key: string, value: unknown) {
@@ -281,14 +284,14 @@ export abstract class RenderedCell {
 
     get rowProperties() {
         // use carefully! creates new object as needed; only use when object definitely needed: for setting prop with `.rowProperties[key] = value` or `Object.assign(.rowProperties, {...})`; use `rowOwnProperties`  to avoid creating a new object when object does not exist, or `getRowProperty(key)` for getting a property that may not exist
-        const properties = this.behavior.getRowPropertiesUsingCellEvent(this, null);
+        const properties = this.behavior.getRowPropertiesUsingCellEvent(this, undefined);
         if (properties) {
             return properties;
         } else {
             return undefined;
         }
     }
-    set rowProperties(properties: MetaModel.RowProperties) {
+    set rowProperties(properties: MetaModel.RowProperties | undefined) {
         // for resetting whole row properties object: `.rowProperties = {...}`
         this.behavior.setRowPropertiesUsingCellEvent(this, properties); // calls `stateChanged()`
     }
@@ -296,11 +299,14 @@ export abstract class RenderedCell {
     getRowProperty(key: string) {
         // undefined return means there is no row properties object OR no such row property `[key]`
         const rowProps = this.rowOwnProperties;
-        return rowProps && rowProps[key];
+        return rowProps && rowProps[key as keyof MetaModel.RowProperties];
     }
     setRowProperty(key: string, value: unknown) {
         // creates new object as needed
-        this.rowProperties[key] = value; // todo: call `stateChanged()` after refac-as-flags
+        const rowProperties = this.rowProperties;
+        if (rowProperties !== undefined) {
+            (rowProperties[key as keyof MetaModel.RowProperties] as unknown) = value; // todo: call `stateChanged()` after refac-as-flags
+        }
     }
 
 
@@ -383,24 +389,22 @@ export abstract class RenderedCell {
         return this.isMainRow && this.isDataColumn;
     }
 
-    get isRowSelected() {
-        return this.isMainRow && this.selection.isRowSelected(this.dataCell.y);
-    }
-
-    get isColumnSelected() {
-        return this.isDataColumn && this.selection.isColumnSelected(this.gridCell.x);
-    }
-
-    get isCellSelected() {
-        return this.selection.isCellSelected(this.gridCell.x, this.dataCell.y);
-    }
-
     get isRowHovered() {
-        return this.grid.canvas.hasMouse && this.isMainRow && this.grid.hoverCell && this.grid.hoverGridCell.y === this.gridCell.y;
+        const hovered =
+            this.grid.canvas.hasMouse &&
+            this.isMainRow &&
+            (this.grid.hoverGridCell !== undefined) &&
+            (this.grid.hoverGridCell.y === this.gridCell.y);
+        return hovered;
     }
 
     get isColumnHovered() {
-        return this.grid.canvas.hasMouse && this.isDataColumn && this.grid.hoverCell && this.grid.hoverGridCell.x === this.gridCell.x;
+        const hovered =
+            this.grid.canvas.hasMouse &&
+            this.isDataColumn &&
+            (this.grid.hoverGridCell !== undefined) &&
+            (this.grid.hoverGridCell.x === this.gridCell.x);
+        return hovered;
     }
 
     get isCellHovered() {
@@ -466,12 +470,6 @@ export abstract class RenderedCell {
     // get isBottomTotalsCell() {
     //     return this.isBottomTotalsRow && this.isDataColumn;
     // }
-
-
-    // From selectionDetailGetters in Hypergrid - used by fin-context-menu, fin-mouseup, fin-mousedown
-    get rows() { return this.grid.mainSubgrid.getSelectedRowIndices(); }
-    get columns() { return this.grid.mainSubgrid.getSelectedColumnIndices(); }
-    get selectionRectangles() { return this.grid.mainSubgrid.selection.rectangles; }
 }
 
 export namespace RenderedCell {

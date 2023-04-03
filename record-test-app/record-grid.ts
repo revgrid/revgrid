@@ -1,5 +1,6 @@
 import { GridSettings } from 'grid-settings';
 import {
+    AdapterSetConfig,
     CellEvent,
     CellPainter,
     EventDetail,
@@ -67,26 +68,27 @@ export class RecordGrid extends Revgrid {
 
         const recordCellAdapter = new RevRecordCellAdapter(mainRecordAdapter, mainCellPainter);
 
+        const adapterSetConfig: AdapterSetConfig = {
+            schemaModel: fieldAdapter,
+            subgrids: [
+                {
+                    role: Subgrid.RoleEnum.header,
+                    dataModel: headerRecordAdapter,
+                },
+                {
+                    role: Subgrid.RoleEnum.main,
+                    dataModel: mainRecordAdapter,
+                    cellModel: recordCellAdapter,
+                }
+            ],
+        };
+
         const options: Revgrid.Options = {
-            adapterSet: {
-                schemaModel: fieldAdapter,
-                subgrids: [
-                    {
-                        role: Subgrid.RoleEnum.header,
-                        dataModel: headerRecordAdapter,
-                    },
-                    {
-                        role: Subgrid.RoleEnum.main,
-                        dataModel: mainRecordAdapter,
-                        cellModel: recordCellAdapter,
-                    }
-                ],
-            },
             gridProperties,
             loadBuiltinFinbarStylesheet: false,
         };
 
-        super(gridElement, options);
+        super(gridElement, adapterSetConfig, options);
 
         this._fieldAdapter = fieldAdapter;
         this._headerRecordAdapter = headerRecordAdapter;
@@ -121,17 +123,11 @@ export class RecordGrid extends Revgrid {
     get focusedRecordIndex(): RevRecordIndex | undefined {
         const rectangles = this.getSelectedRectangles();
 
-        if (rectangles === null || rectangles.length === 0) {
+        if (rectangles.length === 0) {
             return undefined;
         } else {
             const rowIndex = rectangles[0].firstSelectedCell.y;
-
-            // RevGrid doesn't adjust the current selection index if rows are deleted, so make sure it's still valid
-            if (rowIndex >= this._mainRecordAdapter.rowCount) {
-                return undefined;
-            } else {
-                return this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex)
-            }
+            return this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex)
         }
     }
 

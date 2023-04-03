@@ -1,7 +1,7 @@
-import { AssertError, DataModel, MainDataModel, MetaModel, SchemaModel } from '../../grid/grid-public-api';
+import { AssertError, DataModel, MetaModel, SchemaModel } from '../../grid/grid-public-api';
 
 /** @public */
-export class RevSimpleMainAdapter implements MainDataModel {
+export class RevSimpleMainAdapter implements DataModel {
     public readonly mainDataModel = true;
 
     private _data: RevSimpleMainAdapter.DataRow[] = [];

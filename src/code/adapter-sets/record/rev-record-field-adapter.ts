@@ -192,7 +192,7 @@ export class RevRecordFieldAdapter implements SchemaModel {
     private internalClearFields() {
         this._fields.length = 0;
         this._fieldNameLookup.clear();
-        this._fieldIndexLookup.clear();;
+        this._fieldIndexLookup.clear();
         this._fieldValueDependsOnRecordIndexFieldIndexes.length = 0;
         this._fieldValueDependsOnRowIndexFieldIndexes.length = 0;
         this._schema.length = 0;

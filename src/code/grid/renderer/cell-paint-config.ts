@@ -28,12 +28,9 @@ export interface CellPaintConfig {
     isRowSelected: boolean;
     isSelected: boolean;
     isUserDataArea: boolean;
-    minWidth: number;
     mouseDown: boolean;
-    prefillColor: GridProperties.Color;
-    snapshot: BeingPaintedCell.SubrowSnapshot; // BeingPaintedCell
-    subrow: number;
-    subrows: number;
+    prefillColor: GridProperties.Color | undefined;
+    snapshot: BeingPaintedCell.Snapshot; // BeingPaintedCell
     value: unknown;
 
     // set by Simple Cell Painter
@@ -46,7 +43,7 @@ export interface CellPaintConfig {
 
     // grid overrides
     readonly backgroundSelectionColor: GridProperties.Color;
-    readonly centerIcon: string;
+    readonly centerIcon: string | undefined;
     readonly color: GridProperties.Color;
     readonly foregroundSelectionColor: GridProperties.Color;
     readonly foregroundSelectionFont: string;
@@ -55,13 +52,13 @@ export interface CellPaintConfig {
     readonly hoverColumnHighlight: GridProperties.HoverColors;
     readonly hoverRowHighlight: GridProperties.HoverColors;
     readonly iconPadding: number;
-    readonly leftIcon: string;
+    readonly leftIcon: string | undefined;
     readonly linkOnHover: boolean;
     readonly linkColor: GridProperties.Color;
     readonly linkColorOnHover: boolean;
     readonly cellPainter: string;
     readonly renderFalsy: boolean;
-    readonly rightIcon: string;
+    readonly rightIcon: string | undefined;
     readonly strikeThrough: boolean;
     readonly textTruncateType: TextTruncateType | undefined;
     readonly voffset: number;
@@ -75,7 +72,7 @@ export interface CellPaintConfig {
     readonly cellPadding: number;
     readonly columnAutosizing: boolean;
     readonly font: string;
-    readonly format: string;
+    readonly format: string | undefined;
     readonly gridLinesHWidth: number;
     readonly gridLinesVWidth: number;
     readonly link: false | string | GridProperties.LinkProp | GridProperties.LinkFunction;

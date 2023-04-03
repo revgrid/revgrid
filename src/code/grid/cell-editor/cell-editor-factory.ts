@@ -1,5 +1,6 @@
 import { CellEvent } from '../cell/cell-event';
 import { Registry } from '../lib/registry';
+import { AssertError } from '../lib/revgrid-error';
 import { Revgrid } from '../revgrid';
 import { CellEditor } from './cell-editor';
 import { Color } from './color';
@@ -36,7 +37,11 @@ export class CellEditorFactory {
 
     create(grid: Revgrid, type: string, cellEvent: CellEvent) {
         const constructor = this.constructorRegistry.get(type);
-        return new constructor(grid, cellEvent);
+        if (constructor === undefined) {
+            throw new AssertError('CEFC61885', type);
+        } else {
+            return new constructor(grid, cellEvent);
+        }
     }
 }
 

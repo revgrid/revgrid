@@ -1,17 +1,43 @@
 import { MouseCellEvent } from '../cell/cell-event';
+import { ColumnsManager } from '../column/columns-manager';
 import { EventDetail } from '../event/event-detail';
+import { Focus } from '../focus';
+import { GridProperties } from '../grid-properties';
+import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
+import { Selection } from '../selection/selection';
 import { Feature } from './feature';
 import { featureFactory } from './feature-factory';
+import { FeatureServices } from './feature-services';
 import { FeaturesSharedState } from './features-shared-state';
 
+/** @internal */
 export class FeaturesManager {
     private _featureMap = new Map<string, Feature>();
     private _firstFeature: Feature;
     private _enabled = false;
 
-    constructor(private readonly grid: Revgrid, private readonly _sharedState: FeaturesSharedState) {
+    readonly _sharedState: FeaturesSharedState; // Will be initialised in constructor
+    readonly _services: FeatureServices;
 
+    constructor(
+        private readonly grid: Revgrid,
+        selection: Selection,
+        focus: Focus,
+        columnsManager: ColumnsManager,
+        renderer: Renderer,
+        gridProperties: GridProperties,
+    ) {
+        this._sharedState = {} as FeaturesSharedState
+
+        this._services = new FeatureServices(
+            this._sharedState,
+            selection,
+            focus,
+            columnsManager,
+            renderer,
+            gridProperties,
+        );
     }
 
     load() {
@@ -19,7 +45,6 @@ export class FeaturesManager {
          * @summary Controller chain of command.
          * @desc Each feature is linked to the next feature.
          */
-        this._firstFeature = undefined;
 
         /**
          * @summary Hash of instantiated features by class names.
@@ -33,9 +58,9 @@ export class FeaturesManager {
             let count = 0;
             for (let i = 0; i < maxCount; i++) {
                 const name = featureNames[i];
-                const feature = featureFactory.create(name, this.grid);
+                const feature = featureFactory.create(name, this.grid, this._services);
                 if (feature === undefined) {
-                    console.warn(`Hypergrid feature not registered: ${name}`);
+                    console.warn(`Feature not registered: ${name}`);
                 } else {
                     features[count++] = feature;
                 }
@@ -106,7 +131,7 @@ export class FeaturesManager {
         if (this._enabled) {
             this._firstFeature.handleClick(event);
             this.setCursor();
-            this.grid.featuresSharedState.mouseDownUpClickUsedForMoveOrResize = false;
+            this._sharedState.mouseDownUpClickUsedForMoveOrResize = false;
         }
     }
 

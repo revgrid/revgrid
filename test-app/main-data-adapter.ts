@@ -1,13 +1,13 @@
-import { Column, MainDataModel, SchemaModel } from '../dist/types/public-api';
+import { Column, DataModel, SchemaModel } from '../dist/types/public-api';
 import { MainRecord } from './main-record';
 import { SchemaAdapter } from './schema-adapter';
 
-export class MainDataAdapter implements MainDataModel {
+export class MainDataAdapter implements DataModel {
     readonly mainDataModel = true;
 
     private readonly _data: MainRecord[] = [];
     private _fishCreateCount = 0;
-    private _callbackListener: MainDataModel.CallbackListener;
+    private _callbackListener: DataModel.CallbackListener;
 
     constructor() {
         const initialDataCount = MainDataAdapter.initialData.length;
@@ -19,7 +19,7 @@ export class MainDataAdapter implements MainDataModel {
         }
     }
 
-    addDataCallbackListener(listener: MainDataModel.CallbackListener) {
+    addDataCallbackListener(listener: DataModel.CallbackListener) {
         this._callbackListener = listener;
 
         const existingRecordCount = this._data.length;

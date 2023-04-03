@@ -1,6 +1,7 @@
 
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Renderer } from '../renderer/renderer';
+import { Selection } from '../selection/selection';
 import { ByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
 import { GridPainter } from './grid-painter';
 
@@ -33,8 +34,8 @@ import { GridPainter } from './grid-painter';
 export class AsNeededGridPainter extends GridPainter {
     private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
-    constructor(renderer: Renderer) {
-        super(renderer, AsNeededGridPainter.key, AsNeededGridPainter.partial, undefined);
+    constructor(renderer: Renderer, selection: Selection) {
+        super(renderer, selection, AsNeededGridPainter.key, AsNeededGridPainter.partial, undefined);
     }
 
     override initialise() {
@@ -77,7 +78,7 @@ export class AsNeededGridPainter extends GridPainter {
             let renderedCell = pool[p]; // first cell in column c
             vc = renderedCell.visibleColumn;
 
-            let preferredWidth = 0;
+            let preferredWidth: number | undefined;
 
             // Optionally clip to visible portion of column to prevent text from overflowing to right.
             const columnClip = vc.column.properties.columnClip;
@@ -91,7 +92,14 @@ export class AsNeededGridPainter extends GridPainter {
 
                 try {
                     // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
-                    preferredWidth = Math.max(preferredWidth, this.paintCell(gc, renderedCell, config, undefined));
+                    const paintWidth = this.paintCell(gc, renderedCell, config, undefined);
+                    if (paintWidth !== undefined) {
+                        if (preferredWidth === undefined) {
+                            preferredWidth = paintWidth;
+                        } else {
+                            preferredWidth = Math.max(preferredWidth, paintWidth);
+                        }
+                    }
                 } catch (e) {
                     this.paintErrorCell(e as Error, gc, vc, pool[p].visibleRow);
                 }
@@ -99,7 +107,9 @@ export class AsNeededGridPainter extends GridPainter {
 
             gc.clipRestore();
 
-            renderedCell.column.properties.preferredWidth = Math.ceil(preferredWidth);
+            if (preferredWidth !== undefined) {
+                renderedCell.column.properties.preferredWidth = Math.ceil(preferredWidth);
+            }
         });
 
         // gc.clipRestore(clipToGrid);

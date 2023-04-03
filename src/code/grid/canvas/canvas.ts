@@ -17,6 +17,7 @@ import { EventName } from '../event/event-name';
 import { newEvent } from '../event/event-util';
 import { Point } from '../lib/point';
 import { Rectangle } from '../lib/rectangle';
+import { AssertError } from '../lib/revgrid-error';
 import { Renderer } from '../renderer/renderer';
 
 /** @public */
@@ -33,7 +34,7 @@ export class Canvas {
     mousedown = false;
     dragging = false;
     repeatKeyCount = 0;
-    repeatKey: string = null;
+    repeatKey: string | undefined;
     repeatKeyStartTime = 0;
     currentKeys: string[] = [];
     hasMouse = false;
@@ -389,7 +390,7 @@ export class Canvas {
                 this.repeatKeyStartTime = Date.now();
             }
         } else {
-            this.repeatKey = null;
+            this.repeatKey = undefined;
             this.repeatKeyCount = 0;
             this.repeatKeyStartTime = 0;
         }
@@ -415,7 +416,7 @@ export class Canvas {
         this.checkPreventDefault(e);
 
         this.repeatKeyCount = 0;
-        this.repeatKey = null;
+        this.repeatKey = undefined;
         this.repeatKeyStartTime = 0;
 
         const keyboardDetail: EventDetail.Keyboard = /*this.defKeysProp(e, 'currentKeys',*/ {
@@ -667,7 +668,7 @@ export class Canvas {
 // restartResizeLoop();
 
 function getCachedContext(canvasElement: HTMLCanvasElement, contextAttributes: CanvasRenderingContext2DSettings | undefined) {
-    const canvasRenderingContext2D: CanvasRenderingContext2D = canvasElement.getContext('2d', contextAttributes);
+    const canvasRenderingContext2D = canvasElement.getContext('2d', contextAttributes);
     // const props = {};
     // let values = {};
 
@@ -697,13 +698,17 @@ function getCachedContext(canvasElement: HTMLCanvasElement, contextAttributes: C
     //     }
     // }
 
-    const gc = new CanvasRenderingContext2DEx(canvasRenderingContext2D);
+    if (canvasRenderingContext2D === null) {
+        throw new AssertError('CGCC74443');
+    } else {
+        const gc = new CanvasRenderingContext2DEx(canvasRenderingContext2D);
 
-    // Object.getOwnPropertyNames(Canvas.graphicsContextAliases).forEach(function(alias) {
-    //     gc[alias] = gc[Canvas.graphicsContextAliases[alias]];
-    // });
+        // Object.getOwnPropertyNames(Canvas.graphicsContextAliases).forEach(function(alias) {
+        //     gc[alias] = gc[Canvas.graphicsContextAliases[alias]];
+        // });
 
-    return gc;
+        return gc;
+    }
 }
 
 // Canvas.graphicsContextAliases = {

@@ -1,4 +1,5 @@
 
+import { AssertError } from '../grid-public-api';
 import { Registry } from '../lib/registry';
 import { Renderer } from '../renderer/renderer';
 import { AsNeededGridPainter } from './as-needed-grid-painter';
@@ -7,12 +8,13 @@ import { ByColumnsDiscreteGridPainter } from './by-columns-discrete-grid-painter
 import { ByColumnsGridPainter } from './by-columns-grid-painter';
 import { ByRowsGridPainter } from './by-rows-grid-painter';
 import { GridPainter } from './grid-painter';
+import { Selection } from '../selection/selection';
 
 export class GridPainterRepository {
     private constructorRegistry = new Registry<GridPainter.Constructor>();
     private cache = new Map<string, GridPainter>();
 
-    constructor() {
+    constructor(private readonly _renderer: Renderer, private readonly _selection: Selection) {
         // preregister the standard grid painters
         this.constructorRegistry.register(AsNeededGridPainter.key, AsNeededGridPainter);
         this.constructorRegistry.register(ByColumnsGridPainter.key, ByColumnsGridPainter);
@@ -21,12 +23,16 @@ export class GridPainterRepository {
         this.constructorRegistry.register(ByRowsGridPainter.key, ByRowsGridPainter);
     }
 
-    get(renderer: Renderer, key: string) {
+    get(key: string) {
         let gridPainter = this.cache.get(key);
         if (gridPainter === undefined) {
             const constructor = this.constructorRegistry.get(key);
-            gridPainter = new constructor(renderer);
-            this.cache.set(key, gridPainter);
+            if (constructor === undefined) {
+                throw new AssertError('GPRG87773', key);
+            } else {
+                gridPainter = new constructor(this._renderer, this._selection);
+                this.cache.set(key, gridPainter);
+            }
         }
         return gridPainter;
     }

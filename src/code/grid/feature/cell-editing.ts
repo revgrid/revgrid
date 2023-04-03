@@ -18,34 +18,32 @@ export class CellEditingFeature extends Feature {
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
         const grid = this.grid;
 
-        let char: string;
-        let isVisibleChar: boolean;
-        let isDeleteChar: boolean;
-
-        const cellEvent = grid.getGridCellFromLastSelection(false);
+        const cellEvent = grid.getFocusedCellEvent(false);
         if (cellEvent === undefined) {
             super.handleKeyDown(eventDetail);
         } else {
             const keyboardEvent = eventDetail.primitiveEvent;
-            if (cellEvent.columnProperties.editOnKeydown && !grid.cellEditor &&
-                (
-                    (char = keyboardEvent.key) === 'F2' ||
-                    (isVisibleChar = char.length === 1 && !(keyboardEvent.metaKey || keyboardEvent.ctrlKey)) ||
-                    (isDeleteChar = char === 'DELETE' || char === 'BACKSPACE')
-                )
-            ) {
-                const editor = grid.onEditorActivate(cellEvent);
+            if (cellEvent.columnProperties.editOnKeydown && !grid.cellEditor) {
+                const char = keyboardEvent.key;
+                const isVisibleChar = char.length === 1 && !(keyboardEvent.metaKey || keyboardEvent.ctrlKey);
+                const isDeleteChar = char === 'DELETE' || char === 'BACKSPACE';
 
-                if (editor instanceof CellEditor) {
-                    if (isVisibleChar) {
-                        const element = editor.el;
-                        if (element instanceof HTMLInputElement) {
-                            element.value = char;
+                if (char === 'F2' || isVisibleChar || isDeleteChar) {
+                    const editor = grid.onEditorActivate(cellEvent);
+
+                    if (editor instanceof CellEditor) {
+                        if (isVisibleChar) {
+                            const element = editor.el;
+                            if (element instanceof HTMLInputElement) {
+                                element.value = char;
+                            }
+                        } else if (isDeleteChar) {
+                            editor.setEditorValue('');
                         }
-                    } else if (isDeleteChar) {
-                        editor.setEditorValue('');
+                        eventDetail.primitiveEvent.preventDefault();
                     }
-                    eventDetail.primitiveEvent.preventDefault();
+                } else {
+                    super.handleKeyDown(eventDetail);
                 }
             } else {
                 super.handleKeyDown(eventDetail);
@@ -56,7 +54,7 @@ export class CellEditingFeature extends Feature {
     edit(event: MouseCellEvent, onDoubleClick: boolean) {
         if (
             event.isDataCell &&
-            !(event.columnProperties['editOnDoubleClick'] != onDoubleClick) // both same (true or falsy)?
+            !(event.columnProperties['editOnDoubleClick'] !== onDoubleClick) // both same (true or falsy)?
         ) {
             this.grid.onEditorActivate(event);
         }

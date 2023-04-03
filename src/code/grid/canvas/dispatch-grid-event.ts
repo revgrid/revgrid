@@ -20,7 +20,7 @@ export function dispatchGridEvent<T extends EventName>(
     grid: Revgrid,
     eventName: T,
     cancelable: boolean,
-    eventDetail: EventName.DetailMap[T],
+    eventDetail: EventName.DetailMap[T] | undefined,
 ): boolean {
     if (grid.destroyed) {
         return false;

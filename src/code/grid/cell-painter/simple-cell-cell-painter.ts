@@ -18,7 +18,7 @@ const WHITESPACE = /\s\s+/g;
  * Clipping bounds are not set here as this is also an expensive operation. Instead, we employ a number of strategies to truncate overflowing text and content.
  */
 export class SimpleCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig) {
+    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         let val = config.value;
         const bounds = config.bounds;
         const x = bounds.x;
@@ -27,7 +27,7 @@ export class SimpleCellPainter extends CellPainter {
         const height = bounds.height;
         const iconPadding = config.iconPadding;
         const partialRender = config.prefillColor === undefined; // signifies abort before rendering if same
-        const snapshot: SubrowSnapshot = config.snapshot as SubrowSnapshot;
+        const snapshot = config.snapshot as Snapshot;
         let same = snapshot && partialRender;
         let valWidth = 0;
         let textColor: string;
@@ -38,7 +38,7 @@ export class SimpleCellPainter extends CellPainter {
         let rightIcon: HTMLImageElement;
         let centerIcon: HTMLImageElement;
         let hover: GridProperties.HoverColors;
-        let hoverColor: string;
+        let hoverColor: string | undefined;
         let selectColor: string;
         let foundationColor: boolean;
         let inheritsBackgroundColor: boolean;
@@ -119,7 +119,7 @@ export class SimpleCellPainter extends CellPainter {
 
         // todo check if icons have changed
         if (same && c === snapshot.colors.length) {
-            return;
+            return undefined;
         }
 
         // return a snapshot to save in cellEvent for future comparisons by partial renderer
@@ -195,11 +195,11 @@ export class SimpleCellPainter extends CellPainter {
             gc.closePath();
         }
 
-        config.minWidth = leftPadding + valWidth + rightPadding;
+        return leftPadding + valWidth + rightPadding;
     }
 }
 
-interface SubrowSnapshot extends BeingPaintedCell.SubrowSnapshot {
+interface Snapshot extends BeingPaintedCell.Snapshot {
     value: string;
     foundationColor: boolean;
     textColor: string;

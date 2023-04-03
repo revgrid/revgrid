@@ -7,7 +7,7 @@ import { Column } from './column';
 export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnProperties.ColumnHeader, ColumnProperties.Filter {
     readonly name: string;
     /** typeof DataValue contained in Column */
-    type: string;
+    type: string | undefined;
 
     readonly gridProperties: GridProperties;
 
@@ -15,7 +15,7 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
     readonly filterProperties: ColumnProperties.Filter;
 
     calculator?: SchemaModel.Column.Calculator; // not sure about this
-    preferredWidth: number;
+    preferredWidth?: number;
 
     // Grid overrides
     cellPadding: number;
@@ -24,18 +24,19 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
     columnClip: boolean | undefined;
     editOnKeydown: boolean;
     editOnNextCell: boolean;
-    editor: string;
+    editor: string | undefined;
     feedbackCount: number;
     editable: boolean;
+    editOnDoubleClick: boolean;
     filterable: boolean;
     font: string;
-    format: string;
+    format: string | undefined;
     gridLinesVWidth: number;
     gridLinesHWidth: number;
     halign: Halign;
     link: false | string | GridProperties.LinkProp | GridProperties.LinkFunction;
     linkTarget: string;
-    maximumColumnWidth: number;
+    maximumColumnWidth: number | undefined;
     resizeColumnInPlace: boolean;
     sortOnDoubleClick: boolean;
     sortable: boolean;
@@ -46,7 +47,7 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
     readonly foregroundSelectionColor: string;
     readonly foregroundSelectionFont: string;
     readonly cellPainter: string;
-    readonly rightIcon: string;
+    readonly rightIcon: string | undefined;
 
 
     // Grid overrides set by painters as well
@@ -74,7 +75,7 @@ export namespace ColumnProperties {
     }
 
     export interface ColumnHeader extends HeaderFilter {
-        format: string;
+        format: string | undefined;
         foregroundSelectionFont: string;
         // autosizing: boolean | undefined;
         // autosizingMax: number | undefined;
@@ -84,7 +85,7 @@ export namespace ColumnProperties {
     }
 
     export interface Filter extends HeaderFilter {
-        editor: string;
-        rightIcon: string; // key to images
+        editor: string | undefined;
+        rightIcon: string | undefined; // key to images
     }
 }

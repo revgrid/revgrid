@@ -7,7 +7,7 @@ import { CellPainter } from './cell-painter';
  * The default cell rendering function for a button cell.
  */
 export class ButtonCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig) {
+    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         const val = config.value as string;
         const bounds = config.bounds;
         const x = bounds.x + 1;
@@ -43,6 +43,8 @@ export class ButtonCellPainter extends CellPainter {
         gc.cache.font = height - 2 + 'px sans-serif';
         config.backgroundColor = 'rgba(0,0,0,0)'; // Not sure about this
         gc.fillText(val, x + ox, y + oy);
+
+        return undefined;
     }
 }
 

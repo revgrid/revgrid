@@ -258,7 +258,7 @@ export class ColumnsManager {
         let changedColumnsCount = 0;
         for (const columnNameWidth of columnNameWidths) {
             const { name, width } = columnNameWidth;
-            const column = this._allColumns.find((column) => column.name === name)
+            const column = this._allColumns.find((aColumn) => aColumn.name === name)
             if (column === undefined) {
                 throw new Error(`Behavior.setColumnWidthsByName: Column name not found: ${name}`);
             } else {
@@ -341,42 +341,6 @@ export class ColumnsManager {
         }
     }
 
-    /**
-     * @summary Show inactive column(s) or move active column(s).
-     *
-     * @desc Adds one or several columns to the "active" column list.
-     *
-     * @param isActiveColumnIndexes - Which list `columnIndexes` refers to:
-     * * `true` - The active column list. This can only move columns around within the active column list; it cannot add inactive columns (because it can only refer to columns in the active column list).
-     * * `false` - The full column list (as per column schema array). This inserts columns from the "inactive" column list, moving columns that are already active.
-     *
-     * @param columnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
-     * * **Scalar column index** - Adds single column at insertion point.
-     * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
-     *
-     * This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted in which case it will be allColumnIndexes
-     *
-     * @param referenceIndex - Insertion point, _i.e.,_ the element to insert before. A negative values skips the reinsert. Default is to insert new columns at end of active column list.
-     *
-     * _Promoted left one arg position when `isActiveColumnIndexes` omitted._
-     *
-     * @param allowDuplicateColumns - Unless true, already visible columns are removed first.
-     *
-     * _Promoted left one arg position when `isActiveColumnIndexes` omitted + one position when `referenceIndex` omitted._
-     *
-     * @internal
-     */
-    showColumns(allColumnIndexes: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
-    /** @internal */
-    showColumns(isActiveColumnIndexes: boolean, columnIndexes?: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
-    /** @internal */
-    showColumns(
-        allColumnIndexesOrIsActiveColumnIndexes: boolean | number | number[],
-        referenceIndexOrColumnIndexes?: number | number[],
-        allowDuplicateColumnsOrReferenceIndex?: boolean | number,
-        allowDuplicateColumns?: boolean
-    ): void;
-    /** @internal */
     showColumns(
         allColumnIndexesOrIsActiveColumnIndexes: boolean | number | number[],
         referenceIndexOrColumnIndexes?: number | number[],
@@ -384,36 +348,37 @@ export class ColumnsManager {
         allowDuplicateColumns = false
     ): void {
         let isActiveColumnIndexes: boolean;
-        let columnIndexes: number | number[] | undefined;
-        let referenceIndex: number | undefined;
+        let columnIndexOrIndices: number | number[] | undefined;
+        let referenceIndex: number;
 
         // Promote args when isActiveColumnIndexes omitted
         if (typeof allColumnIndexesOrIsActiveColumnIndexes === 'number' || Array.isArray(allColumnIndexesOrIsActiveColumnIndexes)) {
             isActiveColumnIndexes = false;
-            columnIndexes = allColumnIndexesOrIsActiveColumnIndexes;
+            columnIndexOrIndices = allColumnIndexesOrIsActiveColumnIndexes;
             referenceIndex = referenceIndexOrColumnIndexes as number;
             allowDuplicateColumns = allowDuplicateColumnsOrReferenceIndex as boolean;
         } else {
             isActiveColumnIndexes = allColumnIndexesOrIsActiveColumnIndexes;
-            columnIndexes = referenceIndexOrColumnIndexes;
+            columnIndexOrIndices = referenceIndexOrColumnIndexes;
             referenceIndex = allowDuplicateColumnsOrReferenceIndex as number;
         }
 
         const activeColumns = this._activeColumns;
         const sourceColumnList = isActiveColumnIndexes ? activeColumns : this._allColumns;
 
-        // Nest scalar index
-        if (typeof columnIndexes === 'number') {
-            columnIndexes = [columnIndexes];
+        let newColumns: Column[];
+        if (columnIndexOrIndices === undefined) {
+            newColumns = sourceColumnList;
+        } else {
+            const columnIndexes = (typeof columnIndexOrIndices === 'number') ? [columnIndexOrIndices] : columnIndexOrIndices;
+            newColumns = columnIndexes
+                .map((index) => sourceColumnList[index]) // Look up columns using provided indexes
+                .filter(column => column); // Remove any undefined columns
+
         }
 
-        const newColumns = columnIndexes
-            .map((index) => sourceColumnList[index]) // Look up columns using provided indexes
-            .filter(column => column); // Remove any undefined columns
-
         // Default insertion point is end (i.e., before (last+1)th element)
-        if (typeof referenceIndex !== 'number') {
-            allowDuplicateColumns = referenceIndex; // assume reference index was omitted when not a number
+        if (referenceIndex === undefined) {
             referenceIndex = activeColumns.length;
         }
 
@@ -446,7 +411,7 @@ export class ColumnsManager {
         activeColumns.length = count;
         for (let i = 0; i < count; i++) {
             const { name, width } = columnNameWidths[i];
-            const column = this._allColumns.find((column) => column.name === name)
+            const column = this._allColumns.find((aColumn) => aColumn.name === name)
             if (column === undefined) {
                 throw new Error(`Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${name}`);
             } else {
@@ -483,7 +448,7 @@ export class ColumnsManager {
                 column = this._allColumns[columnNameOrAllIndex];
             } else {
                 if (typeof columnNameOrAllIndex === 'string') {
-                    const foundColumn = this._allColumns.find((column) => column.name === columnNameOrAllIndex);
+                    const foundColumn = this._allColumns.find((aColumn) => aColumn.name === columnNameOrAllIndex);
                     if (foundColumn === undefined) {
                         throw new Error(`ColumnsManager.setActiveColumns: Column with name not found: ${columnNameOrAllIndex}`);
                     } else {

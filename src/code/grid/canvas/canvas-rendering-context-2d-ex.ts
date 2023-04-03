@@ -1,4 +1,4 @@
-import { UnreachableCaseError } from '../lib/revgrid-error';
+import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
 import { TextTruncateType } from '../lib/types';
 
 /** @public */
@@ -169,7 +169,7 @@ export class CanvasRenderingContext2DEx {
     ): CanvasRenderingContext2DEx.TruncatedTextWidth {
         let metrics = this.fontMetrics[this.cache.font];
         const truncating = truncateType !== undefined;
-        let truncString: string; //, truncWidth, truncAt;
+        let truncString: string | undefined; //, truncWidth, truncAt;
 
         if (!metrics) {
             metrics = this.fontMetrics[this.cache.font] = {};
@@ -337,7 +337,7 @@ export class CanvasRenderingContext2DEx {
 
 /** @public */
 export namespace CanvasRenderingContext2DEx {
-    export const ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i
+    export const ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d.]+)\)))$/i
     export const ELLIPSIS = '\u2026' // The "…" (dot-dot-dot) character
 
     export interface TruncatedTextWidth {
@@ -634,7 +634,12 @@ export namespace CanvasRenderingContext2DEx {
 
         restore() {
             this._canvasRenderingContext2D.restore();
-            this.values = this.valuesStack.pop();
+            const values = this.valuesStack.pop();
+            if (values === undefined) {
+                throw new AssertError('CRC2ECR56660');
+            } else {
+                this.values = values;
+            }
         }
     }
 

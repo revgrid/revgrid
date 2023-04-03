@@ -2,6 +2,7 @@
 import { MouseCellEvent } from '../cell/cell-event';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
+import { AssertError } from '../grid-public-api';
 import { Point } from '../lib/point';
 
 export class CellSelection extends Feature {
@@ -71,19 +72,23 @@ export class CellSelection extends Feature {
      */
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
         const grid = this.grid;
-        const cellEvent = grid.getGridCellFromLastSelection(true);
         const navKey = grid.generateNavKey(eventDetail.primitiveEvent)
-        const handler = this['handle' + navKey];
+        const handler = this[('handle' + navKey) as keyof CellSelection] as ((keyboardEvent: KeyboardEvent) => void);
 
         // STEP 1: Move the selection
         if (handler) {
             handler.call(this, eventDetail.primitiveEvent);
 
             // STEP 2: Open the cell editor at the new position if `editable` AND edited cell had `editOnNextCell`
-            if (cellEvent.columnProperties.editOnNextCell) {
-                grid.renderer.computeCellsBounds(true); // moving selection may have auto-scrolled
-                const cellEvent = grid.getGridCellFromLastSelection(false); // new cell
-                grid.editAt(cellEvent); // succeeds only if `editable`
+            let cellEvent = grid.getFocusedCellEvent(true);
+            if (cellEvent !== undefined) {
+                if (cellEvent.columnProperties.editOnNextCell) {
+                    grid.renderer.computeCellsBounds(true); // moving selection may have auto-scrolled
+                    cellEvent = grid.getFocusedCellEvent(false); // new cell
+                    if (cellEvent !== undefined) {
+                        grid.editAt(cellEvent); // succeeds only if `editable`
+                    }
+                }
             }
 
             // STEP 3: If editor not opened on new cell, take focus
@@ -105,23 +110,27 @@ export class CellSelection extends Feature {
         const y = Math.max(0, gridCell.y);
         const previousDragExtent = grid.getDragExtent();
         const mouseDown = grid.getMouseDown();
-        const newX = x - mouseDown.x;
-        const newY = y - mouseDown.y;
+        if (mouseDown === undefined || previousDragExtent === undefined) {
+            throw new AssertError('CSHMDCS32220');
+        } else {
+            const newX = x - mouseDown.x;
+            const newY = y - mouseDown.y;
 
-        if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
-            return;
+            if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
+                return;
+            }
+
+            grid.beginSelectionChange();
+            try {
+                grid.clearMostRecentRectangleSelection();
+                grid.selectRectangle(mouseDown.x, mouseDown.y, newX, newY);
+            } finally {
+                grid.endSelectionChange();
+            }
+            grid.setDragExtent(Point.create(newX, newY));
+
+            grid.repaint();
         }
-
-        grid.beginSelectionChange();
-        try {
-            grid.clearMostRecentRectangleSelection();
-            grid.selectRectangle(mouseDown.x, mouseDown.y, newX, newY);
-        } finally {
-            grid.endSelectionChange();
-        }
-        grid.setDragExtent(Point.create(newX, newY));
-
-        grid.repaint();
     }
 
     /**
@@ -205,45 +214,49 @@ export class CellSelection extends Feature {
     extendSelection(gridCell: Point, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
         const grid = this.grid;
         const mousePoint = grid.getMouseDown();
-        const x = gridCell.x; // - numFixedColumns + scrollLeft;
-        const y = gridCell.y; // - numFixedRows + scrollTop;
+        if (mousePoint === undefined) {
+            throw new AssertError('CSES07721');
+        } else {
+            const x = gridCell.x; // - numFixedColumns + scrollLeft;
+            const y = gridCell.y; // - numFixedRows + scrollTop;
 
-        //were outside of the grid do nothing
-        if (x < 0 || y < 0) {
-            return;
-        }
-
-        grid.beginSelectionChange();
-        try {
-            //we have repeated a click in the same spot deslect the value from last time
-            if (
-                ctrlKeyDown &&
-                x === mousePoint.x &&
-                y === mousePoint.y
-            ) {
-                grid.clearMostRecentRectangleSelection();
-                grid.popMouseDown();
-                grid.repaint();
+            //were outside of the grid do nothing
+            if (x < 0 || y < 0) {
                 return;
             }
 
-            if (!ctrlKeyDown && !shiftKeyDown) {
-                grid.clearSelection();
-            }
+            grid.beginSelectionChange();
+            try {
+                //we have repeated a click in the same spot deslect the value from last time
+                if (
+                    ctrlKeyDown &&
+                    x === mousePoint.x &&
+                    y === mousePoint.y
+                ) {
+                    grid.clearMostRecentRectangleSelection();
+                    grid.popMouseDown();
+                    grid.repaint();
+                    return;
+                }
 
-            if (shiftKeyDown) {
-                grid.clearMostRecentRectangleSelection();
-                grid.selectRectangle(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
-                grid.setDragExtent(Point.create(x - mousePoint.x, y - mousePoint.y));
-            } else {
-                grid.selectRectangle(x, y, 0, 0);
-                grid.setMouseDown(Point.create(x, y));
-                grid.setDragExtent(Point.create(0, 0));
+                if (!ctrlKeyDown && !shiftKeyDown) {
+                    grid.clearSelection();
+                }
+
+                if (shiftKeyDown) {
+                    grid.clearMostRecentRectangleSelection();
+                    grid.selectRectangle(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
+                    grid.setDragExtent(Point.create(x - mousePoint.x, y - mousePoint.y));
+                } else {
+                    grid.selectRectangle(x, y, 0, 0);
+                    grid.setMouseDown(Point.create(x, y));
+                    grid.setDragExtent(Point.create(0, 0));
+                }
+            } finally {
+                grid.endSelectionChange();
             }
-        } finally {
-            grid.endSelectionChange();
+            grid.repaint();
         }
-        grid.repaint();
     }
 
 

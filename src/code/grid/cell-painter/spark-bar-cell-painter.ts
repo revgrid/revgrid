@@ -7,7 +7,7 @@ import { CellPainter } from './cell-painter';
  * Renders a bar chart sparkline, hence the name.
  */
 export class SparkBarCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig) {
+    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         let x = config.bounds.x;
         const y = config.bounds.y;
         const width = config.bounds.width;
@@ -16,7 +16,7 @@ export class SparkBarCellPainter extends CellPainter {
         gc.beginPath();
         const val = config.value as number[];
         if (!val || !val.length) {
-            return;
+            return undefined;
         }
         const count = val.length;
         const eWidth = width / count;
@@ -32,7 +32,7 @@ export class SparkBarCellPainter extends CellPainter {
             x += eWidth;
         }
         gc.closePath();
-        config.minWidth = count * 10;
+        return count * 10;
     }
 }
 

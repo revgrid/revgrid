@@ -147,7 +147,7 @@ export class Behavior {
     clearObjectProperties(obj: Record<string, unknown>, exportProps?: boolean) {
         for (const key in obj) {
             if (
-                obj.hasOwnProperty(key) && (
+                Object.prototype.hasOwnProperty.call(obj, key) && (
                     exportProps === undefined ||
                     !exportProps && noExportProperties.indexOf(key) >= 0 ||
                     exportProps && noExportProperties.indexOf(key) < 0
@@ -221,8 +221,8 @@ export class Behavior {
      * @param y - the y coordinate
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    getCursorAt(x: number, y: number) {
-        return null;
+    getCursorAt(x: number, y: number): string | undefined {
+        return undefined;
     }
 
     /**
@@ -246,7 +246,11 @@ export class Behavior {
      * @internal
      */
     getCellEditorAt(event: CellEvent) {
-        return event.isDataColumn && event.column.getCellEditorAt(event);
+        if (!event.isDataColumn) {
+            return undefined;
+        } else {
+            return event.column.getCellEditorAt(event);
+        }
     }
 
     /**
@@ -296,7 +300,7 @@ export class Behavior {
         // }
 
         subgrid ??= this.grid.mainSubgrid;
-        const rowMetadataPrototype: MetaModel.RowMetadataPrototype = rowPropertiesPrototype === undefined ? undefined : null;
+        const rowMetadataPrototype: MetaModel.RowMetadataPrototype = rowPropertiesPrototype === undefined ? null : null; // rowPropertiesPrototype;
         const metadata = subgrid.getRowMetadata(y, rowMetadataPrototype);
         return metadata && (metadata.__ROW ?? (rowPropertiesPrototype !== undefined && (metadata.__ROW = Object.create(rowPropertiesPrototype))));
     }
@@ -347,13 +351,13 @@ export class Behavior {
         if (value !== undefined) {
             rowProps = this.getRowProperties(y, this._rowPropertiesPrototype, subgrid);
             if (rowProps) {
-                rowProps[key] = value;
+                (rowProps[key as keyof MetaModel.RowProperties] as unknown) = value;
             }
         } else {
             // only try to undefine key if row props object exists; no point in creating it just to delete a non-existant key
             rowProps = this.getRowProperties(y, undefined, subgrid);
             if (rowProps) {
-                delete rowProps[isHeight ? '_height' : key];
+                delete rowProps[(isHeight ? '_height' : key) as keyof MetaModel.RowProperties];
             }
         }
 
@@ -381,7 +385,7 @@ export class Behavior {
         }
 
         let isHeight: boolean;
-        let hasHeight: boolean;
+        let hasHeight = false;
 
         let resolvedRowProps: MetaModel.RowProperties | false | undefined;
         if (rowProps) {
@@ -390,17 +394,19 @@ export class Behavior {
             resolvedRowProps = this.getRowProperties(y, this._rowPropertiesPrototype, subgrid);
         }
 
-        if (rowProps) {
-            Object.keys(properties).forEach(function(key) {
-                const value = properties[key];
+        if (resolvedRowProps) {
+            for (const key in properties) {
+                const typedKey = key as (keyof MetaModel.RowProperties)
+                const value = properties[typedKey];
                 if (value !== undefined) {
-                    resolvedRowProps[key] = value;
+                    resolvedRowProps[typedKey] = value;
                 } else {
                     isHeight = key === 'height';
-                    delete resolvedRowProps[isHeight ? '_height' : key];
-                    hasHeight = hasHeight || isHeight;
+                    const fixedKey = (isHeight ? '_height' : typedKey) as (keyof MetaModel.RowProperties);
+                    delete resolvedRowProps[fixedKey];
+                    hasHeight ||= isHeight;
                 }
-            });
+            }
 
             if (hasHeight) {
                 this.grid.behaviorShapeChanged();
@@ -473,7 +479,9 @@ export class Behavior {
      */
     setValue(schemaColumn: SchemaModel.Column, x: number, y: number, value: unknown, subgrid?: Subgrid) {
         if (subgrid !== undefined) {
-            subgrid.dataModel.setValue(schemaColumn, y, value);
+            if (subgrid.dataModel.setValue !== undefined) {
+                subgrid.dataModel.setValue(schemaColumn, y, value);
+            }
         } else {
             const cellEvent = new CellEvent(this.grid);
             const visible = cellEvent.resetDataXY(x, y, subgrid);
@@ -624,7 +632,7 @@ export namespace Behavior {
 
 // Begin RowProperties Mixin
 
-export class DefaultRowProperties implements MetaModel.RowProperties {
+export class DefaultRowProperties implements MetaModel.HeightRowProperties {
     private _height: number | undefined;
 
     constructor(private grid: Revgrid) {
@@ -634,15 +642,15 @@ export class DefaultRowProperties implements MetaModel.RowProperties {
         return this._height || this.grid.properties.defaultRowHeight;
     }
 
-    set height(height) {
-        height = Math.max(5, Math.ceil(height));
-        if (isNaN(height)) {
+    set height(height: number | undefined) {
+        if (typeof height !== 'number' || isNaN(height)) {
             height = undefined;
         }
         if (height !== this._height) {
-            if (!height) {
+            if (height === undefined) {
                 delete this._height;
             } else {
+                height = Math.max(5, Math.ceil(height));
                 // Define `_height` as non-enumerable so won't be included in output of saveState.
                 // (Instead the `height` getter is explicitly invoked and the result is included.)
                 Object.defineProperty(this, '_height', { value: height, configurable: true });

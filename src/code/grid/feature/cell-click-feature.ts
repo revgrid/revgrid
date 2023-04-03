@@ -1,5 +1,7 @@
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { GridProperties } from '../grid-properties';
+import { AssertError } from '../grid-public-api';
+import { DataModel } from '../model/data-model';
 import { Revgrid } from '../revgrid';
 import { Feature } from './feature';
 
@@ -12,7 +14,7 @@ export class CellClickFeature extends Feature {
             const link = event.columnProperties.link;
             const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
-            this.cursor = isActionableLink ? 'pointer' : null;
+            this.cursor = isActionableLink ? 'pointer' : undefined;
         }
 
         super.handleMouseMove(event);
@@ -70,7 +72,11 @@ export class CellClickFeature extends Feature {
                 if (link === '*') {
                     unknownUrl = value;
                 } else if (/^\w+$/.test(link)) {
-                    unknownUrl = dataRow[link];
+                    if (Array.isArray(dataRow)) {
+                        throw new AssertError('CCFOL45455');
+                    } else {
+                        unknownUrl = dataRow[link as keyof DataModel.ObjectDataRow];
+                    }
                 }
                 break;
 
@@ -79,13 +85,13 @@ export class CellClickFeature extends Feature {
                 break;
         }
 
-        if (unknownUrl !== undefined) {
+        if (unknownUrl) {
             // STEP 3: Decorate the URL
             const url = unknownUrl.toString().replace(/%name/g, config.name).replace(/%value/g, value as string);
 
             // STEP 4: Open the URL
             if (linkPropTuple !== undefined) {
-                linkProp[0] = url;
+                linkPropTuple[0] = url;
                 result = grid.windowOpen(...linkPropTuple);
             } else {
                 result = grid.windowOpen(url, cellEvent.columnProperties.linkTarget);

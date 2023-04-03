@@ -4,26 +4,65 @@ export function numberToPixels(value: number) {
 }
 
 /** @internal */
-export function deepClone(object: Record<string, unknown>) {
-    const result = clone(object);
-    Object.keys(result).forEach(function(key) {
-        const descriptor = Object.getOwnPropertyDescriptor(result, key);
-        if (typeof descriptor.value === 'object') {
-            result[key] = deepClone(descriptor.value);
+export function deepExtendObject(target: Record<string, unknown>, obj: Record<string, unknown> | undefined): Record<string, unknown> {
+    if (obj !== undefined) {
+        for (const key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                const value = obj[key];
+                const existingTarget = target[key];
+                target[key] = deepExtendValue(existingTarget, value);
+            }
         }
-    });
-    return result;
+    }
+
+    return target;
 }
 
 /** @internal */
-function clone(value: unknown) {
-    if (Array.isArray(value)) {
-        return value.slice(); // clone array
-    } else if (typeof value === 'object') {
-        return Object.defineProperties({}, Object.getOwnPropertyDescriptors(value));
-    } else {
+export function deepExtendValue(existingTarget: unknown, value: unknown): unknown {
+    if (typeof value !== 'object') {
         return value;
+    } else {
+        if (value instanceof Array) {
+            const length = value.length;
+            const targetArray = new Array<unknown>(length);
+            for (let i = 0; i < length; i++) {
+                const element = value[i] as unknown;
+                targetArray[i] = deepExtendValue({}, element);
+            }
+            return targetArray;
+        } else {
+            if (value === null) {
+                return null;
+            } else {
+                const valueObj = value as Record<string, unknown>;
+                if (existingTarget === undefined) {
+                    return deepExtendObject({}, valueObj); // overwrite
+                } else {
+                    if (typeof existingTarget !== 'object') {
+                        return deepExtendObject({}, valueObj); // overwrite
+                    } else {
+                        if (existingTarget instanceof Array) {
+                            return deepExtendObject({}, valueObj); // overwrite
+                        } else {
+                            if (existingTarget === null) {
+                                return deepExtendObject({}, valueObj); // overwrite
+                            } else {
+                                const existingTargetObj = existingTarget as Record<string, unknown>;
+                                return deepExtendObject(existingTargetObj, valueObj); // merge
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+}
+
+
+/** @internal */
+export function deepClone(object: Record<string, unknown>) {
+    return deepExtendValue({}, object);
 }
 
 /**
@@ -37,9 +76,10 @@ function clone(value: unknown) {
  */
 export function assignOrDelete(dest: Record<string, unknown>, src: Record<string, unknown>) {
     Object.keys(src).forEach(function(key) {
-        let descriptor: PropertyDescriptor;
+        let descriptor: PropertyDescriptor | undefined;
         for (let obj = dest; obj; obj = Object.getPrototypeOf(obj)) {
-            if ((descriptor = Object.getOwnPropertyDescriptor(obj, key))) {
+            descriptor = Object.getOwnPropertyDescriptor(obj, key);
+            if (descriptor !== undefined) {
                 break;
             }
         }
@@ -48,13 +88,15 @@ export function assignOrDelete(dest: Record<string, unknown>, src: Record<string
             if (!descriptor || descriptor.writable || descriptor.set) {
                 dest[key] = src[key];
             }
-        } else if (descriptor) {
-            if (descriptor.configurable && !descriptor.set && !descriptor.get) {
-                delete dest[key];
-            } else if (descriptor.writable || descriptor.set) {
-                dest[key] = undefined;
-            }
-        } // else no descriptor so no property to delete
+        } else {
+            if (descriptor !== undefined) {
+                if (descriptor.configurable && !descriptor.set && !descriptor.get) {
+                    delete dest[key];
+                } else if (descriptor.writable || descriptor.set) {
+                    dest[key] = undefined;
+                }
+            } // else no descriptor so no property to delete
+        }
     });
 }
 

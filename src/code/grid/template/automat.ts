@@ -106,13 +106,16 @@ export namespace automat {
      *
      * @returns Array of the generated nodes (this is an actual Array instance; not an Array-like object).
      */
-    export function append(template: string | TemplateFunction, el: HTMLElement | undefined, referenceNode: Node, ...replacements: unknown[]): Node[] {
-        const result = [];
+    export function append(template: string | TemplateFunction, el: HTMLElement, referenceNode: Node | null, ...replacements: unknown[]): Node[] {
+        const result: Node[] = [];
         const div = replace(template, el, ...replacements);
 
         while (div.childNodes.length) {
-            result.push(div.firstChild);
-            el.insertBefore(div.firstChild, referenceNode); // removes child from div
+            const child = div.firstChild;
+            if (child !== null) {
+                result.push(child);
+                el.insertBefore(child, referenceNode); // removes child from div
+            }
         }
 
         return result;

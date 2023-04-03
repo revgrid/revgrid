@@ -26,9 +26,11 @@ export class Filters extends Feature {
             const cellEvent = eventDetail.editor.renderedCell;
             if (cellEvent.isFilterCell) {
                 const navKey = this.grid.generateNavKey(eventDetail.primitiveEvent);
-                const handler: ((cellEvent: CellEvent) => void) = this['handle' + navKey];
-                handler(cellEvent);
-                handled = true;
+                const handler = this[('handle' + navKey) as keyof Filters] as ((CellEvent: CellEvent) => void);
+                if (handler !== undefined) {
+                    handler.call(this, cellEvent);
+                    handled = true;
+                }
             }
         }
 
@@ -96,7 +98,7 @@ export class Filters extends Feature {
 
         // Select first visible grid cell of this column
         const grid = this.grid;
-        grid.selectViewportCell(gridX, 0);
+        grid.focusViewportCell(gridX, 0);
         grid.takeFocus();
     }
 

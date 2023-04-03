@@ -15,7 +15,7 @@ export class TestCellPainter extends CellPainter {
     paint(
         gc: CanvasRenderingContext2DEx,
         config: RevRecordCellPaintConfig
-    ): void {
+    ) {
         const renderValue = config.value;
 
         const rowIndex = config.dataCell.y;
@@ -265,7 +265,7 @@ export class TestCellPainter extends CellPainter {
             }
 
             const contentWidth = cellPadding + valWidth + cellPadding;
-            config.minWidth = contentWidth;
+            return contentWidth;
         }
     }
 }

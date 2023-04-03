@@ -24,8 +24,9 @@ export class ErrorCellPainter extends CellPainter {
      *
      * @param config.bounds - The clipping rect of the cell to be rendered.
      */
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig) {
+    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         this.paintMessage(gc, config.bounds, ''); // this should never be called
+        return undefined;
     }
 
     paintMessage(gc: CanvasRenderingContext2DEx, bounds: RectangleInterface, message: string) {

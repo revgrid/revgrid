@@ -78,7 +78,7 @@ export class GridPropertiesAccessor implements GridProperties {
     get gridRightAligned() { return this._raw.gridRightAligned; }
     set gridRightAligned(value: boolean) { this._raw.gridRightAligned = value; }
     get centerIcon() { return this._raw.centerIcon; }
-    set centerIcon(value: string) { this._raw.centerIcon = value; }
+    set centerIcon(value: string | undefined) { this._raw.centerIcon = value; }
     get defaultRowHeight() { return this._raw.defaultRowHeight; }
     set defaultRowHeight(value: number) { this._raw.defaultRowHeight = value; }
     get defaultColumnWidth() { return this._raw.defaultColumnWidth; }
@@ -95,7 +95,7 @@ export class GridPropertiesAccessor implements GridProperties {
     set editOnNextCell(value: boolean) { this._raw.editOnNextCell = value; }
     /** Name of a cell editor. */
     get editor() { return this._raw.editor; }
-    set editor(value: string) { this._raw.editor = value; }
+    set editor(value: string | undefined) { this._raw.editor = value; }
     get emitModelEvents() { return this._raw.emitModelEvents; }
     set emitModelEvents(value: boolean) { this._raw.emitModelEvents = value; }
     /** Re-render grid at maximum speed. */
@@ -132,15 +132,15 @@ export class GridPropertiesAccessor implements GridProperties {
     get fixedLinesHColor() { return this._raw.fixedLinesHColor; }
     set fixedLinesHColor(value: GridProperties.Color) { this._raw.fixedLinesHColor = value; }
     get fixedLinesHEdge() { return this._raw.fixedLinesHEdge; }
-    set fixedLinesHEdge(value: number) { this._raw.fixedLinesHEdge = value; }
+    set fixedLinesHEdge(value: number | undefined) { this._raw.fixedLinesHEdge = value; }
     get fixedLinesHWidth() { return this._raw.fixedLinesHWidth; }
-    set fixedLinesHWidth(value: number) { this._raw.fixedLinesHWidth = value; }
+    set fixedLinesHWidth(value: number | undefined) { this._raw.fixedLinesHWidth = value; }
     get fixedLinesVColor() { return this._raw.fixedLinesVColor; }
     set fixedLinesVColor(value: GridProperties.Color) { this._raw.fixedLinesVColor = value; }
     get fixedLinesVEdge() { return this._raw.fixedLinesVEdge; }
-    set fixedLinesVEdge(value: number) { this._raw.fixedLinesVEdge = value; }
+    set fixedLinesVEdge(value: number | undefined) { this._raw.fixedLinesVEdge = value; }
     get fixedLinesVWidth() { return this._raw.fixedLinesVWidth; }
-    set fixedLinesVWidth(value: number) { this._raw.fixedLinesVWidth = value; }
+    set fixedLinesVWidth(value: number | undefined) { this._raw.fixedLinesVWidth = value; }
     get fixedRowCount() { return this._raw.fixedRowCount; }
     set fixedRowCount(value: number) { this._raw.fixedRowCount = value; }
     get font() { return this._raw.font; }
@@ -151,7 +151,7 @@ export class GridPropertiesAccessor implements GridProperties {
     set foregroundSelectionFont(value: string) { this._raw.foregroundSelectionFont = value; }
     /** Name of a formatter for cell text. */
     get format() { return this._raw.format; }
-    set format(value: string) { this._raw.format = value; }
+    set format(value: string | undefined) { this._raw.format = value; }
     get gridLinesColumnHeader() { return this._raw.gridLinesColumnHeader; }
     set gridLinesColumnHeader(value: boolean) { this._raw.gridLinesColumnHeader = value; }
     get gridLinesH() { return this._raw.gridLinesH; }
@@ -190,7 +190,7 @@ export class GridPropertiesAccessor implements GridProperties {
     get iconPadding() { return this._raw.iconPadding; }
     set iconPadding(value: number) { this._raw.iconPadding = value; }
     get leftIcon() { return this._raw.leftIcon; }
-    set leftIcon(value: string) { this._raw.leftIcon = value; }
+    set leftIcon(value: string | undefined) { this._raw.leftIcon = value; }
     /** Display cell value as a link (with underline). */
     get link() { return this._raw.link; }
     set link(value: false | string | GridProperties.LinkProp | GridProperties.LinkFunction) { this._raw.link = value; }
@@ -215,7 +215,7 @@ export class GridPropertiesAccessor implements GridProperties {
     get minimumColumnWidth() { return this._raw.minimumColumnWidth; }
     set minimumColumnWidth(value: number) { this._raw.minimumColumnWidth = value; }
     get maximumColumnWidth() { return this._raw.maximumColumnWidth; }
-    set maximumColumnWidth(value: number) { this._raw.maximumColumnWidth = value; }
+    set maximumColumnWidth(value: number | undefined) { this._raw.maximumColumnWidth = value; }
     get visibleColumnWidthAdjust() { return this._raw.visibleColumnWidthAdjust; }
     set visibleColumnWidthAdjust(value: boolean) { this._raw.visibleColumnWidthAdjust = value; }
     /** Allow multiple cell region selections. */
@@ -240,7 +240,7 @@ export class GridPropertiesAccessor implements GridProperties {
     get repaintIntervalRate() { return this._raw.repaintIntervalRate; }
     set repaintIntervalRate(value: number) { this._raw.repaintIntervalRate = value; }
     get rightIcon() { return this._raw.rightIcon; }
-    set rightIcon(value: string) { this._raw.rightIcon = value; }
+    set rightIcon(value: string | undefined) { this._raw.rightIcon = value; }
     get resizeColumnInPlace() { return this._raw.resizeColumnInPlace; }
     set resizeColumnInPlace(value: boolean) { this._raw.resizeColumnInPlace = value; }
     /** Restore column selections across data transformations (`reindex` calls). */
@@ -276,7 +276,7 @@ export class GridPropertiesAccessor implements GridProperties {
     get selectionRegionOverlayColor() { return this._raw.selectionRegionOverlayColor; }
     set selectionRegionOverlayColor(value: GridProperties.Color) { this._raw.selectionRegionOverlayColor = value; }
     get settingState() { return this._raw.settingState; }
-    set settingState(value: boolean) { this._raw.settingState = value; }
+    set settingState(value: boolean | undefined) { this._raw.settingState = value; }
     get singleRowSelectionMode() { return this._raw.singleRowSelectionMode; }
     set singleRowSelectionMode(value: boolean) { this._raw.singleRowSelectionMode = value; }
     get showFilterRow() { return this._raw.showFilterRow; }

@@ -3,7 +3,6 @@
 
   "compilerOptions": {
     "strictNullChecks": false,
-    "noImplicitAny": false,
     "composite": true,
     "tsBuildInfoFile": "../../../tsbuildinfo/grid.tsbuildinfo"
   },
@@ -15,6 +14,9 @@
     "grid-properties.ts",
     "grid-public-api.ts",
     "main-subgrid.ts",
+    "data-extract.ts",
+    "adapter-set-config.ts",
+    "focus.ts",
     "revgrid.ts",
     "subgrid/**/*.ts",
     "canvas/**/*.ts",

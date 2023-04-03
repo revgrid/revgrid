@@ -1,6 +1,7 @@
 
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Renderer } from '../renderer/renderer';
+import { Selection } from '../selection/selection';
 import { GridPainter } from './grid-painter';
 
 /** @summary Render the grid with consolidated row OR column rects.
@@ -20,8 +21,8 @@ import { GridPainter } from './grid-painter';
  * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
  */
 export class ByColumnsAndRowsGridPainter extends GridPainter {
-    constructor(renderer: Renderer) {
-        super(renderer, ByColumnsAndRowsGridPainter.key, false, ByColumnsAndRowsGridPainter.initialRebundle);
+    constructor(renderer: Renderer, selection: Selection) {
+        super(renderer, selection, ByColumnsAndRowsGridPainter.key, false, ByColumnsAndRowsGridPainter.initialRebundle);
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
@@ -75,9 +76,13 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                 gc.clearFill(firstVisibleColumnLeft, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
             }
         } else {
-            for (let columnBundles = this.columnBundles, c = columnBundles.length; c--;) {
-                const columnBundle = columnBundles[c];
-                gc.clearFill(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
+            const columnBundles = this.columnBundles;
+            const columnBundleCount = columnBundles.length;
+            for (let i = columnBundleCount - 1; i > 0; i--) {
+                const columnBundle = columnBundles[i];
+                if (columnBundle !== undefined) {
+                    gc.clearFill(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
+                }
             }
         }
 
@@ -98,7 +103,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                 const columnClip = vc.column.properties.columnClip;
                 gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
-                let preferredWidth = 0;
+                let preferredWidth: number | undefined;
                 // For each row of each subgrid (of each column)...
                 for (let r = 0; r < R; r++, p++) {
                     // if (!pool[p].disabled) {
@@ -110,7 +115,14 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                         const config = beingPaintedCell.subgrid.getCellPaintConfig(beingPaintedCell);
 
                         try {
-                            preferredWidth = Math.max(preferredWidth, this.paintCell(gc, beingPaintedCell, config, prefillColor));
+                            const paintWidth = this.paintCell(gc, beingPaintedCell, config, prefillColor);
+                            if (paintWidth !== undefined) {
+                                if (preferredWidth === undefined) {
+                                    preferredWidth = paintWidth;
+                                } else {
+                                    preferredWidth = Math.max(preferredWidth, paintWidth);
+                                }
+                            }
                         } catch (e) {
                             this.paintErrorCell(e as Error, gc, vc, pool[p].visibleRow);
                         }
@@ -119,7 +131,9 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
 
                 gc.clipRestore();
 
-                cellEvent.column.properties.preferredWidth = Math.ceil(preferredWidth);
+                if (preferredWidth !== undefined) {
+                    cellEvent.column.properties.preferredWidth = Math.ceil(preferredWidth);
+                }
             }
         );
 

@@ -1,10 +1,10 @@
 
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
-import { ColumnProperties } from '../column/column-properties';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
 import { Point } from '../lib/point';
-import { SelectionType } from '../subgrid/selection/selection-type';
+import { AssertError } from '../lib/revgrid-error';
+import { SelectionType } from '../selection/selection-type';
 import { ColumnMoving } from './column-moving';
 
 export class ColumnSelection extends Feature {
@@ -14,30 +14,30 @@ export class ColumnSelection extends Feature {
     /**
      * The pixel location of the mouse pointer during a drag operation.
      */
-    currentDrag: Point = null;
+    private _currentDrag: Point;
 
     /**
      * The horizontal cell coordinate of the where the mouse pointer is during a drag operation.
      */
-    lastDragColumn = -1 // null;
+    private _lastDragColumn = -1 // null;
 
     /**
      * a millisecond value representing the previous time an autoscroll started
      */
-    sbLastAuto = 0;
+    private _sbLastAuto = 0;
 
     /**
      * a millisecond value representing the time the current autoscroll started
      */
-    sbAutoStart = 0;
+    private _sbAutoStart = 0;
 
-    dragging = false;
-    doubleClickTimer: ReturnType<typeof setTimeout>;
+    private _dragging = false;
+    private _doubleClickTimer: ReturnType<typeof setTimeout> | undefined;
 
 
     override handleMouseUp(event: MouseCellEvent) {
-        if (this.dragging) {
-            this.dragging = false;
+        if (this._dragging) {
+            this._dragging = false;
         }
         if (this.next) {
             this.next.handleMouseUp(event);
@@ -45,9 +45,9 @@ export class ColumnSelection extends Feature {
     }
 
     override handleDoubleClick(event: MouseCellEvent) {
-        if (this.doubleClickTimer) {
-            clearTimeout(this.doubleClickTimer); // prevent mouseDown from continuing
-            this.doubleClickTimer = undefined;
+        if (this._doubleClickTimer !== undefined) {
+            clearTimeout(this._doubleClickTimer); // prevent mouseDown from continuing
+            this._doubleClickTimer = undefined;
         }
         if (this.next) {
             this.next.handleDoubleClick(event);
@@ -55,7 +55,7 @@ export class ColumnSelection extends Feature {
     }
 
     override handleMouseDown(event: MouseCellEvent) {
-        if (this.doubleClickTimer) {
+        if (this._doubleClickTimer !== undefined) {
             return;
         }
 
@@ -70,12 +70,12 @@ export class ColumnSelection extends Feature {
             )
         ) {
             // HOLD OFF WHILE WAITING FOR DOUBLE-CLICK
-            this.doubleClickTimer = setTimeout(
+            this._doubleClickTimer = setTimeout(
                 () => this.doubleClickTimerCallback(event),
                 this.doubleClickDelay(event)
             );
-        } else if (this.next) {
-            this.next.handleMouseDown(event);
+        } else {
+            super.handleMouseDown(event);
         }
     }
 
@@ -85,13 +85,13 @@ export class ColumnSelection extends Feature {
             grid.properties.columnSelection &&
             !this.isColumnDragging() &&
             !event.mouse.isRightClick &&
-            this.dragging
+            this._dragging
         ) {
             //if we are in the fixed area do not apply the scroll values
-            this.lastDragColumn = event.gridCell.x;
-            this.currentDrag = event.mouse.mouse;
-            this.checkDragScroll(this.currentDrag);
-            this.handleMouseDragCellSelection(this.lastDragColumn);
+            this._lastDragColumn = event.gridCell.x;
+            this._currentDrag = event.mouse.mouse;
+            this.checkDragScroll(this._currentDrag);
+            this.handleMouseDragCellSelection(this._lastDragColumn);
         } else if (this.next) {
             this.next.handleMouseDrag(event);
         }
@@ -99,13 +99,16 @@ export class ColumnSelection extends Feature {
 
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
         const grid = this.grid;
-        const handler = grid.getLastSelectionType() === SelectionType.Column &&
-                this['handle' + eventDetail.primitiveEvent.key];
-
-        if (handler) {
-            handler(eventDetail);
-        } else if (this.next) {
-            this.next.handleKeyDown(eventDetail);
+        const lastSelectionType = grid.getLastSelectionType();
+        if (lastSelectionType !== SelectionType.Column) {
+            super.handleKeyDown(eventDetail);
+        } else {
+            const handler = this[('handle' + eventDetail.primitiveEvent.key) as keyof ColumnSelection] as (() => void);
+            if (handler === undefined) {
+                super.handleKeyDown(eventDetail);
+            } else {
+                handler.call(this);
+            }
         }
     }
 
@@ -115,14 +118,19 @@ export class ColumnSelection extends Feature {
      */
     handleMouseDragCellSelection(x: number) {
         const grid = this.grid;
-        const mouseX = grid.getMouseDown().x;
+        const mouseDown = grid.getMouseDown();
+        if (mouseDown === undefined) {
+            throw new AssertError('CSHMDCS54455');
+        } else {
+            const mouseX = mouseDown.x;
 
-        grid.clearMostRecentColumnSelection();
+            grid.clearMostRecentColumnSelection();
 
-        grid.selectColumns(mouseX, x);
-        grid.setDragExtent(Point.create(x - mouseX, 0));
+            grid.selectColumns(mouseX, x);
+            grid.setDragExtent(Point.create(x - mouseX, 0));
 
-        grid.repaint();
+            grid.repaint();
+        }
     }
 
     /**
@@ -157,20 +165,24 @@ export class ColumnSelection extends Feature {
         const b = grid.getDataBounds();
         let xOffset: number;
 
-        if (this.currentDrag.x < b.origin.x) {
+        if (this._currentDrag.x < b.origin.x) {
             xOffset = -1;
-        } else if (this.currentDrag.x > b.origin.x + b.extent.x) {
-            xOffset = 1;
+        } else {
+            if (this._currentDrag.x > b.origin.x + b.extent.x) {
+                xOffset = 1;
+            } else {
+                xOffset = 0;
+            }
         }
 
-        if (xOffset) {
-            if (this.lastDragColumn >= grid.getFixedColumnCount()) {
-                this.lastDragColumn += xOffset;
+        if (xOffset !== 0) {
+            if (this._lastDragColumn >= grid.getFixedColumnCount()) {
+                this._lastDragColumn += xOffset;
             }
             grid.scrollColumnsBy(xOffset);
         }
 
-        this.handleMouseDragCellSelection(this.lastDragColumn); // update the selection
+        this.handleMouseDragCellSelection(this._lastDragColumn); // update the selection
         grid.repaint();
         setTimeout(() => this.scrollDrag(), 25);
     }
@@ -180,25 +192,30 @@ export class ColumnSelection extends Feature {
      */
     extendSelection(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
         const grid = this.grid;
-        if (!grid.abortEditing()) { return; }
+        if (grid.abortEditing()) {
+            const mouseDown = grid.getMouseDown();
+            if (mouseDown === undefined) {
+                throw new AssertError('CSES77765');
+            } else {
+                const mouseX = mouseDown.x;
 
-        const mouseX = grid.getMouseDown().x;
+                if (x < 0) { // outside of the grid?
+                    return; // do nothing
+                }
 
-        if (x < 0) { // outside of the grid?
-            return; // do nothing
+                if (shiftKeyDown) {
+                    grid.clearMostRecentColumnSelection();
+                    grid.selectColumns(x, mouseX);
+                    grid.setDragExtent(Point.create(x - mouseX, 0));
+                } else {
+                    grid.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
+                    grid.setMouseDown(Point.create(x, 0));
+                    grid.setDragExtent(Point.create(0, 0));
+                }
+
+                grid.repaint();
+            }
         }
-
-        if (shiftKeyDown) {
-            grid.clearMostRecentColumnSelection();
-            grid.selectColumns(x, mouseX);
-            grid.setDragExtent(Point.create(x - mouseX, 0));
-        } else {
-            grid.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
-            grid.setMouseDown(Point.create(x, 0));
-            grid.setDragExtent(Point.create(0, 0));
-        }
-
-        grid.repaint();
     }
 
 
@@ -263,7 +280,7 @@ export class ColumnSelection extends Feature {
      * @desc set the start time to right now when we initiate an auto scroll
      */
     setAutoScrollStartTime() {
-        this.sbAutoStart = Date.now();
+        this._sbAutoStart = Date.now();
     }
 
     /**
@@ -271,20 +288,20 @@ export class ColumnSelection extends Feature {
      */
     pingAutoScroll() {
         const now = Date.now();
-        if (now - this.sbLastAuto > 500) {
+        if (now - this._sbLastAuto > 500) {
             this.setAutoScrollStartTime();
         }
-        this.sbLastAuto = Date.now();
+        this._sbLastAuto = Date.now();
     }
 
     /**
      * @desc answer how long we have been auto scrolling
      */
     getAutoScrollDuration() {
-        if (Date.now() - this.sbLastAuto > 500) {
+        if (Date.now() - this._sbLastAuto > 500) {
             return 0;
         }
-        return Date.now() - this.sbAutoStart;
+        return Date.now() - this._sbAutoStart;
     }
 
     /**
@@ -295,25 +312,29 @@ export class ColumnSelection extends Feature {
         const grid = this.grid;
         const origin = grid.getMouseDown();
         const extent = grid.getDragExtent();
-        let newX = extent.x + offsetX;
-        const maxViewableColumns = grid.renderer.visibleColumns.length - 1;
-        let maxColumns = grid.getActiveColumnCount() - 1;
+        if (origin === undefined || extent === undefined) {
+            throw new AssertError('CSMSS10087');
+        } else {
+            let newX = extent.x + offsetX;
+            const maxViewableColumns = grid.renderer.visibleColumns.length - 1;
+            let maxColumns = grid.getActiveColumnCount() - 1;
 
-        if (!grid.properties.scrollingEnabled) {
-            maxColumns = Math.min(maxColumns, maxViewableColumns);
+            if (!grid.properties.scrollingEnabled) {
+                maxColumns = Math.min(maxColumns, maxViewableColumns);
+            }
+
+            newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
+
+            grid.clearMostRecentColumnSelection();
+            grid.selectColumns(origin.x, origin.x + newX);
+            grid.setDragExtent(Point.create(newX, 0));
+
+            if (grid.ensureModelColIsVisible(newX + origin.x, offsetX)) {
+                this.pingAutoScroll();
+            }
+
+            grid.repaint();
         }
-
-        newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
-
-        grid.clearMostRecentColumnSelection();
-        grid.selectColumns(origin.x, origin.x + newX);
-        grid.setDragExtent(Point.create(newX, 0));
-
-        if (grid.ensureModelColIsVisible(newX + origin.x, offsetX)) {
-            this.pingAutoScroll();
-        }
-
-        grid.repaint();
     }
 
     /**
@@ -323,32 +344,37 @@ export class ColumnSelection extends Feature {
     override moveSingleSelect(offsetX: number) {
         const grid = this.grid;
         const extent = grid.getDragExtent();
-        const mouseCorner = Point.plus(grid.getMouseDown(), extent);
-        let newX = mouseCorner.x + offsetX;
-        let maxColumns = grid.getActiveColumnCount() - 1;
-        const maxViewableColumns = grid.getVisibleColumnsCount() - 1;
+        const mouseDown = grid.getMouseDown();
+        if (mouseDown === undefined || extent === undefined) {
+            throw new AssertError('CSMSS22209');
+        } else {
+            const mouseCorner = Point.plus(mouseDown, extent);
+            let newX = mouseCorner.x + offsetX;
+            let maxColumns = grid.getActiveColumnCount() - 1;
+            const maxViewableColumns = grid.getVisibleColumnsCount() - 1;
 
-        if (!grid.properties.scrollingEnabled) {
-            maxColumns = Math.min(maxColumns, maxViewableColumns);
+            if (!grid.properties.scrollingEnabled) {
+                maxColumns = Math.min(maxColumns, maxViewableColumns);
+            }
+
+            newX = Math.min(maxColumns, Math.max(0, newX));
+
+            grid.beginSelectionChange();
+            try {
+                grid.clearSelection();
+                grid.selectColumns(newX);
+            } finally {
+                grid.endSelectionChange();
+            }
+            grid.setMouseDown(Point.create(newX, 0));
+            grid.setDragExtent(Point.create(0, 0));
+
+            if (grid.ensureModelColIsVisible(newX, offsetX)) {
+                this.pingAutoScroll();
+            }
+
+            grid.repaint();
         }
-
-        newX = Math.min(maxColumns, Math.max(0, newX));
-
-        grid.beginSelectionChange();
-        try {
-            grid.clearSelection();
-            grid.selectColumns(newX);
-        } finally {
-            grid.endSelectionChange();
-        }
-        grid.setMouseDown(Point.create(newX, 0));
-        grid.setDragExtent(Point.create(0, 0));
-
-        if (grid.ensureModelColIsVisible(newX, offsetX)) {
-            this.pingAutoScroll();
-        }
-
-        grid.repaint();
     }
 
     isColumnDragging() {
@@ -357,19 +383,21 @@ export class ColumnSelection extends Feature {
     }
 
     private doubleClickDelay(event: CellEvent) {
-        let columnProperties: ColumnProperties;
-
-        return (
-            event.isHeaderCell &&
-            (columnProperties = event.columnProperties).sortable &&
-            columnProperties.sortOnDoubleClick &&
-            300
-        );
+        if (event.isHeaderCell) {
+            const columnProperties = event.columnProperties;
+            if (columnProperties.sortable && columnProperties.sortOnDoubleClick) {
+                return 300;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
     }
 
     private doubleClickTimerCallback(event: MouseCellEvent) {
-        this.doubleClickTimer = undefined;
-        this.dragging = true;
+        this._doubleClickTimer = undefined;
+        this._dragging = true;
         const mouseEvent = event.mouse.primitiveEvent;
         this.extendSelection(event.gridCell.x, mouseEvent.shiftKey, mouseEvent.ctrlKey);
     }

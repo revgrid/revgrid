@@ -368,7 +368,8 @@ export class FinBar {
         this._contentSize = range.finish - range.start + 1;
         this._contentNext = this._contentFinish + 1;
         if (this._indexMode) {
-            this.index = this.index; // re-clamp
+            const index = this.index;
+            this.index = index; // re-clamp
         }
     }
     get contentRange() {

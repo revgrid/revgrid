@@ -1,4 +1,5 @@
 import {
+    AdapterSetConfig,
     CellEvent,
     GridProperties,
     Revgrid,
@@ -29,25 +30,26 @@ export class SimpleGrid extends Revgrid {
     ) {
         const adapterSet = new RevSimpleAdapterSet();
 
+        const adapterSetConfig: AdapterSetConfig = {
+            schemaModel: adapterSet.schemaAdapter,
+            subgrids: [
+                {
+                    role: Subgrid.RoleEnum.header,
+                    dataModel: adapterSet.headerAdapter,
+                },
+                {
+                    role: Subgrid.RoleEnum.main,
+                    dataModel: adapterSet.mainAdapter,
+                }
+            ],
+        };
+
         const options: Revgrid.Options = {
-            adapterSet: {
-                schemaModel: adapterSet.schemaAdapter,
-                subgrids: [
-                    {
-                        role: Subgrid.RoleEnum.header,
-                        dataModel: adapterSet.headerAdapter,
-                    },
-                    {
-                        role: Subgrid.RoleEnum.main,
-                        dataModel: adapterSet.mainAdapter,
-                    }
-                ],
-            },
             gridProperties,
             loadBuiltinFinbarStylesheet: false,
         };
 
-        super(gridElement, options);
+        super(gridElement, adapterSetConfig, options);
 
         this._adapterSet = adapterSet;
 
@@ -67,27 +69,22 @@ export class SimpleGrid extends Revgrid {
     get columnCount(): number { return this.getActiveColumnCount(); }
 
     get focusedRowIndex(): number | undefined {
-        const selections = this.selections;
+        const rectangles = this.getSelectedRectangles();
 
-        if (selections === null || selections.length === 0) {
+        if (rectangles.length === 0) {
             return undefined;
         } else {
-            const rowIndex = selections[0].firstSelectedCell.y;
-
-            if (rowIndex >= this.mainAdapter.getRowCount()) {
-                return undefined;
-            } else {
-                return rowIndex
-            }
+            const rowIndex = rectangles[0].firstSelectedCell.y;
+            return rowIndex
         }
     }
 
     set focusedRowIndex(rowIndex: number | undefined) {
         if (rowIndex === undefined) {
-            this.clearSelections();
+            this.clearSelection();
         } else {
             if (rowIndex === undefined) {
-                this.clearSelections();
+                this.clearSelection();
             } else {
                 this.selectRows(rowIndex, rowIndex);
             }
@@ -167,9 +164,9 @@ export class SimpleGrid extends Revgrid {
     }
 
     private handleHypegridSelectionChanged(event: CustomEvent<SelectionDetail>) {
-        const selections = event.detail.selections;
+        const rectangles = event.detail.getSelectedRectangles();
 
-        if (selections.length === 0) {
+        if (rectangles.length === 0) {
             if (this._lastNotifiedFocusedRowIndex !== undefined) {
                 const oldSelectedRowIndex = this._lastNotifiedFocusedRowIndex;
                 this._lastNotifiedFocusedRowIndex = undefined;
@@ -179,8 +176,8 @@ export class SimpleGrid extends Revgrid {
                 }
             }
         } else {
-            const selection = selections[0];
-            const rowIndex = selection.firstSelectedCell.y;
+            const rectangle = rectangles[0];
+            const rowIndex = rectangle.firstSelectedCell.y;
             if (rowIndex !== this._lastNotifiedFocusedRowIndex) {
                 const oldFocusedRowIndex = this._lastNotifiedFocusedRowIndex;
                 this._lastNotifiedFocusedRowIndex = rowIndex;

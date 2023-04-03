@@ -16,10 +16,10 @@ import { automat } from './automat';
  * @param {string} id - The name of the style sheet in `this`, a stylesheet "registry" (hash of stylesheets).
  * @returns {Element|*}
  */
-export function injectStylesheetTemplate(callingContext: Record<string, unknown>, before: boolean, id: string, ...replacements: unknown[]): HTMLElement {
-    let stylesheet: HTMLElement;
-    let head: HTMLHeadElement;
-    let refNode: Node;
+export function injectStylesheetTemplate(callingContext: Record<string, unknown>, before: boolean, id: string, ...replacements: unknown[]): HTMLElement | null {
+    let stylesheet: HTMLElement | null;
+    let head: HTMLHeadElement | null;
+    let refNode: Node | undefined;
     let css: string;
     const prefix = injectStylesheetTemplate.prefix;
 
@@ -28,28 +28,30 @@ export function injectStylesheetTemplate(callingContext: Record<string, unknown>
     if (!stylesheet) {
         head = document.querySelector('head');
 
-        if (before) {
-            // note position of first stylesheet
+        if (head !== null) {
+            if (before) {
+                // note position of first stylesheet
 
-            refNode = Array.prototype.slice.call(head.children).find(
-                (child) => {
-                    const id = child.getAttribute('id');
-                    return child.tagName === 'STYLE' && (!id || id.indexOf(prefix) !== prefix) ||
-                        child.tagName === 'LINK' && child.getAttribute('rel') === 'stylesheet';
-                }
-            );
+                refNode = Array.prototype.slice.call(head.children).find(
+                    (child) => {
+                        const childId = child.getAttribute('id');
+                        return child.tagName === 'STYLE' && (!childId || childId.indexOf(prefix) !== prefix) ||
+                            child.tagName === 'LINK' && child.getAttribute('rel') === 'stylesheet';
+                    }
+                );
+            }
+
+            css = callingContext[id] as string;
+
+            if (!css) {
+                throw 'Expected to find member `' + id + '` in calling context.';
+            }
+
+            const template = '<style>\n' + css + '\n</style>\n';
+
+            stylesheet = automat.append(template, head, refNode ?? null, ...replacements)[0] as HTMLElement;
+            stylesheet.id = prefix + id;
         }
-
-        css = callingContext[id] as string;
-
-        if (!css) {
-            throw 'Expected to find member `' + id + '` in calling context.';
-        }
-
-        const template = '<style>\n' + css + '\n</style>\n';
-
-        stylesheet = automat.append(template, head, refNode ?? null, ...replacements)[0] as HTMLElement;
-        stylesheet.id = prefix + id;
     }
 
     return stylesheet;

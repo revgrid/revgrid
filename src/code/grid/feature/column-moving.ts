@@ -1,5 +1,6 @@
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { Feature } from '../feature/feature';
+import { AssertError } from '../grid-public-api';
 import { Point } from '../lib/point';
 import { Renderer } from '../renderer/renderer';
 
@@ -13,8 +14,8 @@ interface Action {
 interface MoveAction extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
-    source: Renderer.VisibleColumn | null;
-    target: Renderer.VisibleColumn | null;
+    source: Renderer.VisibleColumn;
+    target: Renderer.VisibleColumn;
 }
 
 interface ScrollAction extends Action {
@@ -74,8 +75,8 @@ export class ColumnMoving extends Feature {
         ) {
             this._dragArmed = true;
             this.cursor = ColumnMoving.GRABBING;
-            this.grid.mainSubgrid.requestStashSelection();
-            this.grid.featuresSharedState.mouseDownUpClickUsedForMoveOrResize = true;
+            this.selection.requestStashSelection();
+            this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
         }
         super.handleMouseDown(event);
     }
@@ -87,21 +88,24 @@ export class ColumnMoving extends Feature {
 
             this.endGridScrolling();
             this.endDragColumn(dragAction);
-            this.grid.mainSubgrid.requestUnstashSelection();
-            this.cursor = null
+            this.selection.requestUnstashSelection();
+            this.cursor = undefined;
             // End Column Drag
             setTimeout(() => {
                 this.attachChain();
                 // This is fired so the hover feature
                 //  can update the hovered column
-                this.next.handleMouseMove(event);
+                const next = this.next;
+                if (next !== undefined) {
+                    next.handleMouseMove(event);
+                }
             }, 50);
             this._dragging = false;
-            this.grid.featuresSharedState.mouseDownUpClickUsedForMoveOrResize = true;
+            this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
         }
         this._dragArmed = false;
         this._dragOverlay.style.display = 'none';
-        requestAnimationFrame(() => this.render(null));
+        requestAnimationFrame(() => this.render(undefined));
         super.handleMouseUp(event);
     }
 
@@ -117,13 +121,12 @@ export class ColumnMoving extends Feature {
         ) {
             this.cursor = ColumnMoving.GRAB;
         } else {
-            this.cursor = null;
+            this.cursor = undefined;
         }
 
         if (this._dragging) {
             this.cursor = ColumnMoving.GRABBING;
-        }
-        else {
+        } else {
             super.handleMouseMove(event);
         }
     }
@@ -140,11 +143,10 @@ export class ColumnMoving extends Feature {
             this._dragCol = event.visibleColumn;
             this._dragOverlay.width = grid.canvas.width;
             this._dragOverlay.height = grid.canvas.height;
-            this._dragOverlay.style.display = null;
+            this._dragOverlay.style.display = '';
             this._dragging = true;
             this.detachChain();
-        }
-        else {
+        } else {
             super.handleMouseDrag(event);
         }
 
@@ -154,14 +156,12 @@ export class ColumnMoving extends Feature {
 
             if (dragAction.type === DragActionType.Scroll) {
                 this.scroll(dragAction);
-            }
-            else {
+            } else {
                 this.endGridScrolling();
             }
 
             requestAnimationFrame(() => this.render(dragAction));
         }
-
     }
 
     private scroll(action: ScrollAction) {
@@ -193,31 +193,35 @@ export class ColumnMoving extends Feature {
         400);
     }
 
-    private render(dragAction: ColumnDragAction) {
+    private render(dragAction: ColumnDragAction | undefined) {
         const grid = this.grid;
 
         const dragContext = this._dragOverlay.getContext('2d', { alpha: true });
-        this._dragOverlay.width = grid.canvas.width;
-        this._dragOverlay.height = grid.canvas.height;
-        dragContext.clearRect(0, 0, grid.canvas.width, grid.canvas.height);
+        if (dragContext === null) {
+            throw new AssertError('CMR18887');
+        } else {
+            this._dragOverlay.width = grid.canvas.width;
+            this._dragOverlay.height = grid.canvas.height;
+            dragContext.clearRect(0, 0, grid.canvas.width, grid.canvas.height);
 
-        if (dragAction !== null) {
+            if (dragAction !== undefined) {
 
-            if (dragAction.type == DragActionType.Move) {
-                const indicatorX = dragAction.location === MoveLocation.Before
-                    ? dragAction.target.left
-                    : dragAction.target.rightPlus1;
-                dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
-                dragContext.fillRect(indicatorX, 0, 2, grid.canvas.height);
-            }
+                if (dragAction.type == DragActionType.Move) {
+                    const indicatorX = dragAction.location === MoveLocation.Before
+                        ? dragAction.target.left
+                        : dragAction.target.rightPlus1;
+                    dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
+                    dragContext.fillRect(indicatorX, 0, 2, grid.canvas.height);
+                }
 
-            const dragCol = grid.renderer.getVisibleColumn(this._dragCol.activeColumnIndex);
-            if (dragCol) {
-                const hideAction = dragAction.type === DragActionType.Scroll && grid.properties.columnsReorderableHideable && dragAction.mouseOffGrid;
-                dragContext.fillStyle = hideAction
-                    ? 'rgba(255, 50, 50, 0.2)'
-                    : 'rgba(50, 50, 255, 0.2)';
-                dragContext.fillRect(dragCol.left, 0, dragCol.width, grid.canvas.height);
+                const dragCol = grid.renderer.getVisibleColumn(this._dragCol.activeColumnIndex);
+                if (dragCol) {
+                    const hideAction = dragAction.type === DragActionType.Scroll && grid.properties.columnsReorderableHideable && dragAction.mouseOffGrid;
+                    dragContext.fillStyle = hideAction
+                        ? 'rgba(255, 50, 50, 0.2)'
+                        : 'rgba(50, 50, 255, 0.2)';
+                    dragContext.fillRect(dragCol.left, 0, dragCol.width, grid.canvas.height);
+                }
             }
         }
     }
@@ -264,8 +268,8 @@ export class ColumnMoving extends Feature {
         colIsFixed: boolean,
         gridWidth: number,
         gridPoint: Point,
-        mousePoint: Point): ColumnDragAction
-    {
+        mousePoint: Point
+    ): ColumnDragAction {
         const mouseLeftOffGrid = gridPoint.x < 0;
         const mouseRightOffGrid = gridPoint.x >= gridWidth;
         const scrollLeft = colIsFixed || mouseLeftOffGrid;

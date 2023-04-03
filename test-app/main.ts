@@ -1,4 +1,4 @@
-import { defaultGridProperties, HalignEnum, Revgrid } from '..';
+import { AdapterSet, defaultGridProperties, HalignEnum, Revgrid } from '..';
 import { HeaderDataAdapter } from './header-data-adapter';
 import { MainDataAdapter } from './main-data-adapter';
 import { SchemaAdapter } from './schema-adapter';
@@ -144,21 +144,22 @@ export class Main {
 
         this._mainDataAdapter = new MainDataAdapter();
 
+        const adapterSet: AdapterSet = {
+            schemaModel: new SchemaAdapter(),
+            subgrids: [
+                {
+                    dataModel: new HeaderDataAdapter(),
+                    role: 'header',
+                },
+                {
+                    dataModel: this._mainDataAdapter,
+                    role: 'main',
+                }
+            ],
+        };
+
         const gridOptions: Revgrid.Options = {
             container: this._gridHostElement,
-            adapterSet: {
-                schemaModel: new SchemaAdapter(),
-                subgrids: [
-                    {
-                        dataModel: new HeaderDataAdapter(),
-                        role: 'header',
-                    },
-                    {
-                        dataModel: this._mainDataAdapter,
-                        role: 'main',
-                    }
-                ],
-            },
             gridProperties: {
                 renderFalsy: true,
                 editable: true,
@@ -176,9 +177,9 @@ export class Main {
                 scrollHorizontallySmoothly: defaultScrollHorizontallySmoothly,
                 visibleColumnWidthAdjust: defaultVisibleColumnWidthAdjust,
             }
-        }
+        };
 
-        this._grid = new Revgrid(this._gridHostElement, gridOptions);
+        this._grid = new Revgrid(this._gridHostElement, adapterSet, gridOptions);
 
         this._fixedColumnCountTextboxElement.value = this._grid.properties.fixedColumnCount.toString();
         this._cellPaddingTextboxElement.value = this._grid.properties.cellPadding.toString();

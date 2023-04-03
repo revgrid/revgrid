@@ -1,6 +1,7 @@
 
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Renderer } from '../renderer/renderer';
+import { Selection } from '../selection/selection';
 import { GridPainter } from './grid-painter';
 
 /** @summary Render the grid with discrete column rects.
@@ -23,8 +24,8 @@ import { GridPainter } from './grid-painter';
  */
 
 export class ByColumnsDiscreteGridPainter extends GridPainter {
-    constructor(renderer: Renderer) {
-        super(renderer, ByColumnsDiscreteGridPainter.key, false, undefined);
+    constructor(renderer: Renderer, selection: Selection) {
+        super(renderer, selection, ByColumnsDiscreteGridPainter.key, false, undefined);
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
@@ -73,7 +74,7 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
             const columnClip = vc.column.properties.columnClip;
             gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
-            let preferredWidth = 0;
+            let preferredWidth: number | undefined;
             // For each row of each subgrid (of each column)...
             for (let r = 0; r < R; r++, p++) {
                 beingPaintedCell = pool[p]; // next cell down the column (redundant for first cell in column)
@@ -81,7 +82,14 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
                 const config = beingPaintedCell.subgrid.getCellPaintConfig(beingPaintedCell);
 
                 try {
-                    preferredWidth = Math.max(preferredWidth, this.paintCell(gc, beingPaintedCell, config, prefillColor));
+                    const paintWidth = this.paintCell(gc, beingPaintedCell, config, prefillColor);
+                    if (paintWidth !== undefined) {
+                        if (preferredWidth === undefined) {
+                            preferredWidth = paintWidth;
+                        } else {
+                            preferredWidth = Math.max(preferredWidth, paintWidth);
+                        }
+                    }
                 } catch (e) {
                     this.paintErrorCell(e as Error, gc, vc, beingPaintedCell.visibleRow);
                 }
@@ -89,7 +97,9 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
 
             gc.clipRestore();
 
-            beingPaintedCell.column.properties.preferredWidth = Math.ceil(preferredWidth);
+            if (preferredWidth !== undefined) {
+                beingPaintedCell.column.properties.preferredWidth = Math.ceil(preferredWidth);
+            }
         });
 
         // gc.clipRestore(clipToGrid);

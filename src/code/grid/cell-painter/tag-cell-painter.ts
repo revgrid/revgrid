@@ -5,7 +5,7 @@ import { CellPainter } from './cell-painter';
 
 export class TagCellPainter extends CellPainter {
 
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig) {
+    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {
         //     const tagband = tagbands.find((tagband) => {
@@ -28,6 +28,7 @@ export class TagCellPainter extends CellPainter {
         //         gc.fill();
         //     }
         // }
+        return undefined;
     }
 }
 

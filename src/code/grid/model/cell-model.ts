@@ -71,8 +71,8 @@ export interface CellModel {
      * Developer's override of this method may add custom properties, for the purposes listed above.
      *
      * Hypergrid adds the following properties, required by {@link CellEditor}:
-     * * **`.format`** - The cell's `format` render prop (name of localizer to use to format the editor preload and parse the edited value). May be `undefined` (no formatting or parsing). Added by calling {@link Column#getCellEditorAt|getCellEditorAt} method. Developer's override is free to alter this property.
-     * **`.column`** ({@link Column} object), the only enumerable property of the native `CellEvent` object. Read-only.
+     * * **`.format`** - The cell's `format` render prop (name of localizer to use to format the editor preload and parse the edited value). May be `undefined` (no formatting or parsing). Added by calling `Column#getCellEditorAt|getCellEditorAt` method. Developer's override is free to alter this property.
+     * **`.column`**, the only enumerable property of the native `CellEvent` object. Read-only.
      *
      * > Note: The `editPoint` property formerly available to cell editors in version 1 has been deprecated in favor of `cellEvent.gridCell`.
      *

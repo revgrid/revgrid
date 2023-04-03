@@ -156,62 +156,6 @@ export class Column {
         return autoSized;
     }
 
-    getCellType(y: number) {
-        const value = this.getValue(y);
-        return this.typeOf(value);
-    }
-
-    getType() {
-        const props = this.properties;
-        let type = props.type;
-        if (!type) {
-            type = this.computeColumnType();
-            if (type !== 'unknown') {
-                props.type = type;
-            }
-        }
-        return type;
-    }
-
-    /** @internal */
-    computeColumnType() {
-        const headerRowCount = this.grid.getHeaderRowCount();
-        const height = this.grid.getRowCount();
-        let value = this.getValue(headerRowCount);
-        let eachType = this.typeOf(value);
-        if (!eachType) {
-            return 'unknown';
-        }
-        const type = this.typeOf(value);
-        //var isNumber = ((typeof value) === 'number');
-        for (let y = headerRowCount; y < height; y++) {
-            value = this.getValue(y);
-            eachType = this.typeOf(value);
-            // if (type !== eachType) {
-            //     if (isNumber && (typeof value === 'number')) {
-            //         type = 'float';
-            //     } else {
-            //         return 'mixed';
-            //     }
-            // }
-        }
-        return type;
-    }
-
-    typeOf(something: unknown) {
-        if (something == null) {
-            return null;
-        }
-        switch (typeof something) {
-            case 'object':
-                return something.constructor.name.toLowerCase();
-            case 'number':
-                return parseInt(something.toString()) === something ? 'int' : 'float';
-            default:
-                return typeof something;
-        }
-    }
-
     get properties() {
         return this._properties;
     }
@@ -239,7 +183,7 @@ export class Column {
      * @param color
      */
     /** @internal */
-    setBackgroundColor(color) {
+    setBackgroundColor(color: string) {
         if (this.properties.backgroundColor !== color) {
             this.properties.backgroundColor = color;
             this.grid.renderer.rebundleGridRenderers();
@@ -316,7 +260,12 @@ export class Column {
     /** @internal */
     setCellProperties(rowIndex: number, properties: MetaModel.CellOwnProperties | undefined, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined {
         if (properties) {
-            return Object.assign(this.newCellOwnPropertiesObject(rowIndex, subgrid), properties);
+            const cellOwnPropertiesObject = this.newCellOwnPropertiesObject(rowIndex, subgrid);
+            if (cellOwnPropertiesObject) {
+                return Object.assign(cellOwnPropertiesObject, properties);
+            } else {
+                return undefined;
+            }
         } else {
             return undefined;
         }
@@ -328,9 +277,9 @@ export class Column {
      * @returns Cell's own properties object, which will be created by this call if it did not already exist.
      */
     /** @internal */
-    addCellProperties(rowIndex: number, properties: MetaModel.CellOwnProperties | undefined, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined {
-        if (properties) {
-            const existingCellOwnProperties = this.getCellPropertiesObject(rowIndex, subgrid)
+    addCellProperties(rowIndex: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid): MetaModel.CellOwnProperties | MetaModel.RowProperties | undefined {
+        const existingCellOwnProperties = this.getCellPropertiesObject(rowIndex, subgrid);
+        if (existingCellOwnProperties) {
             assignOrDelete(existingCellOwnProperties, properties);
             return existingCellOwnProperties;
         } else {
@@ -354,12 +303,12 @@ export class Column {
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `null`.
      */
     /** @internal */
-    getCellOwnProperties(rowIndex: number, subgrid: Subgrid): MetaModel.CellOwnProperties | null {
+    getCellOwnProperties(rowIndex: number, subgrid: Subgrid): MetaModel.CellOwnProperties | null | false | undefined {
         // const dataModel = subgrid !== undefined ? subgrid.dataModel : this.dataModel;
         const metadata = subgrid.getRowMetadata(rowIndex);
-        const properties = metadata && metadata[this.name] as MetaModel.CellOwnProperties;
+        const properties = metadata && metadata[this.name as keyof MetaModel.RowMetadata] as MetaModel.CellOwnProperties;
 
-        return properties ?? null; // null means not previously created
+        return properties; // undefined means not previously created
     }
 
     /**
@@ -371,7 +320,7 @@ export class Column {
         // subgrid = subgrid || this.dataModel;
         const metadata = subgrid.getRowMetadata(rowIndex);
         if (metadata) {
-            delete metadata[this.name];
+            delete metadata[this.name as keyof MetaModel.RowMetadata];
             if (Object.keys(metadata).length === 0) {
                 subgrid.setRowMetadata(rowIndex);
             }
@@ -400,10 +349,14 @@ export class Column {
      * @returns Cell's own properties object, which will be created by this call if it did not already exist.
      */
     /** @internal */
-    setCellProperty(rowIndex: number, key: string, value: unknown, subgrid: Subgrid): MetaModel.CellOwnProperties {
+    setCellProperty(rowIndex: number, key: string, value: unknown, subgrid: Subgrid): MetaModel.CellOwnProperties | MetaModel.RowProperties | undefined {
         const cellProps = this.getCellPropertiesObject(rowIndex, subgrid);
-        cellProps[key] = value;
-        return cellProps;
+        if (cellProps !== undefined) {
+            cellProps[key] = value;
+            return cellProps;
+        } else {
+            return undefined;
+        }
     }
 
     /**
@@ -542,15 +495,15 @@ export class Column {
      * @param rowIndex - Data row coordinate.
      * @internal *
     */
-    private getCellPropertiesObject(rowIndex: number, subgrid: Subgrid): MetaModel.CellOwnProperties {
-        return this.getCellOwnProperties(rowIndex, subgrid) ?? this.newCellOwnPropertiesObject(rowIndex, subgrid);
+    private getCellPropertiesObject(rowIndex: number, subgrid: Subgrid): MetaModel.CellOwnProperties | MetaModel.RowProperties | undefined {
+        return this.getCellOwnProperties(rowIndex, subgrid) || this.newCellOwnPropertiesObject(rowIndex, subgrid);
     }
 
     /**
      * @param rowIndex - Data row coordinate.
      * @internal *
      */
-    private newCellOwnPropertiesObject(rowIndex: number, subgrid: Subgrid): MetaModel.CellOwnProperties {
+    private newCellOwnPropertiesObject(rowIndex: number, subgrid: Subgrid): MetaModel.CellOwnProperties | MetaModel.RowProperties | undefined {
         // This may need more work
         // const dataModel = subgrid !== undefined ? subgrid.dataModel : this.dataModel;
         const metadata = subgrid.getRowMetadata(rowIndex, null);
@@ -570,12 +523,22 @@ export class Column {
         //         }
         // }
 
-        return (metadata[this.name]/* = Object.create(props)*/);
+        if (metadata) {
+            return (metadata[this.name as keyof MetaModel.RowMetadata]/* = Object.create(props)*/);
+        } else {
+            return undefined;
+        }
     }
 
     // End CellProperties Mixin
 }
 
+/** @public */
+export interface ColumnsDataValuesObject {
+    [columnName: string]: DataModel.DataValue[];
+}
+
+/** @public */
 export interface ColumnWidth {
     column: Column;
     width: number | undefined;

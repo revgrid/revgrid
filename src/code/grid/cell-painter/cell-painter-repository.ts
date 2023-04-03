@@ -1,5 +1,6 @@
 
 import { Registry } from '../lib/registry';
+import { AssertError } from '../lib/revgrid-error';
 import { ButtonCellPainter } from './button-cell-painter';
 import { CellPainter } from './cell-painter';
 import { ErrorCellPainter } from './error-cell-painter';
@@ -59,8 +60,12 @@ export class CellPainterRepository {
         let cellPainter = this.cache.get(name);
         if (cellPainter === undefined) {
             const constructor = this.constructorRegistry.get(name);
-            cellPainter = new constructor();
-            this.cache.set(name, cellPainter);
+            if (constructor === undefined) {
+                throw new AssertError('CPRG11109', name);
+            } else {
+                cellPainter = new constructor();
+                this.cache.set(name, cellPainter);
+            }
         }
         return cellPainter;
     }

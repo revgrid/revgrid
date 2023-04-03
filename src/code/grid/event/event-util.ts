@@ -2,7 +2,7 @@ import { EventName } from './event-name';
 
 
 
-export function newEvent<T extends EventName>(eventName: T, detail: EventName.DetailMap[T], cancelable?: boolean) {
+export function newEvent<T extends EventName>(eventName: T, detail: EventName.DetailMap[T] | undefined, cancelable?: boolean) {
     const eventInit: CustomEventInit<EventName.DetailMap[T]> = {
         detail,
         cancelable,

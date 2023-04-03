@@ -15,7 +15,8 @@ import { Rectangle, RectangleInterface } from '../lib/rectangle';
 import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
 import { invalidModelUpdateId, lowestValidModelUpdateId, ModelUpdateId } from '../model/schema-model';
 import { Revgrid } from '../revgrid';
-import { SelectionType } from '../subgrid/selection/selection-type';
+import { Selection } from '../selection/selection';
+import { SelectionType } from '../selection/selection-type';
 import { Subgrid } from '../subgrid/subgrid';
 import { RenderAction } from './render-action';
 import { RenderActioner } from './render-actioner';
@@ -48,7 +49,7 @@ import { RenderActioner } from './render-actioner';
  *
  */
 export class Renderer {
-    private readonly gridPainterRepository = new GridPainterRepository();
+    private readonly gridPainterRepository: GridPainterRepository;
     readonly cellPainterRepository = new CellPainterRepository();
     /**
      * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
@@ -62,7 +63,7 @@ export class Renderer {
      * 2. A zero-based list of consecutive of integers representing the fixed columns (if any).
      * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
      */
-    visibleColumns = new Renderer.VisibleColumnArray();
+    readonly visibleColumns = new Renderer.VisibleColumnArray();
 
     /**
      * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
@@ -75,7 +76,7 @@ export class Renderer {
      *
      * Note that non-scrollable subgrids can come both before _and_ after the scrollable subgrid.
      */
-    visibleRows = new Renderer.VisibleRowArray();
+    readonly visibleRows = new Renderer.VisibleRowArray();
 
     private _visibleColumnsByIndex = new Array<Renderer.VisibleColumn>();  // array because number of columns will always be reasonable
     private _visibleRowsByDataRowIndex = new Map<number, Renderer.VisibleRow>(); // hash because keyed by (fixed and) scrolled row indexes
@@ -150,9 +151,11 @@ export class Renderer {
 
     constructor(
         public readonly grid: Revgrid,
+        selection: Selection,
         private readonly _columnsManager: ColumnsManager,
         private readonly _gc: CanvasRenderingContext2DEx,
     ) {
+        this.gridPainterRepository = new GridPainterRepository(this, selection);
         this._renderActioner.actionsEvent = (actions) => this.processRenderActions(actions);
 
         document.addEventListener('visibilitychange', this._pageVisibilityChangeListener);
@@ -213,11 +216,11 @@ export class Renderer {
     }
 
     getGridPainter(key: string) {
-        return this.gridPainterRepository.get(this, key);
+        return this.gridPainterRepository.get(key);
     }
 
     setGridPainter(key: string) {
-        const gridPainter = this.gridPainterRepository.get(this, key);
+        const gridPainter = this.gridPainterRepository.get(key);
 
         if (!gridPainter) {
             throw new AssertError('RSGP68240', 'Unregistered grid renderer "' + key + '"');
@@ -885,36 +888,33 @@ export class Renderer {
         const vcs = this.visibleColumns;
         const firstColumn = vcs[0];
         const inFirstColumn = firstColumn && x < firstColumn.rightPlus1;
-        let vc = inFirstColumn ? firstColumn : vcs.find((vc) => { return x < vc.rightPlus1; });
-        let vr = vrs.find(function(vr) { return y < vr.bottom; });
+        let vc = inFirstColumn ? firstColumn : vcs.find((aVc) => x < aVc.rightPlus1);
+        let vr = vrs.find((aVr) => y < aVr.bottom);
         let fake = false;
 
         //default to last row and col
-        if (vr) {
+        if (vr !== undefined) {
             isPseudoRow = false;
         } else {
             vr = vrs[vrs.length - 1];
             isPseudoRow = true;
         }
 
-        if (vc) {
+        if (vc !== undefined) {
             isPseudoCol = false;
         } else {
             vc = vcs[vcs.length - 1];
             isPseudoCol = true;
         }
 
-        let beingPaintedCell: BeingPaintedCell;
-        if (vc !== undefined) {
-            beingPaintedCell = new BeingPaintedCell(this.grid, vc.activeColumnIndex, vr.index);
-            const beingPaintedCellFromPool = this.findCell(beingPaintedCell);
-            beingPaintedCell = beingPaintedCellFromPool ? Object.create(beingPaintedCellFromPool) : beingPaintedCell;
-            beingPaintedCell.mousePoint = Point.create(x - vc.left, y - vr.top);
-        }
+        let beingPaintedCell = new BeingPaintedCell(this.grid, vc.activeColumnIndex, vr.index);
+        const beingPaintedCellFromPool = this.findCell(beingPaintedCell);
+        beingPaintedCell = beingPaintedCellFromPool ? Object.create(beingPaintedCellFromPool) : beingPaintedCell;
+        beingPaintedCell.mousePoint = Point.create(x - vc.left, y - vr.top);
 
         if (isPseudoCol || isPseudoRow) {
             fake = true;
-            this.grid.beCursor(null);
+            this.grid.beCursor(undefined);
         }
 
         return {
@@ -1327,7 +1327,7 @@ export class Renderer {
         const editorCellEvent = grid.cellEditor && grid.cellEditor.renderedCell;
 
         let vcEd: Renderer.VisibleColumn;
-        let xEd: number;
+        let xEd: number | undefined;
         let vrEd: Renderer.VisibleRow;
         let yEd: number;
         let sgEd: Subgrid;
@@ -1365,9 +1365,9 @@ export class Renderer {
         let vr: Renderer.VisibleRow;
         let vc: Renderer.VisibleColumn;
         let height: number;
-        let firstVX: number;
+        let firstVX: number | undefined;
         let lastVX: number;
-        let firstVY: number;
+        let firstVY: number | undefined;
         let lastVY: number;
         let topR: number;
 
@@ -1396,7 +1396,7 @@ export class Renderer {
         }
 
         this.visibleColumns.length = 0;
-        this.visibleColumns.gap = this.visibleColumns[-1] = this.visibleColumns[-2] = undefined;
+        this.visibleColumns.gap = undefined;
 
         this.visibleRows.length = 0;
         this.visibleRows.gap = undefined;
@@ -1618,11 +1618,13 @@ export class Renderer {
             const R = r + subrows; // row loop limit
             for (; r < R && y < Y; r++) {
                 const gap = isMainSubgrid && r === fixedRowIndex;
+                let unBottomedvisibleRowsGap: Renderer.VisibleRowArray.Gap | undefined;
                 if (gap) {
                     this.visibleRows.gap = {
                         top: vr.bottom + fixedOverlapH,
-                        bottom: undefined
+                        bottom: -1, // this will be replaced below after bottom is calculated
                     };
+                    unBottomedvisibleRowsGap = this.visibleRows.gap;
                     y += fixedGapH;
                 } else if (y) {
                     y += lineGapH;
@@ -1653,8 +1655,8 @@ export class Renderer {
                     bottom: y + height
                 };
 
-                if (gap) {
-                    this.visibleRows.gap.bottom = vr.top;
+                if (unBottomedvisibleRowsGap) {
+                    unBottomedvisibleRowsGap.bottom = vr.top;
                 }
 
                 if (isMainSubgrid) {
@@ -1677,7 +1679,7 @@ export class Renderer {
             editorCellEvent.visibleColumn = vcEd;
             editorCellEvent.visibleRow = vrEd;
             editorCellEvent.gridCell.y = vrEd && vrEd.index;
-            editorCellEvent._bounds = null;
+            editorCellEvent._bounds = undefined;
         }
 
         this.dataWindow = new InclusiveRectangle(
@@ -1891,19 +1893,16 @@ export namespace Renderer {
         rightPlus1: number;
         /** Width of this column in pixels, rounded to nearest integer. */
         width: number;
-
-        top?: number; // not used anymore I think (maybe by tree)
-        bottom?: number; // not used anymore I think (maybe by tree)
     }
 
     export class VisibleColumnArray extends Array<VisibleColumn> {
-        gap: VisibleColumnArray.Gap;
+        gap: VisibleColumnArray.Gap | undefined;
     }
 
     export namespace VisibleColumnArray {
         export interface Gap {
             left: number;
-            rightPlus1: number | undefined;
+            rightPlus1: number;
         }
     }
 
@@ -1929,7 +1928,7 @@ export namespace Renderer {
     export namespace VisibleRowArray {
         export interface Gap {
             top: number;
-            bottom: number | undefined;
+            bottom: number;
         }
     }
 

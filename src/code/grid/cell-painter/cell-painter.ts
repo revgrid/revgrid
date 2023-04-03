@@ -93,7 +93,7 @@ export abstract class CellPainter {
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
-    abstract paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): void;
+    abstract paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined;
 
     /**
      * @desc A simple implementation of rounding a cell.

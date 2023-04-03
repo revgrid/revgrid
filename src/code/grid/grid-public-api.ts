@@ -1,5 +1,6 @@
 // Public API
 
+export { AdapterSetConfig, SubgridDefinition } from './adapter-set-config';
 export { CanvasRenderingContext2DEx } from './canvas/canvas-rendering-context-2d-ex';
 export { CellPainter } from './cell-painter/cell-painter';
 export { BeingPaintedCell } from './cell/being-painted-cell';
@@ -18,14 +19,12 @@ export * from './lib/revgrid-error';
 export * from './lib/types';
 export { CellModel } from './model/cell-model';
 export { DataModel } from './model/data-model';
-export { MainDataModel } from './model/main-data-model';
 export { MetaModel } from './model/meta-model';
 export { invalidModelUpdateId, lowestValidModelUpdateId, ModelUpdateId, SchemaModel } from './model/schema-model';
 export { CellPaintConfig } from './renderer/cell-paint-config';
 export { CellPaintConfigAccessor } from './renderer/cell-paint-config-accessor';
 export { Revgrid } from './revgrid';
-export { SelectionDetail } from './subgrid/selection/selection-detail';
-export { SelectionRectangle } from './subgrid/selection/selection-rectangle';
+export { SelectionDetail } from './selection/selection-detail';
 export { MainSubgrid } from './subgrid/main-subgrid';
 export { Subgrid } from './subgrid/subgrid';
 

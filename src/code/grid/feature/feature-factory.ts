@@ -16,6 +16,7 @@ import { TouchScrolling } from '../feature/touch-scrolling';
 import { Registry } from '../lib/registry';
 import { Revgrid } from '../revgrid';
 import { Feature } from './feature';
+import { FeatureServices } from './feature-services';
 
 
 
@@ -46,12 +47,12 @@ class FeatureFactory {
         this._registry.register(name, constructor);
     }
 
-    create(name: string, grid: Revgrid) {
+    create(name: string, grid: Revgrid, services: FeatureServices) {
         const constructor = this._registry.get(name);
         if (constructor === undefined) {
             return undefined;
         } else {
-            return new constructor(grid);
+            return new constructor(grid, services);
         }
     }
 }

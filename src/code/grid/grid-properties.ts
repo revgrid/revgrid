@@ -2,9 +2,8 @@ import { CellEvent } from './cell/cell-event';
 import { defaultGridProperties } from './default-grid-properties';
 import { Effect } from './effects/effects';
 import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
-import { deepClone } from './lib/utils';
+import { deepExtendValue } from './lib/utils';
 import { SchemaModel } from './model/schema-model';
-import { Subgrid } from './subgrid/subgrid';
 
 /** @public */
 export interface GridProperties {
@@ -50,7 +49,7 @@ export interface GridProperties {
     columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
     columnsReorderableHideable: boolean;
-    centerIcon: string;
+    centerIcon: string | undefined;
     defaultRowHeight: number;
     defaultColumnWidth: number;
     editable: boolean;
@@ -60,7 +59,7 @@ export interface GridProperties {
     /** Open cell editor when cell selected via keyboard navigation. */
     editOnNextCell: boolean;
     /** Name of a cell editor. */
-    editor: string;
+    editor: string | undefined;
     /** Emit events arising from SchemaModel and DataModel callbacks */
     emitModelEvents: boolean;
     /** @summary Re-render grid at maximum speed.
@@ -124,7 +123,7 @@ export interface GridProperties {
     foregroundSelectionColor: GridProperties.Color;
     foregroundSelectionFont: string;
     /** Name of a formatter for cell text. */
-    format: string;
+    format: string | undefined;
     /**
      * Instead of visible columns starting from left side of canvas, they end at the right side of canvas
      * So last column is always visible and the first one visible is dependent on the width of the canvas
@@ -158,7 +157,7 @@ export interface GridProperties {
     hoverRowHighlight: GridProperties.HoverColors;
     hScrollbarClassPrefix: string,
     iconPadding: number;
-    leftIcon: string;
+    leftIcon: string | undefined;
     lineColor: GridProperties.Color;
     lineWidth: number;
     /** Display cell value as a link (with underline). */
@@ -176,7 +175,7 @@ export interface GridProperties {
     /** The maximum number of columns that may participate in a multi-column sort (via ctrl-click headers). */
     maxSortColumns: number;
     minimumColumnWidth: number;
-    maximumColumnWidth: number;
+    maximumColumnWidth: number | undefined;
     visibleColumnWidthAdjust: boolean;
     /** Allow multiple cell region selections. */
     multipleSelections: boolean;
@@ -194,7 +193,7 @@ export interface GridProperties {
      */
     repaintImmediately: boolean;
     repaintIntervalRate: number;
-    rightIcon: string;
+    rightIcon: string | undefined;
     resizeColumnInPlace: boolean;
     /** Restore column selections across data transformations (`reindex` calls). */
     restoreColumnSelections: boolean;
@@ -217,7 +216,7 @@ export interface GridProperties {
     selectionRegionOutlineColor: GridProperties.Color;
     /** Fill color for last selection overlay. */
     selectionRegionOverlayColor: GridProperties.Color;
-    settingState: boolean;
+    settingState?: boolean;
     singleRowSelectionMode: boolean;
     showFilterRow: boolean;
     /** Sort column on double-click rather than single-click. */
@@ -243,11 +242,6 @@ export interface GridProperties {
 /** @public */
 export namespace GridProperties {
     export type Color = /* CanvasGradient | CanvasPattern |*/ string;
-
-    export interface AdapterSet {
-        schemaModel: (SchemaModel | SchemaModel.Constructor),
-        subgrids: Subgrid.Spec[],
-    }
 
     export interface Calculators {
         [calculatorName: string]: SchemaModel.Column.CalculateFunction;
@@ -292,7 +286,6 @@ export namespace GridProperties {
     export interface RowStripe {
         backgroundColor?: string;
     }
-
 
     /**
      * @summary Mappings for cell navigation keys.
@@ -406,18 +399,16 @@ export namespace GridProperties {
      * @returns true if any properties changed - otherwise false
      */
     export function assign(source: Partial<GridProperties>, target: GridProperties): boolean {
-        const sourceKeys = Object.keys(source);
+        const sourceKeys = Object.keys(source) as (keyof GridProperties)[];
         if (sourceKeys.length === 0) {
             return false;
         } else {
             for (const key of sourceKeys) {
-                let value = source[key];
-
-                if (typeof value === 'object') {
-                    value = deepClone(value);
+                if (Object.prototype.hasOwnProperty.call(source, key)) {
+                    const typedValue = source[key];
+                    const value = deepExtendValue({}, typedValue);
+                    (target[key] as unknown) = value;
                 }
-
-                target[key] = value;
             }
             return true;
         }

@@ -1,13 +1,11 @@
 
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { Column, ColumnWidth } from '../column/column';
-import { ColumnsManager } from '../grid-public-api';
 import { Revgrid } from '../revgrid';
 import { Feature } from './feature';
 
 export abstract class ColumnRowResizing extends Feature {
     private dragColumn: Column | undefined;
-    private readonly _columnsManager: ColumnsManager;
 
     /**
      * the pixel location of the where the drag was initiated
@@ -20,12 +18,7 @@ export abstract class ColumnRowResizing extends Feature {
     dragStartWidth = -1;
 
     inPlaceAdjacentStartWidth: number;
-    inPlaceAdjacentColumn: Column;
-
-    constructor(grid: Revgrid) {
-        super(grid)
-        this._columnsManager = grid.columnsManager;
-    }
+    inPlaceAdjacentColumn: Column | undefined;
 
     /**
      * @desc get the mouse x,y coordinate
@@ -58,7 +51,7 @@ export abstract class ColumnRowResizing extends Feature {
             const dragWidth = this.dragStartWidth + delta;
             const inPlaceAdjacentWidth = this.inPlaceAdjacentStartWidth - delta;
             if (!this.inPlaceAdjacentColumn) { // nextColumn et al instance vars defined when resizeColumnInPlace (by handleMouseDown)
-                this._columnsManager.setActiveColumnWidth(this.dragColumn, dragWidth, true);
+                this.columnsManager.setActiveColumnWidth(this.dragColumn, dragWidth, true);
             } else {
                 const np = this.inPlaceAdjacentColumn.properties;
                 const dp = this.dragColumn.properties;
@@ -73,7 +66,7 @@ export abstract class ColumnRowResizing extends Feature {
                         { column: this.dragColumn, width: dragWidth },
                         { column: this.inPlaceAdjacentColumn, width: inPlaceAdjacentWidth },
                     ];
-                    this._columnsManager.setColumnWidths(columnWidths, true);
+                    this.columnsManager.setColumnWidths(columnWidths, true);
                 }
             }
         } else if (this.next) {
@@ -189,7 +182,7 @@ export abstract class ColumnRowResizing extends Feature {
             } else {
                 this.inPlaceAdjacentColumn = undefined; // in case resizeColumnInPlace was previously on but is now off
             }
-            this.grid.featuresSharedState.mouseDownUpClickUsedForMoveOrResize = true;
+            this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
         } else {
             super.handleMouseDown(event);
         }
@@ -197,13 +190,13 @@ export abstract class ColumnRowResizing extends Feature {
 
     override handleMouseUp(event: MouseCellEvent) {
         if (this.dragColumn !== undefined) {
-            this.cursor = null;
+            this.cursor = undefined;
             this.dragColumn = undefined;
 
             event.mouse.primitiveEvent.stopPropagation();
             //delay here to give other events a chance to be dropped
             this.grid.behaviorShapeChanged();
-            this.grid.featuresSharedState.mouseDownUpClickUsedForMoveOrResize = true;
+            this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
         } else {
             super.handleMouseUp(event);
         }
@@ -211,12 +204,12 @@ export abstract class ColumnRowResizing extends Feature {
 
     override handleMouseMove(event: MouseCellEvent | undefined) {
         if (this.dragColumn === undefined) {
-            this.cursor = null;
+            this.cursor = undefined;
 
             super.handleMouseMove(event);
 
             if (event !== undefined) {
-                this.cursor = event !== undefined && event.isHeaderRow && this.overAreaDivider(event) ? this.getCursorName() : null;
+                this.cursor = event !== undefined && event.isHeaderRow && this.overAreaDivider(event) ? this.getCursorName() : undefined;
             }
         }
     }

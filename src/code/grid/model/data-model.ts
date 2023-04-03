@@ -73,9 +73,9 @@ export interface DataModel {
      * Get a row of data.
      *
      * The injected default implementation is an object of lazy getters.
-     * @returns {number|undefined} The data row corresponding to the given `rowIndex`; or `undefined` if no such row.
+     * @returns {number} The data row corresponding to the given `rowIndex`. If row does not exist, then throw error.
      */
-    getRow?(rowIndex: number): DataModel.DataRow | undefined;
+    getRow?(rowIndex: number): DataModel.DataRow;
 
     /**
      * @returns The number of data rows currently contained in the model.
@@ -219,5 +219,24 @@ export namespace DataModel {
         invalidateRowColumns: (this: void, rowIndex: number, schemaColumnIndex: number, columnCount: number) => void;
         invalidateRowCells: (this: void, rowIndex: number, schemaColumnIndexes: number[]) => void;
         invalidateCell: (this: void, schemaColumnIndex: number, rowIndex: number) => void;
+
+        /**
+         * @desc The data models should trigger this event immediately before data model remaps the rows.
+         * Hypergrid responds by saving the underlying row indices of currently selected rows — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
+         * ```js
+         * grid.addEventListener('rev-data-prereindex', myHandlerFunction);
+         * ```
+         * This event is not cancelable.
+         */
+        preReindex: (this: void) => void;
+        /**
+         * @desc The data models should trigger this event immediately after data model remaps the rows.
+         * Hypergrid responds by reselecting the remaining rows matching the indices previously saved in the `data-prereindex` event, and then calling {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
+         * ```js
+         * grid.addEventListener('rev-data-postreindex', myHandlerFunction);
+         * ```
+         * This event is not cancelable.
+         */
+        postReindex: (this: void) => void;
     }
 }

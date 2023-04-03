@@ -17,7 +17,7 @@ export class ColumnSorting extends Feature {
     }
 
     override handleClick(event: MouseCellEvent) {
-        if (!this.grid.featuresSharedState.mouseDownUpClickUsedForMoveOrResize) {
+        if (!this.sharedState.mouseDownUpClickUsedForMoveOrResize) {
             this.sort(event, false);
         }
     }
@@ -28,16 +28,15 @@ export class ColumnSorting extends Feature {
 
     override handleMouseMove(event: MouseCellEvent) {
         if (event !== undefined) {
-            let columnProperties: ColumnProperties;
-            if (
-                event.isRowFixed &&
-                event.isHeaderCell &&
-                (columnProperties = this._columnsManager.getActiveColumnProperties(event.gridCell.x)) &&
-                columnProperties.sortable
-            ) {
-                this.cursor = 'pointer';
+            if (event.isRowFixed && event.isHeaderCell) {
+                const columnProperties = this._columnsManager.getActiveColumnProperties(event.gridCell.x);
+                if ((columnProperties !== undefined) && columnProperties.sortable) {
+                    this.cursor = 'pointer';
+                } else {
+                    this.cursor = undefined;
+                }
             } else {
-                this.cursor = null;
+                this.cursor = undefined;
             }
         }
 

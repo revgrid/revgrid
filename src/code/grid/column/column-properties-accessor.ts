@@ -1,6 +1,6 @@
 import { GridProperties } from '../grid-properties';
 import { Halign } from '../lib/types';
-import { deepClone } from '../lib/utils';
+import { deepExtendValue } from '../lib/utils';
 import { SchemaModel } from '../model/schema-model';
 import { Column } from './column';
 import { ColumnProperties } from './column-properties';
@@ -15,6 +15,7 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
     private _columnAutosizingMax: number | undefined;
     private _columnClip: boolean | undefined;
     private _editable: boolean | undefined;
+    private _editOnDoubleClick: boolean | undefined;
     private _editOnKeydown: boolean | undefined;
     private _editOnNextCell: boolean | undefined;
     private _editor: string | undefined;
@@ -56,12 +57,12 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
 
     get name() { return this._column.name; }
     get type() { return this._column.type; }
-    set type(value: string) { this._column.type = value; }
+    set type(value: string | undefined) { this._column.type = value; }
     get calculator() { return this._column.calculator; }
     set calculator(value: SchemaModel.Column.Calculator) { this._column.calculator = value; }
 
     get preferredWidth() { return this._preferredWidth; }
-    set preferredWidth(value: number) { this._preferredWidth = value; }
+    set preferredWidth(value: number | undefined) { this._preferredWidth = value; }
 
     get cellPadding() { return this._cellPadding ?? this._gridProperties.cellPadding; }
     set cellPadding(value: number) { this._cellPadding = value; }
@@ -73,12 +74,14 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
     set columnClip(value: boolean | undefined) { this._columnClip = value; }
     get editable() { return this._editable ?? this._gridProperties.editable; }
     set editable(value: boolean) { this._editable = value; }
+    get editOnDoubleClick() { return this._editOnDoubleClick ?? this._gridProperties.editOnDoubleClick; }
+    set editOnDoubleClick(value: boolean) { this._editOnDoubleClick = value; }
     get editOnKeydown() { return this._editOnKeydown ?? this._gridProperties.editOnKeydown; }
     set editOnKeydown(value: boolean) { this._editOnKeydown = value; }
     get editOnNextCell() { return this._editOnNextCell ?? this._gridProperties.editOnNextCell; }
     set editOnNextCell(value: boolean) { this._editOnNextCell = value; }
     get editor() { return this._editor ?? this._gridProperties.editor; }
-    set editor(value: string) { this._editor = value; }
+    set editor(value: string | undefined) { this._editor = value; }
     get feedbackCount() { return this._feedbackCount ?? this._gridProperties.feedbackCount; }
     set feedbackCount(value: number) { this._feedbackCount = value; }
     get filterable() { return this._filterable ?? this._gridProperties.filterable; }
@@ -86,7 +89,7 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
     get font() { return this._font ?? this._gridProperties.font; }
     set font(value: string) { this._font = value; }
     get format() { return this._format ?? this._gridProperties.format; }
-    set format(value: string) { this._format = value; }
+    set format(value: string | undefined) { this._format = value; }
     get gridLinesVWidth() { return this._gridLinesVWidth ?? this._gridProperties.gridLinesVWidth; }
     set gridLinesVWidth(value: number) { this._gridLinesVWidth = value; }
     get gridLinesHWidth() { return this._gridLinesHWidth ?? this._gridProperties.gridLinesHWidth; }
@@ -98,7 +101,7 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
     get linkTarget() { return this._linkTarget ?? this._gridProperties.linkTarget; }
     set linkTarget(value: string) { this._linkTarget = value; }
     get maximumColumnWidth() { return this._maximumColumnWidth ?? this._gridProperties.maximumColumnWidth; }
-    set maximumColumnWidth(value: number) { this._maximumColumnWidth = value; }
+    set maximumColumnWidth(value: number | undefined) { this._maximumColumnWidth = value; }
     get resizeColumnInPlace() { return this._resizeColumnInPlace ?? this._gridProperties.resizeColumnInPlace; }
     set resizeColumnInPlace(value: boolean) { this._resizeColumnInPlace = value; }
     get sortOnDoubleClick() { return this._sortOnDoubleClick ?? this._gridProperties.sortOnDoubleClick; }
@@ -135,13 +138,9 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
 
     merge(properties: Partial<ColumnProperties>) {
         Object.keys(properties).forEach((key) => {
-            let value = properties[key];
-
-            if (typeof value === 'object') {
-                value = deepClone(value);
-            }
-
-            this[key] = value;
+            const typedValue = properties[key as keyof ColumnProperties];
+            const value = deepExtendValue({}, typedValue);
+            (this[key as keyof ColumnPropertiesAccessor] as unknown) = value;
         });
     }
 }
@@ -154,21 +153,21 @@ export namespace ColumnPropertiesAccessor {
         get font() { return this._gridProperties.columnHeaderFont }
         set font(value: string) { this._gridProperties.columnHeaderFont = value; }
         get color() { return this._gridProperties.columnHeaderColor }
-        set color(value: /*CanvasGradient | CanvasPattern |*/ string | undefined) { this._gridProperties.columnHeaderColor = value; }
+        set color(value: /*CanvasGradient | CanvasPattern |*/ string) { this._gridProperties.columnHeaderColor = value; }
         get backgroundColor() { return this._gridProperties.columnHeaderBackgroundColor }
-        set backgroundColor(value: /*CanvasGradient | CanvasPattern |*/ string | undefined) { this._gridProperties.columnHeaderBackgroundColor = value; }
+        set backgroundColor(value: /*CanvasGradient | CanvasPattern |*/ string) { this._gridProperties.columnHeaderBackgroundColor = value; }
         get foregroundSelectionFont() { return this._gridProperties.columnHeaderForegroundSelectionFont }
         set foregroundSelectionFont(value: string) { this._gridProperties.columnHeaderForegroundSelectionFont = value; }
         get foregroundSelectionColor() { return this._gridProperties.columnHeaderForegroundSelectionColor }
-        set foregroundSelectionColor(value: /*CanvasGradient | CanvasPattern |*/ string | undefined) { this._gridProperties.columnHeaderForegroundSelectionColor = value; }
+        set foregroundSelectionColor(value: /*CanvasGradient | CanvasPattern |*/ string) { this._gridProperties.columnHeaderForegroundSelectionColor = value; }
         get backgroundSelectionColor() { return this._gridProperties.columnHeaderBackgroundSelectionColor }
-        set backgroundSelectionColor(value: /*CanvasGradient | CanvasPattern |*/ string | undefined) { this._gridProperties.columnHeaderBackgroundSelectionColor = value; }
+        set backgroundSelectionColor(value: /*CanvasGradient | CanvasPattern |*/ string) { this._gridProperties.columnHeaderBackgroundSelectionColor = value; }
         get halign() { return this._gridProperties.columnHeaderHalign }
-        set halign(value: Halign | undefined) { this._gridProperties.columnHeaderHalign = value; }
+        set halign(value: Halign) { this._gridProperties.columnHeaderHalign = value; }
         get format() { return this._gridProperties.columnHeaderFormat }
-        set format(value: string | undefined) { this._gridProperties.columnHeaderFormat = value; }
+        set format(value: string) { this._gridProperties.columnHeaderFormat = value; }
         get cellPainter() { return this._gridProperties.columnHeaderCellPainter }
-        set cellPainter(value: string | undefined) { this._gridProperties.columnHeaderCellPainter = value; }
+        set cellPainter(value: string) { this._gridProperties.columnHeaderCellPainter = value; }
         // get autosizing() { return this._gridProperties.columnAutosizing }
         // set autosizing(value: boolean | undefined) { this._gridProperties.columnAutosizing = value; }
         // get autosizingMax() { return this._gridProperties.columnAutosizingMax }
@@ -190,21 +189,21 @@ export namespace ColumnPropertiesAccessor {
         get font() { return this._gridProperties.filterFont }
         set font(value: string) { this._gridProperties.filterFont = value; }
         get color() { return this._gridProperties.filterColor }
-        set color(value: /*CanvasGradient | CanvasPattern |*/ string | undefined) { this._gridProperties.filterColor = value; }
+        set color(value: /*CanvasGradient | CanvasPattern |*/ string) { this._gridProperties.filterColor = value; }
         get backgroundColor() { return this._gridProperties.filterBackgroundColor }
-        set backgroundColor(value: /*CanvasGradient | CanvasPattern |*/ string | undefined) { this._gridProperties.filterBackgroundColor = value; }
+        set backgroundColor(value: /*CanvasGradient | CanvasPattern |*/ string) { this._gridProperties.filterBackgroundColor = value; }
         get foregroundSelectionColor() { return this._gridProperties.filterForegroundSelectionColor }
-        set foregroundSelectionColor(value: /*CanvasGradient | CanvasPattern |*/ string | undefined) { this._gridProperties.filterForegroundSelectionColor = value; }
+        set foregroundSelectionColor(value: /*CanvasGradient | CanvasPattern |*/ string) { this._gridProperties.filterForegroundSelectionColor = value; }
         get backgroundSelectionColor() { return this._gridProperties.filterBackgroundSelectionColor }
-        set backgroundSelectionColor(value: /*CanvasGradient | CanvasPattern |*/ string | undefined) { this._gridProperties.filterBackgroundSelectionColor = value; }
+        set backgroundSelectionColor(value: /*CanvasGradient | CanvasPattern |*/ string) { this._gridProperties.filterBackgroundSelectionColor = value; }
         get halign() { return this._gridProperties.filterHalign }
-        set halign(value: Halign | undefined) { this._gridProperties.filterHalign = value; }
+        set halign(value: Halign) { this._gridProperties.filterHalign = value; }
         get format() { return this._gridProperties.columnHeaderFormat }
-        set format(value: string | undefined) { this._gridProperties.columnHeaderFormat = value; }
+        set format(value: string) { this._gridProperties.columnHeaderFormat = value; }
         get cellPainter() { return this._gridProperties.filterCellPainter }
-        set cellPainter(value: string | undefined) { this._gridProperties.filterCellPainter = value; }
+        set cellPainter(value: string) { this._gridProperties.filterCellPainter = value; }
         get editor() { return this._gridProperties.filterEditor }
-        set editor(value: string | undefined) { this._gridProperties.filterEditor = value; }
+        set editor(value: string) { this._gridProperties.filterEditor = value; }
 
         get rightIcon() {
             const result = this._rightIcon;
@@ -214,7 +213,7 @@ export namespace ColumnPropertiesAccessor {
                 }
                 return result;
             } else {
-                return undefined;
+                return '';
             }
         }
         set rightIcon(value: string) {
