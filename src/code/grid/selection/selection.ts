@@ -31,7 +31,9 @@ export class Selection {
     private _beginChangeCount = 0;
     private _changed = false;
     private _silentlyChanged = false;
-    private _activeSubgrid: Subgrid | undefined;
+
+    private _lastEdgeSelectionX = 0;
+    private _lastEdgeSelectionY = 0;
 
     /** @internal */
     private _nestedStashSelectionsRequestCount = 0;
@@ -44,6 +46,7 @@ export class Selection {
         private readonly _columnsManager: ColumnsManager,
         private readonly _focus: Focus,
     ) {
+        _focus.subgridChanged_SelectionEventer = () => this.handleSubgridChanged();
     }
 
     get focusedSubgrid() { return this._focus.subgrid; }
@@ -108,12 +111,15 @@ export class Selection {
 
     selectRowsFromCellsOrLastRectangle() {
         if (!this._gridProperties.singleRowSelectionMode) {
-            this.selectRowsFromCells(0, true);
+            this.selectRowsFromRectangles(0, true);
         } else {
             const last = this.getLastRectangle();
             if (last !== undefined) {
                 this.clearRowSelection();
-                this.selectRows(last.corner.y);
+                const columnIndex = last.firstSelectedCell.x
+                const start = last.origin.y;
+                const stop = last.corner.y;
+                this.selectRows(start, stop, undefined, columnIndex);
             } else {
                 this.clearRowSelection();
             }
@@ -189,9 +195,14 @@ export class Selection {
      * @param extentY - extent y coordinate (height - 1)
      * @param silent - whether to fire selection changed event
      */
-    selectRectangle(originX: number, originY: number, extentX: number, extentY: number, silent = false) {
+    selectRectangle(originX: number, originY: number, extentX: number, extentY: number, subgrid: Subgrid | undefined, silent = false) {
         this.beginChange();
         try {
+            if (subgrid === undefined) {
+                subgrid = this._focus.subgrid;
+            }
+            this._focus.setXYCoordinatesAndSubgrid(originX, originY, subgrid);
+
             const newRectangle = new SelectionRectangle(originX, originY, extentX + 1, extentY + 1);
 
             if (this._gridProperties.multipleSelections) {
@@ -221,7 +232,7 @@ export class Selection {
      * @param ex - extent x coordinate
      * @param ey - extent y coordinate
      */
-    toggleRectangleSelect(ox: number, oy: number, ex: number, ey: number) {
+    toggleRectangleSelect(ox: number, oy: number, ex: number, ey: number, subgrid: Subgrid | undefined) {
 
         const index = this.rectangles.findIndex((rectangle) => {
             return (
@@ -242,17 +253,18 @@ export class Selection {
                 this.endChange();
             }
         } else {
-            this.selectRectangle(ox, oy, ex, ey);
+            this.selectRectangle(ox, oy, ex, ey, subgrid);
         }
     }
 
     /**
      * @desc Remove the last selection that was created.
      */
-    clearMostRecentRectangleSelection(keepRowSelections: boolean) {
+    clearMostRecentRectangleSelection() {
         this.beginChange();
         try {
             console.debug('clearmostrecent');
+            const keepRowSelections = this._gridProperties.checkboxOnlyRowSelections;
             if (!keepRowSelections) {
                 this.allRowsSelected = false;
             }
@@ -311,12 +323,12 @@ export class Selection {
      * @summary Selection query function.
      * @returns The given cell is selected (part of an active selection).
      */
-    isSelected(subgrid: Subgrid, x: number, y: number): boolean {
-        const { rowSelected, columnSelected, cellSelected } = this.getRowColumnCellSelected(subgrid, x, y);
+    isSelected(x: number, y: number, subgrid: Subgrid, ): boolean {
+        const { rowSelected, columnSelected, cellSelected } = this.getRowColumnCellSelected(x, y, subgrid);
         return (rowSelected || columnSelected || cellSelected);
     }
 
-    isCellSelected(subgrid: Subgrid, x: number, y: number) {
+    isCellSelected(x: number, y: number, subgrid: Subgrid) {
         return subgrid === this.focusedSubgrid && this.anyRectangleContainPoint(this.rectangles, x, y);
     }
 
@@ -327,7 +339,7 @@ export class Selection {
     /**
      * @desc empty out all our state
      */
-    clear(keepRowSelections = false) {
+    clear(forceClearRows = true) {
         this.beginChange();
         try {
             let changed = this.rectangles.length > 0 || !this.columns.isEmpty;
@@ -335,7 +347,8 @@ export class Selection {
             this._flattenedX.length = 0;
             this._flattenedY.length = 0;
             this.columns.clear();
-            if (!keepRowSelections) {
+            const clearRows = forceClearRows || !this._gridProperties.checkboxOnlyRowSelections;
+            if (!clearRows) {
                 changed ||= !this.rows.isEmpty || this.allRowsSelected;
                 this._lastSelectionTypes.length = 0;
                 this.allRowsSelected = false;
@@ -373,15 +386,19 @@ export class Selection {
         ) !== undefined;
     }
 
-    isColumnSelected(subgrid: Subgrid, x: number) {
-        return subgrid === this.focusedSubgrid && this.columns.isSelected(x);
+    isColumnSelected(x: number) {
+        return this.columns.isSelected(x);
     }
 
-    isRowSelected(subgrid: Subgrid, y: number) {
-        return subgrid === this.focusedSubgrid && (this._allRowsSelected || this.rows.isSelected(y));
+    isRowSelected(y: number, subgrid: Subgrid | undefined) {
+        const selected =
+            (subgrid === undefined || subgrid === this.focusedSubgrid)
+            &&
+            (this._allRowsSelected || this.rows.isSelected(y));
+        return selected;
     }
 
-    getRowColumnCellSelected(subgrid: Subgrid, x: number, y: number): Selection.RowColumnCellSelected {
+    getRowColumnCellSelected(x: number, y: number, subgrid: Subgrid): Selection.RowColumnCellSelected {
         if (subgrid === this.focusedSubgrid) {
             return {
                 rowSelected: this._allRowsSelected || this.rows.isSelected(y),
@@ -402,7 +419,7 @@ export class Selection {
         return rectangles.length > 0 && rectangles[0].firstSelectedCell.y === y;
     }
 
-    selectColumns(start: number, stop?: number) {
+    selectColumns(start: number, stop: number) {
         this.beginChange();
         const changed = this.columns.select(start, stop);
         if (changed) {
@@ -412,13 +429,60 @@ export class Selection {
         this.endChange();
     }
 
+    toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
+        const alreadySelected = this.isColumnSelected(x);
+        this.beginChange();
+        try {
+            if (!ctrlKeyDown && !shiftKeyDown) {
+                this.clear();
+                if (!alreadySelected) {
+                    this.selectColumns(x, x);
+                }
+            } else {
+                if (ctrlKeyDown) {
+                    if (alreadySelected) {
+                        this.deselectColumn(x, x);
+                    } else {
+                        this.selectColumns(x, x);
+                    }
+                }
+                if (shiftKeyDown) {
+                    this.clear();
+                    this.selectColumns(this._lastEdgeSelectionX, x);
+                }
+            }
+            if (!alreadySelected && !shiftKeyDown) {
+                this._lastEdgeSelectionX = x;
+            }
+        } finally {
+            this.endChange();
+        }
+    }
+
+
     selectAllRows() {
         this.clear();
         this.allRowsSelected = true;
     }
 
-    selectRows(start: number, stop?: number) {
+    selectRows(start: number, stop: number, subgrid: Subgrid | undefined, focusColumnIndex: number | undefined) {
         this.beginChange();
+
+        if (this._gridProperties.singleRowSelectionMode) {
+            this.clearRowSelection();
+            stop = start;
+        }
+
+        if (subgrid === undefined) {
+            subgrid = this._focus.subgrid;
+        }
+
+        if (focusColumnIndex === undefined) {
+            this._focus.setYCoordinateAndSubgrid(start, subgrid);
+        } else {
+            this._focus.setXYCoordinatesAndSubgrid(focusColumnIndex, start, subgrid);
+        }
+
         const changed = this.rows.select(start, stop);
         if (changed) {
             this.setLastSelectionType(SelectionType.Row, this.rows.ranges.length === 0);
@@ -427,7 +491,35 @@ export class Selection {
         this.endChange();
     }
 
-    deselectColumn(start: number, stop?: number) {
+    toggleSelectRow(y: number, shiftKeyDown: boolean, subgrid: Subgrid | undefined) {
+        //we can select the totals rows if they exist, but not rows above that
+        const alreadySelected = this.isRowSelected(y, subgrid);
+
+        this.beginChange();
+        try {
+            if (alreadySelected) {
+                this.deselectRow(y);
+            } else {
+                if (this._gridProperties.singleRowSelectionMode) {
+                    this.clearRowSelection();
+                }
+                this.selectRows(y, y, subgrid, undefined);
+            }
+
+            if (shiftKeyDown) {
+                this.clear();
+                this.selectRows(this._lastEdgeSelectionY, y, subgrid, undefined);
+            }
+
+            if (!alreadySelected && !shiftKeyDown) {
+                this._lastEdgeSelectionY = y;
+            }
+        } finally {
+            this.endChange();
+        }
+    }
+
+    deselectColumn(start: number, stop: number) {
         this.columns.deselect(start, stop);
         this.setLastSelectionType(SelectionType.Column, this.columns.ranges.length === 0);
     }
@@ -437,7 +529,7 @@ export class Selection {
             // To deselect a row, we must first remove the all rows flag...
             this.allRowsSelected = false;
             // ...and create a single range representing all rows
-            this.rows.select(0, this._focus.subgrid.dataModel.getRowCount() - 1);
+            this.rows.select(0, this._focus.subgrid.getRowCount() - 1);
         }
         this.rows.deselect(start, stop);
         this.setLastSelectionType(SelectionType.Row, this.rows.ranges.length === 0);
@@ -445,7 +537,7 @@ export class Selection {
 
     getRowCount() {
         if (this.allRowsSelected) {
-            return this._focus.subgrid.dataModel.getRowCount();
+            return this._focus.subgrid.getRowCount();
         } else {
             const ranges = this.rows.ranges;
             const rectangles = this.rectangles;
@@ -466,7 +558,7 @@ export class Selection {
 
     getRowIndices() {
         if (this.allRowsSelected) {
-            const rowCount = this._focus.subgrid.dataModel.getRowCount();
+            const rowCount = this._focus.subgrid.getRowCount();
             const result = new Array<number>(rowCount);
             for (let i = 0; i < rowCount; i++) {
                 result[i] = i;
@@ -507,20 +599,32 @@ export class Selection {
         return result;
     }
 
-    selectRowsFromCells(offset: number, keepRowSelections: boolean) {
+    selectRowsFromRectangles(offset: number, keepRowSelections: boolean) {
         const rows = this.rows;
 
         if (!keepRowSelections) {
             this.allRowsSelected = false;
-            rows.clear();
+            this.clearRowSelection();
         }
 
+        const last = this.getLastRectangle();
+
         this.rectangles.forEach((rectangle) => {
-            let top = rectangle.origin.y;
-            const extent = rectangle.extent.y;
-            top += offset;
-            rows.select(top, top + extent);
+            if (rectangle !== last) {
+                let start = rectangle.origin.y;
+                const extent = rectangle.extent.y;
+                start += offset;
+                rows.select(start, start + extent);
+            }
         });
+
+        if (last !== undefined) {
+            const columnIndex = last.firstSelectedCell.x
+            let start = last.origin.y;
+            const extent = last.extent.y;
+            start += offset;
+            this.selectRows(start, start + extent, undefined, columnIndex);
+        }
     }
 
     selectColumnsFromCells(offset = 0) {
@@ -663,6 +767,10 @@ export class Selection {
         }
     }
 
+    private handleSubgridChanged() {
+        this.clear();
+    }
+
     private stash() {
         if (this._stash !== undefined) {
             throw new AssertError('MSSS86665');
@@ -766,22 +874,23 @@ export class Selection {
     private restoreSingleFirstCellPositionStash(singleFirstCellPosition: SelectionStash.SingleFirstCellPosition | undefined) {
         if (singleFirstCellPosition !== undefined) {
             const { columnName, rowId: stashedRowId } = singleFirstCellPosition;
+            const subgrid = this.focusedSubgrid;
 
             const selectedColumnIndex = this._columnsManager.getActiveColumnIndexByName(columnName);
             if (selectedColumnIndex >= 0) {
-                const dataModel = this._focus.subgrid.dataModel;
+                const dataModel = subgrid.dataModel;
                 if (dataModel.getRowIndexFromId !== undefined) {
                     const rowIndex = dataModel.getRowIndexFromId(stashedRowId);
                     if (rowIndex !== undefined) {
-                        this.selectRectangle(selectedColumnIndex, rowIndex, 0, 0);
+                        this.selectRectangle(selectedColumnIndex, rowIndex, 0, 0, subgrid);
                     }
                 } else {
                     if (dataModel.getRowIdFromIndex !== undefined) {
-                        const rowCount = this._focus.subgrid.dataModel.getRowCount();
+                        const rowCount = subgrid.getRowCount();
                         for (let rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
                             const rowId = dataModel.getRowIdFromIndex(rowIndex);
                             if (rowId === stashedRowId) {
-                                this.selectRectangle(selectedColumnIndex, rowIndex, 0, 0);
+                                this.selectRectangle(selectedColumnIndex, rowIndex, 0, 0, subgrid);
                                 break;
                             }
                         }
@@ -820,7 +929,7 @@ export class Selection {
         if (rowIds !== undefined) {
             const rowIdCount = rowIds.length;
             if (rowIdCount > 0) {
-                const rowCount = this._focus.subgrid.dataModel.getRowCount();
+                const rowCount = this._focus.subgrid.getRowCount();
                 const dataModel = this._focus.subgrid.dataModel;
 
                 let rowIndexValues: number[] | undefined;
@@ -862,14 +971,14 @@ export class Selection {
                         const value = rowIndexValues[i];
                         if (value !== previousValue) {
                             if (value !== previousValuePlus1) {
-                                this.selectRows(startValue, previousValue);
+                                this.selectRows(startValue, previousValue, undefined, undefined);
                                 startValue = value;
                             }
                             previousValue = value;
                             previousValuePlus1 = previousValue + 1;
                         }
                     }
-                    this.selectRows(startValue, previousValue);
+                    this.selectRows(startValue, previousValue, undefined, undefined);
                 }
             }
         }

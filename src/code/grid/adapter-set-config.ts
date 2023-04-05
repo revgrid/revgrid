@@ -17,4 +17,5 @@ export interface SubgridDefinition {
     dataModel: DataModel | DataModel.Constructor,
     metaModel?: MetaModel | MetaModel.Constructor,
     cellModel?: CellModel | CellModel.Constructor,
+    selectable?: boolean,
 }

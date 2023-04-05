@@ -98,7 +98,7 @@ export class Filters extends Feature {
 
         // Select first visible grid cell of this column
         const grid = this.grid;
-        grid.focusViewportCell(gridX, 0);
+        grid.selectViewportCell(gridX, this.grid.calculateBeforeMainSubgridRowCount());
         grid.takeFocus();
     }
 

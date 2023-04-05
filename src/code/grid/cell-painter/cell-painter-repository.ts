@@ -74,3 +74,14 @@ export class CellPainterRepository {
         this.constructorRegistry.register(typeName, constructor);
     }
 }
+
+export namespace CellPainterRepository {
+    let defaultRepository: CellPainterRepository | undefined;
+
+    export function getDefault() {
+        if (defaultRepository === undefined) {
+            defaultRepository = new CellPainterRepository();
+        }
+        return defaultRepository;
+    }
+}

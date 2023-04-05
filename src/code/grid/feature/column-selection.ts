@@ -118,18 +118,20 @@ export class ColumnSelection extends Feature {
      */
     handleMouseDragCellSelection(x: number) {
         const grid = this.grid;
-        const mouseDown = grid.getMouseDown();
+        const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
+        const mouseDown = userInterfaceInputBehavior.getMouseDown();
         if (mouseDown === undefined) {
             throw new AssertError('CSHMDCS54455');
         } else {
             const mouseX = mouseDown.x;
 
-            grid.clearMostRecentColumnSelection();
+            const selectionBehavior = this.selectionBehavior;
+            selectionBehavior.clearMostRecentColumnSelection();
 
-            grid.selectColumns(mouseX, x);
-            grid.setDragExtent(Point.create(x - mouseX, 0));
+            selectionBehavior.selectColumns(mouseX, x);
+            this.userInterfaceInputBehavior.setDragExtent(Point.create(x - mouseX, 0));
 
-            grid.repaint();
+            this.rendererBehavior.repaint();
         }
     }
 
@@ -138,16 +140,17 @@ export class ColumnSelection extends Feature {
      */
     checkDragScroll(mouse: Point) {
         const grid = this.grid;
+        const scrollBehavior = this.scrollBehavior;
         if (
             grid.properties.scrollingEnabled &&
             grid.getDataBounds().containsPoint(mouse)
         ) {
-            if (grid.isScrollingNow()) {
-                grid.setScrollingNow(false);
+            if (scrollBehavior.isScrollingNow()) {
+                scrollBehavior.setScrollingNow(false);
             }
         } else {
-            if (!grid.isScrollingNow()) {
-                grid.setScrollingNow(true);
+            if (!scrollBehavior.isScrollingNow()) {
+                scrollBehavior.setScrollingNow(true);
                 this.scrollDrag();
             }
         }
@@ -158,7 +161,8 @@ export class ColumnSelection extends Feature {
      */
     scrollDrag() {
         const grid = this.grid;
-        if (!grid.isScrollingNow()) {
+        const scrollBehavior = this.scrollBehavior;
+        if (!scrollBehavior.isScrollingNow()) {
             return;
         }
 
@@ -179,11 +183,11 @@ export class ColumnSelection extends Feature {
             if (this._lastDragColumn >= grid.getFixedColumnCount()) {
                 this._lastDragColumn += xOffset;
             }
-            grid.scrollColumnsBy(xOffset);
+            scrollBehavior.scrollColumnsBy(xOffset);
         }
 
         this.handleMouseDragCellSelection(this._lastDragColumn); // update the selection
-        grid.repaint();
+        this.rendererBehavior.repaint();
         setTimeout(() => this.scrollDrag(), 25);
     }
 
@@ -193,7 +197,7 @@ export class ColumnSelection extends Feature {
     extendSelection(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
         const grid = this.grid;
         if (grid.abortEditing()) {
-            const mouseDown = grid.getMouseDown();
+            const mouseDown = this.userInterfaceInputBehavior.getMouseDown();
             if (mouseDown === undefined) {
                 throw new AssertError('CSES77765');
             } else {
@@ -203,17 +207,19 @@ export class ColumnSelection extends Feature {
                     return; // do nothing
                 }
 
+                const selectionBehavior = this.selectionBehavior;
+                const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
                 if (shiftKeyDown) {
-                    grid.clearMostRecentColumnSelection();
-                    grid.selectColumns(x, mouseX);
-                    grid.setDragExtent(Point.create(x - mouseX, 0));
+                    selectionBehavior.clearMostRecentColumnSelection();
+                    selectionBehavior.selectColumns(x, mouseX);
+                    userInterfaceInputBehavior.setDragExtent(Point.create(x - mouseX, 0));
                 } else {
-                    grid.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
-                    grid.setMouseDown(Point.create(x, 0));
-                    grid.setDragExtent(Point.create(0, 0));
+                    selectionBehavior.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
+                    userInterfaceInputBehavior.setMouseDown(Point.create(x, 0));
+                    userInterfaceInputBehavior.setDragExtent(Point.create(0, 0));
                 }
 
-                grid.repaint();
+                this.rendererBehavior.repaint();
             }
         }
     }
@@ -252,7 +258,7 @@ export class ColumnSelection extends Feature {
         // grid.setMouseDown(new grid.rectangular.Point(newX, newY));
         // grid.setDragExtent(new grid.rectangular.Point(0, 0));
 
-        // grid.repaint();
+        // this.rendererBehavior.repaint();
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -261,11 +267,11 @@ export class ColumnSelection extends Feature {
     }
 
     handleLEFT() {
-        this.moveSingleSelect(-1);
+        this.moveSingleSelect(-1, 0);
     }
 
     handleRIGHT() {
-        this.moveSingleSelect(1);
+        this.moveSingleSelect(1, 0);
     }
 
     /**
@@ -310,8 +316,9 @@ export class ColumnSelection extends Feature {
      */
     moveShiftSelect(offsetX: number) {
         const grid = this.grid;
-        const origin = grid.getMouseDown();
-        const extent = grid.getDragExtent();
+        const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
+        const origin = userInterfaceInputBehavior.getMouseDown();
+        const extent = userInterfaceInputBehavior.getDragExtent();
         if (origin === undefined || extent === undefined) {
             throw new AssertError('CSMSS10087');
         } else {
@@ -325,31 +332,32 @@ export class ColumnSelection extends Feature {
 
             newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
 
-            grid.clearMostRecentColumnSelection();
-            grid.selectColumns(origin.x, origin.x + newX);
-            grid.setDragExtent(Point.create(newX, 0));
+            const selectionBehavior = this.selectionBehavior;
+            selectionBehavior.clearMostRecentColumnSelection();
+            selectionBehavior.selectColumns(origin.x, origin.x + newX);
+            userInterfaceInputBehavior.setDragExtent(Point.create(newX, 0));
 
             if (grid.ensureModelColIsVisible(newX + origin.x, offsetX)) {
                 this.pingAutoScroll();
             }
 
-            grid.repaint();
+            this.rendererBehavior.repaint();
         }
     }
 
     /**
      * @desc Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
-     * @param offsetX - x coordinate to start at
+     * @param offsetY - x coordinate to start at
      */
-    override moveSingleSelect(offsetX: number) {
+    override moveSingleSelect(offsetX: number, offsetY: number) {
         const grid = this.grid;
-        const extent = grid.getDragExtent();
-        const mouseDown = grid.getMouseDown();
+        const extent = this.userInterfaceInputBehavior.getDragExtent();
+        const mouseDown = this.userInterfaceInputBehavior.getMouseDown();
         if (mouseDown === undefined || extent === undefined) {
             throw new AssertError('CSMSS22209');
         } else {
             const mouseCorner = Point.plus(mouseDown, extent);
-            let newX = mouseCorner.x + offsetX;
+            let newX = mouseCorner.x + offsetY;
             let maxColumns = grid.getActiveColumnCount() - 1;
             const maxViewableColumns = grid.getVisibleColumnsCount() - 1;
 
@@ -359,21 +367,22 @@ export class ColumnSelection extends Feature {
 
             newX = Math.min(maxColumns, Math.max(0, newX));
 
-            grid.beginSelectionChange();
+            const selectionBehavior = this.selectionBehavior;
+            selectionBehavior.beginChange();
             try {
-                grid.clearSelection();
-                grid.selectColumns(newX);
+                selectionBehavior.clearSelection(true);
+                selectionBehavior.selectColumns(newX, newX);
             } finally {
-                grid.endSelectionChange();
+                selectionBehavior.endChange();
             }
-            grid.setMouseDown(Point.create(newX, 0));
-            grid.setDragExtent(Point.create(0, 0));
+            this.userInterfaceInputBehavior.setMouseDown(Point.create(newX, 0));
+            this.userInterfaceInputBehavior.setDragExtent(Point.create(0, 0));
 
-            if (grid.ensureModelColIsVisible(newX, offsetX)) {
+            if (grid.ensureModelColIsVisible(newX, offsetY)) {
                 this.pingAutoScroll();
             }
 
-            grid.repaint();
+            this.rendererBehavior.repaint();
         }
     }
 

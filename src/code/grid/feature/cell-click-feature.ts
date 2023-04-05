@@ -101,8 +101,9 @@ export class CellClickFeature extends Feature {
         // STEP 5: Decorate the link as "visited"
         if (result) {
             cellEvent.setCellProperty('linkColor', grid.properties.linkVisitedColor);
-            grid.renderer.resetCellPropertiesCache(cellEvent);
-            grid.repaint();
+            const rendererBehavior = this.rendererBehavior;
+            rendererBehavior.resetCellPropertiesCache(cellEvent);
+            rendererBehavior.repaint();
         }
 
         return result;

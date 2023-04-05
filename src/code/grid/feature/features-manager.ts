@@ -1,3 +1,4 @@
+import { Behavior } from '../behavior/behavior';
 import { MouseCellEvent } from '../cell/cell-event';
 import { ColumnsManager } from '../column/columns-manager';
 import { EventDetail } from '../event/event-detail';
@@ -7,7 +8,7 @@ import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
 import { Feature } from './feature';
-import { featureFactory } from './feature-factory';
+import { FeatureFactory } from './feature-factory';
 import { FeatureServices } from './feature-services';
 import { FeaturesSharedState } from './features-shared-state';
 
@@ -21,12 +22,13 @@ export class FeaturesManager {
     readonly _services: FeatureServices;
 
     constructor(
-        private readonly grid: Revgrid,
-        selection: Selection,
-        focus: Focus,
-        columnsManager: ColumnsManager,
-        renderer: Renderer,
-        gridProperties: GridProperties,
+        private readonly _behavior: Behavior,
+        private readonly grid: Revgrid, // remove in future
+        selection: Selection, // remove in future
+        focus: Focus, // remove in future
+        columnsManager: ColumnsManager, // remove in future
+        renderer: Renderer, // remove in future
+        gridProperties: GridProperties, // remove in future
     ) {
         this._sharedState = {} as FeaturesSharedState
 
@@ -58,7 +60,7 @@ export class FeaturesManager {
             let count = 0;
             for (let i = 0; i < maxCount; i++) {
                 const name = featureNames[i];
-                const feature = featureFactory.create(name, this.grid, this._services);
+                const feature = FeatureFactory.create(name, this._behavior, this.grid, this._services);
                 if (feature === undefined) {
                     console.warn(`Feature not registered: ${name}`);
                 } else {
@@ -96,7 +98,6 @@ export class FeaturesManager {
         this._enabled = false;
     }
 
-    /** @internal */
     lookupFeature(key: string) {
         return this._featureMap.get(key);
     }

@@ -746,7 +746,7 @@ export namespace ColumnProperties {
 // @public (undocumented)
 export class ColumnsManager {
     // @internal
-    constructor(_grid: Revgrid, _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler, _allColumnListChangedEventHandler: ListChangedEventHandler, _activeColumnListChangedEventHandler: UiableListChangedEventHandler, _columnsWidthChangedEventHandler: ColumnsManager.ColumnsWidthChangedEventHandler);
+    constructor(_grid: Revgrid, _gridProperties: GridProperties, _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler, _allColumnListChangedEventHandler: ListChangedEventHandler, _activeColumnListChangedEventHandler: UiableListChangedEventHandler, _columnsWidthChangedEventHandler: ColumnsManager.ColumnsWidthChangedEventHandler);
     // @internal (undocumented)
     get activeColumns(): readonly Column[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -764,6 +764,8 @@ export class ColumnsManager {
     autosizeAllColumns(): void;
     // @internal (undocumented)
     beginSchemaChange(): void;
+    // (undocumented)
+    calculateFixedColumnsWidth(): number;
     // @internal (undocumented)
     checkColumnAutosizing(force?: boolean): boolean;
     // @internal
@@ -796,6 +798,8 @@ export class ColumnsManager {
     getAllColumn(allX: number): Column;
     // @internal
     getAllColumnCount(): number;
+    // (undocumented)
+    getFixedColumnCount(): number;
     // @internal (undocumented)
     getHiddenColumns(): Column[];
     // @internal (undocumented)
@@ -1993,6 +1997,12 @@ export class Revgrid implements SelectionDetail {
     calculateActiveColumnsWidth(): number;
     // (undocumented)
     calculateActiveNonFixedColumnsWidth(): number;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    calculateAfterMainSubgridRowCount(): number;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    calculateBeforeMainSubgridRowCount(): number;
     // (undocumented)
     calculateColumnScrollAnchorViewportStart(): number;
     // (undocumented)
@@ -2001,7 +2011,7 @@ export class Revgrid implements SelectionDetail {
     // (undocumented)
     calculateColumnScrollInactiveAnchorLimits(gridRightAligned: boolean, columnCount: number, fixedColumnCount: number): Renderer.ScrollAnchorLimits;
     // (undocumented)
-    calculateFixedColumnsWidth(): number;
+    calculateRowCount(): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     cancelEditing(): boolean;
     // Warning: (ae-forgotten-export) The symbol "Canvas" needs to be exported by the entry point public-api.d.ts
@@ -2032,12 +2042,12 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     clearMostRecentRowSelection(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    clearMouseDown(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     clearSelection(): void;
     // (undocumented)
     columnDragAutoScrolling: boolean;
-    // (undocumented)
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@type" is not defined in this configuration
     columnPropertiesConstructor: ColumnProperties.Constructor;
     get columnScrollAnchorIndex(): number;
     get columnScrollAnchorOffset(): number;
@@ -2092,7 +2102,8 @@ export class Revgrid implements SelectionDetail {
     createColumns(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    createSubgridFromDefinition(spec: SubgridDefinition): Subgrid;
+    // Warning: (ae-forgotten-export) The symbol "CellPainterRepository" needs to be exported by the entry point public-api.d.ts
+    createSubgridFromDefinition(cellPainterRepository: CellPainterRepository, definition: SubgridDefinition): Subgrid;
     deferredBehaviorChange(): void;
     // (undocumented)
     delegateCanvasEvents(): void;
@@ -2128,11 +2139,14 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (ae-forgotten-export) The symbol "MouseCellEvent" needs to be exported by the entry point public-api.d.ts
     delegateWheelMoved(event: MouseCellEvent): void;
+    // (undocumented)
+    protected descendantProcessColumnSelectionChanged(): void;
+    // (undocumented)
+    protected descendantProcessScroll(isX: boolean, newValue: number, index: number, offset: number): void;
     // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "Hypgrid"
     destroy(): void;
     // (undocumented)
     destroyed: boolean;
-    dragExtent: Point | undefined;
     // (undocumented)
     dragging: boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -2148,12 +2162,12 @@ export class Revgrid implements SelectionDetail {
     ensureModelColIsVisible(colIndex: number, offsetX: number): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    ensureModelRowIsVisible(rowIndex: number, offsetY: number): boolean;
+    ensureModelRowIsVisible(rowIndex: number, offsetY: number, subgrid: Subgrid): boolean;
     // (undocumented)
     eventlistenerInfos: Map<string, Revgrid.ListenerInfo[]>;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    extendSelect(offsetX: number, offsetY: number): boolean;
+    extendRectangleSelect(offsetX: number, offsetY: number): boolean;
     // (undocumented)
     fireAfterCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2224,12 +2238,8 @@ export class Revgrid implements SelectionDetail {
     //
     // @internal (undocumented)
     readonly focus: Focus;
-    // (undocumented)
-    focusCell(x: number, y: number, silent?: boolean): void;
     // @internal (undocumented)
-    focusCellAndScrollToMakeVisible(c: number, r: number): void;
-    // (undocumented)
-    focusViewportCell(x: number, y: number): void;
+    focusCell(c: number, r: number, subgrid: Subgrid | undefined): void;
     // (undocumented)
     formatValue(localizerName: string | undefined, value: unknown): string;
     // (undocumented)
@@ -2282,8 +2292,6 @@ export class Revgrid implements SelectionDetail {
     // (undocumented)
     getDataBounds(): Rectangle;
     // (undocumented)
-    getDragExtent(): Point;
-    // (undocumented)
     getFixedColumnCount(): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2295,16 +2303,10 @@ export class Revgrid implements SelectionDetail {
     getFixedRowsHeight(): number;
     // (undocumented)
     getFocusedCellEvent(useAllCells: boolean): CellEvent;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    getFooterRowCount(): number;
     // (undocumented)
     getFormatter(localizerName: string | undefined): (value: unknown) => string;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     getGridCellFromMousePoint(mouse: Point): Renderer.GetGridCellFromMousePointResult;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    getHeaderRowCount(): number;
     // (undocumented)
     getHiddenColumns(): Column[];
     // (undocumented)
@@ -2317,8 +2319,6 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getLogicalRowCount(): number;
     // (undocumented)
-    getMouseDown(): Point;
-    // (undocumented)
     getRenderedData(): Array<Array<unknown>>;
     // (undocumented)
     getRenderedHeight(rowIndex: number): number;
@@ -2326,8 +2326,6 @@ export class Revgrid implements SelectionDetail {
     getRenderedWidth(colIndex: number): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     getRow(y: number): DataModel.DataRow;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    getRowCount(): number;
     // (undocumented)
     getRowHeight(rowIndex: number, subgrid?: Subgrid): number;
     // (undocumented)
@@ -2344,6 +2342,8 @@ export class Revgrid implements SelectionDetail {
     getSelectedRowIndices(): number[];
     // (undocumented)
     getState(): any;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    getSubgridRowCount(subgrid: Subgrid): number;
     // (undocumented)
     getValue(x: number, y: number, subgrid?: Subgrid): unknown;
     // (undocumented)
@@ -2390,14 +2390,12 @@ export class Revgrid implements SelectionDetail {
     isSelected(x: number, y: number, subgrid?: Subgrid): boolean;
     isWebkit: boolean;
     // (undocumented)
-    lastEdgeSelection: [x: number, y: number];
-    // (undocumented)
     loadDefaultProperties(): void;
     // (undocumented)
     loadFeatures(): void;
     // (undocumented)
     loadState(state: Record<string, unknown>): void;
-    // (undocumented)
+    // @internal (undocumented)
     localization: Localization;
     // Warning: (ae-forgotten-export) The symbol "Feature" needs to be exported by the entry point public-api.d.ts
     //
@@ -2407,7 +2405,6 @@ export class Revgrid implements SelectionDetail {
     readonly mainDataModel: DataModel;
     // (undocumented)
     readonly mainSubgrid: MainSubgrid;
-    mouseDown: Point[];
     // (undocumented)
     mouseDownState: CellEvent | undefined;
     // (undocumented)
@@ -2417,9 +2414,6 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     moveSingleSelect(offsetX: number, offsetY: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    moveToSingleSelect(newX: number, newY: number): void;
     // (undocumented)
     needsReindex: boolean;
     // (undocumented)
@@ -2432,26 +2426,20 @@ export class Revgrid implements SelectionDetail {
     newRectangle(x: number, y: number, width: number, height: number): Rectangle;
     // (undocumented)
     get nonFixedColumnsViewWidth(): number;
-    // (undocumented)
-    numColumns: number;
-    // (undocumented)
-    numRows: number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     onEditorActivate(event: CellEvent): CellEditor;
     // (undocumented)
     options: Revgrid.Options;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    pageDown(): number;
+    pageDown(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     pageLeft(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     pageRight(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    pageUp(): number;
+    pageUp(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     paintNow(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    popMouseDown(): Point;
     // (undocumented)
     protected processActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean): void;
     // (undocumented)
@@ -2485,6 +2473,10 @@ export class Revgrid implements SelectionDetail {
     removeEventListener<T extends EventName>(eventName: T, listener: Canvas.EventListener<T>): void;
     // @internal (undocumented)
     readonly renderer: Renderer;
+    // Warning: (ae-forgotten-export) The symbol "RendererBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // @internal (undocumented)
+    readonly _rendererBehavior: RendererBehavior;
     // (undocumented)
     repaint(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2495,27 +2487,20 @@ export class Revgrid implements SelectionDetail {
     resetGridBorder(edge?: string): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     resized(): void;
+    // Warning: (ae-forgotten-export) The symbol "RowPropertiesBehavior" needs to be exported by the entry point public-api.d.ts
+    //
     // @internal (undocumented)
-    resizeScrollbars(): void;
+    readonly _rowPropertiesBehavior: RowPropertiesBehavior;
     get rowScrollAnchorIndex(): number;
     set rowScrollAnchorIndex(value: number);
-    readonly sbHScroller: FinBar;
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@type" is not defined in this configuration
-    sbPrevVScrollValue: number | undefined;
-    // Warning: (ae-forgotten-export) The symbol "FinBar" needs to be exported by the entry point public-api.d.ts
-    readonly sbVScroller: FinBar;
+    // Warning: (ae-forgotten-export) The symbol "ScrollBehavior_2" needs to be exported by the entry point public-api.d.ts
+    //
+    // @internal (undocumented)
+    readonly _scrollBehavior: ScrollBehavior_2;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     scrollBy(offsetColumnCount: number, offsetY: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    scrollColumnsBy(offset: number): boolean;
-    // (undocumented)
-    scrollingNow: boolean;
-    // (undocumented)
-    scrollToMakeVisible(c: number, r: number): void;
-    // @internal (undocumented)
-    scrollValueChangedNotification(force: boolean): void;
+    scrollColumnsBy(offset: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     scrollVBy(offsetY: number): void;
     // (undocumented)
@@ -2523,9 +2508,9 @@ export class Revgrid implements SelectionDetail {
     // (undocumented)
     selectAllRows(): void;
     // (undocumented)
-    selectColumns(x1: number, x2?: number): void;
+    selectCell(x: number, y: number, subgrid: Subgrid | undefined, silent?: boolean): void;
     // (undocumented)
-    selectFinalCell(): void;
+    selectColumns(x1: number, x2: number): void;
     // (undocumented)
     selectFinalCellOfCurrentRow(to?: boolean): void;
     // (undocumented)
@@ -2534,10 +2519,16 @@ export class Revgrid implements SelectionDetail {
     //
     // @internal (undocumented)
     readonly selection: Selection_2;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    selectRectangle(ox: number, oy: number, ex: number, ey: number): void;
+    // Warning: (ae-forgotten-export) The symbol "SelectionBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // @internal (undocumented)
+    readonly _selectionBehavior: SelectionBehavior;
     // (undocumented)
-    selectRows(y1: number, y2?: number): void;
+    selectMainFinalCell(): void;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    selectRectangle(ox: number, oy: number, ex: number, ey: number, subgrid?: Subgrid): void;
+    // (undocumented)
+    selectRows(y1: number, y2: number, subgrid: Subgrid | undefined, focusColumnIndex?: number): void;
     // (undocumented)
     selectToFinalCell(): void;
     // (undocumented)
@@ -2546,6 +2537,8 @@ export class Revgrid implements SelectionDetail {
     selectToFirstCellOfCurrentRow(): void;
     // (undocumented)
     selectToViewportCell(x: number, y: number): void;
+    // (undocumented)
+    selectViewportCell(x: number, y: number): void;
     // (undocumented)
     setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]): void;
     // (undocumented)
@@ -2578,29 +2571,20 @@ export class Revgrid implements SelectionDetail {
     setColumnWidths(columnWidths: ColumnWidth[]): boolean;
     // (undocumented)
     setColumnWidthsByName(columnNameWidths: ColumnNameWidth[]): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    setDragExtent(point: Point): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setFixedColumnCount(n: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setFixedRowCount(n: number): void;
     // (undocumented)
     setFormatter(options?: Revgrid.LocalizationOptions): void;
-    setMouseDown(point: Point): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setRowHeight(rowIndex: number, rowHeight: number, subgrid: Subgrid): void;
-    // @internal (undocumented)
-    setScrollingNow(isItNow: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setState(state: GridProperties): void;
     // (undocumented)
     setValue(x: number, y: number, value: number, subgrid?: Subgrid): void;
     // (undocumented)
     setViewport(columnIndex: number, columnOffset: number, rowIndex: number, _rowOffset: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
-    // @internal
-    setVScrollbarContentRange(finish: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     //
@@ -2615,10 +2599,6 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     swapColumns(source: number, target: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
-    // @internal
-    synchronizeScrollingBoundaries(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     takeFocus(): void;
     // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "Hypgrid"
     //
@@ -2631,19 +2611,19 @@ export class Revgrid implements SelectionDetail {
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
     toggleHiDPI(): void;
     // (undocumented)
-    toggleSelectAllRows(): void;
+    toggleSelectAllRows(forceClearRows?: boolean): void;
     // (undocumented)
-    toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean, subgrid?: Subgrid): void;
+    toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean): void;
     // (undocumented)
-    toggleSelectRow(y: number, shiftKeyDown: boolean, subgrid?: Subgrid): void;
+    toggleSelectRow(y: number, shiftKeyDown: boolean, subgrid: Subgrid | undefined): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     updateCursor(): void;
-    // (undocumented)
-    updateHorizontalScroll(recalculateView: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     updateSize(): void;
-    // (undocumented)
-    updateVerticalScroll(recalculateView: boolean): void;
+    // Warning: (ae-forgotten-export) The symbol "UserInterfaceInputBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // @internal (undocumented)
+    readonly _userInterfaceInputBehavior: UserInterfaceInputBehavior;
     waitModelRendered(): Promise<number>;
     windowOpen(url: string, name: string, features?: string): Window;
 }
@@ -3394,9 +3374,15 @@ export class Subgrid {
     constructor(
     _grid: Revgrid,
     _columnsManager: ColumnsManager,
-    role: Subgrid.Role, schemaModel: SchemaModel, dataModel: DataModel, metaModel: MetaModel | undefined, cellModel: CellModel | undefined);
+    _cellPainterRepository: CellPainterRepository,
+    _cellEditorFactory: CellEditorFactory,
+    role: Subgrid.Role, schemaModel: SchemaModel, dataModel: DataModel, metaModel: MetaModel | undefined, cellModel: CellModel | undefined, selectable: boolean);
+    // @internal (undocumented)
+    protected readonly _cellEditorFactory: CellEditorFactory;
     // (undocumented)
     readonly cellModel: CellModel | undefined;
+    // @internal (undocumented)
+    protected readonly _cellPainterRepository: CellPainterRepository;
     // @internal (undocumented)
     protected readonly _columnsManager: ColumnsManager;
     // (undocumented)
@@ -3413,6 +3399,8 @@ export class Subgrid {
     getCellPainter(cellPaintConfig: CellPaintConfig, gridPainterKey: string): CellPainter;
     // @internal (undocumented)
     getRow(rowIndex: number): DataModel.DataRow;
+    // (undocumented)
+    getRowCount(): number;
     // @internal (undocumented)
     getRowMetadata(rowIndex: number, prototype?: MetaModel.RowMetadataPrototype): undefined | null | false | MetaModel.RowMetadata;
     // @internal (undocumented)
@@ -3431,6 +3419,8 @@ export class Subgrid {
     readonly role: Subgrid.Role;
     // (undocumented)
     readonly schemaModel: SchemaModel;
+    // (undocumented)
+    readonly selectable: boolean;
     // @internal (undocumented)
     setRowMetadata(rowIndex: number, newMetadata?: MetaModel.RowMetadata): void;
 }
@@ -3480,6 +3470,8 @@ export interface SubgridDefinition {
     metaModel?: MetaModel | MetaModel.Constructor;
     // (undocumented)
     role?: Subgrid.Role;
+    // (undocumented)
+    selectable?: boolean;
 }
 
 // @public (undocumented)
@@ -3507,55 +3499,8 @@ export type Writable<T> = {
 
 // Warnings were encountered during analysis:
 //
-// src/code/grid/behavior.ts:19:4 - (tsdoc-undefined-tag) The TSDoc tag "@mixes" is not defined in this configuration
-// src/code/grid/behavior.ts:20:4 - (tsdoc-undefined-tag) The TSDoc tag "@mixes" is not defined in this configuration
-// src/code/grid/behavior.ts:21:4 - (tsdoc-undefined-tag) The TSDoc tag "@mixes" is not defined in this configuration
-// src/code/grid/behavior.ts:22:4 - (tsdoc-undefined-tag) The TSDoc tag "@mixes" is not defined in this configuration
-// src/code/grid/behavior.ts:23:4 - (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
-// src/code/grid/behavior.ts:24:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/behavior.ts:25:4 - (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-// src/code/grid/behavior.ts:26:4 - (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
-// src/code/grid/behavior.ts:26:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/behavior.ts:27:20 - (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.
-// src/code/grid/behavior.ts:27:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/behavior.ts:27:45 - (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-// src/code/grid/behavior.ts:28:21 - (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-// src/code/grid/behavior.ts:28:11 - (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-// src/code/grid/behavior.ts:28:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
-// src/code/grid/behavior.ts:28:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/behavior.ts:28:51 - (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-// src/code/grid/behavior.ts:29:18 - (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-// src/code/grid/behavior.ts:29:11 - (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-// src/code/grid/behavior.ts:29:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
-// src/code/grid/behavior.ts:29:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/behavior.ts:29:47 - (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-// src/code/grid/behavior.ts:30:20 - (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-// src/code/grid/behavior.ts:30:11 - (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-// src/code/grid/behavior.ts:30:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
-// src/code/grid/behavior.ts:30:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/behavior.ts:30:76 - (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-// src/code/grid/behavior.ts:31:29 - (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-// src/code/grid/behavior.ts:31:11 - (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-// src/code/grid/behavior.ts:31:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
-// src/code/grid/behavior.ts:31:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/behavior.ts:31:54 - (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-// src/code/grid/behavior.ts:32:31 - (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-// src/code/grid/behavior.ts:32:11 - (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-// src/code/grid/behavior.ts:32:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
-// src/code/grid/behavior.ts:32:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/behavior.ts:32:58 - (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-// src/code/grid/behavior.ts:33:25 - (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-// src/code/grid/behavior.ts:33:11 - (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-// src/code/grid/behavior.ts:33:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
-// src/code/grid/behavior.ts:33:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/behavior.ts:33:84 - (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-// src/code/grid/behavior.ts:34:19 - (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-// src/code/grid/behavior.ts:34:11 - (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-// src/code/grid/behavior.ts:34:4 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
-// src/code/grid/behavior.ts:34:11 - (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-// src/code/grid/behavior.ts:34:50 - (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-// src/code/grid/behavior.ts:35:4 - (tsdoc-undefined-tag) The TSDoc tag "@abstract" is not defined in this configuration
 // src/code/grid/cell-editor/cell-editor-factory.ts:14:4 - (tsdoc-undefined-tag) The TSDoc tag "@classdesc" is not defined in this configuration
+// src/code/grid/cell-painter/cell-painter-repository.ts:15:4 - (tsdoc-undefined-tag) The TSDoc tag "@classdesc" is not defined in this configuration
 // src/code/grid/effects/effects.ts:4:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 // src/code/grid/effects/effects.ts:5:4 - (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
 // src/code/grid/effects/effects.ts:5:20 - (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.

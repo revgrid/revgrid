@@ -20,14 +20,14 @@ export class ThumbwheelScrolling extends Feature {
                     const gridProps = this.grid.properties;
                     if (this.isHorizontalWheelScrollingAllowed(gridProps, e)) {
                         if (gridProps.scrollHorizontallySmoothly) {
-                            grid.scrollViewHorizontallyBy(deltaX);
+                            this.scrollBehavior.scrollViewHorizontallyBy(deltaX);
                         } else {
-                            grid.scrollColumnsBy(Math.sign(deltaX));
+                            this.scrollBehavior.scrollColumnsBy(Math.sign(deltaX));
                         }
                     }
                 }
                 if (deltaY) {
-                    grid.sbVScroller.scrollIndex(Math.sign(deltaY)); // Update when Vertical scrolling improved
+                    this.scrollBehavior.scrollVerticalIndex(Math.sign(deltaY)); // Update when Vertical scrolling improved
                     // grid.scrollVBy(Math.sign(deltaY));
                 }
             }

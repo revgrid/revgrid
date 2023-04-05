@@ -1,4 +1,3 @@
-import { Behavior } from '../behavior';
 import { CellPainter } from '../cell-painter/cell-painter';
 import { Column } from '../column/column';
 import { ColumnProperties } from '../column/column-properties';
@@ -20,7 +19,6 @@ export abstract class RenderedCell {
     // this.disabled: boolean;
 
     private readonly renderer: Renderer;
-    private readonly behavior: Behavior;
 
     cellPainter: CellPainter;
     clickRect: Rectangle | undefined;
@@ -46,7 +44,6 @@ export abstract class RenderedCell {
      */
     constructor(public grid: Revgrid, public gridX?: number, public gridY?: number) {
         this.renderer = grid.renderer;
-        this.behavior = grid.behavior;
         if (gridX !== undefined && gridY !== undefined) {
             this.resetGridCY(gridX, gridY);
         }
@@ -277,38 +274,6 @@ export abstract class RenderedCell {
         return this._cellOwnProperties;
     }
 
-    get rowOwnProperties() {
-        // undefined return means there is no row properties object
-        return this.behavior.getRowPropertiesUsingCellEvent(this, undefined);
-    }
-
-    get rowProperties() {
-        // use carefully! creates new object as needed; only use when object definitely needed: for setting prop with `.rowProperties[key] = value` or `Object.assign(.rowProperties, {...})`; use `rowOwnProperties`  to avoid creating a new object when object does not exist, or `getRowProperty(key)` for getting a property that may not exist
-        const properties = this.behavior.getRowPropertiesUsingCellEvent(this, undefined);
-        if (properties) {
-            return properties;
-        } else {
-            return undefined;
-        }
-    }
-    set rowProperties(properties: MetaModel.RowProperties | undefined) {
-        // for resetting whole row properties object: `.rowProperties = {...}`
-        this.behavior.setRowPropertiesUsingCellEvent(this, properties); // calls `stateChanged()`
-    }
-
-    getRowProperty(key: string) {
-        // undefined return means there is no row properties object OR no such row property `[key]`
-        const rowProps = this.rowOwnProperties;
-        return rowProps && rowProps[key as keyof MetaModel.RowProperties];
-    }
-    setRowProperty(key: string, value: unknown) {
-        // creates new object as needed
-        const rowProperties = this.rowProperties;
-        if (rowProperties !== undefined) {
-            (rowProperties[key as keyof MetaModel.RowProperties] as unknown) = value; // todo: call `stateChanged()` after refac-as-flags
-        }
-    }
-
 
     /**
      * Copy self with or without own properties
@@ -474,6 +439,5 @@ export abstract class RenderedCell {
 
 export namespace RenderedCell {
     export interface Bounds extends RectangleInterface {
-        timestamp?: number;
     }
 }

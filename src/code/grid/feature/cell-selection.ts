@@ -43,7 +43,8 @@ export class CellSelection extends Feature {
         const grid = this.grid;
         const dx = event.gridCell.x;
         const dy = event.dataCell.y;
-        const isSelectable = grid.getCellProperty(event.dataCell.x, event.gridCell.y, 'cellSelection', event.subgrid);
+        const subgrid = event.subgrid;
+        const isSelectable = subgrid.selectable && grid.getCellProperty(event.dataCell.x, event.gridCell.y, 'cellSelection', event.subgrid);
 
         if (isSelectable && event.isDataCell && !event.mouse.isRightClick) {
             const dCell = Point.create(dx, dy);
@@ -105,11 +106,11 @@ export class CellSelection extends Feature {
      * @param keys - array of the keys that are currently pressed down
      */
     handleMouseDragCellSelection(gridCell: Point) {
-        const grid = this.grid;
         const x = Math.max(0, gridCell.x);
         const y = Math.max(0, gridCell.y);
-        const previousDragExtent = grid.getDragExtent();
-        const mouseDown = grid.getMouseDown();
+        const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
+        const previousDragExtent = userInterfaceInputBehavior.getDragExtent();
+        const mouseDown = userInterfaceInputBehavior.getMouseDown();
         if (mouseDown === undefined || previousDragExtent === undefined) {
             throw new AssertError('CSHMDCS32220');
         } else {
@@ -120,16 +121,17 @@ export class CellSelection extends Feature {
                 return;
             }
 
-            grid.beginSelectionChange();
+            const selectionBehavior = this.selectionBehavior;
+            selectionBehavior.beginChange();
             try {
-                grid.clearMostRecentRectangleSelection();
-                grid.selectRectangle(mouseDown.x, mouseDown.y, newX, newY);
+                selectionBehavior.clearMostRecentRectangleSelection();
+                selectionBehavior.selectRectangle(mouseDown.x, mouseDown.y, newX, newY, undefined);
             } finally {
-                grid.endSelectionChange();
+                selectionBehavior.endChange();
             }
-            grid.setDragExtent(Point.create(newX, newY));
+            userInterfaceInputBehavior.setDragExtent(Point.create(newX, newY));
 
-            grid.repaint();
+            this.rendererBehavior.repaint();
         }
     }
 
@@ -138,17 +140,18 @@ export class CellSelection extends Feature {
      */
     checkDragScroll(mouse: Point) {
         const grid = this.grid;
-        if (!grid.properties.scrollingEnabled) {
+        const scrollBehavior = this.scrollBehavior;
+        if (!this.gridProperties.scrollingEnabled) {
             return;
         }
         const b = grid.getDataBounds();
         const inside = b.containsPoint(mouse);
         if (inside) {
-            if (grid.isScrollingNow()) {
-                grid.setScrollingNow(false);
+            if (scrollBehavior.isScrollingNow()) {
+                scrollBehavior.setScrollingNow(false);
             }
-        } else if (!grid.isScrollingNow()) {
-            grid.setScrollingNow(true);
+        } else if (!scrollBehavior.isScrollingNow()) {
+            scrollBehavior.setScrollingNow(true);
             this.scrollDrag();
         }
     }
@@ -158,7 +161,8 @@ export class CellSelection extends Feature {
      */
     scrollDrag() {
         const grid = this.grid;
-        if (!grid.isScrollingNow()) {
+        const scrollBehavior = this.scrollBehavior;
+        if (!scrollBehavior.isScrollingNow()) {
             return;
         }
 
@@ -201,9 +205,9 @@ export class CellSelection extends Feature {
         }
 
         this.lastDragCell = Point.plusXY(lastDragCell, dragCellOffsetX, dragCellOffsetY);
-        grid.scrollBy(xOffset, yOffset);
+        scrollBehavior.scrollBy(xOffset, yOffset);
         this.handleMouseDragCellSelection(lastDragCell); // update the selection
-        grid.repaint();
+        this.rendererBehavior.repaint();
         setTimeout(this.scrollDrag.bind(this, grid), 25);
     }
 
@@ -213,7 +217,7 @@ export class CellSelection extends Feature {
      */
     extendSelection(gridCell: Point, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
         const grid = this.grid;
-        const mousePoint = grid.getMouseDown();
+        const mousePoint = this.userInterfaceInputBehavior.getMouseDown();
         if (mousePoint === undefined) {
             throw new AssertError('CSES07721');
         } else {
@@ -225,17 +229,19 @@ export class CellSelection extends Feature {
                 return;
             }
 
-            grid.beginSelectionChange();
+            const selectionBehavior = this.selectionBehavior;
+            selectionBehavior.beginChange();
             try {
                 //we have repeated a click in the same spot deslect the value from last time
+                const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
                 if (
                     ctrlKeyDown &&
                     x === mousePoint.x &&
                     y === mousePoint.y
                 ) {
-                    grid.clearMostRecentRectangleSelection();
-                    grid.popMouseDown();
-                    grid.repaint();
+                    selectionBehavior.clearMostRecentRectangleSelection();
+                    userInterfaceInputBehavior.popMouseDown();
+                    this.rendererBehavior.repaint();
                     return;
                 }
 
@@ -244,18 +250,18 @@ export class CellSelection extends Feature {
                 }
 
                 if (shiftKeyDown) {
-                    grid.clearMostRecentRectangleSelection();
-                    grid.selectRectangle(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
-                    grid.setDragExtent(Point.create(x - mousePoint.x, y - mousePoint.y));
+                    selectionBehavior.clearMostRecentRectangleSelection();
+                    selectionBehavior.selectRectangle(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y, undefined);
+                    userInterfaceInputBehavior.setDragExtent(Point.create(x - mousePoint.x, y - mousePoint.y));
                 } else {
-                    grid.selectRectangle(x, y, 0, 0);
-                    grid.setMouseDown(Point.create(x, y));
-                    grid.setDragExtent(Point.create(0, 0));
+                    selectionBehavior.selectRectangle(x, y, 0, 0, undefined);
+                    userInterfaceInputBehavior.setMouseDown(Point.create(x, y));
+                    userInterfaceInputBehavior.setDragExtent(Point.create(0, 0));
                 }
             } finally {
-                grid.endSelectionChange();
+                selectionBehavior.endChange();
             }
-            grid.repaint();
+            this.rendererBehavior.repaint();
         }
     }
 
@@ -343,7 +349,7 @@ export class CellSelection extends Feature {
      * @param offsetY - y coordinate to start at
      */
     moveShiftSelect(offsetX: number, offsetY: number) {
-        if (this.grid.extendSelect(offsetX, offsetY)) {
+        if (this.grid.extendRectangleSelect(offsetX, offsetY)) {
             this.pingAutoScroll();
         }
     }

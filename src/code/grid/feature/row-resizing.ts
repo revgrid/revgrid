@@ -86,7 +86,7 @@ export class RowResizing extends ColumnRowResizing {
     }
 
     private getFixedAreaCount(grid: Revgrid): number {
-        return grid.getFixedRowCount() + grid.getHeaderRowCount();
+        return grid.getFixedRowCount() + grid.calculateBeforeMainSubgridRowCount();
     }
 
     // isEnabled(grid: Hypergrid): boolean {

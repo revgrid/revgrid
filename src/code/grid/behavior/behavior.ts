@@ -1,11 +1,23 @@
-import { CellEvent } from './cell/cell-event';
-import { RenderedCell } from './cell/rendered-cell';
-import { GridProperties } from './grid-properties';
-import { assignOrDelete } from './lib/utils';
-import { MetaModel } from './model/meta-model';
-import { SchemaModel } from './model/schema-model';
-import { Revgrid } from './revgrid';
-import { Subgrid } from './subgrid/subgrid';
+import { Canvas } from '../canvas/canvas';
+import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
+import { CellEvent } from '../cell/cell-event';
+import { FinBar } from '../finbar/finbar';
+import { GridProperties } from '../grid-properties';
+import { ColumnsManager, MainSubgrid } from '../grid-public-api';
+import { assignOrDelete } from '../lib/utils';
+import { MetaModel } from '../model/meta-model';
+import { SchemaModel } from '../model/schema-model';
+import { Renderer } from '../renderer/renderer';
+import { Revgrid } from '../revgrid';
+import { Selection } from '../selection/selection';
+import { Subgrid } from '../subgrid/subgrid';
+import { Mouse } from '../user-interface-input/mouse';
+import { EventBehavior } from './event-behavior';
+import { RendererBehavior } from './renderer-behaviour';
+import { RowPropertiesBehavior } from './row-properties-behavior';
+import { ScrollBehavior } from './scroll-behaviour';
+import { SelectionBehavior } from './selection-behavior';
+import { UserInterfaceInputBehavior } from './user-interface-input-behavior';
 
 const noExportProperties = [
     'columnHeader',
@@ -34,9 +46,29 @@ const noExportProperties = [
  * @param {boolean} [options.apply=true] - _Per {@link Behavior#setData setData}._
  * @abstract
  */
+/** @internal */
 export class Behavior {
-    /** @internal */
-    private _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype;
+    private readonly _mouse: Mouse;
+    private readonly _selection: Selection;
+    private readonly _columnsManager: ColumnsManager;
+    private readonly _canvas: Canvas;
+    private readonly _horizontalScroller: FinBar;
+    private readonly _vertialScroller: FinBar;
+    private readonly _mainSubgrid: MainSubgrid;
+    private readonly _gridProperties: GridProperties;
+
+    readonly renderer: Renderer; // make private in future
+
+    readonly rendererBehavior: RendererBehavior;
+    readonly selectionBehavior: SelectionBehavior;
+    readonly scrollBehavior: ScrollBehavior;
+    readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
+    readonly eventBehavior: EventBehavior;
+    readonly rowPropertiesBehavior: RowPropertiesBehavior;
+
+    private _destroyed = false;
+    private _behaviorChangeCheckRowCount = 0;
+    private _behaviorChangeCheckColumnCount = 0;
 
     // Start RowProperties Mixin
     /** @internal */
@@ -65,9 +97,89 @@ export class Behavior {
     // End RowProperties Mixin
 
     constructor(
-        /** @internal */
-        readonly grid: Revgrid
-    ) { }
+        private readonly grid: Revgrid,
+        selection: Selection,
+        columnsManager: ColumnsManager,
+        cellPainterRepository: CellPainterRepository,
+        canvas: Canvas,
+        mainSubgrid: MainSubgrid,
+        gridProperties: GridProperties,
+        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
+        loadBuiltinFinbarStylesheet: boolean,
+        containerHtmlElement: HTMLElement,
+        descendantEventer: EventBehavior.DescendantEventer,
+
+        private readonly _behaviorStateChangedEventer: RowPropertiesBehavior.BehaviouStateChangedEventer, // to be removed in future
+        private readonly _behaviorShapeChangedEventer: RowPropertiesBehavior.BehaviorShapeChangedEventer, // to be removed in future
+    ) {
+        this._mouse = new Mouse();
+        this._selection = selection; // in future, create this object
+        this._columnsManager = columnsManager; // in future, create this object
+        this._canvas = canvas; // in future, create this object
+        this._mainSubgrid = mainSubgrid; // in future, create this object
+        this._gridProperties = gridProperties; // in future, create this object
+
+        this.renderer = new Renderer(
+            grid,
+            this._selection,
+            this._columnsManager,
+            cellPainterRepository,
+            this._canvas.gc,
+            (y, subgrid) => this.rowPropertiesBehavior.getRowHeight(y, subgrid),
+        );
+
+        this._horizontalScroller = this.createHorizontalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
+        containerHtmlElement.appendChild(this._horizontalScroller.bar);
+        this._vertialScroller = this.createVerticalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
+        containerHtmlElement.appendChild(this._vertialScroller.bar);
+
+        this.scrollBehavior = new ScrollBehavior(
+            this._gridProperties,
+            this._columnsManager,
+            this._mainSubgrid,
+            this.renderer,
+            this._horizontalScroller,
+            this._vertialScroller,
+            () => this.handleBehaviorChangedEvent(),
+            (isX, newValue, index, offset) => this.eventBehavior.processScrollEvent(isX, newValue, index, offset),
+            (y, subgrid) => this.rowPropertiesBehavior.getRowHeight(y, subgrid),
+        )
+
+        this.userInterfaceInputBehavior = new UserInterfaceInputBehavior(
+            this._mouse,
+        )
+
+        this.eventBehavior = new EventBehavior(
+            this._selection,
+            descendantEventer,
+            (event) => this._canvas.dispatchEvent(event),
+        )
+
+        this.rendererBehavior = new RendererBehavior(
+            this._gridProperties,
+            this._columnsManager,
+            this.renderer,
+        )
+
+        this.selectionBehavior = new SelectionBehavior(
+            this._selection,
+            this._gridProperties,
+            this._columnsManager,
+            this.renderer,
+            this._mouse,
+            () => this.rendererBehavior.repaint(),
+            () => this.eventBehavior.processColumnSelectionChangedEvent(),
+            (x, y, subgrid) => this.scrollBehavior.scrollToMakeVisible(x, y, subgrid),
+        );
+
+        this.rowPropertiesBehavior = new RowPropertiesBehavior(
+            this._mainSubgrid,
+            this._gridProperties,
+            rowPropertiesPrototype,
+            () => this.handleBehaviorStateChangedEvent(),
+            () => this.handleBehaviorShapeChangedEvent(),
+        );
+    }
 
     // features: []; // override in implementing class; or provide feature names in grid.properties.features; else no features
 
@@ -78,10 +190,15 @@ export class Behavior {
      * @internal
      */
     reset() {
+        this._behaviorChangeCheckRowCount = 0;
+        this._behaviorChangeCheckColumnCount = 0;
+        this.userInterfaceInputBehavior.clearMouseDown();
+        this.scrollBehavior.reset();
+
         // this.checkLoadDataModelMetadata(options);
         // const dataModelChanged = this.resetMainDataModel(options);
 
-        this._rowPropertiesPrototype = DefaultRowProperties;
+        // this._rowPropertiesPrototype = DefaultRowProperties;
 
 
         // /**
@@ -126,6 +243,12 @@ export class Behavior {
     //         });
     //     }
     // }
+
+    destroy() {
+        this._destroyed = true;
+        this.eventBehavior.destroy();
+        this.scrollBehavior.destroy();
+    }
 
     get renderedColumnCount() {
         return this.grid.renderer.visibleColumns.length;
@@ -268,173 +391,6 @@ export class Behavior {
     //     };
     // }
 
-    // Start RowProperties Mixin
-
-    /**
-     * @param yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param rowPropertiesPrototype - Prototype for a new properties object when one does not already exist. If you don't define this and one does not already exist, this call will return `undefined`.
-     * Typical defined value is `null`, which creates a plain object with no prototype, or `Object.prototype` for a more "natural" object.
-     * _(Required when 3rd param provided.)_
-     * @param subgrid- This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     * @returns The row properties object which will be one of:
-     * * object - existing row properties object or new row properties object created from `prototype`; else
-     * * `false` - row found but no existing row properties object and `prototype` was not defined; else
-     * * `undefined` - no such row or DataModel does not support row properties
-     */
-    getRowPropertiesUsingCellEvent(cellInfo: RenderedCell, rowPropertiesPrototype?: MetaModel.RowPropertiesPrototype): MetaModel.RowProperties | false | undefined {
-        return this.getRowProperties(cellInfo.dataCell.y, rowPropertiesPrototype, cellInfo.subgrid);
-    }
-    // getRowProperties(yOrCellEvent: number | CellEvent,
-    //     rowPropertiesPrototype?: DataModel.RowPropertiesPrototype,
-    //     subgrid?: Subgrid): DataModel.RowProperties | false | undefined;
-    // getRowProperties(y: number,
-    //     rowPropertiesPrototype?: DataModel.RowPropertiesPrototype,
-    //     subgrid?: Subgrid): DataModel.RowProperties | false | undefined;
-    getRowProperties(y: number,
-        rowPropertiesPrototype?: MetaModel.RowPropertiesPrototype,
-        subgrid?: Subgrid): MetaModel.RowProperties | false | undefined {
-
-        // if (typeof yOrCellEvent === 'object') {
-        //     subgrid = yOrCellEvent.subgrid;
-        //     yOrCellEvent = yOrCellEvent.dataCell.y;
-        // }
-
-        subgrid ??= this.grid.mainSubgrid;
-        const rowMetadataPrototype: MetaModel.RowMetadataPrototype = rowPropertiesPrototype === undefined ? null : null; // rowPropertiesPrototype;
-        const metadata = subgrid.getRowMetadata(y, rowMetadataPrototype);
-        return metadata && (metadata.__ROW ?? (rowPropertiesPrototype !== undefined && (metadata.__ROW = Object.create(rowPropertiesPrototype))));
-    }
-
-    /**
-     * Reset the row properties in its entirety to the given row properties object.
-     * @param yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param properties - The new row properties object. If `undefined`, this call is a no-op.
-     * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     */
-    setRowPropertiesUsingCellEvent(cellInfo: RenderedCell, properties: MetaModel.RowProperties | undefined) {
-        // Do we need this?
-        // if (subgrid === undefined) {
-        //     subgrid = this.mainSubgrid;
-        // }
-
-        this.setRowProperties(cellInfo.dataCell.y, properties, cellInfo.subgrid)
-    }
-    setRowProperties(y: number, properties: MetaModel.RowProperties | undefined, subgrid: Subgrid): void {
-        if (!properties) {
-            return;
-        }
-
-        const metadata = subgrid.getRowMetadata(y, null);
-        if (metadata) {
-            metadata.__ROW = Object.create(this._rowPropertiesPrototype);
-            this.addRowProperties(y, properties, subgrid, metadata.__ROW);
-            this.grid.behaviorStateChanged();
-        }
-    }
-
-    /**
-     * Sets a single row property on a specific individual row.
-     * @param yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param key - The property name.
-     * @param value - The new property value.
-     * @param dataModel - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     */
-
-    setRowPropertyUsingCellEvent(cellEvent: CellEvent, key: string, value: unknown) {
-        this.setRowProperty(cellEvent.dataCell.y, key, value, cellEvent.subgrid);
-    }
-
-    setRowProperty(y: number, key: string, value: unknown, subgrid?: Subgrid) {
-        let rowProps: MetaModel.RowProperties | false | undefined;
-        const isHeight = (key === 'height');
-
-        if (value !== undefined) {
-            rowProps = this.getRowProperties(y, this._rowPropertiesPrototype, subgrid);
-            if (rowProps) {
-                (rowProps[key as keyof MetaModel.RowProperties] as unknown) = value;
-            }
-        } else {
-            // only try to undefine key if row props object exists; no point in creating it just to delete a non-existant key
-            rowProps = this.getRowProperties(y, undefined, subgrid);
-            if (rowProps) {
-                delete rowProps[(isHeight ? '_height' : key) as keyof MetaModel.RowProperties];
-            }
-        }
-
-        if (isHeight) {
-            this.grid.behaviorShapeChanged();
-        } else {
-            this.grid.behaviorStateChanged();
-        }
-    }
-
-    addRowPropertiesUsingCellEvent(cellEvent: CellEvent, properties: MetaModel.RowProperties | undefined, rowProps?: MetaModel.RowProperties) {
-        this.addRowProperties(cellEvent.dataCell.y, properties, cellEvent.subgrid, rowProps);
-    }
-
-    /**
-     * Add all the properties in the given row properties object to the row properties.
-     * @param yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param properties - An object containing new property values(s) to assign to the row properties. If `undefined`, this call is a no-op.
-     * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     */
-
-    addRowProperties(y: number, properties: MetaModel.RowProperties | undefined, subgrid: Subgrid, rowProps?: MetaModel.RowProperties | false) {
-        if (!properties) {
-            return;
-        }
-
-        let isHeight: boolean;
-        let hasHeight = false;
-
-        let resolvedRowProps: MetaModel.RowProperties | false | undefined;
-        if (rowProps) {
-            resolvedRowProps = rowProps;
-        } else {
-            resolvedRowProps = this.getRowProperties(y, this._rowPropertiesPrototype, subgrid);
-        }
-
-        if (resolvedRowProps) {
-            for (const key in properties) {
-                const typedKey = key as (keyof MetaModel.RowProperties)
-                const value = properties[typedKey];
-                if (value !== undefined) {
-                    resolvedRowProps[typedKey] = value;
-                } else {
-                    isHeight = key === 'height';
-                    const fixedKey = (isHeight ? '_height' : typedKey) as (keyof MetaModel.RowProperties);
-                    delete resolvedRowProps[fixedKey];
-                    hasHeight ||= isHeight;
-                }
-            }
-
-            if (hasHeight) {
-                this.grid.behaviorShapeChanged();
-            } else {
-                this.grid.behaviorStateChanged();
-            }
-        }
-    }
-
-    /**
-     * @param yOrCellEvent - Data row index local to `dataModel`.
-     * @returns The row height in pixels.
-     */
-    getRowHeight(y: number, subgrid?: Subgrid) {
-        const rowProps = this.getRowProperties(y, undefined, subgrid);
-        return rowProps && rowProps.height || this.grid.properties.defaultRowHeight;
-    }
-
-    /**
-     * @desc set the pixel height of a specific row
-     * @param yOrCellEvent - Data row index local to dataModel.
-     * @param height - pixel height
-     */
-    setRowHeight(yOrCellEvent: number, height: number, subgrid?: Subgrid) {
-        this.setRowProperty(yOrCellEvent, 'height', height, subgrid);
-    }
-    // End RowProperties Mixin
-
 
     // Start DataModel Mixin
     // getSchema() {
@@ -489,6 +445,67 @@ export class Behavior {
                 cellEvent.value = value;
             }
         }
+    }
+
+    behaviorChanged() {
+        this.handleBehaviorChangedEvent();
+    }
+
+    private handleBehaviorChangedEvent() {
+        if (!this._destroyed) {
+            const columnCount = this._columnsManager.getAllColumnCount();
+            const rowCount = this._mainSubgrid.getRowCount();
+            if (columnCount !== this._behaviorChangeCheckColumnCount || rowCount !== this._behaviorChangeCheckRowCount) {
+                this._behaviorChangeCheckColumnCount = columnCount;
+                this._behaviorChangeCheckRowCount = rowCount;
+                this._behaviorShapeChangedEventer();
+            } else {
+                this._behaviorStateChangedEventer();
+            }
+        }
+    }
+
+    private handleBehaviorStateChangedEvent() {
+        this._behaviorStateChangedEventer();
+    }
+
+    private handleBehaviorShapeChangedEvent() {
+        this._behaviorShapeChangedEventer();
+    }
+
+    private createHorizontalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean) {
+        const horzBar = new FinBar({
+            orientation: FinBar.OrientationEnum.horizontal,
+            deltaXFactor: this._gridProperties.wheelHFactor,
+            loadBuiltinCssStylesheet: loadBuiltinFinbarCssStylesheet,
+            cssStylesheetReferenceElement: containerHtmlElement
+        });
+
+        const hPrefix = this._gridProperties.hScrollbarClassPrefix;
+
+        if (hPrefix && hPrefix !== '') {
+            horzBar.classPrefix = hPrefix;
+        }
+
+        return horzBar;
+    }
+
+    private createVerticalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean) {
+        const vertBar = new FinBar({
+            indexMode: true, // remove when vertical scrollbar is updated to use viewport
+            orientation: FinBar.OrientationEnum.vertical,
+            deltaYFactor: this._gridProperties.wheelVFactor,
+            loadBuiltinCssStylesheet: loadBuiltinFinbarCssStylesheet,
+            cssStylesheetReferenceElement: containerHtmlElement,
+        });
+
+        const vPrefix = this._gridProperties.vScrollbarClassPrefix;
+
+        if (vPrefix && vPrefix !== '') {
+            vertBar.classPrefix = vPrefix;
+        }
+
+        return vertBar;
     }
 
     // End DataModel Mixin
@@ -629,35 +646,3 @@ export class Behavior {
 
 export namespace Behavior {
 }
-
-// Begin RowProperties Mixin
-
-export class DefaultRowProperties implements MetaModel.HeightRowProperties {
-    private _height: number | undefined;
-
-    constructor(private grid: Revgrid) {
-
-    }
-    get height() {
-        return this._height || this.grid.properties.defaultRowHeight;
-    }
-
-    set height(height: number | undefined) {
-        if (typeof height !== 'number' || isNaN(height)) {
-            height = undefined;
-        }
-        if (height !== this._height) {
-            if (height === undefined) {
-                delete this._height;
-            } else {
-                height = Math.max(5, Math.ceil(height));
-                // Define `_height` as non-enumerable so won't be included in output of saveState.
-                // (Instead the `height` getter is explicitly invoked and the result is included.)
-                Object.defineProperty(this, '_height', { value: height, configurable: true });
-            }
-            this.grid.behaviorStateChanged();
-        }
-    }
-}
-
-// End RowProperties Mixin

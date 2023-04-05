@@ -140,7 +140,7 @@ export class RecordGrid extends Revgrid {
             if (rowIndex === undefined) {
                 this.clearSelection();
             } else {
-                this.selectRows(rowIndex, rowIndex);
+                this.selectRows(rowIndex, rowIndex, undefined, undefined);
             }
         }
     }

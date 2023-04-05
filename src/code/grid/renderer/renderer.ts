@@ -50,7 +50,6 @@ import { RenderActioner } from './render-actioner';
  */
 export class Renderer {
     private readonly gridPainterRepository: GridPainterRepository;
-    readonly cellPainterRepository = new CellPainterRepository();
     /**
      * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
      *
@@ -153,7 +152,9 @@ export class Renderer {
         public readonly grid: Revgrid,
         selection: Selection,
         private readonly _columnsManager: ColumnsManager,
+        readonly cellPainterRepository: CellPainterRepository,
         private readonly _gc: CanvasRenderingContext2DEx,
+        private readonly _getRowHeightEventer: Renderer.GetRowHeightEventer,
     ) {
         this.gridPainterRepository = new GridPainterRepository(this, selection);
         this._renderActioner.actionsEvent = (actions) => this.processRenderActions(actions);
@@ -345,10 +346,6 @@ export class Renderer {
 
     getCurrentFPS() {
         return this._animator.currentFPS;
-    }
-
-    paintNow() {
-        this._animator.animate();
     }
 
     resetScrollAnchor() {
@@ -773,8 +770,26 @@ export class Renderer {
     repaint() {
         this.requestRepaint();
         if (this.properties.repaintIntervalRate === 0) {
-            this._animator.animate();
+            this.paintNow();
         }
+    }
+
+    repaintNowOrImmediately() {
+        if (this.properties.repaintImmediately) {
+            this.paintNowIfColumnsExist();
+        } else {
+            this.repaint();
+        }
+    }
+
+    paintNowIfColumnsExist() {
+        if (this._columnsManager.columnsCreated) {
+            this.paintNow();
+        }
+    }
+
+    paintNow() {
+        this._animator.animate();
     }
 
     tickNotification() {
@@ -803,7 +818,7 @@ export class Renderer {
     }
 
     getVisibleScrollHeight() {
-        const footerHeight = this.grid.properties.defaultRowHeight * this.grid.getFooterRowCount();
+        const footerHeight = this.grid.properties.defaultRowHeight * this.grid.calculateAfterMainSubgridRowCount();
         return this.getBounds().height - footerHeight - this.grid.getFixedRowsHeight();
     }
 
@@ -1063,7 +1078,7 @@ export class Renderer {
 
         grid.deferredBehaviorChange();
 
-        const rowCount = grid.getRowCount();
+        const rowCount = grid.getSubgridRowCount(grid.mainSubgrid);
         if (rowCount !== this._lastKnowRowCount) {
             /*var newWidth = */ // this.renderResetRowHeaderColumnWidth(gc, rowCount);
             // if (newWidth !== this.handleColumnWidth) {
@@ -1125,7 +1140,7 @@ export class Renderer {
                 left = lastColumnSelection[0];
                 top = 0;
                 width = lastColumnSelection[1] - left + 1;
-                height = grid.getRowCount();
+                height = grid.calculateRowCount();
                 rectangle = new InclusiveRectangle(left, top, width, height);
                 break;
             }
@@ -1174,7 +1189,7 @@ export class Renderer {
                 const firstScrollableRow = vri.get(this.dataWindow.origin.y);
                 const fixedColumnCount = gridProps.fixedColumnCount;
                 const fixedRowCount = gridProps.fixedRowCount;
-                const headerRowCount = grid.getHeaderRowCount();
+                const headerRowCount = grid.calculateBeforeMainSubgridRowCount();
 
                 if (
                     // entire selection scrolled out of view to left of visible columns; or
@@ -1283,12 +1298,11 @@ export class Renderer {
      * @returns The row to go to for a page up.
      */
     getPageUpRow(): number {
-        const grid = this.grid;
         const scrollHeight = this.getVisibleScrollHeight();
         let top = this.dataWindow.origin.y - this.properties.fixedRowCount - 1;
         let scanHeight = 0;
         while (scanHeight < scrollHeight && top >= 0) {
-            scanHeight += grid.getRowHeight(top);
+            scanHeight += this._getRowHeightEventer(top);
             top--;
         }
         return top + 1;
@@ -1321,7 +1335,6 @@ export class Renderer {
         const bounds = this.getBounds();
         const grid = this.grid;
         const columnsManager = this._columnsManager;
-        const behavior = grid.behavior;
         const leftMostColIndex = 0;
 
         const editorCellEvent = grid.cellEditor && grid.cellEditor.renderedCell;
@@ -1600,7 +1613,7 @@ export class Renderer {
         }
 
         // get height of total number of rows in all subgrids following the data subgrid
-        const footerHeight = gridProps.defaultRowHeight * grid.getFooterRowCount();
+        const footerHeight = gridProps.defaultRowHeight * grid.calculateAfterMainSubgridRowCount();
 
         let base = 0; // sum of rows for all subgrids so far
         let y = 0; // vertical pixel loop index and limit
@@ -1609,7 +1622,7 @@ export class Renderer {
         let r = 0; // row loop index
         for (let g = 0; g < G; g++, base += subrows) {
             subgrid = subgrids[g];
-            subrows = subgrid.dataModel.getRowCount();
+            subrows = subgrid.getRowCount();
             isMainSubgrid = subgrid.isMain;
             isSubgridEd = (sgEd === subgrid);
             topR = r;
@@ -1644,7 +1657,7 @@ export class Renderer {
                 }
 
                 rowIndex = vy - base;
-                height = behavior.getRowHeight(rowIndex, subgrid);
+                height = this._getRowHeightEventer(rowIndex, subgrid);
 
                 this.visibleRows[r] = vr = {
                     index: r,
@@ -1875,6 +1888,8 @@ export class Renderer {
 }
 
 export namespace Renderer {
+    export type GetRowHeightEventer = (this: void, y: number, subgrid?: Subgrid) => number;
+
     export interface GetGridCellFromMousePointResult {
         fake: boolean;
         renderedCell: RenderedCell;

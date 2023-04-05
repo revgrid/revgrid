@@ -129,7 +129,7 @@ export class DataExtract {
     getColumnSelectionMatrix(): DataModel.DataValue[][] {
         const columnsManager = this._columnsManager;
         const selectedColumnIndexes = this.selection.getColumnIndices();
-        const numRows = this.selection.focusedSubgrid.dataModel.getRowCount();
+        const numRows = this.selection.focusedSubgrid.getRowCount();
         const result = new Array<Array<DataModel.DataValue>>(selectedColumnIndexes.length);
 
         selectedColumnIndexes.forEach((selectedColumnIndex, c) => {
@@ -149,7 +149,7 @@ export class DataExtract {
         const columnsManager = this._columnsManager;
         const selectedColumnIndexes = this.selection.getColumnIndices();
         const result: ColumnsDataValuesObject = {};
-        const rowCount = this.selection.focusedSubgrid.dataModel.getRowCount();
+        const rowCount = this.selection.focusedSubgrid.getRowCount();
 
         selectedColumnIndexes.forEach((selectedColumnIndex) => {
             const column = columnsManager.getActiveColumn(selectedColumnIndex);

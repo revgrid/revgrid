@@ -9,7 +9,7 @@ export class TouchScrolling extends Feature {
     readonly typeName = TouchScrolling.typeName;
 
     private _stepTimeoutHandle: ReturnType<typeof setTimeout>;
-    private touches: RenderedCell.Bounds[];
+    private touches: TouchScrolling.TouchedBounds[];
 
     override handleTouchStart(eventDetail: EventDetail.Touch) {
         this.stopDeceleration();
@@ -33,9 +33,8 @@ export class TouchScrolling extends Feature {
         const xOffset = (lastTouch.x - currentTouch.x) / lastTouch.width;
         const yOffset = (lastTouch.y - currentTouch.y) / lastTouch.height;
 
-        const grid = this.grid;
-        grid.sbHScroller.scroll(xOffset);
-        grid.sbVScroller.scrollIndex(yOffset);
+        this.scrollBehavior.scrollHorizontal(xOffset);
+        this.scrollBehavior.scrollVerticalIndex(yOffset);
 
         if (this.touches.length >= TouchScrolling.MAX_TOUCHES) {
             this.touches.shift();
@@ -61,21 +60,21 @@ export class TouchScrolling extends Feature {
 
     private getTouchedBounds(eventDetail: EventDetail.Touch) {
         const point = eventDetail.touches[0];
-        const bounds = this.grid.getGridCellFromMousePoint(point).renderedCell.bounds;
+        const bounds = this.grid.getGridCellFromMousePoint(point).renderedCell.bounds as TouchScrolling.TouchedBounds;
         bounds.timestamp = Date.now();
         return bounds;
     }
 
-    private decelerateY(startTouch: RenderedCell.Bounds, endTouch: RenderedCell.Bounds) {
+    private decelerateY(startTouch: TouchScrolling.TouchedBounds, endTouch: TouchScrolling.TouchedBounds) {
         const offset = endTouch.y - startTouch.y;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
-        this.decelerate(this.grid.sbVScroller, offset, timeOffset);
+        this.decelerate(this.scrollBehavior.verticalScroller, offset, timeOffset);
     }
 
-    private decelerateX(startTouch: RenderedCell.Bounds, endTouch: RenderedCell.Bounds) {
+    private decelerateX(startTouch: TouchScrolling.TouchedBounds, endTouch: TouchScrolling.TouchedBounds) {
         const offset = endTouch.x - startTouch.x;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
-        this.decelerate(this.grid.sbHScroller, offset, timeOffset);
+        this.decelerate(this.scrollBehavior.horizontalScroller, offset, timeOffset);
     }
 
     private decelerate(scroller: FinBar, offset: number, timeOffset: number) {
@@ -159,4 +158,8 @@ export namespace TouchScrolling {
     export const MAX_INTERVAL = 200;
     export const MAX_TOUCHES = 70;
     export const DEC_STEP_SIZE = 5;
+
+    export interface TouchedBounds extends RenderedCell.Bounds {
+        timestamp: number;
+    }
 }

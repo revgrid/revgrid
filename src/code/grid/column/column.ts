@@ -378,7 +378,7 @@ export class Column {
     /** @internal */
     clearAllCellProperties() {
         this.grid.subgrids.forEach((subgrid) => {
-            const rowCount = subgrid.dataModel.getRowCount();
+            const rowCount = subgrid.getRowCount();
             for (let y = rowCount - 1; y >= 0; y--) {
                 this.deleteCellOwnProperties(y, subgrid);
             }

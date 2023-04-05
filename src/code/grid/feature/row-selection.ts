@@ -39,11 +39,11 @@ export class RowSelection extends Feature {
     override handleMouseUp(event: MouseCellEvent) {
         if (this._dragArmed) {
             this._dragArmed = false;
-            this.moveCellSelection();
+            // this.moveCellSelection();
             this.grid.fireSyntheticRowSelectionChangedEvent();
         } else if (this._dragging) {
             this._dragging = false;
-            this.moveCellSelection();
+            // this.moveCellSelection();
             this.grid.fireSyntheticRowSelectionChangedEvent();
         } else if (this.next) {
             this.next.handleMouseUp(event);
@@ -58,7 +58,8 @@ export class RowSelection extends Feature {
         const leftClick = !detail.isRightClick;
 
         const grid = this.grid;
-        const rowSelectable = grid.properties.rowSelection && (leftClick && grid.properties.autoSelectRows);
+        const subgrid = event.subgrid;
+        const rowSelectable = subgrid.selectable && this.gridProperties.rowSelection && (leftClick && grid.properties.autoSelectRows);
 
         /*if (rowSelectable && event.isHeaderHandle) {
             //global row selection
@@ -108,19 +109,19 @@ export class RowSelection extends Feature {
      * @desc Handle a mousedrag selection
      */
     handleMouseDragCellSelection(y: number) {
-        const grid = this.grid;
-        const mouseDown = grid.getMouseDown();
+        const selectionBehavior = this.selectionBehavior;
+        const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
+        const mouseDown = userInterfaceInputBehavior.getMouseDown();
         if (mouseDown === undefined) {
             throw new AssertError('RSHMDCS88873');
         } else {
             const mouseY = mouseDown.y;
 
-            grid.clearMostRecentRowSelection();
+            selectionBehavior.clearMostRecentRowSelection();
+            this.selection.selectRows(mouseY, y, undefined, undefined);
+            userInterfaceInputBehavior.setDragExtent(Point.create(0, y - mouseY));
 
-            grid.selectRows(mouseY, y);
-            grid.setDragExtent(Point.create(0, y - mouseY));
-
-            grid.repaint();
+            this.rendererBehavior.repaint();
         }
     }
 
@@ -129,16 +130,17 @@ export class RowSelection extends Feature {
      */
     private checkDragScroll(mousePoint: Point) {
         const grid = this.grid;
+        const scrollBehavior = this.scrollBehavior;
         if (
             grid.properties.scrollingEnabled &&
             grid.getDataBounds().containsPoint(mousePoint)
         ) {
-            if (grid.isScrollingNow()) {
-                grid.setScrollingNow(false);
+            if (scrollBehavior.isScrollingNow()) {
+                scrollBehavior.setScrollingNow(false);
             }
         } else {
-            if (!grid.isScrollingNow()) {
-                grid.setScrollingNow(true);
+            if (!scrollBehavior.isScrollingNow()) {
+                scrollBehavior.setScrollingNow(true);
                 this.scrollDrag();
             }
         }
@@ -149,7 +151,8 @@ export class RowSelection extends Feature {
      */
     private scrollDrag() {
         const grid = this.grid;
-        if (!grid.isScrollingNow()) {
+        const scrollBehavior = this.scrollBehavior;
+        if (!scrollBehavior.isScrollingNow()) {
             return;
         }
 
@@ -170,11 +173,11 @@ export class RowSelection extends Feature {
                 if (this._lastDragRow >= grid.getFixedRowCount()) {
                     this._lastDragRow += yOffset;
                 }
-                grid.scrollVBy(yOffset);
+                scrollBehavior.scrollVBy(yOffset);
             }
 
             this.handleMouseDragCellSelection(this._lastDragRow); // update the selection
-            grid.repaint();
+            this.rendererBehavior.repaint();
             setTimeout(() => this.scrollDrag(), 25);
         }
     }
@@ -187,7 +190,7 @@ export class RowSelection extends Feature {
         const grid = this.grid;
         if (!grid.abortEditing()) { return; }
 
-        const mouseDown = grid.getMouseDown();
+        const mouseDown = this.userInterfaceInputBehavior.getMouseDown();
         if (mouseDown === undefined) {
             throw new AssertError('RSES31109');
         } else {
@@ -197,56 +200,55 @@ export class RowSelection extends Feature {
                 return; // do nothing
             }
 
+            const selectionBehavior = this.selectionBehavior;
+            const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
             if (shiftKeyDown) {
-                grid.clearMostRecentRowSelection();
-                grid.selectRows(y, mouseY);
-                grid.setDragExtent(Point.create(0, y - mouseY));
+                selectionBehavior.clearMostRecentRowSelection();
+                selectionBehavior.selectRows(y, mouseY, undefined, undefined);
+                userInterfaceInputBehavior.setDragExtent(Point.create(0, y - mouseY));
             } else {
-                grid.toggleSelectRow(y, shiftKeyDown);
-                grid.setMouseDown(Point.create(0, y));
-                grid.setDragExtent(Point.create(0, 0));
+                selectionBehavior.toggleSelectRow(y, shiftKeyDown, undefined);
+                userInterfaceInputBehavior.setMouseDown(Point.create(0, y));
+                userInterfaceInputBehavior.setDragExtent(Point.create(0, 0));
             }
 
-            grid.repaint();
+            this.rendererBehavior.repaint();
         }
     }
 
 
     handleDOWNSHIFT() {
-        this.moveShiftSelect(1);
+        this.moveShiftSelect(0, 1);
     }
 
     handleUPSHIFT() {
-        this.moveShiftSelect(-1);
+        this.moveShiftSelect(0, -1);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     handleLEFTSHIFT() {
-
+        this.moveShiftSelect(-1, 0);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     handleRIGHTSHIFT() {
-
+        this.moveShiftSelect(1, 0);
     }
 
     handleDOWN() {
-        this.moveSingleSelect(1);
+        this.moveSingleSelect(0, 1);
     }
 
     handleUP() {
-        this.moveSingleSelect(-1);
+        this.moveSingleSelect(0, -1);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     handleLEFT() {
-
+        this.moveSingleSelect(0, 0);
     }
 
     handleRIGHT() {
         const grid = this.grid;
-        const mouseDown = grid.getMouseDown();
-        const extent = grid.getDragExtent();
+        const mouseDown = this.userInterfaceInputBehavior.getMouseDown();
+        const extent = this.userInterfaceInputBehavior.getDragExtent();
         if (mouseDown === undefined || extent === undefined) {
             throw new AssertError('RSHR60334');
         } else {
@@ -257,17 +259,19 @@ export class RowSelection extends Feature {
 
             newX = Math.min(maxColumns, newX);
 
-            grid.beginSelectionChange();
+            const selectionBehavior = this.selectionBehavior;
+            selectionBehavior.beginChange();
             try {
-                grid.clearSelection();
-                grid.selectRectangle(newX, newY, 0, 0);
+                selectionBehavior.clearSelection(true);
+                selectionBehavior.selectRectangle(newX, newY, 0, 0, undefined);
             } finally {
-                grid.endSelectionChange();
+                selectionBehavior.endChange();
             }
-            grid.setMouseDown(Point.create(newX, newY));
-            grid.setDragExtent(Point.create(0, 0));
+            const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
+            userInterfaceInputBehavior.setMouseDown(Point.create(newX, newY));
+            userInterfaceInputBehavior.setDragExtent(Point.create(0, 0));
 
-            grid.repaint();
+            this.rendererBehavior.repaint();
         }
     }
 
@@ -313,25 +317,27 @@ export class RowSelection extends Feature {
      * @desc Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
      * @param offsetY - y coordinate to start at
      */
-    moveShiftSelect(offsetY: number) {
-        this.moveSingleSelect(offsetY, true);
+    moveShiftSelect(offsetX: number, offsetY: number) {
+        this.moveSingleSelect(offsetX, offsetY, true);
     }
 
     /**
      * @desc Replace the most recent row selection with a single cell row selection `offsetY` rows from the previous selection.
      * @param offsetY - y coordinate to start at
      */
-    override moveSingleSelect(offsetY: number, shift?: boolean) {
+    override moveSingleSelect(offsetX: number, offsetY: number, shift?: boolean) {
         const grid = this.grid;
-        const ranges = grid.selection.rows.ranges;
-        let lastSelection = ranges[ranges.length - 1];
-        let top = lastSelection[0];
-        let bottom = lastSelection[1];
+        const selectionBehavior = this.selectionBehavior;
+        const selection = this.selection;
+        const ranges = selection.rows.ranges;
+        let lastRange = ranges[ranges.length - 1];
+        let top = lastRange[0];
+        let bottom = lastRange[1];
 
         let firstOffsetY: number | undefined;
         if (shift) {
-            firstOffsetY = lastSelection.offsetY = lastSelection.offsetY || offsetY;
-            if (lastSelection.offsetY < 0) {
+            firstOffsetY = lastRange.offsetY = lastRange.offsetY || offsetY;
+            if (lastRange.offsetY < 0) {
                 top += offsetY;
             } else {
                 bottom += offsetY;
@@ -341,26 +347,27 @@ export class RowSelection extends Feature {
             bottom += offsetY;
         }
 
-        if (top >= 0 && bottom < grid.getRowCount()) {
+        if (top >= 0 && bottom < grid.getSubgridRowCount(selection.focusedSubgrid)) {
             ranges.length -= 1;
             if (ranges.length) {
-                lastSelection = ranges[ranges.length - 1];
-                delete lastSelection.offsetY;
+                lastRange = ranges[ranges.length - 1];
+                delete lastRange.offsetY;
             }
-            grid.selectRows(top, bottom);
+            selectionBehavior.selectRows(top, bottom, undefined, undefined);
             if (shift && top !== bottom) {
-                lastSelection = ranges[ranges.length - 1];
-                lastSelection.offsetY = firstOffsetY;
+                lastRange = ranges[ranges.length - 1];
+                lastRange.offsetY = firstOffsetY;
             }
 
-            grid.setMouseDown(Point.create(0, top));
-            grid.setDragExtent(Point.create(0, bottom - top));
+            const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
+            userInterfaceInputBehavior.setMouseDown(Point.create(0, top));
+            userInterfaceInputBehavior.setDragExtent(Point.create(0, bottom - top));
 
-            grid.scrollToMakeVisible(grid.properties.fixedColumnCount, offsetY < 0 ? top : bottom + 1); // +1 for partial row
+            this.scrollBehavior.scrollToMakeVisible(grid.properties.fixedColumnCount, offsetY < 0 ? top : bottom + 1, undefined); // +1 for partial row
 
-            this.moveCellSelection();
+            // this.moveCellSelection();
             grid.fireSyntheticRowSelectionChangedEvent();
-            grid.repaint();
+            this.rendererBehavior.repaint();
         }
     }
 
@@ -368,29 +375,29 @@ export class RowSelection extends Feature {
         return true;
     }
 
-    private moveCellSelection() {
-        let rowIndices: number[];
+    // private moveCellSelection() {
+    //     let rowIndices: number[];
 
-        const grid = this.grid;
-        if (
-            grid.properties.collapseCellSelections &&
-            grid.properties.singleRowSelectionMode && // let's only attempt this when in this mode
-            !grid.properties.multipleSelections && // and only when in single selection mode
-            (rowIndices = grid.getSelectedRowIndices()).length // user just selected a row (must be single row due to mode we're in)
-        ) {
-            const rect = grid.selection.getLastRectangle(); // the only cell selection
-            if (rect !== undefined) {
-                const x = rect.left;
-                const y = rowIndices[0]; // we know there's only 1 row selected
-                const width = rect.right - x;
-                const height = 0; // collapse the new region to occupy a single row
-                const fireSelectionChangedEvent = false;
+    //     const grid = this.grid;
+    //     if (
+    //         grid.properties.collapseCellSelections &&
+    //         grid.properties.singleRowSelectionMode && // let's only attempt this when in this mode
+    //         !grid.properties.multipleSelections && // and only when in single selection mode
+    //         (rowIndices = grid.getSelectedRowIndices()).length // user just selected a row (must be single row due to mode we're in)
+    //     ) {
+    //         const rect = grid.selection.getLastRectangle(); // the only cell selection
+    //         if (rect !== undefined) {
+    //             const x = rect.left;
+    //             const y = rowIndices[0]; // we know there's only 1 row selected
+    //             const width = rect.right - x;
+    //             const height = 0; // collapse the new region to occupy a single row
+    //             const fireSelectionChangedEvent = false;
 
-                grid.selection.selectRectangle(x, y, width, height, fireSelectionChangedEvent);
-                grid.repaint();
-            }
-        }
-    }
+    //             grid.selection.selectRectangle(x, y, width, height, undefined, fireSelectionChangedEvent);
+    //             this.rendererBehavior.repaint();
+    //         }
+    //     }
+    // }
 }
 
 export namespace RowSelection {

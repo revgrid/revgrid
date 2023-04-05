@@ -1,4 +1,5 @@
 
+import { Behavior } from '../behavior/behavior';
 import { CellClickFeature } from '../feature/cell-click-feature';
 import { CellEditingFeature } from '../feature/cell-editing';
 import { CellSelection } from '../feature/cell-selection';
@@ -23,38 +24,34 @@ import { FeatureServices } from './feature-services';
 /**
  * @classdesc Registry of feature constructors.
  */
-class FeatureFactory {
-    private _registry = new Registry<Feature.Constructor>();
+export class FeatureFactory {
+    private static _registry = new Registry<Feature.Constructor>();
 
-    constructor() {
-        this.register(CellClickFeature.typeName, CellClickFeature);
-        this.register(CellEditingFeature.typeName, CellEditingFeature);
-        this.register(CellSelection.typeName, CellSelection);
-        this.register(ColumnMoving.typeName, ColumnMoving);
-        this.register(ColumnResizing.typeName, ColumnResizing);
-        this.register(ColumnSelection.typeName, ColumnSelection);
-        this.register(ColumnSorting.typeName, ColumnSorting);
-        this.register(Filters.typeName, Filters);
-        this.register(KeyPaging.typeName, KeyPaging);
-        this.register(OnHover.typeName, OnHover);
-        this.register(RowResizing.typeName, RowResizing);
-        this.register(RowSelection.typeName, RowSelection);
-        this.register(ThumbwheelScrolling.typeName, ThumbwheelScrolling);
-        this.register(TouchScrolling.typeName, TouchScrolling);
-    }
-
-    register(name: string, constructor: Feature.Constructor) {
+    static register(name: string, constructor: Feature.Constructor) {
         this._registry.register(name, constructor);
     }
 
-    create(name: string, grid: Revgrid, services: FeatureServices) {
+    static create(name: string, behavior: Behavior, grid: Revgrid, services: FeatureServices) {
         const constructor = this._registry.get(name);
         if (constructor === undefined) {
             return undefined;
         } else {
-            return new constructor(grid, services);
+            return new constructor(behavior, grid, services);
         }
     }
 }
 
-export const featureFactory = new FeatureFactory();
+FeatureFactory.register(CellClickFeature.typeName, CellClickFeature);
+FeatureFactory.register(CellEditingFeature.typeName, CellEditingFeature);
+FeatureFactory.register(CellSelection.typeName, CellSelection);
+FeatureFactory.register(ColumnMoving.typeName, ColumnMoving);
+FeatureFactory.register(ColumnResizing.typeName, ColumnResizing);
+FeatureFactory.register(ColumnSelection.typeName, ColumnSelection);
+FeatureFactory.register(ColumnSorting.typeName, ColumnSorting);
+FeatureFactory.register(Filters.typeName, Filters);
+FeatureFactory.register(KeyPaging.typeName, KeyPaging);
+FeatureFactory.register(OnHover.typeName, OnHover);
+FeatureFactory.register(RowResizing.typeName, RowResizing);
+FeatureFactory.register(RowSelection.typeName, RowSelection);
+FeatureFactory.register(ThumbwheelScrolling.typeName, ThumbwheelScrolling);
+FeatureFactory.register(TouchScrolling.typeName, TouchScrolling);

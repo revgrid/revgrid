@@ -1,17 +1,16 @@
-
+import { ScrollBehavior } from '../behavior/scroll-behaviour';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
-import { Revgrid } from '../revgrid';
 
 const commands: KeyPaging.CommandMap = {
-    PAGEDOWN: (grid: Revgrid) => { grid.pageDown(); },
-    PAGEDOWNSHIFT: (grid: Revgrid) => { grid.pageDown(); },
-    PAGEUP: (grid: Revgrid) => { grid.pageUp(); },
-    PAGEUPSHIFT: (grid: Revgrid) => { grid.pageUp(); },
-    PAGELEFT: (grid: Revgrid) => { grid.pageLeft(); },
-    PAGELEFTSHIFT: (grid: Revgrid) => { grid.pageLeft(); },
-    PAGERIGHT: (grid: Revgrid) => { grid.pageRight(); },
-    PAGERIGHTSHIFT: (grid: Revgrid) => { grid.pageRight(); },
+    PAGEDOWN: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageDown(); },
+    PAGEDOWNSHIFT: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageDown(); },
+    PAGEUP: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageUp(); },
+    PAGEUPSHIFT: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageUp(); },
+    PAGELEFT: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageLeft(); },
+    PAGELEFTSHIFT: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageLeft(); },
+    PAGERIGHT: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageRight(); },
+    PAGERIGHTSHIFT: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageRight(); },
 };
 
 /**
@@ -27,7 +26,7 @@ export class KeyPaging extends Feature {
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
         const func = commands[eventDetail.primitiveEvent.key];
         if (func) {
-            func(this.grid);
+            func(this.scrollBehavior);
         } else if (this.next) {
             this.next.handleKeyDown(eventDetail);
         }
@@ -38,7 +37,7 @@ export class KeyPaging extends Feature {
 export namespace KeyPaging {
     export const typeName = 'keypaging';
 
-    export type CommandFunction = (this: void, grid: Revgrid) => void;
+    export type CommandFunction = (this: void, scrollBehavior: ScrollBehavior) => void;
     export interface CommandMap {
         [command: string]: CommandFunction;
         PAGEDOWN: CommandFunction;

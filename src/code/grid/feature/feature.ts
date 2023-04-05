@@ -1,4 +1,10 @@
 
+import { Behavior } from '../behavior/behavior';
+import { RendererBehavior } from '../behavior/renderer-behaviour';
+import { RowPropertiesBehavior } from '../behavior/row-properties-behavior';
+import { ScrollBehavior } from '../behavior/scroll-behaviour';
+import { SelectionBehavior } from '../behavior/selection-behavior';
+import { UserInterfaceInputBehavior } from '../behavior/user-interface-input-behavior';
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { ColumnsManager } from '../column/columns-manager';
 import { EventDetail } from '../event/event-detail';
@@ -18,6 +24,12 @@ export abstract class Feature {
 
     abstract readonly typeName: string;
 
+    protected readonly selectionBehavior: SelectionBehavior;
+    protected readonly rendererBehavior: RendererBehavior;
+    protected readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
+    protected readonly scrollBehavior: ScrollBehavior;
+    protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
+
     protected readonly sharedState: FeaturesSharedState;
     protected readonly selection: Selection;
     protected readonly focus: Focus;
@@ -26,9 +38,16 @@ export abstract class Feature {
     protected readonly gridProperties: GridProperties;
 
     constructor(
+        protected readonly behavior: Behavior,
         protected readonly grid: Revgrid,
         services: FeatureServices,
     ) {
+        this.selectionBehavior = behavior.selectionBehavior;
+        this.rendererBehavior = behavior.rendererBehavior;
+        this.userInterfaceInputBehavior = behavior.userInterfaceInputBehavior;
+        this.scrollBehavior = behavior.scrollBehavior;
+        this.rowPropertiesBehavior = behavior.rowPropertiesBehavior;
+
         this.sharedState = services.sharedState;
         this.selection = services.selection;
         this.focus = services.focus;
@@ -182,9 +201,9 @@ export abstract class Feature {
     /**
      * @desc toggle the column picker
      */
-    moveSingleSelect(x: number, shift?: boolean) {
+    moveSingleSelect(x: number, y: number, shift?: boolean) {
         if (this.next) {
-            this.next.moveSingleSelect(x, shift);
+            this.next.moveSingleSelect(x, y, shift);
         }
     }
 
@@ -213,5 +232,5 @@ export abstract class Feature {
 }
 
 export namespace Feature {
-    export type Constructor = new (grid: Revgrid, services: FeatureServices) => Feature;
+    export type Constructor = new (behavior: Behavior, grid: Revgrid, services: FeatureServices) => Feature;
 }

@@ -18,7 +18,7 @@
     "adapter-set-config.ts",
     "focus.ts",
     "revgrid.ts",
-    "subgrid/**/*.ts",
+    "behavior/**/*.ts",
     "canvas/**/*.ts",
     "cell/**/*.ts",
     "cell-editor/**/*.ts",
@@ -32,7 +32,9 @@
     "model/**/*.ts",
     "renderer/**/*.ts",
     "selection/**/*.ts",
-    "template/**/*.ts"
+    "subgrid/**/*.ts",
+    "template/**/*.ts",
+    "user-interface-input/**/*.ts"
   ],
 
   "references": [

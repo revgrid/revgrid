@@ -184,7 +184,7 @@ export class ColumnMoving extends Feature {
                 return;
             }
 
-            if (this.grid.scrollColumnsBy(this._scrollVelocity)) {
+            if (this.scrollBehavior.scrollColumnsBy(this._scrollVelocity)) {
                 this.render(action);
             }
 
@@ -249,7 +249,7 @@ export class ColumnMoving extends Feature {
         const grid = this.grid;
         const updatedDragCol = grid.renderer.getVisibleColumn(this._dragCol.activeColumnIndex)
         const dragCol = updatedDragCol ? updatedDragCol : this._dragCol;
-        const gridBounds = grid.getBounds();
+        const gridBounds = this.rendererBehavior.getBounds();
         return this.calculateDragAction(
             dragCol,
             updatedDragCol !== undefined,

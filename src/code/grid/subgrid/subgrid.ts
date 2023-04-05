@@ -3,8 +3,9 @@ import { DataModel } from '../../grid/model/data-model';
 import { MetaModel } from '../../grid/model/meta-model';
 import { SchemaModel } from '../../grid/model/schema-model';
 import { CellEditor } from '../cell-editor/cell-editor';
-import { cellEditorFactory } from '../cell-editor/cell-editor-factory';
+import { CellEditorFactory } from '../cell-editor/cell-editor-factory';
 import { CellPainter } from '../cell-painter/cell-painter';
+import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
 import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { CellEvent } from '../cell/cell-event';
 import { ColumnsManager } from '../column/columns-manager';
@@ -36,11 +37,16 @@ export class Subgrid {
         /** @internal */
         protected readonly _columnsManager: ColumnsManager,
         /** @internal */
+        protected readonly _cellPainterRepository: CellPainterRepository,
+        /** @internal */
+        protected readonly _cellEditorFactory: CellEditorFactory,
+        /** @internal */
         public readonly role: Subgrid.Role,
         public readonly schemaModel: SchemaModel,
         public readonly dataModel: DataModel,
         public readonly metaModel: MetaModel | undefined,
         public readonly cellModel: CellModel | undefined,
+        public readonly selectable: boolean,
     ) {
         switch (role) {
             case 'main':
@@ -81,6 +87,10 @@ export class Subgrid {
             this.rowProxy.____rowIndex = rowIndex;
             return this.rowProxy;
         }
+    }
+
+    getRowCount() {
+        return this.dataModel.getRowCount();
     }
 
     /** @internal */
@@ -130,7 +140,7 @@ export class Subgrid {
         }
 
         if (painter === undefined) {
-            return this._grid.renderer.cellPainterRepository.get(gridPainterKey);
+            return this._cellPainterRepository.get(gridPainterKey);
         } else {
             return painter;
         }
@@ -148,7 +158,7 @@ export class Subgrid {
         }
 
         if (editor === undefined) {
-            return cellEditorFactory.create(this._grid, editorName, cellEvent);
+            return this._cellEditorFactory.create(this._grid, editorName, cellEvent);
         } else {
             return editor;
         }

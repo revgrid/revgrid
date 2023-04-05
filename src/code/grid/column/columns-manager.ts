@@ -1,4 +1,5 @@
 import { dispatchGridEvent } from '../canvas/dispatch-grid-event';
+import { GridProperties } from '../grid-properties';
 import { AssertError } from '../lib/revgrid-error';
 import { ColumnNameWidth, ListChangedEventHandler, ListChangedTypeId, UiableListChangedEventHandler } from '../lib/types';
 import { SchemaModel } from '../model/schema-model';
@@ -28,6 +29,7 @@ export class ColumnsManager {
     /** @internal */
     constructor(
         private readonly _grid: Revgrid,
+        private readonly _gridProperties: GridProperties,
         private readonly _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler,
         private readonly _allColumnListChangedEventHandler: ListChangedEventHandler,
         private readonly _activeColumnListChangedEventHandler: UiableListChangedEventHandler,
@@ -208,6 +210,28 @@ export class ColumnsManager {
         const column = this.getActiveColumn(x);
         return column ? column.getWidth() : 0;
     }
+
+    /**
+     * @returns The total width of all the fixed columns.
+     */
+    calculateFixedColumnsWidth(): number {
+        const count = this.getFixedColumnCount();
+        if (count === 0) {
+            return 0;
+        } else {
+            let total = 0;
+
+            for (let i = 0; i < count; i++) {
+                const columnWidth = this.getActiveColumnWidth(i);
+                total += columnWidth;
+            }
+
+            total += (count - 1) * this._gridProperties.gridLinesVWidth;
+
+            return total;
+        }
+    }
+
 
     /**
      * @param columnOrIndex - The column or active column index.
@@ -532,6 +556,13 @@ export class ColumnsManager {
      */
     getActiveColumnCount() {
         return this._activeColumns.length;
+    }
+
+    /**
+     * @returns The number of fixed columns.
+     */
+    getFixedColumnCount(): number {
+        return this._gridProperties.fixedColumnCount;
     }
 
     /**

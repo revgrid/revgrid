@@ -312,11 +312,11 @@ export class GridPropertiesAccessor implements GridProperties {
     // get theme() { return this.grid.getTheme(); }
     // set theme(theme) { this.grid.applyTheme(theme); }
 
-    get wheelHFactor() { return this.grid.sbHScroller?.deltaXFactor ?? defaultGridProperties.wheelHFactor; }
-    set wheelHFactor(factor) { this.grid.sbHScroller.deltaXFactor = factor; }
+    get wheelHFactor() { return this._raw.wheelHFactor; }
+    set wheelHFactor(factor: number) { this._raw.wheelHFactor = factor; } // should push to scroller
 
-    get wheelVFactor() { return this.grid.sbVScroller?.deltaYFactor ?? defaultGridProperties.wheelVFactor; }
-    set wheelVFactor(factor) { this.grid.sbVScroller.deltaYFactor = factor; }
+    get wheelVFactor() { return this._raw.wheelVFactor; }
+    set wheelVFactor(factor: number) { this._raw.wheelVFactor = factor; } // should push to scroller
 
     /**
      * @memberOf module:dynamicProperties
@@ -325,7 +325,7 @@ export class GridPropertiesAccessor implements GridProperties {
     set features(features: string[]) {
         this.var.features = features.slice();
         this.grid.loadFeatures();
-        this.grid.allowEvents(this.grid.getRowCount() > 0);
+        this.grid.allowEvents(this.grid.getSubgridRowCount(this.grid.mainSubgrid) > 0);
     }
 
     /**

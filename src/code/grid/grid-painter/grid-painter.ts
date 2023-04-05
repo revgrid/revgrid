@@ -66,7 +66,7 @@ export abstract class GridPainter {
             rowSelected: isRowSelected,
             columnSelected: isColumnSelected,
             cellSelected: isCellSelected
-        } = selection.getRowColumnCellSelected(subgrid, beingPaintedCell.gridCell.x, beingPaintedCell.dataCell.y);
+        } = selection.getRowColumnCellSelected(beingPaintedCell.gridCell.x, beingPaintedCell.dataCell.y, subgrid);
 
         const isHeaderRow = beingPaintedCell.isHeaderRow;
         const isFilterRow = beingPaintedCell.isFilterRow;
@@ -120,7 +120,7 @@ export abstract class GridPainter {
         config.bounds = beingPaintedCell.bounds;
         config.isCellHovered = beingPaintedCell.isCellHovered;
         config.isCellSelected = isCellSelected;
-        config.isRowFocused = this.focus.isRowFocused(r);
+        config.isRowFocused = this.focus.isRowFocused(r, subgrid);
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selection.isInCurrentSelectionRectangle(x, r);
@@ -202,7 +202,7 @@ export abstract class GridPainter {
                 )
             ) {
                 const gridLinesVWidth = gridProps.gridLinesVWidth;
-                const headerRowCount = this.grid.getHeaderRowCount();
+                const headerRowCount = this.grid.calculateBeforeMainSubgridRowCount();
                 const lastHeaderRow = visibleRows[headerRowCount - 1]; // any header rows?
                 const firstDataRow = visibleRows[headerRowCount]; // any data rows?
                 const userDataAreaTop = firstDataRow && firstDataRow.top;

@@ -158,7 +158,7 @@ export class FinBar {
      *
      * Changing the truthiness of this value after instantiation currently has no effect.
      */
-    readonly paging: boolean | FinBar.Paging;
+    paging: boolean | FinBar.Paging;
 
     /**
      * @summary Create a scrollbar object.

@@ -6,6 +6,7 @@
     "lib": ["ES2019", "dom"],
     "sourceMap": true,
     "strict": true,
+    "useDefineForClassFields": true,
     "strictPropertyInitialization": false,
     "noUnusedLocals": false,
     "strictNullChecks": true,

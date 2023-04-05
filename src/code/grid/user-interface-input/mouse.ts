@@ -1,0 +1,61 @@
+import { Point } from '../lib/point';
+
+export class Mouse {
+    /**
+     * The pixel location of an initial mousedown click, either for editing a cell or for dragging a selection.
+     */
+    private mouseDown = new Array<Point>(); // [];
+
+    /**
+     * The extent from the mousedown point during a drag operation.
+     */
+    dragExtent: Point | undefined;
+
+
+    /**
+     * @returns The initial mouse position on a mouse down event for cell editing or a drag operation.
+     */
+    getMouseDown() {
+        if (this.mouseDown.length > 0) {
+            return this.mouseDown[this.mouseDown.length - 1];
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * @desc Remove the last item from the mouse down stack.
+     */
+    popMouseDown() {
+        return this.mouseDown.pop();
+    }
+
+    /**
+     * @desc Empty out the mouse down stack.
+     */
+    clearMouseDown() {
+        this.mouseDown = [Point.create(-1, -1)];
+        this.dragExtent = undefined;
+    }
+
+    /**
+     * Set the mouse point that initiated a cell edit or drag operation.
+     */
+    setMouseDown(point: Point) {
+        this.mouseDown.push(point);
+    }
+
+    /**
+     * @returns The extent point of the current drag selection rectangle.
+     */
+    getDragExtent() {
+        return this.dragExtent;
+    }
+
+    /**
+     * @summary Set the extent point of the current drag selection operation.
+     */
+    setDragExtent(point: Point) {
+        this.dragExtent = point;
+    }
+}

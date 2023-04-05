@@ -2,13 +2,13 @@
 import { AssertError } from '../grid-public-api';
 import { Registry } from '../lib/registry';
 import { Renderer } from '../renderer/renderer';
+import { Selection } from '../selection/selection';
 import { AsNeededGridPainter } from './as-needed-grid-painter';
 import { ByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
 import { ByColumnsDiscreteGridPainter } from './by-columns-discrete-grid-painter';
 import { ByColumnsGridPainter } from './by-columns-grid-painter';
 import { ByRowsGridPainter } from './by-rows-grid-painter';
 import { GridPainter } from './grid-painter';
-import { Selection } from '../selection/selection';
 
 export class GridPainterRepository {
     private constructorRegistry = new Registry<GridPainter.Constructor>();
