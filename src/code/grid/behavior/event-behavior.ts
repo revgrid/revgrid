@@ -1,6 +1,8 @@
+import { ColumnInterface } from '../common/column-interface';
 import { EventDetail } from '../event/event-detail';
 import { EventName } from '../event/event-name';
 import { newEvent } from '../event/event-util';
+import { ListChangedTypeId } from '../lib/types';
 import { Selection } from '../selection/selection';
 import { SelectionDetailAccessor } from '../selection/selection-detail';
 
@@ -20,16 +22,31 @@ export class EventBehavior {
         this._destroyed = true;
     }
 
+    processAllColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
+        this._descendantEventer.allColumnListChanged(typeId, index, count, targetIndex);
+        if (this._dispatchEnabled) {
+            this.dispatchGridEvent('rev-columns-created', false, undefined);
+        }
+    }
+
+    processActiveColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
+        this._descendantEventer.activeColumnListChanged(typeId, index, count, targetIndex, ui);
+    }
+
+    processColumnsWidthChangedEvent(columns: ColumnInterface[], ui: boolean) {
+        this._descendantEventer.columnsWidthChanged(columns, ui);
+    }
+
     /**
      * @desc Synthesize and fire a `fin-column-selection-changed` event.
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
-    processColumnSelectionChangedEvent() {
-        this._descendantEventer.columnSelectionChanged();
+    processSelectionChangedEvent() {
+        this._descendantEventer.selectionChanged();
 
         if (this._dispatchEnabled) {
             const selectionDetail = new SelectionDetailAccessor(this._selection);
-            this.dispatchGridEvent('rev-column-selection-changed', false, selectionDetail);
+            this.dispatchGridEvent('rev-selection-changed', false, selectionDetail);
         }
     }
 
@@ -124,7 +141,10 @@ export namespace EventBehavior {
     export type DispatchEventEventer = (this: void, event: Event) => boolean;
 
     export interface DescendantEventer {
-        readonly columnSelectionChanged: (this: void) => void;
+        readonly allColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
+        readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
+        readonly columnsWidthChanged: (this: void, columns: ColumnInterface[], ui: boolean) => void;
+        readonly selectionChanged: (this: void) => void;
         readonly scroll: (this:void, isX: boolean, newValue: number, index: number, offset: number) => void;
     }
 

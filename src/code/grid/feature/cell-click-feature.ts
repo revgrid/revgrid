@@ -52,9 +52,11 @@ export class CellClickFeature extends Feature {
     openLink(grid: Revgrid, cellEvent: CellEvent): boolean | null | undefined | Window {
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
-        const dataRow = cellEvent.dataRow;
+        const rowIndex = cellEvent.dataCell.y;
+        const subgrid = cellEvent.subgrid;
+        const dataRow = subgrid.getSingletonDataRow(rowIndex);
         const config = Object.create(cellEvent.columnProperties, { dataRow: { value: dataRow } });
-        const value = cellEvent.value;
+        const value = subgrid.getValue(cellEvent.column, rowIndex);
         const linkProp = cellEvent.columnProperties.link;
 
         let linkPropTuple: GridProperties.LinkProp | undefined;
@@ -100,7 +102,8 @@ export class CellClickFeature extends Feature {
 
         // STEP 5: Decorate the link as "visited"
         if (result) {
-            cellEvent.setCellProperty('linkColor', grid.properties.linkVisitedColor);
+            const column = cellEvent.column;
+            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', grid.properties.linkVisitedColor, subgrid);
             const rendererBehavior = this.rendererBehavior;
             rendererBehavior.resetCellPropertiesCache(cellEvent);
             rendererBehavior.repaint();

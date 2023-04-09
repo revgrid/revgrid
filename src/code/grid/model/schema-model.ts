@@ -1,4 +1,3 @@
-import { DataModel } from './data-model';
 
 /** @public */
 export interface SchemaModel {
@@ -18,22 +17,6 @@ export namespace SchemaModel {
     export interface Column {
         name: string;
         index: number;
-        // header?: string;
-        type?: string; // | null;
-        calculator?: Column.Calculator;
-        comparator?: Column.Comparator;
-    }
-
-    export namespace Column {
-        export type CalculateFunction = (this: void, dataRow: DataModel.DataRow, columnName: string) => unknown;
-        export type Calculator = CalculateFunction | string;
-
-        export interface Comparator {
-            // eslint-disable-next-line @typescript-eslint/ban-types
-            asc: Function;
-            // eslint-disable-next-line @typescript-eslint/ban-types
-            desc: Function;
-        }
     }
 
     export interface CallbackListener {

@@ -2,6 +2,8 @@
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Renderer } from '../renderer/renderer';
 import { Selection } from '../selection/selection';
+import { Subgrid } from '../subgrid/subgrid';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { GridPainter } from './grid-painter';
 
 /** @summary Render the grid with consolidated column rects.
@@ -28,8 +30,8 @@ import { GridPainter } from './grid-painter';
  */
 
 export class ByColumnsGridPainter extends GridPainter {
-    constructor(renderer: Renderer, selection: Selection) {
-        super(renderer, selection, ByColumnsGridPainter.key, false, ByColumnsGridPainter.initialRebundle);
+    constructor(subgridsManager: SubgridsManager, renderer: Renderer, selection: Selection) {
+        super(subgridsManager, renderer, selection, ByColumnsGridPainter.key, false, ByColumnsGridPainter.initialRebundle);
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
@@ -105,10 +107,11 @@ export class ByColumnsGridPainter extends GridPainter {
             for (let r = 0; r < R; r++, p++) {
                 beingPaintedCell = pool[p]; // next cell down the column (redundant for first cell in column)
 
-                const config = beingPaintedCell.subgrid.getCellPaintConfig(beingPaintedCell);
+                const subgrid = beingPaintedCell.subgrid as Subgrid;
+                const config = subgrid.getCellPaintConfig(beingPaintedCell); // event to Renderer
 
                 try {
-                    const paintWidth = this.paintCell(gc, beingPaintedCell, config, prefillColor);
+                    const paintWidth = this.paintCell(gc, subgrid, beingPaintedCell, config, prefillColor);
                     if (paintWidth !== undefined) {
                         if (preferredWidth === undefined) {
                             preferredWidth = paintWidth;

@@ -2,8 +2,9 @@
 import { MouseCellEvent } from '../cell/cell-event';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
-import { AssertError } from '../grid-public-api';
 import { Point } from '../lib/point';
+import { AssertError } from '../lib/revgrid-error';
+import { SelectionArea } from '../lib/selection-area';
 
 export class CellSelection extends Feature {
 
@@ -40,13 +41,12 @@ export class CellSelection extends Feature {
     }
 
     override handleMouseDown(event: MouseCellEvent) {
-        const grid = this.grid;
         const dx = event.gridCell.x;
         const dy = event.dataCell.y;
         const subgrid = event.subgrid;
-        const isSelectable = subgrid.selectable && grid.getCellProperty(event.dataCell.x, event.gridCell.y, 'cellSelection', event.subgrid);
+        const isSelectable = subgrid.selectable && this.cellPropertiesBehavior.getCellProperty(event.column, event.gridCell.y, 'cellSelection', subgrid);
 
-        if (isSelectable && event.isDataCell && !event.mouse.isRightClick) {
+        if (isSelectable && subgrid.isMain && event.isDataColumn && !event.mouse.isRightClick) {
             const dCell = Point.create(dx, dy);
             const mouse = event.mouse;
             this.dragging = true;
@@ -121,7 +121,7 @@ export class CellSelection extends Feature {
                 return;
             }
 
-            const selectionBehavior = this.selectionBehavior;
+            const selectionBehavior = this.focusSelectionBehavior;
             selectionBehavior.beginChange();
             try {
                 selectionBehavior.clearMostRecentRectangleSelection();
@@ -229,7 +229,7 @@ export class CellSelection extends Feature {
                 return;
             }
 
-            const selectionBehavior = this.selectionBehavior;
+            const selectionBehavior = this.focusSelectionBehavior;
             selectionBehavior.beginChange();
             try {
                 //we have repeated a click in the same spot deslect the value from last time
@@ -287,7 +287,7 @@ export class CellSelection extends Feature {
         event.preventDefault();
 
         const count = this.getAutoScrollAcceleration();
-        this.grid.moveSingleSelect(0, count);
+        this.focusSelectionBehavior.moveCellFocus(0, count, SelectionArea.TypeSpecifier.Primary);
     }
 
     handleUP(event: KeyboardEvent) {
@@ -295,15 +295,15 @@ export class CellSelection extends Feature {
         event.preventDefault();
 
         const count = this.getAutoScrollAcceleration();
-        this.grid.moveSingleSelect(0, -count);
+        this.focusSelectionBehavior.moveCellFocus(0, -count, SelectionArea.TypeSpecifier.Primary);
     }
 
     handleLEFT() {
-        this.grid.moveSingleSelect(-1, 0);
+        this.focusSelectionBehavior.moveCellFocus(-1, 0, SelectionArea.TypeSpecifier.Primary);
     }
 
     handleRIGHT() {
-        this.grid.moveSingleSelect(1, 0);
+        this.focusSelectionBehavior.moveCellFocus(1, 0, SelectionArea.TypeSpecifier.Primary);
     }
 
     /**
@@ -349,7 +349,7 @@ export class CellSelection extends Feature {
      * @param offsetY - y coordinate to start at
      */
     moveShiftSelect(offsetX: number, offsetY: number) {
-        if (this.grid.extendRectangleSelect(offsetX, offsetY)) {
+        if (this.focusSelectionBehavior.extendLastArea(offsetX, offsetY)) {
             this.pingAutoScroll();
         }
     }

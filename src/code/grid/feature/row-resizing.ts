@@ -50,8 +50,8 @@ export class RowResizing extends ColumnRowResizing {
      * @desc return the width/height of the row/column of interest
      * @param index - the row/column index of interest
      */
-    private getAreaSize(grid: Revgrid, index: number): number {
-        return grid.getRowHeight(index);
+    private getAreaSize(grid: Revgrid, index: number, subgrid: Subgrid): number {
+        return this.rowPropertiesBehavior.getRowHeight(index, subgrid);
     }
 
     /**
@@ -86,7 +86,7 @@ export class RowResizing extends ColumnRowResizing {
     }
 
     private getFixedAreaCount(grid: Revgrid): number {
-        return grid.getFixedRowCount() + grid.calculateBeforeMainSubgridRowCount();
+        return grid.getFixedRowCount() + this.subgridsManager.calculateHeaderRowCount();
     }
 
     // isEnabled(grid: Hypergrid): boolean {

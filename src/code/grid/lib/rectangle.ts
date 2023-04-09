@@ -132,6 +132,10 @@ export class Rectangle implements RectangleInterface {
         return this.width * this.height;
     }
 
+    createCopy() {
+        return new Rectangle(this.x, this.y, this.extent.x, this.extent.y);
+    }
+
     /**
      * @returns `true` iff given `point` entirely contained within this rect.
      * @param pointOrRect - The point or rect to test for containment.
@@ -326,6 +330,127 @@ export class Rectangle implements RectangleInterface {
             rect.origin.x < this.corner.x &&
             rect.origin.y < this.corner.y
         );
+    }
+
+    /** Adjusts the selection to where it would be after a columns insertion.
+     * @returns true if selection changed
+     */
+    adjustForXRangeInserted(index: number, count: number): boolean {
+        const left = this.x;
+        const exclusiveRight = left + this.width;
+        if (index >= exclusiveRight || count === 0) {
+            return false;
+        } else {
+            if (index <= left) {
+                this.moveX(count);
+            } else {
+                this.growFromLeft(count);
+            }
+            return true;
+        }
+    }
+
+    /** Adjusts the selection to where it would be after a rows insertion.
+     * @returns true if selection changed
+     */
+    adjustForYRangeInserted(index: number, count: number): boolean {
+        const top = this.y;
+        const height = this.height;
+        const exclusiveBottom = top + height;
+        if (index >= exclusiveBottom || count === 0) {
+            return false;
+        } else {
+            if (index <= top) {
+                this.moveY(count);
+            } else {
+                this.growFromTop(count);
+            }
+            return true;
+        }
+    }
+
+    /** Adjusts the selection to where it would be after a columns deletion.
+     * @returns true if selection changed, false if it was not changed or null if it should be fully deleted
+     */
+    adjustForXRangeDeleted(deletionLeft: number, deletionCount: number): boolean | null {
+        const left = this.x;
+        const width = this.width;
+        const exclusiveRight = left + width;
+        if (deletionLeft >= exclusiveRight || deletionCount === 0) {
+            // deletion after selection or nothing was deleted
+            return false;
+        } else {
+            const exclusiveDeletionRight = deletionLeft + deletionCount;
+            if (deletionLeft <= left) {
+                if (exclusiveDeletionRight <= left) {
+                    // deletion before selection - move
+                    this.moveX(-deletionCount);
+                    return true;
+                } else {
+                    if (exclusiveDeletionRight < exclusiveRight) {
+                        // deletion before and into selection - move and shrink
+                        this.moveX(deletionLeft - left);
+                        this.growFromLeft(left - exclusiveDeletionRight);
+                        return true;
+                    } else {
+                        // deletion covers all of selection
+                        return null;
+                    }
+                }
+            } else {
+                if (exclusiveDeletionRight <= exclusiveRight) {
+                    // deletion within selection - shrink
+                    this.growFromLeft(-deletionCount);
+                    return true;
+                } else {
+                    // deletion from within selection and beyond - shrink
+                    this.growFromLeft(deletionLeft - exclusiveRight);
+                    return true;
+                }
+            }
+        }
+    }
+
+    /** Adjusts the selection to where it would be after a rows deletion.
+     * @returns true if selection changed, false if it was not changed or null if it should be fully deleted
+     */
+    adjustForYRangeDeleted(deletionTop: number, deletionCount: number): boolean | null {
+        const top = this.y;
+        const height = this.height;
+        const exclusiveBottom = top + height;
+        if (deletionTop >= exclusiveBottom || deletionCount === 0) {
+            // deletion after selection or nothing was deleted
+            return false;
+        } else {
+            const exclusiveDeletionBottom = deletionTop + deletionCount;
+            if (deletionTop <= top) {
+                if (exclusiveDeletionBottom <= top) {
+                    // deletion before selection - move
+                    this.moveY(-deletionCount);
+                    return true;
+                } else {
+                    if (exclusiveDeletionBottom < exclusiveBottom) {
+                        // deletion before and into selection - move and shrink
+                        this.moveY(deletionTop - top);
+                        this.growFromTop(top - exclusiveDeletionBottom);
+                        return true;
+                    } else {
+                        // deletion covers all of selection
+                        return null;
+                    }
+                }
+            } else {
+                if (exclusiveDeletionBottom <= exclusiveBottom) {
+                    // deletion within selection - shrink
+                    this.growFromTop(-deletionCount);
+                    return true;
+                } else {
+                    // deletion from within selection and beyond - shrink
+                    this.growFromTop(deletionTop - exclusiveBottom);
+                    return true;
+                }
+            }
+        }
     }
 }
 

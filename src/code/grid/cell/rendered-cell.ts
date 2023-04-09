@@ -1,9 +1,10 @@
 import { CellPainter } from '../cell-painter/cell-painter';
-import { Column } from '../column/column';
 import { ColumnProperties } from '../column/column-properties';
+import { ColumnInterface } from '../common/column-interface';
+import { SubgridInterface } from '../common/subgrid-interface';
+import { DataModel } from '../grid-public-api';
 import { Point, WritablePoint } from '../lib/point';
 import { Rectangle, RectangleInterface } from '../lib/rectangle';
-import { DataModel } from '../model/data-model';
 import { MetaModel } from '../model/meta-model';
 import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
@@ -11,10 +12,10 @@ import { Subgrid } from '../subgrid/subgrid';
 
 export abstract class RenderedCell {
 
-    // getter caches
+    // caches
+    cellOwnProperties: MetaModel.CellOwnProperties | undefined; // only get via CellPropertiesBehavior
+    public _bounds: RenderedCell.Bounds | undefined;
     private _columnProperties: ColumnProperties | undefined;
-    private _cellOwnProperties: MetaModel.CellOwnProperties | undefined | null | false;
-    _bounds: RenderedCell.Bounds | undefined;
 
     // this.disabled: boolean;
 
@@ -23,7 +24,7 @@ export abstract class RenderedCell {
     cellPainter: CellPainter;
     clickRect: Rectangle | undefined;
     clientPoint: Point;
-    column: Column;
+    column: ColumnInterface;
     dataCell: WritablePoint = {} as WritablePoint; // no need for initialization
     // dataRow: DataRowObject;
     format: string;
@@ -32,7 +33,7 @@ export abstract class RenderedCell {
     mousePoint: Point;
     pagePoint: Point;
     row: unknown;
-    subgrid: Subgrid;
+    subgrid: SubgridInterface;
     visibleColumn: Renderer.VisibleColumn;
     visibleRow: Renderer.VisibleRow;
 
@@ -53,7 +54,7 @@ export abstract class RenderedCell {
     reset(visibleColumn: Renderer.VisibleColumn, visibleRow: Renderer.VisibleRow) {
         // getter caches
         this._columnProperties = undefined;
-        this._cellOwnProperties = undefined;
+        this.cellOwnProperties = undefined;
         this._bounds = undefined;
 
         // this.disabled = undefined;
@@ -123,7 +124,7 @@ export abstract class RenderedCell {
      * @param dataY - Vertical data cell coordinate.
      * @returns Visibility.
      */
-    resetDataXY(dataX: number, dataY: number, subgrid?: Subgrid) {
+    resetDataXY(dataX: number, dataY: number, subgrid: Subgrid) {
         const vc = this.renderer.getVisibleDataColumn(dataX);
         if (vc === undefined) {
             return false;
@@ -147,7 +148,7 @@ export abstract class RenderedCell {
      * @param useAllCells - Search in all rows and columns instead of only rendered ones.
      * @returns True if cell was reset.
      */
-    resetGridXDataY(gridX: number, dataY: number, subgrid: Subgrid | undefined, useAllCells?: boolean) {
+    resetGridXDataY(gridX: number, dataY: number, subgrid: SubgridInterface, useAllCells?: boolean) {
         if (useAllCells) {
             // When expanding selections larger than the viewport, the origin/corner
             // points may not be rendered and would normally fail to reset cell's position.
@@ -162,10 +163,10 @@ export abstract class RenderedCell {
                 bottom: -1,
                 width: -1,
             };
-            const vr = {
-                subgrid: subgrid ?? this.grid.mainSubgrid,
+            const vr: Renderer.VisibleRow = {
                 rowIndex: dataY,
                 index: -1,
+                subgrid,
                 top: -1,
                 bottom: -1,
                 height: -1,
@@ -189,39 +190,32 @@ export abstract class RenderedCell {
     }
 
     clearCellOwnProperties() {
-        this._cellOwnProperties = undefined;
+        this.cellOwnProperties = undefined;
     }
 
     /**
      * The raw value of the cell, unformatted.
      */
-    get value() { return this.subgrid.dataModel.getValue(this.column.schemaColumn, this.dataCell.y); }
-    set value(value: unknown) {
-        if (this.subgrid.dataModel.setValue !== undefined) {
-            this.subgrid.dataModel.setValue(this.column.schemaColumn, this.dataCell.y, value);
-        }
+    get value() {
+        return this.subgrid.getValue(this.column, this.dataCell.y);
     }
-
-    /**
-     * The formatted value of the cell.
-     */
-    get formattedValue() { return this.grid.formatValue(this._columnProperties?.format, this.value); } // was this.properties
-
-    /**
-     * An object representing the whole data row, including hidden columns.
-     */
-    get dataRow(): DataModel.DataRow { return this.subgrid.getRow(this.dataCell.y); }
+    set value(value: DataModel.DataValue) {
+        this.subgrid.setValue(this.column, this.dataCell.y, value);
+    }
 
     /**
      * The bounds of the cell.
      */
     get bounds(): RenderedCell.Bounds {
-        return this._bounds ?? (this._bounds = {
-            x: this.visibleColumn.left,
-            y: this.visibleRow.top,
-            width: this.visibleColumn.width,
-            height: this.visibleRow.height
-        });
+        if (this._bounds === undefined) {
+            this._bounds = {
+                x: this.visibleColumn.left,
+                y: this.visibleRow.top,
+                width: this.visibleColumn.width,
+                height: this.visibleRow.height
+            }
+        }
+        return this._bounds;
     }
 
     get columnProperties() {
@@ -242,38 +236,6 @@ export abstract class RenderedCell {
         }
         return cp;
     }
-
-    get cellOwnProperties() {
-        // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
-        if (this._cellOwnProperties === undefined) {
-            this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.subgrid);
-        }
-        return this._cellOwnProperties; // null return means there is no cell properties object
-    }
-
-    // get properties() {
-    //     return this.cellOwnProperties || this.columnProperties;
-    // }
-
-    /**
-     * @param key - Property name.
-     * @returns Property value.
-     */
-    getCellProperty(key: string): unknown | undefined {
-        // included for completeness but `.properties[key]` is preferred
-        const cellOwnProperties = this.cellOwnProperties;
-        if (cellOwnProperties) {
-            return cellOwnProperties[key];
-        } else {
-            return undefined;
-        }
-    }
-
-    setCellProperty(key: string, value: unknown) {
-        this._cellOwnProperties = this.column.setCellProperty(this.dataCell.y, key, value, this.subgrid);
-        return this._cellOwnProperties;
-    }
-
 
     /**
      * Copy self with or without own properties

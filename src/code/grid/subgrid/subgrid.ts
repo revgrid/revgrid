@@ -2,19 +2,19 @@ import { CellModel } from '../../grid/model/cell-model';
 import { DataModel } from '../../grid/model/data-model';
 import { MetaModel } from '../../grid/model/meta-model';
 import { SchemaModel } from '../../grid/model/schema-model';
-import { CellEditor } from '../cell-editor/cell-editor';
-import { CellEditorFactory } from '../cell-editor/cell-editor-factory';
 import { CellPainter } from '../cell-painter/cell-painter';
 import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
 import { BeingPaintedCell } from '../cell/being-painted-cell';
-import { CellEvent } from '../cell/cell-event';
 import { ColumnsManager } from '../column/columns-manager';
+import { ColumnInterface } from '../common/column-interface';
+import { SubgridInterface } from '../common/subgrid-interface';
+import { GridProperties } from '../grid-properties';
+import { AssertError } from '../lib/revgrid-error';
 import { CellPaintConfig } from '../renderer/cell-paint-config';
 import { CellPaintConfigAccessor } from '../renderer/cell-paint-config-accessor';
-import { Revgrid } from '../revgrid';
 
 /** @public */
-export class Subgrid {
+export class Subgrid implements SubgridInterface {
     readonly isMain: boolean = false;
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
@@ -25,23 +25,20 @@ export class Subgrid {
 
     /** @internal */
     private rowProxy: Subgrid.DataRowProxy; // used if DataModel.getRowProperties not implemented
-    /** @internal */
-    private rowMetadata: (MetaModel.RowMetadata | undefined)[] = [];
 
     private _columnsManagerBeforeCreateColumnsListener = () => this.rowProxy.updateSchema();
 
     /** @internal */
     constructor(
         /** @internal */
-        protected readonly _grid: Revgrid,
+        protected readonly _gridProperties: GridProperties,
         /** @internal */
         protected readonly _columnsManager: ColumnsManager,
         /** @internal */
         protected readonly _cellPainterRepository: CellPainterRepository,
         /** @internal */
-        protected readonly _cellEditorFactory: CellEditorFactory,
-        /** @internal */
-        public readonly role: Subgrid.Role,
+        public readonly handle: Subgrid.Handle,
+        public readonly role: SubgridInterface.Role,
         public readonly schemaModel: SchemaModel,
         public readonly dataModel: DataModel,
         public readonly metaModel: MetaModel | undefined,
@@ -70,7 +67,7 @@ export class Subgrid {
         }
 
         this.rowProxy = new Subgrid.DataRowProxy(this.schemaModel, this.dataModel);
-        this._columnsManager.addBeforeCreateColumnsListener(this._columnsManagerBeforeCreateColumnsListener);
+        this._columnsManager.addBeforeCreateColumnsListener(this._columnsManagerBeforeCreateColumnsListener); // put in a behavior
     }
 
     /** @internal */
@@ -79,8 +76,23 @@ export class Subgrid {
         this._destroyed = true;
     }
 
-    /** @internal */
-    getRow(rowIndex: number) {
+    getValue(column: ColumnInterface, rowIndex: number): DataModel.DataValue {
+        return this.dataModel.getValue(column.schemaColumn, rowIndex);
+    }
+
+    setValue(column: ColumnInterface, rowIndex: number, value: DataModel.DataValue) {
+        if (this.dataModel.setValue === undefined) {
+            throw new AssertError('SSV60009');
+        } else {
+            this.dataModel.setValue(column.schemaColumn, rowIndex, value);
+        }
+    }
+
+    /**
+     * Since this may return RowProxy, can only have one of these rows active at any time
+     * @internal
+     */
+    getSingletonDataRow(rowIndex: number) {
         if (this.dataModel.getRow !== undefined) {
             return this.dataModel.getRow(rowIndex);
         } else {
@@ -94,20 +106,32 @@ export class Subgrid {
     }
 
     /** @internal */
-    getRowMetadata(rowIndex: number, prototype?: MetaModel.RowMetadataPrototype): undefined | null | false | MetaModel.RowMetadata {
-        if (this.metaModel !== undefined && this.metaModel.getRowMetadata !== undefined) {
-            return this.metaModel.getRowMetadata(rowIndex, prototype);
+    getRowMetadata(rowIndex: number) {
+        if (this.metaModel === undefined) {
+            return undefined;
         } else {
-            return this.rowMetadata[rowIndex];
+            if (this.metaModel.getRowMetadata === undefined) {
+                return undefined;
+            } else {
+                const metadata = this.metaModel.getRowMetadata(rowIndex);
+                if (metadata === null) {
+                    throw new AssertError('SGRMN99441'); // Row itself does not exist
+                } else {
+                    if (metadata === undefined) {
+                        return undefined;
+                    } else {
+                        return metadata;
+                    }
+                }
+            }
         }
     }
 
     /** @internal */
-    setRowMetadata(rowIndex: number, newMetadata?: MetaModel.RowMetadata) {
+    setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined) {
+
         if (this.metaModel !== undefined && this.metaModel.setRowMetadata !== undefined) {
             this.metaModel.setRowMetadata(rowIndex, newMetadata);
-        } else {
-            this.rowMetadata[rowIndex] = newMetadata;
         }
     }
 
@@ -123,7 +147,7 @@ export class Subgrid {
         }
 
         if (config === undefined) {
-            return new CellPaintConfigAccessor(beingPaintedCell);
+            return new CellPaintConfigAccessor(beingPaintedCell, this.isHeader, this.isFilter);
         } else {
             return config;
         }
@@ -147,22 +171,22 @@ export class Subgrid {
     }
 
     /** @internal */
-    getCellEditorAt(columnIndex: number, rowIndex: number, editorName: string, cellEvent: CellEvent): CellEditor {
-        let editor: CellEditor | undefined;
+    // getCellEditorAt(columnIndex: number, rowIndex: number, editorName: string, cellEvent: CellEvent): CellEditor {
+    //     let editor: CellEditor | undefined;
 
-        const cellModel = this.cellModel;
-        if (cellModel !== undefined) {
-            if (cellModel.getCellEditorAt !== undefined) {
-                editor = cellModel.getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
-            }
-        }
+    //     const cellModel = this.cellModel;
+    //     if (cellModel !== undefined) {
+    //         if (cellModel.getCellEditorAt !== undefined) {
+    //             editor = cellModel.getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
+    //         }
+    //     }
 
-        if (editor === undefined) {
-            return this._cellEditorFactory.create(this._grid, editorName, cellEvent);
-        } else {
-            return editor;
-        }
-    }
+    //     if (editor === undefined) {
+    //         return this._cellEditorFactory.create(this._grid, editorName, cellEvent);
+    //     } else {
+    //         return editor;
+    //     }
+    // }
 
     /** @internal */
     // private handleDataModelEvent(nameOrEvent: DataModel.EventName | DataModel.Event) {
@@ -357,15 +381,7 @@ export class Subgrid {
 
 /** @public */
 export namespace Subgrid {
-    export const enum RoleEnum {
-        main = 'main',
-        header = 'header',
-        footer = 'footer',
-        filter = 'filter',
-        summary = 'summary',
-    }
-
-    export type Role = keyof typeof RoleEnum;
+    export type Handle = number;
 
     /** @internal */
     export class DataRowProxy {
@@ -384,13 +400,13 @@ export namespace Subgrid {
                 const columnName = this.____columnNames[i];
                 delete this[columnName];
             }
-            this.____columnNames.length = 0;
             const schema = this.schemaModel.getSchema();
             const newCount = schema.length;
+            this.____columnNames.length = newCount;
             for (let i = 0; i < newCount; i++) {
                 const schemaColumn = schema[i]; // variable for closure
                 const columnName = schemaColumn.name;
-                this.____columnNames.push(columnName)
+                this.____columnNames[i] = columnName;
                 Object.defineProperty(this, columnName, {
                     // enumerable: true, // is a real data field
                     configurable: true,

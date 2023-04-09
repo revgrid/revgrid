@@ -1,10 +1,9 @@
-
 import { MouseCellEvent } from '../cell/cell-event';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
 import { AssertError } from '../grid-public-api';
 import { Point } from '../lib/point';
-import { SelectionType } from '../selection/selection-type';
+import { SelectionArea } from '../lib/selection-area';
 
 export class RowSelection extends Feature {
 
@@ -40,11 +39,11 @@ export class RowSelection extends Feature {
         if (this._dragArmed) {
             this._dragArmed = false;
             // this.moveCellSelection();
-            this.grid.fireSyntheticRowSelectionChangedEvent();
+            this.eventBehavior.processSelectionChangedEvent();
         } else if (this._dragging) {
             this._dragging = false;
             // this.moveCellSelection();
-            this.grid.fireSyntheticRowSelectionChangedEvent();
+            this.eventBehavior.processSelectionChangedEvent();
         } else if (this.next) {
             this.next.handleMouseUp(event);
         }
@@ -64,7 +63,7 @@ export class RowSelection extends Feature {
         /*if (rowSelectable && event.isHeaderHandle) {
             //global row selection
             grid.toggleSelectAllRows();
-        } else */ if (rowSelectable && event.isMainRow)  {
+        } else */ if (rowSelectable && subgrid.isMain)  {
             // if we are in the fixed area, do not apply the scroll values
             this._dragArmed = true;
             const mouseEvent = event.mouse.primitiveEvent;
@@ -93,7 +92,7 @@ export class RowSelection extends Feature {
     }
 
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        if (this.grid.getLastSelectionType() === SelectionType.Row) {
+        if (this.focusSelectionBehavior.getLastSelectionType() === SelectionArea.Type.Row) {
             const handler = this[('handle' + eventDetail.primitiveEvent.key) as keyof RowSelection] as ((this: void, detail: EventDetail.Keyboard) => void);
             if (handler !== undefined) {
                 handler(eventDetail);
@@ -109,7 +108,7 @@ export class RowSelection extends Feature {
      * @desc Handle a mousedrag selection
      */
     handleMouseDragCellSelection(y: number) {
-        const selectionBehavior = this.selectionBehavior;
+        const selectionBehavior = this.focusSelectionBehavior;
         const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
         const mouseDown = userInterfaceInputBehavior.getMouseDown();
         if (mouseDown === undefined) {
@@ -200,7 +199,7 @@ export class RowSelection extends Feature {
                 return; // do nothing
             }
 
-            const selectionBehavior = this.selectionBehavior;
+            const selectionBehavior = this.focusSelectionBehavior;
             const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
             if (shiftKeyDown) {
                 selectionBehavior.clearMostRecentRowSelection();
@@ -259,7 +258,7 @@ export class RowSelection extends Feature {
 
             newX = Math.min(maxColumns, newX);
 
-            const selectionBehavior = this.selectionBehavior;
+            const selectionBehavior = this.focusSelectionBehavior;
             selectionBehavior.beginChange();
             try {
                 selectionBehavior.clearSelection(true);
@@ -327,7 +326,7 @@ export class RowSelection extends Feature {
      */
     override moveSingleSelect(offsetX: number, offsetY: number, shift?: boolean) {
         const grid = this.grid;
-        const selectionBehavior = this.selectionBehavior;
+        const selectionBehavior = this.focusSelectionBehavior;
         const selection = this.selection;
         const ranges = selection.rows.ranges;
         let lastRange = ranges[ranges.length - 1];
@@ -347,7 +346,7 @@ export class RowSelection extends Feature {
             bottom += offsetY;
         }
 
-        if (top >= 0 && bottom < grid.getSubgridRowCount(selection.focusedSubgrid)) {
+        if (top >= 0 && bottom < selection.focusedSubgrid.getRowCount()) {
             ranges.length -= 1;
             if (ranges.length) {
                 lastRange = ranges[ranges.length - 1];
@@ -366,7 +365,7 @@ export class RowSelection extends Feature {
             this.scrollBehavior.scrollToMakeVisible(grid.properties.fixedColumnCount, offsetY < 0 ? top : bottom + 1, undefined); // +1 for partial row
 
             // this.moveCellSelection();
-            grid.fireSyntheticRowSelectionChangedEvent();
+            this.eventBehavior.processSelectionChangedEvent();
             this.rendererBehavior.repaint();
         }
     }

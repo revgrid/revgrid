@@ -1,9 +1,11 @@
 
 import { Behavior } from '../behavior/behavior';
+import { CellPropertiesBehavior } from '../behavior/cell-properties-behavior';
+import { EventBehavior } from '../behavior/event-behavior';
+import { FocusSelectionBehavior } from '../behavior/focus-selection-behavior';
 import { RendererBehavior } from '../behavior/renderer-behaviour';
 import { RowPropertiesBehavior } from '../behavior/row-properties-behavior';
 import { ScrollBehavior } from '../behavior/scroll-behaviour';
-import { SelectionBehavior } from '../behavior/selection-behavior';
 import { UserInterfaceInputBehavior } from '../behavior/user-interface-input-behavior';
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { ColumnsManager } from '../column/columns-manager';
@@ -14,6 +16,7 @@ import { Point } from '../lib/point';
 import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { FeatureServices } from './feature-services';
 import { FeaturesSharedState } from './features-shared-state';
 
@@ -24,16 +27,19 @@ export abstract class Feature {
 
     abstract readonly typeName: string;
 
-    protected readonly selectionBehavior: SelectionBehavior;
+    protected readonly focusSelectionBehavior: FocusSelectionBehavior;
     protected readonly rendererBehavior: RendererBehavior;
     protected readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
     protected readonly scrollBehavior: ScrollBehavior;
     protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
+    protected readonly cellPropertiesBehavior: CellPropertiesBehavior;
+    protected readonly eventBehavior: EventBehavior;
 
     protected readonly sharedState: FeaturesSharedState;
     protected readonly selection: Selection;
     protected readonly focus: Focus;
     protected readonly columnsManager: ColumnsManager;
+    protected readonly subgridsManager: SubgridsManager;
     protected readonly renderer: Renderer;
     protected readonly gridProperties: GridProperties;
 
@@ -42,16 +48,19 @@ export abstract class Feature {
         protected readonly grid: Revgrid,
         services: FeatureServices,
     ) {
-        this.selectionBehavior = behavior.selectionBehavior;
+        this.focusSelectionBehavior = behavior.focusSelectionBehavior;
         this.rendererBehavior = behavior.rendererBehavior;
         this.userInterfaceInputBehavior = behavior.userInterfaceInputBehavior;
         this.scrollBehavior = behavior.scrollBehavior;
         this.rowPropertiesBehavior = behavior.rowPropertiesBehavior;
+        this.cellPropertiesBehavior = behavior.cellPropertiesBehavior;
+        this.eventBehavior = behavior.eventBehavior;
 
         this.sharedState = services.sharedState;
         this.selection = services.selection;
         this.focus = services.focus;
         this.columnsManager = services.columnsManager;
+        this.subgridsManager = services.subgridsManager;
         this.renderer = services.renderer;
         this.gridProperties = services.gridProperties;
     }

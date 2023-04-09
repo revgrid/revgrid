@@ -1,8 +1,8 @@
+import { SubgridInterface } from './common/subgrid-interface';
 import { CellModel } from './model/cell-model';
 import { DataModel } from './model/data-model';
 import { MetaModel } from './model/meta-model';
 import { SchemaModel } from './model/schema-model';
-import { Subgrid } from './subgrid/subgrid';
 
 /** @public */
 export interface AdapterSetConfig {
@@ -13,7 +13,7 @@ export interface AdapterSetConfig {
 
 /** @public */
 export interface SubgridDefinition {
-    role?: Subgrid.Role, // defaults to main
+    role?: SubgridInterface.Role, // defaults to main
     dataModel: DataModel | DataModel.Constructor,
     metaModel?: MetaModel | MetaModel.Constructor,
     cellModel?: CellModel | CellModel.Constructor,

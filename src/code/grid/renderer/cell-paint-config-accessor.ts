@@ -17,15 +17,15 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     private readonly _dataOrHeaderProperties: ColumnProperties.ColumnHeader;
     private readonly _dataOrFilterProperties: ColumnProperties.Filter;
 
-    constructor(beingPaintedCell: BeingPaintedCell) {
+    constructor(beingPaintedCell: BeingPaintedCell, isHeader: boolean, isFilter: boolean) {
         this._columnProperties = beingPaintedCell.column.properties;
         this._gridProperties = beingPaintedCell.grid.properties;
-        if (beingPaintedCell.isHeaderCell) {
+        if (isHeader) {
             this._dataOrHeaderOrFilterProperties = this._columnProperties.columnHeader;
             this._dataOrHeaderProperties = this._columnProperties.columnHeader;
             this._dataOrFilterProperties = this._columnProperties;
         } else {
-            if (beingPaintedCell.isFilterCell) {
+            if (isFilter) {
                 this._dataOrHeaderOrFilterProperties = this._columnProperties.filterProperties;
                 this._dataOrFilterProperties = this._columnProperties.filterProperties;
                 this._dataOrHeaderProperties = this._columnProperties;

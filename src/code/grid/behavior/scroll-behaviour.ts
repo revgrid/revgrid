@@ -2,8 +2,8 @@ import { ColumnsManager } from '../column/columns-manager';
 import { FinBar } from '../finbar/finbar';
 import { GridProperties } from '../grid-properties';
 import { Renderer } from '../renderer/renderer';
-import { MainSubgrid } from '../subgrid/main-subgrid';
 import { Subgrid } from '../subgrid/subgrid';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 
 export class ScrollBehavior {
     private _rowScrollAnchorIndex = 0;
@@ -14,7 +14,7 @@ export class ScrollBehavior {
     constructor(
         private readonly _gridProperties: GridProperties,
         private readonly _columnsManager: ColumnsManager,
-        private readonly _mainSubgrid: MainSubgrid,
+        private readonly _subgridsManager: SubgridsManager,
         private readonly renderer: Renderer,
         readonly horizontalScroller: FinBar,
         readonly verticalScroller: FinBar,
@@ -120,7 +120,7 @@ export class ScrollBehavior {
     }
 
     scrollToMakeVisible(c: number, r: number, subgrid: Subgrid | undefined) {
-        if (subgrid === undefined || subgrid === this._mainSubgrid) {
+        if (subgrid === undefined || subgrid === this._subgridsManager.mainSubgrid) {
             let delta: number;
             const gridRightAligned = this._gridProperties.gridRightAligned
             const dw = this.renderer.dataWindow;
@@ -347,7 +347,8 @@ export class ScrollBehavior {
     }
 
     private updateVerticalScroll(recalculateView: boolean) {
-        const numRows = this._mainSubgrid.getRowCount();
+        const mainSubgrid = this._subgridsManager.mainSubgrid;
+        const numRows = mainSubgrid.getRowCount();
         const gridProps = this._gridProperties;
         const scrollableHeight = this.renderer.getVisibleScrollHeight();
         const lineGap = gridProps.gridLinesHWidth;
@@ -355,7 +356,7 @@ export class ScrollBehavior {
         let lastPageRowCount = 0;
 
         while (lastPageRowCount < numRows && rowsHeight < scrollableHeight) {
-            rowsHeight += this._getRowHeightEventer(numRows - lastPageRowCount - 1) + lineGap;
+            rowsHeight += this._getRowHeightEventer(numRows - lastPageRowCount - 1, mainSubgrid) + lineGap;
             lastPageRowCount++;
         }
         if (rowsHeight > scrollableHeight) {
@@ -545,5 +546,5 @@ export class ScrollBehavior {
 export namespace ScrollBehavior {
     export type BehaviourChangedEventer = (this: void) => void;
     export type ScrollEventer = (this: void, isX: boolean, newValue: number, index: number, offset: number) => void;
-    export type GetRowHeightEventer = (this: void, y: number, subgrid?: Subgrid) => number;
+    export type GetRowHeightEventer = (this: void, y: number, subgrid: Subgrid) => number;
 }

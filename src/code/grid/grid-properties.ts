@@ -1,9 +1,7 @@
-import { CellEvent } from './cell/cell-event';
-import { defaultGridProperties } from './default-grid-properties';
 import { Effect } from './effects/effects';
+import { SelectionArea } from './lib/selection-area';
 import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
 import { deepExtendValue } from './lib/utils';
-import { SchemaModel } from './model/schema-model';
 
 /** @public */
 export interface GridProperties {
@@ -14,13 +12,10 @@ export interface GridProperties {
     backgroundColor: GridProperties.Color;
     backgroundColor2: GridProperties.Color;
     backgroundSelectionColor: GridProperties.Color;
-    calculators: GridProperties.Calculators;
     cellPadding: number;
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
     cellSelection: boolean;
     checkboxOnlyRowSelections: boolean;
-    /** Collapse cell selection onto next row selection. */
-    collapseCellSelections: boolean;
     color: GridProperties.Color;
     /** Whether the column is auto-sized */
     columnAutosized: boolean;
@@ -60,8 +55,8 @@ export interface GridProperties {
     editOnNextCell: boolean;
     /** Name of a cell editor. */
     editor: string | undefined;
-    /** Emit events arising from SchemaModel and DataModel callbacks */
-    emitModelEvents: boolean;
+    // /** Emit events arising from SchemaModel and DataModel callbacks */
+    // emitModelEvents: boolean;
     /** @summary Re-render grid at maximum speed.
      * @desc In this mode:
      * * The "dirty" flag, set by calling `grid.repaint()`, is ignored.
@@ -149,6 +144,7 @@ export interface GridProperties {
     headerify: string;
     /** Whether text in header cells is wrapped. */
     headerTextWrapping: boolean;
+    horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
     /** On mouse hover, whether to repaint the cell background and how. */
     hoverCellHighlight: GridProperties.HoverColors;
     /** On mouse hover, whether to repaint the column background and how. */
@@ -178,10 +174,12 @@ export interface GridProperties {
     maximumColumnWidth: number | undefined;
     visibleColumnWidthAdjust: boolean;
     /** Allow multiple cell region selections. */
-    multipleSelections: boolean;
+    multipleSelectionAreas: boolean;
     /** Mappings for cell navigation keys. */
     navKeyMap: GridProperties.NavKeyMap;
     noDataMessage: string;
+    /** The area type that is added to a selection by default in a UI operation. Can also be specified in API calls which add an area to a Selection. */
+    primarySelectionAreaType: SelectionArea.Type;
     // propClassLayers: GridProperties.propClassEnum;
     readOnly: boolean;
     /** Name of cell renderer. */
@@ -211,7 +209,8 @@ export interface GridProperties {
     scrollbarHoverOver: string,
     scrollbarHoverOff: string,
     scrollingEnabled: boolean,
-    horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
+    /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a Selection. */
+    secondarySelectionAreaType: SelectionArea.Type;
     /** Stroke color for last selection overlay. */
     selectionRegionOutlineColor: GridProperties.Color;
     /** Fill color for last selection overlay. */
@@ -242,10 +241,6 @@ export interface GridProperties {
 /** @public */
 export namespace GridProperties {
     export type Color = /* CanvasGradient | CanvasPattern |*/ string;
-
-    export interface Calculators {
-        [calculatorName: string]: SchemaModel.Column.CalculateFunction;
-    }
 
     export const enum propClassEnum {
         COLUMNS = 1,
@@ -280,7 +275,7 @@ export namespace GridProperties {
         options: Effect.Options;
     }
 
-    export type LinkFunction = (this: void, cellEvent: CellEvent) => string;
+    export type LinkFunction = (this: void, cellEvent: unknown) => string;
     export type LinkProp = [url: string, target: string];
 
     export interface RowStripe {
@@ -412,18 +407,6 @@ export namespace GridProperties {
             }
             return true;
         }
-    }
-
-    /** @internal */
-    export function copy(properties: GridProperties): GridProperties {
-        const result = {} as GridProperties;
-        assign(properties, result);
-        return result;
-    }
-
-    /** @internal */
-    export function createDefaults(): GridProperties {
-        return copy(defaultGridProperties);
     }
 }
 

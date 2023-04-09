@@ -1,15 +1,14 @@
-import { Column, ColumnsDataValuesObject } from './column/column';
-import { ColumnsManager } from './column/columns-manager';
-import { UnreachableCaseError } from './lib/revgrid-error';
-import { DataModel } from './model/data-model';
-import { SchemaModel } from './model/schema-model';
-import { Selection } from './selection/selection';
-import { SelectionType } from './selection/selection-type';
+import { Column, ColumnsDataValuesObject } from '../column/column';
+import { ColumnsManager } from '../column/columns-manager';
+import { UnreachableCaseError } from '../lib/revgrid-error';
+import { SelectionArea } from '../lib/selection-area';
+import { DataModel } from '../model/data-model';
+import { Selection } from '../selection/selection';
 
 /** @internal */
-export class DataExtract {
+export class DataExtractBehavior {
     constructor(
-        private readonly selection: Selection,
+        private readonly _selection: Selection,
         private readonly _columnsManager: ColumnsManager,
     ) {
 
@@ -18,48 +17,54 @@ export class DataExtract {
      * @returns Tab separated value string from the selection and our data.
      */
     getSelectionAsTSV(): string {
-        const selectionType = this.selection.getLastSelectionType();
-        switch (selectionType) {
-            case SelectionType.Cell: {
-                const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix();
-                const selections = selectionMatrix[selectionMatrix.length - 1];
-                return this.getMatrixSelectionAsTSV(selections);
+        // This is wrong - assumes all selection areas are the same and each TSV line is a column - not a row
+        // Needs fixing
+        const selectionArea = this._selection.lastArea;
+        if (selectionArea === undefined) {
+            return '';
+        } else {
+            switch (selectionArea.areaType) {
+                case SelectionArea.Type.Rectangle: {
+                    const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix();
+                    const selections = selectionMatrix[selectionMatrix.length - 1];
+                    return this.convertDataValueArraysToTsv(selections);
+                }
+                case SelectionArea.Type.Row: {
+                    return this.convertDataValueArraysToTsv(this.getRowSelectionMatrix());
+                }
+                case SelectionArea.Type.Column: {
+                    return this.convertDataValueArraysToTsv(this.getColumnSelectionMatrix());
+                }
+                case undefined: {
+                    return '';
+                }
+                default:
+                    throw new UnreachableCaseError('MSGSATSV12998', selectionArea.areaType);
             }
-            case SelectionType.Row: {
-                return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
-            }
-            case SelectionType.Column: {
-                return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
-            }
-            case undefined: {
-                return '';
-            }
-            default:
-                throw new UnreachableCaseError('MSGSATSV12998', selectionType);
         }
     }
 
-    getMatrixSelectionAsTSV(selections: Array<Array<DataModel.DataValue>>) {
+    convertDataValueArraysToTsv(dataValueArrays: Array<Array<DataModel.DataValue>>) {
         let result = '';
 
         //only use the data from the last selection
-        if (selections.length) {
-            const width = selections.length;
-            const height = selections[0].length;
-            const area = width * height;
+        if (dataValueArrays.length) {
+            const width = dataValueArrays.length;
+            const height = dataValueArrays[0].length;
+            const areaSize = width * height;
             const lastCol = width - 1;
-                //Whitespace will only be added on non-singular rows, selections
+            // Whitespace will only be added on non-singular rows, selections
             const whiteSpaceDelimiterForRow = (height > 1 ? '\n' : '');
 
             //disallow if selection is too big
-            if (area > 20000) {
+            if (areaSize > 20000) {
                 alert('selection size is too big to copy to the paste buffer'); // eslint-disable-line no-alert
                 return '';
             }
 
             for (let h = 0; h < height; h++) {
                 for (let w = 0; w < width; w++) {
-                    result += selections[w][h] + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
+                    result += dataValueArrays[w][h] + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
                 }
             }
         }
@@ -71,9 +76,9 @@ export class DataExtract {
      * @returns An object that represents the currently selection row.
      */
     getFirstSelectionRectangleTopRowValues() {
-        const rectangles = this.selection.rectangles;
+        const rectangles = this._selection.rectangleList.rectangles;
         if (rectangles.length > 0) {
-            const dataModel = this.selection.focusedSubgrid.dataModel;
+            const dataModel = this._selection.focusedSubgrid.dataModel;
             const columnsManager = this._columnsManager;
             const colCount = this._columnsManager.getActiveColumnCount();
             const topSelectedRow = rectangles[0].origin.y;
@@ -91,7 +96,7 @@ export class DataExtract {
     }
 
     getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataModel.DataRow {
-        const selectedRowIndexes = this.selection.getRowIndices();
+        const selectedRowIndexes = this._selection.getRowIndices();
         const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
         const result: DataModel.DataRow = {};
 
@@ -99,8 +104,8 @@ export class DataExtract {
             const column = columns[c];
             const rows = result[column.name] = new Array(selectedRowIndexes.length);
             selectedRowIndexes.forEach( (selectedRowIndex, j) => {
-                const dataRow = this.selection.focusedSubgrid.getRow(selectedRowIndex) as DataModel.DataRow; // should always exist
-                rows[j] = this.valOrFunc(dataRow, column);
+                const dataRow = this._selection.focusedSubgrid.getSingletonDataRow(selectedRowIndex) as DataModel.DataRow; // should always exist
+                rows[j] = column.getValueFromDataRow(dataRow);
             });
         }
 
@@ -108,7 +113,7 @@ export class DataExtract {
     }
 
     getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataModel.DataValue>> {
-        const selectedRowIndexes = this.selection.getRowIndices();
+        const selectedRowIndexes = this._selection.getRowIndices();
         const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
         const result = new Array<Array<DataModel.DataValue>>(columns.length);
 
@@ -117,8 +122,8 @@ export class DataExtract {
             result[c] = new Array<DataModel.DataValue>(selectedRowIndexes.length);
             selectedRowIndexes.forEach(
                 (selectedRowIndex, r) => {
-                    const dataRow = this.selection.focusedSubgrid.getRow(selectedRowIndex) as DataModel.DataRow; // should always exist
-                    result[c][r] = this.valOrFunc(dataRow, column);
+                    const dataRow = this._selection.focusedSubgrid.getSingletonDataRow(selectedRowIndex) as DataModel.DataRow; // should always exist
+                    result[c][r] = column.getValueFromDataRow(dataRow);
                 }
             );
         }
@@ -128,8 +133,8 @@ export class DataExtract {
 
     getColumnSelectionMatrix(): DataModel.DataValue[][] {
         const columnsManager = this._columnsManager;
-        const selectedColumnIndexes = this.selection.getColumnIndices();
-        const numRows = this.selection.focusedSubgrid.getRowCount();
+        const selectedColumnIndexes = this._selection.getColumnIndices();
+        const numRows = this._selection.focusedSubgrid.getRowCount();
         const result = new Array<Array<DataModel.DataValue>>(selectedColumnIndexes.length);
 
         selectedColumnIndexes.forEach((selectedColumnIndex, c) => {
@@ -137,8 +142,8 @@ export class DataExtract {
             const values = result[c] = new Array<DataModel.DataValue>(numRows);
 
             for (let r = 0; r < numRows; r++) {
-                const dataRow = this.selection.focusedSubgrid.getRow(r) as DataModel.DataRow; // should always exist;
-                values[r] = this.valOrFunc(dataRow, column);
+                const dataRow = this._selection.focusedSubgrid.getSingletonDataRow(r) as DataModel.DataRow; // should always exist;
+                values[r] = column.getValueFromDataRow(dataRow);
             }
         });
 
@@ -147,17 +152,17 @@ export class DataExtract {
 
     getSelectedColumnsValues() {
         const columnsManager = this._columnsManager;
-        const selectedColumnIndexes = this.selection.getColumnIndices();
+        const selectedColumnIndexes = this._selection.getColumnIndices();
         const result: ColumnsDataValuesObject = {};
-        const rowCount = this.selection.focusedSubgrid.getRowCount();
+        const rowCount = this._selection.focusedSubgrid.getRowCount();
 
         selectedColumnIndexes.forEach((selectedColumnIndex) => {
             const column = columnsManager.getActiveColumn(selectedColumnIndex);
             const values = result[column.name] = new Array<DataModel.DataValue>(rowCount);
 
             for (let r = 0; r < rowCount; r++) {
-                const dataRow = this.selection.focusedSubgrid.getRow(r) as DataModel.DataRow; // should always exist;
-                values[r] = this.valOrFunc(dataRow, column);
+                const dataRow = this._selection.focusedSubgrid.getSingletonDataRow(r) as DataModel.DataRow; // should always exist;
+                values[r] = column.getValueFromDataRow(dataRow);
             }
         });
 
@@ -166,7 +171,7 @@ export class DataExtract {
 
     getSelectedValuesByRectangleAndColumn(): ColumnsDataValuesObject[] {
         const columnsManager = this._columnsManager;
-        const selectionRectangles = this.selection.rectangles;
+        const selectionRectangles = this._selection.rectangleList.rectangles;
         const rects = new Array<ColumnsDataValuesObject>(selectionRectangles.length);
 
         selectionRectangles.forEach(
@@ -180,8 +185,8 @@ export class DataExtract {
                     const values = columns[column.name] = new Array<DataModel.DataValue>(rowCount);
 
                     for (let r = 0, y = selectionRect.origin.y; r < rowCount; r++, y++) {
-                        const dataRow = this.selection.focusedSubgrid.getRow(y) as DataModel.DataRow; // should always exist;
-                        values[r] = this.valOrFunc(dataRow, column);
+                        const dataRow = this._selection.focusedSubgrid.getSingletonDataRow(y) as DataModel.DataRow; // should always exist;
+                        values[r] = column.getValueFromDataRow(dataRow);
                     }
                 }
 
@@ -194,50 +199,34 @@ export class DataExtract {
 
     getSelectedValuesByRectangleColumnRowMatrix(): DataModel.DataValue[][][] {
         const columnsManager = this._columnsManager;
-        const rectangles = this.selection.rectangles;
+        const rectangles = this._selection.rectangleList.rectangles;
         const rects = new Array<Array<Array<DataModel.DataValue>>>(rectangles.length);
 
         rectangles.forEach(
             (rect, i) => {
                 const colCount = rect.width;
                 const rowCount = rect.height;
-                const rows = new Array<Array<DataModel.DataValue>>();
+                const columnArray = new Array<Array<DataModel.DataValue>>(colCount);
 
-                for (let c = 0, x = rect.origin.x; c < colCount; c++, x++) {
-                    const values = rows[c] = new Array<DataModel.DataValue>(rowCount);
+                let x = rect.origin.x
+                for (let c = 0; c < colCount; c++) {
                     const column = columnsManager.getActiveColumn(x);
 
+                    const rowValues = new Array<DataModel.DataValue>(rowCount);
                     for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                        const dataRow = this.selection.focusedSubgrid.getRow(y) as DataModel.DataRow; // should always exist;
-                        values[r] = this.valOrFunc(dataRow, column);
+                        const dataRow = this._selection.focusedSubgrid.getSingletonDataRow(y) as DataModel.DataRow; // should always exist;
+                        rowValues[r] = column.getValueFromDataRow(dataRow);
                     }
+
+                    columnArray[c] = rowValues;
+                    x++;
                 }
 
-                rects[i] = rows;
+                rects[i] = columnArray;
             }
         );
 
         return rects;
-    }
-
-    /**
-     * @returns '' if data value is undefined
-     * @internal
-     */
-    private valOrFunc(dataRow: DataModel.DataRow, column: Column): (DataModel.DataValue | '') {
-        if (Array.isArray(dataRow)) {
-            return dataRow[column.schemaColumn.index];
-        } else {
-            let result: DataModel.DataValue;
-            if (dataRow) {
-                result = dataRow[column.name];
-                const calculator = (((typeof result)[0] === 'f' && result) || column.calculator) as SchemaModel.Column.CalculateFunction;
-                if (calculator) {
-                    result = calculator(dataRow, column.name);
-                }
-            }
-            return result || result === 0 || result === false ? result : '';
-        }
     }
 
     /**

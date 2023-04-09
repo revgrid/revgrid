@@ -1,5 +1,5 @@
 import { CellEditor } from '../cell-editor/cell-editor';
-import { Column } from '../column/column';
+import { ColumnInterface } from '../common/column-interface';
 import { Point } from '../lib/point';
 import { Revgrid } from '../revgrid';
 
@@ -63,7 +63,7 @@ export namespace EventDetail {
 
     export interface ColumnSort {
         readonly time: number;
-        readonly column: Column;
+        readonly column: ColumnInterface;
         readonly activeColumnIndex: number;
         readonly altKey: boolean;
         readonly metaKey: boolean;

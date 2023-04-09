@@ -1,6 +1,7 @@
 
 import { GridProperties } from './grid-properties';
 import { AssertError } from './lib/revgrid-error';
+import { SelectionArea } from './lib/selection-area';
 import { HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
 
 /**
@@ -439,7 +440,7 @@ export const defaultGridProperties: Required<GridProperties> = {
     repaintImmediately: false,
     useHiDPI: true,
 
-    emitModelEvents: false,
+    // emitModelEvents: false,
 
     navKeyMap: {
         // RETURN: 'DOWN',
@@ -488,6 +489,8 @@ export const defaultGridProperties: Required<GridProperties> = {
     columnSelection: true,
     rowSelection: true,
     singleRowSelectionMode: true,
+    primarySelectionAreaType: SelectionArea.Type.Rectangle,
+    secondarySelectionAreaType: SelectionArea.Type.Row,
 
     /**
      * @summary Fill color for last selection overlay.
@@ -653,12 +656,6 @@ export const defaultGridProperties: Required<GridProperties> = {
      */
     autoSelectColumns: false,
 
-    /**
-     * Collapse cell selection onto next row selection.
-     * @default
-     * @type {boolean}
-     */
-    collapseCellSelections: false,
 
     /** @summary Name of a formatter for cell text.
      * @desc Unknown formatter falls back to the `string` formatter (simple conversion to string with `+ ''`).
@@ -788,7 +785,7 @@ export const defaultGridProperties: Required<GridProperties> = {
      */
     strikeThrough: false,
 
-    multipleSelections: false,
+    multipleSelectionAreas: false,
     enableContinuousRepaint: false,
 
     /** @summary Allow user to move columns .
@@ -878,7 +875,6 @@ export const defaultGridProperties: Required<GridProperties> = {
      */
     textTruncateType: TextTruncateType.WithEllipsis,
 
-    calculators: {},
     columnAutosized: false,
     columnIndexes: [],
     fetchSubregions: false,

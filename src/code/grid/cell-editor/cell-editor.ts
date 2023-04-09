@@ -46,7 +46,7 @@ export abstract class CellEditor {
         //     this[key] = cellEvent[key];
         // }
 
-        let value = this.renderedCell.value;
+        let value = {}; //this.renderedCell.value;
         if (value instanceof Array) {
             value = value[1]; //it's a nested object
         }
@@ -354,7 +354,7 @@ export abstract class CellEditor {
         );
 
         if (save) {
-            this.renderedCell.value = value;
+            // this.renderedCell.value = value;
             this.grid.fireAfterCellEdit(this.renderedCell.gridCell, this.initialValue, value, this);
         }
 

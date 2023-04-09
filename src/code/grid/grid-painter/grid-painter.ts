@@ -2,12 +2,15 @@ import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2
 import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
 import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { RenderedCell } from '../cell/rendered-cell';
+import { SubgridInterface } from '../common/subgrid-interface';
 import { Focus } from '../focus';
 import { Point } from '../lib/point';
 import { CellPaintConfig } from '../renderer/cell-paint-config';
 import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
+import { Subgrid } from '../subgrid/subgrid';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 
 export abstract class GridPainter {
     protected readonly grid: Revgrid;
@@ -26,6 +29,7 @@ export abstract class GridPainter {
     rebundle: boolean;
 
     constructor(
+        protected readonly _subgridsManager: SubgridsManager,
         protected readonly renderer: Renderer,
         protected readonly selection: Selection,
         public readonly key: string,
@@ -56,23 +60,21 @@ export abstract class GridPainter {
      * @param prefillColor If omitted, this is a partial renderer; all other renderers must provide this.
      * @returns Preferred width of renndered cell.
      */
-    protected paintCell(gc: CanvasRenderingContext2DEx, beingPaintedCell: BeingPaintedCell, config: CellPaintConfig, prefillColor: string | undefined): number | undefined {
+    protected paintCell(gc: CanvasRenderingContext2DEx, subgrid: SubgridInterface, beingPaintedCell: BeingPaintedCell, config: CellPaintConfig, prefillColor: string | undefined): number | undefined {
         const grid = this.grid;
-        const subgrid = beingPaintedCell.subgrid;
         const selection = grid.selection;
-        const isMainRow = beingPaintedCell.isMainRow;
+        const isMainRow = subgrid.isMain;
+        const isHeaderRow = subgrid.isHeader;
+        const isFilterRow = subgrid.isFilter;
+
+        const x = (config.gridCell = beingPaintedCell.gridCell).x;
+        const r = (config.dataCell = beingPaintedCell.dataCell).y;
 
         const {
             rowSelected: isRowSelected,
             columnSelected: isColumnSelected,
             cellSelected: isCellSelected
-        } = selection.getRowColumnCellSelected(beingPaintedCell.gridCell.x, beingPaintedCell.dataCell.y, subgrid);
-
-        const isHeaderRow = beingPaintedCell.isHeaderRow;
-        const isFilterRow = beingPaintedCell.isFilterRow;
-
-        const x = (config.gridCell = beingPaintedCell.gridCell).x;
-        const r = (config.dataCell = beingPaintedCell.dataCell).y;
+        } = selection.getRowColumnCellSelected(x, r, subgrid);
 
         /* if (isHandleColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
@@ -97,8 +99,8 @@ export abstract class GridPainter {
         // * For non-data row tree column cells, do nothing (these cells render blank so value is undefined)
         // if (!isHandleColumn) {
             // including tree column
-        config.dataRow = beingPaintedCell.dataRow;
-        const value = beingPaintedCell.value;
+        config.dataRow = subgrid.getSingletonDataRow(r);
+        const value = subgrid.getValue(beingPaintedCell.column, r);
         // } else if (isDataRow) {
             // row handle for a data row
             // if (config.rowHeaderNumbers) {
@@ -116,14 +118,21 @@ export abstract class GridPainter {
         config.isFilterRow = isFilterRow;
         config.isUserDataArea = isMainRow;
         config.isColumnHovered = beingPaintedCell.isColumnHovered;
-        config.isRowHovered = beingPaintedCell.isRowHovered;
+        const rowHovered =
+            this.grid.canvas.hasMouse &&
+            subgrid.isMain &&
+            (this.grid.hoverGridCell !== undefined) &&
+            (this.grid.hoverGridCell.y === beingPaintedCell.gridCell.y);
+
+        config.isRowHovered = rowHovered;
         config.bounds = beingPaintedCell.bounds;
-        config.isCellHovered = beingPaintedCell.isCellHovered;
+        const cellHovered = rowHovered && beingPaintedCell.isColumnHovered;
+        config.isCellHovered = cellHovered;
         config.isCellSelected = isCellSelected;
         config.isRowFocused = this.focus.isRowFocused(r, subgrid);
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
-        config.isInCurrentSelectionRectangle = selection.isInCurrentSelectionRectangle(x, r);
+        config.isInCurrentSelectionRectangle = selection.isPointInLastRectangle(x, r);
         config.prefillColor = prefillColor;
 
         if (grid.mouseDownState) {
@@ -135,7 +144,7 @@ export abstract class GridPainter {
         // This call's dataModel.getCell which developer can override to:
         // * mutate the (writable) properties of `config` (including config.value)
         // * mutate cell renderer choice (instance of which is returned)
-        const cellPainter = beingPaintedCell.subgrid.getCellPainter(config, config.cellPainter);
+        const cellPainter = (subgrid as Subgrid).getCellPainter(config, config.cellPainter); // event to Renderer
 
         config.formatValue = grid.getFormatter(config.format);
 
@@ -202,7 +211,7 @@ export abstract class GridPainter {
                 )
             ) {
                 const gridLinesVWidth = gridProps.gridLinesVWidth;
-                const headerRowCount = this.grid.calculateBeforeMainSubgridRowCount();
+                const headerRowCount = this._subgridsManager.calculateHeaderRowCount();
                 const lastHeaderRow = visibleRows[headerRowCount - 1]; // any header rows?
                 const firstDataRow = visibleRows[headerRowCount]; // any data rows?
                 const userDataAreaTop = firstDataRow && firstDataRow.top;
@@ -395,7 +404,11 @@ export abstract class GridPainter {
 }
 
 export namespace GridPainter {
-    export type Constructor = new(renderer: Renderer, selection: Selection) => GridPainter;
+    export type Constructor = new(
+        subgridsManager: SubgridsManager,
+        renderer: Renderer,
+        selection: Selection
+    ) => GridPainter;
 
     export interface ColumnBundle {
         backgroundColor: string;

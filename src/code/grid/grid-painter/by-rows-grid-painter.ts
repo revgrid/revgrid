@@ -2,6 +2,7 @@
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Renderer } from '../renderer/renderer';
 import { Selection } from '../selection/selection';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { GridPainter } from './grid-painter';
 
 /** @summary Render the grid.
@@ -21,8 +22,8 @@ import { GridPainter } from './grid-painter';
  * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
  */
 export class ByRowsGridPainter extends GridPainter {
-    constructor(renderer: Renderer, selection: Selection) {
-        super(renderer, selection, ByRowsGridPainter.key, false, undefined);
+    constructor(subgridsManager: SubgridsManager, renderer: Renderer, selection: Selection) {
+        super(subgridsManager, renderer, selection, ByRowsGridPainter.key, false, undefined);
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
@@ -84,9 +85,13 @@ export class ByRowsGridPainter extends GridPainter {
         for (let p = 0, r = 0; r < R; r++) {
             const prefillColor = rowPrefillColors[r];
 
+            const visibleRow = visibleRows[r];
+
+            const subgrid = visibleRow.subgrid;
+
             if (drawLines) {
                 gc.cache.fillStyle = lineColor;
-                gc.fillRect(firstVisibleColumnLeft, pool[p].visibleRow.bottom, viewWidth, lineWidth);
+                gc.fillRect(firstVisibleColumnLeft, visibleRow.bottom, viewWidth, lineWidth);
             }
 
             // For each column (of each row)...
@@ -99,10 +104,10 @@ export class ByRowsGridPainter extends GridPainter {
                 const columnClip = vc.column.properties.columnClip;
                 gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
-                const config = beingPaintedCell.subgrid.getCellPaintConfig(beingPaintedCell);
+                const config = subgrid.getCellPaintConfig(beingPaintedCell);
 
                 try {
-                    const paintWidth = this.paintCell(gc, beingPaintedCell, config, prefillColor);
+                    const paintWidth = this.paintCell(gc, subgrid, beingPaintedCell, config, prefillColor);
                     if (paintWidth !== undefined) {
                         const previousColumnPreferredWidth = preferredWidths[c];
                         if (previousColumnPreferredWidth === undefined) {

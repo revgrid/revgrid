@@ -1,4 +1,3 @@
-import { EventDetail } from '../event/event-detail';
 import { EventName } from '../event/event-name';
 import { GridProperties } from '../grid-properties';
 import { DataModel } from './data-model';
@@ -33,8 +32,6 @@ export class ModelCallbackRouter {
     invalidateCellEvent: ModelCallbackRouter.InvalidateCellEvent;
     preReindexEvent: ModelCallbackRouter.PreReindexEvent;
     postReindexEvent: ModelCallbackRouter.PostReindexEvent;
-
-    gridEvent: ModelCallbackRouter.GridEvent;
 
     private _destroyed = false;
     private _enabled = false;
@@ -90,6 +87,10 @@ export class ModelCallbackRouter {
         if (this._enabled) {
             this.enableSchemaCallbacks();
         }
+    }
+
+    clearRegisteredDataModels() {
+        this._registeredDataModels.length = 0;
     }
 
     registerDataModel(dataModel: DataModel) {
@@ -194,7 +195,6 @@ export class ModelCallbackRouter {
     private handleColumnsInserted(columnIndex: number, columnCount: number) {
         if (!this._destroyed) {
             this.columnsInsertedEvent(columnIndex, columnCount);
-            this.tryNotifyUndefinedDetailedModelEvent('rev-schema-loaded');
         }
     }
 
@@ -202,7 +202,6 @@ export class ModelCallbackRouter {
     private handleColumnsDeleted(columnIndex: number, columnCount: number) {
         if (!this._destroyed) {
             this.columnsDeletedEvent(columnIndex, columnCount);
-            this.tryNotifyUndefinedDetailedModelEvent('rev-schema-loaded');
         }
     }
 
@@ -210,7 +209,6 @@ export class ModelCallbackRouter {
     private handleAllColumnsDeleted() {
         if (!this._destroyed) {
             this.allColumnsDeletedEvent();
-            this.tryNotifyUndefinedDetailedModelEvent('rev-schema-loaded');
         }
     }
 
@@ -218,7 +216,6 @@ export class ModelCallbackRouter {
     private handleSchemaChanged() {
         if (!this._destroyed) {
             this.schemaChangedEvent();
-            this.tryNotifyUndefinedDetailedModelEvent('rev-schema-loaded');
         }
     }
 
@@ -249,7 +246,6 @@ export class ModelCallbackRouter {
     private handleInvalidateAll() {
         if (!this._destroyed) {
             this.invalidateAllEvent();
-            this.tryNotifyUndefinedDetailedModelEvent('rev-data-all-invalidated');
         }
     }
 
@@ -257,15 +253,6 @@ export class ModelCallbackRouter {
     private handleInvalidateRows(rowIndex: number, count: number) {
         if (!this._destroyed) {
             this.invalidateRowsEvent(rowIndex, count);
-
-            if (this._gridProperties.emitModelEvents) {
-                const detail: EventDetail.RowsDataInvalidated = {
-                    time: Date.now(),
-                    rowIndex,
-                    count,
-                }
-                this.gridEvent('rev-data-rows-invalidated', detail);
-            }
         }
     }
 
@@ -273,15 +260,6 @@ export class ModelCallbackRouter {
     private handleInvalidateRow(rowIndex: number) {
         if (!this._destroyed) {
             this.invalidateRowEvent(rowIndex);
-
-            if (this._gridProperties.emitModelEvents) {
-                const detail: EventDetail.RowsDataInvalidated = {
-                    time: Date.now(),
-                    rowIndex,
-                    count: 1,
-                }
-                this.gridEvent('rev-data-rows-invalidated', detail);
-            }
         }
     }
 
@@ -289,16 +267,6 @@ export class ModelCallbackRouter {
     private handleInvalidateRowColumns(rowIndex: number, schemaColumnIndex: number, columnCount: number) {
         if (!this._destroyed) {
             this.invalidateRowColumnsEvent(rowIndex, schemaColumnIndex, columnCount);
-
-            if (this._gridProperties.emitModelEvents) {
-                const detail: EventDetail.RowColumnsDataInvalidated = {
-                    time: Date.now(),
-                    rowIndex,
-                    schemaColumnIndex,
-                    columnCount,
-                }
-                this.gridEvent('rev-data-row-columns-invalidated', detail);
-            }
         }
     }
 
@@ -306,15 +274,6 @@ export class ModelCallbackRouter {
     private handleInvalidateRowCells(rowIndex: number, schemaColumnIndexes: number[]) {
         if (!this._destroyed) {
             this.invalidateRowCellsEvent(rowIndex, schemaColumnIndexes);
-
-            if (this._gridProperties.emitModelEvents) {
-                const detail: EventDetail.RowCellsDataInvalidated = {
-                    time: Date.now(),
-                    rowIndex,
-                    schemaColumnIndexes,
-                }
-                this.gridEvent('rev-data-row-cells-invalidated', detail);
-            }
         }
     }
 
@@ -322,15 +281,6 @@ export class ModelCallbackRouter {
     private handleInvalidateCell(schemaColumnIndex: number, rowIndex: number) {
         if (!this._destroyed) {
             this.invalidateCellEvent(schemaColumnIndex, rowIndex);
-
-            if (this._gridProperties.emitModelEvents) {
-                const detail: EventDetail.CellDataInvalidated = {
-                    time: Date.now(),
-                    schemaColumnIndex,
-                    rowIndex,
-                }
-                this.gridEvent('rev-data-cell-invalidated', detail);
-            }
         }
     }
 
@@ -338,7 +288,6 @@ export class ModelCallbackRouter {
     private handleRowsInserted(dataModel: DataModel, rowIndex: number, rowCount: number) {
         if (!this._destroyed) {
             this.rowsInsertedEvent(dataModel, rowIndex, rowCount);
-            this.tryNotifyUndefinedDetailedModelEvent('rev-data-row-count-changed');
         }
     }
 
@@ -346,7 +295,6 @@ export class ModelCallbackRouter {
     private handleRowsDeleted(dataModel: DataModel, rowIndex: number, rowCount: number) {
         if (!this._destroyed) {
             this.rowsDeletedEvent(dataModel, rowIndex, rowCount);
-            this.tryNotifyUndefinedDetailedModelEvent('rev-data-row-count-changed');
         }
     }
 
@@ -354,7 +302,6 @@ export class ModelCallbackRouter {
     private handleAllRowsDeleted(dataModel: DataModel) {
         if (!this._destroyed) {
             this.allRowsDeletedEvent(dataModel);
-            this.tryNotifyUndefinedDetailedModelEvent('rev-data-row-count-changed');
         }
     }
 
@@ -362,7 +309,6 @@ export class ModelCallbackRouter {
     private handleRowsMoved(dataModel: DataModel, oldRowIndex: number, newRowIndex: number, rowCount: number) {
         if (!this._destroyed) {
             this.rowsMovedEvent(dataModel, oldRowIndex, newRowIndex, rowCount);
-            this.tryNotifyUndefinedDetailedModelEvent('rev-data-rows-moved');
         }
     }
 
@@ -370,7 +316,6 @@ export class ModelCallbackRouter {
     private handleRowsLoaded(dataModel: DataModel) {
         if (!this._destroyed) {
             this.rowsLoadedEvent(dataModel);
-            this.tryNotifyUndefinedDetailedModelEvent('rev-data-row-count-changed');
         }
     }
 
@@ -378,7 +323,6 @@ export class ModelCallbackRouter {
     private handleDataPreReindex() {
         if (!this._destroyed) {
             this.preReindexEvent();
-            this.tryNotifyUndefinedDetailedModelEvent('rev-data-prereindex');
         }
     }
 
@@ -386,13 +330,6 @@ export class ModelCallbackRouter {
     private handleDataPostReindex() {
         if (!this._destroyed) {
             this.postReindexEvent();
-            this.tryNotifyUndefinedDetailedModelEvent('rev-data-postreindex');
-        }
-    }
-
-    private tryNotifyUndefinedDetailedModelEvent<T extends EventName>(eventName: T) {
-        if (this._gridProperties.emitModelEvents) {
-            this.gridEvent(eventName, undefined);
         }
     }
 }

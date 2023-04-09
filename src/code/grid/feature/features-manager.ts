@@ -7,6 +7,7 @@ import { GridProperties } from '../grid-properties';
 import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { Feature } from './feature';
 import { FeatureFactory } from './feature-factory';
 import { FeatureServices } from './feature-services';
@@ -24,11 +25,12 @@ export class FeaturesManager {
     constructor(
         private readonly _behavior: Behavior,
         private readonly grid: Revgrid, // remove in future
-        selection: Selection, // remove in future
-        focus: Focus, // remove in future
-        columnsManager: ColumnsManager, // remove in future
-        renderer: Renderer, // remove in future
-        gridProperties: GridProperties, // remove in future
+        gridProperties: GridProperties,
+        focus: Focus,
+        selection: Selection,
+        columnsManager: ColumnsManager,
+        subgridsManager: SubgridsManager,
+        renderer: Renderer,
     ) {
         this._sharedState = {} as FeaturesSharedState
 
@@ -37,6 +39,7 @@ export class FeaturesManager {
             selection,
             focus,
             columnsManager,
+            subgridsManager,
             renderer,
             gridProperties,
         );

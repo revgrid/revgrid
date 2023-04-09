@@ -1,10 +1,12 @@
-import { AdapterSetConfig, SubgridDefinition } from './adapter-set-config';
+import { AdapterSetConfig } from './adapter-set-config';
 import { Behavior } from './behavior/behavior';
+import { CellPropertiesBehavior } from './behavior/cell-properties-behavior';
+import { DataExtractBehavior } from './behavior/data-extract-behavior';
 import { EventBehavior } from './behavior/event-behavior';
+import { FocusSelectionBehavior } from './behavior/focus-selection-behavior';
 import { RendererBehavior } from './behavior/renderer-behaviour';
 import { RowPropertiesBehavior } from './behavior/row-properties-behavior';
 import { ScrollBehavior } from './behavior/scroll-behaviour';
-import { SelectionBehavior } from './behavior/selection-behavior';
 import { UserInterfaceInputBehavior } from './behavior/user-interface-input-behavior';
 import { Canvas } from './canvas/canvas';
 import { dispatchGridEvent } from './canvas/dispatch-grid-event';
@@ -12,15 +14,14 @@ import { CellEditor } from './cell-editor/cell-editor';
 import { cellEditorFactory } from './cell-editor/cell-editor-factory';
 import { ButtonCellPainter } from './cell-painter/button-cell-painter';
 import { CellPainter } from './cell-painter/cell-painter';
-import { CellPainterRepository } from './cell-painter/cell-painter-repository';
 import { CellEvent, MouseCellEvent } from './cell/cell-event';
 import { CellProperties } from './cell/cell-properties';
 import { RenderedCell } from './cell/rendered-cell';
 import { Column, ColumnWidth } from './column/column';
 import { ColumnProperties } from './column/column-properties';
-import { ColumnPropertiesAccessor } from './column/column-properties-accessor';
 import { ColumnsManager } from './column/columns-manager';
-import { DataExtract } from './data-extract';
+import { ColumnInterface } from './common/column-interface';
+import { SubgridInterface } from './common/subgrid-interface';
 import { defaultGridProperties } from './default-grid-properties';
 import { EventDetail } from './event/event-detail';
 import { EventName } from './event/event-name';
@@ -28,67 +29,61 @@ import { FeaturesManager } from './feature/features-manager';
 import { Focus } from './focus';
 import { GridPainter } from './grid-painter/grid-painter';
 import { GridProperties, LoadableGridProperties } from './grid-properties';
-import { GridPropertiesAccessor } from './grid-properties-accessor';
 import { DateFormatter, Localization, NumberFormatter } from './lib/localization';
 import { Point, WritablePoint } from './lib/point';
 import { Rectangle, RectangleInterface } from './lib/rectangle';
 import { AssertError } from './lib/revgrid-error';
+import { SelectionArea } from './lib/selection-area';
 import { ColumnNameWidth, ListChangedTypeId } from './lib/types';
-import { CellModel } from './model/cell-model';
-import { DataModel } from './model/data-model';
 import { MetaModel } from './model/meta-model';
-import { ModelCallbackRouter } from './model/model-callback-router';
 import { SchemaModel } from './model/schema-model';
 import { Renderer } from './renderer/renderer';
 import { Selection } from './selection/selection';
-import { SelectionDetail, SelectionDetailAccessor } from './selection/selection-detail';
-import { MainSubgrid } from './subgrid/main-subgrid';
+import { SelectionDetail } from './selection/selection-detail';
 import { Subgrid } from './subgrid/subgrid';
+import { SubgridsManager } from './subgrid/subgrids-manager';
 
 /** @public */
 export class Revgrid implements SelectionDetail {
     /** @internal */
     readonly _rendererBehavior: RendererBehavior;
     /** @internal */
-    readonly _selectionBehavior: SelectionBehavior;
+    readonly _focusSelectionBehavior: FocusSelectionBehavior;
     /** @internal */
     readonly _rowPropertiesBehavior: RowPropertiesBehavior;
+    /** @internal */
+    readonly _cellPropertiesBehavior: CellPropertiesBehavior;
     /** @internal */
     readonly _userInterfaceInputBehavior: UserInterfaceInputBehavior; // remove this in future
     /** @internal */
     readonly _scrollBehavior: ScrollBehavior; // remove this in future
     /** @internal */
+    private readonly _dataExtractBehavior: DataExtractBehavior;
+
+
     readonly selection: Selection;
-    /** @internal */
     readonly focus: Focus;
-
-
-    destroyed = false;
-    options: Revgrid.Options;
     readonly properties: LoadableGridProperties;
     readonly canvas: Canvas;
-    allowEventHandlers = true;
+
     /** @internal */
     readonly renderer: Renderer;
     /** @internal */
-    private readonly _dataExtract: DataExtract;
-    /** @internal */
-    private _subgrids = new Array<Subgrid>();
-    /** @internal */
     private _columnsManager: ColumnsManager;
     /** @internal */
-    private _modelCallbackRouter: ModelCallbackRouter;
+    private _subgridsManager: SubgridsManager;
     /** @internal */
     private _featureManager: FeaturesManager;
     /** @internal */
+
+    destroyed = false;
+    options: Revgrid.Options;
+    allowEventHandlers = true;
 
     localization: Localization;
 
     readonly containerHtmlElement: HTMLElement;
     canvasDiv: HTMLDivElement;
-
-    readonly mainDataModel: DataModel;
-    readonly mainSubgrid: MainSubgrid;
 
     needsReindex = false;
     needsShapeChanged = false;
@@ -111,13 +106,7 @@ export class Revgrid implements SelectionDetail {
     getSelectedRowCount() { return this.selection.getRowCount(); }
     getSelectedRowIndices() { return this.selection.getRowIndices(); }
     getSelectedColumnIndices() { return this.selection.getColumnIndices(); }
-    getSelectedRectangles() { return this.selection.rectangles; }
-
-    /**
-     * The previous value of sbVScrollVal.
-     * @type {number}
-     */
-    columnPropertiesConstructor: ColumnProperties.Constructor = ColumnPropertiesAccessor;
+    getSelectedRectangles() { return this.selection.rectangleList.rectangles; }
 
     private _repaintSetTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
@@ -207,63 +196,46 @@ export class Revgrid implements SelectionDetail {
     constructor(container: string | HTMLElement | undefined, adapterSetConfig: AdapterSetConfig, options?: Revgrid.Options) {
         options = options ?? {};
 
-        this.properties = new GridPropertiesAccessor(this);
-        this.properties.loadDefaults();
-        if (options?.gridProperties !== undefined) {
-            this.properties.merge(options.gridProperties);
-        }
-
-        this._columnsManager = new ColumnsManager(
-            this,
-            this.properties,
-            () => this.behavior.behaviorChanged(),
-            (typeId, index, count, targetIndex) => this.processAllColumnListChanged(typeId, index, count, targetIndex),
-            (typeId, index, count, targetIndex, ui) => this.processActiveColumnListChanged(typeId, index, count, targetIndex, ui),
-            (columns, ui) => this.processColumnsWidthChanged(columns, ui),
-        );
-
-        this._modelCallbackRouter = this.createModelCallbackRouter();
-
-        const cellPainterRepository = CellPainterRepository.getDefault();
-        this.mainSubgrid = this.loadAdapterSet(cellPainterRepository, adapterSetConfig);
-        this.mainDataModel = this.mainSubgrid.dataModel;
-
         //Set up the container for a grid instance
         const resolvedContainer = container ?? options.container ?? this.findOrCreateContainer(options.boundingRect);
         this.containerHtmlElement = this.initContainer(resolvedContainer, options);
 
-        this.focus = new Focus(this.mainSubgrid); // needs to be done after mainsubgrid is initialised
-        this.selection = new Selection(this, this.properties, this._columnsManager, this.focus);
-
-        this.canvas = this.createCanvas(options);
-
         const descendantEventer = this.createDescendantEventer();
         this.behavior = new Behavior(
             this, // to be removed
-            this.selection, // to be removed
-            this._columnsManager, // to be removed
-            cellPainterRepository, // to be removed
-            this.canvas, // to be removed
-            this.mainSubgrid, // to be removed
-            this.properties, // to be removed
-            undefined,
-            options.loadBuiltinFinbarStylesheet ?? true,
             this.containerHtmlElement,
+            options.canvasContextAttributes,
+            this.options.gridProperties,
+            undefined,
+            adapterSetConfig,
+            options.loadBuiltinFinbarStylesheet ?? true,
             descendantEventer,
             () => this.behaviorStateChanged(), // remove when moved into Behavior
             () => this.behaviorShapeChanged(), // remove when moved into Behavior
         );
         this._rendererBehavior = this.behavior.rendererBehavior;
-        this._selectionBehavior = this.behavior.selectionBehavior;
+        this._focusSelectionBehavior = this.behavior.focusSelectionBehavior;
         this._rowPropertiesBehavior = this.behavior.rowPropertiesBehavior;
+        this._cellPropertiesBehavior = this.behavior.cellPropertiesBehavior;
         this._userInterfaceInputBehavior = this.behavior.userInterfaceInputBehavior;
         this._scrollBehavior = this.behavior.scrollBehavior;
+        this._dataExtractBehavior = this.behavior.dataExtractBehavior;
 
+        this.properties = this.behavior.gridProperties;
+        this._columnsManager = this.behavior.columnsManager;
+        this._subgridsManager = this.behavior.subgridsManager;
         this.renderer = this.behavior.renderer;
 
-        this.canvas.renderer = this.renderer;
-        this._featureManager = new FeaturesManager(this.behavior, this, this.selection, this.focus, this._columnsManager, this.renderer, this.properties);
-        this._dataExtract = new DataExtract(this.selection, this._columnsManager);
+        this._featureManager = new FeaturesManager(
+            this.behavior,
+            this,
+            this.properties,
+            this.focus,
+            this.selection,
+            this._columnsManager,
+            this._subgridsManager,
+            this.renderer
+        );
         this.loadFeatures();
 
         // Install shared plug-ins (those with a `preinstall` method)
@@ -340,14 +312,9 @@ export class Revgrid implements SelectionDetail {
      * canvase paint loop will continue to run
      */
     destroy() {
-        this.behavior.destroy();
         document.removeEventListener('mousedown', this.mouseCatcher);
         this.removeAllEventListeners(true);
-        this._modelCallbackRouter.destroy();
-        this.destroySubgrids();
-        this.renderer.stop();
-        this.canvas.stop();
-        this.renderer.destroy();
+        this.behavior.destroy();
 
         if (this._repaintSetTimeoutId !== undefined) {
             clearTimeout(this._repaintSetTimeoutId);
@@ -815,7 +782,7 @@ export class Revgrid implements SelectionDetail {
             event.preventDefault();
             const clipboardData = event.clipboardData;
             if (clipboardData !== null) {
-                const csvData = this._dataExtract.getSelectionAsTSV();
+                const csvData = this._dataExtractBehavior.getSelectionAsTSV();
                 clipboardData.setData('text/plain', csvData);
             }
         }
@@ -866,14 +833,7 @@ export class Revgrid implements SelectionDetail {
     }
 
     calculateRowCount() {
-        const subgrids = this._subgrids;
-        const subgridCount = subgrids.length;
-        let count = 0;
-        for (let i = 0; i < subgridCount; i++) {
-            const subgrid = subgrids[i];
-            count += subgrid.getRowCount();
-        }
-        return count;
+        return this._subgridsManager.calculateRowCount();
     }
 
     /**
@@ -881,8 +841,12 @@ export class Revgrid implements SelectionDetail {
      * @return The data row object at y index.
      * @param y - the row index of interest
      */
-    getRow(y: number) {
-        return this.mainSubgrid.getRow(y);
+    getSingletonDataRow(y: number, subgrid?: Subgrid) {
+        if (subgrid === undefined) {
+            return this.behavior.mainSubgrid.getSingletonDataRow(y);
+        } else {
+            return subgrid.getSingletonDataRow(y);
+        }
     }
 
     /**
@@ -890,16 +854,16 @@ export class Revgrid implements SelectionDetail {
      * > Use with caution!
      */
     getData() {
-        if (this.mainDataModel.getData === undefined) {
+        const mainDataModel = this.behavior.mainDataModel;
+        if (mainDataModel.getData === undefined) {
             return [];
         } else {
-            return this.mainDataModel.getData();
+            return mainDataModel.getData();
         }
     }
 
     getValue(x: number, y: number, subgrid?: Subgrid) {
-        const column = this._columnsManager.getActiveColumn(x);
-        return this.behavior.getValue(column.schemaColumn, x, y, subgrid);
+        return this.behavior.getValue(x, y, subgrid);
     }
 
     setValue(x: number, y: number, value: number, subgrid?: Subgrid) {
@@ -916,8 +880,9 @@ export class Revgrid implements SelectionDetail {
         if (this.paintLoopRunning()) {
             this.needsReindex = true;
         } else {
-            if (this.mainDataModel.apply !== undefined) {
-                this.mainDataModel.apply();
+            const mainDataModel = this.behavior.mainDataModel;
+            if (mainDataModel.apply !== undefined) {
+                mainDataModel.apply();
             }
         }
         this.behaviorShapeChanged();
@@ -1036,40 +1001,6 @@ export class Revgrid implements SelectionDetail {
         return container;
     }
 
-    /**
-     * @summary Initialize drawing surface.
-     * @param {object} [options]
-     * @param {object} [options.margin] - Optional canvas "margins" applied to containing div as .left, .top, .right, .bottom. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container` rule.)
-     * @param {string} [options.margin.top='0px']
-     * @param {string} [options.margin.right='0px']
-     * @param {string} [options.margin.bottom='0px']
-     * @param {string} [options.margin.left='0px']
-     * @param {any} [options.contextAttributes] TODO
-     * @param {any} [options.canvasContextAttributes] TODO
-     * @this {Revgrid}
-     * @private
-     */
-    createCanvas(options?: Revgrid.Options): Canvas {
-        // const canvasDiv = document.createElement('div');
-
-        // canvasDiv.style.height = '100%';
-        // canvasDiv.style.display = 'flex';
-        // canvasDiv.style.flexDirection = 'column';
-        // canvasDiv.style.width = '100%';
-        // canvasDiv.style.minWidth = '0'; // Need this to ensure flex item has 0 minimum width (instead of minimum being content width)
-        // canvasDiv.style.overflowX = 'clip'; // There are some small overflows - probably due to width calculations. Need to fix
-        // canvasDiv.style.overflowY = 'clip'; // There are some small overflows - probably due to width calculations. Need to fix
-        // this.setStyles(canvasDiv, options?.margin, Hypegrid.edgeStyleKeys);
-
-        // this.containerHtmlElement.appendChild(canvasDiv);
-
-        const contextAttributes = options?.canvasContextAttributes;
-        const canvas = new Canvas(this.containerHtmlElement, contextAttributes);
-        canvas.canvas.classList.add(Revgrid.gridElementCssClass);
-
-        return canvas;
-    }
-
     convertViewPointToDataPoint(unscrolled: Point) {
         return Point.create(
             this._columnsManager.getActiveColumn(unscrolled.x).index,
@@ -1152,7 +1083,7 @@ export class Revgrid implements SelectionDetail {
         ) {
             cellEditor = this.getCellEditorAt(cellEvent);
             if (cellEditor !== undefined) {
-                cellEditor.beginEditing();
+                // cellEditor.beginEditing();
             }
         }
 
@@ -1168,11 +1099,18 @@ export class Revgrid implements SelectionDetail {
     }
 
     /**
-     * @param r - The raw row index in question.
-     * @returns The given row is fully visible.
+     * @summary Get the visibility of the row matching the provided data row index.
+     * @desc Requested row may not be visible due to being scrolled out of view.
+     * @summary Determines visibility of a row.
+     * @param rowIndex - The data row index.
+     * @returns The given row is visible.
      */
-    isDataRowVisible(r: number) {
-        return this.renderer.isDataRowVisible(r);
+    isDataRowVisible(r: number, subgrid?: Subgrid) {
+        if (subgrid === undefined) {
+            subgrid = this.behavior.mainSubgrid;
+        }
+
+        return this.renderer.isDataRowVisible(r, subgrid);
     }
 
     /**
@@ -1210,7 +1148,7 @@ export class Revgrid implements SelectionDetail {
      * @return Row is visible.
      */
     ensureModelRowIsVisible(rowIndex: number, offsetY: number, subgrid: Subgrid) {
-        const maxRows = this.getSubgridRowCount(subgrid) - 1; // -1 excludes partially visible rows
+        const maxRows = subgrid.getRowCount() - 1; // -1 excludes partially visible rows
         const scrollOffset = (offsetY > -1) ? 1 : 0; // 1 to keep one blank line below active cell, 0 to keep zero lines above active cell
         const indexToCheck = rowIndex + scrollOffset;
         const visible = !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
@@ -1256,10 +1194,11 @@ export class Revgrid implements SelectionDetail {
      * {@link DataModel#toggleRow}'s return value which may or may not be implemented.
      */
     cellClicked(event: CellEvent): boolean | undefined {
-        if (this.mainDataModel.toggleRow === undefined) {
+        const mainDataModel = this.behavior.mainDataModel;
+        if (mainDataModel.toggleRow === undefined) {
             return undefined;
         } else {
-            return this.mainDataModel.toggleRow(event.dataCell.y, event.dataCell.x);
+            return mainDataModel.toggleRow(event.dataCell.y, event.dataCell.x);
         }
     }
 
@@ -1668,6 +1607,9 @@ export class Revgrid implements SelectionDetail {
      * @param rowIndex - The untranslated fixed column index.
      */
     getRowHeight(rowIndex: number, subgrid?: Subgrid) {
+        if (subgrid === undefined) {
+            subgrid = this.behavior.mainSubgrid;
+        }
         return this._rowPropertiesBehavior.getRowHeight(rowIndex, subgrid);
     }
 
@@ -1676,8 +1618,11 @@ export class Revgrid implements SelectionDetail {
      * @param rowIndex - The row index.
      * @param rowHeight - The width in pixels.
      */
-    setRowHeight(rowIndex: number, rowHeight: number, subgrid: Subgrid) {
+    setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid) {
         if (this.abortEditing()) {
+            if (subgrid === undefined) {
+                subgrid = this.behavior.mainSubgrid;
+            }
             this._rowPropertiesBehavior.setRowHeight(rowIndex, rowHeight, subgrid);
         }
     }
@@ -1690,7 +1635,7 @@ export class Revgrid implements SelectionDetail {
      * 2. The first `fixedRowCount` rows of the data subgrid.
      */
     getFixedRowsHeight(): number {
-        const subgrids = this._subgrids;
+        const subgrids = this._subgridsManager.subgrids;
         const gridProps = this.properties;
         const gridLinesHWidth = gridProps.gridLinesHWidth;
         let isMain = false;
@@ -1737,7 +1682,7 @@ export class Revgrid implements SelectionDetail {
      */
     getFixedRowCount() {
         return (
-            this.calculateBeforeMainSubgridRowCount() +
+            this._subgridsManager.calculateHeaderRowCount() +
             this.properties.fixedRowCount
         );
     }
@@ -1882,8 +1827,8 @@ export class Revgrid implements SelectionDetail {
      * @summary Autosize a column for best fit.
      * @param {Column|number} columnOrIndex - The column or active column index.
      */
-    autosizeColumn(columnOrIndex: Column | number) {
-        let column: Column;
+    autosizeColumn(columnOrIndex: ColumnInterface | number) {
+        let column: ColumnInterface;
         if (typeof columnOrIndex === 'number') {
             if (columnOrIndex >= 2) {
                 column = this._columnsManager.getActiveColumn(columnOrIndex);
@@ -1989,7 +1934,7 @@ export class Revgrid implements SelectionDetail {
     }
 
     isMouseDownInHeaderArea() {
-        const headerRowCount = this.calculateBeforeMainSubgridRowCount();
+        const headerRowCount = this._subgridsManager.calculateHeaderRowCount();
         const mouseDown = this._userInterfaceInputBehavior.getMouseDown();
         if (mouseDown === undefined) {
             return false;
@@ -2018,24 +1963,13 @@ export class Revgrid implements SelectionDetail {
      * Clears all cell properties of given column or of all columns.
      * @param x - Omit for all columns.
      */
-    clearAllCellProperties(x: number) {
-        this._columnsManager.clearAllCellProperties(x);
-        this.renderer.resetAllCellPropertiesCaches();
-    }
-
-    isGridRow(y: number) {
-        return new CellEvent(this, 0, y).isMainRow;
+    clearAllCellProperties(x?: number) {
+        const column = x === undefined ? undefined : this._columnsManager.getAllColumn(x);
+        this._cellPropertiesBehavior.clearAllCellProperties(column)
     }
 
     lookupFeature(key: string) {
         return this._featureManager.lookupFeature(key);
-    }
-
-    newPoint(x: number, y: number) {
-        return Point.create(x, y);
-    }
-    newRectangle(x: number, y: number, width: number, height: number) {
-        return new Rectangle(x, y, width, height);
     }
 
     // decorateColumnArray(array) {
@@ -2170,21 +2104,15 @@ export class Revgrid implements SelectionDetail {
         }
     }
 
-    /**
-     * @param allow
-     */
     allowEvents(allow: boolean){
-        this.allowEventHandlers = !!allow;
+        this.allowEventHandlers = allow;
 
         if (allow){
             this._featureManager.enable();
-            this._modelCallbackRouter.enable();
         } else {
-            this._modelCallbackRouter.disable();
             this._featureManager.disable();
         }
-
-        this.behaviorChanged();
+        this.behavior.allowEvents(allow);
     }
 
 
@@ -2200,7 +2128,7 @@ export class Revgrid implements SelectionDetail {
         return dispatchGridEvent(this, 'rev-columns-view-widths-changed', false, eventDetail)
     }
 
-    protected descendantProcessColumnSelectionChanged() {
+    protected descendantProcessSelectionChanged() {
         // for descendants
     }
 
@@ -2208,19 +2136,16 @@ export class Revgrid implements SelectionDetail {
         // for descendants
     }
 
-    protected processAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
-        // descendants can override - make sure this function is called in any override function (probably at end)
-        this.behaviorChanged();
+    protected descendantProcessAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
+        // for descendants
     }
 
-    protected processActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean) {
-        // descendants can override - make sure this function is called in any override function (probably at end)
-        this.behaviorChanged();
+    protected descendantProcessActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean) {
+        // for descendants
     }
 
-    protected processColumnsWidthChanged(_columns: Column[], _ui: boolean) {
-        // descendants can override - make sure this function is called in any override function (probably at end)
-        this.behaviorStateChanged();
+    protected descendantProcessColumnsWidthChanged(_columns: Column[], _ui: boolean) {
+        // for descendants
     }
 
     /**
@@ -2274,28 +2199,6 @@ export class Revgrid implements SelectionDetail {
         };
 
         return dispatchGridEvent(this, 'rev-editor-data-change', true, eventDetail);
-    }
-
-    fireSyntheticSelectionChangedEvent(selectionDetail: SelectionDetail) {
-        return dispatchGridEvent(this, 'rev-selection-changed', false, selectionDetail);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-row-selection-changed` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticRowSelectionChangedEvent() {
-        const selectionDetail = new SelectionDetailAccessor(this.selection);
-        return dispatchGridEvent(this, 'rev-row-selection-changed', false, selectionDetail);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-column-selection-changed` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticColumnSelectionChangedEvent() {
-        const selectionDetail = new SelectionDetailAccessor(this.selection);
-        return dispatchGridEvent(this, 'rev-column-selection-changed', false, selectionDetail);
     }
 
     /**
@@ -2545,7 +2448,7 @@ export class Revgrid implements SelectionDetail {
         const grid = this;
 
         function handleMouseEvent(detail: EventDetail.Mouse, cb: ((cellEvent: MouseCellEvent | undefined) => void)) {
-            if (grid.getLogicalRowCount() === 0) {
+            if (this._subgridsManager.getLogicalRowCount() === 0) {
                 return;
             }
 
@@ -2877,180 +2780,6 @@ export class Revgrid implements SelectionDetail {
     }
     // End Events Mixin
 
-    private loadAdapterSet(cellPainterRepository: CellPainterRepository, adapterSetConfig: AdapterSetConfig) {
-        let schemaModel = adapterSetConfig.schemaModel;
-        if (typeof schemaModel === 'function') {
-            schemaModel = new schemaModel();
-        }
-        this._columnsManager.schemaModel = schemaModel;
-        this._modelCallbackRouter.setSchemaModel(this._columnsManager.schemaModel);
-
-        const subgridDefinitions = adapterSetConfig.subgrids;
-        if  (subgridDefinitions.length === 0) {
-            throw new AssertError('RGLAS43330', 'Adapter set missing Subgrid specs');
-        } else {
-            return this.loadSubgrids(cellPainterRepository, subgridDefinitions);
-        }
-    }
-
-    private loadSubgrids(cellPainterRepository: CellPainterRepository, definitions: readonly SubgridDefinition[]) {
-        this.destroySubgrids();
-
-        let mainSubgrid: MainSubgrid | undefined;
-        const subgrids = this._subgrids;
-        definitions.forEach(
-            (definition) => {
-                if (definition !== undefined) {
-                    const subgrid = this.createSubgridFromDefinition(cellPainterRepository, definition);
-                    subgrids.push(subgrid);
-                    if (subgrid.role === Subgrid.RoleEnum.main) {
-                        mainSubgrid = subgrid as MainSubgrid;
-                    }
-                }
-            }
-        );
-
-        if (mainSubgrid === undefined) {
-            throw new AssertError('BSS98224', 'Subgrid Specs does not include main');
-        } else {
-            return mainSubgrid;
-        }
-    }
-
-    get subgrids(): readonly Subgrid[] {
-        return this._subgrids;
-    }
-
-    /**
-     * @summary Resolves a `subgridSpec` to a Subgrid (and its DataModel).
-     * @desc The spec may describe either an existing data model, or a constructor for a new data model.
-     * @returns either Subgrid or MainSubgrid depending on role specified in Spec
-     */
-    createSubgridFromDefinition(cellPainterRepository: CellPainterRepository, definition: SubgridDefinition) {
-        let subgrid: Subgrid;
-
-        if (definition.role === Subgrid.RoleEnum.main && this.mainSubgrid !== undefined) {
-            subgrid = this.mainSubgrid;
-        } else {
-            const role = definition.role ?? Subgrid.RoleEnum.main;
-            const isMainRole = role === Subgrid.RoleEnum.main;
-
-            let dataModel = definition.dataModel;
-            if (typeof dataModel === 'function') {
-                dataModel = new dataModel();
-            }
-            let metaModel = definition.metaModel;
-            if (typeof metaModel === 'function') {
-                metaModel = new metaModel();
-            }
-            let cellModel = definition.cellModel;
-            if (typeof cellModel === 'function') {
-                cellModel = new cellModel();
-            }
-            let selectable = definition.selectable;
-            if (selectable === undefined) {
-                selectable = isMainRole;
-            }
-            subgrid = this.createSubgrid(cellPainterRepository, role, dataModel, metaModel, cellModel, selectable);
-        }
-
-        return subgrid;
-    }
-
-    /** @returns either Subgrid or MainSubgrid depending on role */
-    private createSubgrid(cellPainterRepository: CellPainterRepository,
-        role: Subgrid.Role, dataModel: DataModel, metaModel: MetaModel | undefined, cellModel: CellModel | undefined,
-        selectable: boolean
-    ) {
-        let subgrid: Subgrid;
-        if (role === Subgrid.RoleEnum.main) {
-            subgrid = new MainSubgrid(
-                this,
-                this._columnsManager,
-                cellPainterRepository,
-                this.cellEditorFactory,
-                role,
-                this._columnsManager.schemaModel,
-                dataModel,
-                metaModel,
-                cellModel,
-                selectable,
-            );
-        } else {
-            subgrid = new Subgrid(
-                this,
-                this._columnsManager,
-                cellPainterRepository,
-                this.cellEditorFactory,
-                role,
-                this._columnsManager.schemaModel,
-                dataModel,
-                metaModel,
-                cellModel,
-                selectable,
-            );
-        }
-
-        this._modelCallbackRouter.registerDataModel(subgrid.dataModel);
-
-        return subgrid;
-    }
-
-    /**
-     * @summary Gets the number of "header rows".
-     * @desc Defined as the sum of all rows in all subgrids before the (first) data subgrid. Rework to return row count of header subgrid
-     * @returns The total number of rows of all subgrids preceding the data subgrid.
-     */
-    calculateBeforeMainSubgridRowCount() {
-        let result = 0;
-
-        this.subgrids.find((subgrid) => {
-            if (subgrid.isMain) {
-                return true; // stop
-            }
-            result += subgrid.getRowCount();
-            return undefined;
-        });
-
-        return result;
-    }
-
-    /**
-     * @summary Gets the number of "footer rows".
-     * @desc Defined as the sum of all rows in all subgrids after the main subgrid.  Rework to return row count of footer subgrid
-     * @returns The total number of rows of all subgrids following the data subgrid.
-     */
-    calculateAfterMainSubgridRowCount() {
-        let gotMain = false;
-        return this.subgrids.reduce(
-            (rows, subgrid) => {
-                if (gotMain) {
-                    rows += subgrid.getRowCount();
-                } else {
-                    gotMain = subgrid.isMain;
-                }
-                return rows;
-            },
-            0
-        );
-    }
-
-    /**
-     * @summary Gets the total number of logical rows.
-     * @desc Defined as the sum of all rows in all subgrids.
-     * @returns The total number of logical rows of all subgrids.
-     */
-    getLogicalRowCount() {
-        const count = this.subgrids.reduce(
-            (rows, subgrid) => {
-                return (rows += subgrid.getRowCount());
-            },
-            0
-        );
-        return count;
-    }
-
-    // End Subgrids Mixin
 
 
     /**
@@ -3069,14 +2798,18 @@ export class Revgrid implements SelectionDetail {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      */
-    getCellOwnProperties(allXOrRenderedCell: number | RenderedCell, y?: number, subgrid?: Subgrid) {
+    getCellOwnProperties(allXOrRenderedCell: number | RenderedCell, y?: number, subgrid?: SubgridInterface) {
         if (typeof allXOrRenderedCell === 'object') {
             // xOrCellEvent is cellEvent
-            return allXOrRenderedCell.column.getCellOwnProperties(allXOrRenderedCell.dataCell.y, allXOrRenderedCell.subgrid);
+            const column = allXOrRenderedCell.column;
+            y = allXOrRenderedCell.dataCell.y;
+            subgrid = allXOrRenderedCell.subgrid;
+            return this._cellPropertiesBehavior.getCellOwnProperties(column, y, subgrid);
         } else {
             // xOrCellEvent is x
             if (y !== undefined && subgrid !== undefined) {
-                return this._columnsManager.getAllColumn(allXOrRenderedCell).getCellOwnProperties(y, subgrid);
+                const column = this._columnsManager.getAllColumn(allXOrRenderedCell);
+                return this._cellPropertiesBehavior.getCellOwnProperties(column, y, subgrid);
             } else {
                 return undefined;
             }
@@ -3091,24 +2824,19 @@ export class Revgrid implements SelectionDetail {
      * @param xOrCellEvent - Data x coordinate or CellEvent.
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
-     * @return The properties of the cell at x,y in the grid.
+     * @return The properties of the cell at x,y in the grid or falsy if not available.
      */
     getCellOwnPropertiesFromRenderedCell(renderedCell: RenderedCell): MetaModel.CellOwnProperties | false | null | undefined{
-        return renderedCell.cellOwnProperties;
+        return this._cellPropertiesBehavior.getCellOwnPropertiesFromRenderedCell(renderedCell);
     }
 
     getCellProperties(allX: number, y: number, subgrid: Subgrid): CellProperties {
-        return this._columnsManager.getAllColumn(allX).getCellProperties(y, subgrid);
+        const column = this._columnsManager.getAllColumn(allX);
+        return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
     }
 
     getCellOwnPropertyFromRenderedCell(renderedCell: RenderedCell, key: string): MetaModel.CellOwnProperty | undefined {
-        const cellOwnProperties = renderedCell.cellOwnProperties;
-        if (cellOwnProperties) {
-            return renderedCell.cellOwnProperties[key];
-        } else {
-            return undefined;
-        }
-
+        return this._cellPropertiesBehavior.getCellOwnPropertyFromRenderedCell(renderedCell, key);
     }
 
     /**
@@ -3128,7 +2856,8 @@ export class Revgrid implements SelectionDetail {
         key: string | T,
         subgrid: Subgrid
     ): MetaModel.CellOwnProperty | ColumnProperties[T] {
-        return this._columnsManager.getAllColumn(allX).getCellProperty(y, key, subgrid);
+        const column = this._columnsManager.getAllColumn(allX);
+        return this._cellPropertiesBehavior.getCellProperty(column, y, key, subgrid);
     }
 
     /**
@@ -3138,11 +2867,13 @@ export class Revgrid implements SelectionDetail {
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    setCellPropertiesUsingCellEvent(cellEvent: CellEvent, properties: MetaModel.CellOwnProperties): MetaModel.CellOwnProperties | undefined {
-        return cellEvent.column.setCellProperties(cellEvent.dataCell.y, properties, cellEvent.subgrid);
+    setCellOwnPropertiesUsingCellEvent(cellEvent: CellEvent, properties: MetaModel.CellOwnProperties) {
+        const column = cellEvent.column;
+        return this._cellPropertiesBehavior.setCellOwnProperties(column, cellEvent.dataCell.y, properties, cellEvent.subgrid);
     }
-    setCellProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined {
-        return this._columnsManager.getAllColumn(allX).setCellProperties(y, properties, subgrid);
+    setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
+        const column = this._columnsManager.getAllColumn(allX);
+        return this._cellPropertiesBehavior.setCellOwnProperties(column, y, properties, subgrid);
     }
 
     /**
@@ -3152,11 +2883,13 @@ export class Revgrid implements SelectionDetail {
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    addCellPropertiesUsingCellEvent(cellEvent: CellEvent, properties: MetaModel.CellOwnProperties): MetaModel.CellOwnProperties | MetaModel.RowProperties | undefined {
-        return cellEvent.column.addCellProperties(cellEvent.dataCell.y, properties, cellEvent.subgrid);
+    addCellOwnPropertiesUsingCellEvent(cellEvent: CellEvent, properties: MetaModel.CellOwnProperties) {
+        const column = cellEvent.column;
+        return this._cellPropertiesBehavior.addCellOwnProperties(column, cellEvent.dataCell.y, properties, cellEvent.subgrid);
     }
-    addCellProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined {
-        return this._columnsManager.getAllColumn(allX).addCellProperties(y, properties, subgrid);
+    addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
+        const column = this._columnsManager.getAllColumn(allX);
+        return this._cellPropertiesBehavior.addCellOwnProperties(column, y, properties, subgrid);
     }
 
     /**
@@ -3173,30 +2906,35 @@ export class Revgrid implements SelectionDetail {
      * @param key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    setCellProperty(cellEvent: CellEvent, key: string | number, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
-    setCellProperty(allX: number, y: number, key: string | number, value: MetaModel.CellOwnProperty, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined;
+    setCellProperty(cellEvent: CellEvent, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
+    setCellProperty(allX: number, y: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined;
     setCellProperty(
         allXOrCellEvent: CellEvent | number,
         yOrKey: string | number,
-        keyOrValue: string | number | MetaModel.CellOwnProperty,
-        valueOrDataModel?: MetaModel.CellOwnProperty | DataModel,
+        keyOrValue: string | MetaModel.CellOwnProperty,
+        value?: MetaModel.CellOwnProperty,
         subgrid?: Subgrid
     ): MetaModel.CellOwnProperties | undefined {
-        let cellOwnProperties: MetaModel.CellOwnProperties | undefined;
+        let column: ColumnInterface;
+        let y: number;
+        let key: string;
         if (typeof allXOrCellEvent === 'object') {
-            const key = yOrKey as string;
-            const value = keyOrValue;
-            cellOwnProperties = allXOrCellEvent.setCellProperty(key, value);
+            column = allXOrCellEvent.column,
+            y = allXOrCellEvent.dataCell.y;
+            key = yOrKey as string;
+            value = keyOrValue;
         } else {
-            const y = yOrKey as number;
-            const key = keyOrValue as string;
-            const value = valueOrDataModel;
-            if (subgrid === undefined) {
-                subgrid = this.mainSubgrid;
-            }
-            cellOwnProperties = this._columnsManager.getAllColumn(allXOrCellEvent).setCellProperty(y, key, value, subgrid);
-            this.renderer.resetCellPropertiesCache(allXOrCellEvent, y, subgrid);
+            column = this._columnsManager.getAllColumn(allXOrCellEvent);
+            y = yOrKey as number;
+            key = keyOrValue as string;
         }
+
+        if (subgrid === undefined) {
+            subgrid = this.behavior.mainSubgrid;
+        }
+
+        const cellOwnProperties = this._cellPropertiesBehavior.setCellProperty(column, y, key, value, subgrid);
+        this.renderer.resetCellPropertiesCache(allXOrCellEvent, y, subgrid);
         return cellOwnProperties;
     }
 
@@ -3208,45 +2946,46 @@ export class Revgrid implements SelectionDetail {
      * Pair with endSelectionChange().
      */
     beginSelectionChange() {
-        this._selectionBehavior.beginChange();
+        this._focusSelectionBehavior.beginChange();
     }
 
     /** Call after multiple selection changes to consolidate SelectionChange events.
      * Pair with beginSelectionChange().
      */
     endSelectionChange() {
-        this._selectionBehavior.endChange();
+        this._focusSelectionBehavior.endChange();
     }
 
     getLastSelectionType() {
-        return this.selection.getLastSelectionType();
+        return this._focusSelectionBehavior.getLastSelectionType();
     }
 
     /**
      * @desc Clear all the selections.
      */
     clearSelection() {
-        const keepRowSelections = this.properties.checkboxOnlyRowSelections;
-        this.selection.clear(keepRowSelections);
-        this._userInterfaceInputBehavior.clearMouseDown();
+        return this._focusSelectionBehavior.clearSelection(false);
+        // const keepRowSelections = this.properties.checkboxOnlyRowSelections;
+        // this.selection.clear(keepRowSelections);
+        // this._userInterfaceInputBehavior.clearMouseDown();
     }
 
     /**
      * @desc Clear the most recent selection.
      */
     clearMostRecentRectangleSelection() {
-        this._selectionBehavior.clearMostRecentRectangleSelection();
+        this._focusSelectionBehavior.clearMostRecentRectangleSelection();
     }
 
     clearMostRecentColumnSelection() {
-        this._selectionBehavior.clearMostRecentColumnSelection();
+        this._focusSelectionBehavior.clearMostRecentColumnSelection();
     }
 
     /**
      * @desc Clear the most recent row selection.
      */
     clearMostRecentRowSelection() {
-        this._selectionBehavior.clearMostRecentRowSelection();
+        this._focusSelectionBehavior.clearMostRecentRowSelection();
         //this.selection.clearMostRecentRowSelection(); // commented off as per GRID-112
     }
 
@@ -3255,11 +2994,11 @@ export class Revgrid implements SelectionDetail {
      * @param x - The horizontal coordinate.
      * @param y - The vertical coordinate.
      */
-    isSelected(x: number, y: number, subgrid?: Subgrid): boolean {
+    isPointSelected(x: number, y: number, subgrid?: Subgrid): boolean {
         if (subgrid === undefined) {
-            subgrid = this.mainSubgrid;
+            subgrid = this.behavior.mainSubgrid;
         }
-        return this.selection.isSelected(x, y, subgrid);
+        return this._focusSelectionBehavior.isPointSelected(x, y, subgrid);
     }
 
     /**
@@ -3283,7 +3022,7 @@ export class Revgrid implements SelectionDetail {
     }
 
     isInCurrentSelectionRectangle(x: number, y: number) {
-        return this.selection.isInCurrentSelectionRectangle(x, y);
+        return this.selection.isPointInLastRectangle(x, y);
     }
 
     /**
@@ -3300,24 +3039,11 @@ export class Revgrid implements SelectionDetail {
             //also this means there is no origin mouse down for a selection rect
             return;
         }
-        this._selectionBehavior.selectRectangle(ox, oy, ex, ey, subgrid);
+        this._focusSelectionBehavior.selectRectangle(ox, oy, ex, ey, subgrid);
     }
 
-    selectViewportCell(x: number, y: number) {
-        const visibleColumns = this.renderer.visibleColumns;
-        if (x < visibleColumns.length) {
-            const vc = this.renderer.visibleColumns[x]
-            const visibleRows = this.renderer.visibleRows;
-            if (y < visibleRows.length) {
-                const vr = this.renderer.visibleRows[y];
-                x = vc.activeColumnIndex;
-                y = vr.rowIndex;
-                this.selectCell(x, y, vr.subgrid);
-                this._userInterfaceInputBehavior.setMouseDown(Point.create(x, y));
-                this._userInterfaceInputBehavior.setDragExtent(Point.create(0, 0));
-                this.repaint();
-            }
-        }
+    selectViewportCell(x: number, y: number, areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
+        this._focusSelectionBehavior.selectViewportCell(x, y, areaTypeSpecifier);
     }
 
     selectToViewportCell(x: number, y: number) {
@@ -3325,9 +3051,9 @@ export class Revgrid implements SelectionDetail {
         let vc: Renderer.VisibleColumn;
         let vr: Renderer.VisibleRow;
         if (
-            (selectionRectangles = this.selection.rectangles) && selectionRectangles.length &&
+            (selectionRectangles = this.selection.rectangleList.rectangles) && selectionRectangles.length &&
             (vc = this.renderer.visibleColumns[x]) &&
-            (vr = this.renderer.visibleRows[y + this.calculateBeforeMainSubgridRowCount()])
+            (vr = this.renderer.visibleRows[y + this._subgridsManager.calculateHeaderRowCount()])
         ) {
             const origin = selectionRectangles[0].origin;
             x = vc.activeColumnIndex;
@@ -3347,7 +3073,7 @@ export class Revgrid implements SelectionDetail {
         const rowCount = subgrid.getRowCount();
         if (rowCount > 0) {
             const selection = this.selection;
-            const rectangles = selection.rectangles;
+            const rectangles = selection.rectangleList.rectangles;
             if (rectangles.length > 0) {
                 const rectangle = rectangles[0];
                 const origin = rectangle.origin;
@@ -3382,7 +3108,7 @@ export class Revgrid implements SelectionDetail {
         const rowCount = subgrid.getRowCount();
         if (rowCount > 0) {
             const selection = this.selection;
-            const rectangles = selection.rectangles;
+            const rectangles = selection.rectangleList.rectangles;
             if (rectangles && rectangles.length) {
                 const rectangle = rectangles[0];
                 const origin = rectangle.origin;
@@ -3406,11 +3132,11 @@ export class Revgrid implements SelectionDetail {
         }
     }
 
-    selectMainFinalCell() {
-        const subgrid = this.mainSubgrid;
+    selectMainFinalCell(selectionAreaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
+        const subgrid = this.behavior.mainSubgrid;
         const rowCount = subgrid.getRowCount();
         if (rowCount > 0) {
-            this._selectionBehavior.focusCell(this._columnsManager.getActiveColumnCount() - 1, rowCount - 1, subgrid);
+            this._focusSelectionBehavior.focusSelectOnlyCell(this._columnsManager.getActiveColumnCount() - 1, rowCount - 1, subgrid, selectionAreaTypeSpecifier);
             this.repaint();
         }
     }
@@ -3420,7 +3146,7 @@ export class Revgrid implements SelectionDetail {
         const rowCount = subgrid.getRowCount();
         if (rowCount > 0) {
             const selection = this.selection;
-            const rectangles = selection.rectangles;
+            const rectangles = selection.rectangleList.rectangles;
             if (rectangles && rectangles.length) {
                 const rectangle = rectangles[0];
                 const origin = rectangle.origin;
@@ -3440,10 +3166,9 @@ export class Revgrid implements SelectionDetail {
     }
 
     selectCell(x: number, y: number, subgrid: Subgrid | undefined, silent = false) {
-        const keepRowSelections = this.properties.checkboxOnlyRowSelections;
         this.beginSelectionChange();
         try {
-            this.selection.clear(keepRowSelections);
+            this.selection.clear();
             this.selection.selectRectangle(x, y, 0, 0, subgrid, silent);
         } finally {
             this.endSelectionChange();
@@ -3451,48 +3176,27 @@ export class Revgrid implements SelectionDetail {
     }
 
     selectRows(y1: number, y2: number, subgrid: Subgrid | undefined, focusColumnIndex?: number) {
-        this._selectionBehavior.selectRows(y1, y2, subgrid, focusColumnIndex);
+        this._focusSelectionBehavior.selectRows(y1, y2, subgrid, focusColumnIndex);
     }
 
     selectAllRows() {
-        this._selectionBehavior.selectAllRows();
+        this._focusSelectionBehavior.selectAllRows();
     }
 
     toggleSelectAllRows(forceClearRows = true) {
-        this._selectionBehavior.toggleSelectAllRows(forceClearRows);
+        this._focusSelectionBehavior.toggleSelectAllRows(forceClearRows);
     }
 
     selectColumns(x1: number, x2: number) {
-        this._selectionBehavior.selectColumns(x1, x2);
-    }
-
-    /**
-     * @summary Move cell selection by offset.
-     * @desc Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
-     * @param offsetX - x offset
-     * @param offsetY - y offset
-     */
-    moveSingleSelect(offsetX: number, offsetY: number) {
-        const mouseDown = this._userInterfaceInputBehavior.getMouseDown();
-        if (mouseDown !== undefined) {
-            const dragExtent = this._userInterfaceInputBehavior.getDragExtent();
-            if (dragExtent !== undefined) {
-                const mouseCorner = Point.plus(mouseDown, dragExtent);
-                this._selectionBehavior.focusCell(
-                    mouseCorner.x + offsetX,
-                    mouseCorner.y + offsetY,
-                    undefined
-                );
-            }
-        }
+        this._focusSelectionBehavior.selectColumns(x1, x2);
     }
 
     toggleSelectRow(y: number, shiftKeyDown: boolean, subgrid: Subgrid | undefined) {
-        this._selectionBehavior.toggleSelectRow(y, shiftKeyDown, subgrid);
+        this._focusSelectionBehavior.toggleSelectRow(y, shiftKeyDown, subgrid);
     }
 
     toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
-        this._selectionBehavior.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
+        this._focusSelectionBehavior.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
     }
 
     /** @summary Extend cell selection by offset.
@@ -3504,7 +3208,7 @@ export class Revgrid implements SelectionDetail {
         const selection = this.selection;
         const subgrid = selection.focusedSubgrid;
         let maxColumns = this.getActiveColumnCount() - 1;
-        let maxRows = this.getSubgridRowCount(subgrid) - 1;
+        let maxRows = subgrid.getRowCount() - 1;
 
         const maxViewableColumns = this.renderer.visibleColumns.length - 1;
         const maxViewableRows = this.renderer.visibleRows.length - 1;
@@ -3553,7 +3257,8 @@ export class Revgrid implements SelectionDetail {
             return undefined;
         } else {
             const cellEvent = new CellEvent(this);
-            const cellReseted = cellEvent.resetGridXDataY(focusedPoint.x, focusedPoint.y, this.selection.focusedSubgrid, useAllCells);
+            const subgrid = this.selection.focusedSubgrid;
+            const cellReseted = cellEvent.resetGridXDataY(focusedPoint.x, focusedPoint.y, subgrid, useAllCells);
             return cellReseted ? cellEvent : undefined;
         }
     }
@@ -3721,8 +3426,8 @@ export class Revgrid implements SelectionDetail {
     }
 
     /** @internal */
-    focusCell(c: number, r: number, subgrid: Subgrid | undefined) {
-        this._selectionBehavior.focusCell(c, r, subgrid);
+    focusCell(c: number, r: number, subgrid: Subgrid | undefined, selectionAreaTypeSpecifier: SelectionArea.TypeSpecifier) {
+        this._focusSelectionBehavior.focusSelectOnlyCell(c, r, subgrid, selectionAreaTypeSpecifier);
     }
 
     /**
@@ -3852,232 +3557,14 @@ export class Revgrid implements SelectionDetail {
     //     }
     // }
 
-    /** @internal */
-    private destroySubgrids() {
-        const count = this._subgrids.length;
-        for (let i = count - 1; i > 0; i--) {
-            const subgrid = this._subgrids[i];
-            subgrid.destroy();
-        }
-        this._subgrids.length = 0;
-    }
-
     private createDescendantEventer(): EventBehavior.DescendantEventer {
         return {
-            columnSelectionChanged: () => this.descendantProcessColumnSelectionChanged(),
+            allColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessAllColumnListChanged(typeId, index, count, targetIndex),
+            activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
+            columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
+            selectionChanged: () => this.descendantProcessSelectionChanged(),
             scroll: (isX, newValue, index, offset) => this.descendantProcessScroll(isX, newValue, index, offset),
         }
-    }
-
-    /** @internal */
-    private createModelCallbackRouter() {
-        const router = new ModelCallbackRouter(this.properties);
-
-        router.beginSchemaChangeEvent = () => this.beginSchemaChange();
-        router.endSchemaChangeEvent = () => this.endSchemaChange();
-        router.beginDataChangeEvent = () => this.beginDataChange();
-        router.endDataChangeEvent = () => this.endDataChange();
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        router.columnsInsertedEvent = (index, count) => {
-            this.beginSchemaChange();
-            try {
-                this.renderer.modelUpdated();
-                this._columnsManager.schemaColumnsInserted(index, count);
-                // Currently cannot calculate active Column Index of added columns so cannot advise SelectionModel of change
-                // or advise Renderer of column index
-                this.renderer.renderColumnsInserted(-1, -1);
-            } finally {
-                this.endSchemaChange();
-            }
-        }
-
-        router.columnsDeletedEvent = (index, count) => {
-            this.beginSchemaChange();
-            try {
-                this.renderer.modelUpdated();
-                this._columnsManager.schemaColumnsDeleted(index, count);
-                const nextRange = index + count;
-                for (let i = index; i < nextRange; i++) {
-                    // In the future, should consolidate into activeIndex ranges instead of doing individually
-                    const activeIndex = this._columnsManager.getActiveColumnIndexByAllIndex(i);
-                    if (activeIndex >= 0) {
-                        this.selection.adjustForColumnsDeleted(activeIndex, 1);
-                        this.renderer.renderColumnsDeleted(activeIndex, 1);
-                    }
-                }
-            } finally {
-                this.endSchemaChange();
-            }
-        }
-
-        router.allColumnsDeletedEvent = () => {
-            this.beginSchemaChange();
-            try {
-                this.renderer.modelUpdated();
-                this._columnsManager.allSchemaColumnsDeleted();
-                this.selection.clear();
-                this.renderer.renderAllColumnsDeleted();
-            } finally {
-                this.endSchemaChange();
-            }
-        }
-
-        router.schemaChangedEvent = () => {
-            this.beginSchemaChange();
-            try {
-                this.renderer.modelUpdated();
-                this._columnsManager.schemaColumnsChanged();
-                this.selection.clear();
-                this.renderer.renderColumnsChanged();
-            } finally {
-                this.endSchemaChange();
-            }
-        };
-
-        router.getActiveSchemaColumnsEvent = () => {
-            return this.getActiveColumns().map((column) => column.schemaColumn);
-        };
-
-        router.rowsInsertedEvent = (dataModel, index, count) => {
-            this.beginDataChange();
-            try {
-                this.renderer.modelUpdated();
-                if (dataModel === this.mainDataModel) {
-                    this.selection.adjustForRowsInserted(index, count);
-                }
-                this.renderer.renderRowsInserted(index, count);
-            } finally {
-                this.endDataChange();
-            }
-        }
-
-        router.rowsDeletedEvent = (dataModel, index, count) => {
-            this.beginDataChange();
-            try {
-                this.renderer.modelUpdated();
-                if (dataModel === this.mainDataModel) {
-                    this.selection.adjustForRowsDeleted(index, count);
-                }
-                this.renderer.renderRowsDeleted(index, count);
-            } finally {
-                this.endDataChange();
-            }
-        }
-
-        router.allRowsDeletedEvent = (dataModel) => {
-            this.beginDataChange();
-            try {
-                this.renderer.modelUpdated();
-                if (dataModel === this.mainDataModel) {
-                    this.selection.clear();
-                }
-                this.renderer.renderAllRowsDeleted();
-            } finally {
-                this.endDataChange();
-            }
-        }
-
-        router.rowsMovedEvent = (dataModel, oldRowIndex, newRowIndex, rowCount) => {
-            this.beginDataChange();
-            try {
-                this.renderer.modelUpdated();
-                if (dataModel === this.mainDataModel) {
-                    this.selection.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount);
-                }
-                this.renderer.renderRowsMoved(oldRowIndex, newRowIndex, rowCount);
-            } finally {
-                this.endDataChange();
-            }
-        }
-
-        router.rowsLoadedEvent = (dataModel) => {
-            this.beginDataChange();
-            try {
-                this.renderer.modelUpdated();
-                if (dataModel === this.mainDataModel) {
-                    this.selection.clear();
-                }
-                this.renderer.renderRowsLoaded();
-            } finally {
-                this.endDataChange();
-            }
-        };
-
-        router.invalidateAllEvent = () => {
-            this.renderer.modelUpdated();
-            this.renderer.invalidateAll();
-        }
-
-        router.invalidateRowsEvent = (rowIndex: number, count: number) => {
-            this.renderer.modelUpdated();
-            this.renderer.invalidateRows(rowIndex, count);
-        }
-
-        router.invalidateRowEvent = (rowIndex: number) => {
-            this.renderer.modelUpdated();
-            this.renderer.invalidateRow(rowIndex);
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        router.invalidateRowColumnsEvent = (rowIndex: number, allColumnIndex: number, columnCount: number) => {
-            this.renderer.modelUpdated();
-            this.renderer.invalidateRow(rowIndex); // this should be improved to use this.renderer.invalidateRowColumns()
-        }
-
-        router.invalidateRowCellsEvent = (rowIndex: number, allIndexes: number[]) => {
-            this.renderer.modelUpdated();
-            this.renderer.invalidateRowCells(rowIndex, allIndexes);
-        }
-
-        router.invalidateCellEvent = (allIndex: number, rowIndex: number) => {
-            this.renderer.modelUpdated();
-            this.renderer.invalidateCell(allIndex, rowIndex);
-        }
-
-        router.preReindexEvent = () => {
-            this.selection.requestStashSelection();
-            this.renderer.modelUpdated();
-        }
-
-        router.postReindexEvent = () => {
-            this.selection.requestUnstashSelection();
-            this.behaviorShapeChanged();
-            this.renderer.modelUpdated();
-        }
-        // router.repaintRequiredEvent = () => {
-        //     this.repaint();
-        //     return this.renderer.modelUpdated();
-        // };
-        // router.behaviorShapeChangedEvent = () => {
-        //     this.behaviorShapeChanged();
-        //     return this.renderer.modelUpdated();
-        // };
-        router.gridEvent = (eventName, eventDetail) => dispatchGridEvent(this, eventName, false, eventDetail);
-
-        return router;
-    }
-
-    private beginSchemaChange() {
-        this._columnsManager.beginSchemaChange();
-        this.selection.beginChange();
-        this.renderer.beginChange();
-    }
-
-    private endSchemaChange() {
-        this._columnsManager.endSchemaChange();
-        this.selection.endChange();
-        this.renderer.endChange();
-    }
-
-    private beginDataChange() {
-        this.selection.beginChange();
-        this.renderer.beginChange();
-    }
-
-    private endDataChange() {
-        this.selection.endChange();
-        this.renderer.endChange();
     }
 
     /** @internal */

@@ -3,6 +3,7 @@ import { AssertError } from '../grid-public-api';
 import { Registry } from '../lib/registry';
 import { Renderer } from '../renderer/renderer';
 import { Selection } from '../selection/selection';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { AsNeededGridPainter } from './as-needed-grid-painter';
 import { ByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
 import { ByColumnsDiscreteGridPainter } from './by-columns-discrete-grid-painter';
@@ -14,7 +15,11 @@ export class GridPainterRepository {
     private constructorRegistry = new Registry<GridPainter.Constructor>();
     private cache = new Map<string, GridPainter>();
 
-    constructor(private readonly _renderer: Renderer, private readonly _selection: Selection) {
+    constructor(
+        private readonly _subgridsManager: SubgridsManager,
+        private readonly _renderer: Renderer,
+        private readonly _selection: Selection
+    ) {
         // preregister the standard grid painters
         this.constructorRegistry.register(AsNeededGridPainter.key, AsNeededGridPainter);
         this.constructorRegistry.register(ByColumnsGridPainter.key, ByColumnsGridPainter);
@@ -30,7 +35,7 @@ export class GridPainterRepository {
             if (constructor === undefined) {
                 throw new AssertError('GPRG87773', key);
             } else {
-                gridPainter = new constructor(this._renderer, this._selection);
+                gridPainter = new constructor(this._subgridsManager, this._renderer, this._selection);
                 this.cache.set(key, gridPainter);
             }
         }

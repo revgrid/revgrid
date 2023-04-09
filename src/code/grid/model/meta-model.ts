@@ -24,14 +24,12 @@ export interface MetaModel {
      * The default implementations of `getRowMetadata` and `setRowMetadata` store the metadata in an in-memory table. If this is not appropriate, override these methods to store the meta somewhere else (_e.g.,_ with the data in a hidden column, in another database table, in local storage, _etc._).
      *
      * @param rowIndex - Row index.
-     * @param prototype - When row found but no metadata found, set the row's metadata to new object created from this object when defined.
-     * Typical defined value is `null`, which creates a plain object with no prototype, or `Object.prototype` for a more "natural" object.
      * @returns One of:
-     * * object - existing metadata object or new metadata object created from `prototype`; else
-     * * `false` - row found but no existing metadata and `prototype` was not defined; else
+     * * object - existing metadata object; else
+     * * `undefined` - row found but no existing metadata; else
      * * `null`  - no such row
      */
-    getRowMetadata?(rowIndex: number, prototype?: MetaModel.RowMetadataPrototype): null | false | MetaModel.RowMetadata;
+    getRowMetadata?(rowIndex: number): null | undefined | MetaModel.RowMetadata;
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._

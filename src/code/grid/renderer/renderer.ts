@@ -6,18 +6,21 @@ import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { RenderedCell } from '../cell/rendered-cell';
 import { Column } from '../column/column';
 import { ColumnsManager } from '../column/columns-manager';
+import { SubgridInterface } from '../common/subgrid-interface';
 import { EventDetail } from '../event/event-detail';
 import { GridPainter } from '../grid-painter/grid-painter';
 import { GridPainterRepository } from '../grid-painter/grid-painter-repository';
+import { GridProperties } from '../grid-properties';
 import { InclusiveRectangle } from '../lib/inclusive-rectangle';
 import { Point } from '../lib/point';
 import { Rectangle, RectangleInterface } from '../lib/rectangle';
 import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
-import { invalidModelUpdateId, lowestValidModelUpdateId, ModelUpdateId } from '../model/schema-model';
+import { DataModel } from '../model/data-model';
+import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../model/schema-model';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
-import { SelectionType } from '../selection/selection-type';
 import { Subgrid } from '../subgrid/subgrid';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { RenderAction } from './render-action';
 import { RenderActioner } from './render-actioner';
 
@@ -77,13 +80,16 @@ export class Renderer {
      */
     readonly visibleRows = new Renderer.VisibleRowArray();
 
+    private _mainSubgrid: Subgrid;
+    private _mainDataModel: DataModel;
+
     private _visibleColumnsByIndex = new Array<Renderer.VisibleColumn>();  // array because number of columns will always be reasonable
     private _visibleRowsByDataRowIndex = new Map<number, Renderer.VisibleRow>(); // hash because keyed by (fixed and) scrolled row indexes
 
     // I don't think this is used
     private _insertionBounds = new Array<number>();
 
-    private _lastKnowRowCount: number | undefined;
+    private _lastKnowMainRowCount: number | undefined;
     private _needsComputeCellsBounds = false;
 
     dataWindow: InclusiveRectangle;
@@ -150,13 +156,15 @@ export class Renderer {
 
     constructor(
         public readonly grid: Revgrid,
+        private readonly _gridProperties: GridProperties,
         selection: Selection,
         private readonly _columnsManager: ColumnsManager,
+        private readonly _subgridsManager: SubgridsManager,
         readonly cellPainterRepository: CellPainterRepository,
         private readonly _gc: CanvasRenderingContext2DEx,
         private readonly _getRowHeightEventer: Renderer.GetRowHeightEventer,
     ) {
-        this.gridPainterRepository = new GridPainterRepository(this, selection);
+        this.gridPainterRepository = new GridPainterRepository(this._subgridsManager, this, selection);
         this._renderActioner.actionsEvent = (actions) => this.processRenderActions(actions);
 
         document.addEventListener('visibilitychange', this._pageVisibilityChangeListener);
@@ -257,6 +265,11 @@ export class Renderer {
         this.cellPainterRepository.register(typeName, constructor);
     }
 
+    updateMainSubgrid() {
+        this._mainSubgrid = this._subgridsManager.mainSubgrid;
+        this._mainDataModel = this._mainSubgrid.dataModel;
+    }
+
     beginChange() {
         this._renderActioner.beginChange();
     }
@@ -349,7 +362,7 @@ export class Renderer {
     }
 
     resetScrollAnchor() {
-        this._columnScrollAnchorIndex = this.grid.getFixedColumnCount();
+        this._columnScrollAnchorIndex = this._columnsManager.getFixedColumnCount();
         this._columnScrollAnchorOffset = 0;
         this._leftColumnScrollAnchorLimitIndex = this._columnScrollAnchorIndex;
         this._leftColumnScrollAnchorLimitOffset = this._columnScrollAnchorOffset;
@@ -488,9 +501,9 @@ export class Renderer {
     }
 
     calculateColumnScrollAnchor(viewportStart: number, viewportFinish: number, contentStart: number, contentFinish: number): Renderer.ScrollAnchor {
-        const columnCount = this.grid.getActiveColumnCount();
-        const fixedColumnCount = this.grid.getFixedColumnCount();
-        const gridProps = this.grid.properties;
+        const columnCount = this._columnsManager.getActiveColumnCount();
+        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
+        const gridProps = this._gridProperties;
         const gridLinesVWidth = gridProps.gridLinesVWidth;
         const gridRightAligned = gridProps.gridRightAligned;
         const scrollHorizontallySmoothly = gridProps.scrollHorizontallySmoothly;
@@ -506,7 +519,7 @@ export class Renderer {
                 let columnLeft: number;
                 let lastColumnDone = false;
                 for (let i = columnCount - 1; i >= fixedColumnCount; i--) {
-                    columnLeft = prevColumnLeft - this.grid.getActiveColumnWidth(i);
+                    columnLeft = prevColumnLeft - this._columnsManager.getActiveColumnWidth(i);
                     if (lastColumnDone) {
                         columnLeft -= gridLinesVWidth;
                     } else {
@@ -537,7 +550,7 @@ export class Renderer {
             let left = contentStart;
             let nextLeft: number;
             for (let i = fixedColumnCount; i < columnCount; i++) {
-                nextLeft = this.grid.getActiveColumnWidth(i) + gridLinesVWidth + left;
+                nextLeft = this._columnsManager.getActiveColumnWidth(i) + gridLinesVWidth + left;
                 if (viewportStart > nextLeft) {
                     left = nextLeft;
                 } else {
@@ -575,16 +588,16 @@ export class Renderer {
     }
 
     calculateColumnScrollAnchorViewportStart(contentStart: number) {
-        const gridLinesVWidth = this.grid.properties.gridLinesVWidth;
-        const columnCount = this.grid.getActiveColumnCount();
-        const fixedColumnCount = this.grid.getFixedColumnCount();
+        const gridLinesVWidth = this._gridProperties.gridLinesVWidth;
+        const columnCount = this._columnsManager.getActiveColumnCount();
+        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
         let result = contentStart;
         for (let i = fixedColumnCount; i < columnCount; i++) {
             if (i === columnScrollAnchorIndex) {
                 break;
             } else {
-                result += (this.grid.getActiveColumnWidth(i) + gridLinesVWidth);
+                result += (this._columnsManager.getActiveColumnWidth(i) + gridLinesVWidth);
             }
         }
 
@@ -594,16 +607,16 @@ export class Renderer {
     }
 
     calculateColumnScrollAnchorViewportFinish(contentFinish: number) {
-        const gridLinesVWidth = this.grid.properties.gridLinesVWidth;
-        const columnCount = this.grid.getActiveColumnCount();
-        const fixedColumnCount = this.grid.getFixedColumnCount();
+        const gridLinesVWidth = this._gridProperties.gridLinesVWidth;
+        const columnCount = this._columnsManager.getActiveColumnCount();
+        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
         let result = contentFinish;
         for (let i = columnCount - 1; i > fixedColumnCount; i--) {
             if (i === columnScrollAnchorIndex) {
                 break;
             } else {
-                result -= this.grid.getActiveColumnWidth(i);
+                result -= this._columnsManager.getActiveColumnWidth(i);
             }
         }
 
@@ -625,27 +638,26 @@ export class Renderer {
      * @returns Scroll Anchor which will ensure the column is displayed
      */
     calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean, viewportSize: number): Renderer.ScrollAnchor {
-        const grid = this.grid;
-        const gridProperties = grid.properties;
+        const gridProperties = this._gridProperties;
         const gridLinesVWidth = gridProperties.gridLinesVWidth;
         let index: number;
         let offset: number;
 
         if (gridRightAligned) {
-            index = grid.getActiveColumnCount();
+            index = this._columnsManager.getActiveColumnCount();
             // calculate relative left of activeColumnIndex
             let left = gridLinesVWidth;
             while (index >= activeColumnIndex) {
                 index--;
-                left -= (this.grid.getActiveColumnWidth(index) + gridLinesVWidth);
+                left -= (this._columnsManager.getActiveColumnWidth(index) + gridLinesVWidth);
             }
             // calculate viewportFinish needed to just fit in column
             const viewportFinishPlus1 = left + viewportSize;
             // find column which finishes at or crosses this viewport Finish
-            let rightPlus1 = left + this.grid.getActiveColumnWidth(index);
+            let rightPlus1 = left + this._columnsManager.getActiveColumnWidth(index);
             while (rightPlus1 < viewportFinishPlus1) {
                 index++;
-                rightPlus1 += (this.grid.getActiveColumnWidth(index) + gridLinesVWidth);
+                rightPlus1 += (this._columnsManager.getActiveColumnWidth(index) + gridLinesVWidth);
             }
             // work out index and offset
             if (rightPlus1 === viewportFinishPlus1) {
@@ -663,21 +675,21 @@ export class Renderer {
             }
 
         } else {
-            index = this.grid.getFixedColumnCount();
+            index = this._columnsManager.getFixedColumnCount();
             // calculate relative left of activeColumnIndex
             let left = 0;
             while (index < activeColumnIndex) {
-                left += (this.grid.getActiveColumnWidth(index) + gridLinesVWidth);
+                left += (this._columnsManager.getActiveColumnWidth(index) + gridLinesVWidth);
                 index++;
             }
             // calculate relative right of activeColumnIndex;
-            const rightPlus1 = left + this.grid.getActiveColumnWidth(index);
+            const rightPlus1 = left + this._columnsManager.getActiveColumnWidth(index);
             // calculate viewportStart needed to just fit in column
             const viewportStart = rightPlus1 - viewportSize;
             // find column which starts at or crosses this viewport Start
             while (left > viewportStart) {
                 index--;
-                left -= (this.grid.getActiveColumnWidth(index) + gridLinesVWidth);
+                left -= (this._columnsManager.getActiveColumnWidth(index) + gridLinesVWidth);
             }
             // work out index and offset
             if (left === viewportStart) {
@@ -818,7 +830,7 @@ export class Renderer {
     }
 
     getVisibleScrollHeight() {
-        const footerHeight = this.grid.properties.defaultRowHeight * this.grid.calculateAfterMainSubgridRowCount();
+        const footerHeight = this._gridProperties.defaultRowHeight * this._subgridsManager.calculateFooterRowCount();
         return this.getBounds().height - footerHeight - this.grid.getFixedRowsHeight();
     }
 
@@ -853,11 +865,11 @@ export class Renderer {
      * @returns The column index under the coordinate at pixelX.
      */
     getActiveColumnWidthEdgeClosestToPixelX(pixelX: number): number {
-        const fixedColumnCount = this.grid.getFixedColumnCount();
+        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         const scrolledColumnCount = this._columnScrollAnchorIndex;
         const visibleColumns = this.visibleColumns;
 
-        if (this.grid.properties.gridRightAligned) {
+        if (this._gridProperties.gridRightAligned) {
             let c = visibleColumns.length - 1;
             let previousColumnCenter: number;
             while (c > 0) {
@@ -1035,14 +1047,7 @@ export class Renderer {
         return this.visibleRows[rowIndex];
     }
 
-    /**
-     * @summary Get the visibility of the row matching the provided data row index.
-     * @desc Requested row may not be visible due to being scrolled out of view.
-     * @summary Determines visibility of a row.
-     * @param rowIndex - The data row index.
-     * @returns The given row is visible.
-     */
-    isDataRowVisible(rowIndex: number, subgrid?: Subgrid): boolean {
+    isDataRowVisible(rowIndex: number, subgrid: Subgrid): boolean {
         return this.getVisibleDataRow(rowIndex, subgrid) !== undefined;
     }
 
@@ -1053,15 +1058,13 @@ export class Renderer {
      * @param rowIndex - The data row index within the given subgrid.
      * @returns The given row if visible or `undefined` if not.
      */
-    getVisibleDataRow(rowIndex: number, subgrid?: Subgrid) {
-        if (subgrid === undefined) {
-            subgrid = this.grid.mainSubgrid;
-        }
-        return this.visibleRows.find(
-            (vr) => {
-                return vr.subgrid === subgrid && vr.rowIndex === rowIndex;
+    getVisibleDataRow(rowIndex: number, subgrid: SubgridInterface) {
+        for (const vr of this.visibleRows) {
+            if (vr.rowIndex === rowIndex && vr.subgrid === subgrid) {
+                return vr;
             }
-        );
+        }
+        return undefined;
     }
 
     /**
@@ -1078,14 +1081,14 @@ export class Renderer {
 
         grid.deferredBehaviorChange();
 
-        const rowCount = grid.getSubgridRowCount(grid.mainSubgrid);
-        if (rowCount !== this._lastKnowRowCount) {
+        const rowCount = this._mainSubgrid.getRowCount();
+        if (rowCount !== this._lastKnowMainRowCount) {
             /*var newWidth = */ // this.renderResetRowHeaderColumnWidth(gc, rowCount);
             // if (newWidth !== this.handleColumnWidth) {
                 this._needsComputeCellsBounds = true;
             //     this.handleColumnWidth = newWidth;
             // }
-            this._lastKnowRowCount = rowCount;
+            this._lastKnowMainRowCount = rowCount;
         }
 
         if (this._needsComputeCellsBounds) {
@@ -1093,8 +1096,8 @@ export class Renderer {
             this._needsComputeCellsBounds = false;
 
             // Pre-fetch data if supported by data model
-            if (grid.mainDataModel.fetchData) {
-                grid.mainDataModel.fetchData(this.getSubrects(), (failure) => this.fetchCompletion(gc, failure));
+            if (this._mainDataModel.fetchData) {
+                this._mainDataModel.fetchData(this.getSubrects(), (failure) => this.fetchCompletion(gc, failure));
                 return; // skip refresh renderGrid call below
             }
         }
@@ -1122,60 +1125,17 @@ export class Renderer {
             return undefined;
         }
 
-        let rectangle: Rectangle | undefined;
-        let left: number;
-        let top: number;
-        let width: number;
-        let height: number;
         const grid = this.grid;
         const gridProps = grid.properties;
         const selection = grid.selection;
 
-        const selectionType = selection.getLastSelectionType();
-        switch (selectionType) {
-            case SelectionType.Column: {
-                const columnRanges = selection.columns.ranges;
-                const lastColumnSelection = columnRanges[columnRanges.length - 1];
+        const selectionArea = selection.lastArea;
 
-                left = lastColumnSelection[0];
-                top = 0;
-                width = lastColumnSelection[1] - left + 1;
-                height = grid.calculateRowCount();
-                rectangle = new InclusiveRectangle(left, top, width, height);
-                break;
-            }
-            case SelectionType.Row: {
-                if (!(gridProps.collapseCellSelections && selection.getLastSelectionType(1) === SelectionType.Cell)) {
-                    const rowRanges = selection.rows.ranges;
-                    const lastRowSelection = rowRanges[rowRanges.length - 1];
-
-                    left = 0;
-                    top = lastRowSelection[0];
-                    width = this._columnsManager.activeColumns.length;
-                    height = lastRowSelection[1] - top + 1;
-                    rectangle = new InclusiveRectangle(left, top, width, height);
-                } else {
-                    rectangle = selection.getLastRectangle();
-                }
-                break;
-            }
-            case SelectionType.Cell: {
-                rectangle = selection.getLastRectangle();
-                break;
-            }
-            case undefined: {
-                break;
-            }
-            default:
-                throw new UnreachableCaseError('RCLSB13998', selectionType);
-        }
-
-        if (rectangle === undefined) {
+        if (selectionArea === undefined) {
             return undefined; // no selection
         } else {
-
             // todo not sure what this is for; might be defunct logic
-            if (rectangle.origin.x === -1) {
+            if (selectionArea.origin.x === -1) {
                 // no selected area, lets exit
                 return undefined;
             } else {
@@ -1189,45 +1149,45 @@ export class Renderer {
                 const firstScrollableRow = vri.get(this.dataWindow.origin.y);
                 const fixedColumnCount = gridProps.fixedColumnCount;
                 const fixedRowCount = gridProps.fixedRowCount;
-                const headerRowCount = grid.calculateBeforeMainSubgridRowCount();
+                const headerRowCount = this._subgridsManager.calculateHeaderRowCount();
 
                 if (
                     // entire selection scrolled out of view to left of visible columns; or
                     (vc = this.visibleColumns[0]) &&
-                    rectangle.corner.x < vc.activeColumnIndex ||
+                    selectionArea.corner.x < vc.activeColumnIndex ||
 
                     // entire selection scrolled out of view between fixed columns and scrollable columns; or
                     fixedColumnCount &&
                     firstScrollableColumn &&
                     (vc = this.visibleColumns[fixedColumnCount - 1]) &&
-                    rectangle.origin.x > vc.activeColumnIndex &&
-                    rectangle.corner.x < firstScrollableColumn.activeColumnIndex ||
+                    selectionArea.origin.x > vc.activeColumnIndex &&
+                    selectionArea.corner.x < firstScrollableColumn.activeColumnIndex ||
 
                     // entire selection scrolled out of view to right of visible columns; or
                     lastScrollableColumn &&
-                    rectangle.origin.x > lastScrollableColumn.activeColumnIndex ||
+                    selectionArea.origin.x > lastScrollableColumn.activeColumnIndex ||
 
                     // entire selection scrolled out of view above visible rows; or
                     (vr = this.visibleRows[headerRowCount]) &&
-                    rectangle.corner.y < vr.rowIndex ||
+                    selectionArea.corner.y < vr.rowIndex ||
 
                     // entire selection scrolled out of view between fixed rows and scrollable rows; or
                     fixedRowCount &&
                     firstScrollableRow &&
                     (vr = this.visibleRows[headerRowCount + fixedRowCount - 1]) &&
-                    rectangle.origin.y > vr.rowIndex &&
-                    rectangle.corner.y < firstScrollableRow.rowIndex ||
+                    selectionArea.origin.y > vr.rowIndex &&
+                    selectionArea.corner.y < firstScrollableRow.rowIndex ||
 
                     // entire selection scrolled out of view below visible rows
                     lastScrollableRow &&
-                    rectangle.origin.y > lastScrollableRow.rowIndex
+                    selectionArea.origin.y > lastScrollableRow.rowIndex
                 ) {
                     return undefined;
                 } else {
-                    const vcOrigin = vci[rectangle.origin.x] || firstScrollableColumn;
-                    const vrOrigin = vri.get(rectangle.origin.y) || firstScrollableRow;
-                    const vcCorner = vci[rectangle.corner.x] || (rectangle.corner.x > lastScrollableColumn.activeColumnIndex ? lastScrollableColumn : vci[fixedColumnCount - 1]);
-                    const vrCorner = vri.get(rectangle.corner.y) || (rectangle.corner.y > lastScrollableRow.rowIndex ? lastScrollableRow : vri.get(fixedRowCount - 1));
+                    const vcOrigin = vci[selectionArea.origin.x] || firstScrollableColumn;
+                    const vrOrigin = vri.get(selectionArea.origin.y) || firstScrollableRow;
+                    const vcCorner = vci[selectionArea.corner.x] || (selectionArea.corner.x > lastScrollableColumn.activeColumnIndex ? lastScrollableColumn : vci[fixedColumnCount - 1]);
+                    const vrCorner = vri.get(selectionArea.corner.y) || (selectionArea.corner.y > lastScrollableRow.rowIndex ? lastScrollableRow : vri.get(fixedRowCount - 1));
 
                     if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
                         return undefined;
@@ -1257,7 +1217,7 @@ export class Renderer {
      * @returns The last col was rendered (is visible)
      */
     isLastColumnVisible(): boolean {
-        const lastColumnIndex = this.grid.getActiveColumnCount() - 1;
+        const lastColumnIndex = this._columnsManager.getActiveColumnCount() - 1;
         return !!this.visibleColumns.find((vc) => { return vc.activeColumnIndex === lastColumnIndex; });
     }
 
@@ -1302,7 +1262,7 @@ export class Renderer {
         let top = this.dataWindow.origin.y - this.properties.fixedRowCount - 1;
         let scanHeight = 0;
         while (scanHeight < scrollHeight && top >= 0) {
-            scanHeight += this._getRowHeightEventer(top);
+            scanHeight += this._getRowHeightEventer(top, undefined);
             top--;
         }
         return top + 1;
@@ -1343,7 +1303,7 @@ export class Renderer {
         let xEd: number | undefined;
         let vrEd: Renderer.VisibleRow;
         let yEd: number;
-        let sgEd: Subgrid;
+        let sgEd: SubgridInterface;
         let isSubgridEd: boolean;
 
         let insertionBoundsCursor = 0;
@@ -1360,7 +1320,7 @@ export class Renderer {
         const lineWidthH = gridProps.gridLinesHWidth;
         const lineGapH = lineWidthH;
 
-        const fixedColumnCount = this.grid.getFixedColumnCount();
+        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         const lastFixedColumnIndex = fixedColumnCount - 1;
         const fixedRowCount = this.grid.getFixedRowCount();
 
@@ -1370,7 +1330,7 @@ export class Renderer {
         let fixedWidthH: number;
         let fixedGapH: number;
         let fixedOverlapH: number;
-        const subgrids = grid.subgrids;
+        const subgrids = this._subgridsManager.subgrids;
         let subgrid: Subgrid;
         let rowIndex: number;
         let isMainSubgrid: boolean;
@@ -1613,7 +1573,7 @@ export class Renderer {
         }
 
         // get height of total number of rows in all subgrids following the data subgrid
-        const footerHeight = gridProps.defaultRowHeight * grid.calculateAfterMainSubgridRowCount();
+        const footerHeight = gridProps.defaultRowHeight * this._subgridsManager.calculateFooterRowCount();
 
         let base = 0; // sum of rows for all subgrids so far
         let y = 0; // vertical pixel loop index and limit
@@ -1661,8 +1621,8 @@ export class Renderer {
 
                 this.visibleRows[r] = vr = {
                     index: r,
-                    subgrid: subgrid,
                     rowIndex: rowIndex,
+                    subgrid: subgrid,
                     top: y,
                     height: height,
                     bottom: y + height
@@ -1770,7 +1730,7 @@ export class Renderer {
      * @param subgrid Omit if `colIndexOrCellEvent` is a `CellEvent`.
      * @returns The matching `CellEvent` object from the renderer's pool. Returns `undefined` if the requested cell is not currently visible (due to being scrolled out of view).
      */
-    findCell(colIndexOrCellEvent: number | RenderedCell, rowIndex?: number, subgrid?: Subgrid) {
+    findCell(colIndexOrCellEvent: number | RenderedCell, rowIndex?: number, subgrid?: SubgridInterface) {
         let colIndex: number;
         const pool = this.renderedCellPool;
 
@@ -1783,7 +1743,9 @@ export class Renderer {
             colIndex = colIndexOrCellEvent;
         }
 
-        subgrid = subgrid ?? this.grid.mainSubgrid;
+        if (subgrid === undefined) {
+            subgrid = this._mainSubgrid;
+        }
 
         let len = this.visibleColumns.length;
         len *= this.visibleRows.length;
@@ -1868,8 +1830,8 @@ export class Renderer {
      */
     private getSubrects() {
         const dw = this.dataWindow;
-        if (!this.grid.properties.fetchSubregions) {
-            const rect = this.grid.newRectangle(dw.left, dw.top, dw.width, dw.height); // convert from InclusiveRect
+        if (!this._gridProperties.fetchSubregions) {
+            const rect = new Rectangle(dw.left, dw.top, dw.width, dw.height); // convert from InclusiveRect
             return [rect];
         }
 
@@ -1883,12 +1845,12 @@ export class Renderer {
         const xMin = orderedColumnIndexes[0];
         const width = orderedColumnIndexes[orderedColumnIndexes.length - 1] - xMin + 1;
 
-        return [this.grid.newRectangle(xMin, dw.top, width, dw.height)];
+        return [new Rectangle(xMin, dw.top, width, dw.height)];
     }
 }
 
 export namespace Renderer {
-    export type GetRowHeightEventer = (this: void, y: number, subgrid?: Subgrid) => number;
+    export type GetRowHeightEventer = (this: void, y: number, subgrid: Subgrid | undefined) => number;
 
     export interface GetGridCellFromMousePointResult {
         fake: boolean;
@@ -1926,8 +1888,8 @@ export namespace Renderer {
         index: number;
         /** Local vertical row coordinate within the subgrid to which the row belongs, adjusted for scrolling. */
         rowIndex: number;
-        /** A reference to the subgrid to which the row belongs. */
-        subgrid: Subgrid;
+        /** The subgrid to which the row belongs. */
+        subgrid: SubgridInterface;
         /** Pixel coordinate of the top edge of this row, rounded to nearest integer. */
         top: number;
         /** Pixel coordinate of the bottom edge of this row, rounded to nearest integer. */

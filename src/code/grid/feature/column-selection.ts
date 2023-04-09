@@ -1,10 +1,9 @@
-
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
 import { Point } from '../lib/point';
 import { AssertError } from '../lib/revgrid-error';
-import { SelectionType } from '../selection/selection-type';
+import { SelectionArea } from '../lib/selection-area';
 import { ColumnMoving } from './column-moving';
 
 export class ColumnSelection extends Feature {
@@ -98,9 +97,8 @@ export class ColumnSelection extends Feature {
     }
 
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        const grid = this.grid;
-        const lastSelectionType = grid.getLastSelectionType();
-        if (lastSelectionType !== SelectionType.Column) {
+        const lastSelectionType = this.focusSelectionBehavior.getLastSelectionType();
+        if (lastSelectionType !== SelectionArea.Type.Column) {
             super.handleKeyDown(eventDetail);
         } else {
             const handler = this[('handle' + eventDetail.primitiveEvent.key) as keyof ColumnSelection] as (() => void);
@@ -117,7 +115,6 @@ export class ColumnSelection extends Feature {
      * @param keys - array of the keys that are currently pressed down
      */
     handleMouseDragCellSelection(x: number) {
-        const grid = this.grid;
         const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
         const mouseDown = userInterfaceInputBehavior.getMouseDown();
         if (mouseDown === undefined) {
@@ -125,7 +122,7 @@ export class ColumnSelection extends Feature {
         } else {
             const mouseX = mouseDown.x;
 
-            const selectionBehavior = this.selectionBehavior;
+            const selectionBehavior = this.focusSelectionBehavior;
             selectionBehavior.clearMostRecentColumnSelection();
 
             selectionBehavior.selectColumns(mouseX, x);
@@ -207,7 +204,7 @@ export class ColumnSelection extends Feature {
                     return; // do nothing
                 }
 
-                const selectionBehavior = this.selectionBehavior;
+                const selectionBehavior = this.focusSelectionBehavior;
                 const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
                 if (shiftKeyDown) {
                     selectionBehavior.clearMostRecentColumnSelection();
@@ -332,7 +329,7 @@ export class ColumnSelection extends Feature {
 
             newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
 
-            const selectionBehavior = this.selectionBehavior;
+            const selectionBehavior = this.focusSelectionBehavior;
             selectionBehavior.clearMostRecentColumnSelection();
             selectionBehavior.selectColumns(origin.x, origin.x + newX);
             userInterfaceInputBehavior.setDragExtent(Point.create(newX, 0));
@@ -367,7 +364,7 @@ export class ColumnSelection extends Feature {
 
             newX = Math.min(maxColumns, Math.max(0, newX));
 
-            const selectionBehavior = this.selectionBehavior;
+            const selectionBehavior = this.focusSelectionBehavior;
             selectionBehavior.beginChange();
             try {
                 selectionBehavior.clearSelection(true);

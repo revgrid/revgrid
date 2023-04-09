@@ -1,22 +1,34 @@
+import { AdapterSetConfig } from '../adapter-set-config';
 import { Canvas } from '../canvas/canvas';
 import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
 import { CellEvent } from '../cell/cell-event';
+import { ColumnsManager } from '../column/columns-manager';
+import { ColumnInterface } from '../common/column-interface';
 import { FinBar } from '../finbar/finbar';
+import { Focus } from '../focus';
 import { GridProperties } from '../grid-properties';
-import { ColumnsManager, MainSubgrid } from '../grid-public-api';
+import { GridPropertiesAccessor } from '../grid-properties-accessor';
+import { AssertError } from '../lib/revgrid-error';
+import { ListChangedTypeId } from '../lib/types';
 import { assignOrDelete } from '../lib/utils';
+import { DataModel } from '../model/data-model';
 import { MetaModel } from '../model/meta-model';
+import { ModelCallbackRouter } from '../model/model-callback-router';
 import { SchemaModel } from '../model/schema-model';
 import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
 import { Subgrid } from '../subgrid/subgrid';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { Mouse } from '../user-interface-input/mouse';
+import { CellPropertiesBehavior } from './cell-properties-behavior';
+import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
+import { FocusSelectionBehavior } from './focus-selection-behavior';
+import { ModelCallbackRouterBehavior } from './model-callback-router-behavior';
 import { RendererBehavior } from './renderer-behaviour';
 import { RowPropertiesBehavior } from './row-properties-behavior';
 import { ScrollBehavior } from './scroll-behaviour';
-import { SelectionBehavior } from './selection-behavior';
 import { UserInterfaceInputBehavior } from './user-interface-input-behavior';
 
 const noExportProperties = [
@@ -48,25 +60,32 @@ const noExportProperties = [
  */
 /** @internal */
 export class Behavior {
+    readonly gridProperties: GridPropertiesAccessor;
+    readonly renderer: Renderer; // make private in future
+
     private readonly _mouse: Mouse;
+    private readonly _focus: Focus;
     private readonly _selection: Selection;
     private readonly _columnsManager: ColumnsManager;
     private readonly _canvas: Canvas;
     private readonly _horizontalScroller: FinBar;
     private readonly _vertialScroller: FinBar;
-    private readonly _mainSubgrid: MainSubgrid;
-    private readonly _gridProperties: GridProperties;
-
-    readonly renderer: Renderer; // make private in future
+    private readonly _subgridsManager: SubgridsManager;
+    private readonly _modelCallbackRouter: ModelCallbackRouter;
 
     readonly rendererBehavior: RendererBehavior;
-    readonly selectionBehavior: SelectionBehavior;
+    readonly focusSelectionBehavior: FocusSelectionBehavior;
     readonly scrollBehavior: ScrollBehavior;
     readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
     readonly eventBehavior: EventBehavior;
     readonly rowPropertiesBehavior: RowPropertiesBehavior;
+    readonly cellPropertiesBehavior: CellPropertiesBehavior;
+    private readonly _modelCallbackRouterBehavior: ModelCallbackRouterBehavior;
+    readonly dataExtractBehavior: DataExtractBehavior;
 
     private _destroyed = false;
+    private _mainSubgrid: Subgrid;
+    private _mainDataModel: DataModel;
     private _behaviorChangeCheckRowCount = 0;
     private _behaviorChangeCheckColumnCount = 0;
 
@@ -98,88 +117,177 @@ export class Behavior {
 
     constructor(
         private readonly grid: Revgrid,
-        selection: Selection,
-        columnsManager: ColumnsManager,
-        cellPainterRepository: CellPainterRepository,
-        canvas: Canvas,
-        mainSubgrid: MainSubgrid,
-        gridProperties: GridProperties,
-        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
-        loadBuiltinFinbarStylesheet: boolean,
         containerHtmlElement: HTMLElement,
+        canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
+        optionedGridProperties: Partial<GridProperties> | undefined,
+        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
+        adapterSetConfig: AdapterSetConfig,
+        loadBuiltinFinbarStylesheet: boolean,
         descendantEventer: EventBehavior.DescendantEventer,
 
         private readonly _behaviorStateChangedEventer: RowPropertiesBehavior.BehaviouStateChangedEventer, // to be removed in future
         private readonly _behaviorShapeChangedEventer: RowPropertiesBehavior.BehaviorShapeChangedEventer, // to be removed in future
     ) {
+        const cellPainterRepository = CellPainterRepository.getDefault();
+
+        this.gridProperties = new GridPropertiesAccessor(this.grid);
+        this.gridProperties.loadDefaults();
+        if (optionedGridProperties !== undefined) {
+            this.gridProperties.merge(optionedGridProperties);
+        }
+
+        rowPropertiesPrototype ??= new Behavior.DefaultRowProperties(
+            this.gridProperties,
+            () => this.handleBehaviorStateChangedEvent(),
+        )
+
+        this._canvas = this.createCanvas(containerHtmlElement, canvasContextAttributes);
+
+        this._columnsManager = new ColumnsManager(
+            this.gridProperties,
+            () => this.behaviorChanged(),
+            (typeId, index, count, targetIndex) => this.processAllColumnListChanged(typeId, index, count, targetIndex),
+            (typeId, index, count, targetIndex, ui) => this.processActiveColumnListChanged(typeId, index, count, targetIndex, ui),
+            (columns, ui) => this.processColumnsWidthChanged(columns, ui),
+        );
+
         this._mouse = new Mouse();
-        this._selection = selection; // in future, create this object
-        this._columnsManager = columnsManager; // in future, create this object
-        this._canvas = canvas; // in future, create this object
-        this._mainSubgrid = mainSubgrid; // in future, create this object
-        this._gridProperties = gridProperties; // in future, create this object
+        this._focus = new Focus();
+        this._selection = new Selection(this.gridProperties, this._columnsManager, this._focus);
+        this._subgridsManager = new SubgridsManager(
+            this.gridProperties,
+            cellPainterRepository,
+            this._columnsManager,
+        );
+        this._modelCallbackRouter = new ModelCallbackRouter(this.gridProperties);
 
         this.renderer = new Renderer(
             grid,
+            this.gridProperties,
             this._selection,
             this._columnsManager,
+            this._subgridsManager,
             cellPainterRepository,
             this._canvas.gc,
-            (y, subgrid) => this.rowPropertiesBehavior.getRowHeight(y, subgrid),
+            (y, subgrid) => this.rowPropertiesBehavior.getRowHeight(y, subgrid === undefined ? this._subgridsManager.mainSubgrid : subgrid),
         );
+        this._canvas.renderer = this.renderer;
 
         this._horizontalScroller = this.createHorizontalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
         containerHtmlElement.appendChild(this._horizontalScroller.bar);
         this._vertialScroller = this.createVerticalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
         containerHtmlElement.appendChild(this._vertialScroller.bar);
 
+        this.eventBehavior = new EventBehavior(
+            this._selection,
+            descendantEventer,
+            (event) => this._canvas.dispatchEvent(event),
+        );
+
         this.scrollBehavior = new ScrollBehavior(
-            this._gridProperties,
+            this.gridProperties,
             this._columnsManager,
-            this._mainSubgrid,
+            this._subgridsManager,
             this.renderer,
             this._horizontalScroller,
             this._vertialScroller,
             () => this.handleBehaviorChangedEvent(),
             (isX, newValue, index, offset) => this.eventBehavior.processScrollEvent(isX, newValue, index, offset),
             (y, subgrid) => this.rowPropertiesBehavior.getRowHeight(y, subgrid),
-        )
+        );
 
         this.userInterfaceInputBehavior = new UserInterfaceInputBehavior(
             this._mouse,
-        )
-
-        this.eventBehavior = new EventBehavior(
-            this._selection,
-            descendantEventer,
-            (event) => this._canvas.dispatchEvent(event),
-        )
+        );
 
         this.rendererBehavior = new RendererBehavior(
-            this._gridProperties,
+            this.gridProperties,
             this._columnsManager,
             this.renderer,
-        )
+        );
 
-        this.selectionBehavior = new SelectionBehavior(
+        this.focusSelectionBehavior = new FocusSelectionBehavior(
             this._selection,
-            this._gridProperties,
+            this._focus,
+            this.gridProperties,
             this._columnsManager,
+            this._subgridsManager,
             this.renderer,
             this._mouse,
             () => this.rendererBehavior.repaint(),
-            () => this.eventBehavior.processColumnSelectionChangedEvent(),
+            () => this.eventBehavior.processSelectionChangedEvent(),
             (x, y, subgrid) => this.scrollBehavior.scrollToMakeVisible(x, y, subgrid),
         );
 
         this.rowPropertiesBehavior = new RowPropertiesBehavior(
-            this._mainSubgrid,
-            this._gridProperties,
+            this.gridProperties,
             rowPropertiesPrototype,
             () => this.handleBehaviorStateChangedEvent(),
             () => this.handleBehaviorShapeChangedEvent(),
         );
+
+        this.cellPropertiesBehavior = new CellPropertiesBehavior(
+            this._columnsManager,
+            this._subgridsManager,
+            this.renderer,
+        );
+
+        this._modelCallbackRouterBehavior = new ModelCallbackRouterBehavior(
+            this._columnsManager,
+            this._subgridsManager,
+            this.renderer,
+            this._selection,
+            this._modelCallbackRouter,
+            () => this.handleBehaviorShapeChangedEvent(),
+        );
+
+        this.dataExtractBehavior = new DataExtractBehavior(
+            this._selection,
+            this._columnsManager
+        );
+
+
+        this.loadAdapterSet(adapterSetConfig);
     }
+
+    get mainSubgrid() { return this._mainSubgrid; }
+    get mainDataModel() { return this._mainDataModel; }
+    get columnsManager() { return this._columnsManager; }
+    get subgridsManager() { return this._subgridsManager; }
+
+    /**
+     * @summary Initialize drawing surface.
+     * @param {object} [options]
+     * @param {object} [options.margin] - Optional canvas "margins" applied to containing div as .left, .top, .right, .bottom. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container` rule.)
+     * @param {string} [options.margin.top='0px']
+     * @param {string} [options.margin.right='0px']
+     * @param {string} [options.margin.bottom='0px']
+     * @param {string} [options.margin.left='0px']
+     * @param {any} [options.contextAttributes] TODO
+     * @param {any} [options.canvasContextAttributes] TODO
+     * @this {Revgrid}
+     * @private
+     */
+    createCanvas(containerHtmlElement: HTMLElement, canvasContextAttributes: CanvasRenderingContext2DSettings | undefined): Canvas {
+        // const canvasDiv = document.createElement('div');
+
+        // canvasDiv.style.height = '100%';
+        // canvasDiv.style.display = 'flex';
+        // canvasDiv.style.flexDirection = 'column';
+        // canvasDiv.style.width = '100%';
+        // canvasDiv.style.minWidth = '0'; // Need this to ensure flex item has 0 minimum width (instead of minimum being content width)
+        // canvasDiv.style.overflowX = 'clip'; // There are some small overflows - probably due to width calculations. Need to fix
+        // canvasDiv.style.overflowY = 'clip'; // There are some small overflows - probably due to width calculations. Need to fix
+        // this.setStyles(canvasDiv, options?.margin, Hypegrid.edgeStyleKeys);
+
+        // this.containerHtmlElement.appendChild(canvasDiv);
+
+        const canvas = new Canvas(containerHtmlElement, canvasContextAttributes);
+        canvas.canvas.classList.add(Revgrid.gridElementCssClass);
+
+        return canvas;
+    }
+
 
     // features: []; // override in implementing class; or provide feature names in grid.properties.features; else no features
 
@@ -246,9 +354,51 @@ export class Behavior {
 
     destroy() {
         this._destroyed = true;
+        this._modelCallbackRouter.destroy();
         this.eventBehavior.destroy();
         this.scrollBehavior.destroy();
+        this.subgridsManager.destroy();
+        this.renderer.stop();
+        this._canvas.stop();
+        this.renderer.destroy();
     }
+
+    private loadAdapterSet(adapterSetConfig: AdapterSetConfig) {
+        let schemaModel = adapterSetConfig.schemaModel;
+        if (typeof schemaModel === 'function') {
+            schemaModel = new schemaModel();
+        }
+        this._columnsManager.schemaModel = schemaModel;
+        this._modelCallbackRouter.setSchemaModel(this._columnsManager.schemaModel);
+
+        const subgridDefinitions = adapterSetConfig.subgrids;
+        if  (subgridDefinitions.length === 0) {
+            throw new AssertError('BLAS43330', 'Adapter set missing Subgrid specs');
+        } else {
+            this._subgridsManager.loadSubgrids(subgridDefinitions);
+            // This is the only place where mainSubgrid is set. Update caches of mainSubgrid and mainDataModel directly instead of via events
+            // to avoid circular use loop between subsgridsManager and Focus
+            const mainSubgrid = this._subgridsManager.mainSubgrid;
+            const mainDataModel = mainSubgrid.dataModel;
+            this._mainSubgrid = mainSubgrid;
+            this._mainDataModel = mainDataModel;
+            this._focus.subgrid = mainSubgrid;
+            this._modelCallbackRouterBehavior.registerDataModels();
+            this.renderer.updateMainSubgrid();
+        }
+    }
+
+    allowEvents(allow: boolean){
+        if (allow){
+            this._modelCallbackRouter.enable();
+        } else {
+            this._modelCallbackRouter.disable();
+        }
+
+        this.behaviorChanged();
+    }
+
+
 
     get renderedColumnCount() {
         return this.grid.renderer.visibleColumns.length;
@@ -372,7 +522,8 @@ export class Behavior {
         if (!event.isDataColumn) {
             return undefined;
         } else {
-            return event.column.getCellEditorAt(event);
+            return undefined;
+            // return event.column.getCellEditorAt(event);
         }
     }
 
@@ -401,26 +552,11 @@ export class Behavior {
     //     this.mainDataModel.setSchema(newSchema);
     // }
 
-    /**
-     * @summary Get the value at cell (x,y).
-     * @desc When the last parameter (see `dataModel` below) is omitted, this method:
-     * * Is backwards compatible to the v2 version.
-     * * Does _not_ default to the data subgrid — although you can provide it explicitly (`this.behavior.dataModel`).
-     * @param x - The horizontal grid coordinate
-     * @param y - The vertical coordinate.
-     * @param subgrid - `x` and `y` are _data cell coordinates_ in the given subgrid data model. If If omitted, `x` and `y` are _grid cell coordinates._
-     * @returns The raw cell data.
-     */
-    getValue(schemaColumn: SchemaModel.Column, x: number, y: number, subgrid?: Subgrid) {
-        if (subgrid !== undefined) {
-            return subgrid.dataModel.getValue(schemaColumn, y);
-        } else {
-            const cellEvent = new CellEvent(this.grid);
-            const visible = cellEvent.resetDataXY(x, y, subgrid);
-            if (visible) {
-                return cellEvent.value;
-            }
-        }
+    getValue(x: number, y: number, subgrid: Subgrid | undefined) {
+        const column = this._columnsManager.getActiveColumn(x);
+        const schemaColumn = column.schemaColumn;
+        const dataModel = subgrid === undefined ? this._mainDataModel : subgrid.dataModel;
+        return dataModel.getValue(schemaColumn, y);
     }
 
     /**
@@ -434,16 +570,11 @@ export class Behavior {
      * @param subgrid - `x` and `y` are _data cell coordinates_ in the given subgrid data model. If If omitted, `x` and `y` are _grid cell coordinates._
      */
     setValue(schemaColumn: SchemaModel.Column, x: number, y: number, value: unknown, subgrid?: Subgrid) {
-        if (subgrid !== undefined) {
-            if (subgrid.dataModel.setValue !== undefined) {
-                subgrid.dataModel.setValue(schemaColumn, y, value);
-            }
+        const dataModel = subgrid === undefined ? this._mainDataModel : subgrid.dataModel;
+        if (dataModel.setValue === undefined) {
+            throw new AssertError('BSV32220');
         } else {
-            const cellEvent = new CellEvent(this.grid);
-            const visible = cellEvent.resetDataXY(x, y, subgrid);
-            if (visible) {
-                cellEvent.value = value;
-            }
+            dataModel.setValue(schemaColumn, y, value);
         }
     }
 
@@ -473,15 +604,30 @@ export class Behavior {
         this._behaviorShapeChangedEventer();
     }
 
+    private processAllColumnListChanged(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
+        this.eventBehavior.processAllColumnListChangedEvent(typeId, index, count, targetIndex);
+        this.behaviorChanged();
+    }
+
+    private processActiveColumnListChanged(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
+        this.eventBehavior.processActiveColumnListChangedEvent(typeId, index, count, targetIndex, ui);
+        this.behaviorChanged();
+    }
+
+    private processColumnsWidthChanged(columns: ColumnInterface[], ui: boolean) {
+        this.eventBehavior.processColumnsWidthChangedEvent(columns, ui);
+        this._behaviorStateChangedEventer();
+    }
+
     private createHorizontalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean) {
         const horzBar = new FinBar({
             orientation: FinBar.OrientationEnum.horizontal,
-            deltaXFactor: this._gridProperties.wheelHFactor,
+            deltaXFactor: this.gridProperties.wheelHFactor,
             loadBuiltinCssStylesheet: loadBuiltinFinbarCssStylesheet,
             cssStylesheetReferenceElement: containerHtmlElement
         });
 
-        const hPrefix = this._gridProperties.hScrollbarClassPrefix;
+        const hPrefix = this.gridProperties.hScrollbarClassPrefix;
 
         if (hPrefix && hPrefix !== '') {
             horzBar.classPrefix = hPrefix;
@@ -494,12 +640,12 @@ export class Behavior {
         const vertBar = new FinBar({
             indexMode: true, // remove when vertical scrollbar is updated to use viewport
             orientation: FinBar.OrientationEnum.vertical,
-            deltaYFactor: this._gridProperties.wheelVFactor,
+            deltaYFactor: this.gridProperties.wheelVFactor,
             loadBuiltinCssStylesheet: loadBuiltinFinbarCssStylesheet,
             cssStylesheetReferenceElement: containerHtmlElement,
         });
 
-        const vPrefix = this._gridProperties.vScrollbarClassPrefix;
+        const vPrefix = this.gridProperties.vScrollbarClassPrefix;
 
         if (vPrefix && vPrefix !== '') {
             vertBar.classPrefix = vPrefix;
@@ -645,4 +791,34 @@ export class Behavior {
 
 
 export namespace Behavior {
+    export class DefaultRowProperties implements MetaModel.HeightRowProperties {
+        private _height: number | undefined;
+
+        constructor(
+            private readonly _gridProperties: GridProperties,
+            private readonly _behaviourStateChangedEventer: RowPropertiesBehavior.BehaviouStateChangedEventer,
+        ) {
+        }
+
+        get height() {
+            return this._height ?? this._gridProperties.defaultRowHeight;
+        }
+
+        set height(height: number | undefined) {
+            if (typeof height !== 'number' || isNaN(height)) {
+                height = undefined;
+            }
+            if (height !== this._height) {
+                if (height === undefined) {
+                    delete this._height;
+                } else {
+                    height = Math.max(5, Math.ceil(height));
+                    // Define `_height` as non-enumerable so won't be included in output of saveState.
+                    // (Instead the `height` getter is explicitly invoked and the result is included.)
+                    Object.defineProperty(this, '_height', { value: height, configurable: true });
+                }
+                this._behaviourStateChangedEventer();
+            }
+        }
+    }
 }

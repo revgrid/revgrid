@@ -16,5 +16,5 @@ export class SelectionDetailAccessor implements SelectionDetail {
 
     getSelectedRowIndices() { return this._selection.getRowIndices(); }
     getSelectedColumnIndices() { return this._selection.getColumnIndices(); }
-    getSelectedRectangles() { return this._selection.rectangles; }
+    getSelectedRectangles() { return this._selection.rectangleList.rectangles; }
 }

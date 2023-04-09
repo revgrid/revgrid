@@ -2,6 +2,7 @@
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
+import { SelectionArea } from '../lib/selection-area';
 
 /**
  * @constructor
@@ -98,7 +99,7 @@ export class Filters extends Feature {
 
         // Select first visible grid cell of this column
         const grid = this.grid;
-        grid.selectViewportCell(gridX, this.grid.calculateBeforeMainSubgridRowCount());
+        this.focusSelectionBehavior.selectViewportCell(gridX, this.subgridsManager.calculateHeaderRowCount(), SelectionArea.TypeSpecifier.Primary);
         grid.takeFocus();
     }
 

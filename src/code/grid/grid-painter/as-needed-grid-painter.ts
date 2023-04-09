@@ -1,7 +1,9 @@
 
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
+import { Subgrid } from '../grid-public-api';
 import { Renderer } from '../renderer/renderer';
 import { Selection } from '../selection/selection';
+import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
 import { GridPainter } from './grid-painter';
 
@@ -34,8 +36,8 @@ import { GridPainter } from './grid-painter';
 export class AsNeededGridPainter extends GridPainter {
     private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
-    constructor(renderer: Renderer, selection: Selection) {
-        super(renderer, selection, AsNeededGridPainter.key, AsNeededGridPainter.partial, undefined);
+    constructor(subgridsManager: SubgridsManager, renderer: Renderer, selection: Selection) {
+        super(subgridsManager, renderer, selection, AsNeededGridPainter.key, AsNeededGridPainter.partial, undefined);
     }
 
     override initialise() {
@@ -88,11 +90,12 @@ export class AsNeededGridPainter extends GridPainter {
             for (let r = 0; r < R; r++, p++) {
                 renderedCell = pool[p]; // next cell down the column (redundant for first cell in column)
 
-                const config = renderedCell.subgrid.getCellPaintConfig(renderedCell);
+                const subgrid = renderedCell.subgrid as Subgrid;
+                const config = subgrid.getCellPaintConfig(renderedCell); // get from renderer via an event
 
                 try {
                     // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
-                    const paintWidth = this.paintCell(gc, renderedCell, config, undefined);
+                    const paintWidth = this.paintCell(gc, subgrid, renderedCell, config, undefined);
                     if (paintWidth !== undefined) {
                         if (preferredWidth === undefined) {
                             preferredWidth = paintWidth;

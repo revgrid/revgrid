@@ -1,11 +1,12 @@
 
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { Column, ColumnWidth } from '../column/column';
+import { ColumnInterface } from '../common/column-interface';
 import { Revgrid } from '../revgrid';
 import { Feature } from './feature';
 
 export abstract class ColumnRowResizing extends Feature {
-    private dragColumn: Column | undefined;
+    private dragColumn: ColumnInterface | undefined;
 
     /**
      * the pixel location of the where the drag was initiated

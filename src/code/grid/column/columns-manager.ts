@@ -1,9 +1,8 @@
-import { dispatchGridEvent } from '../canvas/dispatch-grid-event';
+import { ColumnInterface } from '../common/column-interface';
 import { GridProperties } from '../grid-properties';
 import { AssertError } from '../lib/revgrid-error';
 import { ColumnNameWidth, ListChangedEventHandler, ListChangedTypeId, UiableListChangedEventHandler } from '../lib/types';
 import { SchemaModel } from '../model/schema-model';
-import { Revgrid } from '../revgrid';
 import { Column, ColumnWidth } from './column';
 import { ColumnProperties } from './column-properties';
 
@@ -28,7 +27,6 @@ export class ColumnsManager {
 
     /** @internal */
     constructor(
-        private readonly _grid: Revgrid,
         private readonly _gridProperties: GridProperties,
         private readonly _behaviorChangedEventHandler: ColumnsManager.BehaviorChangedEventHandler,
         private readonly _allColumnListChangedEventHandler: ListChangedEventHandler,
@@ -168,7 +166,7 @@ export class ColumnsManager {
 
     /** @internal */
     newColumn(schemaColumn: SchemaModel.Column) {
-        return new Column(this._grid, schemaColumn);
+        return new Column(this._gridProperties, schemaColumn);
     }
 
     /** @internal */
@@ -199,10 +197,8 @@ export class ColumnsManager {
 
         this.columnsCreated = true;
 
-        this._allColumnListChangedEventHandler(ListChangedTypeId.Set, 0, count, undefined);
         this._activeColumnListChangedEventHandler(ListChangedTypeId.Set, 0, count, undefined, false);
-
-        dispatchGridEvent(this._grid, 'rev-hypergrid-columns-created', false, undefined);
+        this._allColumnListChangedEventHandler(ListChangedTypeId.Set, 0, count, undefined);
     }
 
     /** @internal */
@@ -237,8 +233,8 @@ export class ColumnsManager {
      * @param columnOrIndex - The column or active column index.
      * @internal
      */
-    setActiveColumnWidth(columnOrIndex: Column | number, width: number | undefined, ui: boolean) {
-        let column: Column
+    setActiveColumnWidth(columnOrIndex: ColumnInterface | number, width: number | undefined, ui: boolean) {
+        let column: ColumnInterface
         if (typeof columnOrIndex === 'number') {
             if (columnOrIndex >= -2) {
                 column = this.getActiveColumn(columnOrIndex);
@@ -259,7 +255,7 @@ export class ColumnsManager {
 
     /** @internal */
     setColumnWidths(columnWidths: ColumnWidth[], ui: boolean) {
-        const changedColumns = new Array<Column>(columnWidths.length);
+        const changedColumns = new Array<ColumnInterface>(columnWidths.length);
         let changedColumnsCount = 0;
         for (const columnWidth of columnWidths) {
             const { column, width } = columnWidth;
@@ -352,19 +348,6 @@ export class ColumnsManager {
         }
     }
 
-    /**
-     * @desc Rebuild the column order indexes
-     * @param - list of column indexes
-     * @param silent - whether to trigger column changed event
-     * @internal
-     */
-    setColumnIndexes(allColumnIndexes: number[], silent = false) {
-        this._grid.properties.columnIndexes = allColumnIndexes;
-        if (!silent) {
-            this._grid.fireSyntheticOnColumnsChangedEvent();
-        }
-    }
-
     showColumns(
         allColumnIndexesOrIsActiveColumnIndexes: boolean | number | number[],
         referenceIndexOrColumnIndexes?: number | number[],
@@ -426,7 +409,7 @@ export class ColumnsManager {
             activeColumns.splice(referenceIndex, 0, ...newColumns);
         }
 
-        this._grid.properties.columnIndexes = activeColumns.map((column) => column.index );
+        this._gridProperties.columnIndexes = activeColumns.map((column) => column.index );
     }
 
     setActiveColumnsAndWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean) {
@@ -515,30 +498,6 @@ export class ColumnsManager {
         column.properties.merge(properties);
         this._behaviorChangedEventHandler();
         return column.properties;
-    }
-
-    /**
-     * Clears all cell properties of given column or of all columns.
-     * @param allX - Omit for all columns.
-     * @internal
-     */
-    clearAllCellProperties(allX?: number) {
-        let X: number;
-
-        if (allX === undefined) {
-            allX = 0;
-            X = this._allColumns.length;
-        } else {
-            X = allX + 1;
-        }
-
-        while (allX < X) {
-            const column = this.getAllColumn(allX);
-            if (column) {
-                column.clearAllCellProperties();
-            }
-            allX++
-        }
     }
 
     /**
@@ -671,7 +630,7 @@ export class ColumnsManager {
 /** @public */
 export namespace ColumnsManager {
     export type BehaviorChangedEventHandler = (this: void) => void;
-    export type ColumnsWidthChangedEventHandler = (this: void, columns: Column[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventHandler = (this: void, columns: ColumnInterface[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

@@ -49,8 +49,6 @@ export namespace EventName {
         'rev-editor-keydown': CellEditor.KeyEventDetail;
         'rev-editor-keypress': CellEditor.KeyEventDetail;
         'rev-editor-data-change': CellEditor.DataChangeEventDetail;
-        'rev-row-selection-changed': SelectionDetail;
-        'rev-column-selection-changed': SelectionDetail;
         'rev-selection-changed': SelectionDetail;
         'rev-context-menu': CellEvent;
         'rev-mouseup': CellEvent;
@@ -77,6 +75,6 @@ export namespace EventName {
         'rev-before-cell-edit': CellEditor.DataChangeEventDetail;
         'rev-after-cell-edit': CellEditor.DataChangeEventDetail;
         'rev-column-changed-event': undefined;
-        'rev-hypergrid-columns-created': undefined;
+        'rev-columns-created': undefined;
     }
 }

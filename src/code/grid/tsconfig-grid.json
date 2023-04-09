@@ -24,6 +24,7 @@
     "cell-editor/**/*.ts",
     "cell-painter/**/*.ts",
     "column/**/*.ts",
+    "common/**/*.ts",
     "event/**/*.ts",
     "feature/**/*.ts",
     // "finbar/**/*.ts",

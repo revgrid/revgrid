@@ -1,4 +1,3 @@
-import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { GridProperties } from '../grid-properties';
 import { Localization } from '../lib/localization';
 import { WritablePoint } from '../lib/point';
@@ -30,7 +29,7 @@ export interface CellPaintConfig {
     isUserDataArea: boolean;
     mouseDown: boolean;
     prefillColor: GridProperties.Color | undefined;
-    snapshot: BeingPaintedCell.Snapshot; // BeingPaintedCell
+    snapshot: Record<string, unknown>;
     value: unknown;
 
     // set by Simple Cell Painter

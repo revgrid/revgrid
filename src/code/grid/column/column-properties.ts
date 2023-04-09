@@ -1,20 +1,15 @@
 import { GridProperties } from '../grid-properties';
 import { Halign } from '../lib/types';
-import { SchemaModel } from '../model/schema-model';
-import { Column } from './column';
 
 /** @public */
 export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnProperties.ColumnHeader, ColumnProperties.Filter {
     readonly name: string;
-    /** typeof DataValue contained in Column */
-    type: string | undefined;
 
     readonly gridProperties: GridProperties;
 
     readonly columnHeader: ColumnProperties.ColumnHeader;
     readonly filterProperties: ColumnProperties.Filter;
 
-    calculator?: SchemaModel.Column.Calculator; // not sure about this
     preferredWidth?: number;
 
     // Grid overrides
@@ -62,8 +57,6 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
 
 /** @public */
 export namespace ColumnProperties {
-    export type Constructor = new (gridProperties: GridProperties, column: Column) => ColumnProperties;
-
     export interface HeaderFilter {
         backgroundColor: /* CanvasGradient | CanvasPattern | */ string;
         backgroundSelectionColor: /* CanvasGradient | CanvasPattern | */ string;

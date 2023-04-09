@@ -1,9 +1,10 @@
 import { defaultGridProperties } from './default-grid-properties';
-import { GridProperties } from './grid-properties';
+import { GridProperties, LoadableGridProperties } from './grid-properties';
+import { SelectionArea } from './lib/selection-area';
 import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
 import { Revgrid } from './revgrid';
 
-export class GridPropertiesAccessor implements GridProperties {
+export class GridPropertiesAccessor implements LoadableGridProperties {
     private readonly _raw: GridProperties = {} as GridProperties;
     private readonly var = GridPropertiesAccessor.Var.createDefault();
 
@@ -20,8 +21,6 @@ export class GridPropertiesAccessor implements GridProperties {
     set backgroundColor2(value: GridProperties.Color) { this._raw.backgroundColor2 = value; }
     get backgroundSelectionColor() { return this._raw.backgroundSelectionColor; }
     set backgroundSelectionColor(value: GridProperties.Color) { this._raw.backgroundSelectionColor = value; }
-    get calculators() { return this._raw.calculators; }
-    set calculators(value: GridProperties.Calculators) { this._raw.calculators = value; }
     get cellPadding() { return this._raw.cellPadding; }
     set cellPadding(value: number) { this._raw.cellPadding = value; }
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
@@ -29,9 +28,6 @@ export class GridPropertiesAccessor implements GridProperties {
     set cellSelection(value: boolean) { this._raw.cellSelection = value; }
     get checkboxOnlyRowSelections() { return this._raw.checkboxOnlyRowSelections; }
     set checkboxOnlyRowSelections(value: boolean) { this._raw.checkboxOnlyRowSelections = value; }
-    /** Collapse cell selection onto next row selection. */
-    get collapseCellSelections() { return this._raw.collapseCellSelections; }
-    set collapseCellSelections(value: boolean) { this._raw.collapseCellSelections = value; }
     get color() { return this._raw.color; }
     set color(value: GridProperties.Color) { this._raw.color = value; }
     /** Whether the column is auto-sized */
@@ -96,8 +92,8 @@ export class GridPropertiesAccessor implements GridProperties {
     /** Name of a cell editor. */
     get editor() { return this._raw.editor; }
     set editor(value: string | undefined) { this._raw.editor = value; }
-    get emitModelEvents() { return this._raw.emitModelEvents; }
-    set emitModelEvents(value: boolean) { this._raw.emitModelEvents = value; }
+    // get emitModelEvents() { return this._raw.emitModelEvents; }
+    // set emitModelEvents(value: boolean) { this._raw.emitModelEvents = value; }
     /** Re-render grid at maximum speed. */
     get enableContinuousRepaint() { return this._raw.enableContinuousRepaint; }
     set enableContinuousRepaint(value: boolean) { this._raw.enableContinuousRepaint = value; }
@@ -176,6 +172,8 @@ export class GridPropertiesAccessor implements GridProperties {
     /** Whether text in header cells is wrapped. */
     get headerTextWrapping() { return this._raw.headerTextWrapping; }
     set headerTextWrapping(value: boolean) { this._raw.headerTextWrapping = value; }
+    get horizontalWheelScrollingAllowed() { return this._raw.horizontalWheelScrollingAllowed; }
+    set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed) { this._raw.horizontalWheelScrollingAllowed = value; }
     /** On mouse hover, whether to repaint the cell background and how. */
     get hoverCellHighlight() { return this._raw.hoverCellHighlight; }
     set hoverCellHighlight(value: GridProperties.HoverColors) { this._raw.hoverCellHighlight = value; }
@@ -219,13 +217,15 @@ export class GridPropertiesAccessor implements GridProperties {
     get visibleColumnWidthAdjust() { return this._raw.visibleColumnWidthAdjust; }
     set visibleColumnWidthAdjust(value: boolean) { this._raw.visibleColumnWidthAdjust = value; }
     /** Allow multiple cell region selections. */
-    get multipleSelections() { return this._raw.multipleSelections; }
-    set multipleSelections(value: boolean) { this._raw.multipleSelections = value; }
+    get multipleSelectionAreas() { return this._raw.multipleSelectionAreas; }
+    set multipleSelectionAreas(value: boolean) { this._raw.multipleSelectionAreas = value; }
     /** Mappings for cell navigation keys. */
     get navKeyMap() { return this._raw.navKeyMap; }
     set navKeyMap(value: GridProperties.NavKeyMap) { this._raw.navKeyMap = value; }
     get noDataMessage() { return this._raw.noDataMessage; }
     set noDataMessage(value: string) { this._raw.noDataMessage = value; }
+    get primarySelectionAreaType() { return this._raw.primarySelectionAreaType; }
+    set primarySelectionAreaType(value: SelectionArea.Type) { this._raw.primarySelectionAreaType = value; }
     propClassLayers: GridProperties.propClassEnum;
     get readOnly() { return this._raw.readOnly; }
     set readOnly(value: boolean) { this._raw.readOnly = value; }
@@ -267,8 +267,8 @@ export class GridPropertiesAccessor implements GridProperties {
     set scrollbarHoverOff(value: string) { this._raw.scrollbarHoverOff = value; }
     get scrollingEnabled() { return this._raw.scrollingEnabled; }
     set scrollingEnabled(value: boolean) { this._raw.scrollingEnabled = value; }
-    get horizontalWheelScrollingAllowed() { return this._raw.horizontalWheelScrollingAllowed; }
-    set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed) { this._raw.horizontalWheelScrollingAllowed = value; }
+    get secondarySelectionAreaType() { return this._raw.secondarySelectionAreaType; }
+    set secondarySelectionAreaType(value: SelectionArea.Type) { this._raw.secondarySelectionAreaType = value; }
     /** Stroke color for last selection overlay. */
     get selectionRegionOutlineColor() { return this._raw.selectionRegionOutlineColor; }
     set selectionRegionOutlineColor(value: GridProperties.Color) { this._raw.selectionRegionOutlineColor = value; }
@@ -322,11 +322,7 @@ export class GridPropertiesAccessor implements GridProperties {
      * @memberOf module:dynamicProperties
      */
     get features() { return this.var.features; }
-    set features(features: string[]) {
-        this.var.features = features.slice();
-        this.grid.loadFeatures();
-        this.grid.allowEvents(this.grid.getSubgridRowCount(this.grid.mainSubgrid) > 0);
-    }
+    set features(features: string[]) { this.var.features = features.slice(); }
 
     /**
      * @memberOf module:dynamicProperties

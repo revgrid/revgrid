@@ -1,7 +1,6 @@
 import { GridProperties } from '../grid-properties';
 import { Halign } from '../lib/types';
 import { deepExtendValue } from '../lib/utils';
-import { SchemaModel } from '../model/schema-model';
 import { Column } from './column';
 import { ColumnProperties } from './column-properties';
 
@@ -56,10 +55,6 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
     get gridProperties() { return this._gridProperties; }
 
     get name() { return this._column.name; }
-    get type() { return this._column.type; }
-    set type(value: string | undefined) { this._column.type = value; }
-    get calculator() { return this._column.calculator; }
-    set calculator(value: SchemaModel.Column.Calculator) { this._column.calculator = value; }
 
     get preferredWidth() { return this._preferredWidth; }
     set preferredWidth(value: number | undefined) { this._preferredWidth = value; }
