@@ -74,7 +74,7 @@ export abstract class GridPainter {
             rowSelected: isRowSelected,
             columnSelected: isColumnSelected,
             cellSelected: isCellSelected
-        } = selection.getRowColumnCellSelected(x, r, subgrid);
+        } = selection.getCellSelectedAreaTypes(x, r, subgrid);
 
         /* if (isHandleColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);

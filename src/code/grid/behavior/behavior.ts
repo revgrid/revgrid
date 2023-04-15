@@ -357,7 +357,9 @@ export class Behavior {
         this._modelCallbackRouter.destroy();
         this.eventBehavior.destroy();
         this.scrollBehavior.destroy();
+        this.focusSelectionBehavior.destroy();
         this.subgridsManager.destroy();
+        this._selection.destroy();
         this.renderer.stop();
         this._canvas.stop();
         this.renderer.destroy();

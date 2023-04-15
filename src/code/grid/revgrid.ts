@@ -2956,37 +2956,14 @@ export class Revgrid implements SelectionDetail {
         this._focusSelectionBehavior.endChange();
     }
 
-    getLastSelectionType() {
-        return this._focusSelectionBehavior.getLastSelectionType();
-    }
-
     /**
      * @desc Clear all the selections.
      */
     clearSelection() {
-        return this._focusSelectionBehavior.clearSelection(false);
+        return this._focusSelectionBehavior.clearSelection();
         // const keepRowSelections = this.properties.checkboxOnlyRowSelections;
         // this.selection.clear(keepRowSelections);
         // this._userInterfaceInputBehavior.clearMouseDown();
-    }
-
-    /**
-     * @desc Clear the most recent selection.
-     */
-    clearMostRecentRectangleSelection() {
-        this._focusSelectionBehavior.clearMostRecentRectangleSelection();
-    }
-
-    clearMostRecentColumnSelection() {
-        this._focusSelectionBehavior.clearMostRecentColumnSelection();
-    }
-
-    /**
-     * @desc Clear the most recent row selection.
-     */
-    clearMostRecentRowSelection() {
-        this._focusSelectionBehavior.clearMostRecentRowSelection();
-        //this.selection.clearMostRecentRowSelection(); // commented off as per GRID-112
     }
 
     /**
@@ -2998,23 +2975,7 @@ export class Revgrid implements SelectionDetail {
         if (subgrid === undefined) {
             subgrid = this.behavior.mainSubgrid;
         }
-        return this._focusSelectionBehavior.isPointSelected(x, y, subgrid);
-    }
-
-    /**
-     * @returns The given column is selected anywhere in the entire table.
-     * @param y - The row index.
-     */
-    isCellSelectedInRow(y: number): boolean {
-        return this.selection.isCellSelectedInRow(y);
-    }
-
-    /**
-     * @returns The given row is selected anywhere in the entire table.
-     * @param x - The column index.
-     */
-    isCellSelectedInColumn(x: number): boolean {
-        return this.selection.isCellSelectedInColumn(x);
+        return this._focusSelectionBehavior.isCellSelectedInAnyAreaType(x, y, subgrid);
     }
 
     isColumnOrRowSelected() {
@@ -3043,7 +3004,7 @@ export class Revgrid implements SelectionDetail {
     }
 
     selectViewportCell(x: number, y: number, areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
-        this._focusSelectionBehavior.selectViewportCell(x, y, areaTypeSpecifier);
+        this._focusSelectionBehavior.focusSelectOnlyViewportCell(x, y, areaTypeSpecifier);
     }
 
     selectToViewportCell(x: number, y: number) {
@@ -3165,18 +3126,20 @@ export class Revgrid implements SelectionDetail {
         }
     }
 
-    selectCell(x: number, y: number, subgrid: Subgrid | undefined, silent = false) {
-        this.beginSelectionChange();
-        try {
-            this.selection.clear();
-            this.selection.selectRectangle(x, y, 0, 0, subgrid, silent);
-        } finally {
-            this.endSelectionChange();
+    focusSelectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaTypeSpecifier?: SelectionArea.TypeSpecifier) {
+        if (subgrid === undefined) {
+            subgrid = this.behavior.mainSubgrid;
         }
+
+        if (areaTypeSpecifier === undefined) {
+            areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary;
+        }
+
+        this._focusSelectionBehavior.focusSelectOnlyCell(x, y, subgrid, areaTypeSpecifier);
     }
 
     selectRows(y1: number, y2: number, subgrid: Subgrid | undefined, focusColumnIndex?: number) {
-        this._focusSelectionBehavior.selectRows(y1, y2, subgrid, focusColumnIndex);
+        this._focusSelectionBehavior.focusSelectRows(y1, y2, subgrid, focusColumnIndex);
     }
 
     selectAllRows() {
@@ -3188,7 +3151,7 @@ export class Revgrid implements SelectionDetail {
     }
 
     selectColumns(x1: number, x2: number) {
-        this._focusSelectionBehavior.selectColumns(x1, x2);
+        this._focusSelectionBehavior.focusSelectColumns(x1, x2);
     }
 
     toggleSelectRow(y: number, shiftKeyDown: boolean, subgrid: Subgrid | undefined) {

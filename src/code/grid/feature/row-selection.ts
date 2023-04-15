@@ -203,7 +203,7 @@ export class RowSelection extends Feature {
             const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
             if (shiftKeyDown) {
                 selectionBehavior.clearMostRecentRowSelection();
-                selectionBehavior.selectRows(y, mouseY, undefined, undefined);
+                selectionBehavior.focusSelectRows(y, mouseY, undefined, undefined);
                 userInterfaceInputBehavior.setDragExtent(Point.create(0, y - mouseY));
             } else {
                 selectionBehavior.toggleSelectRow(y, shiftKeyDown, undefined);
@@ -352,7 +352,7 @@ export class RowSelection extends Feature {
                 lastRange = ranges[ranges.length - 1];
                 delete lastRange.offsetY;
             }
-            selectionBehavior.selectRows(top, bottom, undefined, undefined);
+            selectionBehavior.focusSelectRows(top, bottom, undefined, undefined);
             if (shift && top !== bottom) {
                 lastRange = ranges[ranges.length - 1];
                 lastRange.offsetY = firstOffsetY;

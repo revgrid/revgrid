@@ -165,67 +165,99 @@ export namespace Point {
         (point as WritablePoint).y += offset;
     }
 
-    export function newPointAdjustedForXCoordinateInsertion(point: Point, insertionLeft: number, insertionCount: number): Point | undefined {
-        const pointX = point.x;
-        if (insertionLeft > pointX) {
-            return point;
-        } else {
-            return {
-                x: pointX + insertionCount,
-                y: point.y
-            };
+    export function adjustForXRangeInserted(point: Point, insertionIndex: number, insertionCount: number) {
+        if (insertionIndex <= point.x) {
+            moveX(point, insertionCount);
         }
     }
 
-    export function newPointAdjustedForYCoordinateInsertion(point: Point, insertionTop: number, insertionCount: number): Point | undefined {
+    export function adjustForYRangeInserted(point: Point, insertionIndex: number, insertionCount: number) {
+        if (insertionIndex <= point.y) {
+            moveY(point, insertionCount);
+        }
+    }
+
+    export function adjustForXRangeDeleted(point: Point, deletionIndex: number, deletionCount: number): number | undefined {
+        const pointX = point.x;
+        if (pointX < deletionIndex) {
+            return undefined;
+        } else {
+            const positionInDeletionRange = pointX - deletionIndex;
+            if (positionInDeletionRange < deletionCount) {
+                moveX(point, positionInDeletionRange);
+                return positionInDeletionRange;
+            } else {
+                moveX(point, deletionCount);
+                return undefined;
+            }
+        }
+    }
+
+    export function adjustForYRangeDeleted(point: Point, deletionIndex: number, deletionCount: number): number | undefined {
         const pointY = point.y;
-        if (insertionTop > pointY) {
-            return point;
+        if (pointY < deletionIndex) {
+            return undefined;
         } else {
-            return {
-                x: point.x,
-                y: pointY + insertionCount
-            };
+            const positionInDeletionRange = pointY - deletionIndex;
+            if (positionInDeletionRange < deletionCount) {
+                moveX(point, positionInDeletionRange);
+                return positionInDeletionRange;
+            } else {
+                moveX(point, deletionCount);
+                return undefined;
+            }
         }
     }
 
-    export function newPointAdjustedForXCoordinateDeletion(point: Point, deletionLeft: number,
-        exclusiveDeletionRight: number, overlapCount: number
-    ): Point | undefined {
+    export function adjustForXRangeMoved(point: Point, oldIndex: number, newIndex: number, count: number) {
         const pointX = point.x;
-        if (pointX <= deletionLeft) {
-            return point;
-        } else {
-            if (pointX < exclusiveDeletionRight) {
-                return {
-                    x: deletionLeft,
-                    y: point.y
+        if (newIndex > oldIndex) {
+            if (oldIndex + count <= pointX) {
+                if (newIndex + count > pointX) {
+                    moveY(point, -count); // movement up over point
                 }
             } else {
-                return {
-                    x: pointX - overlapCount,
-                    y: point.y
+                if (pointX >= oldIndex) {
+                    moveY(point, newIndex - oldIndex); // movement up includes point
+                }
+            }
+        } else {
+            if (newIndex < oldIndex) {
+                if (oldIndex > pointX) {
+                    if (newIndex < pointX) {
+                        moveY(point, count); // movement down over point
+                    }
+                } else {
+                    if (pointX < (oldIndex + count)) {
+                        moveY(point, newIndex - oldIndex); // movement down includes point
+                    }
                 }
             }
         }
     }
 
-    export function newPointAdjustedForYCoordinateDeletion(point: Point, deletionTop: number,
-        exclusiveDeletionBottom: number, overlapCount: number
-    ): Point | undefined {
+    export function adjustForYRangeMoved(point: Point, oldIndex: number, newIndex: number, count: number) {
         const pointY = point.y;
-        if (pointY <= deletionTop) {
-            return point;
-        } else {
-            if (pointY < exclusiveDeletionBottom) {
-                return {
-                    x: point.x,
-                    y: deletionTop
+        if (newIndex > oldIndex) {
+            if (oldIndex + count <= pointY) {
+                if (newIndex + count > pointY) {
+                    moveY(point, -count); // movement up over point
                 }
             } else {
-                return {
-                    x: point.x,
-                    y: pointY - overlapCount
+                if (pointY >= oldIndex) {
+                    moveY(point, newIndex - oldIndex); // movement up includes point
+                }
+            }
+        } else {
+            if (newIndex < oldIndex) {
+                if (oldIndex > pointY) {
+                    if (newIndex < pointY) {
+                        moveY(point, count); // movement down over point
+                    }
+                } else {
+                    if (pointY < (oldIndex + count)) {
+                        moveY(point, newIndex - oldIndex); // movement down includes point
+                    }
                 }
             }
         }

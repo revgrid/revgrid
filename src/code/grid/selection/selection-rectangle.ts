@@ -33,6 +33,10 @@ export class SelectionRectangle extends InclusiveRectangle implements SelectionA
         return new SelectionRectangle(firstX, firstY, width, height);
     }
 
+    get size() {
+        return this.area;
+    }
+
     override moveX(offset: number) {
         super.moveX(offset);
         Point.moveX(this.first, offset);

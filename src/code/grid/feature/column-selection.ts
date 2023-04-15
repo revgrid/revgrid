@@ -125,7 +125,7 @@ export class ColumnSelection extends Feature {
             const selectionBehavior = this.focusSelectionBehavior;
             selectionBehavior.clearMostRecentColumnSelection();
 
-            selectionBehavior.selectColumns(mouseX, x);
+            selectionBehavior.focusSelectColumns(mouseX, x);
             this.userInterfaceInputBehavior.setDragExtent(Point.create(x - mouseX, 0));
 
             this.rendererBehavior.repaint();
@@ -208,7 +208,7 @@ export class ColumnSelection extends Feature {
                 const userInterfaceInputBehavior = this.userInterfaceInputBehavior;
                 if (shiftKeyDown) {
                     selectionBehavior.clearMostRecentColumnSelection();
-                    selectionBehavior.selectColumns(x, mouseX);
+                    selectionBehavior.focusSelectColumns(x, mouseX);
                     userInterfaceInputBehavior.setDragExtent(Point.create(x - mouseX, 0));
                 } else {
                     selectionBehavior.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
@@ -331,7 +331,7 @@ export class ColumnSelection extends Feature {
 
             const selectionBehavior = this.focusSelectionBehavior;
             selectionBehavior.clearMostRecentColumnSelection();
-            selectionBehavior.selectColumns(origin.x, origin.x + newX);
+            selectionBehavior.focusSelectColumns(origin.x, origin.x + newX);
             userInterfaceInputBehavior.setDragExtent(Point.create(newX, 0));
 
             if (grid.ensureModelColIsVisible(newX + origin.x, offsetX)) {
@@ -368,7 +368,7 @@ export class ColumnSelection extends Feature {
             selectionBehavior.beginChange();
             try {
                 selectionBehavior.clearSelection(true);
-                selectionBehavior.selectColumns(newX, newX);
+                selectionBehavior.focusSelectColumns(newX, newX);
             } finally {
                 selectionBehavior.endChange();
             }

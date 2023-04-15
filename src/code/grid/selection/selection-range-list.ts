@@ -1,5 +1,5 @@
+import { ContiguousIndexRangeList } from '../lib/contiguous-index-range-list';
 import { SelectionAreaList } from './selection-area-list';
-import { SelectionRange } from './selection-range';
 
 /**
  * @desc This object models selection of "cells" within an abstract single-dimensional matrix.
@@ -17,24 +17,10 @@ import { SelectionRange } from './selection-range';
  * contains all the "ranges" of selected cells albeit in no particular order.
  * This property should not normally need to be accessed directly.
  */
-export class SelectionRangeList implements SelectionAreaList {
-    /**
-     * @summary Unordered list of ranges.
-     */
-    readonly ranges = new Array<SelectionRange>(0);
+export class SelectionRangeList extends ContiguousIndexRangeList implements SelectionAreaList {
+    // readonly ranges = new Array<ContiguousIndexRange>(0);
 
     get areaCount() { return this.ranges.length; }
-
-    assign(other: SelectionRangeList) {
-        this.clear();
-        const otherRanges = other.ranges;
-        const count = otherRanges.length;
-        const ranges = this.ranges;
-        ranges.length = count;
-        for (let i = 0; i < count; i++) {
-            ranges[i] = SelectionRange.copy(otherRanges[i]);
-        }
-    }
 
     /**
      * @summary Add a contiguous range of points to the selection.
@@ -50,24 +36,28 @@ export class SelectionRangeList implements SelectionAreaList {
      * @param stop - End of range (inclusive). May be less than `start`.
      * @returns true if this.ranges was changed.
      */
-    select(start: number, stop?: number): boolean {
-        let newRange = SelectionRange.make(start, stop);
-        const newSelection: SelectionRange[] = [];
-        for (const range of this.ranges) {
-            if (SelectionRange.contains(range, newRange)) {
-                return false;
-            } else {
-                if (SelectionRange.overlaps(range, newRange) || SelectionRange.abuts(range, newRange)) {
-                    newRange = SelectionRange.merge(range, newRange);
-                } else {
-                    newSelection.push(range);
-                }
-            }
-        }
-        newSelection.push(newRange);
-        this.ranges.splice(0, this.ranges.length, ...newSelection); // update in place to preserve external references
-        return true;
-    }
+    // select(start: number, count: number): boolean {
+    //     if (count <= 0) {
+    //         return false;
+    //     } else {
+    //         let newRange = SelectionRange.make(start, count);
+    //         const newSelection: SelectionRange[] = [];
+    //         for (const range of this.ranges) {
+    //             if (SelectionRange.contains(range, newRange)) {
+    //                 return false;
+    //             } else {
+    //                 if (SelectionRange.overlaps(range, newRange) || SelectionRange.abuts(range, newRange)) {
+    //                     newRange = SelectionRange.merge(range, newRange);
+    //                 } else {
+    //                     newSelection.push(range);
+    //                 }
+    //             }
+    //         }
+    //         newSelection.push(newRange);
+    //         this.ranges.splice(0, this.ranges.length, ...newSelection); // update in place to preserve external references
+    //         return true;
+    //     }
+    // }
 
     /**
      * @summary Remove a contiguous run of points from the selection.
@@ -78,91 +68,91 @@ export class SelectionRangeList implements SelectionAreaList {
      *
      * Note that `this.ranges` is updated in place, preserving validity of any external references.
      * @param start - Start of range. May be greater than `stop`.
-     * @param stop - End of range (inclusive). May be less than `start`.
-     * @returns Self (i.e., `this`), for chaining.
      */
-    deselect(start: number, stop?: number): SelectionRangeList {
-        const range = SelectionRange.make(start, stop);
-        let newSelection: SelectionRange[] = [];
-        this.ranges.forEach(function (each) {
-            if (SelectionRange.overlaps(each, range)) {
-                const pieces = SelectionRange.subtract(each, range);
-                newSelection = newSelection.concat(pieces);
-            } else {
-                newSelection.push(each);
-            }
-        });
-        this.ranges.splice(0, this.ranges.length, ...newSelection); // update in place to preserve external references
-        return this;
-    }
+    // deselect(start: number, count: number) {
+    //     const deselectRange = SelectionRange.make(start, count);
+    //     let changed = false;
+    //     let newSelection: SelectionRange[] = [];
+    //     this.ranges.forEach((range) => {
+    //         if (SelectionRange.overlaps(range, deselectRange)) {
+    //             const pieces = SelectionRange.subtract(range, deselectRange);
+    //             newSelection = [...newSelection, ...pieces];
+    //             changed = true;
+    //         } else {
+    //             newSelection.push(range);
+    //         }
+    //     });
+    //     this.ranges.splice(0, this.ranges.length, ...newSelection); // update in place to preserve external references
+    //     return changed;
+    // }
 
     /**
      * @summary Empties `this.ranges`, effectively removing all ranges.
      * @returns Self (i.e., `this`), for chaining.
      */
-    clear() {
-        this.ranges.length = 0;
-    }
+    // clear() {
+    //     this.ranges.length = 0;
+    // }
 
     /**
      * @summary Determines if the given `cell` is selected.
      * @returns `true` iff given `cell` is within any of the ranges in `this.ranges`.
      * @param index - The cell to test for inclusion in the selection.
      */
-    isSelected(index: number): boolean {
-        return this.ranges.some(
-            (each) => {
-                return each[0] <= index && index <= each[1];
-            }
-        );
-    }
+    // isSelected(index: number): boolean {
+    //     return this.ranges.some(
+    //         (range) => {
+    //             return range[0] <= index && index <= range[1];
+    //         }
+    //     );
+    // }
 
-    isEmpty() {
-        return this.ranges.length === 0;
-    }
+    // isEmpty() {
+    //     return this.ranges.length === 0;
+    // }
 
     /**
      * @summary Return the indexes that are selected.
      * @desc Return the indexes that are selected.
      */
-    getIndices() {
-        const result: number[] = [];
-        this.ranges.forEach(
-            (range) => {
-                const rangeStop = range[1];
-                for (let i = range[0]; i <= rangeStop; i++) {
-                    result.push(i);
-                }
-            }
-        );
+    // getIndices() {
+    //     const result: number[] = [];
+    //     this.ranges.forEach(
+    //         (range) => {
+    //             const rangeStop = range[1];
+    //             for (let i = range[0]; i <= rangeStop; i++) {
+    //                 result.push(i);
+    //             }
+    //         }
+    //     );
 
-        result.sort((a, b) => {
-            return a - b;
-        });
+    //     result.sort((a, b) => {
+    //         return a - b;
+    //     });
 
-        return result;
-    }
+    //     return result;
+    // }
 
-    getCount() {
-        let result = 0;
-        const ranges = this.ranges;
-        for (const range of ranges) {
-            result += (range[1] - range[0] + 1);
-        }
-        return result;
-    }
+    // getCount() {
+    //     let result = 0;
+    //     const ranges = this.ranges;
+    //     for (const range of ranges) {
+    //         result += (range[1] - range[0] + 1);
+    //     }
+    //     return result;
+    // }
 
-    adjustForInserted(index: number, count: number): boolean {
-        return false;
-    }
+    // adjustForInserted(index: number, count: number): boolean {
+    //     return false;
+    // }
 
-    adjustForDeleted(index: number, count: number): boolean {
-        return false;
-    }
+    // adjustForDeleted(index: number, count: number): boolean {
+    //     return false;
+    // }
 
-    adjustForMoved(oldIndex: number, newIndex: number, count: number): boolean {
-        return false;
-    }
+    // adjustForMoved(oldIndex: number, newIndex: number, count: number): boolean {
+    //     return false;
+    // }
 }
 
 export namespace SelectionRangeList {

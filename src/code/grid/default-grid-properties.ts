@@ -1,5 +1,6 @@
 
 import { GridProperties } from './grid-properties';
+import { ModifierKeyEnum } from './lib/html-types';
 import { AssertError } from './lib/revgrid-error';
 import { SelectionArea } from './lib/selection-area';
 import { HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
@@ -491,6 +492,10 @@ export const defaultGridProperties: Required<GridProperties> = {
     singleRowSelectionMode: true,
     primarySelectionAreaType: SelectionArea.Type.Rectangle,
     secondarySelectionAreaType: SelectionArea.Type.Row,
+    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum.Alt,
+    extendLastSelectionAreaModifierKey: ModifierKeyEnum.Shift,
+    addToggleSelectionAreaModifierKey: ModifierKeyEnum.Control,
+    addToggleSelectionAreaModifierKeyDoesToggle: true,
 
     /**
      * @summary Fill color for last selection overlay.

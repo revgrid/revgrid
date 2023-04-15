@@ -1,5 +1,6 @@
 import { defaultGridProperties } from './default-grid-properties';
 import { GridProperties, LoadableGridProperties } from './grid-properties';
+import { ModifierKeyEnum } from './lib/html-types';
 import { SelectionArea } from './lib/selection-area';
 import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
 import { Revgrid } from './revgrid';
@@ -11,6 +12,10 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     constructor(private grid: Revgrid) {
     }
 
+    get addToggleSelectionAreaModifierKey() { return this._raw.addToggleSelectionAreaModifierKey; }
+    set addToggleSelectionAreaModifierKey(value: ModifierKeyEnum) { this._raw.addToggleSelectionAreaModifierKey = value; }
+    get addToggleSelectionAreaModifierKeyDoesToggle() { return this._raw.addToggleSelectionAreaModifierKeyDoesToggle; }
+    set addToggleSelectionAreaModifierKeyDoesToggle(value: boolean) { this._raw.addToggleSelectionAreaModifierKeyDoesToggle = value; }
     get autoSelectColumns() { return this._raw.autoSelectColumns; }
     set autoSelectColumns(value: boolean) { this._raw.autoSelectColumns = value; }
     get autoSelectRows() { return this._raw.autoSelectRows; }
@@ -97,6 +102,8 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     /** Re-render grid at maximum speed. */
     get enableContinuousRepaint() { return this._raw.enableContinuousRepaint; }
     set enableContinuousRepaint(value: boolean) { this._raw.enableContinuousRepaint = value; }
+    get extendLastSelectionAreaModifierKey() { return this._raw.extendLastSelectionAreaModifierKey; }
+    set extendLastSelectionAreaModifierKey(value: ModifierKeyEnum) { this._raw.extendLastSelectionAreaModifierKey = value; }
     /** Validation failure feedback. */
     get feedbackCount() { return this._raw.feedbackCount; }
     set feedbackCount(value: number) { this._raw.feedbackCount = value; }
@@ -269,6 +276,8 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     set scrollingEnabled(value: boolean) { this._raw.scrollingEnabled = value; }
     get secondarySelectionAreaType() { return this._raw.secondarySelectionAreaType; }
     set secondarySelectionAreaType(value: SelectionArea.Type) { this._raw.secondarySelectionAreaType = value; }
+    get secondarySelectionAreaTypeSpecifierModifierKey() { return this._raw.secondarySelectionAreaTypeSpecifierModifierKey; }
+    set secondarySelectionAreaTypeSpecifierModifierKey(value: ModifierKeyEnum) { this._raw.secondarySelectionAreaTypeSpecifierModifierKey = value; }
     /** Stroke color for last selection overlay. */
     get selectionRegionOutlineColor() { return this._raw.selectionRegionOutlineColor; }
     set selectionRegionOutlineColor(value: GridProperties.Color) { this._raw.selectionRegionOutlineColor = value; }

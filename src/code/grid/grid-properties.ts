@@ -1,10 +1,15 @@
 import { Effect } from './effects/effects';
+import { ModifierKey, ModifierKeyEnum } from './lib/html-types';
 import { SelectionArea } from './lib/selection-area';
 import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from './lib/types';
 import { deepExtendValue } from './lib/utils';
 
 /** @public */
 export interface GridProperties {
+    /** Modifier key that indicates a UI action should add a selection area to selection or toggle a selection area within a selection */
+    addToggleSelectionAreaModifierKey: ModifierKeyEnum;
+    /** Specifies whether the addToggleSelectionAreaModifierKey toggles.  If if does not toggle, then it adds */
+    addToggleSelectionAreaModifierKeyDoesToggle: boolean;
     /** Select cell's entire column. */
     autoSelectColumns: boolean;
     /** Select cell's entire row. */
@@ -64,6 +69,8 @@ export interface GridProperties {
      * * The Hypergrid renderer gobbles up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). For this reason, we emphatically advise against shipping applications using this mode.
      */
     enableContinuousRepaint: boolean;
+    /** Modifier key that indicates a UI action should extend the selection area */
+    extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     features: string[];
     /** Validation failure feedback. */
     feedbackCount: number;
@@ -211,6 +218,7 @@ export interface GridProperties {
     scrollingEnabled: boolean,
     /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a Selection. */
     secondarySelectionAreaType: SelectionArea.Type;
+    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum;
     /** Stroke color for last selection overlay. */
     selectionRegionOutlineColor: GridProperties.Color;
     /** Fill color for last selection overlay. */
@@ -407,6 +415,30 @@ export namespace GridProperties {
             }
             return true;
         }
+    }
+
+    export function isAddToggleSelectionAreaModifierKeyDownInKeyboardEvent(gridProperties: GridProperties, keyboardEvent: KeyboardEvent) {
+        return ModifierKey.isDownInKeyboardEvent(gridProperties.addToggleSelectionAreaModifierKey, keyboardEvent);
+    }
+
+    export function isAddToggleSelectionAreaModifierKeyDownInMouseEvent(gridProperties: GridProperties, mouseEvent: MouseEvent) {
+        return ModifierKey.isDownInMouseEvent(gridProperties.addToggleSelectionAreaModifierKey, mouseEvent);
+    }
+
+    export function isExtendLastSelectionAreaModifierKeyDownInKeyboardEvent(gridProperties: GridProperties, keyboardEvent: KeyboardEvent) {
+        return ModifierKey.isDownInKeyboardEvent(gridProperties.extendLastSelectionAreaModifierKey, keyboardEvent);
+    }
+
+    export function isExtendLastSelectionAreaModifierKeyDownInMouseEvent(gridProperties: GridProperties, mouseEvent: MouseEvent) {
+        return ModifierKey.isDownInMouseEvent(gridProperties.extendLastSelectionAreaModifierKey, mouseEvent);
+    }
+
+    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInKeyboardEvent(gridProperties: GridProperties, keyboardEvent: KeyboardEvent) {
+        return ModifierKey.isDownInKeyboardEvent(gridProperties.secondarySelectionAreaTypeSpecifierModifierKey, keyboardEvent);
+    }
+
+    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInMouseEvent(gridProperties: GridProperties, mouseEvent: MouseEvent) {
+        return ModifierKey.isDownInMouseEvent(gridProperties.secondarySelectionAreaTypeSpecifierModifierKey, mouseEvent);
     }
 }
 

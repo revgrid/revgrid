@@ -1,4 +1,5 @@
 import { ColumnsManager } from '../column/columns-manager';
+import { SubgridInterface } from '../common/subgrid-interface';
 import { FinBar } from '../finbar/finbar';
 import { GridProperties } from '../grid-properties';
 import { Renderer } from '../renderer/renderer';
@@ -119,7 +120,7 @@ export class ScrollBehavior {
         this.horizontalScroller.scroll(delta);
     }
 
-    scrollToMakeVisible(c: number, r: number, subgrid: Subgrid | undefined) {
+    scrollToMakeVisible(c: number, r: number, subgrid: SubgridInterface | undefined) {
         if (subgrid === undefined || subgrid === this._subgridsManager.mainSubgrid) {
             let delta: number;
             const gridRightAligned = this._gridProperties.gridRightAligned

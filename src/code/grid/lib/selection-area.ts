@@ -6,6 +6,8 @@ export interface SelectionArea {
     readonly origin: Point;
     readonly corner: Point;
     readonly first: Point;
+
+    readonly size: number;
 }
 
 export namespace SelectionArea {

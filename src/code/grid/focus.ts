@@ -1,15 +1,15 @@
 import { SubgridInterface } from './common/subgrid-interface';
+import { AssertError } from './grid-public-api';
 import { Point } from './lib/point';
-import { Subgrid } from './subgrid/subgrid';
 
 export class Focus {
-    subgridChanged_SelectionEventer: Focus.SubgridChangeEventer;
+    private readonly _subgridChangedEventHandlers = new Array<Focus.SubgridChangeEventHandler>();
 
-    private _subgrid: Subgrid;
+    private _subgrid: SubgridInterface;
     private _point: Point | undefined;
 
     get subgrid() { return this._subgrid; }
-    set subgrid(value: Subgrid) {
+    set subgrid(value: SubgridInterface) {
         if (value !== this.subgrid) {
             value = this.subgrid;
             this.notifySubgridChanged();
@@ -30,7 +30,7 @@ export class Focus {
         };
     }
 
-    setYCoordinateAndSubgrid(y: number, subgrid: Subgrid) {
+    setYCoordinateAndSubgrid(y: number, subgrid: SubgridInterface) {
         const x = this._point === undefined ? 0 : this._point.x;
 
         this._point = {
@@ -45,7 +45,7 @@ export class Focus {
         }
     }
 
-    setXYCoordinatesAndSubgrid(x: number, y: number, subgrid: Subgrid) {
+    setXYCoordinatesAndSubgrid(x: number, y: number, subgrid: SubgridInterface) {
         this._point = {
             x,
             y,
@@ -62,13 +62,27 @@ export class Focus {
         return subgrid === this._subgrid && this._point !== undefined && rowIndex === this._point.y;
     }
 
+    subscribeSubgridChangedEvent(handler: Focus.SubgridChangeEventHandler) {
+        this._subgridChangedEventHandlers.push(handler);
+    }
+
+    unsubscribeSubgridChangedEvent(handler: Focus.SubgridChangeEventHandler) {
+        const index = this._subgridChangedEventHandlers.findIndex((h) => h === handler);
+        if (index >= 0) {
+            this._subgridChangedEventHandlers.splice(index, 1);
+        } else {
+            throw new AssertError('FUSCE2330');
+        }
+    }
+
     private notifySubgridChanged() {
-        if (this.subgridChanged_SelectionEventer !== undefined) {
-            this.subgridChanged_SelectionEventer();
+        const handlers = this._subgridChangedEventHandlers.slice();
+        for (const handler of handlers) {
+            handler();
         }
     }
 }
 
 export namespace Focus {
-    export type SubgridChangeEventer = (this: void) => void;
+    export type SubgridChangeEventHandler = (this: void) => void;
 }

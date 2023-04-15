@@ -1,7 +1,9 @@
 
 import { MouseCellEvent } from '../cell/cell-event';
+import { SubgridInterface } from '../common/subgrid-interface';
 import { EventDetail } from '../event/event-detail';
 import { Feature } from '../feature/feature';
+import { GridProperties } from '../grid-properties';
 import { Point } from '../lib/point';
 import { AssertError } from '../lib/revgrid-error';
 import { SelectionArea } from '../lib/selection-area';
@@ -13,31 +15,29 @@ export class CellSelection extends Feature {
     /**
      * The pixel location of the mouse pointer during a drag operation.
      */
-    currentDrag: Point;
+    private _currentDrag: Point;
 
     /**
      * the cell coordinates of the where the mouse pointer is during a drag operation
      */
-    lastDragCell: Point;
+    private _lastDragCell: Point;
 
     /**
      * a millisecond value representing the previous time an autoscroll started
      */
-    sbLastAuto = 0;
+    private _sbLastAuto = 0;
 
     /**
      * a millisecond value representing the time the current autoscroll started
      */
-    sbAutoStart = 0;
-    dragging: boolean;
+    private _sbAutoStart = 0;
+    private _dragging: boolean;
 
     override handleMouseUp(event: MouseCellEvent) {
-        if (this.dragging) {
-            this.dragging = false;
+        if (this._dragging) {
+            this._dragging = false;
         }
-        if (this.next) {
-            this.next.handleMouseUp(event);
-        }
+        super.handleMouseUp(event);
     }
 
     override handleMouseDown(event: MouseCellEvent) {
@@ -46,25 +46,55 @@ export class CellSelection extends Feature {
         const subgrid = event.subgrid;
         const isSelectable = subgrid.selectable && this.cellPropertiesBehavior.getCellProperty(event.column, event.gridCell.y, 'cellSelection', subgrid);
 
-        if (isSelectable && subgrid.isMain && event.isDataColumn && !event.mouse.isRightClick) {
+        if (isSelectable && event.isDataColumn && !event.mouse.isRightClick) {
             const dCell = Point.create(dx, dy);
             const mouse = event.mouse;
-            this.dragging = true;
+            this._dragging = true;
+            const focusSelectionBehavior = this.focusSelectionBehavior;
+            const mouseEvent = mouse.primitiveEvent;
+            let areaTypeSpecifier: SelectionArea.TypeSpecifier;
+            if (GridProperties.isSecondarySelectionAreaTypeSpecifierModifierKeyDownInMouseEvent(this.gridProperties, mouseEvent)) {
+                areaTypeSpecifier = SelectionArea.TypeSpecifier.Secondary;
+            } else {
+                areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary;
+            }
+            const addToggleModifier = GridProperties.isAddToggleSelectionAreaModifierKeyDownInMouseEvent(this.gridProperties, mouseEvent);
+            const extendModifier = GridProperties.isExtendLastSelectionAreaModifierKeyDownInMouseEvent(this.gridProperties, mouseEvent);
+            if (extendModifier) {
+                if (addToggleModifier) {
+                    this.focusSelectOnlyCell(dx, dy, subgrid, areaTypeSpecifier);
+                } else {
+                    if (subgrid === this.focus.subgrid) {
+                        focusSelectionBehavior.replaceLastAreaFromFocus(dx, dy, areaTypeSpecifier);
+                    }
+                }
+            } else {
+                if (addToggleModifier) {
+                    if (this.gridProperties.addToggleSelectionAreaModifierKeyDoesToggle) {
+                        focusSelectionBehavior.focusToggleSelectCell(dx, dy, subgrid, areaTypeSpecifier);
+                    } else {
+                        focusSelectionBehavior.focusSelectAddCell(dx, dy, subgrid, areaTypeSpecifier);
+                    }
+                } else {
+                    this.focusSelectOnlyCell(dx, dy, subgrid, areaTypeSpecifier);
+                }
+            }
+
             this.extendSelection(dCell, mouse.primitiveEvent.shiftKey, mouse.primitiveEvent.ctrlKey);
-        } else if (this.next) {
-            this.next.handleMouseDown(event);
+        } else {
+            super.handleMouseDown(event);
         }
     }
 
     override handleMouseDrag(event: MouseCellEvent) {
         const grid = this.grid;
-        if (this.dragging && grid.properties.cellSelection && !event.mouse.isRightClick) {
-            this.currentDrag = event.mouse.mouse;
-            this.lastDragCell = Point.create(event.gridCell.x, event.dataCell.y);
-            this.checkDragScroll(this.currentDrag);
-            this.handleMouseDragCellSelection(this.lastDragCell);
-        } else if (this.next) {
-            this.next.handleMouseDrag(event);
+        if (this._dragging && grid.properties.cellSelection && !event.mouse.isRightClick) {
+            this._currentDrag = event.mouse.mouse;
+            this._lastDragCell = Point.create(event.gridCell.x, event.dataCell.y);
+            this.checkDragScroll(this._currentDrag);
+            this.handleMouseDragCellSelection(this._lastDragCell);
+        } else {
+            super.handleMouseDrag(event);
         }
     }
 
@@ -96,8 +126,8 @@ export class CellSelection extends Feature {
             if (!grid.cellEditor) {
                 grid.takeFocus();
             }
-        } else if (this.next) {
-            this.next.handleKeyDown(eventDetail);
+        } else {
+            super.handleKeyDown(eventDetail);
         }
     }
 
@@ -167,7 +197,7 @@ export class CellSelection extends Feature {
         }
 
         const dragStartedInHeaderArea = grid.isMouseDownInHeaderArea();
-        const lastDragCell = this.lastDragCell;
+        const lastDragCell = this._lastDragCell;
         const b = grid.getDataBounds();
 
         let xOffset = 0;
@@ -180,17 +210,17 @@ export class CellSelection extends Feature {
         const dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
 
         if (!dragStartedInHeaderArea) {
-            if (this.currentDrag.x < b.origin.x) {
+            if (this._currentDrag.x < b.origin.x) {
                 xOffset = -1;
             }
-            if (this.currentDrag.y < b.origin.y) {
+            if (this._currentDrag.y < b.origin.y) {
                 yOffset = -1;
             }
         }
-        if (this.currentDrag.x > b.origin.x + b.extent.x) {
+        if (this._currentDrag.x > b.origin.x + b.extent.x) {
             xOffset = 1;
         }
-        if (this.currentDrag.y > b.origin.y + b.extent.y) {
+        if (this._currentDrag.y > b.origin.y + b.extent.y) {
             yOffset = 1;
         }
 
@@ -204,7 +234,7 @@ export class CellSelection extends Feature {
             dragCellOffsetY = 0;
         }
 
-        this.lastDragCell = Point.plusXY(lastDragCell, dragCellOffsetX, dragCellOffsetY);
+        this._lastDragCell = Point.plusXY(lastDragCell, dragCellOffsetX, dragCellOffsetY);
         scrollBehavior.scrollBy(xOffset, yOffset);
         this.handleMouseDragCellSelection(lastDragCell); // update the selection
         this.rendererBehavior.repaint();
@@ -319,7 +349,7 @@ export class CellSelection extends Feature {
      * @desc set the start time to right now when we initiate an auto scroll
      */
     setAutoScrollStartTime() {
-        this.sbAutoStart = Date.now();
+        this._sbAutoStart = Date.now();
     }
 
     /**
@@ -327,20 +357,20 @@ export class CellSelection extends Feature {
      */
     pingAutoScroll() {
         const now = Date.now();
-        if (now - this.sbLastAuto > 500) {
+        if (now - this._sbLastAuto > 500) {
             this.setAutoScrollStartTime();
         }
-        this.sbLastAuto = Date.now();
+        this._sbLastAuto = Date.now();
     }
 
     /**
      * @desc answer how long we have been auto scrolling
      */
     getAutoScrollDuration() {
-        if (Date.now() - this.sbLastAuto > 500) {
+        if (Date.now() - this._sbLastAuto > 500) {
             return 0;
         }
-        return Date.now() - this.sbAutoStart;
+        return Date.now() - this._sbAutoStart;
     }
 
     /**
@@ -354,8 +384,31 @@ export class CellSelection extends Feature {
         }
     }
 
+    private focusSelectOnlyCell(originX: number, originY: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+        const lastViewableColumnIndex = this.renderer.getVisibleColumnsCount() - 1;
+        const lastViewableRowIndex = this.renderer.getVisibleRowsCount() - 1;
+
+        let lastColumnIndex = this.columnsManager.getActiveColumnCount() - 1;
+        let lastSubgridRowIndex = subgrid.getRowCount() - 1;
+
+        if (!this.gridProperties.scrollingEnabled) {
+            lastColumnIndex = Math.min(lastColumnIndex, lastViewableColumnIndex);
+            lastSubgridRowIndex = Math.min(lastSubgridRowIndex, lastViewableRowIndex);
+        }
+
+        originX = Math.min(lastColumnIndex, Math.max(0, originX));
+        originY = Math.min(lastSubgridRowIndex, Math.max(0, originY));
+
+        this.focusSelectionBehavior.focusSelectOnlyCell(originX, originY, subgrid, areaTypeSpecifier);
+    }
 }
 
 export namespace CellSelection {
     export const typeName = 'cellselection';
+
+    export const enum MouseDownAction {
+        Only,
+        Extend,
+        AddDelete,
+    }
 }

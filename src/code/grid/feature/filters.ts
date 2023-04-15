@@ -99,7 +99,7 @@ export class Filters extends Feature {
 
         // Select first visible grid cell of this column
         const grid = this.grid;
-        this.focusSelectionBehavior.selectViewportCell(gridX, this.subgridsManager.calculateHeaderRowCount(), SelectionArea.TypeSpecifier.Primary);
+        this.focusSelectionBehavior.focusSelectOnlyViewportCell(gridX, this.subgridsManager.calculateHeaderRowCount(), SelectionArea.TypeSpecifier.Primary);
         grid.takeFocus();
     }
 

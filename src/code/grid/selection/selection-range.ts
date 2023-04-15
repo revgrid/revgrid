@@ -13,17 +13,9 @@ export namespace SelectionRange {
     /**
      * @summary Preps `start` and `stop` params into order array
      * @desc Utility function called by both `select()` and `deselect()`.
-     * @param start - Start of range. if array, `start` and `stop` are taken from first two elements.
-     * @param stop - End of range (inclusive).
      */
-    export function make(start: number, stop?: number): SelectionRange {
-        return (
-            stop === undefined
-                ? [ start, start ] // single param is a range that stops where it starts
-                : start <= stop
-                    ? [ start, stop ]
-                    : [ stop, start ] // reverse descending params into ascending order
-        );
+    export function make(start: number, count: number): SelectionRange {
+        return [start, start + count - 1];
     }
 
     export function copy(other: SelectionRange): SelectionRange {

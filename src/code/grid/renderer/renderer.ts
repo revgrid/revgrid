@@ -825,7 +825,6 @@ export class Renderer {
      * @returns Answer how many rows we rendered
      */
     getVisibleRowsCount() {
-        // This looks wrong.  It is not used within library - best to ignore
         return this.visibleRows.length - 1;
     }
 
@@ -838,8 +837,11 @@ export class Renderer {
      * @returns Number of columns we just rendered.
      */
     getVisibleColumnsCount() {
-        // This looks wrong.  It is not used within library - best to ignore
         return this.visibleColumns.length - 1;
+    }
+
+    getLastSubgridRowIndex(subgrid: SubgridInterface) {
+
     }
 
     /**
