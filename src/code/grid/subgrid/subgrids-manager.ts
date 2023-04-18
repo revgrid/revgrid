@@ -13,7 +13,7 @@ import { Subgrid } from './subgrid';
 /** @internal */
 export class SubgridsManager {
     readonly subgrids = new Array<Subgrid>();
-    readonly _handledSubgrids = new Array<Subgrid>();
+    readonly _handledSubgrids = new Array<Subgrid | undefined>();
 
     private _mainSubgrid: Subgrid;
 

@@ -38,7 +38,8 @@ export class ContiguousIndexRange {
     }
 
     overlaps(other: ContiguousIndexRange): boolean {
-        return (this._start < other._after) || (this._after >= other._start);
+        return (this._start >= other._start) && (this._start < other._after) ||
+            (this._after >= other._start) && (this._after < other._after);
     }
 
     abuts(other: ContiguousIndexRange): boolean {

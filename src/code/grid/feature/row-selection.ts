@@ -162,9 +162,9 @@ export class RowSelection extends Feature {
         if (currentDrag === undefined) {
             throw new AssertError('RSSD31009');
         } else {
-            if (currentDrag.y < b.origin.y) {
+            if (currentDrag.y < b.topLeft.y) {
                 yOffset = -1;
-            } else if (currentDrag.y > b.origin.y + b.extent.y) {
+            } else if (currentDrag.y > b.topLeft.y + b.extent.y) {
                 yOffset = 1;
             }
 
@@ -262,7 +262,7 @@ export class RowSelection extends Feature {
             selectionBehavior.beginChange();
             try {
                 selectionBehavior.clearSelection(true);
-                selectionBehavior.selectRectangle(newX, newY, 0, 0, undefined);
+                selectionBehavior.selectOnlyRectangle(newX, newY, 0, 0, undefined);
             } finally {
                 selectionBehavior.endChange();
             }

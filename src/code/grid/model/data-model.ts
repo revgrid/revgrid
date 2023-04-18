@@ -1,4 +1,4 @@
-import { Rectangle } from '../lib/rectangle';
+import { RectangleInterface } from '../lib/rectangle-interface';
 import { SchemaModel } from './schema-model';
 // import { Hypergrid } from '../Hypergrid';
 
@@ -56,7 +56,7 @@ export interface DataModel {
      * @param rectangles - Unordered list of rectangular regions of cells to fetch in a single (atomic) operation.
      * @param callback - Optional callback. If provided, implementation calls it with `false` on success (requested data fully fetched) or `true` on failure.
      */
-    fetchData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
+    fetchData?(rectangles: readonly RectangleInterface[], callback?: (failure: boolean) => void): void;
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._

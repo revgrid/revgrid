@@ -71,7 +71,7 @@ export class CellSelection extends Feature {
             } else {
                 if (addToggleModifier) {
                     if (this.gridProperties.addToggleSelectionAreaModifierKeyDoesToggle) {
-                        focusSelectionBehavior.focusToggleSelectCell(dx, dy, subgrid, areaTypeSpecifier);
+                        focusSelectionBehavior.focusSelectToggleCell(dx, dy, subgrid, areaTypeSpecifier);
                     } else {
                         focusSelectionBehavior.focusSelectAddCell(dx, dy, subgrid, areaTypeSpecifier);
                     }
@@ -155,7 +155,7 @@ export class CellSelection extends Feature {
             selectionBehavior.beginChange();
             try {
                 selectionBehavior.clearMostRecentRectangleSelection();
-                selectionBehavior.selectRectangle(mouseDown.x, mouseDown.y, newX, newY, undefined);
+                selectionBehavior.selectOnlyRectangle(mouseDown.x, mouseDown.y, newX, newY, undefined);
             } finally {
                 selectionBehavior.endChange();
             }
@@ -210,17 +210,17 @@ export class CellSelection extends Feature {
         const dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
 
         if (!dragStartedInHeaderArea) {
-            if (this._currentDrag.x < b.origin.x) {
+            if (this._currentDrag.x < b.topLeft.x) {
                 xOffset = -1;
             }
-            if (this._currentDrag.y < b.origin.y) {
+            if (this._currentDrag.y < b.topLeft.y) {
                 yOffset = -1;
             }
         }
-        if (this._currentDrag.x > b.origin.x + b.extent.x) {
+        if (this._currentDrag.x > b.topLeft.x + b.extent.x) {
             xOffset = 1;
         }
-        if (this._currentDrag.y > b.origin.y + b.extent.y) {
+        if (this._currentDrag.y > b.topLeft.y + b.extent.y) {
             yOffset = 1;
         }
 
@@ -281,10 +281,10 @@ export class CellSelection extends Feature {
 
                 if (shiftKeyDown) {
                     selectionBehavior.clearMostRecentRectangleSelection();
-                    selectionBehavior.selectRectangle(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y, undefined);
+                    selectionBehavior.selectOnlyRectangle(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y, undefined);
                     userInterfaceInputBehavior.setDragExtent(Point.create(x - mousePoint.x, y - mousePoint.y));
                 } else {
-                    selectionBehavior.selectRectangle(x, y, 0, 0, undefined);
+                    selectionBehavior.selectOnlyRectangle(x, y, 0, 0, undefined);
                     userInterfaceInputBehavior.setMouseDown(Point.create(x, y));
                     userInterfaceInputBehavior.setDragExtent(Point.create(0, 0));
                 }

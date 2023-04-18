@@ -23,19 +23,19 @@ export class InclusiveRectangle extends Rectangle {
     }
 
     override containsXY(x: number, y: number) { //TODO: explore why this works and rectanglular.contains does not
-        let minX = this.origin.x;
-        let minY = this.origin.y;
+        let minX = this.topLeft.x;
+        let minY = this.topLeft.y;
         let maxX = minX + this.extent.x;
         let maxY = minY + this.extent.y;
 
         if (this.extent.x < 0) {
             minX = maxX;
-            maxX = this.origin.x;
+            maxX = this.topLeft.x;
         }
 
         if (this.extent.y < 0) {
             minY = maxY;
-            maxY = this.origin.y;
+            maxY = this.topLeft.y;
         }
 
         const result =

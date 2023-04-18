@@ -2,6 +2,7 @@
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Renderer } from '../renderer/renderer';
 import { Selection } from '../selection/selection';
+import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { GridPainter } from './grid-painter';
 
@@ -87,7 +88,7 @@ export class ByRowsGridPainter extends GridPainter {
 
             const visibleRow = visibleRows[r];
 
-            const subgrid = visibleRow.subgrid;
+            const subgrid = visibleRow.subgrid as Subgrid;
 
             if (drawLines) {
                 gc.cache.fillStyle = lineColor;

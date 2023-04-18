@@ -155,14 +155,14 @@ export class SelectionRangeList extends ContiguousIndexRangeList implements Sele
     // }
 }
 
-export namespace SelectionRangeList {
-    /**
-     * A "range" is defined as an Array(2) where:
-     * element [0] is the beginning of the range
-     * element [1] is the end of the range (inclusive) and is always >= element [0]
-     */
-    export type InclusiveRange = [start: number, stop: number];
-    export interface Range extends InclusiveRange {
-        offsetY?: number;
-    }
-}
+// export namespace SelectionRangeList {
+//     /**
+//      * A "range" is defined as an Array(2) where:
+//      * element [0] is the beginning of the range
+//      * element [1] is the end of the range (inclusive) and is always >= element [0]
+//      */
+//     export type InclusiveRange = [start: number, stop: number];
+//     export interface Range extends InclusiveRange {
+//         offsetY?: number;
+//     }
+// }

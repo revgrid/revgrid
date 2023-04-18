@@ -4,7 +4,8 @@ import { ColumnInterface } from '../common/column-interface';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { DataModel } from '../grid-public-api';
 import { Point, WritablePoint } from '../lib/point';
-import { Rectangle, RectangleInterface } from '../lib/rectangle';
+import { Rectangle } from '../lib/rectangle';
+import { RectangleInterface } from '../lib/rectangle-interface';
 import { MetaModel } from '../model/meta-model';
 import { Renderer } from '../renderer/renderer';
 import { Revgrid } from '../revgrid';
@@ -214,8 +215,10 @@ export abstract class RenderedCell {
                 width: this.visibleColumn.width,
                 height: this.visibleRow.height
             }
+            return this._bounds;
+        } else {
+            return this._bounds;
         }
-        return this._bounds;
     }
 
     get columnProperties() {

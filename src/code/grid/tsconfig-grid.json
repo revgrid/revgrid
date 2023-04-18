@@ -2,7 +2,7 @@
   "extends": "../../../tsconfig.esm.json",
 
   "compilerOptions": {
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "composite": true,
     "tsBuildInfoFile": "../../../tsbuildinfo/grid.tsbuildinfo"
   },

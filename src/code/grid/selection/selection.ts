@@ -3,11 +3,13 @@ import { ColumnsManager } from '../column/columns-manager';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { Focus } from '../focus';
 import { GridProperties } from '../grid-properties';
-import { Point } from '../grid-public-api';
+import { ContiguousIndexRange } from '../lib/contiguous-index-range';
+import { Corner } from '../lib/corner';
+import { Point } from '../lib/point';
+import { RectangleInterface } from '../lib/rectangle-interface';
 import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
 import { SelectionArea } from '../lib/selection-area';
 import { calculateNumberArrayUniqueCount } from '../lib/utils';
-import { Subgrid } from '../subgrid/subgrid';
 import { LastSelectionArea } from './last-selection-area';
 import { SelectionRangeList } from './selection-range-list';
 import { SelectionRectangle } from './selection-rectangle';
@@ -32,9 +34,6 @@ export class Selection {
     private _beginChangeCount = 0;
     private _changed = false;
     private _silentlyChanged = false;
-
-    private _lastEdgeSelectionX = 0;
-    private _lastEdgeSelectionY = 0;
 
     private _snapshot: Selection | undefined;
 
@@ -201,53 +200,92 @@ export class Selection {
         }
     }
 
-    selectCell(x: number, y: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+    selectOnlyCell(x: number, y: number, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
         this.beginChange();
         try {
             this.clear();
-            const areaType = this.calculateAreaType(areaTypeSpecifier);
-            switch (areaType) {
-                case SelectionArea.Type.Rectangle: {
-                    this.selectRectangle(x, y, x, y);
-                    break;
-                }
-                case SelectionArea.Type.Column: {
-                    this.selectColumns(x, y, x, y);
-                    break;
-                }
-                case SelectionArea.Type.Row: {
-                    this.selectRows(x, y, x, y);
-                    break;
-                }
-            }
-
+            this.selectCell(x, y, areaTypeSpecifier);
         } finally {
             this.endChange();
         }
     }
-/**
+
+    selectCell(x: number, y: number, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+        this.selectArea(x, y, 1, 1, areaTypeSpecifier);
+    }
+
+    deselectCellArea(x: number, y: number) {
+        const rectangle: RectangleInterface = {
+            x,
+            y,
+            width: 1,
+            height: 1,
+        }
+        this.deselectRectangle(rectangle)
+    }
+
+    selectArea(firstExclusiveX: number, firstExclusiveY: number, width: number, height: number, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+        const areaType = this.calculateAreaType(areaTypeSpecifier);
+        switch (areaType) {
+            case SelectionArea.Type.Rectangle: {
+                this.selectRectangle(firstExclusiveX, firstExclusiveY, width, height);
+                break;
+            }
+            case SelectionArea.Type.Column: {
+                this.selectColumns(firstExclusiveX, firstExclusiveY, width, height);
+                break;
+            }
+            case SelectionArea.Type.Row: {
+                this.selectRows(firstExclusiveX, firstExclusiveY, width, height);
+                break;
+            }
+            default:
+                throw new UnreachableCaseError('SSA34499', areaType)
+        }
+    }
+
+    deselectLastArea() {
+        const lastArea = this._lastArea;
+        this._lastArea = undefined;
+        if (lastArea !== undefined) {
+            switch (lastArea.areaType) {
+                case SelectionArea.Type.Rectangle: {
+                    this.deselectRectangle(lastArea);
+                    break;
+                }
+                case SelectionArea.Type.Column: {
+                    this.deselectColumns(lastArea.x, lastArea.width);
+                    break;
+                }
+                case SelectionArea.Type.Row: {
+                    this.deselectRows(lastArea.y, lastArea.height);
+                    break;
+                }
+                default:
+                    throw new UnreachableCaseError('SDLA34499', lastArea.areaType)
+            }
+        }
+    }
+
+    /**
      * @description Select the region described by the given coordinates.
      *
-     * @param originX - origin x coordinate
-     * @param originY - origin y coordinate
-     * @param extentX - extent x coordinate (width - 1)
-     * @param extentY - extent y coordinate (height - 1)
      * @param silent - whether to fire selection changed event
      */
-    selectRectangle(originX: number, originY: number, extentX: number, extentY: number, silent = false) {
+    selectRectangle(firstExclusiveX: number, firstExclusiveY: number, width: number, height: number, silent = false) {
         this.beginChange();
         try {
             if (this.areaCount > 0) {
                 this.saveSnapshot();
             }
-            const rectangle = new SelectionRectangle(originX, originY, extentX + 1, extentY + 1);
+            const rectangle = new SelectionRectangle(firstExclusiveX, firstExclusiveY, width, height);
 
             if (this._gridProperties.multipleSelectionAreas) {
                 this.rectangleList.push(rectangle);
             } else {
                 this.rectangleList.only(rectangle);
             }
-            this._lastArea = new LastSelectionArea(SelectionArea.Type.Rectangle, rectangle.origin, rectangle.corner, rectangle.first);
+            this._lastArea = new LastSelectionArea(SelectionArea.Type.Rectangle, firstExclusiveX, firstExclusiveY, width, height);
 
             this.flagChanged(silent);
         } finally {
@@ -255,23 +293,29 @@ export class Selection {
         }
     }
 
-    selectRows(originX: number, originY: number, extentX: number, extentY: number) {
-        this.beginChange();
-
-        // if (this._gridProperties.singleRowSelectionMode) {
-        //     this.clearRowSelection();
-        //     extentY = 1;
-        // }
-
-        const changed = this.rows.select(originY, extentY);
-        if (changed) {
-            const origin: Point = { x: originX, y: originY };
-            const corner: Point = { x: originX + extentX, y: originY + extentY };
-            const first: Point = { x: originX, y: originY };
-            this._lastArea = new LastSelectionArea(SelectionArea.Type.Row, origin, corner, first);
-            this.flagChanged(false);
+    deselectRectangle(rectangle: RectangleInterface) {
+        const index = this.rectangleList.findIndex(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        if (index >= 0) {
+            const lastArea = this._lastArea;
+            if (lastArea !== undefined && RectangleInterface.isEqual(lastArea, rectangle)) {
+                this._lastArea = undefined;
+            }
+            this.rectangleList.removeAt(index)
         }
-        this.endChange();
+    }
+
+    /** Parameters specify a rectangle in Data, the rows of which will be selected */
+    selectRows(x: number, exclusiveY: number, width: number, height: number) {
+        this.beginChange();
+        try {
+            const changed = this.rows.add(exclusiveY, height);
+            if (changed) {
+                this._lastArea = new LastSelectionArea(SelectionArea.Type.Row, x, exclusiveY, width, height);
+                this.flagChanged(false);
+            }
+        } finally {
+            this.endChange();
+        }
     }
 
     deselectRows(y: number, count: number) {
@@ -279,30 +323,78 @@ export class Selection {
         if (changed) {
             const lastArea = this._lastArea;
             if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Row) {
-                const start = lastArea.origin.y;
-                const length = lastArea.corner.y - start;
-                const overlap = this.rows.calculateOverlap(start, length);
-                if (overlap === undefined) {
+                const oldFirst = lastArea.exclusiveFirst;
+                const oldLast = lastArea.exclusiveLast;
+                const oldStart = oldFirst.y;
+                const oldLength = oldLast.y - oldStart;
+                const overlapRange = this.rows.calculateOverlapRange(oldStart, oldLength);
+                if (overlapRange === undefined) {
                     this._lastArea = undefined;
                 } else {
+                    const lastX = oldFirst.x;
+                    const lastWidth = oldLast.x - lastX;
+                    const overlapStart = overlapRange.start;
+                    const overlapLength = overlapRange.length;
+                    let lastExclusiveY: number;
+                    let lastHeight: number;
+                    // set lastY and lastHeight so that last area still specifies the same corner
+                    if (oldLength >= 0) {
+                        lastExclusiveY = overlapStart;
+                        lastHeight = overlapLength;
+                    } else {
+                        lastExclusiveY = overlapStart + overlapLength;
+                        lastHeight = -overlapLength;
+                    }
 
+                    this._lastArea = new LastSelectionArea(SelectionArea.Type.Row, lastX, lastExclusiveY, lastWidth, lastHeight);
                 }
             }
         }
     }
 
-    selectColumns(originX: number, originY: number, extentX: number, extentY: number) {
+    selectColumns(exclusiveX: number, y: number, width: number, height: number) {
         this.beginChange();
 
-        const changed = this.rows.select(originX, extentX);
+        const changed = this.columns.add(exclusiveX, width);
         if (changed) {
-            const origin: Point = { x: originX, y: originY };
-            const corner: Point = { x: originX + extentX, y: originY + extentY };
-            const first: Point = { x: originX, y: originY };
-            this._lastArea = new LastSelectionArea(SelectionArea.Type.Row, origin, corner, first);
+            this._lastArea = new LastSelectionArea(SelectionArea.Type.Column, exclusiveX, y, width, height);
             this.flagChanged(false);
         }
         this.endChange();
+    }
+
+    deselectColumns(x: number, count: number) {
+        const changed = this.columns.delete(x, count);
+        if (changed) {
+            const lastArea = this._lastArea;
+            if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Column) {
+                const oldFirst = lastArea.exclusiveFirst;
+                const oldLast = lastArea.exclusiveLast;
+                const oldStart = oldFirst.x;
+                const oldLength = oldLast.x - oldStart;
+                const overlapRange = this.columns.calculateOverlapRange(oldStart, oldLength);
+                if (overlapRange === undefined) {
+                    this._lastArea = undefined;
+                } else {
+                    const lastY = oldFirst.y;
+                    const lastHeight = oldLast.y - lastY;
+                    const overlapStart = overlapRange.start;
+                    const overlapLength = overlapRange.length;
+                    let lastExclusiveX: number;
+                    let lastWidth: number;
+                    // set lastX and lastWidth so that last area still specifies the same corner
+                    if (oldLength >= 0) {
+                        lastExclusiveX = overlapStart;
+                        lastWidth = overlapLength;
+                    } else {
+                        lastExclusiveX = overlapStart + overlapLength;
+                        lastWidth = -overlapLength;
+                    }
+
+                    this._lastArea = new LastSelectionArea(SelectionArea.Type.Column, lastExclusiveX, lastY, lastWidth, lastHeight);
+                }
+            }
+        }
     }
 
     // /**
@@ -345,13 +437,13 @@ export class Selection {
     //     this.endChange();
     // }
 
-    hasRowSelections() {
-        return !this.rows.isEmpty();
-    }
+    // hasRowSelections() {
+    //     return !this.rows.isEmpty();
+    // }
 
-    hasColumnSelections() {
-        return !this.columns.isEmpty();
-    }
+    // hasColumnSelections() {
+    //     return !this.columns.isEmpty();
+    // }
 
     /**
      * @summary Selection query function.
@@ -362,19 +454,19 @@ export class Selection {
         return (rowSelected || columnSelected || cellSelected);
     }
 
-    isRowSelected(y: number, subgrid: Subgrid | undefined) {
-        const selected =
-            (subgrid === undefined || subgrid === this.focusedSubgrid)
-            &&
-            (this._allRowsSelected || this.rows.isSelected(y));
-        return selected;
-    }
+    // isRowSelected(y: number, subgrid: Subgrid | undefined) {
+    //     const selected =
+    //         (subgrid === undefined || subgrid === this.focusedSubgrid)
+    //         &&
+    //         (this._allRowsSelected || this.rows.includesIndex(y));
+    //     return selected;
+    // }
 
     getCellSelectedAreaTypes(x: number, y: number, subgrid: SubgridInterface): Selection.CellSelectedAreaTypes {
         if (subgrid === this.focusedSubgrid) {
             return {
-                rowSelected: this._allRowsSelected || this.rows.isSelected(y),
-                columnSelected: this.columns.isSelected(x),
+                rowSelected: this._allRowsSelected || this.rows.includesIndex(y),
+                columnSelected: this.columns.includesIndex(x),
                 cellSelected: this.rectangleList.anyContainPoint(x, y),
             };
         } else {
@@ -399,7 +491,7 @@ export class Selection {
                 return this.rectangleList.getUniqueXIndices();
             } else {
                 if (this.rectangleList.isEmpty()) {
-                    return this.rows.getCount();
+                    return this.rows.getIndexCount();
                 } else {
                     const rangeIndices = this.rows.getIndices();
                     const rectangleIndices = this.rectangleList.getNonUniqueXIndices();
@@ -431,60 +523,49 @@ export class Selection {
         return !this.columns.isEmpty() || !this.rows.isEmpty();
     }
 
-    getRectangleFlattenedYs() {
-        this.rectangleList.getFlattenedYs();
-    }
+    // getRectangleFlattenedYs() {
+    //     this.rectangleList.getFlattenedYs();
+    // }
 
     getAreasCoveringCell(x: number, y: number) {
-
-    }
-
-    selectRowsFromRectangles(offset: number, keepRowSelections: boolean) {
-        const rows = this.rows;
-
-        if (!keepRowSelections) {
-            this.allRowsSelected = false;
-            this.clearRowSelection();
-        }
-
-        const last = this.getLastRectangle();
-
-        this.rectangleList.rectangles.forEach((rectangle) => {
-            if (rectangle !== last) {
-                let start = rectangle.origin.y;
-                const extent = rectangle.extent.y;
-                start += offset;
-                rows.select(start, extent);
+        let result: SelectionArea[];
+        if (this._allRowsSelected) {
+            const area = this.createAreaFromAllRows();
+            if (area === undefined) {
+                result = [];
+            } else {
+                result = [area];
             }
-        });
-
-        if (last !== undefined) {
-            const columnIndex = last.first.x
-            let start = last.origin.y;
-            const extent = last.extent.y;
-            start += offset;
-            this.selectRows(start, start + extent, undefined, columnIndex);
+        } else {
+            const range = this.rows.findRangeWithIndex(y);
+            if (range === undefined) {
+                result = [];
+            } else {
+                const area = this.createAreaFromRowRange(range);
+                result = [area];
+            }
         }
+
+        const columnRange = this.columns.findRangeWithIndex(x);
+        if (columnRange !== undefined) {
+            const area = this.createAreaFromColumnRange(columnRange);
+            result.push(area);
+        }
+
+        const rectangles =  this.rectangleList.getRectanglesContainingPoint(x, y);
+        for (const rectangle of rectangles) {
+            result.push(rectangle);
+        }
+
+        return result;
     }
 
-    selectColumnsFromRectangles(offset = 0) {
-        const sm = this.columns;
-        sm.clear();
-
-        this.rectangleList.rectangles.forEach((rectangle) => {
-            let left = rectangle.origin.x;
-            const extent = rectangle.extent.x;
-            left += offset;
-            sm.select(left, extent);
-        });
-    }
-
-    isPointInLastRectangle(x: number, y: number) {
-        const lastRectangle = this.getLastRectangle();
-        if (lastRectangle === undefined) {
+    isPointInLastArea(x: number, y: number) {
+        const lastArea = this._lastArea;
+        if (lastArea === undefined) {
             return false;
         } else {
-            return lastRectangle.containsXY(x, y);
+            return lastArea.containsXY(x, y);
         }
     }
 
@@ -660,6 +741,64 @@ export class Selection {
         this._changed = true;
     }
 
+    private createAreaFromAllRows(): SelectionArea | undefined {
+        const rowCount = this._focus.subgrid.getRowCount();
+        const activeColumnCount = this._columnsManager.getActiveColumnCount();
+        if (rowCount === 0 || activeColumnCount === 0) {
+            return undefined;
+        } else {
+            const x = 0;
+            const y = 0;
+            return {
+                x,
+                y,
+                width: activeColumnCount,
+                height: rowCount,
+                areaType: SelectionArea.Type.Row,
+                topLeft: { x, y },
+                exclusiveBottomRight: { x: activeColumnCount, y: rowCount },
+                firstCorner: Corner.TopLeft,
+                size: activeColumnCount * rowCount,
+            };
+        }
+    }
+
+    private createAreaFromRowRange(range: ContiguousIndexRange): SelectionArea {
+        const activeColumnCount = this._columnsManager.getActiveColumnCount();
+        const x = 0;
+        const y = range.start;
+        const height = range.length;
+        return {
+            x,
+            y,
+            width: activeColumnCount,
+            height,
+            areaType: SelectionArea.Type.Row,
+            topLeft: { x, y },
+            exclusiveBottomRight: { x: activeColumnCount, y: range.after },
+            firstCorner: Corner.TopLeft,
+            size: activeColumnCount * height,
+    };
+    }
+
+    private createAreaFromColumnRange(range: ContiguousIndexRange): SelectionArea {
+        const rowCount = this._focus.subgrid.getRowCount();
+        const x = range.start;
+        const y = 0;
+        const width = range.length;
+        return {
+            x,
+            y,
+            width,
+            height: rowCount,
+            areaType: SelectionArea.Type.Column,
+            topLeft: { x, y },
+            exclusiveBottomRight: { x: range.after, y: rowCount },
+            firstCorner: Corner.TopLeft,
+            size: width * rowCount,
+        };
+    }
+
     private stash() {
         if (this._stash !== undefined) {
             throw new AssertError('MSSS86665');
@@ -711,19 +850,40 @@ export class Selection {
         if (!propertiesAllow) {
             return undefined;
         } else {
-            const rectangle = this.rectangleList.getLastRectangle();
-            if (rectangle === undefined) {
+            const rectangles = this.rectangleList.rectangles;
+            if (rectangles.length === 0) {
                 return undefined;
             } else {
-                const dataModel = this._focus.subgrid.dataModel;
-                if (dataModel.getRowIdFromIndex === undefined) {
+                let cellPoint: Point | undefined;
+                const focusPoint = this._focus.point;
+                if (focusPoint !== undefined) {
+                    for (const rectangle of this.rectangleList.rectangles) {
+                        if (rectangle.containsPoint(focusPoint)) {
+                            cellPoint = focusPoint;
+                            break;
+                        }
+                    }
+                }
+
+                if (cellPoint !== undefined) {
+                    const rectangle = this.rectangleList.getLastRectangle();
+                    if (rectangle !== undefined) {
+                        cellPoint = rectangle.inclusiveFirst;
+                    }
+                }
+
+                if (cellPoint === undefined) {
                     return undefined;
                 } else {
-                    const firstSelectedCell = rectangle.first;
-                    return {
-                        columnName: this._columnsManager.getActiveColumn(firstSelectedCell.x).name,
-                        rowId: dataModel.getRowIdFromIndex(firstSelectedCell.y),
-                    };
+                    const dataModel = this._focus.subgrid.dataModel;
+                    if (dataModel.getRowIdFromIndex === undefined) {
+                        return undefined;
+                    } else {
+                        return {
+                            columnName: this._columnsManager.getActiveColumn(cellPoint.x).name,
+                            rowId: dataModel.getRowIdFromIndex(cellPoint.y),
+                        };
+                    }
                 }
             }
         }
@@ -740,7 +900,7 @@ export class Selection {
                 if (dataModel.getRowIndexFromId !== undefined) {
                     const rowIndex = dataModel.getRowIndexFromId(stashedRowId);
                     if (rowIndex !== undefined) {
-                        this.selectRectangle(selectedColumnIndex, rowIndex, 0, 0, subgrid);
+                        this.selectRectangle(selectedColumnIndex, rowIndex, 1, 1);
                     }
                 } else {
                     if (dataModel.getRowIdFromIndex !== undefined) {
@@ -748,7 +908,7 @@ export class Selection {
                         for (let rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
                             const rowId = dataModel.getRowIdFromIndex(rowIndex);
                             if (rowId === stashedRowId) {
-                                this.selectRectangle(selectedColumnIndex, rowIndex, 0, 0, subgrid);
+                                this.selectRectangle(selectedColumnIndex, rowIndex, 1, 1);
                                 break;
                             }
                         }
@@ -829,14 +989,14 @@ export class Selection {
                         const value = rowIndexValues[i];
                         if (value !== previousValue) {
                             if (value !== previousValuePlus1) {
-                                this.selectRows(startValue, previousValue, undefined, undefined);
+                                this.rows.add(startValue, previousValuePlus1 - startValue);
                                 startValue = value;
                             }
                             previousValue = value;
                             previousValuePlus1 = previousValue + 1;
                         }
                     }
-                    this.selectRows(startValue, previousValue, undefined, undefined);
+                    this.rows.add(startValue, previousValuePlus1 - startValue);
                 }
             }
         }
@@ -884,14 +1044,14 @@ export class Selection {
                         const value = indexValues[i];
                         if (value !== previousValue) {
                             if (value !== previousValuePlus1) {
-                                this.selectColumns(startValue, previousValue);
+                                this.columns.add(startValue, previousValuePlus1 - startValue);
                                 startValue = value;
                             }
                             previousValue = value;
                             previousValuePlus1 = previousValue + 1;
                         }
                     }
-                    this.selectColumns(startValue, previousValue);
+                    this.columns.add(startValue, previousValuePlus1 - startValue);
                 }
             }
         }

@@ -132,7 +132,7 @@ export abstract class GridPainter {
         config.isRowFocused = this.focus.isRowFocused(r, subgrid);
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
-        config.isInCurrentSelectionRectangle = selection.isPointInLastRectangle(x, r);
+        config.isInCurrentSelectionRectangle = selection.isPointInLastArea(x, r);
         config.prefillColor = prefillColor;
 
         if (grid.mouseDownState) {

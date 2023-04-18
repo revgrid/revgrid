@@ -31,7 +31,8 @@ import { GridPainter } from './grid-painter/grid-painter';
 import { GridProperties, LoadableGridProperties } from './grid-properties';
 import { DateFormatter, Localization, NumberFormatter } from './lib/localization';
 import { Point, WritablePoint } from './lib/point';
-import { Rectangle, RectangleInterface } from './lib/rectangle';
+import { Rectangle } from './lib/rectangle';
+import { RectangleInterface } from './lib/rectangle-interface';
 import { AssertError } from './lib/revgrid-error';
 import { SelectionArea } from './lib/selection-area';
 import { ColumnNameWidth, ListChangedTypeId } from './lib/types';
@@ -1064,7 +1065,7 @@ export class Revgrid implements SelectionDetail {
      */
     getDataBounds() {
         const b = this.canvas.bounds;
-        return new Rectangle(0, 0, b.origin.x + b.extent.x, b.origin.y + b.extent.y);
+        return new Rectangle(0, 0, b.topLeft.x + b.extent.x, b.topLeft.y + b.extent.y);
     }
 
     /**
@@ -2144,7 +2145,7 @@ export class Revgrid implements SelectionDetail {
         // for descendants
     }
 
-    protected descendantProcessColumnsWidthChanged(_columns: Column[], _ui: boolean) {
+    protected descendantProcessColumnsWidthChanged(_columns: ColumnInterface[], _ui: boolean) {
         // for descendants
     }
 
@@ -2983,24 +2984,29 @@ export class Revgrid implements SelectionDetail {
     }
 
     isInCurrentSelectionRectangle(x: number, y: number) {
-        return this.selection.isPointInLastRectangle(x, y);
+        return this.selection.isPointInLastArea(x, y);
     }
 
     /**
      * @summary Select given region.
-     * @param ox - origin x
-     * @param oy - origin y
+     * @param exclusiveX - origin x
+     * @param exclusiveY - origin y
      * @param ex - extent x
      * @param ex - extent y
      */
 
-    selectRectangle(ox: number, oy: number, ex: number, ey: number, subgrid?: Subgrid) {
-        if (ox < 0 || oy < 0) {
-            //we don't select negative area
-            //also this means there is no origin mouse down for a selection rect
-            return;
+    focusSelectRectangle(exclusiveX: number, exclusiveY: number, ex: number, ey: number, subgrid?: Subgrid) {
+        if (subgrid === undefined) {
+            subgrid = this.behavior.mainSubgrid;
         }
-        this._focusSelectionBehavior.selectRectangle(ox, oy, ex, ey, subgrid);
+        this._focusSelectionBehavior.focusSelectOnlyRectangle(exclusiveX, exclusiveY, ex, ey, subgrid);
+    }
+
+    selectRectangle(exclusiveX: number, exclusiveY: number, ex: number, ey: number, subgrid?: Subgrid) {
+        if (subgrid === undefined) {
+            subgrid = this.behavior.mainSubgrid;
+        }
+        this._focusSelectionBehavior.selectOnlyRectangle(exclusiveX, exclusiveY, ex, ey, subgrid);
     }
 
     selectViewportCell(x: number, y: number, areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
@@ -3016,7 +3022,7 @@ export class Revgrid implements SelectionDetail {
             (vc = this.renderer.visibleColumns[x]) &&
             (vr = this.renderer.visibleRows[y + this._subgridsManager.calculateHeaderRowCount()])
         ) {
-            const origin = selectionRectangles[0].origin;
+            const origin = selectionRectangles[0].topLeft;
             x = vc.activeColumnIndex;
             y = vr.rowIndex;
             this._userInterfaceInputBehavior.setDragExtent(Point.create(x - origin.x, y - origin.y));
@@ -3037,7 +3043,7 @@ export class Revgrid implements SelectionDetail {
             const rectangles = selection.rectangleList.rectangles;
             if (rectangles.length > 0) {
                 const rectangle = rectangles[0];
-                const origin = rectangle.origin;
+                const origin = rectangle.topLeft;
                 const extent = rectangle.extent;
                 const columnCount = this._columnsManager.getActiveColumnCount();
 
@@ -3072,7 +3078,7 @@ export class Revgrid implements SelectionDetail {
             const rectangles = selection.rectangleList.rectangles;
             if (rectangles && rectangles.length) {
                 const rectangle = rectangles[0];
-                const origin = rectangle.origin;
+                const origin = rectangle.topLeft;
                 const extent = rectangle.extent;
 
                 selection.beginChange();
@@ -3110,7 +3116,7 @@ export class Revgrid implements SelectionDetail {
             const rectangles = selection.rectangleList.rectangles;
             if (rectangles && rectangles.length) {
                 const rectangle = rectangles[0];
-                const origin = rectangle.origin;
+                const origin = rectangle.topLeft;
                 const columnCount = this._columnsManager.getActiveColumnCount();
 
                 selection.beginChange();
@@ -3146,70 +3152,70 @@ export class Revgrid implements SelectionDetail {
         this._focusSelectionBehavior.selectAllRows();
     }
 
-    toggleSelectAllRows(forceClearRows = true) {
-        this._focusSelectionBehavior.toggleSelectAllRows(forceClearRows);
-    }
+    // toggleSelectAllRows(forceClearRows = true) {
+    //     this._focusSelectionBehavior.toggleSelectAllRows(forceClearRows);
+    // }
 
-    selectColumns(x1: number, x2: number) {
-        this._focusSelectionBehavior.focusSelectColumns(x1, x2);
-    }
+    // selectColumns(x1: number, x2: number) {
+    //     this._focusSelectionBehavior.focusSelectColumns(x1, x2);
+    // }
 
-    toggleSelectRow(y: number, shiftKeyDown: boolean, subgrid: Subgrid | undefined) {
-        this._focusSelectionBehavior.toggleSelectRow(y, shiftKeyDown, subgrid);
-    }
+    // toggleSelectRow(y: number, shiftKeyDown: boolean, subgrid: Subgrid | undefined) {
+    //     this._focusSelectionBehavior.toggleSelectRow(y, shiftKeyDown, subgrid);
+    // }
 
-    toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
-        this._focusSelectionBehavior.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
-    }
+    // toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
+    //     this._focusSelectionBehavior.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
+    // }
 
     /** @summary Extend cell selection by offset.
      * @desc Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
      * @param offsetX - x coordinate to start at
      * @param offsetY - y coordinate to start at
      */
-    extendRectangleSelect(offsetX: number, offsetY: number) {
-        const selection = this.selection;
-        const subgrid = selection.focusedSubgrid;
-        let maxColumns = this.getActiveColumnCount() - 1;
-        let maxRows = subgrid.getRowCount() - 1;
+    // extendRectangleSelect(offsetX: number, offsetY: number) {
+    //     const selection = this.selection;
+    //     const subgrid = selection.focusedSubgrid;
+    //     let maxColumns = this.getActiveColumnCount() - 1;
+    //     let maxRows = subgrid.getRowCount() - 1;
 
-        const maxViewableColumns = this.renderer.visibleColumns.length - 1;
-        const maxViewableRows = this.renderer.visibleRows.length - 1;
+    //     const maxViewableColumns = this.renderer.visibleColumns.length - 1;
+    //     const maxViewableRows = this.renderer.visibleRows.length - 1;
 
-        const origin = this._userInterfaceInputBehavior.getMouseDown();
-        const extent = this._userInterfaceInputBehavior.getDragExtent();
+    //     const origin = this._userInterfaceInputBehavior.getMouseDown();
+    //     const extent = this._userInterfaceInputBehavior.getDragExtent();
 
-        if (origin === undefined || extent === undefined) {
-            throw new AssertError('RGES01034');
-        } else {
-            let newX = extent.x + offsetX;
-            let newY = extent.y + offsetY;
+    //     if (origin === undefined || extent === undefined) {
+    //         throw new AssertError('RGES01034');
+    //     } else {
+    //         let newX = extent.x + offsetX;
+    //         let newY = extent.y + offsetY;
 
-            if (!this.properties.scrollingEnabled) {
-                maxColumns = Math.min(maxColumns, maxViewableColumns);
-                maxRows = Math.min(maxRows, maxViewableRows);
-            }
+    //         if (!this.properties.scrollingEnabled) {
+    //             maxColumns = Math.min(maxColumns, maxViewableColumns);
+    //             maxRows = Math.min(maxRows, maxViewableRows);
+    //         }
 
-            newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
-            newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
+    //         newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
+    //         newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
 
-            selection.beginChange();
-            try {
-                this.clearMostRecentRectangleSelection();
-                selection.selectRectangle(origin.x, origin.y, newX, newY, subgrid);
-            } finally {
-                selection.endChange();
-            }
-            this._userInterfaceInputBehavior.setDragExtent(Point.create(newX, newY));
+    //         selection.beginChange();
+    //         try {
+    //             this.clearMostRecentRectangleSelection();
+    //             selection.selectRectangle(origin.x, origin.y, newX, newY, subgrid);
+    //         } finally {
+    //             selection.endChange();
+    //         }
+    //         this._userInterfaceInputBehavior.setDragExtent(Point.create(newX, newY));
 
-            const colScrolled = this.ensureModelColIsVisible(newX + origin.x, offsetX);
-            const rowScrolled = this.ensureModelRowIsVisible(newY + origin.y, offsetY, subgrid);
+    //         const colScrolled = this.ensureModelColIsVisible(newX + origin.x, offsetX);
+    //         const rowScrolled = this.ensureModelRowIsVisible(newY + origin.y, offsetY, subgrid);
 
-            this.repaint();
+    //         this.repaint();
 
-            return colScrolled || rowScrolled;
-        }
-    }
+    //         return colScrolled || rowScrolled;
+    //     }
+    // }
 
     /**
      * @param useAllCells - Search in all rows and columns instead of only rendered ones.
@@ -3389,7 +3395,10 @@ export class Revgrid implements SelectionDetail {
     }
 
     /** @internal */
-    focusCell(c: number, r: number, subgrid: Subgrid | undefined, selectionAreaTypeSpecifier: SelectionArea.TypeSpecifier) {
+    focusCell(c: number, r: number, subgrid?: Subgrid, selectionAreaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
+        if (subgrid === undefined) {
+            subgrid = this.behavior.mainSubgrid;
+        }
         this._focusSelectionBehavior.focusSelectOnlyCell(c, r, subgrid, selectionAreaTypeSpecifier);
     }
 

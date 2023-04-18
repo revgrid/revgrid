@@ -1,6 +1,6 @@
 
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { RectangleInterface } from '../lib/rectangle';
+import { RectangleInterface } from '../lib/rectangle-interface';
 import { CellPaintConfig } from '../renderer/cell-paint-config';
 import { CellPainter } from './cell-painter';
 

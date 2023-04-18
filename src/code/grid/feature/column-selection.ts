@@ -166,10 +166,10 @@ export class ColumnSelection extends Feature {
         const b = grid.getDataBounds();
         let xOffset: number;
 
-        if (this._currentDrag.x < b.origin.x) {
+        if (this._currentDrag.x < b.topLeft.x) {
             xOffset = -1;
         } else {
-            if (this._currentDrag.x > b.origin.x + b.extent.x) {
+            if (this._currentDrag.x > b.topLeft.x + b.extent.x) {
                 xOffset = 1;
             } else {
                 xOffset = 0;

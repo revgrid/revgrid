@@ -1,6 +1,7 @@
 import { ContiguousIndexRange } from './contiguous-index-range';
 
 export class ContiguousIndexRangeList {
+    // Ranges do not overlap, do not abut, and are ordered by start
     readonly ranges = new Array<ContiguousIndexRange>(0);
 
     assign(other: ContiguousIndexRangeList) {
@@ -22,8 +23,15 @@ export class ContiguousIndexRangeList {
         return this.ranges.length === 0;
     }
 
-    add(start: number, length: number) {
-        const after = start + length;
+    add(exclusiveStart: number, length: number) {
+        let after: number;
+        if (length >= 0) {
+            after = exclusiveStart + length;
+        } else {
+            after = exclusiveStart;
+            exclusiveStart += length;
+            length = - length;
+        }
         const ranges = this.ranges;
         const oldCount = ranges.length;
 
@@ -31,18 +39,18 @@ export class ContiguousIndexRangeList {
         for (let i = 0; i < oldCount; i++) {
             const range = ranges[i];
             const rangeAfter = range.after;
-            if (rangeAfter >= start) {
+            if (rangeAfter >= exclusiveStart) {
                 // found first affected range
                 if (rangeAfter >= after) {
                     // nothing else to do as only this range affected
-                    if (range.start <= start) {
+                    if (range.start <= exclusiveStart) {
                         return false; // existing range contained added range so no change
                     } else {
-                        range.setStart(start); // adjust this range to contain added range
+                        range.setStart(exclusiveStart); // adjust this range to contain added range
                         return true;
                     }
                 } else {
-                    range.setStart(start); // start of new range (either this or combination)
+                    range.setStart(exclusiveStart); // start of new range (either this or combination)
                     firstAffectedExistingRangeIndex = i;
                     break;
                 }
@@ -51,7 +59,7 @@ export class ContiguousIndexRangeList {
 
         if (firstAffectedExistingRangeIndex === undefined) {
             // No overlap with existing ranges - just add at end
-            const range = new ContiguousIndexRange(start, length);
+            const range = new ContiguousIndexRange(exclusiveStart, length);
             ranges.push(range);
             return true;
         } else {
@@ -84,7 +92,14 @@ export class ContiguousIndexRangeList {
     }
 
     delete(start: number, length: number) {
-        const after = start + length;
+        let after: number;
+        if (length >= 0) {
+            after = start + length;
+        } else {
+            after = start;
+            start += length;
+            length = - length;
+        }
         const ranges = this.ranges;
         const oldCount = this.ranges.length;
 
@@ -180,6 +195,18 @@ export class ContiguousIndexRangeList {
         return false;
     }
 
+    findRangeWithIndex(index: number) {
+        const ranges = this.ranges;
+        const rangeCount = this.ranges.length;
+        for (let i = 0; i < rangeCount; i++) {
+            const range = ranges[i];
+            if (range.includes(index)) {
+                return range;
+            }
+        }
+        return undefined;
+    }
+
     getIndexCount() {
         let result = 0;
         const ranges = this.ranges;
@@ -200,6 +227,77 @@ export class ContiguousIndexRangeList {
             count = range.addIndicesToArray(result, count);
         }
         return result;
+    }
+
+    calculateOverlapRange(start: number, length: number) {
+        if (length >= 0) {
+            return this.calculateFirstOverlapRange(start, length);
+        } else {
+            return this.calculateLastOverlapRange(start, -length);
+        }
+    }
+
+    calculateFirstOverlapRange(start: number, length: number) {
+        if (length < 0) {
+            start += length;
+            length = -length;
+        }
+        const ranges = this.ranges;
+        for (const range of ranges) {
+            const rangeAfter = range.after;
+            if (rangeAfter >= start) {
+                const after = start + length;
+                const rangeStart = range.start;
+                if (rangeAfter < after) {
+                    if (rangeStart >= start) {
+                        return new ContiguousIndexRange(rangeStart, rangeAfter - rangeStart);
+                    } else {
+                        return new ContiguousIndexRange(start, rangeAfter - start);
+                    }
+                } else {
+                    if (rangeStart < after) {
+                        return new ContiguousIndexRange(rangeStart, after - rangeStart);
+                    } else {
+                        return undefined;
+                    }
+                }
+            }
+        }
+        return undefined;
+    }
+
+    calculateLastOverlapRange(start: number, length: number) {
+        let after: number;
+        if (length >= 0) {
+            after = start + length;
+        } else {
+            after = start;
+            start += length;
+            length = -length;
+        }
+        const ranges = this.ranges;
+        const rangeCount = ranges.length;
+        for (let i = rangeCount - 1; i >= 0; i--) {
+            const range = ranges[i];
+            const rangeStart = range.start;
+            if (rangeStart < after) {
+                const rangeAfter = range.after;
+                if (rangeStart >= start) {
+                    if (rangeAfter < after) {
+                        return new ContiguousIndexRange(rangeStart, rangeAfter - rangeStart);
+                    } else {
+                        return new ContiguousIndexRange(rangeStart, after - rangeStart);
+                    }
+                } else {
+                    if (rangeAfter > start) {
+                        return new ContiguousIndexRange(start, rangeAfter - start);
+                    } else {
+                        return undefined;
+                    }
+                }
+            }
+        }
+        return undefined;
     }
 
     adjustForInserted(start: number, count: number): boolean {
@@ -233,16 +331,16 @@ export class ContiguousIndexRangeList {
 
         if (rangeCount > 0) {
             const after = start + count;
-            let firstRangeStartingBeforeDeletionIndex: number | undefined
+            let beforeDeletionFirstStartingRangeIndex: number | undefined
             let lastRangeFullyEnclosedinDeletionIndex: number | undefined;
-            let upperPossibleMergeableRange: ContiguousIndexRange | undefined;
+            let afterDeletionFirstEndingRange: ContiguousIndexRange | undefined;
             for (let i = rangeCount - 1; i >= 0; i--) {
                 const range = ranges[i];
                 const rangeStart = range.start;
                 if (rangeStart >= after) {
                     // Above deletion - move whole range down
                     range.move(-count);
-                    upperPossibleMergeableRange = range;
+                    afterDeletionFirstEndingRange = range;
                     changed = true;
                 } else {
                     const rangeAfter = range.after;
@@ -253,7 +351,7 @@ export class ContiguousIndexRangeList {
                             const overlapLength = after - rangeStart;
                             range.grow(-overlapLength);
                             range.move(count - overlapLength);
-                            upperPossibleMergeableRange = range;
+                            afterDeletionFirstEndingRange = range;
                             changed = true;
                         } else {
                             // range full contained in deletion
@@ -275,7 +373,7 @@ export class ContiguousIndexRangeList {
                                 changed = true;
                             }
                         }
-                        firstRangeStartingBeforeDeletionIndex = i;
+                        beforeDeletionFirstStartingRangeIndex = i;
                         // no more ranges will be affected
                         break;
                     }
@@ -283,20 +381,23 @@ export class ContiguousIndexRangeList {
             }
 
             if (lastRangeFullyEnclosedinDeletionIndex !== undefined) {
-                const firstDeleteIndex = firstRangeStartingBeforeDeletionIndex === undefined ? 0 : firstRangeStartingBeforeDeletionIndex + 1;
+                // We have at least one range which is fully enclosed in deletion. These ranges need to be deleted
+                const firstDeleteIndex = beforeDeletionFirstStartingRangeIndex === undefined ? 0 : beforeDeletionFirstStartingRangeIndex + 1;
                 const rangeDeleteCount = lastRangeFullyEnclosedinDeletionIndex - firstDeleteIndex + 1;
                 ranges.splice(firstDeleteIndex, rangeDeleteCount);
                 changed = true;
             }
 
-            if (firstRangeStartingBeforeDeletionIndex !== undefined && upperPossibleMergeableRange !== undefined) {
-                const firstRange = ranges[firstRangeStartingBeforeDeletionIndex];
-                if (firstRange.after === upperPossibleMergeableRange.start) {
-                    upperPossibleMergeableRange.setStart(firstRange.start);
-                    ranges.splice(firstRangeStartingBeforeDeletionIndex, 1);
+            if (beforeDeletionFirstStartingRangeIndex !== undefined && afterDeletionFirstEndingRange !== undefined) {
+                // Check if ranges either side of deletion can be merged
+                const firstRange = ranges[beforeDeletionFirstStartingRangeIndex];
+                if (firstRange.after === afterDeletionFirstEndingRange.start) {
+                    afterDeletionFirstEndingRange.setStart(firstRange.start);
+                    ranges.splice(beforeDeletionFirstStartingRangeIndex, 1);
                 }
             }
         }
+
         return changed;
     }
 

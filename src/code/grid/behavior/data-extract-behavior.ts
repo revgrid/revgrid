@@ -81,7 +81,7 @@ export class DataExtractBehavior {
             const dataModel = this._selection.focusedSubgrid.dataModel;
             const columnsManager = this._columnsManager;
             const colCount = this._columnsManager.getActiveColumnCount();
-            const topSelectedRow = rectangles[0].origin.y;
+            const topSelectedRow = rectangles[0].topLeft.y;
             const row: Record<string, unknown> = {};
 
             for (let c = 0; c < colCount; c++) {
@@ -180,11 +180,11 @@ export class DataExtractBehavior {
                 const rowCount = selectionRect.height;
                 const columns: ColumnsDataValuesObject = {};
 
-                for (let c = 0, x = selectionRect.origin.x; c < colCount; c++, x++) {
+                for (let c = 0, x = selectionRect.topLeft.x; c < colCount; c++, x++) {
                     const column = columnsManager.getActiveColumn(x);
                     const values = columns[column.name] = new Array<DataModel.DataValue>(rowCount);
 
-                    for (let r = 0, y = selectionRect.origin.y; r < rowCount; r++, y++) {
+                    for (let r = 0, y = selectionRect.topLeft.y; r < rowCount; r++, y++) {
                         const dataRow = this._selection.focusedSubgrid.getSingletonDataRow(y) as DataModel.DataRow; // should always exist;
                         values[r] = column.getValueFromDataRow(dataRow);
                     }
@@ -208,12 +208,12 @@ export class DataExtractBehavior {
                 const rowCount = rect.height;
                 const columnArray = new Array<Array<DataModel.DataValue>>(colCount);
 
-                let x = rect.origin.x
+                let x = rect.topLeft.x
                 for (let c = 0; c < colCount; c++) {
                     const column = columnsManager.getActiveColumn(x);
 
                     const rowValues = new Array<DataModel.DataValue>(rowCount);
-                    for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
+                    for (let r = 0, y = rect.topLeft.y; r < rowCount; r++, y++) {
                         const dataRow = this._selection.focusedSubgrid.getSingletonDataRow(y) as DataModel.DataRow; // should always exist;
                         rowValues[r] = column.getValueFromDataRow(dataRow);
                     }

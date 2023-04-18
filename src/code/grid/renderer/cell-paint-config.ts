@@ -1,7 +1,8 @@
 import { GridProperties } from '../grid-properties';
 import { Localization } from '../lib/localization';
 import { WritablePoint } from '../lib/point';
-import { Rectangle, RectangleInterface } from '../lib/rectangle';
+import { Rectangle } from '../lib/rectangle';
+import { RectangleInterface } from '../lib/rectangle-interface';
 import { Halign, TextTruncateType } from '../lib/types';
 import { DataModel } from '../model/data-model';
 

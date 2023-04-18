@@ -1,23 +1,15 @@
-import { Writable } from '..//lib/types';
 import { Point } from './point';
-
-/** @public */
-export interface RectangleInterface {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-}
+import { RectangleInterface } from './rectangle-interface';
 
 /** @public */
 export class Rectangle implements RectangleInterface {
-    readonly x: number;
-    readonly y: number;
+    private _x: number;
+    private _y: number;
 
     /**
      * @summary Upper left corner of this rect.
      */
-    readonly origin: Point;
+    private _topLeft: Point;
 
     /**
      * @summary this rect's width and height.
@@ -26,17 +18,14 @@ export class Rectangle implements RectangleInterface {
      * This object might be more legitimately typed as something like `Area` with properties `width` and `height`; however we wanted it to be able to use it efficiently with a point's `plus` and `minus` methods (that is, without those methods having to check and branch on the type of its parameter).
      *
      * Created upon instantiation by the {@linkplain Rectangle|constructor}.
-     * @see The {@link Rectangle#corner|corner} method.
+     * @see The {@link Rectangle#_exclusiveBottomRight|corner} method.
      */
-    readonly extent: Point;
+    private _extent: Point;
 
     /**
-     * @summary Lower right corner of this rect.
-     * @desc This is a calculated value created upon instantiation by the {@linkplain Rectangle|constructor}. It is `origin` offset by `extent`.
-     *
-     * **Note:** These coordinates actually point to the pixel one below and one to the right of the rect's actual lower right pixel.
+     * @summary One pixel out from bottom right of rectangle.
      */
-    readonly corner: Point;
+    private _exclusiveBottomRight: Point;
 
     /**
      * @constructor Rectangle
@@ -58,71 +47,86 @@ export class Rectangle implements RectangleInterface {
      *
      * Note: This object should be instantiated with the `new` keyword.
      *
-     * @param x - Horizontal coordinate of some corner of the rect.
-     * @param y - Vertical coordinate of some corner of the rect.
+     * @param exclusiveX - Horizontal coordinate of some corner of the rect.
+     * @param exclusiveY - Vertical coordinate of some corner of the rect.
      * @param width - Width of the new rect. May be negative (see above).
      * @param height - Height of the new rect. May be negative (see above).
      */
-    constructor(x: number, y: number, width: number, height: number) {
-        if (width < 0) {
-            x += width;
+    constructor(exclusiveX: number, exclusiveY: number, width: number, height: number) {
+        if (width >= 0) {
+            this._x = exclusiveX;
+        } else {
+            this._x = exclusiveX + width;
             width = -width;
         }
 
-        if (height < 0) {
-            y += height;
+        if (height >= 0) {
+            this._y = exclusiveY;
+        } else {
+            this._y = exclusiveY + height;
             height = -height;
         }
 
-        this.x = x;
-        this.y = y;
-        this.origin = Point.create(x, y);
-        this.extent = Point.create(width, height);
-        this.corner = Point.create(x + width, y + height);
+        this._topLeft = Point.create(exclusiveX, exclusiveY);
+        this._extent = Point.create(width, height);
+        this._exclusiveBottomRight = Point.create(exclusiveX + width, exclusiveY + height);
     }
+
+    get x() { return this._x; }
+    get y() { return this._y; }
+    get topLeft() { return this._topLeft; }
+    get exclusiveBottomRight() { return this._exclusiveBottomRight; }
+    get inclusiveBottomRight(): Point {
+        return { x: this._exclusiveBottomRight.x - 1, y: this._exclusiveBottomRight.y - 1 };
+    }
+    get extent() { return this._extent; }
 
     /**
      * @summary Minimum vertical coordinate of this rect.
      */
     get top() {
-        return this.origin.y;
+        return this._y;
     }
 
     /**
      * @summary Minimum horizontal coordinate of this rect.
      */
     get left() {
-        return this.origin.x;
+        return this._x;
     }
 
-    /**
-     * For exclusive, maximum vertical coordinate of this rect + 1.
-     * For inclusive, maximum vertical coordinate of this rect.
-     */
-    get bottom() {
-        return this.corner.y;
+    get inclusiveBottom() {
+        return this._exclusiveBottomRight.y - 1;
+    }
+
+    get exclusiveBottom() {
+        return this._exclusiveBottomRight.y;
+    }
+
+    get inclusiveRight() {
+        return this._exclusiveBottomRight.x - 1;
     }
 
     /**
      * For exclusive, maximum horizontal coordinate of this rect + 1.
      * For inclusive, maximum horizontal coordinate of this rect.
      */
-    get right() {
-        return this.corner.x;
+    get exclusiveRight() {
+        return this._exclusiveBottomRight.x;
     }
 
     /**
      * @summary Width of this rect (always positive).
      */
     get width() {
-        return this.extent.x;
+        return this._extent.x;
     }
 
     /**
      * @summary Height of this rect (always positive).
      */
     get height() {
-        return this.extent.y;
+        return this._extent.y;
     }
 
     /**
@@ -133,7 +137,7 @@ export class Rectangle implements RectangleInterface {
     }
 
     createCopy() {
-        return new Rectangle(this.x, this.y, this.extent.x, this.extent.y);
+        return new Rectangle(this._x, this._y, this._extent.x, this._extent.y);
     }
 
     /**
@@ -145,19 +149,19 @@ export class Rectangle implements RectangleInterface {
     }
 
     containsXY(x: number, y: number) {
-        let minX = this.origin.x;
-        let maxX = minX + this.extent.x;
-        let minY = this.origin.y;
-        let maxY = minY + this.extent.y;
+        let minX = this._topLeft.x;
+        let maxX = minX + this._extent.x;
+        let minY = this._topLeft.y;
+        let maxY = minY + this._extent.y;
 
-        if (this.extent.x < 0) {
+        if (this._extent.x < 0) {
             minX = maxX;
-            maxX = this.origin.x;
+            maxX = this._topLeft.x;
         }
 
-        if (this.extent.y < 0) {
+        if (this._extent.y < 0) {
             minY = maxY;
-            maxY = this.origin.y;
+            maxY = this._topLeft.y;
         }
 
         return (
@@ -175,37 +179,35 @@ export class Rectangle implements RectangleInterface {
      */
     within(rect: Rectangle): boolean {
         return (
-            Point.lessThanOrEqualTo(rect.origin, this.origin) &&
-            Point.greaterThanOrEqualTo(rect.corner, this.corner)
+            Point.lessThanOrEqualTo(rect._topLeft, this._topLeft) &&
+            Point.greaterThanOrEqualTo(rect._exclusiveBottomRight, this._exclusiveBottomRight)
         );
     }
 
     /** Moves this Rectangle in x direction */
     moveX(offset: number) {
-        const writeableRect = this as WriteableRectangle;
-        writeableRect.x += offset;
-        Point.moveX(writeableRect.origin, offset);
-        Point.moveX(writeableRect.corner, offset);
+        this._x += offset;
+        Point.moveX(this.topLeft, offset);
+        Point.moveX(this.exclusiveBottomRight, offset);
     }
 
     /** Moves this Rectangle in y direction */
     moveY(offset: number) {
-        const writeableRect = this as WriteableRectangle;
-        writeableRect.y += offset;
-        Point.moveY(writeableRect.origin, offset);
-        Point.moveY(writeableRect.corner, offset);
+        this._y += offset;
+        Point.moveY(this.topLeft, offset);
+        Point.moveY(this.exclusiveBottomRight, offset);
     }
 
     /** Grows this Rectangle in x direction with let staying fixed */
     growFromLeft(widthIncrease: number) {
-        Point.moveX(this.extent, widthIncrease);
-        Point.moveX(this.corner, widthIncrease);
+        Point.moveX(this._extent, widthIncrease);
+        Point.moveX(this._exclusiveBottomRight, widthIncrease);
     }
 
     /** Grows this Rectangle in y direction with top staying fixed */
     growFromTop(heightIncrease: number) {
-        Point.moveY(this.extent, heightIncrease);
-        Point.moveY(this.corner, heightIncrease);
+        Point.moveY(this._extent, heightIncrease);
+        Point.moveY(this._exclusiveBottomRight, heightIncrease);
     }
 
     /**
@@ -213,7 +215,7 @@ export class Rectangle implements RectangleInterface {
      * @param x - Horizontal coordinate of the new rect.
      */
     newXFlattened(x: number): Rectangle {
-        return new Rectangle(x, this.origin.y, 0, this.extent.y);
+        return new Rectangle(x, this._topLeft.y, 0, this._extent.y);
     }
 
     /**
@@ -221,15 +223,15 @@ export class Rectangle implements RectangleInterface {
      * @param y - Vertical coordinate of the new rect.
      */
     newYFlattened(y: number): Rectangle {
-        return new Rectangle(this.origin.x, y, this.extent.x, 0);
+        return new Rectangle(this._topLeft.x, y, this._extent.x, 0);
     }
 
     newXMoved(xOffset: number): Rectangle {
-        return new Rectangle(this.x + xOffset, this.y, this.width, this.height);
+        return new Rectangle(this._x + xOffset, this._y, this.width, this.height);
     }
 
     newYMoved(yOffset: number): Rectangle {
-        return new Rectangle(this.x, this.y + yOffset, this.width, this.height);
+        return new Rectangle(this._x, this._y + yOffset, this.width, this.height);
     }
 
     /**
@@ -240,8 +242,8 @@ export class Rectangle implements RectangleInterface {
      */
     newGrownFromCenter(padding: number): Rectangle {
         return new Rectangle(
-            this.x - padding,
-            this.y - padding,
+            this._x - padding,
+            this._y - padding,
             this.width + 2 * padding,
             this.height + 2 * padding);
     }
@@ -260,8 +262,8 @@ export class Rectangle implements RectangleInterface {
      * @param {Rectangle} rect - The rectangle to union with this rect.
      */
     newUnioned(rect: Rectangle): Rectangle {
-        const origin = Point.min(this.origin, rect.origin);
-        const corner = Point.max(this.corner, rect.corner);
+        const origin = Point.min(this._topLeft, rect._topLeft);
+        const corner = Point.max(this._exclusiveBottomRight, rect._exclusiveBottomRight);
         const extent = Point.minus(corner, origin);
 
         return new Rectangle(
@@ -325,10 +327,10 @@ export class Rectangle implements RectangleInterface {
      */
     intersects(rect: Rectangle): boolean {
         return (
-            rect.corner.x > this.origin.x &&
-            rect.corner.y > this.origin.y &&
-            rect.origin.x < this.corner.x &&
-            rect.origin.y < this.corner.y
+            rect._exclusiveBottomRight.x > this._topLeft.x &&
+            rect._exclusiveBottomRight.y > this._topLeft.y &&
+            rect._topLeft.x < this._exclusiveBottomRight.x &&
+            rect._topLeft.y < this._exclusiveBottomRight.y
         );
     }
 
@@ -336,7 +338,7 @@ export class Rectangle implements RectangleInterface {
      * @returns true if selection changed
      */
     adjustForXRangeInserted(index: number, count: number): boolean {
-        const left = this.x;
+        const left = this._x;
         const exclusiveRight = left + this.width;
         if (index >= exclusiveRight || count === 0) {
             return false;
@@ -354,7 +356,7 @@ export class Rectangle implements RectangleInterface {
      * @returns true if selection changed
      */
     adjustForYRangeInserted(index: number, count: number): boolean {
-        const top = this.y;
+        const top = this._y;
         const height = this.height;
         const exclusiveBottom = top + height;
         if (index >= exclusiveBottom || count === 0) {
@@ -373,7 +375,7 @@ export class Rectangle implements RectangleInterface {
      * @returns true if selection changed, false if it was not changed or null if it should be fully deleted
      */
     adjustForXRangeDeleted(deletionLeft: number, deletionCount: number): boolean | null {
-        const left = this.x;
+        const left = this._x;
         const width = this.width;
         const exclusiveRight = left + width;
         if (deletionLeft >= exclusiveRight || deletionCount === 0) {
@@ -415,7 +417,7 @@ export class Rectangle implements RectangleInterface {
      * @returns true if selection changed, false if it was not changed or null if it should be fully deleted
      */
     adjustForYRangeDeleted(deletionTop: number, deletionCount: number): boolean | null {
-        const top = this.y;
+        const top = this._y;
         const height = this.height;
         const exclusiveBottom = top + height;
         if (deletionTop >= exclusiveBottom || deletionCount === 0) {
@@ -452,6 +454,27 @@ export class Rectangle implements RectangleInterface {
             }
         }
     }
+
+    adjustForYRangeMoved(oldIndex: number, newIndex: number, count: number) {
+        // this could probably be better optimised
+        this.adjustForYRangeDeleted(oldIndex, count);
+        this.adjustForYRangeInserted(newIndex, count);
+    }
+
+    adjustForXRangeMoved(oldIndex: number, newIndex: number, count: number) {
+        // this could probably be better optimised
+        this.adjustForXRangeDeleted(oldIndex, count);
+        this.adjustForXRangeInserted(newIndex, count);
+    }
 }
 
-type WriteableRectangle = Writable<Rectangle>;
+export namespace Rectangle {
+    export function arrayContainsPoint(rectangles: Rectangle[], x: number, y: number) {
+        for (const rectangle of rectangles) {
+            if (rectangle.containsXY(x, y)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

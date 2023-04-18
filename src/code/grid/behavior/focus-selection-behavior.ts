@@ -107,23 +107,44 @@ export class FocusSelectionBehavior {
         this._selection.selectAllRows();
     }
 
-    selectRectangle(ox: number, oy: number, ex: number, ey: number, subgrid: Subgrid | undefined) {
-        this._selection.selectRectangle(ox, oy, ex, ey, subgrid);
+    focusSelectOnlyRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: Subgrid) {
+        const selection = this._selection;
+        const focusX = width < 0 ? exclusiveX + width : exclusiveX;
+        const focusY = height < 0 ? exclusiveY + height : exclusiveY;
+
+        this.beginChange();
+        try {
+            selection.clear();
+            this._focus.setXYCoordinatesAndSubgrid(focusX, focusY, subgrid);
+            selection.selectRectangle(exclusiveX, exclusiveY, width, height);
+        } finally {
+            this.endChange();
+        }
+
+        this._scrollToMakeVisibleEventer(focusX, focusY, subgrid);
+
+        this._repaintEventer();
     }
 
-    focusSelectOnlyCell(originX: number, originY: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+    selectOnlyRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: Subgrid) {
+        this._selection.selectRectangle(exclusiveX, exclusiveY, width, height);
+        this._scrollToMakeVisibleEventer(exclusiveX, exclusiveY, subgrid);
+        this._repaintEventer();
+    }
+
+    focusSelectOnlyCell(x: number, y: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
         const selection = this._selection;
 
         this.beginChange();
         try {
             selection.clear();
-            this._focus.setXYCoordinatesAndSubgrid(originX, originY, subgrid);
-            selection.selectCell(originX, originY, subgrid, areaTypeSpecifier);
+            this._focus.setXYCoordinatesAndSubgrid(x, y, subgrid);
+            selection.selectOnlyCell(x, y, areaTypeSpecifier);
         } finally {
             this.endChange();
         }
 
-        this._scrollToMakeVisibleEventer(originX, originY, subgrid);
+        this._scrollToMakeVisibleEventer(x, y, subgrid);
 
         this._repaintEventer();
     }
@@ -143,15 +164,37 @@ export class FocusSelectionBehavior {
         }
     }
 
-    replaceLastAreaFromFocus(extentX: number, extentY: number, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+    replaceLastAreaFromFocus(width: number, height: number, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+        this._selection.beginChange();
+        try {
+            this._selection.deselectLastArea();
+            const focusPoint = this._focus.point;
+            if (focusPoint !== undefined) {
+                this._selection.selectArea(focusPoint.x, focusPoint.y, width, height, areaTypeSpecifier);
+            }
+        } finally {
+            this._selection.endChange();
+        }
+    }
+
+    focusSelectAddCell(x: number, y: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+        const selection = this._selection;
+
+        this.beginChange();
+        try {
+            this._focus.setXYCoordinatesAndSubgrid(x, y, subgrid);
+            selection.selectCell(x, y, areaTypeSpecifier);
+        } finally {
+            this.endChange();
+        }
+
+        this._scrollToMakeVisibleEventer(x, y, subgrid);
+
+        this._repaintEventer();
 
     }
 
-    focusSelectAddCell(originX: number, originY: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
-
-    }
-
-    focusToggleSelectCell(originX: number, originY: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+    focusSelectToggleCell(originX: number, originY: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
         const cellCoveringSelectionAreas = this.getSelectionAreasCoveringCell(originX, originY, subgrid);
         const priorityCoveringArea = this.getPriorityCellCoveringSelectionArea(cellCoveringSelectionAreas);
         if (priorityCoveringArea === undefined) {
@@ -163,7 +206,7 @@ export class FocusSelectionBehavior {
                 const priorityCoveringAreaType = priorityCoveringArea.areaType;
                 switch (priorityCoveringAreaType) {
                     case SelectionArea.Type.Rectangle: {
-                        this._selection.deselectRectangleArea(priorityCoveringArea);
+                        this._selection.deselectRectangle(priorityCoveringArea);
                         break;
                     }
                     case SelectionArea.Type.Column: {
@@ -181,8 +224,8 @@ export class FocusSelectionBehavior {
         }
     }
 
-    deselectSingleCellArea() {
-
+    selectRemoveCellArea(x: number, y: number) {
+        this._selection.deselectCellArea(x, y);
     }
 
 
@@ -201,7 +244,7 @@ export class FocusSelectionBehavior {
         if (this._selection.focusedSubgrid !== subgrid) {
             return [];
         } else {
-            this._selection.getAreasCoveringCell(x, y);
+            return this._selection.getAreasCoveringCell(x, y);
         }
     }
 

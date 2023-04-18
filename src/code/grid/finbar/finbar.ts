@@ -720,7 +720,10 @@ export class FinBar {
             goingUp = evt[this.oh.coordinate] < thumbBox[this.oh.leading];
 
         if (typeof this.paging === 'object') {
-            this.index = this.paging[goingUp ? 'up' : 'down'](Math.round(this.index));
+            const newIndex = this.paging[goingUp ? 'up' : 'down'](Math.round(this.index));
+            if (newIndex !== undefined) {
+                this.index = newIndex;
+            }
         } else {
             this.index += goingUp ? -this.increment : this.increment;
         }
@@ -865,8 +868,8 @@ export namespace FinBar {
     }
 
     export interface Paging {
-        up: (this: void, index: number) => number;
-        down: (this: void, index: number) => number;
+        up: (this: void, index: number) => number | undefined;
+        down: (this: void, index: number) => number | undefined;
     }
 
     export interface TestPanelItem {

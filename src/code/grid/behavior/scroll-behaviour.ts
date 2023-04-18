@@ -124,15 +124,16 @@ export class ScrollBehavior {
         if (subgrid === undefined || subgrid === this._subgridsManager.mainSubgrid) {
             let delta: number;
             const gridRightAligned = this._gridProperties.gridRightAligned
-            const dw = this.renderer.dataWindow;
+            const scrollableColumnRange = this.renderer.scrollableColumnRange;
+            const scrollableRowRange = this.renderer.scrollableRowRange;
             const fixedColumnCount = this._gridProperties.fixedColumnCount;
             const fixedRowCount = this._gridProperties.fixedRowCount;
             let computeCellsBoundsRequired = false;
 
             // scroll only if target not in fixed columns unless grid right aligned
-            if (c >= fixedColumnCount || gridRightAligned) {
+            if (scrollableColumnRange !== undefined && (c >= fixedColumnCount || gridRightAligned)) {
                 let anchorUpdated = false;
-                if ((delta = c - dw.origin.x) < 0) {
+                if ((delta = c - scrollableColumnRange.start) < 0) {
                     // target is to left of scrollable columns
                     if (gridRightAligned) {
                         const {index, offset} = this.renderer.calculateColumnScrollAnchorToScrollIntoView(c, gridRightAligned, this.horizontalScroller.viewportSize);
@@ -141,7 +142,7 @@ export class ScrollBehavior {
                         anchorUpdated = this.renderer.setColumnScrollAnchor(c);
                     }
                 } else {
-                    if ((c - dw.corner.x) > 0) {
+                    if ((c - scrollableColumnRange.after) > 0) {
                         // target is to right of scrollable columns
                         if (gridRightAligned) {
                             anchorUpdated = this.renderer.setColumnScrollAnchor(c);
@@ -158,13 +159,14 @@ export class ScrollBehavior {
             }
 
             if (
+                scrollableRowRange !== undefined &&
                 r >= fixedRowCount && // scroll only if target not in fixed rows
                 (
                     // target is above scrollable rows; negative delta scrolls up
-                    (delta = r - dw.origin.y - 1) < 0 ||
+                    (delta = r - scrollableRowRange.start - 1) < 0 ||
 
                     // target is below scrollable rows; positive delta scrolls down
-                    (delta = r - dw.corner.y) > 0
+                    (delta = r - scrollableRowRange.after) > 0
                 )
             ) {
                 this.verticalScroller.scrollIndex(delta);
@@ -378,8 +380,12 @@ export class ScrollBehavior {
      */
     pageUp() {
         const rowNum = this.renderer.getPageUpRow();
-        this.handleVScrollerChange(rowNum);
-        return rowNum;
+        if (rowNum === undefined) {
+            return undefined;
+        } else {
+            this.handleVScrollerChange(rowNum);
+            return rowNum;
+        }
     }
 
     /**
@@ -387,8 +393,12 @@ export class ScrollBehavior {
      */
     pageDown() {
         const rowNum = this.renderer.getPageDownRow();
-        this.handleVScrollerChange(rowNum);
-        return rowNum;
+        if (rowNum === undefined) {
+            return undefined;
+        } else {
+            this.handleVScrollerChange(rowNum);
+            return rowNum;
+        }
     }
 
     /**

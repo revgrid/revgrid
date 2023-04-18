@@ -11,9 +11,10 @@ import { EventDetail } from '../event/event-detail';
 import { GridPainter } from '../grid-painter/grid-painter';
 import { GridPainterRepository } from '../grid-painter/grid-painter-repository';
 import { GridProperties } from '../grid-properties';
-import { InclusiveRectangle } from '../lib/inclusive-rectangle';
+import { ContiguousIndexRange } from '../lib/contiguous-index-range';
 import { Point } from '../lib/point';
-import { Rectangle, RectangleInterface } from '../lib/rectangle';
+import { Rectangle } from '../lib/rectangle';
+import { RectangleInterface } from '../lib/rectangle-interface';
 import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
 import { DataModel } from '../model/data-model';
 import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../model/schema-model';
@@ -92,7 +93,8 @@ export class Renderer {
     private _lastKnowMainRowCount: number | undefined;
     private _needsComputeCellsBounds = false;
 
-    dataWindow: InclusiveRectangle;
+    scrollableColumnRange: ContiguousIndexRange | undefined;
+    scrollableRowRange: ContiguousIndexRange | undefined;
 
     bounds: Renderer.Bounds;
 
@@ -837,11 +839,7 @@ export class Renderer {
      * @returns Number of columns we just rendered.
      */
     getVisibleColumnsCount() {
-        return this.visibleColumns.length - 1;
-    }
-
-    getLastSubgridRowIndex(subgrid: SubgridInterface) {
-
+        return this.visibleColumns.length;
     }
 
     /**
@@ -1099,7 +1097,10 @@ export class Renderer {
 
             // Pre-fetch data if supported by data model
             if (this._mainDataModel.fetchData) {
-                this._mainDataModel.fetchData(this.getSubrects(), (failure) => this.fetchCompletion(gc, failure));
+                const subRects = this.getSubrects();
+                if (subRects !== undefined) {
+                    this._mainDataModel.fetchData(subRects, (failure) => this.fetchCompletion(gc, failure));
+                }
                 return; // skip refresh renderGrid call below
             }
         }
@@ -1137,71 +1138,77 @@ export class Renderer {
             return undefined; // no selection
         } else {
             // todo not sure what this is for; might be defunct logic
-            if (selectionArea.origin.x === -1) {
+            if (selectionArea.topLeft.x === -1) {
                 // no selected area, lets exit
                 return undefined;
             } else {
-                let vc: Renderer.VisibleColumn;
-                const vci = this._visibleColumnsByIndex;
-                let vr: Renderer.VisibleRow;
-                const vri = this._visibleRowsByDataRowIndex;
-                const lastScrollableColumn = this.visibleColumns[visibleColumnsCount - 1]; // last column in scrollable section
-                const lastScrollableRow = this.visibleRows[visibleRowsCount - 1]; // last row in scrollable data section
-                const firstScrollableColumn = vci[this.dataWindow.origin.x];
-                const firstScrollableRow = vri.get(this.dataWindow.origin.y);
-                const fixedColumnCount = gridProps.fixedColumnCount;
-                const fixedRowCount = gridProps.fixedRowCount;
-                const headerRowCount = this._subgridsManager.calculateHeaderRowCount();
-
-                if (
-                    // entire selection scrolled out of view to left of visible columns; or
-                    (vc = this.visibleColumns[0]) &&
-                    selectionArea.corner.x < vc.activeColumnIndex ||
-
-                    // entire selection scrolled out of view between fixed columns and scrollable columns; or
-                    fixedColumnCount &&
-                    firstScrollableColumn &&
-                    (vc = this.visibleColumns[fixedColumnCount - 1]) &&
-                    selectionArea.origin.x > vc.activeColumnIndex &&
-                    selectionArea.corner.x < firstScrollableColumn.activeColumnIndex ||
-
-                    // entire selection scrolled out of view to right of visible columns; or
-                    lastScrollableColumn &&
-                    selectionArea.origin.x > lastScrollableColumn.activeColumnIndex ||
-
-                    // entire selection scrolled out of view above visible rows; or
-                    (vr = this.visibleRows[headerRowCount]) &&
-                    selectionArea.corner.y < vr.rowIndex ||
-
-                    // entire selection scrolled out of view between fixed rows and scrollable rows; or
-                    fixedRowCount &&
-                    firstScrollableRow &&
-                    (vr = this.visibleRows[headerRowCount + fixedRowCount - 1]) &&
-                    selectionArea.origin.y > vr.rowIndex &&
-                    selectionArea.corner.y < firstScrollableRow.rowIndex ||
-
-                    // entire selection scrolled out of view below visible rows
-                    lastScrollableRow &&
-                    selectionArea.origin.y > lastScrollableRow.rowIndex
-                ) {
+                const scrollableColumnRange = this.scrollableColumnRange;
+                const scrollableRowRange = this.scrollableRowRange;
+                if (scrollableColumnRange === undefined || scrollableRowRange === undefined) {
+                    // selection needs scrollable data
                     return undefined;
                 } else {
-                    const vcOrigin = vci[selectionArea.origin.x] || firstScrollableColumn;
-                    const vrOrigin = vri.get(selectionArea.origin.y) || firstScrollableRow;
-                    const vcCorner = vci[selectionArea.corner.x] || (selectionArea.corner.x > lastScrollableColumn.activeColumnIndex ? lastScrollableColumn : vci[fixedColumnCount - 1]);
-                    const vrCorner = vri.get(selectionArea.corner.y) || (selectionArea.corner.y > lastScrollableRow.rowIndex ? lastScrollableRow : vri.get(fixedRowCount - 1));
+                    let vc: Renderer.VisibleColumn;
+                    const vci = this._visibleColumnsByIndex;
+                    let vr: Renderer.VisibleRow;
+                    const vri = this._visibleRowsByDataRowIndex;
+                    const lastScrollableColumn = this.visibleColumns[visibleColumnsCount - 1]; // last column in scrollable section
+                    const lastScrollableRow = this.visibleRows[visibleRowsCount - 1]; // last row in scrollable data section
+                    const firstScrollableColumn = vci[scrollableColumnRange.start];
+                    const firstScrollableRow = vri.get(scrollableRowRange.start);
+                    const fixedColumnCount = gridProps.fixedColumnCount;
+                    const fixedRowCount = gridProps.fixedRowCount;
+                    const headerRowCount = this._subgridsManager.calculateHeaderRowCount();
 
-                    if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
+                    if (
+                        // entire selection scrolled out of view to left of visible columns; or
+                        (vc = this.visibleColumns[0]) &&
+                        selectionArea.exclusiveBottomRight.x < vc.activeColumnIndex ||
+
+                        // entire selection scrolled out of view between fixed columns and scrollable columns; or
+                        fixedColumnCount &&
+                        (vc = this.visibleColumns[fixedColumnCount - 1]) &&
+                        selectionArea.topLeft.x > vc.activeColumnIndex &&
+                        selectionArea.exclusiveBottomRight.x < firstScrollableColumn.activeColumnIndex ||
+
+                        // entire selection scrolled out of view to right of visible columns; or
+                        lastScrollableColumn &&
+                        selectionArea.topLeft.x > lastScrollableColumn.activeColumnIndex ||
+
+                        // entire selection scrolled out of view above visible rows; or
+                        (vr = this.visibleRows[headerRowCount]) &&
+                        selectionArea.exclusiveBottomRight.y < vr.rowIndex ||
+
+                        // entire selection scrolled out of view between fixed rows and scrollable rows; or
+                        fixedRowCount &&
+                        firstScrollableRow !== undefined &&
+                        (vr = this.visibleRows[headerRowCount + fixedRowCount - 1]) &&
+                        selectionArea.topLeft.y > vr.rowIndex &&
+                        selectionArea.exclusiveBottomRight.y < firstScrollableRow.rowIndex ||
+
+                        // entire selection scrolled out of view below visible rows
+                        lastScrollableRow &&
+                        selectionArea.topLeft.y > lastScrollableRow.rowIndex
+                    ) {
                         return undefined;
                     } else {
-                        const bounds: RenderedCell.Bounds = {
-                            x: vcOrigin.left,
-                            y: vrOrigin.top,
-                            width: vcCorner.rightPlus1 - vcOrigin.left,
-                            height: vrCorner.bottom - vrOrigin.top
-                        };
+                        const vcOrigin = vci[selectionArea.topLeft.x] || firstScrollableColumn;
+                        const vrOrigin = vri.get(selectionArea.topLeft.y) || firstScrollableRow;
+                        const vcCorner = vci[selectionArea.exclusiveBottomRight.x] || (selectionArea.exclusiveBottomRight.x > lastScrollableColumn.activeColumnIndex ? lastScrollableColumn : vci[fixedColumnCount - 1]);
+                        const vrCorner = vri.get(selectionArea.exclusiveBottomRight.y) || (selectionArea.exclusiveBottomRight.y > lastScrollableRow.rowIndex ? lastScrollableRow : vri.get(fixedRowCount - 1));
 
-                        return bounds;
+                        if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
+                            return undefined;
+                        } else {
+                            const bounds: RenderedCell.Bounds = {
+                                x: vcOrigin.left,
+                                y: vrOrigin.top,
+                                width: vcCorner.rightPlus1 - vcOrigin.left,
+                                height: vrCorner.bottom - vrOrigin.top
+                            };
+
+                            return bounds;
+                        }
                     }
                 }
             }
@@ -1259,22 +1266,32 @@ export class Renderer {
     /**
      * @returns The row to go to for a page up.
      */
-    getPageUpRow(): number {
-        const scrollHeight = this.getVisibleScrollHeight();
-        let top = this.dataWindow.origin.y - this.properties.fixedRowCount - 1;
-        let scanHeight = 0;
-        while (scanHeight < scrollHeight && top >= 0) {
-            scanHeight += this._getRowHeightEventer(top, undefined);
-            top--;
+    getPageUpRow(): number | undefined {
+        const scrollableRowRange = this.scrollableColumnRange;
+        if (scrollableRowRange === undefined) {
+            return undefined;
+        } else {
+            const scrollHeight = this.getVisibleScrollHeight();
+            let top = scrollableRowRange.start - this.properties.fixedRowCount - 1;
+            let scanHeight = 0;
+            while (scanHeight < scrollHeight && top >= 0) {
+                scanHeight += this._getRowHeightEventer(top, undefined);
+                top--;
+            }
+            return top + 1;
         }
-        return top + 1;
     }
 
     /**
      * @returns The row to goto for a page down.
      */
-    getPageDownRow(): number {
-        return this.dataWindow.corner.y - this.properties.fixedRowCount;
+    getPageDownRow(): number | undefined {
+        const scrollableRowRange = this.scrollableColumnRange;
+        if (scrollableRowRange === undefined) {
+            return undefined;
+        } else {
+            return scrollableRowRange.after - this.properties.fixedRowCount;
+        }
     }
 
     /**
@@ -1301,11 +1318,11 @@ export class Renderer {
 
         const editorCellEvent = grid.cellEditor && grid.cellEditor.renderedCell;
 
-        let vcEd: Renderer.VisibleColumn;
+        let vcEd: Renderer.VisibleColumn | undefined;
         let xEd: number | undefined;
-        let vrEd: Renderer.VisibleRow;
-        let yEd: number;
-        let sgEd: SubgridInterface;
+        let vrEd: Renderer.VisibleRow | undefined;
+        let yEd: number | undefined;
+        let sgEd: SubgridInterface | undefined;
         let isSubgridEd: boolean;
 
         let insertionBoundsCursor = 0;
@@ -1341,9 +1358,9 @@ export class Renderer {
         let vc: Renderer.VisibleColumn;
         let height: number;
         let firstVX: number | undefined;
-        let lastVX: number;
+        let lastVX: number | undefined;
         let firstVY: number | undefined;
-        let lastVY: number;
+        let lastVY: number | undefined;
         let topR: number;
 
         if (editorCellEvent) {
@@ -1650,19 +1667,26 @@ export class Renderer {
             }
         }
 
-        if (editorCellEvent) {
+        if (editorCellEvent && vcEd !== undefined && vrEd !== undefined) {
             editorCellEvent.visibleColumn = vcEd;
             editorCellEvent.visibleRow = vrEd;
             editorCellEvent.gridCell.y = vrEd && vrEd.index;
             editorCellEvent._bounds = undefined;
         }
 
-        this.dataWindow = new InclusiveRectangle(
-            firstVX,
-            firstVY,
-            Math.min(lastVX - firstVX + 1, this.visibleColumns.length),
-            Math.min(lastVY - firstVY + 1, this.visibleRows.length)
-        );
+        if (firstVX === undefined || lastVX === undefined) {
+            this.scrollableColumnRange = undefined;
+        } else {
+            const length = Math.min(lastVX - firstVX + 1, this.visibleColumns.length);
+            this.scrollableColumnRange = new ContiguousIndexRange(firstVX, length);
+        }
+
+        if (firstVY === undefined || lastVY === undefined) {
+            this.scrollableRowRange = undefined;
+        } else {
+            const length = Math.min(lastVY - firstVY + 1, this.visibleRows.length);
+            this.scrollableRowRange = new ContiguousIndexRange(firstVY, length);
+        }
 
         // Resize CellEvent pool
         const pool = this.renderedCellPool;
@@ -1820,7 +1844,7 @@ export class Renderer {
      *
      * @ToDo This function currently only handles (1) above; needs (2) (multiple rectangles for multiple contiguous column regions) and (3) (double each region for above and below the fixed boundary when scrolled down) as well. In its present form, it will "fetch" all cells from upper left of fixed area to lower right of scrollable area. (Yikes.)
      *
-     * When `grid.properties.fetchSubregions` is falsy, this function merely returns `this.dataWindow` as the only rectangle.
+     * When `grid.properties.fetchSubregions` is falsy, this function merely returns scrollable rectangle as the only rectangle.
      * This is way more efficient than calling `getSubrects` (as it is currently implemented) and is fine so long as there are no fixed columns or rows and column re-ordering is disabled.
      * (If tree column in use, it is a fixed column, but this is workable so long as the data model knows to always return it regardless of rectangle.)
      * Hidden columns within the range of visible columns will be fetched anyway.
@@ -1830,24 +1854,31 @@ export class Renderer {
      *
      * @this {Renderer}
      */
-    private getSubrects() {
-        const dw = this.dataWindow;
-        if (!this._gridProperties.fetchSubregions) {
-            const rect = new Rectangle(dw.left, dw.top, dw.width, dw.height); // convert from InclusiveRect
-            return [rect];
-        }
+    private getSubrects(): undefined | RectangleInterface[] {
+        const scrollableColumnRange = this.scrollableColumnRange;
+        const scrollableRowRange = this.scrollableRowRange;
+        if (scrollableColumnRange === undefined || scrollableRowRange === undefined) {
+            return undefined;
+        } else {
+            if (!this._gridProperties.fetchSubregions) {
+                return [{
+                    x: scrollableColumnRange.start,
+                    y: scrollableRowRange.start,
+                    width: scrollableColumnRange.length,
+                    height: scrollableColumnRange.length,
+                }];
+            } else {
+                const orderedColumnIndexes = this.visibleColumns.map(
+                    (vc) => vc.column.index
+                ).sort(
+                    (a, b) => { return a - b; }
+                );
+                const xMin = orderedColumnIndexes[0];
+                const width = orderedColumnIndexes[orderedColumnIndexes.length - 1] - xMin + 1;
 
-        const orderedColumnIndexes = this.visibleColumns.map(
-            (vc: Renderer.VisibleColumn) => {
-                return vc.column.index;
+                return [new Rectangle(xMin, scrollableRowRange.start, width, scrollableRowRange.length)];
             }
-        ).sort(
-            (a, b) => { return a - b; }
-        );
-        const xMin = orderedColumnIndexes[0];
-        const width = orderedColumnIndexes[orderedColumnIndexes.length - 1] - xMin + 1;
-
-        return [new Rectangle(xMin, dw.top, width, dw.height)];
+        }
     }
 }
 

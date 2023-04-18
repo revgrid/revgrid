@@ -4,7 +4,7 @@ import { Effect, effectFactory } from '../effects/effects';
 import { EventDetail } from '../event/event-detail';
 import { Formatter } from '../lib/localization';
 import { WritablePoint } from '../lib/point';
-import { RectangleInterface } from '../lib/rectangle';
+import { RectangleInterface } from '../lib/rectangle-interface';
 import { numberToPixels } from '../lib/utils';
 import { Revgrid } from '../revgrid';
 

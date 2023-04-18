@@ -1,12 +1,12 @@
-import { InclusiveRectangle } from '../lib/inclusive-rectangle';
+import { Rectangle } from '../lib/rectangle';
 import { calculateNumberArrayUniqueCount } from '../lib/utils';
 import { SelectionAreaList } from './selection-area-list';
 import { SelectionRectangle } from './selection-rectangle';
 
 export class SelectionRectangleList implements SelectionAreaList {
     readonly rectangles: SelectionRectangle[] = [];
-    private readonly _flattenedX = new Array<InclusiveRectangle>();
-    private readonly _flattenedY = new Array<InclusiveRectangle>();
+    private readonly _flattenedX = new Array<Rectangle>();
+    private readonly _flattenedY = new Array<Rectangle>();
 
     get has() { return this.rectangles.length !== 0; }
     get areaCount() { return this.rectangles.length; }
@@ -40,6 +40,16 @@ export class SelectionRectangleList implements SelectionAreaList {
         }
     }
 
+    getRectanglesContainingPoint(x: number, y: number) {
+        const rectangles = this.rectangles;
+        const result = new Array<SelectionRectangle>(0);
+        for (const rectangle of rectangles) {
+            if (rectangle.containsXY(x, y)) {
+                result.push(rectangle);
+            }
+        }
+        return result;
+    }
     push(rectangle: SelectionRectangle) {
         this.rectangles.push(rectangle);
         // Following can be cast as Rectangle constructor used which uses unchanged extent
@@ -59,7 +69,7 @@ export class SelectionRectangleList implements SelectionAreaList {
     findIndex(ox: number, oy: number, ex: number, ey: number) {
         return this.rectangles.findIndex((rectangle) => {
             return (
-                rectangle.origin.x === ox && rectangle.origin.y === oy &&
+                rectangle.topLeft.x === ox && rectangle.topLeft.y === oy &&
                 rectangle.extent.x === ex && rectangle.extent.y === ey
             );
         });
@@ -83,15 +93,15 @@ export class SelectionRectangleList implements SelectionAreaList {
     }
 
     anyFlattenedContainY(y: number): boolean {
-        return InclusiveRectangle.anyRectangleContainPoint(this._flattenedX, 0, y);
+        return Rectangle.arrayContainsPoint(this._flattenedX, 0, y);
     }
 
     anyFlattenedContainX(x: number): boolean {
-        return InclusiveRectangle.anyRectangleContainPoint(this._flattenedY, x, 0);
+        return Rectangle.arrayContainsPoint(this._flattenedY, x, 0);
     }
 
     anyContainPoint(x: number, y: number) {
-        return InclusiveRectangle.anyRectangleContainPoint(this.rectangles, x, y);
+        return Rectangle.arrayContainsPoint(this.rectangles, x, y);
     }
 
     getUniqueXIndices() {
@@ -116,7 +126,7 @@ export class SelectionRectangleList implements SelectionAreaList {
         for (let i = 0; i < rectangleCount; i++) {
             const rectangle = rectangles[i];
             const first = rectangle.y;
-            const last = rectangle.corner.y;
+            const last = rectangle.exclusiveBottomRight.y;
             for (let index = first; index <= last; index++) {
                 indices.push(index);
             }
@@ -129,7 +139,7 @@ export class SelectionRectangleList implements SelectionAreaList {
         const result = Array<number>();
         const set: Record<number, boolean> = {};
         this.rectangles.forEach((rectangle) => {
-            const top = rectangle.origin.y;
+            const top = rectangle.topLeft.y;
             const size = rectangle.height;
             for (let r = 0; r < size; r++) {
                 const ti = r + top;
