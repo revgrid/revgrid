@@ -29,8 +29,8 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     get cellPadding() { return this._raw.cellPadding; }
     set cellPadding(value: number) { this._raw.cellPadding = value; }
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
-    get cellSelection() { return this._raw.cellSelection; }
-    set cellSelection(value: boolean) { this._raw.cellSelection = value; }
+    get mouseCellSelection() { return this._raw.mouseCellSelection; }
+    set mouseCellSelection(value: boolean) { this._raw.mouseCellSelection = value; }
     get checkboxOnlyRowSelections() { return this._raw.checkboxOnlyRowSelections; }
     set checkboxOnlyRowSelections(value: boolean) { this._raw.checkboxOnlyRowSelections = value; }
     get color() { return this._raw.color; }
@@ -69,8 +69,8 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     get columnHeaderCellPainter() { return this._raw.columnHeaderCellPainter; }
     set columnHeaderCellPainter(value: string) { this._raw.columnHeaderCellPainter = value; }
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
-    get columnSelection() { return this._raw.columnSelection; }
-    set columnSelection(value: boolean) { this._raw.columnSelection = value; }
+    get mouseColumnSelection() { return this._raw.mouseColumnSelection; }
+    set mouseColumnSelection(value: boolean) { this._raw.mouseColumnSelection = value; }
     /** Allow user to move columns. */
     get columnsReorderable() { return this._raw.columnsReorderable; }
     set columnsReorderable(value: boolean) { this._raw.columnsReorderable = value; }
@@ -261,8 +261,8 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     get rowResize() { return this._raw.rowResize; }
     set rowResize(value: boolean) { this._raw.rowResize = value; }
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors. */
-    get rowSelection() { return this._raw.rowSelection; }
-    set rowSelection(value: boolean) { this._raw.rowSelection = value; }
+    get mouseRowSelection() { return this._raw.mouseRowSelection; }
+    set mouseRowSelection(value: boolean) { this._raw.mouseRowSelection = value; }
     /** Repeating pattern of property overrides for grid rows. */
     get rowStripes() { return this._raw.rowStripes; }
     set rowStripes(value: GridProperties.RowStripe[] | undefined) { this._raw.rowStripes = value; }
@@ -339,7 +339,7 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     get gridPainter() { return this.var.gridPainter; }
     set gridPainter(painterKey: string) {
         this.var.gridPainter = painterKey;
-        this.grid.renderer.setGridPainter(painterKey);
+        this.grid.viewport.setGridPainter(painterKey);
     }
 
     /**

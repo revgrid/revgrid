@@ -1,9 +1,9 @@
 
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
-import { ColumnRowResizing } from '../feature/column-row-resizing';
 import { Point } from '../lib/point';
 import { Revgrid } from '../revgrid';
 import { Subgrid } from '../subgrid/subgrid';
+import { ColumnRowResizing } from './column-row-resizing-feature';
 
 export class RowResizing extends ColumnRowResizing {
 
@@ -42,7 +42,7 @@ export class RowResizing extends ColumnRowResizing {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    override getGridRightBottomAligned(grid: Revgrid) {
+    override getGridRightBottomAligned() {
         return false;
     }
 
@@ -83,10 +83,6 @@ export class RowResizing extends ColumnRowResizing {
      */
     override getCursorName() {
         return 'row-resize';
-    }
-
-    private getFixedAreaCount(grid: Revgrid): number {
-        return grid.getFixedRowCount() + this.subgridsManager.calculateHeaderRowCount();
     }
 
     // isEnabled(grid: Hypergrid): boolean {

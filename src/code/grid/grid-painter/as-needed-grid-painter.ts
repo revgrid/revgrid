@@ -1,7 +1,8 @@
 
+import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Subgrid } from '../grid-public-api';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
@@ -14,7 +15,7 @@ import { GridPainter } from './grid-painter';
  *
  * #### On reset
  *
- * Defers to {@link Renderer#paintCellsByColumnsAndRows|paintCellsByColumnsAndRows}, which clears the canvas, draws the grid, and draws the grid lines.
+ * Defers to {@link Viewport#paintCellsByColumnsAndRows|paintCellsByColumnsAndRows}, which clears the canvas, draws the grid, and draws the grid lines.
  *
  * #### On the next call (after reset)
  *
@@ -29,29 +30,29 @@ import { GridPainter } from './grid-painter';
  *
  * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
  *
- * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
- * @this {Renderer}
- * @param {Canvas.CanvasRenderingContext2DEx} gc TODO need to remove any type
+ * See also the discussion of clipping in {@link Viewport#paintCellsByColumns|paintCellsByColumns}.
+ * @this {Viewport}
+ * @param {CanvasEx.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
 export class AsNeededGridPainter extends GridPainter {
     private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
-    constructor(subgridsManager: SubgridsManager, renderer: Renderer, selection: Selection) {
-        super(subgridsManager, renderer, selection, AsNeededGridPainter.key, AsNeededGridPainter.partial, undefined);
+    constructor(canvas: CanvasEx, subgridsManager: SubgridsManager, renderer: Viewport, selection: Selection) {
+        super(canvas, subgridsManager, renderer, selection, AsNeededGridPainter.key, AsNeededGridPainter.partial, undefined);
     }
 
     override initialise() {
-        this._byColumnsAndRowsPainter = this.renderer.getGridPainter(ByColumnsAndRowsGridPainter.key) as ByColumnsAndRowsGridPainter;
+        this._byColumnsAndRowsPainter = this.viewport.getGridPainter(ByColumnsAndRowsGridPainter.key) as ByColumnsAndRowsGridPainter;
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
-        const visibleColumns = this.visibleColumns;
-        const visibleRows = this.visibleRows;
+        const visibleColumns = this.viewportColumns;
+        const visibleRows = this.viewportRows;
         const C = visibleColumns.length;
         const cLast = C - 1;
         const R = visibleRows.length;
         let p = 0;
-        const pool = this.renderedCellPool;
+        const pool = this.viewportCellPool;
         // clipToGrid,
         // let firstVisibleColumnLeft: number;
         // let lastVisibleColumnRight: number;
@@ -68,7 +69,7 @@ export class AsNeededGridPainter extends GridPainter {
         if (!C || !R) { return; }
 
         if (this.reset) {
-            this.renderer.resetAllGridRenderers();
+            this.viewport.resetAllGridRenderers();
             this._byColumnsAndRowsPainter.paintCells(gc);
             this.reset = false;
         }
@@ -76,26 +77,26 @@ export class AsNeededGridPainter extends GridPainter {
         // gc.clipSave(clipToGrid, firstVisibleColumnLeft, 0, lastVisibleColumnRight, viewHeight);
 
         // For each column...
-        this.visibleColumns.forEach((vc, c) => {
-            let renderedCell = pool[p]; // first cell in column c
-            vc = renderedCell.visibleColumn;
+        this.viewportColumns.forEach((vc, c) => {
+            let viewportCell = pool[p]; // first cell in column c
+            vc = viewportCell.visibleColumn;
 
             let preferredWidth: number | undefined;
 
             // Optionally clip to visible portion of column to prevent text from overflowing to right.
-            const columnClip = vc.column.properties.columnClip;
+            const columnClip = vc.activeColumn.properties.columnClip;
             gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
             // For each row of each subgrid (of each column)...
             for (let r = 0; r < R; r++, p++) {
-                renderedCell = pool[p]; // next cell down the column (redundant for first cell in column)
+                viewportCell = pool[p]; // next cell down the column (redundant for first cell in column)
 
-                const subgrid = renderedCell.subgrid as Subgrid;
-                const config = subgrid.getCellPaintConfig(renderedCell); // get from renderer via an event
+                const subgrid = viewportCell.subgrid as Subgrid;
+                const config = subgrid.getCellPaintConfig(viewportCell); // get from renderer via an event
 
                 try {
                     // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
-                    const paintWidth = this.paintCell(gc, subgrid, renderedCell, config, undefined);
+                    const paintWidth = this.paintCell(gc, subgrid, viewportCell, config, undefined);
                     if (paintWidth !== undefined) {
                         if (preferredWidth === undefined) {
                             preferredWidth = paintWidth;
@@ -111,7 +112,7 @@ export class AsNeededGridPainter extends GridPainter {
             gc.clipRestore();
 
             if (preferredWidth !== undefined) {
-                renderedCell.column.properties.preferredWidth = Math.ceil(preferredWidth);
+                viewportCell.column.properties.preferredWidth = Math.ceil(preferredWidth);
             }
         });
 

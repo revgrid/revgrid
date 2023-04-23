@@ -8,9 +8,18 @@ export class Focus {
     private _subgrid: SubgridInterface;
     private _point: Point | undefined;
 
+    private _previousSubgrid: SubgridInterface;
+    private _previousPoint: Point | undefined;
+
+    constructor(initialSubgrid: SubgridInterface) {
+        this._subgrid = initialSubgrid;
+        this._previousSubgrid = initialSubgrid;
+    }
+
     get subgrid() { return this._subgrid; }
     set subgrid(value: SubgridInterface) {
         if (value !== this.subgrid) {
+            this._previousSubgrid = this._subgrid;
             value = this.subgrid;
             this.notifySubgridChanged();
         }
@@ -21,41 +30,44 @@ export class Focus {
 
     get point() { return this._point; }
 
-    setXCoordinate(x: number) {
-        const y = this._point === undefined ? 0 : this._point.y;
+    get previousSubgrid() { return this._previousSubgrid; }
+    get previousPoint() { return this._previousPoint; }
 
-        this._point = {
-            x,
-            y,
-        };
+    setXCoordinate(x: number) {
+        if (this._point === undefined || this._point.x !== x) {
+            this._previousPoint = this._point;
+            const y = this._point === undefined ? 0 : this._point.y;
+
+            this._point = {
+                x,
+                y,
+            };
+        }
     }
 
     setYCoordinateAndSubgrid(y: number, subgrid: SubgridInterface) {
-        const x = this._point === undefined ? 0 : this._point.x;
-
-        this._point = {
-            x,
-            y,
-        };
-
-        if (subgrid !== this._subgrid) {
-            this._subgrid = subgrid;
-
-            this.notifySubgridChanged();
+        if (this._point === undefined || this._point.y !== y) {
+            this._previousPoint = this._point;
+            const x = this._point === undefined ? 0 : this._point.x;
+            this._point = {
+                x,
+                y,
+            };
         }
+
+        this.subgrid = subgrid; // use setter
     }
 
     setXYCoordinatesAndSubgrid(x: number, y: number, subgrid: SubgridInterface) {
-        this._point = {
-            x,
-            y,
-        };
-
-        if (subgrid !== this._subgrid) {
-            this._subgrid = subgrid;
-
-            this.notifySubgridChanged();
+        if (this._point === undefined || this._point.x !== x || this._point.y !== y) {
+            this._previousPoint = this._point;
+            this._point = {
+                x,
+                y,
+            };
         }
+
+        this.subgrid = subgrid; // use setter
     }
 
     isRowFocused(rowIndex: number, subgrid: SubgridInterface) {

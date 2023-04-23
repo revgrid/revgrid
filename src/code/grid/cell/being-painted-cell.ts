@@ -1,17 +1,15 @@
 // import { CellEvent } from './cell-event';
-import { Renderer } from '../renderer/renderer';
-import { RenderedCell } from './rendered-cell';
+import { Viewport } from '../renderer/viewport';
+import { ViewportCell } from './viewport-cell';
 
 /** @public */
-export class BeingPaintedCell extends RenderedCell {
+export class BeingPaintedCell extends ViewportCell {
     // partial render support
     snapshot: BeingPaintedCell.Snapshot;
-    minWidth: number | undefined;
 
-    override reset(visibleColumn: Renderer.VisibleColumn, visibleRow: Renderer.VisibleRow) {
+    override reset(visibleColumn: Viewport.ViewportColumn, visibleRow: Viewport.ViewportRow) {
         // partial render support
         this.snapshot = {};
-        this.minWidth = undefined;
 
         super.reset(visibleColumn, visibleRow);
     }

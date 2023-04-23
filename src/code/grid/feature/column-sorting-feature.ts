@@ -2,7 +2,7 @@ import { MouseCellEvent } from '../cell/cell-event';
 import { ColumnProperties } from '../column/column-properties';
 import { ColumnsManager } from '../column/columns-manager';
 import { EventDetail } from '../event/event-detail';
-import { Feature } from '../feature/feature';
+import { Feature } from './feature';
 
 export class ColumnSorting extends Feature {
 

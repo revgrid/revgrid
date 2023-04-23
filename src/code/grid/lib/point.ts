@@ -25,6 +25,13 @@ export namespace Point {
         };
     }
 
+    export function copy(other: Point) {
+        return {
+            x: other.x,
+            y: other.y,
+        };
+    }
+
     /**
      * @returns A new point which is the reference point's position increased by coordinates of given `offset`.
      * @param offset - Horizontal and vertical values to add to this point's coordinates.

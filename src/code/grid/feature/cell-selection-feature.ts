@@ -2,15 +2,15 @@
 import { MouseCellEvent } from '../cell/cell-event';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { EventDetail } from '../event/event-detail';
-import { Feature } from '../feature/feature';
 import { GridProperties } from '../grid-properties';
 import { Point } from '../lib/point';
 import { AssertError } from '../lib/revgrid-error';
 import { SelectionArea } from '../lib/selection-area';
+import { Feature } from './feature';
 
-export class CellSelection extends Feature {
+export class CellSelectionFeature extends Feature {
 
-    readonly typeName = CellSelection.typeName;
+    readonly typeName = CellSelectionFeature.typeName;
 
     /**
      * The pixel location of the mouse pointer during a drag operation.
@@ -88,7 +88,7 @@ export class CellSelection extends Feature {
 
     override handleMouseDrag(event: MouseCellEvent) {
         const grid = this.grid;
-        if (this._dragging && grid.properties.cellSelection && !event.mouse.isRightClick) {
+        if (this._dragging && grid.properties.mouseCellSelection && !event.mouse.isRightClick) {
             this._currentDrag = event.mouse.mouse;
             this._lastDragCell = Point.create(event.gridCell.x, event.dataCell.y);
             this.checkDragScroll(this._currentDrag);
@@ -104,7 +104,7 @@ export class CellSelection extends Feature {
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
         const grid = this.grid;
         const navKey = grid.generateNavKey(eventDetail.primitiveEvent)
-        const handler = this[('handle' + navKey) as keyof CellSelection] as ((keyboardEvent: KeyboardEvent) => void);
+        const handler = this[('handle' + navKey) as keyof CellSelectionFeature] as ((keyboardEvent: KeyboardEvent) => void);
 
         // STEP 1: Move the selection
         if (handler) {
@@ -114,7 +114,7 @@ export class CellSelection extends Feature {
             let cellEvent = grid.getFocusedCellEvent(true);
             if (cellEvent !== undefined) {
                 if (cellEvent.columnProperties.editOnNextCell) {
-                    grid.renderer.computeCellsBounds(true); // moving selection may have auto-scrolled
+                    grid.viewport.computeCellsBounds(true); // moving selection may have auto-scrolled
                     cellEvent = grid.getFocusedCellEvent(false); // new cell
                     if (cellEvent !== undefined) {
                         grid.editAt(cellEvent); // succeeds only if `editable`
@@ -152,13 +152,7 @@ export class CellSelection extends Feature {
             }
 
             const selectionBehavior = this.focusSelectionBehavior;
-            selectionBehavior.beginChange();
-            try {
-                selectionBehavior.clearMostRecentRectangleSelection();
-                selectionBehavior.selectOnlyRectangle(mouseDown.x, mouseDown.y, newX, newY, undefined);
-            } finally {
-                selectionBehavior.endChange();
-            }
+            selectionBehavior.selectOnlyRectangle(mouseDown.x, mouseDown.y, newX, newY);
             userInterfaceInputBehavior.setDragExtent(Point.create(newX, newY));
 
             this.rendererBehavior.repaint();
@@ -169,20 +163,18 @@ export class CellSelection extends Feature {
      * @desc this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
      */
     checkDragScroll(mouse: Point) {
-        const grid = this.grid;
         const scrollBehavior = this.scrollBehavior;
-        if (!this.gridProperties.scrollingEnabled) {
-            return;
-        }
-        const b = grid.getDataBounds();
-        const inside = b.containsPoint(mouse);
-        if (inside) {
-            if (scrollBehavior.isScrollingNow()) {
-                scrollBehavior.setScrollingNow(false);
+        if (this.gridProperties.scrollingEnabled) {
+            const b = this.canvas.bounds;
+            const inside = b.containsPoint(mouse);
+            if (inside) {
+                if (scrollBehavior.isScrollingActive()) {
+                    scrollBehavior.setScrollingActive(false);
+                }
+            } else if (!scrollBehavior.isScrollingActive()) {
+                scrollBehavior.setScrollingActive(true);
+                this.scrollDrag();
             }
-        } else if (!scrollBehavior.isScrollingNow()) {
-            scrollBehavior.setScrollingNow(true);
-            this.scrollDrag();
         }
     }
 
@@ -192,53 +184,51 @@ export class CellSelection extends Feature {
     scrollDrag() {
         const grid = this.grid;
         const scrollBehavior = this.scrollBehavior;
-        if (!scrollBehavior.isScrollingNow()) {
-            return;
-        }
+        const scrollableBounds = this.viewport.scrollableBounds;
+        if (scrollableBounds !== undefined && scrollBehavior.isScrollingActive()) {
+            const dragStartedInHeaderArea = grid.isMouseDownInHeaderArea();
+            const lastDragCell = this._lastDragCell;
 
-        const dragStartedInHeaderArea = grid.isMouseDownInHeaderArea();
-        const lastDragCell = this._lastDragCell;
-        const b = grid.getDataBounds();
+            let xOffset = 0;
+            let yOffset = 0;
 
-        let xOffset = 0;
-        let yOffset = 0;
+            const numFixedColumns = this.columnsManager.getFixedColumnCount();
+            const numFixedRows = this.subgridsManager.calculateHeaderPlusFixedRowCount();
 
-        const numFixedColumns = grid.getFixedColumnCount();
-        const numFixedRows = grid.getFixedRowCount();
+            const dragEndInFixedAreaX = lastDragCell.x < numFixedColumns;
+            const dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
 
-        const dragEndInFixedAreaX = lastDragCell.x < numFixedColumns;
-        const dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
-
-        if (!dragStartedInHeaderArea) {
-            if (this._currentDrag.x < b.topLeft.x) {
-                xOffset = -1;
+            if (!dragStartedInHeaderArea) {
+                if (this._currentDrag.x < scrollableBounds.topLeft.x) {
+                    xOffset = -1;
+                }
+                if (this._currentDrag.y < scrollableBounds.topLeft.y) {
+                    yOffset = -1;
+                }
             }
-            if (this._currentDrag.y < b.topLeft.y) {
-                yOffset = -1;
+            if (this._currentDrag.x > scrollableBounds.topLeft.x + scrollableBounds.extent.x) {
+                xOffset = 1;
             }
-        }
-        if (this._currentDrag.x > b.topLeft.x + b.extent.x) {
-            xOffset = 1;
-        }
-        if (this._currentDrag.y > b.topLeft.y + b.extent.y) {
-            yOffset = 1;
-        }
+            if (this._currentDrag.y > scrollableBounds.topLeft.y + scrollableBounds.extent.y) {
+                yOffset = 1;
+            }
 
-        let dragCellOffsetX = xOffset;
-        let dragCellOffsetY = yOffset;
+            let dragCellOffsetX = xOffset;
+            let dragCellOffsetY = yOffset;
 
-        if (dragEndInFixedAreaX) {
-            dragCellOffsetX = 0;
-        }
-        if (dragEndInFixedAreaY) {
-            dragCellOffsetY = 0;
-        }
+            if (dragEndInFixedAreaX) {
+                dragCellOffsetX = 0;
+            }
+            if (dragEndInFixedAreaY) {
+                dragCellOffsetY = 0;
+            }
 
-        this._lastDragCell = Point.plusXY(lastDragCell, dragCellOffsetX, dragCellOffsetY);
-        scrollBehavior.scrollBy(xOffset, yOffset);
-        this.handleMouseDragCellSelection(lastDragCell); // update the selection
-        this.rendererBehavior.repaint();
-        setTimeout(this.scrollDrag.bind(this, grid), 25);
+            this._lastDragCell = Point.plusXY(lastDragCell, dragCellOffsetX, dragCellOffsetY);
+            scrollBehavior.scrollBy(xOffset, yOffset);
+            this.handleMouseDragCellSelection(lastDragCell); // update the selection
+            this.rendererBehavior.repaint();
+            setTimeout(this.scrollDrag.bind(this, grid), 25);
+        }
     }
 
     /**
@@ -385,8 +375,8 @@ export class CellSelection extends Feature {
     }
 
     private focusSelectOnlyCell(originX: number, originY: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
-        const lastViewableColumnIndex = this.renderer.getVisibleColumnsCount() - 1;
-        const lastViewableRowIndex = this.renderer.getVisibleRowsCount() - 1;
+        const lastViewableColumnIndex = this.viewport.getColumnsCount() - 1;
+        const lastViewableRowIndex = this.viewport.getRowsCount() - 1;
 
         let lastColumnIndex = this.columnsManager.getActiveColumnCount() - 1;
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
@@ -403,7 +393,7 @@ export class CellSelection extends Feature {
     }
 }
 
-export namespace CellSelection {
+export namespace CellSelectionFeature {
     export const typeName = 'cellselection';
 
     export const enum MouseDownAction {

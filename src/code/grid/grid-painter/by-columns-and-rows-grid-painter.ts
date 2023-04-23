@@ -1,7 +1,8 @@
 
+import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Subgrid } from '../grid-public-api';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { GridPainter } from './grid-painter';
@@ -20,11 +21,11 @@ import { GridPainter } from './grid-painter';
  *
  * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
  *
- * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
+ * See also the discussion of clipping in {@link Viewport#paintCellsByColumns|paintCellsByColumns}.
  */
 export class ByColumnsAndRowsGridPainter extends GridPainter {
-    constructor(subgridsManager: SubgridsManager, renderer: Renderer, selection: Selection) {
-        super(subgridsManager, renderer, selection, ByColumnsAndRowsGridPainter.key, false, ByColumnsAndRowsGridPainter.initialRebundle);
+    constructor(canvas: CanvasEx, subgridsManager: SubgridsManager, renderer: Viewport, selection: Selection) {
+        super(canvas, subgridsManager, renderer, selection, ByColumnsAndRowsGridPainter.key, false, ByColumnsAndRowsGridPainter.initialRebundle);
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
@@ -33,10 +34,10 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
         let prefillColor: string;
         let rowPrefillColors: string[];
         const gridPrefillColor = gridProps.backgroundColor;
-        const C = this.visibleColumns.length;
+        const C = this.viewportColumns.length;
         const cLast = C - 1;
-        const R = this.visibleRows.length;
-        const pool = this.renderedCellPool;
+        const R = this.viewportRows.length;
+        const pool = this.viewportCellPool;
         // clipToGrid,
         let firstVisibleColumnLeft: number;
         let lastVisibleColumnRightPlus1: number;
@@ -44,13 +45,14 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
             firstVisibleColumnLeft = 0;
             lastVisibleColumnRightPlus1 = 0;
         } else {
-            firstVisibleColumnLeft = this.visibleColumns[0].left;
-            lastVisibleColumnRightPlus1 = this.visibleColumns[cLast].rightPlus1;
+            firstVisibleColumnLeft = this.viewportColumns[0].left;
+            lastVisibleColumnRightPlus1 = this.viewportColumns[cLast].rightPlus1;
         }
         const viewWidth = lastVisibleColumnRightPlus1 - firstVisibleColumnLeft;
-        const viewHeight = R ? this.visibleRows[R - 1].bottom : 0;
+        const viewHeight = R ? this.viewportRows[R - 1].bottom : 0;
 
-        gc.clearRect(0, 0, this.renderer.bounds.width, this.renderer.bounds.height);
+        const canvasBounds = this.canvasEx.bounds;
+        gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
         if (!C || !R) { return; }
 
@@ -60,7 +62,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
         }
 
         if (this.reset) {
-            this.renderer.resetAllGridRenderers();
+            this.viewport.resetAllGridRenderers();
             this.reset = false;
             this.bundleRows(false);
             this.bundleColumns(true);
@@ -92,7 +94,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
 
         // For each column...
         let p = 0;
-        this.visibleColumns.forEach(
+        this.viewportColumns.forEach(
             (vc, c) => {
                 const cellEvent = pool[p];
                 vc = cellEvent.visibleColumn;
@@ -102,7 +104,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                 }
 
                 // Optionally clip to visible portion of column to prevent text from overflowing to right.
-                const columnClip = vc.column.properties.columnClip;
+                const columnClip = vc.activeColumn.properties.columnClip;
                 gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
                 let preferredWidth: number | undefined;

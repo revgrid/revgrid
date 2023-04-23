@@ -1,11 +1,11 @@
-import { RenderedCell } from '../cell/rendered-cell';
+import { ViewportCell } from '../cell/viewport-cell';
 import { Revgrid } from '../revgrid';
 import { CellEditor } from './cell-editor';
 
 export abstract class InputEditor extends CellEditor {
     protected readonly input: HTMLInputElement;
 
-    constructor(grid: Revgrid, renderedCell: RenderedCell, inputType: string) {
+    constructor(grid: Revgrid, renderedCell: ViewportCell, inputType: string) {
         const element = document.createElement('input') as HTMLInputElement;
         element.type = inputType;
         element.classList.add('revgrid-input-editor');

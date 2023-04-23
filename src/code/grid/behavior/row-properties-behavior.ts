@@ -1,5 +1,5 @@
 import { CellEvent } from '../cell/cell-event';
-import { RenderedCell } from '../cell/rendered-cell';
+import { ViewportCell } from '../cell/viewport-cell';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { GridProperties } from '../grid-properties';
 import { AssertError } from '../lib/revgrid-error';
@@ -50,7 +50,7 @@ export class RowPropertiesBehavior {
         return this.getRowPropertiesUsingCellEvent(cellEvent);
     }
 
-    getRowPropertiesRC(renderedCell: RenderedCell) {
+    getRowPropertiesRC(renderedCell: ViewportCell) {
         // use carefully! creates new object as needed; only use when object definitely needed: for setting prop with `.rowProperties[key] = value` or `Object.assign(.rowProperties, {...})`; use `rowOwnProperties`  to avoid creating a new object when object does not exist, or `getRowProperty(key)` for getting a property that may not exist
         const properties = this.getRowPropertiesUsingCellEvent(renderedCell);
         if (properties) {
@@ -60,13 +60,13 @@ export class RowPropertiesBehavior {
         }
     }
 
-    getRowPropertyRC(renderedCell: RenderedCell, key: string) {
+    getRowPropertyRC(renderedCell: ViewportCell, key: string) {
         // undefined return means there is no row properties object OR no such row property `[key]`
         const rowProps = this.getRowOwnPropertiesRC(renderedCell);
         return rowProps && rowProps[key as keyof MetaModel.RowProperties];
     }
 
-    setRowPropertyRC(renderedCell: RenderedCell, key: string, value: unknown) {
+    setRowPropertyRC(renderedCell: ViewportCell, key: string, value: unknown) {
         // creates new object as needed
         const rowProperties = this.getRowPropertiesRC(renderedCell);
         if (rowProperties !== undefined) {
@@ -95,7 +95,7 @@ export class RowPropertiesBehavior {
         }
     }
 
-    getRowPropertiesUsingCellEvent(cellInfo: RenderedCell) {
+    getRowPropertiesUsingCellEvent(cellInfo: ViewportCell) {
         return this.getRowProperties(cellInfo.dataCell.y, cellInfo.subgrid);
     }
 
@@ -105,7 +105,7 @@ export class RowPropertiesBehavior {
      * @param properties - The new row properties object. If `undefined`, this call is a no-op.
      * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
-    setRowPropertiesUsingCellEvent(cellInfo: RenderedCell, properties: MetaModel.RowProperties | undefined) {
+    setRowPropertiesUsingCellEvent(cellInfo: ViewportCell, properties: MetaModel.RowProperties | undefined) {
         this.setRowProperties(cellInfo.dataCell.y, properties, cellInfo.subgrid)
     }
 

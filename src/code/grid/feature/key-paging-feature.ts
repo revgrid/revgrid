@@ -1,6 +1,6 @@
 import { ScrollBehavior } from '../behavior/scroll-behaviour';
 import { EventDetail } from '../event/event-detail';
-import { Feature } from '../feature/feature';
+import { Feature } from './feature';
 
 const commands: KeyPaging.CommandMap = {
     PAGEDOWN: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageDown(); },

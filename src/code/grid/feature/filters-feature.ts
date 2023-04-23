@@ -1,8 +1,8 @@
 
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { EventDetail } from '../event/event-detail';
-import { Feature } from '../feature/feature';
 import { SelectionArea } from '../lib/selection-area';
+import { Feature } from './feature';
 
 /**
  * @constructor
@@ -24,7 +24,7 @@ export class Filters extends Feature {
         let handled = false;
 
         if (eventDetail.editor !== undefined) {
-            const cellEvent = eventDetail.editor.renderedCell;
+            const cellEvent = eventDetail.editor.viewportCell;
             if (cellEvent.isFilterCell) {
                 const navKey = this.grid.generateNavKey(eventDetail.primitiveEvent);
                 const handler = this[('handle' + navKey) as keyof Filters] as ((CellEvent: CellEvent) => void);
@@ -75,7 +75,7 @@ export class Filters extends Feature {
         const gridY = cellEvent.visibleRow.index;
         const originX = gridX;
         const grid = this.grid;
-        const C = grid.renderer.visibleColumns.length;
+        const C = grid.viewport.columns.length;
 
         const moveDownCellEvent = new CellEvent(grid); // redefine so we don't reset the original below
 

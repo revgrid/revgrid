@@ -1,19 +1,19 @@
 import { CellProperties } from '../cell/cell-properties';
 import { CellPropertiesAccessor } from '../cell/cell-properties-accessor';
-import { RenderedCell } from '../cell/rendered-cell';
+import { ViewportCell } from '../cell/viewport-cell';
 import { ColumnProperties } from '../column/column-properties';
 import { ColumnsManager } from '../column/columns-manager';
 import { ColumnInterface } from '../common/column-interface';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { MetaModel } from '../model/meta-model';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 
 export class CellPropertiesBehavior {
     constructor(
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManger: SubgridsManager,
-        private readonly _renderer: Renderer,
+        private readonly _viewport: Viewport,
     ) {
     }
     /**
@@ -203,7 +203,7 @@ export class CellPropertiesBehavior {
                 }
             }
         });
-        this._renderer.resetAllCellPropertiesCaches();
+        this._viewport.resetAllCellPropertiesCaches();
     }
 
     /**
@@ -216,7 +216,7 @@ export class CellPropertiesBehavior {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @return The properties of the cell at x,y in the grid or falsy if not available.
      */
-    getCellOwnPropertiesFromRenderedCell(renderedCell: RenderedCell): MetaModel.CellOwnProperties | false | null | undefined{
+    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewportCell): MetaModel.CellOwnProperties | false | null | undefined{
         // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
         let cellOwnProperties = renderedCell.cellOwnProperties;
         if (cellOwnProperties === undefined) {
@@ -226,7 +226,7 @@ export class CellPropertiesBehavior {
         return cellOwnProperties;
     }
 
-    getCellOwnPropertyFromRenderedCell(renderedCell: RenderedCell, key: string): MetaModel.CellOwnProperty | undefined {
+    getCellOwnPropertyFromRenderedCell(renderedCell: ViewportCell, key: string): MetaModel.CellOwnProperty | undefined {
         const cellOwnProperties = this.getCellOwnPropertiesFromRenderedCell(renderedCell);
         if (cellOwnProperties) {
             return cellOwnProperties[key];

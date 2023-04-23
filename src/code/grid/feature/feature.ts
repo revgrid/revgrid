@@ -7,13 +7,14 @@ import { RendererBehavior } from '../behavior/renderer-behaviour';
 import { RowPropertiesBehavior } from '../behavior/row-properties-behavior';
 import { ScrollBehavior } from '../behavior/scroll-behaviour';
 import { UserInterfaceInputBehavior } from '../behavior/user-interface-input-behavior';
+import { CanvasEx } from '../canvas/canvas-ex';
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
 import { ColumnsManager } from '../column/columns-manager';
 import { EventDetail } from '../event/event-detail';
 import { Focus } from '../focus';
 import { GridProperties } from '../grid-properties';
 import { Point } from '../lib/point';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
@@ -36,11 +37,12 @@ export abstract class Feature {
     protected readonly eventBehavior: EventBehavior;
 
     protected readonly sharedState: FeaturesSharedState;
+    protected readonly canvas: CanvasEx;
     protected readonly selection: Selection;
     protected readonly focus: Focus;
     protected readonly columnsManager: ColumnsManager;
     protected readonly subgridsManager: SubgridsManager;
-    protected readonly renderer: Renderer;
+    protected readonly viewport: Viewport;
     protected readonly gridProperties: GridProperties;
 
     constructor(
@@ -57,11 +59,12 @@ export abstract class Feature {
         this.eventBehavior = behavior.eventBehavior;
 
         this.sharedState = services.sharedState;
+        this.canvas = services.canvasEx;
         this.selection = services.selection;
         this.focus = services.focus;
         this.columnsManager = services.columnsManager;
         this.subgridsManager = services.subgridsManager;
-        this.renderer = services.renderer;
+        this.viewport = services.renderer;
         this.gridProperties = services.gridProperties;
     }
 
@@ -204,15 +207,6 @@ export abstract class Feature {
     handleTouchEnd(eventDetail: EventDetail.Touch) {
         if (this.next) {
             this.next.handleTouchEnd(eventDetail);
-        }
-    }
-
-    /**
-     * @desc toggle the column picker
-     */
-    moveSingleSelect(x: number, y: number, shift?: boolean) {
-        if (this.next) {
-            this.next.moveSingleSelect(x, y, shift);
         }
     }
 

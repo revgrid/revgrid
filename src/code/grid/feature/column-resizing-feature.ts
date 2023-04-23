@@ -1,7 +1,6 @@
 
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
-import { ColumnRowResizing } from '../feature/column-row-resizing';
-import { Revgrid } from '../revgrid';
+import { ColumnRowResizing } from './column-row-resizing-feature';
 
 export class ColumnResizing extends ColumnRowResizing {
 
@@ -15,17 +14,16 @@ export class ColumnResizing extends ColumnRowResizing {
      * @desc returns the index of which divider I'm over
      */
     override overAreaDivider(event: CellEvent): boolean {
-        const grid = this.grid;
         const mousePoint = event.mousePoint.x;
-        if (!grid.properties.gridRightAligned) {
+        if (!this.gridProperties.gridRightAligned) {
             const leftMostColumnIndex = 0;
             return (event.gridCell.x !== leftMostColumnIndex && mousePoint <= 3) || mousePoint >= event.bounds.width - 3;
         } else {
-            const lastVisibleColumnIdx = grid.renderer.visibleColumns.length - 1;
+            const lastVisibleColumnIdx = this.viewport.columns.length - 1;
             if (lastVisibleColumnIdx < 0) {
                 return false;
             } else {
-                const lastVc = grid.renderer.visibleColumns[lastVisibleColumnIdx];
+                const lastVc = this.viewport.columns[lastVisibleColumnIdx];
                 const lastColumnIndex = lastVc.activeColumnIndex;
                 return (mousePoint >= -1 && mousePoint <= 3) || (event.gridCell.x !== lastColumnIndex && mousePoint >= event.bounds.width - 3);
             }
@@ -39,8 +37,8 @@ export class ColumnResizing extends ColumnRowResizing {
         return 'col-resize';
     }
 
-    override getGridRightBottomAligned(grid: Revgrid) {
-        return grid.properties.gridRightAligned;
+    override getGridRightBottomAligned() {
+        return this.gridProperties.gridRightAligned;
     }
 }
 

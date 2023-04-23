@@ -8,7 +8,7 @@ import { RendererBehavior } from './behavior/renderer-behaviour';
 import { RowPropertiesBehavior } from './behavior/row-properties-behavior';
 import { ScrollBehavior } from './behavior/scroll-behaviour';
 import { UserInterfaceInputBehavior } from './behavior/user-interface-input-behavior';
-import { Canvas } from './canvas/canvas';
+import { CanvasEx } from './canvas/canvas-ex';
 import { dispatchGridEvent } from './canvas/dispatch-grid-event';
 import { CellEditor } from './cell-editor/cell-editor';
 import { cellEditorFactory } from './cell-editor/cell-editor-factory';
@@ -16,7 +16,7 @@ import { ButtonCellPainter } from './cell-painter/button-cell-painter';
 import { CellPainter } from './cell-painter/cell-painter';
 import { CellEvent, MouseCellEvent } from './cell/cell-event';
 import { CellProperties } from './cell/cell-properties';
-import { RenderedCell } from './cell/rendered-cell';
+import { ViewportCell } from './cell/viewport-cell';
 import { Column, ColumnWidth } from './column/column';
 import { ColumnProperties } from './column/column-properties';
 import { ColumnsManager } from './column/columns-manager';
@@ -38,7 +38,7 @@ import { SelectionArea } from './lib/selection-area';
 import { ColumnNameWidth, ListChangedTypeId } from './lib/types';
 import { MetaModel } from './model/meta-model';
 import { SchemaModel } from './model/schema-model';
-import { Renderer } from './renderer/renderer';
+import { Viewport } from './renderer/viewport';
 import { Selection } from './selection/selection';
 import { SelectionDetail } from './selection/selection-detail';
 import { Subgrid } from './subgrid/subgrid';
@@ -65,10 +65,10 @@ export class Revgrid implements SelectionDetail {
     readonly selection: Selection;
     readonly focus: Focus;
     readonly properties: LoadableGridProperties;
-    readonly canvas: Canvas;
+    readonly canvas: CanvasEx;
 
     /** @internal */
-    readonly renderer: Renderer;
+    readonly viewport: Viewport;
     /** @internal */
     private _columnsManager: ColumnsManager;
     /** @internal */
@@ -124,15 +124,15 @@ export class Revgrid implements SelectionDetail {
     /**
      * The index of the active column which is first in view (either on left or right depending on Grid alignment)
      */
-    get columnScrollAnchorIndex() { return this.renderer.columnScrollAnchorIndex; }
+    get columnScrollAnchorIndex() { return this.viewport.columnScrollAnchorIndex; }
     /**
      * The number of pixels that the scroll anchored column is offset.
      * Changes to allow smooth scrolling
      */
-    get columnScrollAnchorOffset() { return this.renderer.columnScrollAnchorOffset; }
-    get fixedColumnsViewWidth() { return this.renderer.fixedColumnsViewWidth; }
-    get nonFixedColumnsViewWidth() { return this.renderer.nonFixedColumnsViewWidth; }
-    get activeColumnsViewWidth() { return this.renderer.activeColumnsViewWidth; }
+    get columnScrollAnchorOffset() { return this.viewport.columnScrollAnchorOffset; }
+    get fixedColumnsViewWidth() { return this.viewport.fixedColumnsViewWidth; }
+    get nonFixedColumnsViewWidth() { return this.viewport.scrollableColumnsViewWidth; }
+    get activeColumnsViewWidth() { return this.viewport.columnsViewWidth; }
 
 /**
  * @mixes scrolling.mixin
@@ -225,17 +225,18 @@ export class Revgrid implements SelectionDetail {
         this.properties = this.behavior.gridProperties;
         this._columnsManager = this.behavior.columnsManager;
         this._subgridsManager = this.behavior.subgridsManager;
-        this.renderer = this.behavior.renderer;
+        this.viewport = this.behavior.viewport;
 
         this._featureManager = new FeaturesManager(
             this.behavior,
             this,
             this.properties,
+            this.canvas,
             this.focus,
             this.selection,
             this._columnsManager,
             this._subgridsManager,
-            this.renderer
+            this.viewport
         );
         this.loadFeatures();
 
@@ -288,7 +289,7 @@ export class Revgrid implements SelectionDetail {
         document.addEventListener('mousedown',  this.mouseCatcher);
 
         this.canvas.start();
-        this.renderer.start();
+        this.viewport.start();
         this._repaintSetTimeoutId = setTimeout(() => {
             this._repaintSetTimeoutId = undefined;
             this.repaint();
@@ -301,6 +302,8 @@ export class Revgrid implements SelectionDetail {
         this.resetGridBorder('Bottom');
         this.resetGridBorder('Left');
     }
+
+    get canvasBounds() { return this.canvas.bounds; }
 
     /** @deprecated Use {@link (Hypgrid:class).destroy} instead */
     terminate() {
@@ -592,15 +595,15 @@ export class Revgrid implements SelectionDetail {
     // }
 
     registerGridPainter(key: string, constructor: GridPainter.Constructor) {
-        this.renderer.registerGridPainter(key, constructor)
+        this.viewport.registerGridPainter(key, constructor)
     }
 
     registerCellPainter(typeName: string, constructor: CellPainter.Constructor) {
-        this.renderer.registerCellPainter(typeName, constructor)
+        this.viewport.registerCellPainter(typeName, constructor)
     }
 
     computeCellsBounds() {
-        this.renderer.computeCellsBounds();
+        this.viewport.computeCellsBounds();
     }
 
     setFormatter(options?: Revgrid.LocalizationOptions) {
@@ -902,7 +905,7 @@ export class Revgrid implements SelectionDetail {
     behaviorShapeChanged() {
         if (this.paintLoopRunning()) {
             this.needsShapeChanged = true;
-            this.renderer.requestRepaint();
+            this.viewport.requestRepaint();
         } else if (!this.destroyed) {
             this._scrollBehavior.synchronizeScrollingBoundaries(); // calls computeCellsBounds
             this.repaint();
@@ -915,7 +918,7 @@ export class Revgrid implements SelectionDetail {
     behaviorStateChanged() {
         if (this.paintLoopRunning()) {
             this.needsStateChanged = true;
-            this.renderer.requestRepaint();
+            this.viewport.requestRepaint();
         } else if (!this.destroyed) {
             this.computeCellsBounds();
             // this.repaint();
@@ -940,13 +943,6 @@ export class Revgrid implements SelectionDetail {
         }
 
         this.needsShapeChanged = this.needsStateChanged = false;
-    }
-
-    /**
-     * @returns My bounds.
-     */
-    getBounds() {
-        return this._rendererBehavior.getBounds();
     }
 
     repaint() {
@@ -1061,14 +1057,6 @@ export class Revgrid implements SelectionDetail {
     }
 
     /**
-     * @returns The pixel coordinates of just the center 'main" data area.
-     */
-    getDataBounds() {
-        const b = this.canvas.bounds;
-        return new Rectangle(0, 0, b.topLeft.x + b.extent.x, b.topLeft.y + b.extent.y);
-    }
-
-    /**
      * @summary Open the cell-editor for the cell at the given coordinates.
      * @param cellEvent - Coordinates of "edit point" (gridCell.x, dataCell.y).
      * @return The cellEditor determined from the cell's render properties, which may be modified by logic added by overriding {@link DataModel#getCellEditorAt|getCellEditorAt}.
@@ -1096,7 +1084,7 @@ export class Revgrid implements SelectionDetail {
      * @returns The given column is fully visible.
      */
     isColumnVisible(activeIndex: number) {
-        return this.renderer.isColumnVisible(activeIndex);
+        return this.viewport.isActiveColumnVisible(activeIndex);
     }
 
     /**
@@ -1111,7 +1099,7 @@ export class Revgrid implements SelectionDetail {
             subgrid = this.behavior.mainSubgrid;
         }
 
-        return this.renderer.isDataRowVisible(r, subgrid);
+        return this.viewport.isDataRowVisible(r, subgrid);
     }
 
     /**
@@ -1167,7 +1155,7 @@ export class Revgrid implements SelectionDetail {
      * @param mouse - The mouse point to interrogate.
      */
     getGridCellFromMousePoint(mouse: Point) {
-        return this.renderer.getGridCellFromMousePoint(mouse);
+        return this.viewport.getGridCellFromMousePoint(mouse);
     }
 
     /**
@@ -1175,7 +1163,7 @@ export class Revgrid implements SelectionDetail {
      * @returns The pixel based bounds rectangle given a data cell point.
      */
     getBoundsOfCell(gridCell: Point): RectangleInterface {
-        const {x, y, width, height} = this.renderer.getBoundsOfCell(gridCell.x, gridCell.y);
+        const {x, y, width, height} = this.viewport.getBoundsOfCell(gridCell.x, gridCell.y);
 
         //convert to a proper rectangle
         return new Rectangle(x, y, width, height);
@@ -1324,7 +1312,7 @@ export class Revgrid implements SelectionDetail {
     }
 
     setColumnScrollAnchor(index: number, offset: number) {
-        const changed = this.renderer.setColumnScrollAnchor(index, offset);
+        const changed = this.viewport.setColumnScrollAnchor(index, offset);
         if (changed) {
             this.computeCellsBounds();
             const viewportStart = this.calculateColumnScrollAnchorViewportStart();
@@ -1333,7 +1321,7 @@ export class Revgrid implements SelectionDetail {
     }
 
     setViewport(columnIndex: number, columnOffset: number, rowIndex: number, _rowOffset: number) {
-        const columnChanged = this.renderer.setColumnScrollAnchor(columnIndex, columnOffset);
+        const columnChanged = this.viewport.setColumnScrollAnchor(columnIndex, columnOffset);
         this.rowScrollAnchorIndex = rowIndex;
         const rowChanged = true; // fix in future
         if (columnChanged || rowChanged) {
@@ -1430,9 +1418,9 @@ export class Revgrid implements SelectionDetail {
         gridRightAligned: boolean,
         columnCount: number,
         fixedColumnCount: number,
-    ): Renderer.ScrollContentSizeAndAnchorLimits {
+    ): Viewport.ScrollContentSizeAndAnchorLimits {
         let contentSize = this.calculateActiveNonFixedColumnsWidth();
-        let anchorLimits: Renderer.ScrollAnchorLimits;
+        let anchorLimits: Viewport.ScrollAnchorLimits;
 
         const contentOverflowed = contentSize > viewportSize && columnCount > fixedColumnCount
         if (contentOverflowed) {
@@ -1515,7 +1503,7 @@ export class Revgrid implements SelectionDetail {
         gridRightAligned: boolean,
         columnCount: number,
         fixedColumnCount: number
-    ): Renderer.ScrollAnchorLimits {
+    ): Viewport.ScrollAnchorLimits {
         let startAnchorLimitIndex: number;
         let finishAnchorLimitIndex: number;
         if (gridRightAligned) {
@@ -1536,10 +1524,10 @@ export class Revgrid implements SelectionDetail {
     calculateColumnScrollAnchorViewportStart(): number {
         const gridRightAligned = this.properties.gridRightAligned;
         if (gridRightAligned) {
-            const finish = this.renderer.calculateColumnScrollAnchorViewportFinish(this._scrollBehavior.horizontalContentFinish);
+            const finish = this.viewport.calculateColumnScrollAnchorViewportFinish(this._scrollBehavior.horizontalContentFinish);
             return finish - this._scrollBehavior.horizontalViewportSize + 1;
         } else {
-            return this.renderer.calculateColumnScrollAnchorViewportStart(this._scrollBehavior.horizontalContentStart);
+            return this.viewport.calculateColumnScrollAnchorViewportStart(this._scrollBehavior.horizontalContentStart);
         }
     }
 
@@ -1681,11 +1669,8 @@ export class Revgrid implements SelectionDetail {
      * 1. All rows of all subgrids preceding the data subgrid.
      * 2. The first `fixedRowCount` rows of the data subgrid.
      */
-    getFixedRowCount() {
-        return (
-            this._subgridsManager.calculateHeaderRowCount() +
-            this.properties.fixedRowCount
-        );
+    calculateHeaderPlusFixedRowCount() {
+        return this._subgridsManager.calculateHeaderPlusFixedRowCount();
     }
 
     /**
@@ -1773,7 +1758,7 @@ export class Revgrid implements SelectionDetail {
      * @param colIndex - The column index.
      */
     getRenderedWidth(colIndex: number): number {
-        return this.renderer.getRenderedWidth(colIndex);
+        return this.viewport.getRenderedWidth(colIndex);
     }
 
     /**
@@ -1781,7 +1766,7 @@ export class Revgrid implements SelectionDetail {
      * @param rowIndex - The row index.
      */
     getRenderedHeight(rowIndex: number): number {
-        return this.renderer.getRenderedHeight(rowIndex);
+        return this.viewport.getRenderedHeight(rowIndex);
     }
 
     /**
@@ -1790,12 +1775,14 @@ export class Revgrid implements SelectionDetail {
     updateCursor() {
         let cursor = this.behavior.getCursorAt(-1, -1);
         const hoverGridCell = this.hoverGridCell;
+        const firstScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
         if (
             hoverGridCell &&
             hoverGridCell.x > -1 &&
-            hoverGridCell.y > -1
+            hoverGridCell.y > -1 &&
+            firstScrollableActiveColumnIndex !== undefined
         ) {
-            const x = hoverGridCell.x + this.renderer.firstNonFixedColumnIndex;
+            const x = hoverGridCell.x + firstScrollableActiveColumnIndex;
             cursor = this.behavior.getCursorAt(x, hoverGridCell.y + this._scrollBehavior.rowScrollAnchorIndex);
         }
         this.beCursor(cursor);
@@ -1821,7 +1808,7 @@ export class Revgrid implements SelectionDetail {
      * @returns Objects with the values that were just rendered.
      */
     getRenderedData(): Array<Array<unknown>> {
-        return this.renderer.getVisibleCellMatrix();
+        return this.viewport.getVisibleCellMatrix();
     }
 
     /**
@@ -1878,14 +1865,14 @@ export class Revgrid implements SelectionDetail {
      * @returns The number of columns that were just rendered
      */
     getVisibleColumnsCount() {
-        return this.renderer.getVisibleColumnsCount();
+        return this.viewport.getColumnsCount();
     }
 
     /**
      * @returns The number of rows that were just rendered
      */
     getVisibleRowsCount() {
-        return this.renderer.getVisibleRowsCount();
+        return this.viewport.getRowsCount();
     }
 
     /**
@@ -2018,7 +2005,7 @@ export class Revgrid implements SelectionDetail {
      * @param listener - The event handler.
      * @param internal - Used by {@link Revgrid#addInternalEventListener|grid.addInternalEventListener} (see).
      */
-    addEventListener<T extends EventName>(eventName: T, listener: Canvas.EventListener<T>, internal?: boolean) {
+    addEventListener<T extends EventName>(eventName: T, listener: CanvasEx.EventListener<T>, internal?: boolean) {
         let alreadyAttached: boolean;
         let listenerInfos = this.eventlistenerInfos.get(eventName);
         if (listenerInfos === undefined) {
@@ -2053,7 +2040,7 @@ export class Revgrid implements SelectionDetail {
      * @param eventName - The type of event we are interested in.
      * @param listener - The event handler.
      */
-    addInternalEventListener<T extends EventName>(eventName: T, listener: Canvas.EventListener<T>) {
+    addInternalEventListener<T extends EventName>(eventName: T, listener: CanvasEx.EventListener<T>) {
     // addInternalEventListener(eventName: string, listener: Canvas.Listener) {
         this.addEventListener(eventName, listener, true);
     }
@@ -2065,7 +2052,7 @@ export class Revgrid implements SelectionDetail {
      * NOTE: This method cannot remove event listeners added by other means.
      */
 
-    removeEventListener<T extends EventName>(eventName: T, listener: Canvas.EventListener<T>) {
+    removeEventListener<T extends EventName>(eventName: T, listener: CanvasEx.EventListener<T>) {
         const listenerInfos = this.eventlistenerInfos.get(eventName);
 
         if (listenerInfos !== undefined) {
@@ -2077,7 +2064,7 @@ export class Revgrid implements SelectionDetail {
                         } else {
                             listenerInfos.splice(index, 1); // remove it from the list
                         }
-                        this.canvas.removeEventListener<T>(eventName, info.decorator as Canvas.EventListener<T>);
+                        this.canvas.removeEventListener<T>(eventName, info.decorator as CanvasEx.EventListener<T>);
                         return true;
                     } else {
                         return false;
@@ -2449,37 +2436,27 @@ export class Revgrid implements SelectionDetail {
         const grid = this;
 
         function handleMouseEvent(detail: EventDetail.Mouse, cb: ((cellEvent: MouseCellEvent | undefined) => void)) {
-            if (this._subgridsManager.getLogicalRowCount() === 0) {
-                return;
-            }
+            if (grid._subgridsManager.getAllRowCount() !== 0) {
+                const cellEvent = grid.getGridCellFromMousePoint(detail.mouse) as (MouseCellEvent | undefined);
 
-            const c = grid.getGridCellFromMousePoint(detail.mouse);
-            let cellEvent: MouseCellEvent | undefined;
+                if (cellEvent !== undefined) {
+                    cellEvent.mouse = detail;
 
-            // No events on the whitespace of the grid unless they're drag events
-            if (!c.fake || detail.dragstart) {
-                cellEvent = c.renderedCell as MouseCellEvent; // CellEvents are really RenderedCells. All conversions occur here.
-            } else {
-                cellEvent = undefined;
-            }
-
-            if (cellEvent !== undefined) {
-                cellEvent.mouse = detail;
-
-                // add some interesting mouse offsets
-                // let detail = cellEvent.primitiveEvent.detail;
-                if (detail !== undefined) { // test should not be necessary
-                    cellEvent.gridPoint = detail.mouse;
-                    const uiEvent = detail.primitiveEvent as MouseEvent;
-                    if (uiEvent !== undefined) {
-                        cellEvent.clientPoint = Point.create(uiEvent.clientX, uiEvent.clientY);
-                        cellEvent.pagePoint = Point.create(uiEvent.clientX + window.scrollX, uiEvent.clientY + window.scrollY);
+                    // add some interesting mouse offsets
+                    // let detail = cellEvent.primitiveEvent.detail;
+                    if (detail !== undefined) { // test should not be necessary
+                        cellEvent.gridPoint = detail.mouse;
+                        const uiEvent = detail.primitiveEvent as MouseEvent;
+                        if (uiEvent !== undefined) {
+                            cellEvent.clientPoint = Point.create(uiEvent.clientX, uiEvent.clientY);
+                            cellEvent.pagePoint = Point.create(uiEvent.clientX + window.scrollX, uiEvent.clientY + window.scrollY);
+                        }
                     }
+
                 }
 
+                cb(cellEvent, detail);
             }
-
-            cb(cellEvent);
         }
 
         this.addInternalEventListener('rev-canvas-resized', (e) => {
@@ -2546,8 +2523,8 @@ export class Revgrid implements SelectionDetail {
                 return;
             }
             grid.dragging = false;
-            if (this._scrollBehavior.isScrollingNow()) {
-                this._scrollBehavior.setScrollingNow(false);
+            if (this._scrollBehavior.isScrollingActive()) {
+                this._scrollBehavior.setScrollingActive(false);
             }
             if (grid.columnDragAutoScrolling) {
                 grid.columnDragAutoScrolling = false;
@@ -2799,7 +2776,7 @@ export class Revgrid implements SelectionDetail {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      */
-    getCellOwnProperties(allXOrRenderedCell: number | RenderedCell, y?: number, subgrid?: SubgridInterface) {
+    getCellOwnProperties(allXOrRenderedCell: number | ViewportCell, y?: number, subgrid?: SubgridInterface) {
         if (typeof allXOrRenderedCell === 'object') {
             // xOrCellEvent is cellEvent
             const column = allXOrRenderedCell.column;
@@ -2827,7 +2804,7 @@ export class Revgrid implements SelectionDetail {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @return The properties of the cell at x,y in the grid or falsy if not available.
      */
-    getCellOwnPropertiesFromRenderedCell(renderedCell: RenderedCell): MetaModel.CellOwnProperties | false | null | undefined{
+    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewportCell): MetaModel.CellOwnProperties | false | null | undefined{
         return this._cellPropertiesBehavior.getCellOwnPropertiesFromRenderedCell(renderedCell);
     }
 
@@ -2836,7 +2813,7 @@ export class Revgrid implements SelectionDetail {
         return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
     }
 
-    getCellOwnPropertyFromRenderedCell(renderedCell: RenderedCell, key: string): MetaModel.CellOwnProperty | undefined {
+    getCellOwnPropertyFromRenderedCell(renderedCell: ViewportCell, key: string): MetaModel.CellOwnProperty | undefined {
         return this._cellPropertiesBehavior.getCellOwnPropertyFromRenderedCell(renderedCell, key);
     }
 
@@ -2899,7 +2876,7 @@ export class Revgrid implements SelectionDetail {
      *
      * NOTE: For performance reasons, renderer's cell event objects cache their respective cell properties objects. This method accepts a `CellEvent` overload. Whenever possible, use the `CellEvent` from the renderer's cell event pool. Doing so will reset the cell properties object cache.
      *
-     * If you use some other `CellEvent`, the renderer's `CellEvent` properties cache will not be automatically reset until the whole cell event pool is reset on the next call to {@link Renderer#computeCellBoundaries}. If necessary, you can "manually" reset it by calling {@link Renderer#resetCellPropertiesCache|resetCellPropertiesCache(yourCellEvent)} which searches the cell event pool for one with matching coordinates and resets the cache.
+     * If you use some other `CellEvent`, the renderer's `CellEvent` properties cache will not be automatically reset until the whole cell event pool is reset on the next call to {@link Viewport#computeCellBoundaries}. If necessary, you can "manually" reset it by calling {@link Viewport#resetCellPropertiesCache|resetCellPropertiesCache(yourCellEvent)} which searches the cell event pool for one with matching coordinates and resets the cache.
      *
      * The raw coordinates overload calls the `resetCellPropertiesCache(x, y)` overload for you.
      * @param xOrCellEvent - `CellEvent` or data x coordinate.
@@ -2935,7 +2912,7 @@ export class Revgrid implements SelectionDetail {
         }
 
         const cellOwnProperties = this._cellPropertiesBehavior.setCellProperty(column, y, key, value, subgrid);
-        this.renderer.resetCellPropertiesCache(allXOrCellEvent, y, subgrid);
+        this.viewport.resetCellPropertiesCache(allXOrCellEvent, y, subgrid);
         return cellOwnProperties;
     }
 
@@ -3015,17 +2992,16 @@ export class Revgrid implements SelectionDetail {
 
     selectToViewportCell(x: number, y: number) {
         let selectionRectangles: Rectangle[];
-        let vc: Renderer.VisibleColumn;
-        let vr: Renderer.VisibleRow;
+        let vc: Viewport.ViewportColumn;
+        let vr: Viewport.ViewportRow;
         if (
             (selectionRectangles = this.selection.rectangleList.rectangles) && selectionRectangles.length &&
-            (vc = this.renderer.visibleColumns[x]) &&
-            (vr = this.renderer.visibleRows[y + this._subgridsManager.calculateHeaderRowCount()])
+            (vc = this.viewport.columns[x]) &&
+            (vr = this.viewport.rows[y + this._subgridsManager.calculateHeaderRowCount()])
         ) {
             const origin = selectionRectangles[0].topLeft;
             x = vc.activeColumnIndex;
             y = vr.rowIndex;
-            this._userInterfaceInputBehavior.setDragExtent(Point.create(x - origin.x, y - origin.y));
             this.selection.selectRectangle(origin.x, origin.y, x - origin.x, y - origin.y, undefined);
             this.repaint();
         }
@@ -3361,7 +3337,7 @@ export class Revgrid implements SelectionDetail {
      * @returns The `scrollingNow` field.
      */
     isScrollingNow() {
-        return this._scrollBehavior.isScrollingNow();
+        return this._scrollBehavior.isScrollingActive();
     }
 
     /**
@@ -3485,7 +3461,7 @@ export class Revgrid implements SelectionDetail {
 
         this.behavior.reset();
         this._columnsManager.clearColumns();
-        this.renderer.reset();
+        this.viewport.reset();
 
         // this._columnsManager.createColumns();
         // if (options?.data !== undefined) {
@@ -3502,7 +3478,7 @@ export class Revgrid implements SelectionDetail {
 
     /** @internal */
     private paintLoopRunning() {
-        return !this.properties.repaintImmediately && this.renderer.painting();
+        return !this.properties.repaintImmediately && this.viewport.painting();
     }
 
     /** @internal */
@@ -3676,13 +3652,13 @@ export namespace Revgrid {
 
     export abstract class ListenerInfo {
         internal: boolean;
-        abstract listener: Canvas.EventListener<never>;
-        abstract decorator: Canvas.EventListener<never>;
+        abstract listener: CanvasEx.EventListener<never>;
+        abstract decorator: CanvasEx.EventListener<never>;
     }
 
     export class TypedListenerInfo<T extends EventName> extends ListenerInfo {
-        override listener: Canvas.EventListener<T>;
-        override decorator: Canvas.EventListener<T>;
+        override listener: CanvasEx.EventListener<T>;
+        override decorator: CanvasEx.EventListener<T>;
     }
 
     export interface LocalizationOptions {

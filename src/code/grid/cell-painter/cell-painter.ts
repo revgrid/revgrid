@@ -87,13 +87,20 @@ import { CellPaintConfig } from '../renderer/cell-paint-config';
  *
  * @public
  */
-export abstract class CellPainter {
+export interface CellPainter {
 
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
-    abstract paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined;
+    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined;
+
+}
+
+/** @public */
+export namespace CellPainter {
+    export type Constructor = new (...args: unknown[]) => CellPainter;
+
 
     /**
      * @desc A simple implementation of rounding a cell.
@@ -102,7 +109,7 @@ export abstract class CellPainter {
      * @param width - the width I'm allowed to draw within
      * @param height - the height I'm allowed to draw within
      */
-    roundRect(gc: CanvasRenderingContext2DEx, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean) {
+    export function roundRect(gc: CanvasRenderingContext2DEx, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean) {
 
         if (!stroke) {
             stroke = true;
@@ -129,9 +136,4 @@ export abstract class CellPainter {
         }
         gc.closePath();
     }
-}
-
-/** @public */
-export namespace CellPainter {
-    export type Constructor = new (...args: unknown[]) => CellPainter;
 }

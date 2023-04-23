@@ -14,7 +14,7 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
 
     // Grid overrides
     cellPadding: number;
-    cellSelection: boolean;
+    mouseCellSelection: boolean;
     columnAutosizingMax: number;
     columnClip: boolean | undefined;
     editOnKeydown: boolean;

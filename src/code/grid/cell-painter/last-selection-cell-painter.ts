@@ -6,8 +6,8 @@ import { CellPainter } from './cell-painter';
 /**
  * @desc A rendering of the last Selection Model
  */
-export class LastSelectionCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+export class LastSelectionCellPainter implements CellPainter {
+    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         const visOverlay = gc.alpha(config.selectionRegionOverlayColor) > 0,
             visOutline = gc.alpha(config.selectionRegionOutlineColor) > 0;
 

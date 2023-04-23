@@ -7,20 +7,20 @@ import { Point, WritablePoint } from '../lib/point';
 import { Rectangle } from '../lib/rectangle';
 import { RectangleInterface } from '../lib/rectangle-interface';
 import { MetaModel } from '../model/meta-model';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Revgrid } from '../revgrid';
 import { Subgrid } from '../subgrid/subgrid';
 
-export abstract class RenderedCell {
+export class ViewportCell {
 
     // caches
     cellOwnProperties: MetaModel.CellOwnProperties | undefined; // only get via CellPropertiesBehavior
-    public _bounds: RenderedCell.Bounds | undefined;
+    public _bounds: ViewportCell.Bounds | undefined;
     private _columnProperties: ColumnProperties | undefined;
 
     // this.disabled: boolean;
 
-    private readonly renderer: Renderer;
+    private readonly viewport: Viewport;
 
     cellPainter: CellPainter;
     clickRect: Rectangle | undefined;
@@ -35,8 +35,8 @@ export abstract class RenderedCell {
     pagePoint: Point;
     row: unknown;
     subgrid: SubgridInterface;
-    visibleColumn: Renderer.VisibleColumn;
-    visibleRow: Renderer.VisibleRow;
+    visibleColumn: Viewport.ViewportColumn;
+    visibleRow: Viewport.ViewportRow;
 
 
     /**
@@ -45,14 +45,14 @@ export abstract class RenderedCell {
      * @param gridY - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
      */
     constructor(public grid: Revgrid, public gridX?: number, public gridY?: number) {
-        this.renderer = grid.renderer;
+        this.viewport = grid.viewport;
         if (gridX !== undefined && gridY !== undefined) {
             this.resetGridCY(gridX, gridY);
         }
     }
 
     // special method for use by renderer which reuses cellEvent object for performance reasons
-    reset(visibleColumn: Renderer.VisibleColumn, visibleRow: Renderer.VisibleRow) {
+    reset(visibleColumn: Viewport.ViewportColumn, visibleRow: Viewport.ViewportRow) {
         // getter caches
         this._columnProperties = undefined;
         this.cellOwnProperties = undefined;
@@ -65,7 +65,7 @@ export abstract class RenderedCell {
 
         this.subgrid = visibleRow.subgrid;
 
-        this.column = visibleColumn.column; // enumerable so will be copied to cell renderer object
+        this.column = visibleColumn.activeColumn; // enumerable so will be copied to cell renderer object
 
         this.gridCell.x = visibleColumn.activeColumnIndex;
         this.gridCell.y = visibleRow.index;
@@ -82,11 +82,11 @@ export abstract class RenderedCell {
      * @returns Visibility.
      */
     resetGridCY(gridC: number, gridY: number) {
-        const vc = this.renderer.getVisibleColumn(gridC);
+        const vc = this.viewport.tryGetColumnWithActiveIndex(gridC);
         if (vc === undefined) {
             return false;
         } else {
-            const vr = this.renderer.getVisibleRow(gridY);
+            const vr = this.viewport.getVisibleRow(gridY);
             if (vr === undefined) {
                 return false;
             } else {
@@ -104,11 +104,11 @@ export abstract class RenderedCell {
      * @returns Visibility.
      */
     resetGridXY(gridX: number, gridY: number) {
-        const vc = this.renderer.visibleColumns[gridX];
+        const vc = this.viewport.columns[gridX];
         if (vc === undefined) {
             return false;
         } else {
-            const vr = this.renderer.getVisibleRow(gridY);
+            const vr = this.viewport.getVisibleRow(gridY);
             if (vr === undefined) {
                 return false;
             } else {
@@ -126,11 +126,11 @@ export abstract class RenderedCell {
      * @returns Visibility.
      */
     resetDataXY(dataX: number, dataY: number, subgrid: Subgrid) {
-        const vc = this.renderer.getVisibleDataColumn(dataX);
+        const vc = this.viewport.tryGetColumnWithDataIndex(dataX);
         if (vc === undefined) {
             return false;
         } else {
-            const vr = this.renderer.getVisibleDataRow(dataY, subgrid);
+            const vr = this.viewport.getVisibleDataRow(dataY, subgrid);
             if (vr === undefined) {
                 return false;
             } else {
@@ -154,17 +154,15 @@ export abstract class RenderedCell {
             // When expanding selections larger than the viewport, the origin/corner
             // points may not be rendered and would normally fail to reset cell's position.
             // Mock column and row objects for this.reset() to use:
-            const vc = {
-                column: this.grid.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
+            const vc: Viewport.ViewportColumn = {
+                activeColumn: this.grid.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
                 activeColumnIndex: gridX,
                 index: -1,
                 left: -1,
                 rightPlus1: -1,
-                top: -1,
-                bottom: -1,
                 width: -1,
             };
-            const vr: Renderer.VisibleRow = {
+            const vr: Viewport.ViewportRow = {
                 rowIndex: dataY,
                 index: -1,
                 subgrid,
@@ -175,11 +173,11 @@ export abstract class RenderedCell {
             this.reset(vc, vr);
             return true;
         } else {
-            const vc = this.renderer.getVisibleColumn(gridX);
+            const vc = this.viewport.tryGetColumnWithActiveIndex(gridX);
             if (vc === undefined) {
                 return false;
             } else {
-                const vr = this.renderer.getVisibleDataRow(dataY, subgrid);
+                const vr = this.viewport.getVisibleDataRow(dataY, subgrid);
                 if (vr === undefined) {
                     return false;
                 } else {
@@ -207,7 +205,7 @@ export abstract class RenderedCell {
     /**
      * The bounds of the cell.
      */
-    get bounds(): RenderedCell.Bounds {
+    get bounds(): ViewportCell.Bounds {
         if (this._bounds === undefined) {
             this._bounds = {
                 x: this.visibleColumn.left,
@@ -402,7 +400,7 @@ export abstract class RenderedCell {
     // }
 }
 
-export namespace RenderedCell {
+export namespace ViewportCell {
     export interface Bounds extends RectangleInterface {
     }
 }

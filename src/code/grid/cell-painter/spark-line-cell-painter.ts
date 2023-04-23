@@ -7,8 +7,8 @@ import { CellPainter } from './cell-painter';
  * Renders a sparkline.
  * {@link http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR|Edward Tufte sparkline}
  */
-export class SparkLineCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+export class SparkLineCellPainter implements CellPainter {
+    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         let x = config.bounds.x;
         const y = config.bounds.y;
         const width = config.bounds.width;

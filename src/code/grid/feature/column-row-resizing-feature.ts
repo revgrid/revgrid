@@ -1,8 +1,7 @@
 
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
-import { Column, ColumnWidth } from '../column/column';
+import { ColumnWidth } from '../column/column';
 import { ColumnInterface } from '../common/column-interface';
-import { Revgrid } from '../revgrid';
 import { Feature } from './feature';
 
 export abstract class ColumnRowResizing extends Feature {
@@ -19,7 +18,7 @@ export abstract class ColumnRowResizing extends Feature {
     dragStartWidth = -1;
 
     inPlaceAdjacentStartWidth: number;
-    inPlaceAdjacentColumn: Column | undefined;
+    inPlaceAdjacentColumn: ColumnInterface | undefined;
 
     /**
      * @desc get the mouse x,y coordinate
@@ -37,14 +36,13 @@ export abstract class ColumnRowResizing extends Feature {
      */
     protected abstract getCursorName(): string;
 
-    protected abstract getGridRightBottomAligned(grid: Revgrid): boolean;
+    protected abstract getGridRightBottomAligned(): boolean;
 
     override handleMouseDrag(event: MouseCellEvent) {
         if (this.dragColumn !== undefined) {
-            const grid = this.grid;
             const mouseValue = this.getMouseValue(event);
             let delta: number;
-            if (this.getGridRightBottomAligned(grid)) {
+            if (this.getGridRightBottomAligned()) {
                 delta = this.dragStart - mouseValue;
             } else {
                 delta = mouseValue - this.dragStart;
@@ -77,20 +75,19 @@ export abstract class ColumnRowResizing extends Feature {
 
     override handleMouseDown(event: MouseCellEvent) {
         if (event.isHeaderRow && this.overAreaDivider(event)) {
-            const grid = this.grid;
-            const visibleColumnCount = grid.renderer.visibleColumns.length;
+            const viewportColumnCount = this.viewport.columns.length;
             let vc = event.visibleColumn;
             let vcIndex = vc.index;
 
-            const gridRightBottomAligned = this.getGridRightBottomAligned(grid);
+            const gridRightBottomAligned = this.getGridRightBottomAligned();
             if (!gridRightBottomAligned) {
                 if (event.mousePoint.x <= 3) {
                     vcIndex--;
                     if (vcIndex < 0) {
                         return; // can't drag left-most column boundary
                     } else {
-                        vc = grid.renderer.visibleColumns[vcIndex];
-                        this.dragColumn = vc.column;
+                        vc = this.viewport.columns[vcIndex];
+                        this.dragColumn = vc.activeColumn;
                         this.dragStartWidth = vc.width;
                     }
                 } else {
@@ -100,11 +97,11 @@ export abstract class ColumnRowResizing extends Feature {
             } else {
                 if (event.mousePoint.x >= event.bounds.width - 3) {
                     vcIndex++;
-                    if (vcIndex >= visibleColumnCount) {
+                    if (vcIndex >= viewportColumnCount) {
                         return; // can't drag right-most column boundary
                     } else {
-                        vc = grid.renderer.visibleColumns[vcIndex];
-                        this.dragColumn = vc.column;
+                        vc = this.viewport.columns[vcIndex];
+                        this.dragColumn = vc.activeColumn;
                         this.dragStartWidth = vc.width;
                     }
                 } else {
@@ -158,19 +155,19 @@ export abstract class ColumnRowResizing extends Feature {
             this.dragStart = this.getMouseValue(event);
 
             if (this.dragColumn.properties.resizeColumnInPlace) {
-                let column: Column | undefined;
+                let column: ColumnInterface | undefined;
 
                 if (!gridRightBottomAligned) {
                     vcIndex++;
-                    if (vcIndex < visibleColumnCount) {
-                        vc = grid.renderer.visibleColumns[vcIndex];
-                        column = vc.column;
+                    if (vcIndex < viewportColumnCount) {
+                        vc = this.viewport.columns[vcIndex];
+                        column = vc.activeColumn;
                     }
                 } else {
                     vcIndex--;
                     if (vcIndex >= 0) {
-                        vc = grid.renderer.visibleColumns[vcIndex];
-                        column = vc.column;
+                        vc = this.viewport.columns[vcIndex];
+                        column = vc.activeColumn;
                     }
                 }
 
@@ -219,7 +216,7 @@ export abstract class ColumnRowResizing extends Feature {
         if (event.isHeaderRow && this.overAreaDivider(event)) {
             const grid = this.grid;
             const column = event.mousePoint.x <= 3
-                ? grid.getActiveColumn(event.gridCell.x - 1)
+                ? this.columnsManager.getActiveColumn(event.gridCell.x - 1)
                 : event.column;
             column.properties.columnAutosizing = true;
             column.properties.columnAutosized = false;  // todo: columnAutosizing should be a setter that automatically resets columnAutosized on state change to true

@@ -4,7 +4,7 @@ import { Focus } from '../focus';
 import { GridProperties } from '../grid-properties';
 import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
 import { SelectionArea } from '../lib/selection-area';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
 import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
@@ -19,7 +19,7 @@ export class FocusSelectionBehavior {
         private readonly _gridProperties: GridProperties,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
-        private readonly _renderer: Renderer,
+        private readonly _viewport: Viewport,
         private readonly _mouse: Mouse,
         private readonly _repaintEventer: SelectionBehavior.RepaintEventer,
         private readonly _selectionChangedEventer: SelectionBehavior.SelectionChangedEventer,
@@ -121,14 +121,14 @@ export class FocusSelectionBehavior {
             this.endChange();
         }
 
-        this._scrollToMakeVisibleEventer(focusX, focusY, subgrid);
+        this._scrollToMakeVisibleEventer(focusX, focusY, subgrid, true);
 
         this._repaintEventer();
     }
 
     selectOnlyRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: Subgrid) {
         this._selection.selectRectangle(exclusiveX, exclusiveY, width, height);
-        this._scrollToMakeVisibleEventer(exclusiveX, exclusiveY, subgrid);
+        this._scrollToMakeVisibleEventer(exclusiveX, exclusiveY, subgrid, true);
         this._repaintEventer();
     }
 
@@ -144,23 +144,33 @@ export class FocusSelectionBehavior {
             this.endChange();
         }
 
-        this._scrollToMakeVisibleEventer(x, y, subgrid);
+        this._scrollToMakeVisibleEventer(x, y, subgrid, true);
 
         this._repaintEventer();
     }
 
     focusSelectOnlyViewportCell(x: number, y: number, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
-        const visibleColumns = this._renderer.visibleColumns;
-        if (x < visibleColumns.length) {
-            const vc = this._renderer.visibleColumns[x]
-            const visibleRows = this._renderer.visibleRows;
-            if (y < visibleRows.length) {
-                const vr = this._renderer.visibleRows[y];
+        const viewportColumns = this._viewport.columns;
+        if (x < viewportColumns.length) {
+            const vc = this._viewport.columns[x]
+            const viewportRows = this._viewport.rows;
+            if (y < viewportRows.length) {
+                const vr = this._viewport.rows[y];
                 x = vc.activeColumnIndex;
                 y = vr.rowIndex;
                 const subgrid = vr.subgrid;
                 this.focusSelectOnlyCell(x, y, subgrid, areaTypeSpecifier);
             }
+        }
+    }
+
+    replaceLastArea(exclusiveX: number, exclusiveY: number, width: number, height: number, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+        this._selection.beginChange();
+        try {
+            this._selection.deselectLastArea();
+            this._selection.selectArea(exclusiveX, exclusiveY, width, height, areaTypeSpecifier);
+        } finally {
+            this._selection.endChange();
         }
     }
 
@@ -177,6 +187,26 @@ export class FocusSelectionBehavior {
         }
     }
 
+    replaceLastAreaWithColumns(exclusiveX: number, y: number, width: number, height: number) {
+        this._selection.beginChange();
+        try {
+            this._selection.deselectLastArea();
+            this._selection.selectColumns(exclusiveX, y, width, height);
+        } finally {
+            this._selection.endChange();
+        }
+    }
+
+    replaceLastAreaWithRows(exclusiveX: number, y: number, width: number, height: number) {
+        this._selection.beginChange();
+        try {
+            this._selection.deselectLastArea();
+            this._selection.selectRows(exclusiveX, y, width, height);
+        } finally {
+            this._selection.endChange();
+        }
+    }
+
     focusSelectAddCell(x: number, y: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
         const selection = this._selection;
 
@@ -188,7 +218,7 @@ export class FocusSelectionBehavior {
             this.endChange();
         }
 
-        this._scrollToMakeVisibleEventer(x, y, subgrid);
+        this._scrollToMakeVisibleEventer(x, y, subgrid, true);
 
         this._repaintEventer();
 
@@ -331,5 +361,5 @@ export class FocusSelectionBehavior {
 export namespace SelectionBehavior {
     export type RepaintEventer = (this: void) => void;
     export type SelectionChangedEventer = (this: void) => void;
-    export type ScrollToMakeVisibleEventer = (this: void, x: number, y: number, subgrid: SubgridInterface) => void;
+    export type ScrollToMakeVisibleEventer = (this: void, x: number, y: number, subgrid: SubgridInterface, maximally: boolean) => void;
 }

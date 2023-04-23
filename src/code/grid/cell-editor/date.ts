@@ -1,4 +1,4 @@
-import { RenderedCell } from '../cell/rendered-cell';
+import { ViewportCell } from '../cell/viewport-cell';
 import { DateFormatter } from '../lib/localization';
 import { Revgrid } from '../revgrid';
 import { DateInputEditor } from './date-input-editor';
@@ -29,7 +29,7 @@ export class Date extends DateInputEditor {
      */
 
 
-    constructor(grid: Revgrid, renderedCell: RenderedCell) {
+    constructor(grid: Revgrid, renderedCell: ViewportCell) {
         super(grid, renderedCell);
 
         if (this.localizer === undefined) {

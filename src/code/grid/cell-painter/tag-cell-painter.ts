@@ -3,9 +3,9 @@ import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2
 import { CellPaintConfig } from '../renderer/cell-paint-config';
 import { CellPainter } from './cell-painter';
 
-export class TagCellPainter extends CellPainter {
+export class TagCellPainter implements CellPainter {
 
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {
         //     const tagband = tagbands.find((tagband) => {

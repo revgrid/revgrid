@@ -68,6 +68,3 @@ export class ContiguousIndexRange {
         return count;
     }
 }
-
-export namespace Range {
-}

@@ -1,12 +1,13 @@
+import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
 import { BeingPaintedCell } from '../cell/being-painted-cell';
-import { RenderedCell } from '../cell/rendered-cell';
+import { ViewportCell } from '../cell/viewport-cell';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { Focus } from '../focus';
 import { Point } from '../lib/point';
 import { CellPaintConfig } from '../renderer/cell-paint-config';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
 import { Subgrid } from '../subgrid/subgrid';
@@ -15,9 +16,9 @@ import { SubgridsManager } from '../subgrid/subgrids-manager';
 export abstract class GridPainter {
     protected readonly grid: Revgrid;
     protected readonly focus: Focus;
-    protected readonly visibleColumns: Renderer.VisibleColumnArray;
-    protected readonly visibleRows: Renderer.VisibleRowArray;
-    protected readonly renderedCellPool: BeingPaintedCell[];
+    protected readonly viewportColumns: Viewport.ViewportColumnArray;
+    protected readonly viewportRows: Viewport.ViewportRowArray;
+    protected readonly viewportCellPool: BeingPaintedCell[];
 
     protected columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
     protected rowBundles = new Array<GridPainter.RowBundle>();
@@ -29,19 +30,20 @@ export abstract class GridPainter {
     rebundle: boolean;
 
     constructor(
+        protected readonly canvasEx: CanvasEx,
         protected readonly _subgridsManager: SubgridsManager,
-        protected readonly renderer: Renderer,
+        protected readonly viewport: Viewport,
         protected readonly selection: Selection,
         public readonly key: string,
         public readonly partial: boolean,
         initialRebundle: boolean | undefined,
     ) {
-        this.grid = renderer.grid;
+        this.grid = viewport.grid;
         this.focus = this.grid.focus;
-        this.visibleColumns = this.renderer.visibleColumns;
-        this.visibleRows = this.renderer.visibleRows;
-        this.renderedCellPool = this.renderer.renderedCellPool;
-        this._cellPainterRepository = this.renderer.cellPainterRepository;
+        this.viewportColumns = this.viewport.columns;
+        this.viewportRows = this.viewport.rows;
+        this.viewportCellPool = this.viewport.cellPool;
+        this._cellPainterRepository = this.viewport.cellPainterRepository;
 
         if (initialRebundle !== undefined) {
             this.rebundle = initialRebundle;
@@ -152,12 +154,6 @@ export abstract class GridPainter {
         const paintWidth = cellPainter.paint(gc, config);
         beingPaintedCell.snapshot = config.snapshot; // supports partial render
 
-        if (paintWidth !== undefined) {
-            if (beingPaintedCell.minWidth === undefined || paintWidth > beingPaintedCell.minWidth) {
-                beingPaintedCell.minWidth = paintWidth;
-            }
-        }
-
         // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
         beingPaintedCell.clickRect = config.clickRect;
         beingPaintedCell.cellPainter = cellPainter; // renderer actually used per getCell; used by fireSyntheticButtonPressedEvent
@@ -165,7 +161,7 @@ export abstract class GridPainter {
         return paintWidth;
     }
 
-    paintErrorCell(err: Error, gc: CanvasRenderingContext2DEx, vc: Renderer.VisibleColumn, vr: Renderer.VisibleRow) {
+    paintErrorCell(err: Error, gc: CanvasRenderingContext2DEx, vc: Viewport.ViewportColumn, vr: Viewport.ViewportRow) {
         const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
 
         const bounds = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
@@ -187,9 +183,9 @@ export abstract class GridPainter {
      * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
      */
     paintGridlines(gc: CanvasRenderingContext2DEx) {
-        const visibleColumns = this.visibleColumns;
+        const visibleColumns = this.viewportColumns;
         const C = visibleColumns.length;
-        const visibleRows = this.visibleRows;
+        const visibleRows = this.viewportRows;
         const R = visibleRows.length;
 
         if (C && R) {
@@ -286,7 +282,7 @@ export abstract class GridPainter {
         }
     }
 
-    paintLastSelection(gc: CanvasRenderingContext2DEx, lastSelectionBounds: RenderedCell.Bounds) {
+    paintLastSelection(gc: CanvasRenderingContext2DEx, lastSelectionBounds: ViewportCell.Bounds) {
         // Render the selection model around the last selection bounds
         const gridProps = this.grid.properties;
         const config = {
@@ -296,19 +292,19 @@ export abstract class GridPainter {
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor,
         } as CellPaintConfig;
 
-        const lastSelectionRenderer = this._cellPainterRepository.lastSelectionCellPainter;
-        lastSelectionRenderer.paint(gc, config);
+        const lastSelectionPainter = this._cellPainterRepository.lastSelectionCellPainter;
+        lastSelectionPainter.paint(gc, config);
     }
 
     bundleColumns(resetCellEvents = false) {
         const gridProps = this.grid.properties;
 
         if (resetCellEvents) {
-            const R = this.visibleRows.length
-            const pool = this.renderedCellPool;
-            const visibleRows = this.visibleRows;
+            const R = this.viewportRows.length
+            const pool = this.viewportCellPool;
+            const visibleRows = this.viewportRows;
             let p = 0;
-            this.visibleColumns.forEach((vc) => {
+            this.viewportColumns.forEach((vc) => {
                 for (let r = 0; r < R; r++, p++) {
                     const vr = visibleRows[r];
                     // reset pool member to reflect coordinates of cell in newly shaped grid
@@ -321,9 +317,9 @@ export abstract class GridPainter {
         const gridPrefillColor = gridProps.backgroundColor;
         columnBundles.length = 0;
 
-        this.visibleColumns.forEach((vc) => {
+        this.viewportColumns.forEach((vc) => {
             let bundle: GridPainter.ColumnBundle | undefined;
-            const backgroundColor = vc.column.properties.backgroundColor;
+            const backgroundColor = vc.activeColumn.properties.backgroundColor;
             if (bundle !== undefined && bundle.backgroundColor === backgroundColor) {
                 bundle.right = vc.rightPlus1;
             } else {
@@ -343,14 +339,14 @@ export abstract class GridPainter {
 
     bundleRows(resetCellEvents = false) {
         const gridProps = this.grid.properties;
-        const R = this.visibleRows.length
+        const R = this.viewportRows.length
 
         if (resetCellEvents) {
-            const pool = this.renderedCellPool;
-            const visibleRows = this.visibleRows;
+            const pool = this.viewportCellPool;
+            const visibleRows = this.viewportRows;
             for (let p = 0, r = 0; r < R; r++) {
                 const vr = visibleRows[r];
-                this.visibleColumns.forEach((vc) => { // eslint-disable-line no-loop-func
+                this.viewportColumns.forEach((vc) => { // eslint-disable-line no-loop-func
                     p++;
                     // reset pool member to reflect coordinates of cell in newly shaped grid
                     pool[p].reset(vc, vr);
@@ -367,7 +363,7 @@ export abstract class GridPainter {
         rowPrefillColors.length = R;
 
         for (let r = 0; r < R; r++) {
-            const vr = this.visibleRows[r]; // first cell in row r
+            const vr = this.viewportRows[r]; // first cell in row r
             let backgroundColor: string;
             if (!vr.subgrid.isMain) {
                 backgroundColor = gridPrefillColor;
@@ -405,8 +401,9 @@ export abstract class GridPainter {
 
 export namespace GridPainter {
     export type Constructor = new(
+        canvas: CanvasEx,
         subgridsManager: SubgridsManager,
-        renderer: Renderer,
+        renderer: Viewport,
         selection: Selection
     ) => GridPainter;
 

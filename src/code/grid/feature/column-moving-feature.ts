@@ -1,8 +1,8 @@
 import { CellEvent, MouseCellEvent } from '../cell/cell-event';
-import { Feature } from '../feature/feature';
 import { AssertError } from '../grid-public-api';
 import { Point } from '../lib/point';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
+import { Feature } from './feature';
 
 const enum MoveLocation { Before, After }
 const enum DragActionType { Move, Scroll, None }
@@ -14,15 +14,15 @@ interface Action {
 interface MoveAction extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
-    source: Renderer.VisibleColumn;
-    target: Renderer.VisibleColumn;
+    source: Viewport.ViewportColumn;
+    target: Viewport.ViewportColumn;
 }
 
 interface ScrollAction extends Action {
     type: DragActionType.Scroll;
     toRight: boolean;
     mouseOffGrid: boolean; // only considers left and right off grid
-    source: Renderer.VisibleColumn;
+    source: Viewport.ViewportColumn;
 }
 
 interface NoAction extends Action {
@@ -41,7 +41,7 @@ export class ColumnMoving extends Feature {
     static GRAB = 'grab';
 
     private _dragOverlay: HTMLCanvasElement;
-    private _dragCol: Renderer.VisibleColumn;
+    private _dragCol: Viewport.ViewportColumn;
     private _dragArmed = false;
     private _dragging = false;
     private _scrolling = false;
@@ -214,7 +214,7 @@ export class ColumnMoving extends Feature {
                     dragContext.fillRect(indicatorX, 0, 2, grid.canvas.height);
                 }
 
-                const dragCol = grid.renderer.getVisibleColumn(this._dragCol.activeColumnIndex);
+                const dragCol = grid.viewport.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex);
                 if (dragCol) {
                     const hideAction = dragAction.type === DragActionType.Scroll && grid.properties.columnsReorderableHideable && dragAction.mouseOffGrid;
                     dragContext.fillStyle = hideAction
@@ -247,9 +247,9 @@ export class ColumnMoving extends Feature {
 
     private getDragAction(event: CellEvent) {
         const grid = this.grid;
-        const updatedDragCol = grid.renderer.getVisibleColumn(this._dragCol.activeColumnIndex)
+        const updatedDragCol = grid.viewport.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex)
         const dragCol = updatedDragCol ? updatedDragCol : this._dragCol;
-        const gridBounds = this.rendererBehavior.getBounds();
+        const gridBounds = this.canvas.bounds;
         return this.calculateDragAction(
             dragCol,
             updatedDragCol !== undefined,
@@ -262,9 +262,9 @@ export class ColumnMoving extends Feature {
     }
 
     private calculateDragAction(
-        dragCol: Renderer.VisibleColumn,
+        dragCol: Viewport.ViewportColumn,
         dragColIsVisible: boolean,
-        overCol: Renderer.VisibleColumn,
+        overCol: Viewport.ViewportColumn,
         colIsFixed: boolean,
         gridWidth: number,
         gridPoint: Point,

@@ -1,8 +1,8 @@
 
 import { MouseCellEvent } from '../cell/cell-event';
-import { Feature } from '../feature/feature';
 import { GridProperties } from '../grid-properties';
 import { HorizontalWheelScrollingAllowed, UnreachableCaseError } from '../grid-public-api';
+import { Feature } from './feature';
 
 export class ThumbwheelScrolling extends Feature {
 

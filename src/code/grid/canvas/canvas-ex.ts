@@ -11,34 +11,32 @@
 //     window.CustomEvent.prototype = window.Event.prototype;
 // }
 
-import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { EventDetail } from '../event/event-detail';
 import { EventName } from '../event/event-name';
 import { newEvent } from '../event/event-util';
+import { GridProperties } from '../grid-properties';
 import { Point } from '../lib/point';
 import { Rectangle } from '../lib/rectangle';
 import { AssertError } from '../lib/revgrid-error';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
+import { CanvasRenderingContext2DEx } from './canvas-rendering-context-2d-ex';
 
 /** @public */
-export class Canvas {
+export class CanvasEx {
     // focuser = null; // does not seem to be implemented
     // buffer = null;
     // ctx = null;
-    renderer: Renderer; // refactor to use events instead of directly accessing renderer
+    renderer: Viewport; // refactor to use events instead of directly accessing renderer
 
     mouseLocation = Point.create(-1, -1);
     dragstart = Point.create(-1, -1);
     // origin = null;
-    bounds = new Rectangle(0, 0, 0, 0);
     mousedown = false;
     dragging = false;
     repeatKeyCount = 0;
     repeatKey: string | undefined;
     repeatKeyStartTime = 0;
-    currentKeys: string[] = [];
     hasMouse = false;
-    dragEndTime = 0;
     dragEndtime = Date.now();
 
     readonly canvas: HTMLCanvasElement;
@@ -47,6 +45,7 @@ export class Canvas {
     width: number;
     height: number;
     // bodyZoomFactor: number;
+    private _bounds = new Rectangle(0, 0, 0, 0);
     private _devicePixelRatio: number;
     private _containerWidth: number;
     private _containerHeight: number;
@@ -78,12 +77,10 @@ export class Canvas {
     private canvasTouchMoveEventListener = (e: TouchEvent) => this.fintouchmove(e);
     private canvasTouchEndEventListener = (e: TouchEvent) => this.fintouchend(e);
 
-    get devicePixelRatio() { return this._devicePixelRatio; }
-
-
     constructor(
         private readonly _containerElement: HTMLElement,
-        contextAttributes: CanvasRenderingContext2DSettings | undefined
+        contextAttributes: CanvasRenderingContext2DSettings | undefined,
+        private readonly _gridProperties: GridProperties,
     ) {
         // create and append the canvas
         this.canvas = document.createElement('canvas');
@@ -115,11 +112,14 @@ export class Canvas {
         // this.resetZoom();
     }
 
-    addEventListener<T extends EventName>(name: T, listener: Canvas.EventListener<T>) {
+    get bounds() { return this._bounds; }
+    get devicePixelRatio() { return this._devicePixelRatio; }
+
+    addEventListener<T extends EventName>(name: T, listener: CanvasEx.EventListener<T>) {
         this.canvas.addEventListener(name, listener as EventListener);
     }
 
-    removeEventListener<T extends EventName>(name: T, listener: Canvas.EventListener<T>) {
+    removeEventListener<T extends EventName>(name: T, listener: CanvasEx.EventListener<T>) {
         this.canvas.removeEventListener(name, listener as EventListener);
     }
 
@@ -153,7 +153,7 @@ export class Canvas {
         this.height = height;
 
         // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
-        const isHIDPI = window.devicePixelRatio && this.renderer.properties.useHiDPI;
+        const isHIDPI = window.devicePixelRatio && this._gridProperties.useHiDPI;
         const ratio = isHIDPI && window.devicePixelRatio || 1;
 
         this._devicePixelRatio = ratio;
@@ -167,8 +167,7 @@ export class Canvas {
 
         this.gc.scale(ratio, ratio);
 
-        this.bounds = new Rectangle(0, 0, width, height);
-        this.renderer.setBounds(this.bounds);
+        this._bounds = new Rectangle(0, 0, width, height);
         this.resizeNotification();
         this.renderer.repaint();
     }
@@ -215,7 +214,7 @@ export class Canvas {
     // }
 
     getBounds() {
-        return this.bounds;
+        return this._bounds;
     }
 
     // flushBuffer deprecated in 3.3.0
@@ -268,7 +267,7 @@ export class Canvas {
             };
             this.dispatchNewEvent('rev-canvas-drag', detail);
         }
-        if (this.bounds.containsPoint(this.mouseLocation)) {
+        if (this._bounds.containsPoint(this.mouseLocation)) {
             const detail: EventDetail.Mouse = {
                 time: Date.now(),
                 primitiveEvent: e,
@@ -370,7 +369,7 @@ export class Canvas {
     }
 
     getCharMap() {
-        return Canvas.charMap;
+        return CanvasEx.charMap;
     }
 
     finkeydown(e: KeyboardEvent) {
@@ -716,7 +715,7 @@ function getCachedContext(canvasElement: HTMLCanvasElement, contextAttributes: C
 // };
 
 /** @public */
-export namespace Canvas {
+export namespace CanvasEx {
     export type EventListener<T extends EventName> = (event: CustomEvent<EventName.DetailMap[T]>) => void;
 
     export interface Box {

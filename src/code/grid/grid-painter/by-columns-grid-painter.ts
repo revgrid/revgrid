@@ -1,6 +1,7 @@
 
+import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
 import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
@@ -20,7 +21,7 @@ import { GridPainter } from './grid-painter';
  *
  * **Regading clipping.** The reason for clipping is to prevent text from overflowing into the next column. However there is a serious performance cost.
  *
- * For performance reasons {@link Renderer#_paintCell|_paintCell} does not set up a clipping region for each cell. However, iff grid property `columnClip` is truthy, this grid renderer will set up a clipping region to prevent text overflow to right. If `columnClip` is `null`, a clipping region will only be set up on the last column. Otherwise, there will be no clipping region.
+ * For performance reasons {@link Viewport#_paintCell|_paintCell} does not set up a clipping region for each cell. However, iff grid property `columnClip` is truthy, this grid renderer will set up a clipping region to prevent text overflow to right. If `columnClip` is `null`, a clipping region will only be set up on the last column. Otherwise, there will be no clipping region.
  *
  * The idea of clipping just the last column is because in addition to the optional graphics clipping, we also clip ("truncate") text. Text can be truncated conservatively so it will never overflow. The problem with this is that characters vanish as they hit the right cell boundary, which may or may be obvious depending on font size. Alternatively, text can be truncated so that the overflow will be a maximum of 1 character. This allows partial characters to be rendered. But this is where graphics clipping is required.
  *
@@ -30,8 +31,8 @@ import { GridPainter } from './grid-painter';
  */
 
 export class ByColumnsGridPainter extends GridPainter {
-    constructor(subgridsManager: SubgridsManager, renderer: Renderer, selection: Selection) {
-        super(subgridsManager, renderer, selection, ByColumnsGridPainter.key, false, ByColumnsGridPainter.initialRebundle);
+    constructor(canvas: CanvasEx, subgridsManager: SubgridsManager, renderer: Viewport, selection: Selection) {
+        super(canvas, subgridsManager, renderer, selection, ByColumnsGridPainter.key, false, ByColumnsGridPainter.initialRebundle);
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
@@ -40,12 +41,12 @@ export class ByColumnsGridPainter extends GridPainter {
         const gridProps = grid.properties;
         let prefillColor: string;
         const gridPrefillColor = gridProps.backgroundColor;
-        const visibleColumns = this.visibleColumns;
-        const visibleRows = this.visibleRows;
+        const visibleColumns = this.viewportColumns;
+        const visibleRows = this.viewportRows;
         const C = visibleColumns.length;
         const cLast = C - 1;
         const R = visibleRows.length;
-        const pool = this.renderedCellPool;
+        const pool = this.viewportCellPool;
             // clipToGrid;
         let firstVisibleColumnLeft: number;
         let lastVisibleColumnRight: number;
@@ -53,14 +54,14 @@ export class ByColumnsGridPainter extends GridPainter {
             firstVisibleColumnLeft = 0;
             lastVisibleColumnRight = 0;
         } else {
-            firstVisibleColumnLeft = this.visibleColumns[0].left;
-            lastVisibleColumnRight = this.visibleColumns[cLast].rightPlus1;
+            firstVisibleColumnLeft = this.viewportColumns[0].left;
+            lastVisibleColumnRight = this.viewportColumns[cLast].rightPlus1;
         }
         const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
         const viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
-
-        gc.clearRect(0, 0, this.renderer.bounds.width, this.renderer.bounds.height);
+        const canvasBounds = this.canvasEx.bounds;
+        gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
         if (!C || !R) { return; }
 
@@ -70,7 +71,7 @@ export class ByColumnsGridPainter extends GridPainter {
         }
 
         if (this.reset) {
-            this.renderer.resetAllGridRenderers(['by-columns-discrete']);
+            this.viewport.resetAllGridRenderers(['by-columns-discrete']);
             this.reset = false;
             this.bundleColumns(true);
         } else if (this.rebundle === true) {
@@ -92,14 +93,14 @@ export class ByColumnsGridPainter extends GridPainter {
 
         // For each column...
         let p = 0;
-        this.visibleColumns.forEach((vc, c) => {
+        this.viewportColumns.forEach((vc, c) => {
             let beingPaintedCell = pool[p]; // first cell in column c
             vc = beingPaintedCell.visibleColumn;
 
             prefillColor = beingPaintedCell.column.properties.backgroundColor;
 
             // Optionally clip to visible portion of column to prevent text from overflowing to right.
-            const columnClip = vc.column.properties.columnClip;
+            const columnClip = vc.activeColumn.properties.columnClip;
             gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
             let preferredWidth: number | undefined;

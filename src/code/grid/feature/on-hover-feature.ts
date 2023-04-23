@@ -1,6 +1,6 @@
 
 import { MouseCellEvent } from '../cell/cell-event';
-import { Feature } from '../feature/feature';
+import { Feature } from './feature';
 
 /**
  * @constructor

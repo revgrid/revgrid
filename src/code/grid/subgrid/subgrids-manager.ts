@@ -163,6 +163,10 @@ export class SubgridsManager {
         return result;
     }
 
+    calculateHeaderPlusFixedRowCount() {
+        return this.calculateHeaderRowCount() + this._gridProperties.fixedRowCount;
+    }
+
     /**
      * @summary Gets the number of "footer rows".
      * @desc Defined as the sum of all rows in all subgrids after the main subgrid.  Rework to return row count of footer subgrid
@@ -184,17 +188,13 @@ export class SubgridsManager {
     }
 
     /**
-     * @summary Gets the total number of logical rows.
-     * @desc Defined as the sum of all rows in all subgrids.
-     * @returns The total number of logical rows of all subgrids.
+     * @summary Gets the total number of rows across all subgrids.
      */
-    getLogicalRowCount() {
-        const count = this.subgrids.reduce(
-            (rows, subgrid) => {
-                return (rows += subgrid.getRowCount());
-            },
-            0
-        );
+    getAllRowCount() {
+        let count = 0;
+        for (const subgrid of this.subgrids) {
+            count += subgrid.getRowCount();
+        }
         return count;
     }
 

@@ -1,5 +1,5 @@
 import { EventDetail } from '../event/event-detail';
-import { RenderedCell } from './rendered-cell';
+import { ViewportCell } from './viewport-cell';
 
 /**
  * @classdesc `CellEvent` is a very low-level object that needs to be super-efficient. JavaScript objects are well known to be light weight in general, but at this level we need to be careful.
@@ -24,7 +24,7 @@ import { RenderedCell } from './rendered-cell';
  */
 
 /** @public */
-export class CellEvent extends RenderedCell {
+export class CellEvent extends ViewportCell {
 }
 
 export class MouseCellEvent extends CellEvent {

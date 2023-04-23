@@ -6,8 +6,8 @@ import { CellPainter } from './cell-painter';
 /**
  * Renders a bar chart sparkline, hence the name.
  */
-export class SparkBarCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+export class SparkBarCellPainter implements CellPainter {
+    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         let x = config.bounds.x;
         const y = config.bounds.y;
         const width = config.bounds.width;

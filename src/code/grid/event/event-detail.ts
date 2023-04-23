@@ -57,8 +57,8 @@ export namespace EventDetail {
 
     export interface ColumnsViewWidthsChanged {
         readonly fixedChanged: boolean
-        readonly nonFixedChanged: boolean;
-        readonly activeChanged: boolean;
+        readonly scrollableChanged: boolean;
+        readonly visibleChanged: boolean;
     }
 
     export interface ColumnSort {

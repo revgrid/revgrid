@@ -1,30 +1,23 @@
-import { RenderedCell } from '../cell/rendered-cell';
+import { ViewportCell } from '../cell/viewport-cell';
 import { ColumnsManager } from '../column/columns-manager';
 import { GridProperties } from '../grid-properties';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Subgrid } from '../subgrid/subgrid';
 
 export class RendererBehavior {
     constructor(
         private readonly _gridProperties: GridProperties,
         private readonly _columnsManager: ColumnsManager,
-        private readonly _renderer: Renderer,
+        private readonly _viewport: Viewport,
     ) {
 
-    }
-
-    /**
-     * @returns My bounds.
-     */
-    getBounds() {
-        return this._renderer.getBounds();
     }
 
     repaint() {
         if (this._gridProperties.repaintImmediately) {
             this.paintNow();
         } else {
-            this._renderer.repaint();
+            this._viewport.repaint();
         }
     }
 
@@ -33,16 +26,16 @@ export class RendererBehavior {
      */
     paintNow() {
         if (this._columnsManager.columnsCreated) {
-            this._renderer.paintNow();
+            this._viewport.paintNow();
         }
     }
 
     /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update */
     waitModelRendered() {
-        return this._renderer.waitModelRendered();
+        return this._viewport.waitModelRendered();
     }
 
-    resetCellPropertiesCache(xOrCellEvent: number | RenderedCell, y?: number, subgrid?: Subgrid) {
-        this._renderer.resetCellPropertiesCache(xOrCellEvent, y, subgrid);
+    resetCellPropertiesCache(xOrCellEvent: number | ViewportCell, y?: number, subgrid?: Subgrid) {
+        this._viewport.resetCellPropertiesCache(xOrCellEvent, y, subgrid);
     }
 }

@@ -7,9 +7,8 @@ import {
     UnreachableCaseError
 } from "..";
 
-export class TestCellPainter extends CellPainter {
+export class TestCellPainter implements CellPainter {
     constructor(private readonly _settings: GridSettings) {
-        super();
     }
 
     paint(

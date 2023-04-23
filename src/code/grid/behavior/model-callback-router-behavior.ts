@@ -1,7 +1,7 @@
 import { ColumnsManager } from '../column/columns-manager';
 import { DataModel } from '../model/data-model';
 import { ModelCallbackRouter } from '../model/model-callback-router';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 
@@ -11,7 +11,7 @@ export class ModelCallbackRouterBehavior {
     constructor(
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
-        private readonly _renderer: Renderer,
+        private readonly _viewport: Viewport,
         private readonly _selection: Selection,
         private readonly _router: ModelCallbackRouter,
         private readonly _behaviorShapeChangedEventer: ModelCallbackRouterBehavior.BehaviorShapeChangedEventer,
@@ -26,11 +26,11 @@ export class ModelCallbackRouterBehavior {
         router.columnsInsertedEvent = (index, count) => {
             this.beginSchemaChange();
             try {
-                this._renderer.modelUpdated();
+                this._viewport.modelUpdated();
                 this._columnsManager.schemaColumnsInserted(index, count);
                 // Currently cannot calculate active Column Index of added columns so cannot advise SelectionModel of change
                 // or advise Renderer of column index
-                this._renderer.renderColumnsInserted(-1, -1);
+                this._viewport.renderColumnsInserted(-1, -1);
             } finally {
                 this.endSchemaChange();
             }
@@ -41,7 +41,7 @@ export class ModelCallbackRouterBehavior {
         router.columnsDeletedEvent = (index, count) => {
             this.beginSchemaChange();
             try {
-                this._renderer.modelUpdated();
+                this._viewport.modelUpdated();
                 this._columnsManager.schemaColumnsDeleted(index, count);
                 const nextRange = index + count;
                 for (let i = index; i < nextRange; i++) {
@@ -49,7 +49,7 @@ export class ModelCallbackRouterBehavior {
                     const activeIndex = this._columnsManager.getActiveColumnIndexByAllIndex(i);
                     if (activeIndex >= 0) {
                         this._selection.adjustForColumnsDeleted(activeIndex, 1);
-                        this._renderer.renderColumnsDeleted(activeIndex, 1);
+                        this._viewport.renderColumnsDeleted(activeIndex, 1);
                     }
                 }
             } finally {
@@ -62,10 +62,10 @@ export class ModelCallbackRouterBehavior {
         router.allColumnsDeletedEvent = () => {
             this.beginSchemaChange();
             try {
-                this._renderer.modelUpdated();
+                this._viewport.modelUpdated();
                 this._columnsManager.allSchemaColumnsDeleted();
                 this._selection.clear();
-                this._renderer.renderAllColumnsDeleted();
+                this._viewport.renderAllColumnsDeleted();
             } finally {
                 this.endSchemaChange();
             }
@@ -76,10 +76,10 @@ export class ModelCallbackRouterBehavior {
         router.schemaChangedEvent = () => {
             this.beginSchemaChange();
             try {
-                this._renderer.modelUpdated();
+                this._viewport.modelUpdated();
                 this._columnsManager.schemaColumnsChanged();
                 this._selection.clear();
-                this._renderer.renderColumnsChanged();
+                this._viewport.renderColumnsChanged();
             } finally {
                 this.endSchemaChange();
             }
@@ -94,11 +94,11 @@ export class ModelCallbackRouterBehavior {
         router.rowsInsertedEvent = (dataModel, index, count) => {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._viewport.modelUpdated();
                 if (dataModel === this._mainDataModel) {
                     this._selection.adjustForRowsInserted(index, count);
                 }
-                this._renderer.renderRowsInserted(index, count);
+                this._viewport.renderRowsInserted(index, count);
             } finally {
                 this.endDataChange();
             }
@@ -109,11 +109,11 @@ export class ModelCallbackRouterBehavior {
         router.rowsDeletedEvent = (dataModel, index, count) => {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._viewport.modelUpdated();
                 if (dataModel === this._mainDataModel) {
                     this._selection.adjustForRowsDeleted(index, count);
                 }
-                this._renderer.renderRowsDeleted(index, count);
+                this._viewport.renderRowsDeleted(index, count);
             } finally {
                 this.endDataChange();
             }
@@ -124,11 +124,11 @@ export class ModelCallbackRouterBehavior {
         router.allRowsDeletedEvent = (dataModel) => {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._viewport.modelUpdated();
                 if (dataModel === this._mainDataModel) {
                     this._selection.clear();
                 }
-                this._renderer.renderAllRowsDeleted();
+                this._viewport.renderAllRowsDeleted();
             } finally {
                 this.endDataChange();
             }
@@ -139,11 +139,11 @@ export class ModelCallbackRouterBehavior {
         router.rowsMovedEvent = (dataModel, oldRowIndex, newRowIndex, rowCount) => {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._viewport.modelUpdated();
                 if (dataModel === this._mainDataModel) {
                     this._selection.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount);
                 }
-                this._renderer.renderRowsMoved(oldRowIndex, newRowIndex, rowCount);
+                this._viewport.renderRowsMoved(oldRowIndex, newRowIndex, rowCount);
             } finally {
                 this.endDataChange();
             }
@@ -154,11 +154,11 @@ export class ModelCallbackRouterBehavior {
         router.rowsLoadedEvent = (dataModel) => {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._viewport.modelUpdated();
                 if (dataModel === this._mainDataModel) {
                     this._selection.clear();
                 }
-                this._renderer.renderRowsLoaded();
+                this._viewport.renderRowsLoaded();
             } finally {
                 this.endDataChange();
             }
@@ -167,15 +167,15 @@ export class ModelCallbackRouterBehavior {
         };
 
         router.invalidateAllEvent = () => {
-            this._renderer.modelUpdated();
-            this._renderer.invalidateAll();
+            this._viewport.modelUpdated();
+            this._viewport.invalidateAll();
 
             // this.tryNotifyUndefinedDetailedModelEvent('rev-data-all-invalidated');
         }
 
         router.invalidateRowsEvent = (rowIndex: number, count: number) => {
-            this._renderer.modelUpdated();
-            this._renderer.invalidateRows(rowIndex, count);
+            this._viewport.modelUpdated();
+            this._viewport.invalidateRows(rowIndex, count);
 
             // if (this._gridProperties.emitModelEvents) {
             //     const detail: EventDetail.RowsDataInvalidated = {
@@ -188,8 +188,8 @@ export class ModelCallbackRouterBehavior {
         }
 
         router.invalidateRowEvent = (rowIndex: number) => {
-            this._renderer.modelUpdated();
-            this._renderer.invalidateRow(rowIndex);
+            this._viewport.modelUpdated();
+            this._viewport.invalidateRow(rowIndex);
 
             // if (this._gridProperties.emitModelEvents) {
             //     const detail: EventDetail.RowsDataInvalidated = {
@@ -203,8 +203,8 @@ export class ModelCallbackRouterBehavior {
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         router.invalidateRowColumnsEvent = (rowIndex: number, allColumnIndex: number, columnCount: number) => {
-            this._renderer.modelUpdated();
-            this._renderer.invalidateRow(rowIndex); // this should be improved to use this.renderer.invalidateRowColumns()
+            this._viewport.modelUpdated();
+            this._viewport.invalidateRow(rowIndex); // this should be improved to use this._viewport.invalidateRowColumns()
 
             // if (this._gridProperties.emitModelEvents) {
             //     const detail: EventDetail.RowColumnsDataInvalidated = {
@@ -218,8 +218,8 @@ export class ModelCallbackRouterBehavior {
         }
 
         router.invalidateRowCellsEvent = (rowIndex: number, allIndexes: number[]) => {
-            this._renderer.modelUpdated();
-            this._renderer.invalidateRowCells(rowIndex, allIndexes);
+            this._viewport.modelUpdated();
+            this._viewport.invalidateRowCells(rowIndex, allIndexes);
 
             // if (this._gridProperties.emitModelEvents) {
             //     const detail: EventDetail.RowCellsDataInvalidated = {
@@ -232,8 +232,8 @@ export class ModelCallbackRouterBehavior {
         }
 
         router.invalidateCellEvent = (allIndex: number, rowIndex: number) => {
-            this._renderer.modelUpdated();
-            this._renderer.invalidateCell(allIndex, rowIndex);
+            this._viewport.modelUpdated();
+            this._viewport.invalidateCell(allIndex, rowIndex);
 
             // if (this._gridProperties.emitModelEvents) {
             //     const detail: EventDetail.CellDataInvalidated = {
@@ -247,7 +247,7 @@ export class ModelCallbackRouterBehavior {
 
         router.preReindexEvent = () => {
             this._selection.requestStashSelection();
-            this._renderer.modelUpdated();
+            this._viewport.modelUpdated();
 
             // this.tryNotifyUndefinedDetailedModelEvent('rev-data-prereindex');
         }
@@ -255,7 +255,7 @@ export class ModelCallbackRouterBehavior {
         router.postReindexEvent = () => {
             this._selection.requestUnstashSelection();
             this._behaviorShapeChangedEventer();
-            this._renderer.modelUpdated();
+            this._viewport.modelUpdated();
 
             // this.tryNotifyUndefinedDetailedModelEvent('rev-data-postreindex');
         }
@@ -274,23 +274,23 @@ export class ModelCallbackRouterBehavior {
     private beginSchemaChange() {
         this._columnsManager.beginSchemaChange();
         this._selection.beginChange();
-        this._renderer.beginChange();
+        this._viewport.beginChange();
     }
 
     private endSchemaChange() {
         this._columnsManager.endSchemaChange();
         this._selection.endChange();
-        this._renderer.endChange();
+        this._viewport.endChange();
     }
 
     private beginDataChange() {
         this._selection.beginChange();
-        this._renderer.beginChange();
+        this._viewport.beginChange();
     }
 
     private endDataChange() {
         this._selection.endChange();
-        this._renderer.endChange();
+        this._viewport.endChange();
     }
 
     // private tryNotifyUndefinedDetailedModelEvent<T extends EventName>(eventName: T) {

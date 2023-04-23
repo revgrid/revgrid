@@ -10,7 +10,7 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
 
     // grid overridable properties
     private _cellPadding: number | undefined;
-    private _cellSelection: boolean | undefined;
+    private _mouseCellSelection: boolean | undefined;
     private _columnAutosizingMax: number | undefined;
     private _columnClip: boolean | undefined;
     private _editable: boolean | undefined;
@@ -61,8 +61,8 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
 
     get cellPadding() { return this._cellPadding ?? this._gridProperties.cellPadding; }
     set cellPadding(value: number) { this._cellPadding = value; }
-    get cellSelection() { return this._cellSelection ?? this._gridProperties.cellSelection; }
-    set cellSelection(value: boolean) { this._cellSelection = value; }
+    get mouseCellSelection() { return this._mouseCellSelection ?? this._gridProperties.mouseCellSelection; }
+    set mouseCellSelection(value: boolean) { this._mouseCellSelection = value; }
     get columnAutosizingMax() { return this._columnAutosizingMax ?? this._gridProperties.columnAutosizingMax; }
     set columnAutosizingMax(value: number) { this._columnAutosizingMax = value; }
     get columnClip() { return this._columnClip ?? this._gridProperties.columnClip; }

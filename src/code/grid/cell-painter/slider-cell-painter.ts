@@ -7,8 +7,8 @@ import { CellPainter } from './cell-painter';
  * Renders a slider button.
  * Currently however the user cannot interact with it.
  */
-export class SliderCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+export class SliderCellPainter implements CellPainter {
+    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         const x = config.bounds.x;
         const y = config.bounds.y;
         const width = config.bounds.width;
@@ -25,7 +25,7 @@ export class SliderCellPainter extends CellPainter {
         arcGradient.addColorStop(0, '#aaaaaa');
         arcGradient.addColorStop(1, '#777777');
         gc.cache.fillStyle = btnGradient;
-        this.roundRect(gc, x, y, width, height, radius, btnGradient !== undefined);
+        CellPainter.roundRect(gc, x, y, width, height, radius, btnGradient !== undefined);
         if (val < 1.0) {
             gc.cache.fillStyle = arcGradient;
         } else {

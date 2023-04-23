@@ -17,8 +17,8 @@ const WHITESPACE = /\s\s+/g;
  *
  * Clipping bounds are not set here as this is also an expensive operation. Instead, we employ a number of strategies to truncate overflowing text and content.
  */
-export class SimpleCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+export class SimpleCellPainter implements CellPainter {
+    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         let val = config.value;
         const bounds = config.bounds;
         const x = bounds.x;

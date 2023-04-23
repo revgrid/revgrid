@@ -1,10 +1,11 @@
 import { Behavior } from '../behavior/behavior';
+import { CanvasEx } from '../canvas/canvas-ex';
 import { MouseCellEvent } from '../cell/cell-event';
 import { ColumnsManager } from '../column/columns-manager';
 import { EventDetail } from '../event/event-detail';
 import { Focus } from '../focus';
 import { GridProperties } from '../grid-properties';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
@@ -26,16 +27,18 @@ export class FeaturesManager {
         private readonly _behavior: Behavior,
         private readonly grid: Revgrid, // remove in future
         gridProperties: GridProperties,
+        canvas: CanvasEx,
         focus: Focus,
         selection: Selection,
         columnsManager: ColumnsManager,
         subgridsManager: SubgridsManager,
-        renderer: Renderer,
+        renderer: Viewport,
     ) {
         this._sharedState = {} as FeaturesSharedState
 
         this._services = new FeatureServices(
             this._sharedState,
+            canvas,
             selection,
             focus,
             columnsManager,

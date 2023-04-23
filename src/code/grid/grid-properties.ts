@@ -18,8 +18,6 @@ export interface GridProperties {
     backgroundColor2: GridProperties.Color;
     backgroundSelectionColor: GridProperties.Color;
     cellPadding: number;
-    /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
-    cellSelection: boolean;
     checkboxOnlyRowSelections: boolean;
     color: GridProperties.Color;
     /** Whether the column is auto-sized */
@@ -43,8 +41,6 @@ export interface GridProperties {
     columnHeaderCellPainter: string;
     /** Active column indices */
     columnIndexes: number[];
-    /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
-    columnSelection: boolean;
     /** Allow user to move columns. */
     columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
@@ -180,6 +176,12 @@ export interface GridProperties {
     minimumColumnWidth: number;
     maximumColumnWidth: number | undefined;
     visibleColumnWidthAdjust: boolean;
+    /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
+    mouseCellSelection: boolean;
+    /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
+    mouseColumnSelection: boolean;
+    /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors. */
+    mouseRowSelection: boolean;
     /** Allow multiple cell region selections. */
     multipleSelectionAreas: boolean;
     /** Mappings for cell navigation keys. */
@@ -207,8 +209,6 @@ export interface GridProperties {
     /** Restore single cell selection across data transformations (`reindex` calls). Takes priority over restoreColumnSelections and restoreRowSelections. */
     restoreSingleCellSelection: boolean;
     rowResize: boolean;
-    /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors. */
-    rowSelection: boolean;
     /** Repeating pattern of property overrides for grid rows. */
     rowStripes: GridProperties.RowStripe[] | undefined;
     /** Anchor column does not need to align with edge of grid */

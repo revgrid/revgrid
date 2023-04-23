@@ -1,7 +1,8 @@
 
+import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { Subgrid } from '../grid-public-api';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { GridPainter } from './grid-painter';
@@ -22,23 +23,23 @@ import { GridPainter } from './grid-painter';
  *
  * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
  *
- * See also the discussion of clipping in {@link Renderer#paintCellsByColumnsDiscrete|paintCellsByColumnsDiscrete}.
+ * See also the discussion of clipping in {@link Viewport#paintCellsByColumnsDiscrete|paintCellsByColumnsDiscrete}.
  */
 
 export class ByColumnsDiscreteGridPainter extends GridPainter {
-    constructor(subgridsManager: SubgridsManager, renderer: Renderer, selection: Selection) {
-        super(subgridsManager, renderer, selection, ByColumnsDiscreteGridPainter.key, false, undefined);
+    constructor(canvas: CanvasEx, subgridsManager: SubgridsManager, renderer: Viewport, selection: Selection) {
+        super(canvas, subgridsManager, renderer, selection, ByColumnsDiscreteGridPainter.key, false, undefined);
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
         // this = this.renderer
         let prefillColor: string;
-        const visibleColumns = this.visibleColumns;
-        const visibleRows = this.visibleRows;
+        const visibleColumns = this.viewportColumns;
+        const visibleRows = this.viewportRows;
         const C = visibleColumns.length;
         const cLast = C - 1;
         const R = visibleRows.length;
-        const pool = this.renderedCellPool;
+        const pool = this.viewportCellPool;
         // clipToGrid;
         // let firstVisibleColumnLeft: number;
         // let lastVisibleColumnRight: number;
@@ -51,12 +52,13 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
         // }
         const viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
-        gc.clearRect(0, 0, this.renderer.bounds.width, this.renderer.bounds.height);
+        const canvasBounds = this.canvasEx.bounds;
+        gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
         if (!C || !R) { return; }
 
         if (this.reset) {
-            this.renderer.resetAllGridRenderers(['by-columns']);
+            this.viewport.resetAllGridRenderers(['by-columns']);
             this.reset = false;
             this.bundleColumns(true);
         }
@@ -65,7 +67,7 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
 
         // For each column...
         let p = 0;
-        this.visibleColumns.forEach((vc, c) => {
+        this.viewportColumns.forEach((vc, c) => {
             let beingPaintedCell = pool[p]; // first cell in column c
             vc = beingPaintedCell.visibleColumn;
 
@@ -73,7 +75,7 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
             gc.clearFill(vc.left, 0, vc.width, viewHeight, prefillColor);
 
             // Optionally clip to visible portion of column to prevent text from overflowing to right.
-            const columnClip = vc.column.properties.columnClip;
+            const columnClip = vc.activeColumn.properties.columnClip;
             gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
             let preferredWidth: number | undefined;

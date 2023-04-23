@@ -6,8 +6,8 @@ import { CellPainter } from './cell-painter';
 /**
  * The default cell rendering function for a button cell.
  */
-export class ButtonCellPainter extends CellPainter {
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+export class ButtonCellPainter implements CellPainter {
+    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         const val = config.value as string;
         const bounds = config.bounds;
         const x = bounds.x + 1;
@@ -32,7 +32,7 @@ export class ButtonCellPainter extends CellPainter {
         // draw the capsule
         gc.cache.fillStyle = arcGradient;
         gc.cache.strokeStyle = '#000000';
-        this.roundRect(gc, x, y, width, height, radius, arcGradient !== undefined, true);
+        CellPainter.roundRect(gc, x, y, width, height, radius, arcGradient !== undefined, true);
 
         const ox = (width - gc.getTextWidth(val)) / 2;
         const oy = (height - gc.getTextHeight(gc.cache.font).descent) / 2;

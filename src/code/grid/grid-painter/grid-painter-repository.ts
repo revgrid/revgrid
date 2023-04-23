@@ -1,7 +1,8 @@
 
+import { CanvasEx } from '../canvas/canvas-ex';
 import { AssertError } from '../grid-public-api';
 import { Registry } from '../lib/registry';
-import { Renderer } from '../renderer/renderer';
+import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { AsNeededGridPainter } from './as-needed-grid-painter';
@@ -16,8 +17,9 @@ export class GridPainterRepository {
     private cache = new Map<string, GridPainter>();
 
     constructor(
+        private readonly _canvas: CanvasEx,
         private readonly _subgridsManager: SubgridsManager,
-        private readonly _renderer: Renderer,
+        private readonly _renderer: Viewport,
         private readonly _selection: Selection
     ) {
         // preregister the standard grid painters
@@ -35,7 +37,7 @@ export class GridPainterRepository {
             if (constructor === undefined) {
                 throw new AssertError('GPRG87773', key);
             } else {
-                gridPainter = new constructor(this._subgridsManager, this._renderer, this._selection);
+                gridPainter = new constructor(this._canvas, this._subgridsManager, this._renderer, this._selection);
                 this.cache.set(key, gridPainter);
             }
         }

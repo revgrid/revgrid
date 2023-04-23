@@ -926,9 +926,7 @@ export class Selection {
      * @returns Number of selected rows or `undefined` if `restoreRowSelections` is falsy.
      */
     private createRowsStash() {
-        const gridProps = this._gridProperties;
-        const propertiesAllow = gridProps.restoreRowSelections && gridProps.rowSelection;
-        if (!propertiesAllow) {
+        if (!this._gridProperties.restoreRowSelections) {
             return undefined;
         } else {
             const dataModel = this._focus.subgrid.dataModel;
@@ -1009,7 +1007,6 @@ export class Selection {
      * @returns Number of selected columns or `undefined` if `restoreColumnSelections` is falsy.
      */
     private createColumnsStash() {
-        // selectionModel should be moved into Subgrid
         if (!this._gridProperties.restoreColumnSelections) {
             return undefined;
         } else {

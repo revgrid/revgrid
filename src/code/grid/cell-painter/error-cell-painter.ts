@@ -4,7 +4,7 @@ import { RectangleInterface } from '../lib/rectangle-interface';
 import { CellPaintConfig } from '../renderer/cell-paint-config';
 import { CellPainter } from './cell-painter';
 
-export class ErrorCellPainter extends CellPainter {
+export class ErrorCellPainter implements CellPainter {
 
     /**
      * @summary Writes error message into cell.
@@ -24,7 +24,7 @@ export class ErrorCellPainter extends CellPainter {
      *
      * @param config.bounds - The clipping rect of the cell to be rendered.
      */
-    override paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
         this.paintMessage(gc, config.bounds, ''); // this should never be called
         return undefined;
     }

@@ -2,7 +2,7 @@
 import { CellEditor } from '../cell-editor/cell-editor';
 import { MouseCellEvent } from '../cell/cell-event';
 import { EventDetail } from '../event/event-detail';
-import { Feature } from '../feature/feature';
+import { Feature } from './feature';
 export class CellEditingFeature extends Feature {
 
     readonly typeName = CellEditingFeature.typeName;

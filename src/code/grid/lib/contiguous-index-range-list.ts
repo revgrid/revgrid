@@ -30,7 +30,7 @@ export class ContiguousIndexRangeList {
         } else {
             after = exclusiveStart;
             exclusiveStart += length;
-            length = - length;
+            length = -length;
         }
         const ranges = this.ranges;
         const oldCount = ranges.length;

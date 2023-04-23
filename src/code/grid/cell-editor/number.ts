@@ -1,5 +1,5 @@
 
-import { RenderedCell } from '../cell/rendered-cell';
+import { ViewportCell } from '../cell/viewport-cell';
 import { Revgrid } from '../revgrid';
 import { TextInputEditor } from './text-input-editor';
 
@@ -8,7 +8,7 @@ import { TextInputEditor } from './text-input-editor';
  */
 
 export class Number extends TextInputEditor {
-    constructor(grid: Revgrid, renderedCell: RenderedCell) {
+    constructor(grid: Revgrid, renderedCell: ViewportCell) {
         super(grid, renderedCell);
 
         this.input.classList.add('revgrid-number-editor');
