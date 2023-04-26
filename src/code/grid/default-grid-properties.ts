@@ -182,66 +182,6 @@ export const defaultGridProperties: Required<GridProperties> = {
     cellPadding: 5,
 
     /**
-     * Padding to left and right of cell icons.
-     *
-     * Overrides {@link module:defaults.cellPadding|cellPadding}:
-     * * Left icon + `iconPadding` overrides left {@link module:defaults.cellPddingg|cellPddingg}.
-     * * Right icon + `iconPadding` overrides right {@link module:defaults.cellPddingg|cellPddingg}.
-     * {@link module:defaults.leftIcon|leftIcon}
-     * {@link module:defaults.centerIcon|centerIcon}
-     * {@link module:defaults.rightIcon|rightIcon}
-     * @default
-     * @type {number}
-     */
-    iconPadding: 3,
-
-    /**
-     * @summary Name of image to appear at right of cell.
-     * @desc Must be a key from {@link module:images|images}.
-     *
-     * Used by {@link SimpleCell} cell renderer.
-     * {@link module:defaults.centerIcon|centerIcon}
-     * {@link module:defaults.rightIcon|rightIcon}
-     * {@link module:defaults.iconPadding|iconPadding}
-     * @default
-     * @type {string}
-     */
-    leftIcon: undefined,
-
-    /**
-     * @summary Name of image to appear at right of cell.
-     * @desc Must be a key from {@link module:images|images}.
-     *
-     * Used by {@link SimpleCell} cell renderer.
-     * {@link module:defaults.leftIcon|leftIcon}
-     * {@link module:defaults.rightIcon|rightIcon}
-     * {@link module:defaults.iconPadding|iconPadding}
-     * @default
-     * @type {string}
-     */
-    centerIcon: undefined,
-
-    /**
-     * @summary Name of image to appear at right of cell.
-     * @desc Must be a key from {@link module:images|images}.
-     *
-     * Used by {@link SimpleCell} cell renderer.
-     * {@link module:defaults.leftIcon|leftIcon}
-     * {@link module:defaults.centerIcon|centerIcon}
-     * {@link module:defaults.iconPadding|iconPadding}
-     * @default
-     * @type {string}
-     */
-    rightIcon: undefined,
-
-    /**
-     * Set to `true` to render `0` and `false`. Otherwise these value appear as blank cells.
-     * @default
-     * @type {boolean}
-     */
-    renderFalsy: false,
-
-    /**
      * The name of a transformer function defined in require('synonomous/transformers').
      *
      * If the named headerify function is defined, whenever the schema array changes, it is applied each element
@@ -437,7 +377,7 @@ export const defaultGridProperties: Required<GridProperties> = {
     resizeColumnInPlace: false,
 
     //for immediate painting, set these values to 0, true respectively
-    repaintIntervalRate: 60,
+    repaintFramesPerSecond: 60,
     repaintImmediately: false,
     useHiDPI: true,
 
@@ -684,15 +624,6 @@ export const defaultGridProperties: Required<GridProperties> = {
      * @type {string}
      */
     cellPainter: 'SimpleCell',
-
-    /**
-     * Name of grid renderer.
-     * Renderer must have been registered.
-     * {@link Renderer#registerGridRenderer}.
-     * @default
-     * @type {string}
-     */
-    gridPainter: 'by-columns-and-rows',
 
     /********** HOVER COLORS **********/
 

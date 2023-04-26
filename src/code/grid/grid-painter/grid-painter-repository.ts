@@ -1,10 +1,13 @@
-
 import { CanvasEx } from '../canvas/canvas-ex';
-import { AssertError } from '../grid-public-api';
+import { Focus } from '../focus';
+import { GridProperties } from '../grid-properties';
 import { Registry } from '../lib/registry';
+import { AssertError } from '../lib/revgrid-error';
+import { Renderer } from '../renderer/renderer';
 import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
+import { Mouse } from '../user-interface-input/mouse';
 import { AsNeededGridPainter } from './as-needed-grid-painter';
 import { ByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
 import { ByColumnsDiscreteGridPainter } from './by-columns-discrete-grid-painter';
@@ -17,10 +20,14 @@ export class GridPainterRepository {
     private cache = new Map<string, GridPainter>();
 
     constructor(
-        private readonly _canvas: CanvasEx,
+        private readonly _gridProperties: GridProperties,
+        private readonly _mouse: Mouse,
+        private readonly _canvasEx: CanvasEx,
         private readonly _subgridsManager: SubgridsManager,
-        private readonly _renderer: Viewport,
-        private readonly _selection: Selection
+        private readonly _viewport: Viewport,
+        private readonly _focus: Focus,
+        private readonly _selection: Selection,
+        private readonly _renderer: Renderer,
     ) {
         // preregister the standard grid painters
         this.constructorRegistry.register(AsNeededGridPainter.key, AsNeededGridPainter);
@@ -37,7 +44,16 @@ export class GridPainterRepository {
             if (constructor === undefined) {
                 throw new AssertError('GPRG87773', key);
             } else {
-                gridPainter = new constructor(this._canvas, this._subgridsManager, this._renderer, this._selection);
+                gridPainter = new constructor(
+                    this._gridProperties,
+                    this._mouse,
+                    this._canvasEx,
+                    this._subgridsManager,
+                    this._viewport,
+                    this._focus,
+                    this._selection,
+                    this._renderer
+                );
                 this.cache.set(key, gridPainter);
             }
         }

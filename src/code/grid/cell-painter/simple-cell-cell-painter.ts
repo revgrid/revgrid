@@ -2,7 +2,6 @@
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { GridProperties } from '../grid-properties';
-import { Rectangle } from '../lib/rectangle';
 import { CellPaintConfig } from '../renderer/cell-paint-config';
 import { CellPainter } from './cell-painter';
 
@@ -19,63 +18,34 @@ const WHITESPACE = /\s\s+/g;
  */
 export class SimpleCellPainter implements CellPainter {
     paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
-        let val = config.value;
+        const val = config.value;
         const bounds = config.bounds;
         const x = bounds.x;
         const y = bounds.y;
         const width = bounds.width;
         const height = bounds.height;
-        const iconPadding = config.iconPadding;
         const partialRender = config.prefillColor === undefined; // signifies abort before rendering if same
         const snapshot = config.snapshot as Snapshot;
         let same = snapshot && partialRender;
         let valWidth = 0;
-        let textColor: string;
-        let textFont: string;
-        let ixoffset: number;
-        let iyoffset: number;
-        let leftIcon: HTMLImageElement;
-        let rightIcon: HTMLImageElement;
-        let centerIcon: HTMLImageElement;
         let hover: GridProperties.HoverColors;
         let hoverColor: string | undefined;
-        let selectColor: string;
-        let foundationColor: boolean;
+        let selectColor: string | undefined;
+        let foundationColor = false;
         let inheritsBackgroundColor: boolean;
         let c: number;
 
         // setting gc properties are expensive, let's not do it needlessly
 
-        if (Array.isArray(val)) {
-            leftIcon = val[0];
-            rightIcon = val[2];
-            val = val[1];
-            if (val && (val as HTMLImageElement).naturalWidth !== undefined) { // must be an image (much faster than instanceof HTMLImageElement)
-                centerIcon = val as HTMLImageElement;
-                val = null;
-            }
-        } else {
-            // images currently do not work - uncomment below when they are working
-            // leftIcon = images[config.leftIcon];
-            // centerIcon = images[config.centerIcon];
-            // rightIcon = images[config.rightIcon];
-        }
-
         // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
-        const renderValue = val || config.renderFalsy && val == 0; // eslint-disable-line eqeqeq
 
-        let valText: string;
-        if (renderValue) {
-            valText = config.formatValue(val /*, config*/);
+        const valText = config.formatValue(val /*, config*/);
 
-            textFont = config.isSelected ? config.foregroundSelectionFont : config.font;
+        const textFont = config.isSelected ? config.foregroundSelectionFont : config.font;
 
-            textColor = gc.cache.strokeStyle = config.isSelected
-                ? config.foregroundSelectionColor
-                : config.color;
-        } else {
-            valText = '';
-        }
+        const textColor = gc.cache.strokeStyle = config.isSelected
+            ? config.foregroundSelectionColor
+            : config.color;
 
         same = same &&
             valText === snapshot.value &&
@@ -102,7 +72,7 @@ export class SimpleCellPainter implements CellPainter {
                 if (!inheritsBackgroundColor) {
                     foundationColor = true;
                     colors.push(config.backgroundColor);
-                    same = same &&  foundationColor === snapshot.foundationColor &&
+                    same = same && foundationColor === snapshot.foundationColor &&
                         config.backgroundColor === snapshot.colors[c++];
                 }
             }
@@ -134,66 +104,15 @@ export class SimpleCellPainter implements CellPainter {
         layerColors(gc, colors, x, y, width, height, foundationColor);
 
         // Measure left and right icons, needed for rendering and for return value (min width)
-        const leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPadding;
-        const rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPadding;
+        const leftPadding = config.cellPadding;
+        const rightPadding = config.cellPadding;
 
-        if (renderValue) {
-            // draw text
-            gc.cache.fillStyle = textColor;
-            gc.cache.font = textFont;
-            valWidth = config.isHeaderRow && config.headerTextWrapping
-                ? renderMultiLineText(gc, config, valText, leftPadding, rightPadding)
-                : renderSingleLineText(gc, config, valText, leftPadding, rightPadding);
-        }
-
-        if (centerIcon) {
-            // Measure & draw center icon
-            iyoffset = Math.round((height - centerIcon.height) / 2);
-            ixoffset = width - Math.round((width - centerIcon.width) / 2) - centerIcon.width;
-            gc.drawImage(centerIcon, x + ixoffset, y + iyoffset, centerIcon.width, centerIcon.height); // see [SIZE NOTE]!
-            valWidth = iconPadding + centerIcon.width + iconPadding;
-            if (config.hotIcon === 'center') {
-                config.clickRect = new Rectangle(ixoffset, iyoffset, centerIcon.width, centerIcon.height);
-            }
-        }
-
-
-        if (leftIcon) {
-            // Draw left icon
-            iyoffset = Math.round((height - leftIcon.height) / 2);
-            gc.drawImage(leftIcon, x + iconPadding, y + iyoffset, leftIcon.width, leftIcon.height); // see [SIZE NOTE]!
-            if (config.hotIcon === 'left') {
-                config.clickRect = new Rectangle(iconPadding, iyoffset, leftIcon.width, leftIcon.height);
-            }
-        }
-
-        if (rightIcon) {
-            // Repaint background before painting right icon, because text may have flowed under where it will be.
-            // This is a work-around to clipping which is too expensive to perform here.
-            ixoffset = width - (rightIcon.width + iconPadding);
-            const rightX = x + ixoffset;
-            if (inheritsBackgroundColor) {
-                foundationColor = true;
-                colors.unshift(config.backgroundColor);
-            }
-            layerColors(gc, colors, rightX, y, rightPadding, height, foundationColor);
-
-            // Draw right icon
-            iyoffset = Math.round((height - rightIcon.height) / 2);
-            gc.drawImage(rightIcon, rightX, y + iyoffset, rightIcon.width, rightIcon.height); // see [SIZE NOTE]!
-            if (config.hotIcon === 'right') {
-                config.clickRect =  new Rectangle(ixoffset, iyoffset, rightIcon.width, rightIcon.height);
-            }
-        }
-
-        if (config.cellBorderThickness) {
-            gc.beginPath();
-            gc.rect(x, y, width, height);
-            gc.cache.lineWidth = config.cellBorderThickness;
-            gc.cache.strokeStyle = config.cellBorderStyle;
-            gc.stroke();
-            gc.closePath();
-        }
+        // draw text
+        gc.cache.fillStyle = textColor;
+        gc.cache.font = textFont;
+        valWidth = config.isHeaderRow && config.headerTextWrapping
+            ? renderMultiLineText(gc, config, valText, leftPadding, rightPadding)
+            : renderSingleLineText(gc, config, valText, leftPadding, rightPadding);
 
         return leftPadding + valWidth + rightPadding;
     }

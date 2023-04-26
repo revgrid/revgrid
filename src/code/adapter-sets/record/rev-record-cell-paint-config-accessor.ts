@@ -8,7 +8,7 @@ export class RevRecordCellPaintConfigAccessor extends CellPaintConfigAccessor im
     readonly recordRecentChangeTypeId?: RevRecordRecentChangeTypeId;
 
     constructor(beingPaintedCell: BeingPaintedCell, mainAdapter: RevRecordMainAdapter) {
-        super(beingPaintedCell)
+        super(beingPaintedCell, false, false)
 
         let rowIndex = beingPaintedCell.dataCell.y;
 

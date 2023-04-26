@@ -15,10 +15,10 @@ import { EventDetail } from '../event/event-detail';
 import { EventName } from '../event/event-name';
 import { newEvent } from '../event/event-util';
 import { GridProperties } from '../grid-properties';
+import { CssClassName } from '../lib/html-types';
 import { Point } from '../lib/point';
 import { Rectangle } from '../lib/rectangle';
 import { AssertError } from '../lib/revgrid-error';
-import { Viewport } from '../renderer/viewport';
 import { CanvasRenderingContext2DEx } from './canvas-rendering-context-2d-ex';
 
 /** @public */
@@ -26,7 +26,20 @@ export class CanvasEx {
     // focuser = null; // does not seem to be implemented
     // buffer = null;
     // ctx = null;
-    renderer: Viewport; // refactor to use events instead of directly accessing renderer
+
+    repaintEventer: CanvasEx.RepaintEventer;
+
+    mouseClickEventer: CanvasEx.MouseEventer;
+    mouseDblClickEventer: CanvasEx.MouseEventer;
+    mouseDownEventer: CanvasEx.MouseEventer;
+    mouseUpEventer: CanvasEx.MouseEventer;
+    mouseMoveEventer: CanvasEx.MouseEventer;
+    mouseDragStartEventer: CanvasEx.MouseEventer;
+    mouseDragEventer: CanvasEx.MouseEventer;
+    mouseDragEndEventer: CanvasEx.MouseEventer;
+    mouseOutEventer: CanvasEx.MouseEventer;
+    wheelMoveEventer: CanvasEx.WheelEventer;
+    contextMenuEventer: CanvasEx.MouseEventer;
 
     mouseLocation = Point.create(-1, -1);
     dragstart = Point.create(-1, -1);
@@ -54,25 +67,60 @@ export class CanvasEx {
 
     private documentMouseMoveEventListener = (e: MouseEvent) => {
         if (this.hasMouse || this.isDragging()) {
-            this.finmousemove(e);
+            if (!this.isDragging() && this.mousedown) {
+                this.beDragging();
+                this.mouseDragStartEventer(e);
+                this.dragstart = Point.create(this.mouseLocation.x, this.mouseLocation.y);
+            }
+            this.mouseLocation = this.getLocal(e);
+            if (this.isDragging()) {
+                this.mouseDragEventer(e);
+            }
+            if (this._bounds.containsPoint(this.mouseLocation)) {
+                this.mouseMoveEventer(e);
+            }
         }
     }
-    private documentMouseUpEventListener = (e: MouseEvent) => this.finmouseup(e);
-    private documentWheelEventListener = (e: WheelEvent) => this.finwheelmoved(e);
+    private documentMouseUpEventListener = (e: MouseEvent) => {
+        if (this.mousedown) {
+            // ignore document:mouseup unless preceded by a canvas:mousedown
+            if (this.isDragging()) {
+                this.mouseDragEndEventer(e);
+                this.beNotDragging();
+                this.dragEndtime = Date.now();
+            }
+            this.mousedown = false;
+            this.mouseUpEventer(e);
+        }
+    };
+    private documentWheelEventListener = (e: WheelEvent) => {
+        if (!this.isDragging() && this.hasMouse) {
+            this.wheelMoveEventer(e);
+        }
+    };
     private documentKeyDownEventListener = (e: KeyboardEvent) => this.finkeydown(e);
     private documentKeyUpEventListener = (e: KeyboardEvent) => this.finkeyup(e);
 
     private canvasFocusEventListener = () => this.finfocusgained();
     private canvasBlurEventListener = () => this.finfocuslost();
     private canvasMouseOverEventListener = () => { this.hasMouse = true; }
-    private canvasMouseDownEventListener = (e: MouseEvent) => this.finmousedown(e);
+    private canvasMouseDownEventListener = (e: MouseEvent) => {
+        this.mousedown = true;
+        this.mouseDownEventer(e);
+    }
     private canvasMouseOutEventListener = (e: MouseEvent) => {
         this.hasMouse = false;
-        this.finmouseout(e);
+        this.mouseOutEventer(e);
     }
-    private canvasClickEventListener = (e: MouseEvent) => this.finclick(e);
-    private canvasDblClickEventListener = (e: MouseEvent) => this.findblclick(e);
-    private canvasContextMenuEventListener = (e: MouseEvent) => this.fincontextmenu(e);
+    private canvasClickEventListener = (e: MouseEvent) => {
+        this.mouseClickEventer(e);
+    };
+    private canvasDblClickEventListener = (e: MouseEvent) => {
+        this.mouseDblClickEventer(e);
+    };
+    private canvasContextMenuEventListener = (e: MouseEvent) => {
+        this.contextMenuEventer(e);
+    };
     private canvasTouchStartEventListener = (e: TouchEvent) => this.fintouchstart(e);
     private canvasTouchMoveEventListener = (e: TouchEvent) => this.fintouchmove(e);
     private canvasTouchEndEventListener = (e: TouchEvent) => this.fintouchend(e);
@@ -81,6 +129,7 @@ export class CanvasEx {
         private readonly _containerElement: HTMLElement,
         contextAttributes: CanvasRenderingContext2DSettings | undefined,
         private readonly _gridProperties: GridProperties,
+        private readonly _resizedEventer: CanvasEx.ResizedEventer,
     ) {
         // create and append the canvas
         this.canvas = document.createElement('canvas');
@@ -109,7 +158,7 @@ export class CanvasEx {
         this.canvas.setAttribute('tabindex', '0');
         this.canvas.style.outline = 'none';
 
-        // this.resetZoom();
+        this.canvas.classList.add(CssClassName.gridElementCssClass);
     }
 
     get bounds() { return this._bounds; }
@@ -153,8 +202,7 @@ export class CanvasEx {
         this.height = height;
 
         // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
-        const isHIDPI = window.devicePixelRatio && this._gridProperties.useHiDPI;
-        const ratio = isHIDPI && window.devicePixelRatio || 1;
+        const ratio = (this._gridProperties.useHiDPI && window.devicePixelRatio !== undefined) ? window.devicePixelRatio : 1;
 
         this._devicePixelRatio = ratio;
         // this._devicePixelRatio = ratio *= this.bodyZoomFactor;
@@ -168,25 +216,11 @@ export class CanvasEx {
         this.gc.scale(ratio, ratio);
 
         this._bounds = new Rectangle(0, 0, width, height);
-        this.resizeNotification();
-        this.renderer.repaint();
+        this._resizedEventer();
     }
 
     /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
-     * @this CanvasType
-     */
-    resizeNotification() {
-        const detail: EventDetail.Resize = {
-            time: Date.now(),
-            width: this.width,
-            height: this.height
-        };
-        this.dispatchNewEvent('rev-canvas-resized', detail);
-    }
-
-    /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
      * @this CanvasType
      */
     // resetZoom() {
@@ -222,7 +256,7 @@ export class CanvasEx {
     flushBuffer() {}
 
     /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
      * @this CanvasType
      */
     dispatchNewEvent<T extends EventName>(eventName: T, detail?: EventName.DetailMap[T]) {
@@ -241,131 +275,6 @@ export class CanvasEx {
         };
 
         return this.dispatchNewEvent(name, detail);
-    }
-
-    finmousemove(e: MouseEvent) {
-        if (!this.isDragging() && this.mousedown) {
-            this.beDragging();
-            const detail: EventDetail.Mouse = {
-                time: Date.now(),
-                primitiveEvent: e,
-                mouse: this.mouseLocation,
-                isRightClick: this.isRightClick(e),
-                dragstart: this.dragstart,
-            };
-            this.dispatchNewEvent('rev-canvas-dragstart', detail);
-            this.dragstart = Point.create(this.mouseLocation.x, this.mouseLocation.y);
-        }
-        this.mouseLocation = this.getLocal(e);
-        if (this.isDragging()) {
-            const detail: EventDetail.Mouse = {
-                time: Date.now(),
-                primitiveEvent: e,
-                mouse: this.mouseLocation,
-                dragstart: this.dragstart,
-                isRightClick: this.isRightClick(e),
-            };
-            this.dispatchNewEvent('rev-canvas-drag', detail);
-        }
-        if (this._bounds.containsPoint(this.mouseLocation)) {
-            const detail: EventDetail.Mouse = {
-                time: Date.now(),
-                primitiveEvent: e,
-                mouse: this.mouseLocation,
-            };
-            this.dispatchNewEvent('rev-canvas-mousemove', detail);
-        }
-    }
-
-    finmousedown(e: MouseEvent) {
-        // this.mouseLocation = this.mouseDownLocation = this.getLocal(e);
-        this.mouseLocation = this.getLocal(e);
-        this.mousedown = true;
-
-        const detail: EventDetail.Mouse = {
-            time: Date.now(),
-            primitiveEvent: e,
-            mouse: this.mouseLocation,
-            isRightClick: this.isRightClick(e)
-        };
-        this.dispatchNewEvent('rev-canvas-mousedown', detail);
-    }
-
-    finmouseup(e: MouseEvent) {
-        if (!this.mousedown) {
-            // ignore document:mouseup unless preceded by a canvas:mousedown
-            return;
-        }
-        if (this.isDragging()) {
-            const detail: EventDetail.Mouse = {
-                time: Date.now(),
-                primitiveEvent: e,
-                mouse: this.mouseLocation,
-                dragstart: this.dragstart,
-                isRightClick: this.isRightClick(e)
-            };
-            this.dispatchNewEvent('rev-canvas-dragend', detail);
-            this.beNotDragging();
-            this.dragEndtime = Date.now();
-        }
-        this.mousedown = false;
-        const detail: EventDetail.Mouse = {
-            time: Date.now(),
-            primitiveEvent: e,
-            mouse: this.mouseLocation,
-            dragstart: this.dragstart,
-            isRightClick: this.isRightClick(e)
-        };
-        this.dispatchNewEvent('rev-canvas-mouseup', detail);
-        //this.mouseLocation = new rectangular.Point(-1, -1);
-    }
-
-    finmouseout(e: MouseEvent) {
-        if (!this.mousedown) {
-            this.mouseLocation = Point.create(-1, -1);
-        }
-        this.renderer.repaint();
-        const detail: EventDetail.Mouse = {
-            time: Date.now(),
-            primitiveEvent: e,
-            mouse: this.mouseLocation,
-            dragstart: this.dragstart
-        };
-        this.dispatchNewEvent('rev-canvas-mouseout', detail);
-    }
-
-    finwheelmoved(e: WheelEvent) {
-        if (!this.isDragging() && this.hasMouse) {
-            const detail: EventDetail.Mouse = {
-                time: Date.now(),
-                primitiveEvent: e,
-                mouse: this.mouseLocation,
-                isRightClick: this.isRightClick(e)
-            };
-            this.dispatchNewEvent('rev-canvas-wheelmoved', detail);
-        }
-    }
-
-    finclick(e: MouseEvent) {
-        this.mouseLocation = this.getLocal(e);
-        const detail: EventDetail.Mouse = {
-            time: Date.now(),
-            primitiveEvent: e,
-            mouse: this.mouseLocation,
-            isRightClick: this.isRightClick(e)
-        };
-        this.dispatchNewEvent('rev-canvas-click', detail);
-    }
-
-    findblclick(e: MouseEvent) {
-        this.mouseLocation = this.getLocal(e);
-        const detail: EventDetail.Mouse = {
-            time: Date.now(),
-            primitiveEvent: e,
-            mouse: this.mouseLocation,
-            isRightClick: this.isRightClick(e)
-        };
-        this.dispatchNewEvent('rev-canvas-dblclick', detail);
     }
 
     getCharMap() {
@@ -437,16 +346,6 @@ export class CanvasEx {
 
     finfocuslost() {
         this.dispatchNewEvent('rev-canvas-focus-lost');
-    }
-
-    fincontextmenu(e: MouseEvent) {
-        const detail: EventDetail.Mouse = {
-            time: Date.now(),
-            primitiveEvent: e,
-            mouse: this.mouseLocation,
-            isRightClick: this.isRightClick(e),
-        };
-        this.dispatchNewEvent('rev-canvas-context-menu', detail);
     }
 
     fintouchstart(e: TouchEvent) {
@@ -717,6 +616,11 @@ function getCachedContext(canvasElement: HTMLCanvasElement, contextAttributes: C
 /** @public */
 export namespace CanvasEx {
     export type EventListener<T extends EventName> = (event: CustomEvent<EventName.DetailMap[T]>) => void;
+
+    export type ResizedEventer = (this: void) => void;
+    export type RepaintEventer = (this: void) => void;
+    export type MouseEventer = (this: void, event: MouseEvent) => void;
+    export type WheelEventer = (this: void, event: WheelEvent) => void;
 
     export interface Box {
         top: number;

@@ -1,4 +1,5 @@
 import { CellEditor } from '../cell-editor/cell-editor';
+import { ViewportCell } from '../cell/viewport-cell';
 import { ColumnInterface } from '../common/column-interface';
 import { Point } from '../lib/point';
 import { Revgrid } from '../revgrid';
@@ -11,12 +12,12 @@ export namespace EventDetail {
         readonly height: number,
     }
 
-    export interface Mouse {
-        readonly time: number;
-        primitiveEvent: MouseEvent;
-        readonly mouse: Point; // mouse location
-        readonly dragstart?: Point;
-        readonly isRightClick?: boolean;
+    export interface Mouse extends MouseEvent {
+        revgridViewportCell?: ViewportCell;
+    }
+
+    export interface Wheel extends WheelEvent {
+        revgridViewportCell?: ViewportCell;
     }
 
     export interface Keyboard {

@@ -1,7 +1,6 @@
 import { GridProperties } from '../grid-properties';
 import { Localization } from '../lib/localization';
 import { WritablePoint } from '../lib/point';
-import { Rectangle } from '../lib/rectangle';
 import { RectangleInterface } from '../lib/rectangle-interface';
 import { Halign, TextTruncateType } from '../lib/types';
 import { DataModel } from '../model/data-model';
@@ -28,22 +27,12 @@ export interface CellPaintConfig {
     isRowSelected: boolean;
     isSelected: boolean;
     isUserDataArea: boolean;
-    mouseDown: boolean;
     prefillColor: GridProperties.Color | undefined;
     snapshot: Record<string, unknown>;
     value: unknown;
 
-    // set by Simple Cell Painter
-    clickRect?: Rectangle;
-
-    // used by Simple Cell Painter but not set (so currently ignored)
-    cellBorderThickness?: number;
-    cellBorderStyle?: string /*| CanvasGradient | CanvasPattern */;
-    hotIcon?: string;
-
     // grid overrides
     readonly backgroundSelectionColor: GridProperties.Color;
-    readonly centerIcon: string | undefined;
     readonly color: GridProperties.Color;
     readonly foregroundSelectionColor: GridProperties.Color;
     readonly foregroundSelectionFont: string;
@@ -51,14 +40,10 @@ export interface CellPaintConfig {
     readonly hoverCellHighlight: GridProperties.HoverColors;
     readonly hoverColumnHighlight: GridProperties.HoverColors;
     readonly hoverRowHighlight: GridProperties.HoverColors;
-    readonly iconPadding: number;
-    readonly leftIcon: string | undefined;
     readonly linkOnHover: boolean;
     readonly linkColor: GridProperties.Color;
     readonly linkColorOnHover: boolean;
     readonly cellPainter: string;
-    readonly renderFalsy: boolean;
-    readonly rightIcon: string | undefined;
     readonly strikeThrough: boolean;
     readonly textTruncateType: TextTruncateType | undefined;
     readonly voffset: number;

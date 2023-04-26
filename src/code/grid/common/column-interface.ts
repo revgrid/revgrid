@@ -11,7 +11,7 @@ export interface ColumnInterface {
 
     getWidth(): number;
     setWidth(width: number | undefined): boolean;
-    checkColumnAutosizing(force?: boolean): boolean;
+    checkColumnAutosizing(force: boolean): boolean;
 }
 
 /** @internal */

@@ -9,7 +9,7 @@ export namespace Animation {
 
     export interface Animator {
         isContinuous: boolean;
-        intervalRate: number;
+        framesPerSecond: number;
         dirty: boolean;
         animating: boolean;
         animate: () => boolean;
@@ -105,7 +105,7 @@ export namespace Animation {
 
     function checkAnimate(animator: Animator, now: number) {
         const isContinuousRepaint = animator.isContinuous;
-        const fps = animator.intervalRate;
+        const fps = animator.framesPerSecond;
         if (fps === 0) {
             return;
         }

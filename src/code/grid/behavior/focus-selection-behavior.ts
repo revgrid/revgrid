@@ -187,6 +187,16 @@ export class FocusSelectionBehavior {
         }
     }
 
+    replaceLastAreaWithRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number) {
+        this._selection.beginChange();
+        try {
+            this._selection.deselectLastArea();
+            this._selection.selectRectangle(exclusiveX, exclusiveY, width, height);
+        } finally {
+            this._selection.endChange();
+        }
+    }
+
     replaceLastAreaWithColumns(exclusiveX: number, y: number, width: number, height: number) {
         this._selection.beginChange();
         try {
@@ -224,11 +234,12 @@ export class FocusSelectionBehavior {
 
     }
 
-    focusSelectToggleCell(originX: number, originY: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+    focusSelectToggleCell(originX: number, originY: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier): boolean {
         const cellCoveringSelectionAreas = this.getSelectionAreasCoveringCell(originX, originY, subgrid);
         const priorityCoveringArea = this.getPriorityCellCoveringSelectionArea(cellCoveringSelectionAreas);
         if (priorityCoveringArea === undefined) {
-            this.focusSelectAddCell(originX, originY, subgrid, areaTypeSpecifier)
+            this.focusSelectAddCell(originX, originY, subgrid, areaTypeSpecifier);
+            return true;
         } else {
             this.beginChange();
             try {
@@ -251,6 +262,7 @@ export class FocusSelectionBehavior {
             } finally {
                 this.endChange();
             }
+            return false;
         }
     }
 

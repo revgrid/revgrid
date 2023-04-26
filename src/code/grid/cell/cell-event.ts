@@ -15,12 +15,6 @@ import { ViewportCell } from './viewport-cell';
  * * Includes `this.column` defined by constructor (as enumerable).
  * * Excludes all other properties defined by constructor and prototype, all of which are non-enumerable.
  * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
- *
- * Including the params calls {@link CellEvent#resetGridCY resetGridCY(gridX, gridY)}.
- * Alternatively, instantiate without params and/or later call one of these:
- * * {@link CellEvent#resetGridXY resetGridXY(...)}
- * * {@link CellEvent#resetDataXY resetDataXY(...)}
- * * {@link CellEvent#resetGridXDataY resetGridXDataY(...)}
  */
 
 /** @public */

@@ -468,6 +468,7 @@ export class Rectangle implements RectangleInterface {
     }
 }
 
+/** @public */
 export namespace Rectangle {
     export function arrayContainsPoint(rectangles: Rectangle[], x: number, y: number) {
         for (const rectangle of rectangles) {

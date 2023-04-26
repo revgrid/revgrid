@@ -1,13 +1,14 @@
 
-import { CellEvent, MouseCellEvent } from '../cell/cell-event';
-import { Point } from '../lib/point';
-import { Revgrid } from '../revgrid';
-import { Subgrid } from '../subgrid/subgrid';
-import { ColumnRowResizing } from './column-row-resizing-feature';
+import { CellEvent } from '../../cell/cell-event';
+import { ViewportCell } from '../../cell/viewport-cell';
+import { Point } from '../../lib/point';
+import { Revgrid } from '../../revgrid';
+import { Subgrid } from '../../subgrid/subgrid';
+import { ColumnRowResizingUiBehavior } from './column-row-resizing-ui-behavior';
 
-export class RowResizing extends ColumnRowResizing {
+export class RowResizingUiBehavior extends ColumnRowResizingUiBehavior {
 
-    readonly typeName = RowResizing.typeName;
+    readonly typeName = RowResizingUiBehavior.typeName;
 
     /**
      * the index of the row/column we are dragging
@@ -23,8 +24,8 @@ export class RowResizing extends ColumnRowResizing {
      * @desc get the mouse x,y coordinate
      * @param event - the mouse event to query
      */
-    override getMouseValue(event: MouseCellEvent) {
-        return event.mouse.mouse.y;
+    override getMouseOffset(event: MouseEvent) {
+        return event.offsetY;
     }
 
     /**
@@ -67,7 +68,7 @@ export class RowResizing extends ColumnRowResizing {
      * @desc returns the index of which divider I'm over
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected override overAreaDivider(event: CellEvent): boolean {
+    protected override overAreaDivider(_cell: ViewportCell): boolean {
         return false; // previously returned void (undefined)
     }
 
@@ -90,6 +91,6 @@ export class RowResizing extends ColumnRowResizing {
     // }
 }
 
-export namespace RowResizing {
+export namespace RowResizingUiBehavior {
     export const typeName = 'rowresizing';
 }

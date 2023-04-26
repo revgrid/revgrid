@@ -7,6 +7,7 @@ import { FocusSelectionBehavior } from './behavior/focus-selection-behavior';
 import { RendererBehavior } from './behavior/renderer-behaviour';
 import { RowPropertiesBehavior } from './behavior/row-properties-behavior';
 import { ScrollBehavior } from './behavior/scroll-behaviour';
+import { UiBehaviorManager } from './behavior/ui/ui-behavior-manager';
 import { UserInterfaceInputBehavior } from './behavior/user-interface-input-behavior';
 import { CanvasEx } from './canvas/canvas-ex';
 import { dispatchGridEvent } from './canvas/dispatch-grid-event';
@@ -14,7 +15,7 @@ import { CellEditor } from './cell-editor/cell-editor';
 import { cellEditorFactory } from './cell-editor/cell-editor-factory';
 import { ButtonCellPainter } from './cell-painter/button-cell-painter';
 import { CellPainter } from './cell-painter/cell-painter';
-import { CellEvent, MouseCellEvent } from './cell/cell-event';
+import { CellEvent } from './cell/cell-event';
 import { CellProperties } from './cell/cell-properties';
 import { ViewportCell } from './cell/viewport-cell';
 import { Column, ColumnWidth } from './column/column';
@@ -25,10 +26,10 @@ import { SubgridInterface } from './common/subgrid-interface';
 import { defaultGridProperties } from './default-grid-properties';
 import { EventDetail } from './event/event-detail';
 import { EventName } from './event/event-name';
-import { FeaturesManager } from './feature/features-manager';
 import { Focus } from './focus';
 import { GridPainter } from './grid-painter/grid-painter';
 import { GridProperties, LoadableGridProperties } from './grid-properties';
+import { CssClassName } from './lib/html-types';
 import { DateFormatter, Localization, NumberFormatter } from './lib/localization';
 import { Point, WritablePoint } from './lib/point';
 import { Rectangle } from './lib/rectangle';
@@ -38,44 +39,47 @@ import { SelectionArea } from './lib/selection-area';
 import { ColumnNameWidth, ListChangedTypeId } from './lib/types';
 import { MetaModel } from './model/meta-model';
 import { SchemaModel } from './model/schema-model';
+import { Renderer } from './renderer/renderer';
 import { Viewport } from './renderer/viewport';
 import { Selection } from './selection/selection';
 import { SelectionDetail } from './selection/selection-detail';
 import { Subgrid } from './subgrid/subgrid';
 import { SubgridsManager } from './subgrid/subgrids-manager';
+import { Mouse } from './user-interface-input/mouse';
 
 /** @public */
 export class Revgrid implements SelectionDetail {
-    /** @internal */
-    readonly _rendererBehavior: RendererBehavior;
-    /** @internal */
-    readonly _focusSelectionBehavior: FocusSelectionBehavior;
-    /** @internal */
-    readonly _rowPropertiesBehavior: RowPropertiesBehavior;
-    /** @internal */
-    readonly _cellPropertiesBehavior: CellPropertiesBehavior;
-    /** @internal */
-    readonly _userInterfaceInputBehavior: UserInterfaceInputBehavior; // remove this in future
-    /** @internal */
-    readonly _scrollBehavior: ScrollBehavior; // remove this in future
-    /** @internal */
-    private readonly _dataExtractBehavior: DataExtractBehavior;
-
-
     readonly selection: Selection;
     readonly focus: Focus;
     readonly properties: LoadableGridProperties;
-    readonly canvas: CanvasEx;
+    readonly canvasEx: CanvasEx;
+    readonly viewport: Viewport;
 
     /** @internal */
-    readonly viewport: Viewport;
+    private readonly _mouse: Mouse;
     /** @internal */
-    private _columnsManager: ColumnsManager;
+    private readonly _columnsManager: ColumnsManager;
     /** @internal */
-    private _subgridsManager: SubgridsManager;
+    private readonly _subgridsManager: SubgridsManager;
     /** @internal */
-    private _featureManager: FeaturesManager;
+    private readonly _renderer: Renderer;
     /** @internal */
+
+    private readonly _rendererBehavior: RendererBehavior;
+    /** @internal */
+    private readonly _focusSelectionBehavior: FocusSelectionBehavior;
+    /** @internal */
+    private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
+    /** @internal */
+    private readonly _cellPropertiesBehavior: CellPropertiesBehavior;
+    /** @internal */
+    private readonly _userInterfaceInputBehavior: UserInterfaceInputBehavior; // remove this in future
+    /** @internal */
+    private readonly _scrollBehavior: ScrollBehavior; // remove this in future
+    /** @internal */
+    private readonly _dataExtractBehavior: DataExtractBehavior;
+    /** @internal */
+    private readonly _uiBehaviorManager: UiBehaviorManager;
 
     destroyed = false;
     options: Revgrid.Options;
@@ -86,13 +90,8 @@ export class Revgrid implements SelectionDetail {
     readonly containerHtmlElement: HTMLElement;
     canvasDiv: HTMLDivElement;
 
-    needsReindex = false;
     needsShapeChanged = false;
     needsStateChanged = false;
-
-    mouseDownState: CellEvent | undefined;
-    dragging = false;
-    columnDragAutoScrolling: boolean; // I dont think this does anything
 
     cellEditorFactory = cellEditorFactory;
 
@@ -108,8 +107,6 @@ export class Revgrid implements SelectionDetail {
     getSelectedRowIndices() { return this.selection.getRowIndices(); }
     getSelectedColumnIndices() { return this.selection.getColumnIndices(); }
     getSelectedRectangles() { return this.selection.rectangleList.rectangles; }
-
-    private _repaintSetTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
     private mouseCatcher = () => this.abortEditing();
 
@@ -211,8 +208,6 @@ export class Revgrid implements SelectionDetail {
             adapterSetConfig,
             options.loadBuiltinFinbarStylesheet ?? true,
             descendantEventer,
-            () => this.behaviorStateChanged(), // remove when moved into Behavior
-            () => this.behaviorShapeChanged(), // remove when moved into Behavior
         );
         this._rendererBehavior = this.behavior.rendererBehavior;
         this._focusSelectionBehavior = this.behavior.focusSelectionBehavior;
@@ -221,24 +216,14 @@ export class Revgrid implements SelectionDetail {
         this._userInterfaceInputBehavior = this.behavior.userInterfaceInputBehavior;
         this._scrollBehavior = this.behavior.scrollBehavior;
         this._dataExtractBehavior = this.behavior.dataExtractBehavior;
+        this._uiBehaviorManager = this.behavior.uiBehaviorManager;
 
         this.properties = this.behavior.gridProperties;
+        this._mouse = this.behavior.mouse;
         this._columnsManager = this.behavior.columnsManager;
         this._subgridsManager = this.behavior.subgridsManager;
         this.viewport = this.behavior.viewport;
-
-        this._featureManager = new FeaturesManager(
-            this.behavior,
-            this,
-            this.properties,
-            this.canvas,
-            this.focus,
-            this.selection,
-            this._columnsManager,
-            this._subgridsManager,
-            this.viewport
-        );
-        this.loadFeatures();
+        this._renderer = this.behavior.renderer;
 
         // Install shared plug-ins (those with a `preinstall` method)
         // Hypergrid.prototype.installPlugins(options.plugins);
@@ -257,8 +242,6 @@ export class Revgrid implements SelectionDetail {
         //     }
         // }
         this.internalReset(undefined, false);
-
-        this.reindex();
 
         // this.resizeScrollbars();
 
@@ -288,12 +271,8 @@ export class Revgrid implements SelectionDetail {
         // Listen for propagated mouseclicks. Used for aborting edit mode.
         document.addEventListener('mousedown',  this.mouseCatcher);
 
-        this.canvas.start();
-        this.viewport.start();
-        this._repaintSetTimeoutId = setTimeout(() => {
-            this._repaintSetTimeoutId = undefined;
-            this.repaint();
-        }, 0);
+        this.canvasEx.start();
+        this._renderer.start();
 
         Revgrid.grids.push(this);
 
@@ -303,7 +282,7 @@ export class Revgrid implements SelectionDetail {
         this.resetGridBorder('Left');
     }
 
-    get canvasBounds() { return this.canvas.bounds; }
+    get canvasBounds() { return this.canvasEx.bounds; }
 
     /** @deprecated Use {@link (Hypgrid:class).destroy} instead */
     terminate() {
@@ -319,10 +298,6 @@ export class Revgrid implements SelectionDetail {
         document.removeEventListener('mousedown', this.mouseCatcher);
         this.removeAllEventListeners(true);
         this.behavior.destroy();
-
-        if (this._repaintSetTimeoutId !== undefined) {
-            clearTimeout(this._repaintSetTimeoutId);
-        }
 
         const containerHtmlElement = this.containerHtmlElement;
         let firstChild = containerHtmlElement.firstChild;
@@ -360,7 +335,7 @@ export class Revgrid implements SelectionDetail {
                 styleValue = '';
                 break;
         }
-        this.canvas.canvas.style.setProperty(styleName, styleValue);
+        this.canvasEx.canvas.style.setProperty(styleName, styleValue);
     }
 
     /**
@@ -386,12 +361,6 @@ export class Revgrid implements SelectionDetail {
      */
     cellEditor: CellEditor | undefined;
 
-    /**
-     * The pixel location of the current hovered cell.
-     * @todo Need to detect hovering over bottom totals.
-     */
-    hoverCell: CellEvent | undefined;
-    hoverGridCell: Point | undefined;
 
     setAttribute(attribute: string, value: string) {
         this.containerHtmlElement.setAttribute(attribute, value);
@@ -429,10 +398,6 @@ export class Revgrid implements SelectionDetail {
         //         }
         //     }
         // }, this.properties);
-    }
-
-    loadFeatures() {
-        this._featureManager.load();
     }
 
     /** @internal */
@@ -595,11 +560,11 @@ export class Revgrid implements SelectionDetail {
     // }
 
     registerGridPainter(key: string, constructor: GridPainter.Constructor) {
-        this.viewport.registerGridPainter(key, constructor)
+        this._renderer.registerGridPainter(key, constructor)
     }
 
     registerCellPainter(typeName: string, constructor: CellPainter.Constructor) {
-        this.viewport.registerCellPainter(typeName, constructor)
+        this._renderer.registerCellPainter(typeName, constructor)
     }
 
     computeCellsBounds() {
@@ -626,46 +591,13 @@ export class Revgrid implements SelectionDetail {
 
 
     /**
-     * @desc Set the cell under the cursor.
-     */
-    processHoverCell(cellEvent: CellEvent | undefined) {
-        const existingHoverCell = this.hoverCell;
-        if (cellEvent === undefined) {
-            if (existingHoverCell !== undefined) {
-                this.setHoverCell(undefined);
-                this.fireSyntheticOnCellExitEvent(existingHoverCell);
-                this.repaint();
-            }
-        } else {
-            if (existingHoverCell === undefined) {
-                this.setHoverCell(cellEvent);
-                this.fireSyntheticOnCellEnterEvent(cellEvent);
-                this.repaint();
-            } else {
-                if (!Point.isEqual(existingHoverCell.gridCell, cellEvent.gridCell)) {
-                    this.setHoverCell(undefined);
-                    this.fireSyntheticOnCellExitEvent(existingHoverCell);
-                    this.setHoverCell(cellEvent);
-                    this.fireSyntheticOnCellEnterEvent(cellEvent);
-                    this.repaint();
-                }
-            }
-        }
-    }
-
-    private setHoverCell(cellEvent: CellEvent | undefined) {
-        this.hoverCell = cellEvent;
-        this.hoverGridCell = cellEvent?.gridCell;
-    }
-
-    /**
      * @desc Amend properties for this hypergrid only.
      * @param properties - A simple properties hash.
      */
     addProperties(properties: Partial<GridProperties>) {
         const result = this.properties.merge(properties);
         if (result) {
-            this.behaviorShapeChanged();
+            this.behavior.behaviorShapeChanged();
             // this.behavior.defaultRowHeight = null;
             // this._columnsManager.autosizeAllColumns();
         }
@@ -688,7 +620,7 @@ export class Revgrid implements SelectionDetail {
      */
     addState(state: Record<string, unknown>, settingState = false) {
         this.behavior.addState(state, settingState);
-        this.behaviorShapeChanged();
+        this.behavior.behaviorShapeChanged();
         // this.behavior.defaultRowHeight = null;
         // this._columnsManager.autosizeAllColumns();
         // this.behaviorChanged();
@@ -761,17 +693,13 @@ export class Revgrid implements SelectionDetail {
     //     return json;
     // }
 
-    tickNotification() {
-        this.fireSyntheticTickEvent();
-    }
-
     /**
      * @desc The grid has just been rendered, make sure the column widths are optimal.
      */
     checkColumnAutosizing() {
         const autoSized = this._columnsManager.checkColumnAutosizing(false);
         if (autoSized) {
-            this.behaviorShapeChanged();
+            this.behavior.behaviorShapeChanged();
         }
         return autoSized;
     }
@@ -796,7 +724,7 @@ export class Revgrid implements SelectionDetail {
      * @returns We have focus.
      */
     hasFocus() {
-        return this.canvas.hasFocus();
+        return this.canvasEx.hasFocus();
     }
 
     /**
@@ -876,89 +804,15 @@ export class Revgrid implements SelectionDetail {
     }
 
     /**
-     * @summary Calls `apply()` on the data model.
-     * Deferred if paintLoopRunning
-     * {@link https://fin-hypergrid.github.io/doc/DataModel.html#reindex|reindex}
-     */
-    reindex() {
-        if (this.paintLoopRunning()) {
-            this.needsReindex = true;
-        } else {
-            const mainDataModel = this.behavior.mainDataModel;
-            if (mainDataModel.apply !== undefined) {
-                mainDataModel.apply();
-            }
-        }
-        this.behaviorShapeChanged();
-    }
-
-    /**
      * @desc I've been notified that the behavior has changed.
      */
     behaviorChanged() {
         this.behavior.behaviorChanged();
     }
 
-    /**
-     * @desc The dimensions of the grid data have changed. You've been notified.
-     */
-    behaviorShapeChanged() {
-        if (this.paintLoopRunning()) {
-            this.needsShapeChanged = true;
-            this.viewport.requestRepaint();
-        } else if (!this.destroyed) {
-            this._scrollBehavior.synchronizeScrollingBoundaries(); // calls computeCellsBounds
-            this.repaint();
-        }
-    }
-
-    /**
-     * @desc The dimensions of the grid data have changed. You've been notified.
-     */
-    behaviorStateChanged() {
-        if (this.paintLoopRunning()) {
-            this.needsStateChanged = true;
-            this.viewport.requestRepaint();
-        } else if (!this.destroyed) {
-            this.computeCellsBounds();
-            // this.repaint();
-        }
-    }
-
-    /**
-     * Called from renderer/index.js
-     */
-    deferredBehaviorChange() {
-        if (this.needsReindex) {
-            this.reindex();
-            this.needsReindex = false;
-        }
-
-        if (!this.destroyed) {
-            if (this.needsShapeChanged) {
-                this._scrollBehavior.synchronizeScrollingBoundaries(); // calls computeCellsBounds
-            } else if (this.needsStateChanged) {
-                this.computeCellsBounds();
-            }
-        }
-
-        this.needsShapeChanged = this.needsStateChanged = false;
-    }
-
-    repaint() {
-        this._rendererBehavior.repaint();
-    }
-
-    /**
-     * @desc Paint immediately in this microtask.
-     */
-    paintNow() {
-        this._rendererBehavior.paintNow();
-    }
-
     /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update */
     waitModelRendered() {
-        return this._rendererBehavior.waitModelRendered();
+        return this._renderer.waitModelRendered();
     }
 
     /**
@@ -992,8 +846,8 @@ export class Revgrid implements SelectionDetail {
         this.setStyles(container, options?.edgeStyleValues, Revgrid.edgeStyleKeys);
         container.removeAttribute('tabindex');
 
-        container.classList.add(Revgrid.gridContainerElementCssClass);
-        container.id = container.id || Revgrid.gridContainerElementCssIdBase + (document.querySelectorAll('.' + Revgrid.gridContainerElementCssClass).length - 1 || '');
+        container.classList.add(CssClassName.gridContainerElementCssClass);
+        container.id = container.id || CssClassName.gridContainerElementCssIdBase + (document.querySelectorAll('.' + CssClassName.gridContainerElementCssClass).length - 1 || '');
 
         return container;
     }
@@ -1058,19 +912,19 @@ export class Revgrid implements SelectionDetail {
 
     /**
      * @summary Open the cell-editor for the cell at the given coordinates.
-     * @param cellEvent - Coordinates of "edit point" (gridCell.x, dataCell.y).
+     * @param cell - Coordinates of "edit point" (gridCell.x, dataCell.y).
      * @return The cellEditor determined from the cell's render properties, which may be modified by logic added by overriding {@link DataModel#getCellEditorAt|getCellEditorAt}.
      */
-    editAt(cellEvent: CellEvent): CellEditor | undefined {
+    editAt(cell: ViewportCell): CellEditor | undefined {
         let cellEditor: CellEditor | undefined;
 
         this.abortEditing(); // if another editor is open, close it first
 
         if (
-            cellEvent.isDataColumn &&
-            cellEvent.columnProperties[cellEvent.isMainRow ? 'editable' : 'filterable']
+            cell.isDataColumn &&
+            cell.columnProperties[cell.isMainRow ? 'editable' : 'filterable']
         ) {
-            cellEditor = this.getCellEditorAt(cellEvent);
+            cellEditor = this.getCellEditorAt(cell);
             if (cellEditor !== undefined) {
                 // cellEditor.beginEditing();
             }
@@ -1155,7 +1009,7 @@ export class Revgrid implements SelectionDetail {
      * @param mouse - The mouse point to interrogate.
      */
     getGridCellFromMousePoint(mouse: Point) {
-        return this.viewport.getGridCellFromMousePoint(mouse);
+        return this.viewport.findLeftGridLineInclusiveCellFromOffset(mouse.x, mouse.y);
     }
 
     /**
@@ -1167,13 +1021,6 @@ export class Revgrid implements SelectionDetail {
 
         //convert to a proper rectangle
         return new Rectangle(x, y, width, height);
-    }
-
-    /**
-     * @desc This is called by the fin-canvas when a resize occurs.
-     */
-    resized() {
-        this.behaviorShapeChanged();
     }
 
     /**
@@ -1341,7 +1188,7 @@ export class Revgrid implements SelectionDetail {
         const wasCellEditor = this.cellEditor;
         this.stopEditing();
         if (!wasCellEditor) {
-            this.canvas.takeFocus();
+            this.canvasEx.takeFocus();
         }
     }
 
@@ -1716,11 +1563,11 @@ export class Revgrid implements SelectionDetail {
 
     /**
      * @desc An edit event has occurred. Activate the editor at the coordinates specified by the event.
-     * @param event - The horizontal coordinate.
+     * @param cell - The horizontal coordinate.
      * @returns The editor object or `undefined` if no editor or editor already open.
      */
-    onEditorActivate(event: CellEvent) {
-        return this.editAt(event);
+    onEditorActivate(cell: ViewportCell) {
+        return this.editAt(cell);
     }
 
     /**
@@ -1743,14 +1590,14 @@ export class Revgrid implements SelectionDetail {
         } else {
             this.setAttribute('hidpi', '');
         }
-        this.canvas.resize();
+        this.canvasEx.resize();
     }
 
     /**
      * @returns The HiDPI ratio.
      */
     getHiDPI() {
-        return this.canvas.devicePixelRatio;
+        return this.canvasEx.devicePixelRatio;
     }
 
     /**
@@ -1774,16 +1621,19 @@ export class Revgrid implements SelectionDetail {
      */
     updateCursor() {
         let cursor = this.behavior.getCursorAt(-1, -1);
-        const hoverGridCell = this.hoverGridCell;
-        const firstScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
-        if (
-            hoverGridCell &&
-            hoverGridCell.x > -1 &&
-            hoverGridCell.y > -1 &&
-            firstScrollableActiveColumnIndex !== undefined
-        ) {
-            const x = hoverGridCell.x + firstScrollableActiveColumnIndex;
-            cursor = this.behavior.getCursorAt(x, hoverGridCell.y + this._scrollBehavior.rowScrollAnchorIndex);
+        const hoverCell = this._mouse.hoverCell;
+        if (hoverCell !== undefined) {
+            const hoverGridCell = hoverCell.gridCell;
+            const firstScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
+            if (
+                hoverGridCell &&
+                hoverGridCell.x > -1 &&
+                hoverGridCell.y > -1 &&
+                firstScrollableActiveColumnIndex !== undefined
+            ) {
+                const x = hoverGridCell.x + firstScrollableActiveColumnIndex;
+                cursor = this.behavior.getCursorAt(x, hoverGridCell.y + this._scrollBehavior.rowScrollAnchorIndex);
+            }
         }
         this.beCursor(cursor);
     }
@@ -1879,7 +1729,7 @@ export class Revgrid implements SelectionDetail {
      * @desc Update the size of a grid instance.
      */
     updateSize() {
-        this.canvas.checksize();
+        this.canvasEx.checksize();
     }
 
 
@@ -1957,7 +1807,7 @@ export class Revgrid implements SelectionDetail {
     }
 
     lookupFeature(key: string) {
-        return this._featureManager.lookupFeature(key);
+        return this._uiBehaviorManager.lookupFeature(key);
     }
 
     // decorateColumnArray(array) {
@@ -2028,7 +1878,7 @@ export class Revgrid implements SelectionDetail {
             };
             listenerInfos.push(info);
             this.eventlistenerInfos.set(eventName, listenerInfos);
-            this.canvas.addEventListener(eventName, info.decorator);
+            this.canvasEx.addEventListener(eventName, info.decorator);
         }
     }
 
@@ -2064,7 +1914,7 @@ export class Revgrid implements SelectionDetail {
                         } else {
                             listenerInfos.splice(index, 1); // remove it from the list
                         }
-                        this.canvas.removeEventListener<T>(eventName, info.decorator as CanvasEx.EventListener<T>);
+                        this.canvasEx.removeEventListener<T>(eventName, info.decorator as CanvasEx.EventListener<T>);
                         return true;
                     } else {
                         return false;
@@ -2096,9 +1946,9 @@ export class Revgrid implements SelectionDetail {
         this.allowEventHandlers = allow;
 
         if (allow){
-            this._featureManager.enable();
+            this._uiBehaviorManager.enable();
         } else {
-            this._featureManager.disable();
+            this._uiBehaviorManager.disable();
         }
         this.behavior.allowEvents(allow);
     }
@@ -2136,6 +1986,66 @@ export class Revgrid implements SelectionDetail {
         // for descendants
     }
 
+    protected descendantProcessMouseClick(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseDblClick(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseDown(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseUp(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseMove(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseOut(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessWheelMove(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessContextMenu(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseDragStart(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseDrag(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseDragEnd(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessRendered() {
+        // for descendants
+    }
+
+    protected descendantProcessMouseEnteredCell(cell: ViewportCell) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseExitedCell(cell: ViewportCell) {
+        // for descendants
+    }
+
+    protected descendantProcessResized() {
+        // for descendants
+    }
+
     /**
      * @desc Synthesize and fire a `fin-editor-keyup` event.
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
@@ -2145,7 +2055,7 @@ export class Revgrid implements SelectionDetail {
             editor: inputControl,
             keyEvent: keyEvent,
         }
-        return dispatchGridEvent(this, 'rev-editor-keyup', false, eventDetail);
+        return dispatchGridEvent(this, 'rev-editor-key-up', false, eventDetail);
     }
 
     /**
@@ -2157,7 +2067,7 @@ export class Revgrid implements SelectionDetail {
             editor: inputControl,
             keyEvent: keyEvent,
         }
-        return dispatchGridEvent(this, 'rev-editor-keydown', false, eventDetail);
+        return dispatchGridEvent(this, 'rev-editor-key-down', false, eventDetail);
     }
 
     /**
@@ -2169,7 +2079,7 @@ export class Revgrid implements SelectionDetail {
             editor: inputControl,
             keyEvent: keyEvent,
         }
-        return dispatchGridEvent(this, 'rev-editor-keypress', false, eventDetail);
+        return dispatchGridEvent(this, 'rev-editor-key-press', false, eventDetail);
     }
 
     /**
@@ -2187,38 +2097,6 @@ export class Revgrid implements SelectionDetail {
         };
 
         return dispatchGridEvent(this, 'rev-editor-data-change', true, eventDetail);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-context-menu` event
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticContextMenuEvent(event: CellEvent) {
-        return dispatchGridEvent(this, 'rev-context-menu', false, event);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-mouseup` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticMouseUpEvent(event: CellEvent) {
-        return dispatchGridEvent(this, 'rev-mouseup', false, event);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-mousedown` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticMouseDownEvent(event: CellEvent) {
-        return dispatchGridEvent(this, 'rev-mousedown', false, event);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-mousemove` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticMouseMoveEvent(event: CellEvent | undefined) {
-        return dispatchGridEvent(this, 'rev-mousemove', false, event);
     }
 
     /**
@@ -2252,7 +2130,7 @@ export class Revgrid implements SelectionDetail {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticKeydownEvent(detail: EventDetail.Keyboard) {
-        return dispatchGridEvent(this, 'rev-keydown', false, detail);
+        return dispatchGridEvent(this, 'rev-key-down', false, detail);
     }
 
     /**
@@ -2261,7 +2139,7 @@ export class Revgrid implements SelectionDetail {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticKeyupEvent(detail: EventDetail.Keyboard) {
-        return dispatchGridEvent(this, 'rev-keyup', false, detail);
+        return dispatchGridEvent(this, 'rev-key-up', false, detail);
     }
 
     /**
@@ -2270,65 +2148,6 @@ export class Revgrid implements SelectionDetail {
      */
     fireSyntheticFilterAppliedEvent() {
         return dispatchGridEvent(this, 'rev-filter-applied', false, undefined);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-cell-enter` event
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticOnCellEnterEvent(cellEvent: CellEvent) {
-        return dispatchGridEvent(this, 'rev-cell-enter', false, cellEvent);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-cell-exit` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticOnCellExitEvent(cellEvent: CellEvent) {
-        return dispatchGridEvent(this, 'rev-cell-exit', false, cellEvent);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-cell-click` event.
-     * @param event - The system mouse event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticClickEvent(cellEvent: CellEvent) {
-        return dispatchGridEvent(this, 'rev-click', false, cellEvent);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-double-click` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticDoubleClickEvent(cellEvent: CellEvent) {
-        if (!this.abortEditing()) { return undefined; }
-
-        return dispatchGridEvent(this, 'rev-double-click', false, cellEvent);
-    }
-
-    /**
-     * @desc Synthesize and fire a fin-grid-rendered event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticGridRenderedEvent(): boolean {
-        const eventDetail: EventDetail.Grid = {
-            time: Date.now(),
-            source: this,
-        }
-        return dispatchGridEvent(this, 'rev-grid-rendered', false, eventDetail);
-    }
-
-    /**
-     * @desc Synthesize and fire a fin-tick event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticTickEvent() {
-        const eventDetail: EventDetail.Grid = {
-            time: Date.now(),
-            source: this,
-        }
-        return dispatchGridEvent(this, 'rev-tick', false, eventDetail);
     }
 
     /**
@@ -2345,7 +2164,7 @@ export class Revgrid implements SelectionDetail {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticTouchStartEvent(detail: EventDetail.Touch) {
-        return dispatchGridEvent(this, 'rev-touchstart', false, detail);
+        return dispatchGridEvent(this, 'rev-touch-start', false, detail);
     }
 
     /**
@@ -2354,7 +2173,7 @@ export class Revgrid implements SelectionDetail {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticTouchMoveEvent(detail: EventDetail.Touch) {
-        return dispatchGridEvent(this, 'rev-touchmove', false, detail);
+        return dispatchGridEvent(this, 'rev-touch-move', false, detail);
     }
 
     /**
@@ -2363,7 +2182,7 @@ export class Revgrid implements SelectionDetail {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticTouchEndEvent(detail: EventDetail.Touch) {
-        return dispatchGridEvent(this, 'rev-touchend', false, detail);
+        return dispatchGridEvent(this, 'rev-touch-end', false, detail);
     }
 
     /**
@@ -2435,138 +2254,6 @@ export class Revgrid implements SelectionDetail {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const grid = this;
 
-        function handleMouseEvent(detail: EventDetail.Mouse, cb: ((cellEvent: MouseCellEvent | undefined) => void)) {
-            if (grid._subgridsManager.getAllRowCount() !== 0) {
-                const cellEvent = grid.getGridCellFromMousePoint(detail.mouse) as (MouseCellEvent | undefined);
-
-                if (cellEvent !== undefined) {
-                    cellEvent.mouse = detail;
-
-                    // add some interesting mouse offsets
-                    // let detail = cellEvent.primitiveEvent.detail;
-                    if (detail !== undefined) { // test should not be necessary
-                        cellEvent.gridPoint = detail.mouse;
-                        const uiEvent = detail.primitiveEvent as MouseEvent;
-                        if (uiEvent !== undefined) {
-                            cellEvent.clientPoint = Point.create(uiEvent.clientX, uiEvent.clientY);
-                            cellEvent.pagePoint = Point.create(uiEvent.clientX + window.scrollX, uiEvent.clientY + window.scrollY);
-                        }
-                    }
-
-                }
-
-                cb(cellEvent, detail);
-            }
-        }
-
-        this.addInternalEventListener('rev-canvas-resized', (e) => {
-            grid.resized();
-            grid.fireSyntheticGridResizedEvent(e.detail);
-        });
-
-        this.addInternalEventListener('rev-canvas-mousemove', (e) => {
-            if (grid.properties.readOnly) {
-                return;
-            } else {
-                handleMouseEvent(e.detail, (cellEvent) => {
-                    this.delegateMouseMove(cellEvent);
-                    this.fireSyntheticMouseMoveEvent(cellEvent);
-                });
-            }
-        });
-
-        this.addInternalEventListener('rev-canvas-mousedown', (e) => {
-            if (grid.properties.readOnly) {
-                return;
-            }
-            if (!grid.abortEditing()) {
-                e.stopPropagation();
-                return;
-            }
-
-            handleMouseEvent(e.detail,
-                (cellEvent) => {
-                    if (cellEvent !== undefined) {
-                        this.mouseDownState = cellEvent;
-                        this.delegateMouseDown(cellEvent);
-                        this.fireSyntheticMouseDownEvent(cellEvent);
-                        this.repaint();
-                    }
-                }
-            );
-        });
-
-        this.addInternalEventListener('rev-canvas-click', (e) => {
-            if (grid.properties.readOnly) {
-                return;
-            }
-            handleMouseEvent(e.detail,
-                (cellEvent) => {
-                    if (cellEvent !== undefined) {
-                        const isMouseDownCell = this.mouseDownState !== undefined && Point.isEqual(this.mouseDownState.gridCell, cellEvent.gridCell);
-                        if (isMouseDownCell && cellEvent.mousePointInClickRect) {
-                            // cellEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
-                            if (this.mouseDownState !== undefined) {
-                                this.fireSyntheticButtonPressedEvent(this.mouseDownState);
-                            }
-                            this.fireSyntheticClickEvent(cellEvent);
-                            this.delegateClick(cellEvent);
-                        }
-                        this.mouseDownState = undefined;
-                    }
-                }
-            );
-        });
-
-        this.addInternalEventListener('rev-canvas-mouseup', (e) => {
-            if (grid.properties.readOnly) {
-                return;
-            }
-            grid.dragging = false;
-            if (this._scrollBehavior.isScrollingActive()) {
-                this._scrollBehavior.setScrollingActive(false);
-            }
-            if (grid.columnDragAutoScrolling) {
-                grid.columnDragAutoScrolling = false;
-            }
-            handleMouseEvent(e.detail,
-                (cellEvent) => {
-                    if (cellEvent !== undefined) {
-                        this.delegateMouseUp(cellEvent);
-                        this.fireSyntheticMouseUpEvent(cellEvent);
-                    }
-                }
-            );
-        });
-
-        this.addInternalEventListener('rev-canvas-dblclick', (e) => {
-            if (grid.properties.readOnly) {
-                return;
-            }
-            handleMouseEvent(e.detail,
-                (cellEvent) => {
-                    if (cellEvent !== undefined) {
-                        this.fireSyntheticDoubleClickEvent(cellEvent);
-                        this.delegateDoubleClick(cellEvent);
-                    }
-                }
-            );
-        });
-
-        this.addInternalEventListener('rev-canvas-drag', (e) => {
-            if (grid.properties.readOnly) {
-                return;
-            }
-            grid.dragging = true;
-            handleMouseEvent(e.detail,
-                (cellEvent) => {
-                    if (cellEvent !== undefined) {
-                        grid.delegateMouseDrag(cellEvent);
-                    }
-                }
-            );
-        });
-
         this.addInternalEventListener('rev-canvas-keydown', (e) => {
             if (grid.properties.readOnly) {
                 return;
@@ -2583,40 +2270,6 @@ export class Revgrid implements SelectionDetail {
             const eventDetail = e.detail;
             grid.fireSyntheticKeyupEvent(eventDetail);
             grid.delegateKeyUp(eventDetail);
-        });
-
-        this.addInternalEventListener('rev-canvas-wheelmoved', (e) => {
-            handleMouseEvent(e.detail,
-                (cellEvent) => {
-                    if (cellEvent !== undefined) {
-                        grid.delegateWheelMoved(cellEvent);
-                    }
-                }
-            );
-        });
-
-        this.addInternalEventListener('rev-canvas-mouseout', (e) => {
-            if (grid.properties.readOnly) {
-                return;
-            }
-            handleMouseEvent(e.detail,
-                (cellEvent) => {
-                    if (cellEvent !== undefined) {
-                        grid.delegateMouseExit(cellEvent);
-                    }
-                }
-            );
-        });
-
-        this.addInternalEventListener('rev-canvas-context-menu', (e) => {
-            handleMouseEvent(e.detail,
-                (cellEvent) => {
-                    if (cellEvent !== undefined) {
-                        grid.delegateContextMenu(cellEvent);
-                        grid.fireSyntheticContextMenuEvent(cellEvent);
-                    }
-                }
-            );
         });
 
         this.addInternalEventListener('rev-canvas-touchstart', (e) => {
@@ -2644,84 +2297,12 @@ export class Revgrid implements SelectionDetail {
     }
 
     /**
-     * @desc Delegate the wheel moved event to the behavior.
-     * @param event - The pertinent event.
-     */
-    delegateWheelMoved(event: MouseCellEvent) {
-        this._featureManager.onWheelMoved(event);
-    }
-
-    /**
-     * @desc Delegate MouseExit to the behavior (model).
-     * @param event - The pertinent event.
-     */
-    delegateMouseExit(event: MouseCellEvent) {
-        this._featureManager.handleMouseExit(event);
-    }
-
-    /**
-     * @desc Delegate MouseExit to the behavior (model).
-     * @param event - The pertinent event.
-     */
-    delegateContextMenu(event: MouseCellEvent) {
-        this._featureManager.onContextMenu(event);
-    }
-
-    /**
-     * @desc Delegate MouseMove to the behavior (model).
-     * @param cellEvent - An enriched mouse event from fin-canvas.
-     */
-    delegateMouseMove(cellEvent: MouseCellEvent | undefined) {
-        this._featureManager.onMouseMove(cellEvent);
-    }
-
-    /**
-     * @desc Delegate mousedown to the behavior (model).
-     * @param cellEvent - An enriched mouse event from fin-canvas.
-     */
-    delegateMouseDown(cellEvent: MouseCellEvent) {
-        this._featureManager.handleMouseDown(cellEvent);
-    }
-
-    /**
-     * @desc Delegate mouseup to the behavior (model).
-     * @param cellEvent - An enriched mouse event from fin-canvas.
-     */
-    delegateMouseUp(cellEvent: MouseCellEvent) {
-        this._featureManager.onMouseUp(cellEvent);
-    }
-
-    /**
-     * @desc Delegate click to the behavior (model).
-     * @param cellEvent - An enriched mouse event from fin-canvas.
-     */
-    delegateClick(cellEvent: MouseCellEvent) {
-        this._featureManager.onClick(cellEvent);
-    }
-
-    /**
-     * @desc Delegate mouseDrag to the behavior (model).
-     * @param cellEvent - An enriched mouse event from fin-canvas.
-     */
-    delegateMouseDrag(cellEvent: MouseCellEvent) {
-        this._featureManager.onMouseDrag(cellEvent);
-    }
-
-    /**
-     * @desc We've been doubleclicked on. Delegate through the behavior (model).
-     * @param cellEvent - An enriched mouse event from fin-canvas.
-     */
-    delegateDoubleClick(cellEvent: MouseCellEvent) {
-        this._featureManager.onDoubleClick(cellEvent);
-    }
-
-    /**
      * @summary Generate a function name and call it on self.
      * @desc This should also be delegated through Behavior keeping the default implementation here though.
      * @param {event} eventDetail - The pertinent event.
      */
     delegateKeyDown(eventDetail: EventDetail.Keyboard) {
-        this._featureManager.onKeyDown(eventDetail);
+        this._uiBehaviorManager.onKeyDown(eventDetail);
     }
 
     /**
@@ -2730,7 +2311,7 @@ export class Revgrid implements SelectionDetail {
      * @param event - The pertinent event.
      */
     delegateKeyUp(eventDetail: EventDetail.Keyboard) {
-        this._featureManager.onKeyUp(eventDetail);
+        this._uiBehaviorManager.onKeyUp(eventDetail);
     }
 
     /**
@@ -2738,7 +2319,7 @@ export class Revgrid implements SelectionDetail {
      * @param event - The pertinent event.
      */
     delegateTouchStart(eventDetail: EventDetail.Touch) {
-        this._featureManager.onTouchStart(eventDetail);
+        this._uiBehaviorManager.onTouchStart(eventDetail);
     }
 
     /**
@@ -2746,7 +2327,7 @@ export class Revgrid implements SelectionDetail {
      * @param event - The pertinent event.
      */
     delegateTouchMove(eventDetail: EventDetail.Touch) {
-        this._featureManager.onTouchMove(eventDetail);
+        this._uiBehaviorManager.onTouchMove(eventDetail);
     }
 
     /**
@@ -2754,7 +2335,7 @@ export class Revgrid implements SelectionDetail {
      * @param event - The pertinent event.
      */
     delegateTouchEnd(eventDetail: EventDetail.Touch) {
-        this._featureManager.onTouchEnd(eventDetail);
+        this._uiBehaviorManager.onTouchEnd(eventDetail);
     }
     // End Events Mixin
 
@@ -3003,7 +2584,7 @@ export class Revgrid implements SelectionDetail {
             x = vc.activeColumnIndex;
             y = vr.rowIndex;
             this.selection.selectRectangle(origin.x, origin.y, x - origin.x, y - origin.y, undefined);
-            this.repaint();
+            this._renderer.repaint();
         }
     }
 
@@ -3037,7 +2618,7 @@ export class Revgrid implements SelectionDetail {
                     selection.endChange();
                 }
 
-                this.repaint();
+                this._renderer.repaint();
             }
         }
     }
@@ -3070,7 +2651,7 @@ export class Revgrid implements SelectionDetail {
                 }
 
                 this._scrollBehavior.handleHScrollerChange(0);
-                this.repaint();
+                this._renderer.repaint();
             }
         }
     }
@@ -3080,7 +2661,7 @@ export class Revgrid implements SelectionDetail {
         const rowCount = subgrid.getRowCount();
         if (rowCount > 0) {
             this._focusSelectionBehavior.focusSelectOnlyCell(this._columnsManager.getActiveColumnCount() - 1, rowCount - 1, subgrid, selectionAreaTypeSpecifier);
-            this.repaint();
+            this._renderer.repaint();
         }
     }
 
@@ -3103,7 +2684,7 @@ export class Revgrid implements SelectionDetail {
                     selection.endChange();
                 }
                 // this.scrollBy(columnCount, rowCount);
-                this.repaint();
+                this._renderer.repaint();
             }
         }
     }
@@ -3457,8 +3038,6 @@ export class Revgrid implements SelectionDetail {
 
         this.cancelEditing();
 
-        this.setHoverCell(undefined);
-
         this.behavior.reset();
         this._columnsManager.clearColumns();
         this.viewport.reset();
@@ -3468,22 +3047,17 @@ export class Revgrid implements SelectionDetail {
         //     this.setData(options.data);
         // }
 
-        this.canvas.resize();
+        this.canvasEx.resize();
         // this.behaviorChanged();
 
-        this.behaviorShapeChanged();
+        this.behavior.behaviorShapeChanged();
         // this.behavior.defaultRowHeight = null;
         // this._columnsManager.autosizeAllColumns();
     }
 
     /** @internal */
-    private paintLoopRunning() {
-        return !this.properties.repaintImmediately && this.viewport.painting();
-    }
-
-    /** @internal */
     private findOrCreateContainer(boundingRect: Revgrid.BoundingRectStyleValues | undefined) {
-        let div = document.getElementById(Revgrid.gridContainerElementCssIdBase);
+        let div = document.getElementById(CssClassName.gridContainerElementCssIdBase);
 
         if (div === null || div.childElementCount > 0) {
             // is not found or being used.  Create a new container
@@ -3512,6 +3086,21 @@ export class Revgrid implements SelectionDetail {
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
             selectionChanged: () => this.descendantProcessSelectionChanged(),
             scroll: (isX, newValue, index, offset) => this.descendantProcessScroll(isX, newValue, index, offset),
+            mouseClick: (event, cell) => this.descendantProcessMouseClick(event, cell),
+            mouseDblClick: (event, cell) => this.descendantProcessMouseDblClick(event, cell),
+            mouseDown: (event, cell) => this.descendantProcessMouseDown(event, cell),
+            mouseUp: (event, cell) => this.descendantProcessMouseUp(event, cell),
+            mouseMove: (event, cell) => this.descendantProcessMouseMove(event, cell),
+            mouseOut: (event, cell) => this.descendantProcessMouseOut(event, cell),
+            wheelMove: (event, cell) => this.descendantProcessWheelMove(event, cell),
+            contextMenu: (event, cell) => this.descendantProcessContextMenu(event, cell),
+            mouseDragStart: (event, cell) => this.descendantProcessMouseDragStart(event, cell),
+            mouseDrag: (event, cell) => this.descendantProcessMouseDrag(event, cell),
+            mouseDragEnd: (event, cell) => this.descendantProcessMouseDragEnd(event, cell),
+            rendered: () => this.descendantProcessRendered(),
+            mouseEnteredCell: (cell) => this.descendantProcessMouseEnteredCell(cell),
+            mouseExitedCell: (cell) => this.descendantProcessMouseExitedCell(cell),
+            resized: () => this.descendantProcessResized(),
         }
     }
 
@@ -3666,10 +3255,6 @@ export namespace Revgrid {
         numberOptions?: NumberFormatter.Options;
         dateOptions?: DateFormatter.Options;
     }
-
-    export const gridElementCssClass = 'revgrid';
-    export const gridContainerElementCssIdBase = 'revgrid';
-    export const gridContainerElementCssClass = 'revgrid-container';
 
     /**
      * @name localization

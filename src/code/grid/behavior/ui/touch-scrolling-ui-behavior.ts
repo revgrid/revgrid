@@ -1,76 +1,91 @@
 
-import { EventDetail } from '../event/event-detail';
-import { FinBar } from '../finbar/finbar-api';
-import { Feature } from './feature';
+import { ViewportCell } from '../../cell/viewport-cell';
+import { EventDetail } from '../../event/event-detail';
+import { FinBar } from '../../finbar/finbar-api';
+import { UiBehavior } from './ui-behavior';
 
-export class TouchScrolling extends Feature {
+export class TouchScrollingUiBehavior extends UiBehavior {
 
-    readonly typeName = TouchScrolling.typeName;
+    readonly typeName = TouchScrollingUiBehavior.typeName;
 
     private _stepTimeoutHandle: ReturnType<typeof setTimeout>;
-    private touches: TouchScrolling.TouchedBounds[];
+    private touches: TouchScrollingUiBehavior.TouchedBounds[];
 
     override handleTouchStart(eventDetail: EventDetail.Touch) {
         this.stopDeceleration();
-        this.touches = [this.getTouchedBounds(eventDetail)];
+        const currentTouch = this.getTouchedBounds(eventDetail);
+        if (currentTouch === undefined) {
+            this.touches = [];
+        } else {
+            this.touches = [currentTouch];
+        }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    override handleClick() {
-
+    override handleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+        return cell;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    override handleDoubleClick() {
-
+    override handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+        return cell;
     }
 
     override handleTouchMove(eventDetail: EventDetail.Touch) {
         const currentTouch = this.getTouchedBounds(eventDetail);
-        const lastTouch = this.touches[this.touches.length - 1];
+        const touchCount = this.touches.length;
+        if (currentTouch !== undefined && touchCount > 0) {
+            const lastTouch = this.touches[this.touches.length - 1];
 
-        const xOffset = (lastTouch.x - currentTouch.x) / lastTouch.width;
-        const yOffset = (lastTouch.y - currentTouch.y) / lastTouch.height;
+            const xOffset = (lastTouch.x - currentTouch.x) / lastTouch.width;
+            const yOffset = (lastTouch.y - currentTouch.y) / lastTouch.height;
 
-        this.scrollBehavior.scrollHorizontal(xOffset);
-        this.scrollBehavior.scrollVerticalIndex(yOffset);
+            this.scrollBehavior.scrollHorizontal(xOffset);
+            this.scrollBehavior.scrollVerticalIndex(yOffset);
 
-        if (this.touches.length >= TouchScrolling.MAX_TOUCHES) {
-            this.touches.shift();
+            if (touchCount >= TouchScrollingUiBehavior.MAX_TOUCHES) {
+                this.touches.shift();
+            }
+
+            this.touches.push(currentTouch);
         }
-
-        this.touches.push(currentTouch);
     }
 
     override handleTouchEnd(eventDetail: EventDetail.Touch) {
         const currentTouch = this.getTouchedBounds(eventDetail);
-        let timeOffset: number;
-        let i = -1;
+        const touchCount = this.touches.length;
+        if (currentTouch !== undefined && touchCount > 0) {
+            let timeOffset: number;
+            let i = -1;
 
-        do {
-            timeOffset = (currentTouch.timestamp - this.touches[++i].timestamp);
-        } while (timeOffset > 100 && i < this.touches.length - 1);
+            do {
+                timeOffset = (currentTouch.timestamp - this.touches[++i].timestamp);
+            } while (timeOffset > 100 && i < this.touches.length - 1);
 
-        const startTouch = this.touches[i];
+            const startTouch = this.touches[i];
 
-        this.decelerateY(startTouch, currentTouch);
-        this.decelerateX(startTouch, currentTouch);
+            this.decelerateY(startTouch, currentTouch);
+            this.decelerateX(startTouch, currentTouch);
+        }
     }
 
     private getTouchedBounds(eventDetail: EventDetail.Touch) {
         const point = eventDetail.touches[0];
-        const bounds = this.grid.getGridCellFromMousePoint(point).renderedCell.bounds as TouchScrolling.TouchedBounds;
-        bounds.timestamp = Date.now();
-        return bounds;
+        const cell = this.viewport.findLeftGridLineInclusiveCellFromOffset(point.x, point.y);
+        if (cell === undefined) {
+            return undefined;
+        } else {
+            const bounds = cell.bounds as TouchScrollingUiBehavior.TouchedBounds;
+            bounds.timestamp = Date.now();
+            return bounds;
+        }
     }
 
-    private decelerateY(startTouch: TouchScrolling.TouchedBounds, endTouch: TouchScrolling.TouchedBounds) {
+    private decelerateY(startTouch: TouchScrollingUiBehavior.TouchedBounds, endTouch: TouchScrollingUiBehavior.TouchedBounds) {
         const offset = endTouch.y - startTouch.y;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
         this.decelerate(this.scrollBehavior.verticalScroller, offset, timeOffset);
     }
 
-    private decelerateX(startTouch: TouchScrolling.TouchedBounds, endTouch: TouchScrolling.TouchedBounds) {
+    private decelerateX(startTouch: TouchScrollingUiBehavior.TouchedBounds, endTouch: TouchScrollingUiBehavior.TouchedBounds) {
         const offset = endTouch.x - startTouch.x;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
         this.decelerate(this.scrollBehavior.horizontalScroller, offset, timeOffset);
@@ -94,7 +109,7 @@ export class TouchScrolling extends Feature {
                 return;
             }
 
-            velocity -= TouchScrolling.DEC_STEP_SIZE;
+            velocity -= TouchScrollingUiBehavior.DEC_STEP_SIZE;
 
             const nextInterval = this.updateInterval(interval, velocity);
             this._stepTimeoutHandle = setTimeout(
@@ -129,7 +144,7 @@ export class TouchScrolling extends Feature {
     }
 
     private updateInterval(interval: number, velocity: number) {
-        if (interval >= TouchScrolling.MAX_INTERVAL) {
+        if (interval >= TouchScrollingUiBehavior.MAX_INTERVAL) {
             return interval;
         }
 
@@ -151,14 +166,14 @@ export class TouchScrolling extends Feature {
     }
 }
 
-export namespace TouchScrolling {
+export namespace TouchScrollingUiBehavior {
     export const typeName = 'touchscrolling';
 
     export const MAX_INTERVAL = 200;
     export const MAX_TOUCHES = 70;
     export const DEC_STEP_SIZE = 5;
 
-    export interface TouchedBounds extends RenderedCell.Bounds {
+    export interface TouchedBounds extends ViewportCell.Bounds {
         timestamp: number;
     }
 }

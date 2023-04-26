@@ -5,17 +5,18 @@ import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { ViewportCell } from '../cell/viewport-cell';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { Focus } from '../focus';
-import { Point } from '../lib/point';
+import { GridProperties } from '../grid-properties';
 import { CellPaintConfig } from '../renderer/cell-paint-config';
+import { Renderer } from '../renderer/renderer';
 import { Viewport } from '../renderer/viewport';
 import { Revgrid } from '../revgrid';
 import { Selection } from '../selection/selection';
 import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
+import { Mouse } from '../user-interface-input/mouse';
 
 export abstract class GridPainter {
     protected readonly grid: Revgrid;
-    protected readonly focus: Focus;
     protected readonly viewportColumns: Viewport.ViewportColumnArray;
     protected readonly viewportRows: Viewport.ViewportRowArray;
     protected readonly viewportCellPool: BeingPaintedCell[];
@@ -30,20 +31,23 @@ export abstract class GridPainter {
     rebundle: boolean;
 
     constructor(
+        protected readonly gridProperties: GridProperties,
+        protected readonly mouse: Mouse,
         protected readonly canvasEx: CanvasEx,
-        protected readonly _subgridsManager: SubgridsManager,
+        protected readonly subgridsManager: SubgridsManager,
         protected readonly viewport: Viewport,
+        protected readonly focus: Focus,
         protected readonly selection: Selection,
+        protected readonly renderer: Renderer,
         public readonly key: string,
         public readonly partial: boolean,
         initialRebundle: boolean | undefined,
     ) {
-        this.grid = viewport.grid;
-        this.focus = this.grid.focus;
+        this.grid = viewport.grid; // remove when fixed localizer
         this.viewportColumns = this.viewport.columns;
         this.viewportRows = this.viewport.rows;
-        this.viewportCellPool = this.viewport.cellPool;
-        this._cellPainterRepository = this.viewport.cellPainterRepository;
+        this.viewportCellPool = this.viewport.cellPool as BeingPaintedCell[];
+        this._cellPainterRepository = this.renderer.cellPainterRepository;
 
         if (initialRebundle !== undefined) {
             this.rebundle = initialRebundle;
@@ -64,7 +68,7 @@ export abstract class GridPainter {
      */
     protected paintCell(gc: CanvasRenderingContext2DEx, subgrid: SubgridInterface, beingPaintedCell: BeingPaintedCell, config: CellPaintConfig, prefillColor: string | undefined): number | undefined {
         const grid = this.grid;
-        const selection = grid.selection;
+        const selection = this.selection;
         const isMainRow = subgrid.isMain;
         const isHeaderRow = subgrid.isHeader;
         const isFilterRow = subgrid.isFilter;
@@ -119,16 +123,23 @@ export abstract class GridPainter {
         config.isHeaderRow = isHeaderRow;
         config.isFilterRow = isFilterRow;
         config.isUserDataArea = isMainRow;
-        config.isColumnHovered = beingPaintedCell.isColumnHovered;
+        const hoverCell = this.mouse.hoverCell;
+        const hasMouse = this.canvasEx.hasMouse;
+        const columnHovered =
+            hasMouse &&
+            (hoverCell !== undefined) &&
+            (hoverCell.isDataColumn) &&
+            (hoverCell.gridCell.x === beingPaintedCell.gridCell.x);
         const rowHovered =
-            this.grid.canvas.hasMouse &&
+            hasMouse &&
             subgrid.isMain &&
-            (this.grid.hoverGridCell !== undefined) &&
-            (this.grid.hoverGridCell.y === beingPaintedCell.gridCell.y);
+            (hoverCell !== undefined) &&
+            (hoverCell.gridCell.y === beingPaintedCell.gridCell.y);
 
+        config.isColumnHovered = columnHovered;
         config.isRowHovered = rowHovered;
         config.bounds = beingPaintedCell.bounds;
-        const cellHovered = rowHovered && beingPaintedCell.isColumnHovered;
+        const cellHovered = rowHovered && columnHovered;
         config.isCellHovered = cellHovered;
         config.isCellSelected = isCellSelected;
         config.isRowFocused = this.focus.isRowFocused(r, subgrid);
@@ -136,10 +147,6 @@ export abstract class GridPainter {
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selection.isPointInLastArea(x, r);
         config.prefillColor = prefillColor;
-
-        if (grid.mouseDownState) {
-            config.mouseDown = Point.isEqual(grid.mouseDownState.gridCell, beingPaintedCell.gridCell);
-        }
 
         config.value = value;
 
@@ -155,7 +162,6 @@ export abstract class GridPainter {
         beingPaintedCell.snapshot = config.snapshot; // supports partial render
 
         // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
-        beingPaintedCell.clickRect = config.clickRect;
         beingPaintedCell.cellPainter = cellPainter; // renderer actually used per getCell; used by fireSyntheticButtonPressedEvent
 
         return paintWidth;
@@ -189,7 +195,7 @@ export abstract class GridPainter {
         const R = visibleRows.length;
 
         if (C && R) {
-            const gridProps = this.grid.properties;
+            const gridProps = this.gridProperties;
             const C1 = C - 1;
             const R1 = R - 1;
             const firstVisibleColumnLeft = visibleColumns[0].left;
@@ -207,7 +213,7 @@ export abstract class GridPainter {
                 )
             ) {
                 const gridLinesVWidth = gridProps.gridLinesVWidth;
-                const headerRowCount = this._subgridsManager.calculateHeaderRowCount();
+                const headerRowCount = this.subgridsManager.calculateHeaderRowCount();
                 const lastHeaderRow = visibleRows[headerRowCount - 1]; // any header rows?
                 const firstDataRow = visibleRows[headerRowCount]; // any data rows?
                 const userDataAreaTop = firstDataRow && firstDataRow.top;
@@ -284,7 +290,7 @@ export abstract class GridPainter {
 
     paintLastSelection(gc: CanvasRenderingContext2DEx, lastSelectionBounds: ViewportCell.Bounds) {
         // Render the selection model around the last selection bounds
-        const gridProps = this.grid.properties;
+        const gridProps = this.gridProperties;
         const config = {
             columnName: '',
             bounds: lastSelectionBounds,
@@ -297,20 +303,10 @@ export abstract class GridPainter {
     }
 
     bundleColumns(resetCellEvents = false) {
-        const gridProps = this.grid.properties;
+        const gridProps = this.gridProperties;
 
         if (resetCellEvents) {
-            const R = this.viewportRows.length
-            const pool = this.viewportCellPool;
-            const visibleRows = this.viewportRows;
-            let p = 0;
-            this.viewportColumns.forEach((vc) => {
-                for (let r = 0; r < R; r++, p++) {
-                    const vr = visibleRows[r];
-                    // reset pool member to reflect coordinates of cell in newly shaped grid
-                    pool[p].reset(vc, vr);
-                }
-            });
+            this.viewport.resetCellPoolWithColumnRowOrder()
         }
 
         const columnBundles = this.columnBundles;
@@ -338,20 +334,11 @@ export abstract class GridPainter {
     }
 
     bundleRows(resetCellEvents = false) {
-        const gridProps = this.grid.properties;
+        const gridProps = this.gridProperties;
         const R = this.viewportRows.length
 
         if (resetCellEvents) {
-            const pool = this.viewportCellPool;
-            const visibleRows = this.viewportRows;
-            for (let p = 0, r = 0; r < R; r++) {
-                const vr = visibleRows[r];
-                this.viewportColumns.forEach((vc) => { // eslint-disable-line no-loop-func
-                    p++;
-                    // reset pool member to reflect coordinates of cell in newly shaped grid
-                    pool[p].reset(vc, vr);
-                });
-            }
+            this.viewport.resetCellPoolWithRowColumnOrder();
         }
 
         const rowBundles = this.rowBundles;
@@ -401,10 +388,14 @@ export abstract class GridPainter {
 
 export namespace GridPainter {
     export type Constructor = new(
-        canvas: CanvasEx,
+        gridProperties: GridProperties,
+        mouse: Mouse,
+        canvasEx: CanvasEx,
         subgridsManager: SubgridsManager,
-        renderer: Viewport,
-        selection: Selection
+        viewport: Viewport,
+        focus: Focus,
+        selection: Selection,
+        renderer: Renderer,
     ) => GridPainter;
 
     export interface ColumnBundle {

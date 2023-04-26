@@ -26,13 +26,6 @@ export interface DataModel {
     addDataCallbackListener(listener: DataModel.CallbackListener): void;
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     *
-     * Transforms the data. All the rows are subject to change, including the row count.
-     */
-    apply?(): void;
-
-    /**
      * Removed dispatchEvent! Does not make sense for DataModel to receive these events - just emit them. Maybe this was for some type of chaining.  Needs to be revisited in this case
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link DataModel#addListener addListener}, {@link DataModel#removeListener removeListener}, and {@link DataModel#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.

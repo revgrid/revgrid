@@ -202,6 +202,15 @@ export class ColumnsManager {
     }
 
     /** @internal */
+    createDummyColumn() {
+        const schemaColumn: SchemaModel.Column = {
+            index: -1,
+            name: '',
+        }
+        return new Column(this._gridProperties, schemaColumn);
+    }
+
+    /** @internal */
     getActiveColumnWidth(x: number) {
         const column = this.getActiveColumn(x);
         return column ? column.getWidth() : 0;
@@ -589,12 +598,14 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    checkColumnAutosizing(force?: boolean) {
+    checkColumnAutosizing(force: boolean) {
         let autoSized = false;
 
-        this._activeColumns.find((column) => {
-            autoSized = column.checkColumnAutosizing(force) || autoSized;
-        });
+        for (const column of this._activeColumns) {
+            if (column.checkColumnAutosizing(force)) {
+                autoSized = true;
+            }
+        }
 
         return autoSized;
     }

@@ -99,7 +99,7 @@ export class Column implements ColumnInterface {
         }
     }
 
-    checkColumnAutosizing(force?: boolean) {
+    checkColumnAutosizing(force: boolean) {
         const properties = this.properties;
         let autoSized: boolean;
 

@@ -1,5 +1,15 @@
 import { UnreachableCaseError } from './revgrid-error';
 
+export namespace CssClassName {
+    export const gridElementCssClass = 'revgrid';
+    export const gridContainerElementCssIdBase = 'revgrid';
+    export const gridContainerElementCssClass = 'revgrid-container';
+}
+
+export function isSecondaryMouseButton(event: MouseEvent) {
+    return event.button === 2;
+}
+
 export const enum ModifierKeyEnum {
     Control = 'Control',
     Shift = 'Shift',

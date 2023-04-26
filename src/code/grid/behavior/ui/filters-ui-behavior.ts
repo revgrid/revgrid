@@ -1,15 +1,16 @@
 
-import { CellEvent, MouseCellEvent } from '../cell/cell-event';
-import { EventDetail } from '../event/event-detail';
-import { SelectionArea } from '../lib/selection-area';
-import { Feature } from './feature';
+import { CellEvent } from '../../cell/cell-event';
+import { ViewportCell } from '../../cell/viewport-cell';
+import { EventDetail } from '../../event/event-detail';
+import { SelectionArea } from '../../lib/selection-area';
+import { UiBehavior } from './ui-behavior';
 
 /**
  * @constructor
  */
-export class Filters extends Feature {
+export class FiltersUiBehavior extends UiBehavior {
 
-    readonly typeName = Filters.typeName;
+    readonly typeName = FiltersUiBehavior.typeName;
 
     /**
      * Navigate away from the filter cell when:
@@ -27,7 +28,7 @@ export class Filters extends Feature {
             const cellEvent = eventDetail.editor.viewportCell;
             if (cellEvent.isFilterCell) {
                 const navKey = this.grid.generateNavKey(eventDetail.primitiveEvent);
-                const handler = this[('handle' + navKey) as keyof Filters] as ((CellEvent: CellEvent) => void);
+                const handler = this[('handle' + navKey) as keyof FiltersUiBehavior] as ((CellEvent: CellEvent) => void);
                 if (handler !== undefined) {
                     handler.call(this, cellEvent);
                     handled = true;
@@ -53,19 +54,27 @@ export class Filters extends Feature {
     handleUP = this.moveDown;
     handleDOWN = this.moveDown;
 
-    override handleDoubleClick(event: MouseCellEvent) {
-        if (event.isFilterCell) {
-            this.grid.onEditorActivate(event);
-        } else if (this.next) {
-            this.next.handleDoubleClick(event);
+    override handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+        if (cell === undefined) {
+            cell = this.tryGetViewportCellFromMouseEvent(event);
+        }
+        if (cell !== null && cell.isFilterCell) {
+            this.grid.onEditorActivate(cell);
+            return cell;
+        } else {
+            return super.handleDoubleClick(event, cell);
         }
     }
 
-    override handleClick(event: MouseCellEvent) {
-        if (event.isFilterCell) {
-            this.grid.onEditorActivate(event);
-        } else if (this.next) {
-            this.next.handleClick(event);
+    override handleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+        if (cell === undefined) {
+            cell = this.tryGetViewportCellFromMouseEvent(event);
+        }
+        if (cell !== null && cell.isFilterCell) {
+            this.grid.onEditorActivate(cell);
+            return cell;
+        } else {
+            return super.handleClick(event, cell);
         }
     }
 
@@ -105,6 +114,6 @@ export class Filters extends Feature {
 
 }
 
-export namespace Filters {
+export namespace FiltersUiBehavior {
     export const typeName = 'filters';
 }

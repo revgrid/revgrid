@@ -42,7 +42,6 @@ export interface ColumnProperties extends ColumnProperties.HeaderFilter, ColumnP
     readonly foregroundSelectionColor: string;
     readonly foregroundSelectionFont: string;
     readonly cellPainter: string;
-    readonly rightIcon: string | undefined;
 
 
     // Grid overrides set by painters as well
@@ -72,13 +71,9 @@ export namespace ColumnProperties {
         foregroundSelectionFont: string;
         // autosizing: boolean | undefined;
         // autosizingMax: number | undefined;
-        // leftIcon: { writable: true, value: undefined},
-        // centerIcon: { writable: true, value: undefined},
-        // rightIcon: { writable: true, value: undefined},
     }
 
     export interface Filter extends HeaderFilter {
         editor: string | undefined;
-        rightIcon: string | undefined; // key to images
     }
 }

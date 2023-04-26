@@ -15,7 +15,7 @@ export class ScrollBehavior {
 
     constructor(
         private readonly _gridProperties: GridProperties,
-        private readonly _canvas: CanvasEx,
+        private readonly _canvasEx: CanvasEx,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewport: Viewport,
@@ -153,6 +153,95 @@ export class ScrollBehavior {
         }
     }
 
+    stepScroll(directionCanvasOffsetX: number, directionCanvasOffsetY: number) {
+        let stepped = this.stepScrollColumn(directionCanvasOffsetX);
+        if (this.stepScrollRow(directionCanvasOffsetY)) {
+            stepped = true;
+        }
+        return stepped;
+    }
+
+    stepScrollColumn(directionCanvasOffsetX: number) {
+        const viewport = this._viewport;
+        const scrollableBounds = viewport.scrollableBounds;
+        if (scrollableBounds === undefined) {
+            return false;
+        } else {
+            let wantedMaximallyVisibleActiveColumnIndex: number | undefined;
+
+            if (directionCanvasOffsetX < scrollableBounds.topLeft.x) {
+                const firstVisibleScrollableColumnLeftOverflow = viewport.firstScrollableColumnLeftOverflow;
+                const firstVisibleScrollableActiveColumnIndex = viewport.firstScrollableActiveColumnIndex;
+                if (firstVisibleScrollableColumnLeftOverflow !== undefined && firstVisibleScrollableActiveColumnIndex !== undefined) {
+                    if (firstVisibleScrollableColumnLeftOverflow > 0) {
+                        wantedMaximallyVisibleActiveColumnIndex = firstVisibleScrollableActiveColumnIndex;
+                    } else {
+                        if (firstVisibleScrollableActiveColumnIndex > this._columnsManager.getFixedColumnCount()) {
+                            wantedMaximallyVisibleActiveColumnIndex = firstVisibleScrollableActiveColumnIndex - 1;
+                        }
+                    }
+                }
+            } else {
+                if (directionCanvasOffsetX > scrollableBounds.topLeft.x + scrollableBounds.extent.x) {
+                    const lastVisibleScrollableColumnLeftOverflow = viewport.lastScrollableColumnRightOverflow;
+                    const lastVisibleScrollableActiveColumnIndex = viewport.lastScrollableActiveColumnIndex;
+                    if (lastVisibleScrollableColumnLeftOverflow !== undefined && lastVisibleScrollableActiveColumnIndex !== undefined) {
+                        if (lastVisibleScrollableColumnLeftOverflow > 0) {
+                            wantedMaximallyVisibleActiveColumnIndex = lastVisibleScrollableActiveColumnIndex;
+                        } else {
+                            const lastScrollableActiveColumnIndex = this._columnsManager.getActiveColumnCount() - 1;
+                            if (lastVisibleScrollableActiveColumnIndex < lastScrollableActiveColumnIndex) {
+                                wantedMaximallyVisibleActiveColumnIndex = lastVisibleScrollableActiveColumnIndex + 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (wantedMaximallyVisibleActiveColumnIndex === undefined) {
+                return false;
+            } else {
+                this.ensureColumnIsMaximallyVisible(wantedMaximallyVisibleActiveColumnIndex);
+                return true;
+            }
+        }
+    }
+
+    stepScrollRow(directionCanvasOffsetY: number) {
+        const viewport = this._viewport;
+        const scrollableBounds = viewport.scrollableBounds;
+
+        if (scrollableBounds === undefined) {
+            return false;
+        } else {
+            if (directionCanvasOffsetY < scrollableBounds.topLeft.y) {
+                const headerPlusFixedRowCount = this._subgridsManager.calculateHeaderPlusFixedRowCount();
+                const firstVisibleScrollableRowIndex = viewport.firstScrollableRowIndex;
+                if (firstVisibleScrollableRowIndex !== undefined && firstVisibleScrollableRowIndex > headerPlusFixedRowCount) {
+                    this.scrollVBy(-1);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                if (directionCanvasOffsetY >= scrollableBounds.exclusiveBottom) {
+                    const subgridsManager = this._subgridsManager;
+                    const headerRowCount = subgridsManager.calculateHeaderRowCount();
+                    const lastScrollableRowIndex = headerRowCount + subgridsManager.mainSubgrid.getRowCount() - 1;
+                    const lastVisibleScrollableRowIndex = viewport.lastScrollableRowIndex;
+                    if (lastVisibleScrollableRowIndex !== undefined && lastVisibleScrollableRowIndex < lastScrollableRowIndex) {
+                        this.scrollVBy(+1);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
     ensureColumnIsMaximallyVisible(activeColumnIndex: number) {
         const computeCellsBoundsRequired = this.updateColumnScrollAnchorsToMakeColumnVisible(activeColumnIndex, true);
         if (computeCellsBoundsRequired) {
@@ -160,6 +249,30 @@ export class ScrollBehavior {
         }
 
         return computeCellsBoundsRequired; // scroll was required
+    }
+
+    ensureRowIsMaximallyVisible(rowIndex: number) {
+        const firstScrollableRowIndex = this._viewport.firstScrollableRowIndex;
+        if (firstScrollableRowIndex === undefined) {
+            return false;
+        } else {
+            if (rowIndex < firstScrollableRowIndex) {
+                this.scrollVBy(rowIndex - firstScrollableRowIndex);
+                return true;
+            } else {
+                const lastScrollableRowIndex = this._viewport.lastScrollableRowIndex;
+                if (lastScrollableRowIndex === undefined) {
+                    return false;
+                } else {
+                    if (rowIndex > lastScrollableRowIndex) {
+                        this.scrollVBy(rowIndex - lastScrollableRowIndex);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
     }
 
     private updateColumnScrollAnchorsToMakeColumnVisible(c: number, maximally: boolean) {
@@ -319,7 +432,7 @@ export class ScrollBehavior {
     }
 
     public updateHorizontalScroll(recalculateView: boolean) {
-        const canvasBounds = this._canvas.getBounds();
+        const canvasBounds = this._canvasEx.getBounds();
 
         const gridProps = this._gridProperties;
         const gridRightAligned = gridProps.gridRightAligned;

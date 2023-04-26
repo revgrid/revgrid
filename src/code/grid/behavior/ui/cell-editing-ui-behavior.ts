@@ -1,18 +1,27 @@
 
-import { CellEditor } from '../cell-editor/cell-editor';
-import { MouseCellEvent } from '../cell/cell-event';
-import { EventDetail } from '../event/event-detail';
-import { Feature } from './feature';
-export class CellEditingFeature extends Feature {
+import { CellEditor } from '../../cell-editor/cell-editor';
+import { ViewportCell } from '../../cell/viewport-cell';
+import { EventDetail } from '../../event/event-detail';
+import { UiBehavior } from './ui-behavior';
 
-    readonly typeName = CellEditingFeature.typeName;
+export class CellEditingUiBehavior extends UiBehavior {
 
-    override handleClick(event: MouseCellEvent) {
-        this.edit(event, false);
+    readonly typeName = CellEditingUiBehavior.typeName;
+
+    override handleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+        if (cell === undefined) {
+            cell = this.tryGetViewportCellFromMouseEvent(event);
+        }
+        this.edit(cell, false);
+        return super.handleClick(event, cell);
     }
 
-    override handleDoubleClick(event: MouseCellEvent) {
-        this.edit(event, true);
+    override handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+        if (cell === undefined) {
+            cell = this.tryGetViewportCellFromMouseEvent(event);
+        }
+        this.edit(cell, true);
+        return super.handleDoubleClick(event, cell);
     }
 
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
@@ -51,20 +60,17 @@ export class CellEditingFeature extends Feature {
         }
     }
 
-    edit(event: MouseCellEvent, onDoubleClick: boolean) {
+    edit(cell: ViewportCell | null, onDoubleClick: boolean) {
         if (
-            event.isDataCell &&
-            !(event.columnProperties['editOnDoubleClick'] !== onDoubleClick) // both same (true or falsy)?
+            cell !== null &&
+            cell.isDataCell &&
+            !(cell.columnProperties['editOnDoubleClick'] !== onDoubleClick) // both same (true or falsy)?
         ) {
-            this.grid.onEditorActivate(event);
-        }
-
-        if (this.next) {
-            this.next[onDoubleClick ? 'handleDoubleClick' : 'handleClick'](event);
+            this.grid.onEditorActivate(cell);
         }
     }
 }
 
-export namespace CellEditingFeature {
+export namespace CellEditingUiBehavior {
     export const typeName = 'cellediting';
 }

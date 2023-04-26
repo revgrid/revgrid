@@ -1,8 +1,8 @@
-import { ScrollBehavior } from '../behavior/scroll-behaviour';
-import { EventDetail } from '../event/event-detail';
-import { Feature } from './feature';
+import { EventDetail } from '../../event/event-detail';
+import { ScrollBehavior } from '../scroll-behaviour';
+import { UiBehavior } from './ui-behavior';
 
-const commands: KeyPaging.CommandMap = {
+const commands: KeyPagingUiBehavior.CommandMap = {
     PAGEDOWN: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageDown(); },
     PAGEDOWNSHIFT: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageDown(); },
     PAGEUP: (scrollBehavior: ScrollBehavior) => { scrollBehavior.pageUp(); },
@@ -16,9 +16,9 @@ const commands: KeyPaging.CommandMap = {
 /**
  * @constructor
  */
-export class KeyPaging extends Feature {
+export class KeyPagingUiBehavior extends UiBehavior {
 
-    readonly typeName = KeyPaging.typeName;
+    readonly typeName = KeyPagingUiBehavior.typeName;
 
     /**
      * @param event - the event details
@@ -34,7 +34,7 @@ export class KeyPaging extends Feature {
 
 }
 
-export namespace KeyPaging {
+export namespace KeyPagingUiBehavior {
     export const typeName = 'keypaging';
 
     export type CommandFunction = (this: void, scrollBehavior: ScrollBehavior) => void;

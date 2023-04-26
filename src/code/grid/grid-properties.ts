@@ -45,7 +45,6 @@ export interface GridProperties {
     columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
     columnsReorderableHideable: boolean;
-    centerIcon: string | undefined;
     defaultRowHeight: number;
     defaultColumnWidth: number;
     editable: boolean;
@@ -140,8 +139,6 @@ export interface GridProperties {
     gridLinesV: boolean;
     gridLinesVColor: GridProperties.Color;
     gridLinesVWidth: number;
-    /** Name of grid renderer. */
-    gridPainter: string;
     /** The cell's horizontal alignment, as interpreted by the cell renderer */
     halign: Halign;
     headerify: string;
@@ -155,8 +152,6 @@ export interface GridProperties {
     /** On mouse hover, whether to repaint the row background and how. */
     hoverRowHighlight: GridProperties.HoverColors;
     hScrollbarClassPrefix: string,
-    iconPadding: number;
-    leftIcon: string | undefined;
     lineColor: GridProperties.Color;
     lineWidth: number;
     /** Display cell value as a link (with underline). */
@@ -193,14 +188,11 @@ export interface GridProperties {
     readOnly: boolean;
     /** Name of cell renderer. */
     cellPainter: string;
-    /** Set to `true` to render `0` and `false`. Otherwise these value appear as blank cells. */
-    renderFalsy: boolean;
     /**
      * Normally multiple calls to {@link Hypergrid#repaint grid.repaint()}, {@link Hypergrid#reindex grid.reindex()}, {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()}, and/or {@link Hypergrid#behaviorStateChanged grid.behaviorStateChanged()} defer their actions until just before the next scheduled render. For debugging purposes, set `repaintImmediately` to truthy to carry out these actions immediately while leaving the paint loop running for when you resume execution. Alternatively, call {@link Canvas#stopPaintLoop grid.canvas.stopPaintLoop()}. Caveat: Both these modes are for debugging purposes only and may not render the grid perfectly for all interactions.
      */
     repaintImmediately: boolean;
-    repaintIntervalRate: number;
-    rightIcon: string | undefined;
+    repaintFramesPerSecond: number;
     resizeColumnInPlace: boolean;
     /** Restore column selections across data transformations (`reindex` calls). */
     restoreColumnSelections: boolean;

@@ -17,13 +17,13 @@ export class ButtonCellPainter implements CellPainter {
         const radius = height / 2;
         const arcGradient = gc.createLinearGradient(x, y, x, y + height);
 
-        if (config.mouseDown) {
-            arcGradient.addColorStop(0, '#B5CBED');
-            arcGradient.addColorStop(1, '#4d74ea');
-        } else {
-            arcGradient.addColorStop(0, '#ffffff');
-            arcGradient.addColorStop(1, '#aaaaaa');
-        }
+        // if (config.mouseDown) {
+        //     arcGradient.addColorStop(0, '#B5CBED');
+        //     arcGradient.addColorStop(1, '#4d74ea');
+        // } else {
+        //     arcGradient.addColorStop(0, '#ffffff');
+        //     arcGradient.addColorStop(1, '#aaaaaa');
+        // }
 
         // draw the background
         gc.cache.fillStyle = config.backgroundColor;

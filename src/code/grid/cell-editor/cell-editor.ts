@@ -117,7 +117,7 @@ export abstract class CellEditor {
 
         // STEP 1: Call the special key handler as needed
         if (stopped) {
-            grid.repaint();
+            // grid.repaint();
         }
 
         // STEP 2: If this is a possible "nav key" consumable by CellSelection#handleKeyDown, try to stop editing and send it along
@@ -127,7 +127,7 @@ export abstract class CellEditor {
                 // We didn't try to stop editing above so try to stop it now
                 (stopped = this.stopEditing(feedbackCount))
             ) {
-                grid.repaint();
+                // grid.repaint();
             }
 
             if (stopped) {

@@ -84,7 +84,7 @@ export function dispatchGridEvent<T extends EventName>(
     // eventInitDict.cancelable = cancelable;
 
     const event = newEvent(eventName, eventDetail, cancelable);
-    return grid.canvas.dispatchEvent(event);
+    return grid.canvasEx.dispatchEvent(event);
 }
 
 export namespace DispatchGridEvent {

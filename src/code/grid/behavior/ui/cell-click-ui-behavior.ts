@@ -1,33 +1,44 @@
-import { CellEvent, MouseCellEvent } from '../cell/cell-event';
-import { GridProperties } from '../grid-properties';
-import { AssertError } from '../grid-public-api';
-import { DataModel } from '../model/data-model';
-import { Revgrid } from '../revgrid';
-import { Feature } from './feature';
+import { CellEvent } from '../../cell/cell-event';
+import { ViewportCell } from '../../cell/viewport-cell';
+import { GridProperties } from '../../grid-properties';
+import { AssertError } from '../../lib/revgrid-error';
+import { DataModel } from '../../model/data-model';
+import { UiBehavior } from './ui-behavior';
 
-export class CellClickFeature extends Feature {
+export class CellClickUiBehavior extends UiBehavior {
 
-    readonly typeName = CellClickFeature.typeName;
+    readonly typeName = CellClickUiBehavior.typeName;
 
-    override handleMouseMove(event: MouseCellEvent | undefined) {
-        if (event !== undefined) {
-            const link = event.columnProperties.link;
+    override handleMouseMove(event: MouseEvent, cell: ViewportCell | null | undefined) {
+        if (cell === undefined) {
+            cell = this.tryGetViewportCellFromMouseEvent(event);
+        }
+        if (cell !== null) {
+            const link = cell.columnProperties.link;
             const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
             this.cursor = isActionableLink ? 'pointer' : undefined;
         }
 
-        super.handleMouseMove(event);
+        return super.handleMouseMove(event, cell);
     }
 
-    override handleClick(event: MouseCellEvent) {
-        const consumed = (event.isDataCell) && (
-            this.openLink(this.grid, event) !== undefined ||
-            this.grid.cellClicked(event)
-        );
-
-        if (!consumed && this.next) {
-            this.next.handleClick(event);
+    override handleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+        if (cell === undefined) {
+            cell = this.tryGetViewportCellFromMouseEvent(event);
+        }
+        if (cell === null || cell.isDataCell) {
+            return super.handleClick(event, cell);
+        } else {
+            if (this.openLink(cell) !== undefined) {
+                return cell;
+            } else {
+                if (this.grid.cellClicked(cell)) {
+                    return cell;
+                } else {
+                    return super.handleClick(event, cell);
+                }
+            }
         }
     }
 
@@ -49,7 +60,8 @@ export class CellClickFeature extends Feature {
      * | `null` | `grid.windowOpen` failed to open a window |
      * | _otherwise_ | A `window` reference returned by a successful call to `grid.windowOpen`. |
      */
-    openLink(grid: Revgrid, cellEvent: CellEvent): boolean | null | undefined | Window {
+    openLink(cellEvent: CellEvent): boolean | null | undefined | Window {
+        const grid = this.grid;
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
         const rowIndex = cellEvent.dataCell.y;
@@ -104,15 +116,14 @@ export class CellClickFeature extends Feature {
         if (result) {
             const column = cellEvent.column;
             this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', grid.properties.linkVisitedColor, subgrid);
-            const rendererBehavior = this.rendererBehavior;
-            rendererBehavior.resetCellPropertiesCache(cellEvent);
-            rendererBehavior.repaint();
+            this.viewport.resetCellPropertiesCache(cellEvent);
+            this.renderer.repaint();
         }
 
         return result;
     }
 }
 
-export namespace CellClickFeature {
+export namespace CellClickUiBehavior {
     export const typeName = 'cellclick';
 }

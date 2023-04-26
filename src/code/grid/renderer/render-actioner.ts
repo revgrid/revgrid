@@ -174,7 +174,7 @@ export class RenderActioner {
     private queueRepaintGridAction() {
         if (this._queuedActions.length === 0) {
             const action: RepaintGridRenderAction = {
-                type: RenderAction.Type.RepaintGrid,
+                type: RenderAction.Type.RepaintViewport,
             };
             this._queuedActions.push(action);
         }
@@ -183,15 +183,15 @@ export class RenderActioner {
     private queueRecalculateViewAction() {
         if (this._queuedActions.length === 0) {
             const action: RecalculateViewRenderAction = {
-                type: RenderAction.Type.RecalculateView,
+                type: RenderAction.Type.InvalidateViewport,
             };
             this._queuedActions.push(action);
         } else {
             const firstQueuedAction = this._queuedActions[0];
-            if (firstQueuedAction.type === RenderAction.Type.RepaintGrid) {
+            if (firstQueuedAction.type === RenderAction.Type.RepaintViewport) {
                 // replace RepaintGrid with RecalculateView which will also repaint grid
                 const action: RecalculateViewRenderAction = {
-                    type: RenderAction.Type.RecalculateView,
+                    type: RenderAction.Type.InvalidateViewport,
                 };
                 this._queuedActions[0] = action;
             }

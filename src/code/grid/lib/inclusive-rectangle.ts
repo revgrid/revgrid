@@ -49,6 +49,7 @@ export class InclusiveRectangle extends Rectangle {
 
 }
 
+/** @public */
 export namespace InclusiveRectangle {
     export function anyRectangleContainPoint(rectangles: InclusiveRectangle[], x: number, y: number) {
         return rectangles.find((rectangle) => rectangle.containsXY(x, y)) !== undefined;

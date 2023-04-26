@@ -3,7 +3,6 @@ import { ColumnProperties } from '../column/column-properties';
 import { GridProperties } from '../grid-properties';
 import { Localization } from '../lib/localization';
 import { WritablePoint } from '../lib/point';
-import { Rectangle } from '../lib/rectangle';
 import { RectangleInterface } from '../lib/rectangle-interface';
 import { Halign } from '../lib/types';
 import { DataModel } from '../model/data-model';
@@ -59,18 +58,10 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     isRowFocused: boolean;
     isRowSelected: boolean;
     isSelected: boolean;
-    isTreeColumn: boolean;
     isUserDataArea: boolean;
-    mouseDown: boolean;
     prefillColor: GridProperties.Color;
     snapshot: BeingPaintedCell.Snapshot; // BeingPaintedCell
     value: unknown;
-
-    clickRect?: Rectangle;
-
-    cellBorderThickness?: number;
-    cellBorderStyle?: string /*| CanvasGradient | CanvasPattern */;
-    hotIcon?: string;
 
     // grid overrides set by renderer as well
     private _selectionRegionOutlineColor: GridProperties.Color;
@@ -81,7 +72,6 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     private _halign: Halign;
 
     get backgroundSelectionColor() { return this._dataOrHeaderOrFilterProperties.backgroundSelectionColor; }
-    get centerIcon() { return this._gridProperties.centerIcon; }
     get color() { return this._dataOrHeaderOrFilterProperties.color; }
     get foregroundSelectionColor() { return this._dataOrHeaderOrFilterProperties.foregroundSelectionColor; }
     get foregroundSelectionFont() { return this._dataOrHeaderProperties.foregroundSelectionFont; }
@@ -89,14 +79,10 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     get hoverCellHighlight() { return this._gridProperties.hoverCellHighlight; }
     get hoverColumnHighlight() { return this._gridProperties.hoverColumnHighlight; }
     get hoverRowHighlight() { return this._gridProperties.hoverRowHighlight; }
-    get iconPadding() { return this._gridProperties.iconPadding; }
-    get leftIcon() { return this._gridProperties.leftIcon; }
     get linkOnHover() { return this._gridProperties.linkOnHover; }
     get linkColor() { return this._gridProperties.linkColor; }
     get linkColorOnHover() { return this._gridProperties.linkColorOnHover; }
     get cellPainter() { return this._dataOrHeaderOrFilterProperties.cellPainter; }
-    get renderFalsy() { return this._gridProperties.renderFalsy; }
-    get rightIcon() { return this._dataOrFilterProperties.rightIcon; }
     get strikeThrough() { return this._gridProperties.strikeThrough; }
     get textTruncateType() { return this._gridProperties.textTruncateType; }
     get voffset() { return this._gridProperties.voffset; }

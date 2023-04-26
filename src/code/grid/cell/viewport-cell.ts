@@ -2,14 +2,12 @@ import { CellPainter } from '../cell-painter/cell-painter';
 import { ColumnProperties } from '../column/column-properties';
 import { ColumnInterface } from '../common/column-interface';
 import { SubgridInterface } from '../common/subgrid-interface';
-import { DataModel } from '../grid-public-api';
 import { Point, WritablePoint } from '../lib/point';
-import { Rectangle } from '../lib/rectangle';
 import { RectangleInterface } from '../lib/rectangle-interface';
+import { DataModel } from '../model/data-model';
 import { MetaModel } from '../model/meta-model';
 import { Viewport } from '../renderer/viewport';
 import { Revgrid } from '../revgrid';
-import { Subgrid } from '../subgrid/subgrid';
 
 export class ViewportCell {
 
@@ -23,16 +21,13 @@ export class ViewportCell {
     private readonly viewport: Viewport;
 
     cellPainter: CellPainter;
-    clickRect: Rectangle | undefined;
-    clientPoint: Point;
     column: ColumnInterface;
     dataCell: WritablePoint = {} as WritablePoint; // no need for initialization
     // dataRow: DataRowObject;
     format: string;
     gridCell: WritablePoint = {} as WritablePoint; // no need for initialization
-    gridPoint: Point;
+    gridPoint: Point; // holds EventDetail.Mouse.mouse - remove later
     mousePoint: Point;
-    pagePoint: Point;
     row: unknown;
     subgrid: SubgridInterface;
     visibleColumn: Viewport.ViewportColumn;
@@ -44,11 +39,8 @@ export class ViewportCell {
      * @param gridX - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param gridY - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
      */
-    constructor(public grid: Revgrid, public gridX?: number, public gridY?: number) {
+    constructor(public grid: Revgrid) {
         this.viewport = grid.viewport;
-        if (gridX !== undefined && gridY !== undefined) {
-            this.resetGridCY(gridX, gridY);
-        }
     }
 
     // special method for use by renderer which reuses cellEvent object for performance reasons
@@ -70,30 +62,8 @@ export class ViewportCell {
         this.gridCell.x = visibleColumn.activeColumnIndex;
         this.gridCell.y = visibleRow.index;
 
-        this.dataCell.x = this.column && this.column.index;
+        this.dataCell.x = this.column.index;
         this.dataCell.y = visibleRow.rowIndex;
-    }
-
-    /**
-     * Set up this `CellEvent` instance to point to the cell at the given grid coordinates.
-     * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
-     * @param gridC - Horizontal grid cell coordinate adjusted for horizontal scrolling after fixed columns.
-     * @param gridY - Raw vertical grid cell coordinate.
-     * @returns Visibility.
-     */
-    resetGridCY(gridC: number, gridY: number) {
-        const vc = this.viewport.tryGetColumnWithActiveIndex(gridC);
-        if (vc === undefined) {
-            return false;
-        } else {
-            const vr = this.viewport.getVisibleRow(gridY);
-            if (vr === undefined) {
-                return false;
-            } else {
-                this.reset(vc, vr);
-                return true;
-            }
-        }
     }
 
     /**
@@ -109,28 +79,6 @@ export class ViewportCell {
             return false;
         } else {
             const vr = this.viewport.getVisibleRow(gridY);
-            if (vr === undefined) {
-                return false;
-            } else {
-                this.reset(vc, vr);
-                return true;
-            }
-        }
-    }
-
-    /**
-     * @summary Set up this `CellEvent` instance to point to the cell at the given data coordinates.
-     * @desc If the requested cell is not be visible (due to being scrolled out of view), the instance is not reset.
-     * @param dataX - Horizontal data cell coordinate.
-     * @param dataY - Vertical data cell coordinate.
-     * @returns Visibility.
-     */
-    resetDataXY(dataX: number, dataY: number, subgrid: Subgrid) {
-        const vc = this.viewport.tryGetColumnWithDataIndex(dataX);
-        if (vc === undefined) {
-            return false;
-        } else {
-            const vr = this.viewport.getVisibleDataRow(dataY, subgrid);
             if (vr === undefined) {
                 return false;
             } else {
@@ -263,20 +211,6 @@ export class ViewportCell {
     //     return cellEvent;
     // }
 
-    get mousePointInClickRect() {
-        const clickRect = this.clickRect; // ?? this.properties.clickRect;
-        if (clickRect === undefined) {
-            return true;
-        // } else if (typeof clickRect.contains === 'function') {
-        //     return clickRect.contains(this.mousePoint);
-        } else {
-            return (
-                clickRect.x <= this.mousePoint.x && this.mousePoint.x < clickRect.x + clickRect.width &&
-                clickRect.y <= this.mousePoint.y && this.mousePoint.y < clickRect.y + clickRect.height
-            );
-        }
-    }
-
     /**
      * "Visible" means scrolled into view.
      */
@@ -315,28 +249,6 @@ export class ViewportCell {
      */
     get isDataCell() {
         return this.isMainRow && this.isDataColumn;
-    }
-
-    get isRowHovered() {
-        const hovered =
-            this.grid.canvas.hasMouse &&
-            this.isMainRow &&
-            (this.grid.hoverGridCell !== undefined) &&
-            (this.grid.hoverGridCell.y === this.gridCell.y);
-        return hovered;
-    }
-
-    get isColumnHovered() {
-        const hovered =
-            this.grid.canvas.hasMouse &&
-            this.isDataColumn &&
-            (this.grid.hoverGridCell !== undefined) &&
-            (this.grid.hoverGridCell.x === this.gridCell.x);
-        return hovered;
-    }
-
-    get isCellHovered() {
-        return this.isRowHovered && this.isColumnHovered;
     }
 
     get isRowFixed() {

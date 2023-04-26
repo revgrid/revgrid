@@ -1,10 +1,14 @@
 
 import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
+import { Focus } from '../focus';
+import { GridProperties } from '../grid-properties';
+import { Renderer } from '../renderer/renderer';
 import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
 import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
+import { Mouse } from '../user-interface-input/mouse';
 import { GridPainter } from './grid-painter';
 
 /** @summary Render the grid with consolidated column rects.
@@ -31,14 +35,34 @@ import { GridPainter } from './grid-painter';
  */
 
 export class ByColumnsGridPainter extends GridPainter {
-    constructor(canvas: CanvasEx, subgridsManager: SubgridsManager, renderer: Viewport, selection: Selection) {
-        super(canvas, subgridsManager, renderer, selection, ByColumnsGridPainter.key, false, ByColumnsGridPainter.initialRebundle);
+    constructor(
+        gridProperties: GridProperties,
+        mouse: Mouse,
+        canvasEx: CanvasEx,
+        subgridsManager: SubgridsManager,
+        viewport: Viewport,
+        focus: Focus,
+        selection: Selection,
+        renderer: Renderer
+    ) {
+        super(
+            gridProperties,
+            mouse,
+            canvasEx,
+            subgridsManager,
+            viewport,
+            focus,
+            selection,
+            renderer,
+            ByColumnsGridPainter.key,
+            false,
+            ByColumnsGridPainter.initialRebundle
+        );
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
         // this = this.renderer
-        const grid = this.grid;
-        const gridProps = grid.properties;
+        const gridProps = this.gridProperties;
         let prefillColor: string;
         const gridPrefillColor = gridProps.backgroundColor;
         const visibleColumns = this.viewportColumns;
@@ -71,7 +95,7 @@ export class ByColumnsGridPainter extends GridPainter {
         }
 
         if (this.reset) {
-            this.viewport.resetAllGridRenderers(['by-columns-discrete']);
+            this.renderer.resetAllGridPainters(['by-columns-discrete']);
             this.reset = false;
             this.bundleColumns(true);
         } else if (this.rebundle === true) {

@@ -1,6 +1,6 @@
 import { SubgridInterface } from './common/subgrid-interface';
-import { AssertError } from './grid-public-api';
 import { Point } from './lib/point';
+import { AssertError } from './lib/revgrid-error';
 
 export class Focus {
     private readonly _subgridChangedEventHandlers = new Array<Focus.SubgridChangeEventHandler>();

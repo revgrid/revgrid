@@ -120,7 +120,6 @@ export class ColumnPropertiesAccessor implements ColumnProperties {
     get foregroundSelectionColor() { return this._gridProperties.foregroundSelectionColor; }
     get foregroundSelectionFont() { return this._gridProperties.foregroundSelectionFont; }
     get cellPainter() { return this._gridProperties.cellPainter; }
-    get rightIcon() { return this._gridProperties.rightIcon; }
 
     // not yet implemented
     // toJSON() {

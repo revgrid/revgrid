@@ -1,10 +1,14 @@
 
 import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { Subgrid } from '../grid-public-api';
+import { Focus } from '../focus';
+import { GridProperties } from '../grid-properties';
+import { Renderer } from '../renderer/renderer';
 import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
+import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
+import { Mouse } from '../user-interface-input/mouse';
 import { ByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
 import { GridPainter } from './grid-painter';
 
@@ -37,12 +41,33 @@ import { GridPainter } from './grid-painter';
 export class AsNeededGridPainter extends GridPainter {
     private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
-    constructor(canvas: CanvasEx, subgridsManager: SubgridsManager, renderer: Viewport, selection: Selection) {
-        super(canvas, subgridsManager, renderer, selection, AsNeededGridPainter.key, AsNeededGridPainter.partial, undefined);
+    constructor(
+        gridProperties: GridProperties,
+        mouse: Mouse,
+        canvasEx: CanvasEx,
+        subgridsManager: SubgridsManager,
+        viewport: Viewport,
+        focus: Focus,
+        selection: Selection,
+        renderer: Renderer
+    ) {
+        super(
+            gridProperties,
+            mouse,
+            canvasEx,
+            subgridsManager,
+            viewport,
+            focus,
+            selection,
+            renderer,
+            AsNeededGridPainter.key,
+            AsNeededGridPainter.partial,
+            undefined
+        );
     }
 
     override initialise() {
-        this._byColumnsAndRowsPainter = this.viewport.getGridPainter(ByColumnsAndRowsGridPainter.key) as ByColumnsAndRowsGridPainter;
+        this._byColumnsAndRowsPainter = this.renderer.getGridPainter(ByColumnsAndRowsGridPainter.key) as ByColumnsAndRowsGridPainter;
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
@@ -69,7 +94,7 @@ export class AsNeededGridPainter extends GridPainter {
         if (!C || !R) { return; }
 
         if (this.reset) {
-            this.viewport.resetAllGridRenderers();
+            this.renderer.resetAllGridPainters();
             this._byColumnsAndRowsPainter.paintCells(gc);
             this.reset = false;
         }

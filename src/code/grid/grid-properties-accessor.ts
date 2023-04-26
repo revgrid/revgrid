@@ -78,8 +78,6 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     set columnsReorderableHideable(value: boolean) { this._raw.columnsReorderableHideable = value; }
     get gridRightAligned() { return this._raw.gridRightAligned; }
     set gridRightAligned(value: boolean) { this._raw.gridRightAligned = value; }
-    get centerIcon() { return this._raw.centerIcon; }
-    set centerIcon(value: string | undefined) { this._raw.centerIcon = value; }
     get defaultRowHeight() { return this._raw.defaultRowHeight; }
     set defaultRowHeight(value: number) { this._raw.defaultRowHeight = value; }
     get defaultColumnWidth() { return this._raw.defaultColumnWidth; }
@@ -192,10 +190,6 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     set hoverRowHighlight(value: GridProperties.HoverColors) { this._raw.hoverRowHighlight = value; }
     get hScrollbarClassPrefix() { return this._raw.hScrollbarClassPrefix; }
     set hScrollbarClassPrefix(value: string) { this._raw.hScrollbarClassPrefix = value; }
-    get iconPadding() { return this._raw.iconPadding; }
-    set iconPadding(value: number) { this._raw.iconPadding = value; }
-    get leftIcon() { return this._raw.leftIcon; }
-    set leftIcon(value: string | undefined) { this._raw.leftIcon = value; }
     /** Display cell value as a link (with underline). */
     get link() { return this._raw.link; }
     set link(value: false | string | GridProperties.LinkProp | GridProperties.LinkFunction) { this._raw.link = value; }
@@ -240,14 +234,10 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
     get cellPainter() { return this._raw.cellPainter; }
     set cellPainter(value: string) { this._raw.cellPainter = value; }
     /** Set to `true` to render `0` and `false`. Otherwise these value appear as blank cells. */
-    get renderFalsy() { return this._raw.renderFalsy; }
-    set renderFalsy(value: boolean) { this._raw.renderFalsy = value; }
     get repaintImmediately() { return this._raw.repaintImmediately; }
     set repaintImmediately(value: boolean) { this._raw.repaintImmediately = value; }
-    get repaintIntervalRate() { return this._raw.repaintIntervalRate; }
-    set repaintIntervalRate(value: number) { this._raw.repaintIntervalRate = value; }
-    get rightIcon() { return this._raw.rightIcon; }
-    set rightIcon(value: string | undefined) { this._raw.rightIcon = value; }
+    get repaintFramesPerSecond() { return this._raw.repaintFramesPerSecond; }
+    set repaintFramesPerSecond(value: number) { this._raw.repaintFramesPerSecond = value; }
     get resizeColumnInPlace() { return this._raw.resizeColumnInPlace; }
     set resizeColumnInPlace(value: boolean) { this._raw.resizeColumnInPlace = value; }
     /** Restore column selections across data transformations (`reindex` calls). */
@@ -332,15 +322,6 @@ export class GridPropertiesAccessor implements LoadableGridProperties {
      */
     get features() { return this.var.features; }
     set features(features: string[]) { this.var.features = features.slice(); }
-
-    /**
-     * @memberOf module:dynamicProperties
-     */
-    get gridPainter() { return this.var.gridPainter; }
-    set gridPainter(painterKey: string) {
-        this.var.gridPainter = painterKey;
-        this.grid.viewport.setGridPainter(painterKey);
-    }
 
     /**
      * @memberOf module:dynamicProperties
@@ -594,7 +575,6 @@ export namespace GridPropertiesAccessor {
 
     export interface Var {
         features: string[];
-        gridPainter: string;
         gridBorder: boolean | string;
         gridBorderTop: boolean | string;
         gridBorderRight: boolean | string;
@@ -606,7 +586,6 @@ export namespace GridPropertiesAccessor {
         export function createDefault(): Var {
             const result: Var = {
                 features: defaultGridProperties.features,
-                gridPainter: defaultGridProperties.gridPainter,
                 gridBorder: defaultGridProperties.gridBorder,
                 gridBorderTop: defaultGridProperties.gridBorderTop,
                 gridBorderRight: defaultGridProperties.gridBorderRight,

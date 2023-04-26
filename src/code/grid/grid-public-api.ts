@@ -12,7 +12,6 @@ export { defaultGridProperties } from './default-grid-properties';
 export { EventDetail } from './event/event-detail';
 export { EventName } from './event/event-name';
 export { GridProperties } from './grid-properties';
-export { InclusiveRectangle } from './lib/inclusive-rectangle';
 export { Point } from './lib/point';
 export { Rectangle } from './lib/rectangle';
 export * from './lib/revgrid-error';

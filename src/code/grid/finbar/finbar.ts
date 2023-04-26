@@ -1,3 +1,4 @@
+import { AssertError } from '../lib/revgrid-error';
 import { cssInjector } from './css-injector';
 
 // Following is the sole style requirement for bar and thumb elements.
@@ -59,8 +60,8 @@ export class FinBar {
 
 
     private _classPrefix: string | undefined
-    private _auxStyles: Record<string, string>;
-    private testPanelItem: FinBar.TestPanelItem;
+    private _auxStyles?: Record<string, string>;
+    private testPanelItem: FinBar.TestPanelItem | undefined;
     /**
      * @summary Maximum offset of thumb's leading edge.
      * @desc This is the pixel offset within the scrollbar of the thumb when it is at its maximum position at the extreme end of its range.
@@ -84,7 +85,7 @@ export class FinBar {
      *
      * To suppress, delete `FinBar.normals` before instantiation or override this instance variable (with `1.0`) after instantiation.
      */
-    normal: number;
+    // normal: number;
 
     private _bound: FinBar.Bound = {
         shortStop: (event: MouseEvent) => this.shortStop(event),
@@ -178,7 +179,7 @@ export class FinBar {
      *
      * @param options - Options object. See the type definition for member details.
      */
-    constructor(options?: FinBar.Options) {
+    constructor(options: FinBar.Options) {
         this._indexMode = options.indexMode === true;
         // make bound versions of all the mouse event handler
         const bound = this._bound;
@@ -220,7 +221,7 @@ export class FinBar {
         // this.content = options.content;
         this.onchange = options.onchange;
 
-        this.normal = getNormal();
+        // this.normal = getNormal();
 
         if (options.loadBuiltinCssStylesheet !== false) {
             cssInjector(cssFinBars, 'finbar-base', options.cssStylesheetReferenceElement);
@@ -323,33 +324,37 @@ export class FinBar {
             const bar = this.bar;
             const barRect = bar.getBoundingClientRect();
             const container = /*this.container ||*/ bar.parentElement;
-            const containerRect = container.getBoundingClientRect();
-            const oh = this.oh;
+            if (container === null) {
+                throw new AssertError('F23334');
+            } else {
+                const containerRect = container.getBoundingClientRect();
+                const oh = this.oh;
 
-            // Before applying new styles, revert all styles to values inherited from stylesheets
-            bar.setAttribute('style', BAR_STYLE);
+                // Before applying new styles, revert all styles to values inherited from stylesheets
+                bar.setAttribute('style', BAR_STYLE);
 
-            keys.forEach((key) => {
-                let val = styles[key];
+                keys.forEach((key) => {
+                    let val = styles[key];
 
-                if (key in oh) {
-                    key = oh[key];
-                }
-
-                if (!isNaN(Number(val))) {
-                    val = (val || 0) + 'px';
-                } else if (/%$/.test(val)) {
-                    // When bar size given as percentage of container, if bar has margins, restate size in pixels less margins.
-                    // (If left as percentage, CSS's calculation will not exclude margins.)
-                    const oriented = axis[key];
-                    const margins = barRect[oriented.marginLeading] + barRect[oriented.marginTrailing];
-                    if (margins) {
-                        val = parseInt(val, 10) / 100 * containerRect[oriented.size] - margins + 'px';
+                    if (key in oh) {
+                        key = oh[key];
                     }
-                }
 
-                bar.style[key] = val;
-            });
+                    if (!isNaN(Number(val))) {
+                        val = (val || 0) + 'px';
+                    } else if (/%$/.test(val)) {
+                        // When bar size given as percentage of container, if bar has margins, restate size in pixels less margins.
+                        // (If left as percentage, CSS's calculation will not exclude margins.)
+                        const oriented = axis[key];
+                        const margins = barRect[oriented.marginLeading] + barRect[oriented.marginTrailing];
+                        if (margins) {
+                            val = parseInt(val, 10) / 100 * containerRect[oriented.size] - margins + 'px';
+                        }
+                    }
+
+                    bar.style[key] = val;
+                });
+            }
         }
     }
 
@@ -646,15 +651,20 @@ export class FinBar {
         this._removeEvt('mousemove');
         this._removeEvt('mouseup');
 
-        this.bar.parentElement.removeEventListener('wheel', this._bound.onwheel);
+        const parentElement = this.bar.parentElement;
+        if (parentElement === null) {
+            throw new AssertError('F11122');
+        } else {
+            parentElement.removeEventListener('wheel', this._bound.onwheel);
 
-        this.bar.onclick =
-            this.thumb.onclick =
-                this.thumb.onmouseover =
-                    this.thumb.ontransitionend =
-                        this.thumb.onmouseout = null;
+            this.bar.onclick =
+                this.thumb.onclick =
+                    this.thumb.onmouseover =
+                        this.thumb.ontransitionend =
+                            this.thumb.onmouseout = null;
 
-        this.bar.remove();
+            this.bar.remove();
+        }
     }
 
     /**
@@ -669,7 +679,7 @@ export class FinBar {
      * @returns The appended `<li>...</li>` element or `undefined` if there is no test panel.
      */
     private _addTestPanelItem() {
-        let testPanelItem: FinBar.TestPanelItem;
+        let testPanelItem: FinBar.TestPanelItem | undefined;
         const testPanelElement = document.querySelector('.' + this._classPrefix + '.test-panel') || document.querySelector('.test-panel');
 
         if (testPanelElement) {
@@ -710,7 +720,7 @@ export class FinBar {
     }
 
     onwheel(evt: WheelEvent) {
-        this.index += evt[this.deltaProp] * this[this.deltaProp + 'Factor'] * this.normal;
+        this.index += evt[this.deltaProp] * this[this.deltaProp + 'Factor'] /* * this.normal */;
         evt.stopPropagation();
         evt.preventDefault();
     }
@@ -925,52 +935,52 @@ function extend(obj: Record<string, string>, styles: Record<string, string> | un
  * @todo add `linux` platform
  */
 
-interface Browser {
-    [browser: string]: number;
-    webkit: number;
-    moz: number;
-    edge?: number;
-}
-interface Normals {
-    [browser: string]: Browser;
-    mac: Browser;
-    win: Browser;
-}
+// interface Browser {
+//     [browser: string]: number;
+//     webkit: number;
+//     moz: number;
+//     edge?: number;
+// }
+// interface Normals {
+//     [browser: string]: Browser;
+//     mac: Browser;
+//     win: Browser;
+// }
 
-const defaultNormal = 1.0;
+// const defaultNormal = 1.0;
 
-const normals: Normals = {
-    mac: {
-        webkit: 1.0,
-        moz: 35
-    },
-    win: {
-        webkit: 2.6,
-        moz: 85,
-        edge: 2
-    }
-};
+// const normals: Normals = {
+//     mac: {
+//         webkit: 1.0,
+//         moz: 35
+//     },
+//     win: {
+//         webkit: 2.6,
+//         moz: 85,
+//         edge: 2
+//     }
+// };
 
-function getNormal() {
-    const nav = window.navigator;
-    const ua = nav.userAgent;
-    const platform = nav.platform.substr(0, 3).toLowerCase();
-    const browser: keyof Browser = /Edge/.test(ua) ? 'edge' :
-        /Opera|OPR|Chrome|Safari/.test(ua) ? 'webkit' :
-            /Firefox/.test(ua) ? 'moz' :
-                undefined;
-    const platformDictionary = normals[platform];
-    if (platformDictionary === undefined) {
-        return defaultNormal;
-    } else {
-        const normalVersion = platformDictionary[browser];
-        if (normalVersion === undefined) {
-            return defaultNormal;
-        } else {
-            return normalVersion;
-        }
-    }
-}
+// function getNormal() {
+//     const nav = window.navigator;
+//     const ua = nav.userAgent;
+//     const platform = nav.platform.substr(0, 3).toLowerCase();
+//     const browser: keyof Browser = /Edge/.test(ua) ? 'edge' :
+//         /Opera|OPR|Chrome|Safari/.test(ua) ? 'webkit' :
+//             /Firefox/.test(ua) ? 'moz' :
+//                 undefined;
+//     const platformDictionary = normals[platform];
+//     if (platformDictionary === undefined) {
+//         return defaultNormal;
+//     } else {
+//         const normalVersion = platformDictionary[browser];
+//         if (normalVersion === undefined) {
+//             return defaultNormal;
+//         } else {
+//             return normalVersion;
+//         }
+//     }
+// }
 
 interface OrientationHash {
     coordinate: 'clientX' | 'clientY';

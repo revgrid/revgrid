@@ -3,16 +3,16 @@ export interface RenderAction {
 }
 
 export interface RepaintGridRenderAction extends RenderAction {
-    type: RenderAction.Type.RepaintGrid;
+    type: RenderAction.Type.RepaintViewport;
 }
 
 export interface RecalculateViewRenderAction extends RenderAction {
-    type: RenderAction.Type.RecalculateView;
+    type: RenderAction.Type.InvalidateViewport;
 }
 
 export namespace RenderAction {
     export const enum Type {
-        RepaintGrid,
-        RecalculateView,
+        RepaintViewport,
+        InvalidateViewport,
     }
 }

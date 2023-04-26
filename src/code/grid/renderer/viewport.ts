@@ -1,30 +1,19 @@
-import { Animation } from '../canvas/animation';
 import { CanvasEx } from '../canvas/canvas-ex';
-import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { CellPainter } from '../cell-painter/cell-painter';
-import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
-import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { ViewportCell } from '../cell/viewport-cell';
+import { Column } from '../column/column';
 import { ColumnsManager } from '../column/columns-manager';
 import { ColumnInterface } from '../common/column-interface';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { EventDetail } from '../event/event-detail';
-import { GridPainter } from '../grid-painter/grid-painter';
-import { GridPainterRepository } from '../grid-painter/grid-painter-repository';
 import { GridProperties } from '../grid-properties';
 import { ContiguousIndexRange } from '../lib/contiguous-index-range';
-import { Point } from '../lib/point';
 import { Rectangle } from '../lib/rectangle';
 import { RectangleInterface } from '../lib/rectangle-interface';
 import { AssertError, UnreachableCaseError } from '../lib/revgrid-error';
 import { DataModel } from '../model/data-model';
-import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../model/schema-model';
 import { Revgrid } from '../revgrid';
-import { Selection } from '../selection/selection';
 import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
-import { RenderAction } from './render-action';
-import { RenderActioner } from './render-actioner';
 
 
 /** CanvasRenderingContext2D
@@ -54,7 +43,6 @@ import { RenderActioner } from './render-actioner';
  *
  */
 export class Viewport {
-    private readonly gridPainterRepository: GridPainterRepository;
     /**
      * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
      *
@@ -83,29 +71,28 @@ export class Viewport {
     readonly rows = new Viewport.ViewportRowArray();
     readonly cellPool = new Array<ViewportCell>();
 
+    computedEventer: Viewport.ComputedEventer;
+
+    private readonly _dummyUnusedColumn: Column;
+
+    private _valid = false;
 
     private _mainSubgrid: Subgrid;
     private _mainDataModel: DataModel;
 
     private _columnsByIndex = new Array<Viewport.ViewportColumn>();  // array because number of columns will always be reasonable
     private _rowsByDataRowIndex = new Map<number, Viewport.ViewportRow>(); // hash because keyed by (fixed and) scrolled row indexes
+    private _cellPoolOrder: Viewport.CellPoolOrder | undefined;
 
     // I don't think this is used
     private _insertionBounds = new Array<number>();
 
     private _lastKnowMainRowCount: number | undefined;
-    private _needsComputeCellsBounds = false;
 
     scrollableColumnRange: ContiguousIndexRange | undefined;
     scrollableRowRange: ContiguousIndexRange | undefined;
 
     bounds: Viewport.Bounds;
-
-    private _destroyed = false;
-    private _documentHidden = false;
-
-    private readonly _animator: Animation.Animator;
-    private readonly _renderActioner = new RenderActioner()
 
     private _horizontalScrollableContentOverflowed: boolean;
     // Specifies the index of the column anchored to the bounds edge
@@ -130,21 +117,15 @@ export class Viewport {
 
     // Index of the first scrollable column in VisibleColumns
     private _firstScrollableColumnIndex: number | undefined;
+    private _lastScrollableColumnIndex: number | undefined;
 
     private _fixedColumnsViewWidth = 0;
     private _scrollableColumnsViewWidth = 0;
     private _columnsViewWidth = 0;
 
     // Index of the first scrollable column in VisibleColumns
-    private _firstScrollableVisibleRowIndex: number | undefined;
-
-    private _lastModelUpdateId: ModelUpdateId = lowestValidModelUpdateId;
-    private _lastRenderedModelUpdateId: ModelUpdateId = lowestValidModelUpdateId;
-    private _waitModelRenderedResolves = new Array<Viewport.WaitModelRenderedResolve>();
-
-    private gridPainter: GridPainter;
-
-    private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
+    private _firstScrollableRowIndex: number | undefined;
+    private _lastScrollableRowIndex: number | undefined;
 
     //the shared single item "pooled" cell object for drawing each cell
     private cell = {
@@ -162,12 +143,20 @@ export class Viewport {
     get unanchoredColumnOverflow() { return this._unanchoredColumnOverflow; }
 
     get firstScrollableColumnIndex() { return this._firstScrollableColumnIndex; }
-    get firstScrollableActiveColumnIndex() {
-        const firstScrollableVisibleColumnIndex = this._firstScrollableColumnIndex;
-        if (firstScrollableVisibleColumnIndex === undefined) {
+    get firstScrollableColumn() {
+        const firstScrollableColumnIndex = this._firstScrollableColumnIndex;
+        if (firstScrollableColumnIndex === undefined) {
             return undefined;
         } else {
-            return this.columns[firstScrollableVisibleColumnIndex].activeColumnIndex;
+            return this.columns[firstScrollableColumnIndex];
+        }
+    }
+    get firstScrollableActiveColumnIndex() {
+        const firstScrollableColumnIndex = this._firstScrollableColumnIndex;
+        if (firstScrollableColumnIndex === undefined) {
+            return undefined;
+        } else {
+            return this.columns[firstScrollableColumnIndex].activeColumnIndex;
         }
     }
     get firstScrollableColumnViewLeft(): number | undefined {
@@ -193,10 +182,35 @@ export class Viewport {
                 if (this._unanchoredColumnOverflow === undefined) {
                     return undefined;
                 } else {
-                    return this._unanchoredColumnOverflow; // overflow will be 0 or negative
+                    return this._unanchoredColumnOverflow;
                 }
             } else {
                 return this._columnScrollAnchorOffset;
+            }
+        }
+    }
+
+    get lastScrollableActiveColumnIndex() {
+        const lastScrollableColumnIndex = this._lastScrollableColumnIndex;
+        if (lastScrollableColumnIndex === undefined) {
+            return undefined;
+        } else {
+            return this.columns[lastScrollableColumnIndex].activeColumnIndex;
+        }
+    }
+    get lastScrollableColumnRightOverflow(): number | undefined {
+        const lastScrollableColumnIndex = this._lastScrollableColumnIndex;
+        if (lastScrollableColumnIndex === undefined) {
+            return undefined;
+        } else {
+            if (this._gridProperties.gridRightAligned) {
+                return this._columnScrollAnchorOffset;
+            } else {
+                if (this._unanchoredColumnOverflow === undefined) {
+                    return undefined;
+                } else {
+                    return this._unanchoredColumnOverflow;
+                }
             }
         }
     }
@@ -205,14 +219,17 @@ export class Viewport {
     get scrollableColumnsViewWidth() { return this._scrollableColumnsViewWidth; }
     get columnsViewWidth() { return this._columnsViewWidth; }
 
+    get firstScrollableRowIndex() { return this._firstScrollableRowIndex; }
     get firstScrollableRowViewTop() {
-        const firstScrollableVisibleRowIndex = this._firstScrollableVisibleRowIndex;
-        if (firstScrollableVisibleRowIndex === undefined) {
+        const firstScrollableRowIndex = this._firstScrollableRowIndex;
+        if (firstScrollableRowIndex === undefined) {
             return undefined
         } else {
-            return this.rows[firstScrollableVisibleRowIndex].top;
+            return this.rows[firstScrollableRowIndex].top;
         }
     }
+
+    get lastScrollableRowIndex() { return this._lastScrollableRowIndex; }
 
     get scrollableBounds(): Rectangle | undefined {
         const x = this.firstScrollableColumnViewLeft;
@@ -224,15 +241,13 @@ export class Viewport {
                 return undefined;
             } else {
                 const width = this._scrollableColumnsViewWidth;
-                const height = this._canvas.bounds.y - y; // this does not handle situation where rows do not fill the view
+                const height = this._canvasEx.bounds.y - y; // this does not handle situation where rows do not fill the view
                 return new Rectangle(x, y, width, height);
             }
         }
     }
 
     get properties() { return this.grid.properties; }
-
-    get lastModelUpdateId() { return this._lastModelUpdateId; }
 
     get firstScrollableVisibleColumnMaximallyVisible() {
         if (this._gridProperties.gridRightAligned) {
@@ -253,44 +268,14 @@ export class Viewport {
     constructor(
         public readonly grid: Revgrid,
         private readonly _gridProperties: GridProperties,
-        private readonly _canvas: CanvasEx,
-        selection: Selection,
+        private readonly _canvasEx: CanvasEx,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
-        readonly cellPainterRepository: CellPainterRepository,
-        private readonly _gc: CanvasRenderingContext2DEx,
         private readonly _getRowHeightEventer: Viewport.GetRowHeightEventer,
+        private readonly _checkNeedsShapeChangedEventer: Viewport.CheckNeedsShapeChangedEventer,
     ) {
-        this.gridPainterRepository = new GridPainterRepository(this._canvas, this._subgridsManager, this, selection);
-        this._renderActioner.actionsEvent = (actions) => this.processRenderActions(actions);
-
-        document.addEventListener('visibilitychange', this._pageVisibilityChangeListener);
-
-        this._animator = {
-            isContinuous: this.properties.enableContinuousRepaint, // TODO properties should update this dynamically
-            intervalRate: this.properties.repaintIntervalRate, // TODO properties should update this dynamically
-            dirty: false,
-            animating: false,
-            animate: () => this.paint(),
-            onTick: () => this.tickNotification(), // this needs improvement
-            // internal
-            lastAnimateTime: 0,
-            currentAnimateCount: 0,
-            currentFPS: 0,
-            lastFPSComputeTime: 0,
-        }
-
-        this.setGridPainter(this.properties.gridPainter);
-
+        this._dummyUnusedColumn = this._columnsManager.createDummyColumn();
         this.reset();
-    }
-
-    destroy() {
-        this.resolveWaitModelRendered(invalidModelUpdateId);
-
-        document.removeEventListener('visibilitychange', this._pageVisibilityChangeListener);
-
-        this._destroyed = true;
     }
 
     reset() {
@@ -304,153 +289,59 @@ export class Viewport {
         this.resetScrollAnchor();
     }
 
-    start() {
-        Animation.registerAnimator(this._animator);
+    invalidate() {
+        this._valid = false;
     }
 
-    stop() {
-        Animation.deregisterAnimator(this._animator);
-    }
-
-    registerGridPainter(key: string, constructor: GridPainter.Constructor) {
-        this.gridPainterRepository.register(key, constructor);
-    }
-
-    getGridPainter(key: string) {
-        return this.gridPainterRepository.get(key);
-    }
-
-    setGridPainter(key: string) {
-        const gridPainter = this.gridPainterRepository.get(key);
-
-        if (!gridPainter) {
-            throw new AssertError('RSGP68240', 'Unregistered grid renderer "' + key + '"');
+    ensureValid() {
+        const rowCount = this._subgridsManager.mainSubgrid.getRowCount();
+        if (rowCount !== this._lastKnowMainRowCount) {
+            this._valid = false;
+            this._lastKnowMainRowCount = rowCount;
         }
 
-        if (gridPainter !== this.gridPainter) {
-            this.gridPainter = gridPainter;
-            this.gridPainter.reset = true;
+        this._checkNeedsShapeChangedEventer();
+
+        if (!this._valid) {
+            this.internalComputeCellsBounds();
         }
     }
 
-    resetAllGridRenderers(blackList?: string[]) {
-        // Notify renderers that grid shape has changed
-        const all = this.gridPainterRepository.allCreatedEntries();
-        for (const [key, value] of all) {
-            value.reset = !blackList || blackList.indexOf(key) < 0;
-        }
-    }
-
-    /**
-     * Certain renderers that pre-bundle column rects based on columns' background colors need to re-bundle when columns' background colors change. This method sets the `rebundle` property to `true` for those renderers that have that property.
-     */
-    rebundleGridRenderers() {
-        const all = this.gridPainterRepository.allCreated();
-        for (const value of all) {
-            if (value.rebundle !== undefined) {
-                value.rebundle = true;
+    resetCellPoolWithColumnRowOrder() {
+        const rows = this.rows;
+        const rowCount = rows.length
+        const pool = this.cellPool;
+        let p = 0;
+        this.columns.forEach((column) => {
+            for (let r = 0; r < rowCount; r++, p++) {
+                const row = rows[r];
+                // reset pool member to reflect coordinates of cell in newly shaped grid
+                pool[p].reset(column, row);
             }
-        }
+        });
+        this._cellPoolOrder = Viewport.CellPoolOrder.ColumnRow;
     }
 
-    registerCellPainter(typeName: string, constructor: CellPainter.Constructor) {
-        this.cellPainterRepository.register(typeName, constructor);
+    resetCellPoolWithRowColumnOrder() {
+        const rows = this.rows;
+        const rowCount = rows.length;
+        const columns = this.columns;
+        const pool = this.cellPool;
+        let p = 0;
+        for (let r = 0; r < rowCount; r++) {
+            const row = rows[r];
+            columns.forEach((column) => { // eslint-disable-line no-loop-func
+                p++;
+                // reset pool member to reflect coordinates of cell in newly shaped grid
+                pool[p].reset(column, row);
+            });
+        }
+        this._cellPoolOrder = Viewport.CellPoolOrder.RowColumn;
     }
 
     updateMainSubgrid() {
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
         this._mainDataModel = this._mainSubgrid.dataModel;
-    }
-
-    beginChange() {
-        this._renderActioner.beginChange();
-    }
-
-    endChange() {
-        this._renderActioner.endChange();
-    }
-
-    renderColumnsInserted(index: number, count: number) {
-        this._renderActioner.renderColumnsInserted(index, count);
-    }
-
-    renderColumnsDeleted(index: number, count: number) {
-        this._renderActioner.renderColumnsDeleted(index, count);
-    }
-
-    renderAllColumnsDeleted() {
-        this._renderActioner.renderAllColumnsDeleted();
-    }
-
-    renderColumnsChanged() {
-        this._renderActioner.renderColumnsChanged();
-    }
-
-    renderRowsInserted(index: number, count: number) {
-        this._renderActioner.renderRowsInserted(index, count);
-    }
-
-    renderRowsDeleted(index: number, count: number) {
-        this._renderActioner.renderRowsDeleted(index, count);
-    }
-
-    renderAllRowsDeleted() {
-        this._renderActioner.renderAllRowsDeleted();
-    }
-
-    renderRowsLoaded() {
-        this._renderActioner.renderRowsLoaded();
-    }
-
-    renderRowsMoved(oldRowIndex: number, newRowIndex: number, rowCount: number) {
-        this._renderActioner.renderRowsMoved(oldRowIndex, newRowIndex, rowCount);
-    }
-
-    invalidateAll() {
-        this._renderActioner.invalidateAll();
-    }
-
-    invalidateRows(rowIndex: number, count: number) {
-        this._renderActioner.invalidateRows(rowIndex, count);
-    }
-
-    invalidateRow(rowIndex: number) {
-        this._renderActioner.invalidateRow(rowIndex);
-    }
-
-    invalidateRowColumns(rowIndex: number, columnIndex: number, columnCount: number) {
-        this._renderActioner.invalidateRowColumns(rowIndex, columnIndex, columnCount);
-    }
-
-    invalidateRowCells(rowIndex: number, columnIndexes: number[]) {
-        this._renderActioner.invalidateRowCells(rowIndex, columnIndexes);
-    }
-
-    invalidateCell(columnIndex: number, rowIndex: number) {
-        this._renderActioner.invalidateCell(columnIndex, rowIndex);
-    }
-
-    processRenderActions(actions: RenderAction[]) {
-        const count = actions.length;
-        for (let i = 0; i < count; i++) {
-            const action = actions[i];
-            switch (action.type) {
-                case RenderAction.Type.RepaintGrid: {
-                    this.repaint();
-                    break;
-                }
-                case RenderAction.Type.RecalculateView: {
-                    this.grid.behaviorShapeChanged(); // needs cleanup
-                    break;
-                }
-                default:
-                    throw new UnreachableCaseError('RPRA30816', action.type);
-            }
-        }
-    }
-
-    getCurrentFPS() {
-        return this._animator.currentFPS;
     }
 
     resetScrollAnchor() {
@@ -805,112 +696,8 @@ export class Viewport {
         }
     }
 
-    computeCellsBounds(immediate = false) {
-        if (immediate || this._documentHidden) {
-            this.internalComputeCellsBounds();
-            this._needsComputeCellsBounds = false;
-        } else {
-            this._needsComputeCellsBounds = true;
-            this.grid.repaint(); // a paint is needed to recognise needsComputeCellsBounds
-        }
-    }
-
-    /**
-     * @desc This is the entry point from fin-canvas.
-     */
-    paint() {
-        if (this._documentHidden) {
-            return false;
-        } else {
-            if (!this._destroyed) {
-                const gc = this._gc;
-                try {
-                    gc.cache.save();
-
-                    this.paintGrid(gc);
-
-
-                    if (this.grid.cellEditor) {
-                        this.grid.cellEditor.gridRenderedNotification();
-                    }
-
-                    // Grid render also calculates mix width for each column.
-                    // Check here to see if there was a change and if so immediately re-render
-                    // before end-of-thread so user sees only the results of the 2nd render.
-                    // Mostly important on first render after setData. Note that stack overflow
-                    // will not happen because this will only be called once per data change.
-                    if (this.grid.checkColumnAutosizing()) {
-                        this.paintGrid(gc);
-                    }
-
-                    this.grid.fireSyntheticGridRenderedEvent();
-
-                    const lastModelUpdateId = this._lastModelUpdateId;
-                    if (this._lastRenderedModelUpdateId !== lastModelUpdateId) {
-                        this._lastRenderedModelUpdateId = lastModelUpdateId;
-                        // do not resolve in animation frame call back
-                        setTimeout(() => this.resolveWaitModelRendered(lastModelUpdateId), 0);
-                    }
-
-                } catch (e) {
-                    console.error(e);
-                } finally {
-                    gc.cache.restore();
-                }
-            }
-
-            return true;
-        }
-    }
-
-    painting() {
-        return this._animator.animating;
-    }
-
-    requestRepaint() {
-        this._animator.dirty = true;
-    }
-
-    repaint() {
-        this.requestRepaint();
-        if (this.properties.repaintIntervalRate === 0) {
-            this.paintNow();
-        }
-    }
-
-    repaintNowOrImmediately() {
-        if (this.properties.repaintImmediately) {
-            this.paintNowIfColumnsExist();
-        } else {
-            this.repaint();
-        }
-    }
-
-    paintNowIfColumnsExist() {
-        if (this._columnsManager.columnsCreated) {
-            this.paintNow();
-        }
-    }
-
-    paintNow() {
-        this._animator.animate();
-    }
-
-    tickNotification() {
-        this.grid.tickNotification();
-    }
-
-    modelUpdated() {
-        ++this._lastModelUpdateId;
-    }
-
-    waitModelRendered(): Promise<ModelUpdateId> {
-        const lastRenderedModelUpdateId = this._lastRenderedModelUpdateId;
-        if (lastRenderedModelUpdateId === this._lastModelUpdateId) {
-            return Promise.resolve(lastRenderedModelUpdateId); // latest model already rendered
-        } else {
-            return new Promise<ModelUpdateId>((resolve) => { this._waitModelRenderedResolves.push(resolve); });
-        }
+    computeCellsBounds() {
+        this.internalComputeCellsBounds();
     }
 
     /**
@@ -922,7 +709,7 @@ export class Viewport {
 
     getVisibleScrollHeight() {
         const footerHeight = this._gridProperties.defaultRowHeight * this._subgridsManager.calculateFooterRowCount();
-        return this._canvas.height - footerHeight - this.grid.getFixedRowsHeight();
+        return this._canvasEx.height - footerHeight - this.grid.getFixedRowsHeight();
     }
 
     /**
@@ -996,30 +783,180 @@ export class Viewport {
      * @param point
      * @returns Cell coordinates
      */
-    getGridCellFromMousePoint(point: Point): ViewportCell | undefined {
-        const x = point.x;
-        const y = point.y;
-        const vrs = this.rows;
-        const vcs = this.columns;
-        const firstColumn = vcs[0];
-        const inFirstColumn = firstColumn && x < firstColumn.rightPlus1;
-        const vc = inFirstColumn ? firstColumn : vcs.find((aVc) => x < aVc.rightPlus1);
-        if (vc === undefined) {
+    findLeftGridLineInclusiveCellFromOffset(x: number, y: number): ViewportCell | undefined {
+        const column = this.findLeftGridLineInclusiveColumnFromOffset(x);
+        if (column === undefined) {
             this.grid.beCursor(undefined);
             return undefined;
         } else {
-            const vr = vrs.find((aVr) => y < aVr.bottom);
-            if (vr === undefined) {
+            const rows = this.rows;
+            const row = rows.find((aVr) => y < aVr.bottom);
+            if (row === undefined) {
                 this.grid.beCursor(undefined);
                 return undefined;
             } else {
-                const cell = this.findCell(vc.activeColumnIndex, vr.index);
+                const cell = this.findCell(column.activeColumnIndex, row.index);
                 if (cell === undefined) {
                     throw new AssertError('VGCFMP34440');
                 } else {
-                    const clonedCell = Object.create(cell);
-                    clonedCell.mousePoint = Point.create(x - vc.left, y - vr.top);
-                    return clonedCell;
+                    return cell;
+                }
+            }
+        }
+    }
+
+    findCellFromOffset(x: number, y: number): ViewportCell | undefined {
+        const column = this.findColumnFromOffset(x);
+        if (column === undefined) {
+            this.grid.beCursor(undefined);
+            return undefined;
+        } else {
+            const rows = this.rows;
+            const row = rows.find((aVr) => y < aVr.bottom);
+            if (row === undefined) {
+                this.grid.beCursor(undefined);
+                return undefined;
+            } else {
+                const cell = this.findCell(column.activeColumnIndex, row.index);
+                if (cell === undefined) {
+                    throw new AssertError('VGCFMP34440');
+                } else {
+                    return cell;
+                }
+            }
+        }
+    }
+
+    findScrollableCellClosestToOffset(x: number, y: number) {
+        const columnIndex = this.findIndexOfScrollableColumnClosestToOffset(x);
+        if (columnIndex === undefined) {
+            return undefined;
+        } else {
+            const rowIndex = this.findIndexOfScrollableRowClosestToOffset(y);
+            if (rowIndex === undefined) {
+                return undefined;
+            } else {
+                return this.findCellAt(columnIndex, rowIndex);
+            }
+        }
+    }
+
+    findLeftGridLineInclusiveColumnFromOffset(x: number) {
+        const index = this.findIndexOfLeftGridLineInclusiveColumnFromOffset(x);
+        if (index === undefined) {
+            return undefined;
+        } else {
+            return this.columns[index];
+        }
+    }
+
+    findIndexOfLeftGridLineInclusiveColumnFromOffset(x: number) {
+        const columns = this.columns;
+        const columnCount = columns.length;
+        if (x < 0 || columnCount === 0) {
+            return undefined;
+        } else {
+            for (let i = 0; i < columnCount; i++) {
+                const column = columns[i];
+                if (x < column.rightPlus1) {
+                    return i;
+                }
+            }
+            return undefined;
+        }
+    }
+
+    findColumnFromOffset(x: number) {
+        const columns = this.columns;
+        const columnCount = columns.length;
+        if (x < 0 || columnCount === 0) {
+            return undefined;
+        } else {
+            for (const column of columns) {
+                if (x < column.rightPlus1) {
+                    if (x >= column.left) {
+                        return column;
+                    } else {
+                        return undefined;
+                    }
+                }
+            }
+            return undefined;
+        }
+    }
+
+    findIndexOfScrollableColumnClosestToOffset(x: number) {
+        const columns = this.columns;
+        const columnCount = columns.length;
+        const fixedColumnCount = this._gridProperties.fixedColumnCount;
+        if (columnCount <= fixedColumnCount) {
+            return undefined;
+        } else {
+            for (let index = 0; index < columnCount; index++) {
+                const column = columns[index];
+                if (column.activeColumnIndex >= fixedColumnCount && x < column.rightPlus1) {
+                    return index;
+                }
+            }
+            return columnCount - 1; // wont be fixed as column count > fixed column count
+        }
+    }
+
+    findIndexOfScrollableRowClosestToOffset(y: number) {
+        const rows = this.rows;
+        const rowCount = rows.length;
+        const headerPlusFixedRowCount = this._subgridsManager.calculateHeaderPlusFixedRowCount();
+        if (rowCount <= headerPlusFixedRowCount) {
+            return undefined;
+        } else {
+            for (let index = 0; index < rowCount; index++) {
+                const row = rows[index];
+                if (row.index >= headerPlusFixedRowCount && y < row.bottom && row.subgrid.isMain) {
+                    return index;
+                }
+            }
+            return rowCount - 1; // wont be header or fixed as row count > header + fixed row count
+        }
+    }
+
+    createUnusedSpaceColumn(): Viewport.ViewportColumn | undefined {
+        const columns = this.columns;
+        const columnCount = columns.length;
+        if (columnCount === 0) {
+            return undefined;
+        } else {
+            if (this._gridProperties.gridRightAligned) {
+                const firstColumn = columns[0];
+                const firstColumnLeft = firstColumn.left;
+                if (firstColumn.left <= 0) {
+                    return undefined;
+                } else {
+                    const column: Viewport.ViewportColumn = {
+                        index: -1,
+                        activeColumnIndex: -1,
+                        activeColumn: this._dummyUnusedColumn,
+                        left: 0,
+                        rightPlus1: firstColumnLeft,
+                        width: firstColumnLeft,
+                    }
+                    return column;
+                }
+            } else {
+                const lastColumn = columns[columnCount - 1];
+                const lastColumnRightPlus1 = lastColumn.rightPlus1;
+                const gridRightPlus1 = this._canvasEx.bounds.width;
+                if (lastColumnRightPlus1 >= gridRightPlus1) {
+                    return undefined;
+                } else {
+                    const column: Viewport.ViewportColumn = {
+                        index: columnCount,
+                        activeColumnIndex: columnCount,
+                        activeColumn: this._dummyUnusedColumn,
+                        left: lastColumnRightPlus1,
+                        rightPlus1: gridRightPlus1,
+                        width: gridRightPlus1 - lastColumnRightPlus1,
+                    }
+                    return column;
                 }
             }
         }
@@ -1137,6 +1074,29 @@ export class Viewport {
         });
     }
 
+    limitActiveColumnIndexToViewport(activeColumnIndex: number) {
+        const firstScrollableColumnIndex = this.firstScrollableColumnIndex;
+        if (firstScrollableColumnIndex === undefined) {
+            return undefined;
+        } else {
+            const columns = this.columns;
+            const firstScrollableColumn = columns[firstScrollableColumnIndex];
+            const firstScrollableActiveColumnIndex = firstScrollableColumn.activeColumnIndex;
+            if (activeColumnIndex < firstScrollableActiveColumnIndex) {
+                activeColumnIndex = firstScrollableActiveColumnIndex;
+            }
+
+            const visibleColumnCount = columns.length;
+            const lastScrollableColumn = columns[visibleColumnCount - 1];
+            const lastScrollableActiveColumnIndex = lastScrollableColumn.activeColumnIndex;
+            if (activeColumnIndex > lastScrollableActiveColumnIndex) {
+                activeColumnIndex = lastScrollableActiveColumnIndex;
+            }
+
+            return activeColumnIndex;
+        }
+    }
+
     /**
      * @summary Get the visibility of the row matching the provided grid row index.
      * @desc Requested row may not be visible due to being outside the bounds of the rendered grid.
@@ -1179,54 +1139,26 @@ export class Viewport {
         return undefined;
     }
 
-    /**
-     * @desc This is the main forking of the renderering task.
-     *
-     * `dataModel.fetchData` callback renders the grid. Note however that this is not critical when the clock is
-     * running as it will be rendered on the next tick. We let it call it anyway in case (1) fetch returns quickly
-     * enough to be rendered on this tick rather than next or (2) clock isn't running (for debugging purposes).
-     * @param gc
-     * @this {RendererType}
-     */
-    paintGrid(gc: CanvasRenderingContext2DEx) {
-        const grid = this.grid;
-
-        grid.deferredBehaviorChange();
-
-        const rowCount = this._mainSubgrid.getRowCount();
-        if (rowCount !== this._lastKnowMainRowCount) {
-            /*var newWidth = */ // this.renderResetRowHeaderColumnWidth(gc, rowCount);
-            // if (newWidth !== this.handleColumnWidth) {
-                this._needsComputeCellsBounds = true;
-            //     this.handleColumnWidth = newWidth;
-            // }
-            this._lastKnowMainRowCount = rowCount;
-        }
-
-        if (this._needsComputeCellsBounds) {
-            this.internalComputeCellsBounds();
-            this._needsComputeCellsBounds = false;
-
-            // Pre-fetch data if supported by data model
-            if (this._mainDataModel.fetchData) {
-                const subRects = this.getSubrects();
-                if (subRects !== undefined) {
-                    this._mainDataModel.fetchData(subRects, (failure) => this.fetchCompletion(gc, failure));
-                }
-                return; // skip refresh renderGrid call below
+    limitRowIndexToViewport(rowIndex: number) {
+        const firstScrollableVisibleRowIndex = this.firstScrollableRowIndex;
+        if (firstScrollableVisibleRowIndex === undefined) {
+            return undefined;
+        } else {
+            const rows = this.rows;
+            const firstScrollableRow = rows[firstScrollableVisibleRowIndex];
+            const firstScrollableRowIndex = firstScrollableRow.index;
+            if (rowIndex < firstScrollableRowIndex) {
+                rowIndex = firstScrollableRowIndex;
             }
-        }
 
-        const lastSelectionBounds = this.calculateLastSelectionBounds();
-
-        this.gridPainter.paintCells(gc);
-        this.gridPainter.paintGridlines(gc);
-        if (lastSelectionBounds !== undefined) {
-            this.gridPainter.paintLastSelection(gc, lastSelectionBounds);
-
-            if (this.gridPainter.key === 'by-cells') {
-                this.gridPainter.reset = true; // fixes GRID-490
+            const rowCount = rows.length;
+            const lastScrollableVisibleRow = rows[rowCount - 1];
+            const lastScrollableVisibleRowIndex = lastScrollableVisibleRow.index;
+            if (rowIndex > lastScrollableVisibleRowIndex) {
+                rowIndex = lastScrollableVisibleRowIndex;
             }
+
+            return rowIndex;
         }
     }
 
@@ -1440,7 +1372,7 @@ export class Viewport {
         let insertionBoundsCursor = 0;
         let previousInsertionBoundsCursorValue = 0;
 
-        const gridProps = grid.properties;
+        const gridProps = this._gridProperties;
         // const borderBox = gridProps.boxSizing === 'border-box';
         const gridRightAligned = gridProps.gridRightAligned;
         const visibleColumnWidthAdjust = gridProps.visibleColumnWidthAdjust;
@@ -1448,41 +1380,18 @@ export class Viewport {
         const lineWidthV = gridProps.gridLinesVWidth;
         const lineGapV = lineWidthV;
 
-        const lineWidthH = gridProps.gridLinesHWidth;
-        const lineGapH = lineWidthH;
-
         const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         const lastFixedColumnIndex = fixedColumnCount - 1;
-        const fixedRowCount = this._subgridsManager.calculateHeaderPlusFixedRowCount();
 
-        let subrows: number; // rows in subgrid
-        let fixedRowIndex = -1;
         let fixedWidthV: number;
-        let fixedWidthH: number;
-        let fixedGapH: number;
-        let fixedOverlapH: number;
-        const subgrids = this._subgridsManager.subgrids;
-        let subgrid: Subgrid;
-        let rowIndex: number;
-        let isMainSubgrid: boolean;
-        let vy: number;
-        let vr: Viewport.ViewportRow;
         let vc: Viewport.ViewportColumn;
-        let height: number;
         let firstVX: number | undefined;
         let lastVX: number | undefined;
-        let firstVY: number | undefined;
-        let lastVY: number | undefined;
-        let topR: number;
 
         if (editorCellEvent) {
             xEd = editorCellEvent.gridCell.x;
             yEd = editorCellEvent.dataCell.y;
             sgEd = editorCellEvent.subgrid;
-        }
-
-        if (fixedRowCount) {
-            fixedRowIndex = fixedRowCount;
         }
 
         if (gridProps.fixedLinesVWidth === undefined) {
@@ -1491,26 +1400,15 @@ export class Viewport {
             fixedWidthV = gridProps.fixedLinesVWidth;
         }
 
-        if (gridProps.fixedLinesHWidth === undefined) {
-            fixedRowIndex = -1; // above any row
-        } else {
-            fixedWidthH = Math.max(gridProps.fixedLinesHWidth || lineWidthH, lineWidthH);
-            fixedGapH = fixedWidthH; // hangover from borderBox
-            fixedOverlapH = fixedGapH - fixedWidthH;
-        }
-
         columns.length = 0;
         columns.gap = undefined;
-
-        this.rows.length = 0;
-        this.rows.gap = undefined;
 
         this._columnsByIndex.length = 0;
         this._rowsByDataRowIndex.clear();
 
         this._insertionBounds.length = 0;
 
-        const gridBounds = this._canvas.bounds;
+        const gridBounds = this._canvasEx.bounds;
         const gridWidth = gridBounds.width; // horizontal pixel loop limit
         const gridHeight = gridBounds.height; // horizontal pixel loop limit
         const activeColumnCount = this._columnsManager.getActiveColumnCount();
@@ -1729,7 +1627,8 @@ export class Viewport {
         }
         const visibleColumnCount = columns.length;
         if (visibleColumnCount > 0) {
-            const lastVisibleColumn = columns[visibleColumnCount - 1];
+            const lastVisibleColumnIndex = visibleColumnCount - 1;
+            const lastVisibleColumn = columns[lastVisibleColumnIndex];
             const lastVisibleColumnLeft = lastVisibleColumn.left;
             const lastVisibleColumnOriginalAfterLeft = lastVisibleColumnLeft + lastVisibleColumn.width;
             if (lastVisibleColumnOriginalAfterLeft > gridWidth) {
@@ -1751,44 +1650,69 @@ export class Viewport {
                 }
                 scrollableColumnsViewWidth = lastVisibleColumnOriginalAfterLeft - nonFixedStartX;
             }
+            if (lastVisibleColumn.activeColumnIndex >= fixedColumnCount) {
+                this._lastScrollableColumnIndex = lastVisibleColumnIndex;
+            } else {
+                this._lastScrollableColumnIndex = undefined;
+            }
         } else {
             scrollableColumnsViewWidth = gridWidth - nonFixedStartX; // may include last grid line
         }
 
+        const rows = this.rows;
+        const subgrids = this._subgridsManager.subgrids;
+
+        const headerPlusFixedRowCount = this._subgridsManager.calculateHeaderPlusFixedRowCount();
         // get height of total number of rows in all subgrids following the data subgrid
         const footerHeight = gridProps.defaultRowHeight * this._subgridsManager.calculateFooterRowCount();
+        const lineWidthH = gridProps.gridLinesHWidth;
+        const lineGapH = lineWidthH;
+        const lastFixedRowIndex = headerPlusFixedRowCount - 1;
 
+        rows.length = 0;
+        rows.gap = undefined;
+
+        let height: number;
+        let subrows: number; // rows in subgrid
+        let firstVY: number | undefined;
+        let lastVY: number | undefined;
+        let fixedGapH: number;
+        let fixedOverlapH: number;
+        let subgrid: Subgrid;
+        let rowIndex: number;
+        let vy: number;
+        let vr: Viewport.ViewportRow;
+
+        if (gridProps.fixedLinesHWidth === undefined) {
+            fixedGapH = lineWidthH;
+            fixedOverlapH = 0;
+        } else {
+            const fixedWidthH = Math.max(gridProps.fixedLinesHWidth, lineWidthH);
+            fixedGapH = fixedWidthH; // hangover from borderBox
+            fixedOverlapH = fixedGapH - fixedWidthH;
+        }
+
+        let gapTop: number | undefined;
         let base = 0; // sum of rows for all subgrids so far
         let y = 0; // vertical pixel loop index and limit
         const Y = gridHeight - footerHeight; // vertical pixel loop index and limit
-        const G = subgrids.length; // subgrid loop index and limit
+        const subgridCount = subgrids.length; // subgrid loop index and limit
+        let isMainSubgrid = false;
         let r = 0; // row loop index
-        this._firstScrollableVisibleRowIndex = undefined;
-        for (let g = 0; g < G; g++, base += subrows) {
-            subgrid = subgrids[g];
+        this._firstScrollableRowIndex = undefined;
+        this._lastScrollableRowIndex = undefined;
+        for (let subgridIndex = 0; subgridIndex < subgridCount; subgridIndex++, base += subrows) {
+            subgrid = subgrids[subgridIndex];
             subrows = subgrid.getRowCount();
             isMainSubgrid = subgrid.isMain;
             isSubgridEd = (sgEd === subgrid);
-            topR = r;
+            const topR = r;
 
             // For each row of each subgrid...
             const R = r + subrows; // row loop limit
             for (; r < R && y < Y; r++) {
-                const gap = isMainSubgrid && r === fixedRowIndex;
-                let unBottomedvisibleRowsGap: Viewport.ViewportRowArray.Gap | undefined;
-                if (gap) {
-                    this.rows.gap = {
-                        top: vr.bottom + fixedOverlapH,
-                        bottom: -1, // this will be replaced below after bottom is calculated
-                    };
-                    unBottomedvisibleRowsGap = this.rows.gap;
-                    y += fixedGapH;
-                } else if (y) {
-                    y += lineGapH;
-                }
-
                 vy = r;
-                if (isMainSubgrid && r >= fixedRowCount) {
+                if (isMainSubgrid && r >= headerPlusFixedRowCount) {
                     vy += scrollTop;
                     lastVY = vy - base;
                     if (firstVY === undefined) {
@@ -1798,8 +1722,8 @@ export class Viewport {
                         break; // scrolled beyond last row
                     }
 
-                    if (this._firstScrollableVisibleRowIndex === undefined) {
-                        this._firstScrollableVisibleRowIndex = r;
+                    if (this._firstScrollableRowIndex === undefined) {
+                        this._firstScrollableRowIndex = r;
                     }
                 }
 
@@ -1815,8 +1739,12 @@ export class Viewport {
                     bottom: y + height
                 };
 
-                if (unBottomedvisibleRowsGap) {
-                    unBottomedvisibleRowsGap.bottom = vr.top;
+                if (gapTop !== undefined) {
+                    this.rows.gap = {
+                        top: gapTop,
+                        bottom: vr.top,
+                    };
+                    gapTop = undefined;
                 }
 
                 if (isMainSubgrid) {
@@ -1828,10 +1756,21 @@ export class Viewport {
                 }
 
                 y += height;
+
+                if (r === lastFixedRowIndex) {
+                    gapTop = vr.bottom + fixedOverlapH;
+                    y += fixedGapH;
+                } else {
+                    y += lineGapH;
+                }
             }
 
             if (isMainSubgrid) {
                 subrows = r - topR;
+                if (subrows > 0) {
+                    // at lease one row in main subgrid
+                    this._lastScrollableRowIndex = r - 1;
+                }
             }
         }
 
@@ -1865,13 +1804,14 @@ export class Viewport {
             pool.length = P; // grow pool to accommodate more cells
         }
         for (let p = previousLength; p < P; p++) {
-            pool[p] = new BeingPaintedCell(this.grid); // instantiate extra required - all real BeingPaintedCell (and CellEvent) objects are created here
+            pool[p] = new ViewportCell(this.grid); // instantiate extra required - all real BeingPaintedCell (and CellEvent) objects are created here
         }
+        this._cellPoolOrder = undefined;
 
         this.updateColumnsViewWidths(fixedColumnsViewWidth, scrollableColumnsViewWidth, fixedNonFixedBorderWidth);
 
-        this.resetAllGridRenderers();
-        this.grid.repaint();
+        this._valid = true;
+        this.computedEventer();
     }
 
     private updateColumnsViewWidths(fixedColumnsViewWidth: number, scrollableColumnsViewWidth: number, fixedNonFixedBorderWidth: number) {
@@ -1944,16 +1884,43 @@ export class Viewport {
         let len = this.columns.length;
         len *= this.rows.length;
         for (let p = 0; p < len; ++p) {
-            const beingPaintedCell = pool[p];
+            const cell = pool[p];
             if (
-                beingPaintedCell.subgrid === subgrid &&
-                beingPaintedCell.dataCell.x === colIndex &&
-                beingPaintedCell.dataCell.y === rowIndex
+                cell.subgrid === subgrid &&
+                cell.dataCell.x === colIndex &&
+                cell.dataCell.y === rowIndex
             ) {
-                return beingPaintedCell;
+                return cell;
             }
         }
         return undefined;
+    }
+
+    findCellAt(columnIndex: number, rowIndex: number) {
+        switch (this._cellPoolOrder) {
+            case Viewport.CellPoolOrder.ColumnRow: {
+                const poolIndex = columnIndex * this.columns.length + rowIndex;
+                return this.cellPool[poolIndex];
+            }
+            case Viewport.CellPoolOrder.RowColumn: {
+                const poolIndex = rowIndex * this.rows.length + columnIndex;
+                return this.cellPool[poolIndex];
+            }
+            case undefined: {
+                const pool = this.cellPool;
+                const cellCount = pool.length;
+                for (let p = 0; p < cellCount; p++) {
+                    const cell = pool[p];
+                    const gridCell = cell.gridCell;
+                    if (gridCell.x === columnIndex && gridCell.y === rowIndex) {
+                        return cell;
+                    }
+                }
+                throw new AssertError('VFCAC87874');
+            }
+            default:
+                throw new UnreachableCaseError('FVCAU878974', this._cellPoolOrder);
+        }
     }
 
     /**
@@ -1970,29 +1937,6 @@ export class Viewport {
         this.cellPool.forEach((cellEvent) => {
             cellEvent.clearCellOwnProperties();
         });
-    }
-
-    private handlePageVisibilityChange() {
-        this._documentHidden = document.hidden;
-    }
-
-    private resolveWaitModelRendered(lastModelUpdateId: number) {
-        if (this._waitModelRenderedResolves.length > 0) {
-            for (const resolve of this._waitModelRenderedResolves) {
-                resolve(lastModelUpdateId);
-            }
-            this._waitModelRenderedResolves.length = 0;
-        }
-    }
-
-    private fetchCompletion(gc: CanvasRenderingContext2DEx, fetchError: boolean) {
-        if (!fetchError) {
-            // STEP 1: Render the grid immediately (before next refresh) just to get column widths
-            // (for better performance this could be done off-screen but this works fine as is)
-            this.gridPainter.paintCells(gc);
-            // STEP 2: Re-render upon next refresh with proper column widths
-            this.grid.repaint();
-        }
     }
 
     /**
@@ -2044,6 +1988,13 @@ export class Viewport {
 
 export namespace Viewport {
     export type GetRowHeightEventer = (this: void, y: number, subgrid: Subgrid | undefined) => number;
+    export type CheckNeedsShapeChangedEventer = (this: void) => void;
+    export type ComputedEventer = (this: void) => void;
+
+    export const enum CellPoolOrder {
+        ColumnRow,
+        RowColumn,
+    }
 
     export interface ViewportColumn {
         /** A back reference to the element's array index in {@link Viewport#columns}. */
@@ -2122,6 +2073,4 @@ export namespace Viewport {
         contentOverflowed: boolean;
         anchorLimits: ScrollAnchorLimits;
     }
-
-    export type WaitModelRenderedResolve = (this: void, id: ModelUpdateId) => void;
 }

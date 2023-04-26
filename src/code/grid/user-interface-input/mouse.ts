@@ -1,3 +1,4 @@
+import { ViewportCell } from '../cell/viewport-cell';
 import { Point } from '../lib/point';
 
 export class Mouse {
@@ -11,6 +12,46 @@ export class Mouse {
      */
     dragExtent: Point | undefined;
 
+    /**
+     * The pixel location of the current hovered cell.
+     * @todo Need to detect hovering over bottom totals.
+     */
+    private _hoverCell: ViewportCell | undefined;
+
+    constructor(
+        private readonly _cellEnteredEventer: Mouse.CellEventer,
+        private readonly _cellExitedEventer: Mouse.CellEventer,
+    ) {
+
+    }
+
+    get hoverCell() { return this._hoverCell; }
+
+    reset() {
+        this._hoverCell = undefined;
+    }
+
+    setHoverCell(cell: ViewportCell | undefined) {
+        const existingHoverCell = this._hoverCell;
+        if (cell === undefined) {
+            if (existingHoverCell !== undefined) {
+                this._hoverCell = undefined;
+                this._cellExitedEventer(existingHoverCell);
+            }
+        } else {
+            if (existingHoverCell === undefined) {
+                this._hoverCell = cell;
+                this._cellEnteredEventer(cell);
+            } else {
+                if (!Point.isEqual(existingHoverCell.gridCell, cell.gridCell)) {
+                    this._hoverCell = undefined;
+                    this._cellExitedEventer(existingHoverCell);
+                    this._hoverCell = cell;
+                    this._cellEnteredEventer(cell);
+                }
+            }
+        }
+    }
 
     /**
      * @returns The initial mouse position on a mouse down event for cell editing or a drag operation.
@@ -58,4 +99,8 @@ export class Mouse {
     setDragExtent(point: Point) {
         this.dragExtent = point;
     }
+}
+
+export namespace Mouse {
+    export type CellEventer = (this: void, cell: ViewportCell) => void;
 }

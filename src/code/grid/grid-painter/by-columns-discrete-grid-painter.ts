@@ -1,10 +1,13 @@
-
 import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { Subgrid } from '../grid-public-api';
+import { Focus } from '../focus';
+import { GridProperties } from '../grid-properties';
+import { Renderer } from '../renderer/renderer';
 import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
+import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
+import { Mouse } from '../user-interface-input/mouse';
 import { GridPainter } from './grid-painter';
 
 /** @summary Render the grid with discrete column rects.
@@ -27,8 +30,29 @@ import { GridPainter } from './grid-painter';
  */
 
 export class ByColumnsDiscreteGridPainter extends GridPainter {
-    constructor(canvas: CanvasEx, subgridsManager: SubgridsManager, renderer: Viewport, selection: Selection) {
-        super(canvas, subgridsManager, renderer, selection, ByColumnsDiscreteGridPainter.key, false, undefined);
+    constructor(
+        gridProperties: GridProperties,
+        mouse: Mouse,
+        canvasEx: CanvasEx,
+        subgridsManager: SubgridsManager,
+        viewport: Viewport,
+        focus: Focus,
+        selection: Selection,
+        renderer: Renderer
+    ) {
+        super(
+            gridProperties,
+            mouse,
+            canvasEx,
+            subgridsManager,
+            viewport,
+            focus,
+            selection,
+            renderer,
+            ByColumnsDiscreteGridPainter.key,
+            false,
+            undefined
+        );
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
@@ -58,7 +82,7 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
         if (!C || !R) { return; }
 
         if (this.reset) {
-            this.viewport.resetAllGridRenderers(['by-columns']);
+            this.renderer.resetAllGridPainters(['by-columns']);
             this.reset = false;
             this.bundleColumns(true);
         }
