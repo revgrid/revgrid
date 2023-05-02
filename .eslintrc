@@ -18,6 +18,7 @@
           "tsconfig.esm.json",
           "./src/code/adapter-sets/record/tsconfig-rev-record.json",
           "./src/code/adapter-sets/simple/tsconfig-rev-simple.json",
+          "./src/code/standard-cell-paint/tsconfig-standard-cell-paint.json",
           "./src/code/grid/tsconfig-grid.json",
           "./src/code/grid/effects/tsconfig-effects.json",
           "./src/code/grid/finbar/tsconfig-finbar.json",

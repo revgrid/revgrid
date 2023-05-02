@@ -1,19 +1,21 @@
-import { GridProperties } from '../grid-properties';
-import { Localization } from '../lib/localization';
-import { WritablePoint } from '../lib/point';
-import { RectangleInterface } from '../lib/rectangle-interface';
-import { Halign, TextTruncateType } from '../lib/types';
-import { DataModel } from '../model/data-model';
+import {
+    DataModel,
+    GridProperties,
+    Halign,
+    IndexSignatureHack,
+    RectangleInterface,
+    TextTruncateType,
+    WritablePoint,
+} from '../../grid/grid-public-api';
 
 /** @public */
-export interface CellPaintConfig {
+export interface SimpleCellPaintConfig {
     // not overrides also set by grid painters/renderer
     dataCell: WritablePoint;
     gridCell: WritablePoint;
     allRowsSelected: boolean;
     bounds: RectangleInterface;
     dataRow: DataModel.DataRow;
-    formatValue: Localization.FormatFunction;
     isCellHovered: boolean;
     isCellSelected: boolean;
     isColumnHovered: boolean;
@@ -28,7 +30,7 @@ export interface CellPaintConfig {
     isSelected: boolean;
     isUserDataArea: boolean;
     prefillColor: GridProperties.Color | undefined;
-    snapshot: Record<string, unknown> | undefined;
+    snapshot: SimpleCellPaintConfig.Snapshot | undefined;
     value: unknown;
 
     // grid overrides
@@ -59,4 +61,17 @@ export interface CellPaintConfig {
     readonly link: false | string | GridProperties.LinkProp | GridProperties.LinkFunction;
     readonly backgroundColor: GridProperties.Color;
     readonly halign: Halign;
+}
+
+/** @public */
+export namespace SimpleCellPaintConfig {
+    export interface SnapshotInterface {
+        readonly value: string;
+        readonly textColor: string;
+        readonly textFont: string;
+        readonly foundationColor: boolean;
+        readonly colors: string[];
+    }
+
+    export type Snapshot = IndexSignatureHack<SnapshotInterface>;
 }

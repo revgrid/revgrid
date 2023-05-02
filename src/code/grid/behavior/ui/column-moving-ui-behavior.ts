@@ -80,7 +80,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             ) {
                 this.sharedState.columnMovingDragArmed = true;
                 this.cursor = ColumnMovingUiBehavior.GRABBING;
-                this.selection.requestStashSelection();
+                this.reindexStashManager.stash();
                 this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
             }
             return super.handleMouseDown(event, cell);
@@ -93,7 +93,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
 
             this.endGridScrolling();
             this.endDragColumn(dragAction);
-            this.selection.requestUnstashSelection();
+            this.reindexStashManager.unstash();
             this.cursor = undefined;
             // End Column Drag
             setTimeout(() => {

@@ -2,7 +2,6 @@
   "extends": "../../../tsconfig.esm.json",
 
   "compilerOptions": {
-    "strictNullChecks": true,
     "composite": true,
     "tsBuildInfoFile": "../../../tsbuildinfo/grid.tsbuildinfo"
   },
@@ -17,6 +16,7 @@
     "data-extract.ts",
     "adapter-set-config.ts",
     "focus.ts",
+    "reindex-stash-manager.ts",
     "revgrid.ts",
     "behavior/**/*.ts",
     "canvas/**/*.ts",

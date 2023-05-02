@@ -1,4 +1,4 @@
-import { Column, DataModel, SchemaModel } from '../dist/types/public-api';
+import { ColumnInterface, DataModel, SchemaModel } from '../dist/types/public-api';
 import { MainRecord } from './main-record';
 import { SchemaAdapter } from './schema-adapter';
 
@@ -42,7 +42,7 @@ export class MainDataAdapter implements DataModel {
         return this._data[rowIndex].id;
     }
 
-    sort(column: Column) {
+    sort(column: ColumnInterface) {
         this._callbackListener.preReindex();
         try {
             const schemaColumn = column.schemaColumn as SchemaAdapter.Column;

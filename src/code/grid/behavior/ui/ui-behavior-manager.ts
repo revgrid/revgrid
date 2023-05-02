@@ -4,6 +4,7 @@ import { ColumnsManager } from '../../column/columns-manager';
 import { EventDetail } from '../../event/event-detail';
 import { Focus } from '../../focus';
 import { GridProperties } from '../../grid-properties';
+import { ReindexStashManager } from '../../reindex-stash-manager';
 import { Renderer } from '../../renderer/renderer';
 import { Viewport } from '../../renderer/viewport';
 import { Revgrid } from '../../revgrid';
@@ -12,9 +13,10 @@ import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { Mouse } from '../../user-interface-input/mouse';
 import { CellPropertiesBehavior } from '../cell-properties-behavior';
 import { EventBehavior } from '../event-behavior';
-import { FocusSelectionBehavior } from '../focus-selection-behavior';
+import { FocusBehavior } from '../focus-behavior';
 import { RowPropertiesBehavior } from '../row-properties-behavior';
 import { ScrollBehavior } from '../scroll-behaviour';
+import { SelectionBehavior } from '../selection-behavior';
 import { UserInterfaceInputBehavior } from '../user-interface-input-behavior';
 import { UiBehavior } from './ui-behavior';
 import { UiBehaviorFactory } from './ui-behavior-factory';
@@ -41,9 +43,11 @@ export class UiBehaviorManager {
         subgridsManager: SubgridsManager,
         viewport: Viewport,
         renderer: Renderer,
-        focusSelectionBehavior: FocusSelectionBehavior,
-        userInterfaceInputBehavior: UserInterfaceInputBehavior,
+        reindexStashManager: ReindexStashManager,
         scrollBehavior: ScrollBehavior,
+        focusBehavior: FocusBehavior,
+        selectionBehavior: SelectionBehavior,
+        userInterfaceInputBehavior: UserInterfaceInputBehavior,
         rowPropertiesBehavior: RowPropertiesBehavior,
         cellPropertiesBehavior: CellPropertiesBehavior,
         private readonly _eventBehavior: EventBehavior,
@@ -61,9 +65,11 @@ export class UiBehaviorManager {
             viewport,
             renderer,
             gridProperties,
-            focusSelectionBehavior,
-            userInterfaceInputBehavior,
+            reindexStashManager,
             scrollBehavior,
+            focusBehavior,
+            selectionBehavior,
+            userInterfaceInputBehavior,
             rowPropertiesBehavior,
             cellPropertiesBehavior,
             this._eventBehavior,
@@ -71,6 +77,8 @@ export class UiBehaviorManager {
 
         this.load();
 
+        this._eventBehavior.uiKeyDownEventer = (event) => this.handleKeyDownEvent(event);
+        this._eventBehavior.uiKeyUpEventer = (event) => this.handleKeyUpEvent(event);
         this._eventBehavior.uiMouseClickEventer = (event) => this.handleClickEvent(event);
         this._eventBehavior.uiMouseDblClickEventer = (event) => this.handleDoubleClickEvent(event);
         this._eventBehavior.uiMouseDownEventer = (event) => this.handleMouseDownEvent(event);
@@ -81,6 +89,10 @@ export class UiBehaviorManager {
         this._eventBehavior.uiMouseExitedCellEventer = (event) => this.handleMouseExitedCellEvent(event);
         this._eventBehavior.uiWheelMoveEventer = (event) => this.handleWheelMovedEvent(event);
         this._eventBehavior.uiContextMenuEventer = (event) => this.handleContextMenuEvent(event);
+        this._eventBehavior.uiTouchStartEventer = (event) => this.handleTouchStartEvent(event);
+        this._eventBehavior.uiTouchMoveEventer = (event) => this.handleTouchMoveEvent(event);
+        this._eventBehavior.uiTouchEndEventer = (event) => this.handleTouchEndEvent(event);
+        this._eventBehavior.uiCopyEventer = (event) => this.handleCopyEvent(event);
     }
 
     load() {
@@ -150,6 +162,30 @@ export class UiBehaviorManager {
     setCursor() {
         this.grid.updateCursor();
         this._firstUiBehavior.setCursor();
+    }
+
+    /**
+     * @desc delegate handling key down to the feature chain of responsibility
+     * @param event - the event details
+     * @internal
+     */
+    private handleKeyDownEvent(eventDetail: EventDetail.Keyboard) {
+        if (this._enabled) {
+            this._firstUiBehavior.handleKeyDown(eventDetail);
+            this.setCursor();
+        }
+    }
+
+    /**
+     * @desc delegate handling key up to the feature chain of responsibility
+     * @param event - the event details
+     * @internal
+     */
+    private handleKeyUpEvent(eventDetail: EventDetail.Keyboard) {
+        if (this._enabled) {
+            this._firstUiBehavior.handleKeyUp(eventDetail);
+            this.setCursor();
+        }
     }
 
     /**
@@ -241,30 +277,6 @@ export class UiBehaviorManager {
     }
 
     /**
-     * @desc delegate handling key down to the feature chain of responsibility
-     * @param event - the event details
-     * @internal
-     */
-    onKeyDown(eventDetail: EventDetail.Keyboard) {
-        if (this._enabled) {
-            this._firstUiBehavior.handleKeyDown(eventDetail);
-            this.setCursor();
-        }
-    }
-
-    /**
-     * @desc delegate handling key up to the feature chain of responsibility
-     * @param event - the event details
-     * @internal
-     */
-    onKeyUp(eventDetail: EventDetail.Keyboard) {
-        if (this._enabled) {
-            this._firstUiBehavior.handleKeyUp(eventDetail);
-            this.setCursor();
-        }
-    }
-
-    /**
      * @desc delegate handling double click to the feature chain of responsibility
      * @param event - the event details
      * @internal
@@ -325,7 +337,7 @@ export class UiBehaviorManager {
      * @desc Delegate handling touchstart to the feature chain of responsibility.
      * @internal
      */
-    onTouchStart(eventDetail: EventDetail.Touch) {
+    private handleTouchStartEvent(eventDetail: TouchEvent) {
         if (this._enabled) {
             this._firstUiBehavior.handleTouchStart(eventDetail);
         }
@@ -335,7 +347,7 @@ export class UiBehaviorManager {
      * @desc Delegate handling touchmove to the feature chain of responsibility.
      * @internal
      */
-    onTouchMove(eventDetail: EventDetail.Touch) {
+    private handleTouchMoveEvent(eventDetail: TouchEvent) {
         if (this._enabled) {
             this._firstUiBehavior.handleTouchMove(eventDetail);
         }
@@ -345,9 +357,19 @@ export class UiBehaviorManager {
      * @desc Delegate handling touchend to the feature chain of responsibility.
      * @internal
      */
-    onTouchEnd(eventDetail: EventDetail.Touch) {
+    private handleTouchEndEvent(eventDetail: TouchEvent) {
         if (this._enabled) {
             this._firstUiBehavior.handleTouchEnd(eventDetail);
+        }
+    }
+
+    /**
+     * @desc Delegate handling touchend to the feature chain of responsibility.
+     * @internal
+     */
+    private handleCopyEvent(eventDetail: ClipboardEvent) {
+        if (this._enabled) {
+            this._firstUiBehavior.handleCopy(eventDetail);
         }
     }
 }

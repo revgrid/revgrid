@@ -1,4 +1,5 @@
 import { ViewportCell } from '../../cell/viewport-cell';
+import { SubgridInterface } from '../../common/subgrid-interface';
 import { EventDetail } from '../../event/event-detail';
 import { isSecondaryMouseButton } from '../../lib/html-types';
 import { Point } from '../../lib/point';
@@ -11,7 +12,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
 
     readonly typeName = RowSelectionUiBehavior.typeName;
 
-    private _extendSelectOrigin: Point | undefined;
+    private _extendSelectOrigin: RowSelectionUiBehavior.ExtendSelectOrigin | undefined;
 
     /**
      * a millisecond value representing the previous time an autoscroll started
@@ -75,7 +76,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
             } else {
                 if (cell.isHeaderRow) {
                     //global row selection
-                    this.focusSelectionBehavior.selectAllRows();
+                    this.selectionBehavior.selectAllRows();
                     return cell;
                 } else {
                     if (!subgrid.isMain) {
@@ -83,20 +84,27 @@ export class RowSelectionUiBehavior extends UiBehavior {
                     } else {
                         // if we are in the fixed area, do not apply the scroll values
                         this._dragArmed = true;
-                        const mouseCell = cell.gridCell;
+                        const subgridRowIndex = cell.visibleRow.subgridRowIndex;
+                        const focusPoint = this.focus.current;
+                        const cellActiveColumnIndex = focusPoint === undefined ? 0 : focusPoint.x;
 
-                        const focusSelectionBehavior = this.focusSelectionBehavior;
-                        if (event.shiftKey) {
-                            const extendSelectOrigin = this._extendSelectOrigin;
-                            if (extendSelectOrigin !== undefined) {
-                                focusSelectionBehavior.replaceLastAreaWithRows(extendSelectOrigin.x, extendSelectOrigin.y, mouseCell.x, mouseCell.y);
-                            } else {
-                                focusSelectionBehavior.focusSelectRows(mouseCell.x, mouseCell.x, undefined, undefined);
-                                this._extendSelectOrigin = Point.copy(mouseCell);
-                            }
+                        const focusSelectionBehavior = this.selectionBehavior;
+                        const extendSelectOrigin = this._extendSelectOrigin;
+                        if (event.shiftKey && extendSelectOrigin !== undefined) {
+                            const originX = extendSelectOrigin.point.x;
+                            const originY = extendSelectOrigin.point.y;
+                            const width = cellActiveColumnIndex - originX;
+                            const height = subgridRowIndex - originY;
+                            focusSelectionBehavior.replaceLastAreaWithRows(originX, originY, width, height, extendSelectOrigin.subgrid);
                         } else {
-                            focusSelectionBehavior.focusSelectRows(mouseCell.x, mouseCell.x, undefined, undefined);
-                            this._extendSelectOrigin = Point.copy(mouseCell);
+                            focusSelectionBehavior.selectOnlyRow(subgridRowIndex, subgrid);
+                            this._extendSelectOrigin = {
+                                subgrid,
+                                point: {
+                                    x: cellActiveColumnIndex,
+                                    y: subgridRowIndex,
+                                }
+                            };
                         }
                         return cell;
                     }
@@ -124,7 +132,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
                     cell = this.tryGetViewportCellFromMouseEvent(event);
                 }
                 if (cell !== null) {
-                    this.updateLastSelectionArea(cell.gridCell);
+                    this.updateLastSelectionArea(cell);
                 }
                 return cell;
             }
@@ -151,18 +159,25 @@ export class RowSelectionUiBehavior extends UiBehavior {
     /**
      * @desc Handle a mousedrag selection
      */
-    updateLastSelectionArea(lastCellPoint: Point) {
+    updateLastSelectionArea(cell: ViewportCell) {
         const extendSelectOrigin = this._extendSelectOrigin;
         if (extendSelectOrigin === undefined) {
             throw new AssertError('RSFHMDCS54455');
         } else {
-            const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellPoint.x, extendSelectOrigin.x);
-            const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellPoint.y, extendSelectOrigin.y);
-            const focusSelectionBehavior = this.focusSelectionBehavior;
-            focusSelectionBehavior.replaceLastAreaWithRows(
-                xExclusiveStartLength.start, yExclusiveStartLength.start,
-                xExclusiveStartLength.length, yExclusiveStartLength.length,
-            );
+            const subgrid = cell.subgrid;
+            if (subgrid === extendSelectOrigin.subgrid) {
+                const lastCellX = cell.visibleColumn.activeColumnIndex;
+                const lastCellY = cell.visibleRow.subgridRowIndex;
+
+                const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellX, extendSelectOrigin.point.x);
+                const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellY, extendSelectOrigin.point.y);
+                const focusSelectionBehavior = this.selectionBehavior;
+                focusSelectionBehavior.replaceLastAreaWithRows(
+                    xExclusiveStartLength.start, yExclusiveStartLength.start,
+                    xExclusiveStartLength.length, yExclusiveStartLength.length,
+                    subgrid,
+                );
+                }
         }
     }
 
@@ -187,7 +202,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
 
                 const cell = this.viewport.findScrollableCellClosestToOffset(canvasOffsetX, canvasOffsetY);
                 if (cell !== undefined) {
-                    this.updateLastSelectionArea(cell.gridCell); // update the selection
+                    this.updateLastSelectionArea(cell); // update the selection
                 }
                 return true;
             }
@@ -233,7 +248,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
         //     throw new AssertError('RSHR60334');
         // } else {
         //     const mouseCorner = Point.plus(mouseDown, extent);
-        //     const maxColumns = this.columnsManager.getActiveColumnCount() - 1;
+        //     const maxColumns = this.columnsManager.activeColumnCount - 1;
         //     let newX = this.viewport.firstScrollableActiveColumnIndex;
         //     const newY = mouseCorner.y;
 
@@ -298,17 +313,10 @@ export class RowSelectionUiBehavior extends UiBehavior {
      * @param offsetY - y coordinate to start at
      */
     private moveShiftSelect() {
-        const focusPoint = this.focus.point;
-        if (focusPoint === undefined) {
-            throw new AssertError('CSFMSS34440');
-        } else {
-            if (this._extendSelectOrigin === undefined) {
-                if (this.focus.previousPoint !== undefined) {
-                    this._extendSelectOrigin = Point.copy(this.focus.previousPoint);
-                } else {
-                    this._extendSelectOrigin = Point.copy(focusPoint);
-                }
-            }
+        const focusPoint = this.focus.current;
+        if (focusPoint !== undefined) {
+            const activeColumnIndex = focusPoint.x;
+            const subgridRowIndex = focusPoint.y;
 
             let newX: number | undefined = focusPoint.x;
             let newY: number | undefined = focusPoint.y;
@@ -319,8 +327,8 @@ export class RowSelectionUiBehavior extends UiBehavior {
             }
 
             if (newX !== undefined && newY !== undefined) {
-                const focusSelectionBehavior = this.focusSelectionBehavior;
-                focusSelectionBehavior.replaceLastAreaWithRows(this._extendSelectOrigin.x, this._extendSelectOrigin.y, newX, newY);
+                const focusSelectionBehavior = this.selectionBehavior;
+                focusSelectionBehavior.replaceLastAreaWithRows(activeColumnIndex, subgridRowIndex, newX, newY, this.focus.subgrid);
 
                 if (this.scrollBehavior.ensureRowIsMaximallyVisible(newX)) {
                     this.pingAutoScroll();
@@ -426,4 +434,9 @@ export class RowSelectionUiBehavior extends UiBehavior {
 
 export namespace RowSelectionUiBehavior {
     export const typeName = 'rowselection';
+
+    export interface ExtendSelectOrigin {
+        readonly subgrid: SubgridInterface;
+        readonly point: Point;
+    }
 }

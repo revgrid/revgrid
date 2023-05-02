@@ -1,5 +1,5 @@
 export { RevRecord, RevRecordData } from './rev-record';
-export { RevRecordCellAdapter } from './rev-record-cell-adapter';
+export { RevRecordMainCellAdapter } from './rev-record-main-cell-adapter';
 export { RevRecordCellPaintConfig } from './rev-record-cell-paint-config';
 export * from './rev-record-error';
 export { RevRecordField } from './rev-record-field';

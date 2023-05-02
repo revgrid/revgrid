@@ -1,14 +1,17 @@
 
-import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { CellPaintConfig } from '../renderer/cell-paint-config';
-import { CellPainter } from './cell-painter';
+import { CanvasRenderingContext2DEx, CellPainter, RectangleInterface } from '../grid/grid-public-api';
 
 /**
  * The default cell rendering function for a button cell.
+ * @public
  */
 export class ButtonCellPainter implements CellPainter {
-    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
-        const val = config.value as string;
+    config: ButtonCellPainter.Config;
+
+    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
+        const config = this.config;
+
+        const val = config.value;
         const bounds = config.bounds;
         const x = bounds.x + 1;
         const y = bounds.y + 1;
@@ -41,13 +44,22 @@ export class ButtonCellPainter implements CellPainter {
         gc.cache.textBaseline = 'middle';
         gc.cache.fillStyle = '#333333';
         gc.cache.font = height - 2 + 'px sans-serif';
-        config.backgroundColor = 'rgba(0,0,0,0)'; // Not sure about this
         gc.fillText(val, x + ox, y + oy);
 
-        return undefined;
+        return {
+            width: undefined,
+            snapshot: undefined,
+        };
     }
 }
 
+/** @public */
 export namespace ButtonCellPainter {
     export const typeName = 'Button';
+
+    export interface Config {
+        value: string;
+        bounds: RectangleInterface;
+        backgroundColor: string;
+    }
 }

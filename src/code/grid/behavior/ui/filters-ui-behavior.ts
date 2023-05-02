@@ -22,19 +22,19 @@ export class FiltersUiBehavior extends UiBehavior {
      *    * `'RIGHT'` - Opens filter cell editor in next filterable column; if nonesuch, selects first visible data cell under filter cell.
      */
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        let handled = false;
+        const handled = false;
 
-        if (eventDetail.editor !== undefined) {
-            const cellEvent = eventDetail.editor.viewportCell;
-            if (cellEvent.isFilterCell) {
-                const navKey = this.grid.generateNavKey(eventDetail.primitiveEvent);
-                const handler = this[('handle' + navKey) as keyof FiltersUiBehavior] as ((CellEvent: CellEvent) => void);
-                if (handler !== undefined) {
-                    handler.call(this, cellEvent);
-                    handled = true;
-                }
-            }
-        }
+        // if (eventDetail.editor !== undefined) {
+        //     const cellEvent = eventDetail.editor.viewportCell;
+        //     if (cellEvent.isFilterCell) {
+        //         const navKey = this.grid.generateNavKey(eventDetail.primitiveEvent);
+        //         const handler = this[('handle' + navKey) as keyof FiltersUiBehavior] as ((CellEvent: CellEvent) => void);
+        //         if (handler !== undefined) {
+        //             handler.call(this, cellEvent);
+        //             handled = true;
+        //         }
+        //     }
+        // }
 
         if (!handled) {
             if (this.next) {
@@ -108,7 +108,7 @@ export class FiltersUiBehavior extends UiBehavior {
 
         // Select first visible grid cell of this column
         const grid = this.grid;
-        this.focusSelectionBehavior.focusSelectOnlyViewportCell(gridX, this.subgridsManager.calculateHeaderRowCount(), SelectionArea.TypeSpecifier.Primary);
+        this.selectionBehavior.selectOnlyViewportCell(gridX, this.subgridsManager.calculateHeaderRowCount(), SelectionArea.TypeSpecifier.Primary);
         grid.takeFocus();
     }
 

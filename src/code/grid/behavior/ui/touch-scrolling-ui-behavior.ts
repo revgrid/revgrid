@@ -1,6 +1,5 @@
 
 import { ViewportCell } from '../../cell/viewport-cell';
-import { EventDetail } from '../../event/event-detail';
 import { FinBar } from '../../finbar/finbar-api';
 import { UiBehavior } from './ui-behavior';
 
@@ -11,7 +10,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
     private _stepTimeoutHandle: ReturnType<typeof setTimeout>;
     private touches: TouchScrollingUiBehavior.TouchedBounds[];
 
-    override handleTouchStart(eventDetail: EventDetail.Touch) {
+    override handleTouchStart(eventDetail: TouchEvent) {
         this.stopDeceleration();
         const currentTouch = this.getTouchedBounds(eventDetail);
         if (currentTouch === undefined) {
@@ -29,7 +28,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
         return cell;
     }
 
-    override handleTouchMove(eventDetail: EventDetail.Touch) {
+    override handleTouchMove(eventDetail: TouchEvent) {
         const currentTouch = this.getTouchedBounds(eventDetail);
         const touchCount = this.touches.length;
         if (currentTouch !== undefined && touchCount > 0) {
@@ -38,8 +37,8 @@ export class TouchScrollingUiBehavior extends UiBehavior {
             const xOffset = (lastTouch.x - currentTouch.x) / lastTouch.width;
             const yOffset = (lastTouch.y - currentTouch.y) / lastTouch.height;
 
-            this.scrollBehavior.scrollHorizontal(xOffset);
-            this.scrollBehavior.scrollVerticalIndex(yOffset);
+            this.scrollBehavior.scrollHorizontalBy(xOffset);
+            this.scrollBehavior.scrollVerticalIndexBy(yOffset);
 
             if (touchCount >= TouchScrollingUiBehavior.MAX_TOUCHES) {
                 this.touches.shift();
@@ -49,7 +48,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleTouchEnd(eventDetail: EventDetail.Touch) {
+    override handleTouchEnd(eventDetail: TouchEvent) {
         const currentTouch = this.getTouchedBounds(eventDetail);
         const touchCount = this.touches.length;
         if (currentTouch !== undefined && touchCount > 0) {
@@ -67,9 +66,10 @@ export class TouchScrollingUiBehavior extends UiBehavior {
         }
     }
 
-    private getTouchedBounds(eventDetail: EventDetail.Touch) {
-        const point = eventDetail.touches[0];
-        const cell = this.viewport.findLeftGridLineInclusiveCellFromOffset(point.x, point.y);
+    private getTouchedBounds(eventDetail: TouchEvent) {
+        const firstTouch = eventDetail.touches[0];
+        const canvasFirstTouchOffsetPoint = this.canvasEx.getOffsetPoint(firstTouch);
+        const cell = this.viewport.findLeftGridLineInclusiveCellFromOffset(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
         if (cell === undefined) {
             return undefined;
         } else {

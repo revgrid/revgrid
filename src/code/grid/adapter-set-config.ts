@@ -15,7 +15,7 @@ export interface AdapterSetConfig {
 export interface SubgridDefinition {
     role?: SubgridInterface.Role, // defaults to main
     dataModel: DataModel | DataModel.Constructor,
+    cellModel: CellModel | CellModel.Constructor,
     metaModel?: MetaModel | MetaModel.Constructor,
-    cellModel?: CellModel | CellModel.Constructor,
     selectable?: boolean,
 }

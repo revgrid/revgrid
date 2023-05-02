@@ -63,3 +63,6 @@ export interface ColumnNameWidth {
     name: string;
     width: number | undefined;
 }
+
+/** @private */
+export type IndexSignatureHack<T> = { [K in keyof T]: IndexSignatureHack<T[K]> };

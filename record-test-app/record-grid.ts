@@ -15,8 +15,7 @@ import {
     RevRecordIndex,
     RevRecordMainAdapter,
     RevRecordStore,
-    SelectionDetail,
-    Subgrid,
+    SubgridInterface,
     UnreachableCaseError
 } from "..";
 import {
@@ -72,11 +71,12 @@ export class RecordGrid extends Revgrid {
             schemaModel: fieldAdapter,
             subgrids: [
                 {
-                    role: Subgrid.RoleEnum.header,
+                    role: SubgridInterface.RoleEnum.header,
                     dataModel: headerRecordAdapter,
+                    cellModel: header
                 },
                 {
-                    role: Subgrid.RoleEnum.main,
+                    role: SubgridInterface.RoleEnum.main,
                     dataModel: mainRecordAdapter,
                     cellModel: recordCellAdapter,
                 }
@@ -107,7 +107,7 @@ export class RecordGrid extends Revgrid {
     get sortable(): boolean { return this.properties.sortable; }
     set sortable(value: boolean) { this.properties.sortable = value; }
 
-    get columnCount(): number { return this.getActiveColumnCount(); }
+    get columnCount(): number { return this.activeColumnCount; }
 
     get continuousFiltering(): boolean { return this._mainRecordAdapter.continuousFiltering; }
     set continuousFiltering(value: boolean) { this._mainRecordAdapter.continuousFiltering = value}

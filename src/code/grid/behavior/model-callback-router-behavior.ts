@@ -1,6 +1,8 @@
 import { ColumnsManager } from '../column/columns-manager';
+import { Focus } from '../focus';
 import { DataModel } from '../model/data-model';
 import { ModelCallbackRouter } from '../model/model-callback-router';
+import { ReindexStashManager } from '../reindex-stash-manager';
 import { Renderer } from '../renderer/renderer';
 import { Selection } from '../selection/selection';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
@@ -12,8 +14,10 @@ export class ModelCallbackRouterBehavior {
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
         private readonly _renderer: Renderer,
+        private readonly _focus: Focus,
         private readonly _selection: Selection,
         private readonly _router: ModelCallbackRouter,
+        private readonly _reindexStashManager: ReindexStashManager,
         private readonly _behaviorShapeChangedEventer: ModelCallbackRouterBehavior.BehaviorShapeChangedEventer,
     ) {
         const router = this._router;
@@ -48,6 +52,7 @@ export class ModelCallbackRouterBehavior {
                     // In the future, should consolidate into activeIndex ranges instead of doing individually
                     const activeIndex = this._columnsManager.getActiveColumnIndexByAllIndex(i);
                     if (activeIndex >= 0) {
+                        this._focus.adjustForColumnsDeleted(activeIndex, 1);
                         this._selection.adjustForColumnsDeleted(activeIndex, 1);
                         this._renderer.renderColumnsDeleted(activeIndex, 1);
                     }
@@ -64,6 +69,7 @@ export class ModelCallbackRouterBehavior {
             try {
                 this._renderer.modelUpdated();
                 this._columnsManager.allSchemaColumnsDeleted();
+                this._focus.clear();
                 this._selection.clear();
                 this._renderer.renderAllColumnsDeleted();
             } finally {
@@ -78,6 +84,7 @@ export class ModelCallbackRouterBehavior {
             try {
                 this._renderer.modelUpdated();
                 this._columnsManager.schemaColumnsChanged();
+                this._focus.clear();
                 this._selection.clear();
                 this._renderer.renderColumnsChanged();
             } finally {
@@ -95,9 +102,8 @@ export class ModelCallbackRouterBehavior {
             this.beginDataChange();
             try {
                 this._renderer.modelUpdated();
-                if (dataModel === this._mainDataModel) {
-                    this._selection.adjustForRowsInserted(index, count);
-                }
+                this._focus.adjustForRowsInserted(index, count, dataModel);
+                this._selection.adjustForRowsInserted(index, count, dataModel);
                 this._renderer.renderRowsInserted(index, count);
             } finally {
                 this.endDataChange();
@@ -110,9 +116,8 @@ export class ModelCallbackRouterBehavior {
             this.beginDataChange();
             try {
                 this._renderer.modelUpdated();
-                if (dataModel === this._mainDataModel) {
-                    this._selection.adjustForRowsDeleted(index, count);
-                }
+                this._focus.adjustForRowsDeleted(index, count, dataModel);
+                this._selection.adjustForRowsDeleted(index, count, dataModel);
                 this._renderer.renderRowsDeleted(index, count);
             } finally {
                 this.endDataChange();
@@ -126,6 +131,7 @@ export class ModelCallbackRouterBehavior {
             try {
                 this._renderer.modelUpdated();
                 if (dataModel === this._mainDataModel) {
+                    this._focus.clear();
                     this._selection.clear();
                 }
                 this._renderer.renderAllRowsDeleted();
@@ -140,9 +146,8 @@ export class ModelCallbackRouterBehavior {
             this.beginDataChange();
             try {
                 this._renderer.modelUpdated();
-                if (dataModel === this._mainDataModel) {
-                    this._selection.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount);
-                }
+                this._focus.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount, dataModel);
+                this._selection.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount, dataModel);
                 this._renderer.renderRowsMoved(oldRowIndex, newRowIndex, rowCount);
             } finally {
                 this.endDataChange();
@@ -156,6 +161,7 @@ export class ModelCallbackRouterBehavior {
             try {
                 this._renderer.modelUpdated();
                 if (dataModel === this._mainDataModel) {
+                    this._focus.clear();
                     this._selection.clear();
                 }
                 this._renderer.renderRowsLoaded();
@@ -246,14 +252,14 @@ export class ModelCallbackRouterBehavior {
         }
 
         router.preReindexEvent = () => {
-            this._selection.requestStashSelection();
+            this._reindexStashManager.stash();
             this._renderer.modelUpdated();
 
             // this.tryNotifyUndefinedDetailedModelEvent('rev-data-prereindex');
         }
 
         router.postReindexEvent = () => {
-            this._selection.requestUnstashSelection();
+            this._reindexStashManager.unstash();
             this._behaviorShapeChangedEventer();
             this._renderer.modelUpdated();
 

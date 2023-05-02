@@ -6,7 +6,6 @@ import { GridProperties } from '../grid-properties';
 import { Renderer } from '../renderer/renderer';
 import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
-import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { Mouse } from '../user-interface-input/mouse';
 import { GridPainter } from './grid-painter';
@@ -113,8 +112,6 @@ export class ByRowsGridPainter extends GridPainter {
 
             const visibleRow = visibleRows[r];
 
-            const subgrid = visibleRow.subgrid as Subgrid;
-
             if (drawLines) {
                 gc.cache.fillStyle = lineColor;
                 gc.fillRect(firstVisibleColumnLeft, visibleRow.bottom, viewWidth, lineWidth);
@@ -123,17 +120,15 @@ export class ByRowsGridPainter extends GridPainter {
             // For each column (of each row)...
             visibleColumns.forEach((vc, c) => {  // eslint-disable-line no-loop-func
                 p++;
-                const beingPaintedCell = pool[p]; // next cell across the row (redundant for first cell in row)
-                vc = beingPaintedCell.visibleColumn;
+                const viewportCell = pool[p]; // next cell across the row (redundant for first cell in row)
+                vc = viewportCell.visibleColumn;
 
                 // Optionally clip to visible portion of column to prevent text from overflowing to right.
-                const columnClip = vc.activeColumn.properties.columnClip;
+                const columnClip = vc.column.properties.columnClip;
                 gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
-                const config = subgrid.getCellPaintConfig(beingPaintedCell);
-
                 try {
-                    const paintWidth = this.paintCell(gc, subgrid, beingPaintedCell, config, prefillColor);
+                    const paintWidth = this.paintCell(gc, viewportCell, prefillColor);
                     if (paintWidth !== undefined) {
                         const previousColumnPreferredWidth = preferredWidths[c];
                         if (previousColumnPreferredWidth === undefined) {
@@ -155,7 +150,7 @@ export class ByRowsGridPainter extends GridPainter {
         this.viewportColumns.forEach((vc, c) => {
             const preferredWidth = preferredWidths[c];
             if (preferredWidth !== undefined) {
-                vc.activeColumn.properties.preferredWidth = Math.round(preferredWidth);
+                vc.column.properties.preferredWidth = Math.round(preferredWidth);
             }
         });
     }

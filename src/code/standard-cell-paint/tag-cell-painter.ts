@@ -1,11 +1,10 @@
 
-import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { CellPaintConfig } from '../renderer/cell-paint-config';
-import { CellPainter } from './cell-painter';
+import { CanvasRenderingContext2DEx, CellPainter } from '../grid/grid-public-api';
 
+/** @public */
 export class TagCellPainter implements CellPainter {
 
-    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+    paint(_gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {
         //     const tagband = tagbands.find((tagband) => {
@@ -28,10 +27,14 @@ export class TagCellPainter implements CellPainter {
         //         gc.fill();
         //     }
         // }
-        return undefined;
+        return {
+            width: undefined,
+            snapshot: undefined,
+        };
     }
 }
 
+/** @public */
 export namespace TagCellPainter {
     export const typeName = 'Tag';
 

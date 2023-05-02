@@ -31,7 +31,8 @@ export class CellEditingUiBehavior extends UiBehavior {
         if (cellEvent === undefined) {
             super.handleKeyDown(eventDetail);
         } else {
-            const keyboardEvent = eventDetail.primitiveEvent;
+            // const keyboardEvent = eventDetail.primitiveEvent;
+            const keyboardEvent = eventDetail;
             if (cellEvent.columnProperties.editOnKeydown && !grid.cellEditor) {
                 const char = keyboardEvent.key;
                 const isVisibleChar = char.length === 1 && !(keyboardEvent.metaKey || keyboardEvent.ctrlKey);
@@ -49,7 +50,7 @@ export class CellEditingUiBehavior extends UiBehavior {
                         } else if (isDeleteChar) {
                             editor.setEditorValue('');
                         }
-                        eventDetail.primitiveEvent.preventDefault();
+                        keyboardEvent.preventDefault();
                     }
                 } else {
                     super.handleKeyDown(eventDetail);

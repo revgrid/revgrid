@@ -96,7 +96,7 @@ export class RowPropertiesBehavior {
     }
 
     getRowPropertiesUsingCellEvent(cellInfo: ViewportCell) {
-        return this.getRowProperties(cellInfo.dataCell.y, cellInfo.subgrid);
+        return this.getRowProperties(cellInfo.dataPoint.y, cellInfo.subgrid);
     }
 
     /**
@@ -106,7 +106,7 @@ export class RowPropertiesBehavior {
      * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
     setRowPropertiesUsingCellEvent(cellInfo: ViewportCell, properties: MetaModel.RowProperties | undefined) {
-        this.setRowProperties(cellInfo.dataCell.y, properties, cellInfo.subgrid)
+        this.setRowProperties(cellInfo.dataPoint.y, properties, cellInfo.subgrid)
     }
 
     setRowProperties(y: number, properties: MetaModel.RowProperties | undefined, subgrid: SubgridInterface): void {
@@ -126,7 +126,7 @@ export class RowPropertiesBehavior {
      */
 
     setRowPropertyUsingCellEvent(cellEvent: CellEvent, key: string, value: unknown) {
-        this.setRowProperty(cellEvent.dataCell.y, key, value, cellEvent.subgrid);
+        this.setRowProperty(cellEvent.dataPoint.y, key, value, cellEvent.subgrid);
     }
 
     setRowProperty(y: number, key: string, value: unknown, subgrid: SubgridInterface) {

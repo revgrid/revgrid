@@ -1,4 +1,5 @@
-import { AdapterSet, defaultGridProperties, HalignEnum, Revgrid } from '..';
+import { AdapterSetConfig, defaultGridProperties, HalignEnum, Revgrid } from '..';
+import { CellAdapter } from './cell-adapter';
 import { HeaderDataAdapter } from './header-data-adapter';
 import { MainDataAdapter } from './main-data-adapter';
 import { SchemaAdapter } from './schema-adapter';
@@ -18,6 +19,7 @@ export class Main {
     private readonly _gridHostElement: HTMLElement;
 
     private _mainDataAdapter: MainDataAdapter;
+    private _cellAdapter: CellAdapter;
     private _grid: Revgrid;
 
     constructor() {
@@ -49,7 +51,6 @@ export class Main {
             this._fixedColumnCountTextboxElement.onchange = () => {
                 this._grid.properties.fixedColumnCount = parseInt(this._fixedColumnCountTextboxElement.value);
                 this._grid.computeCellsBounds();
-                this._grid.repaint();
             };
         }
 
@@ -60,7 +61,6 @@ export class Main {
             this._cellPaddingTextboxElement.onchange = () => {
                 this._grid.properties.cellPadding = parseInt(this._cellPaddingTextboxElement.value);
                 this._grid.computeCellsBounds();
-                this._grid.repaint();
             };
         }
 
@@ -71,7 +71,6 @@ export class Main {
             this._rightHalignCheckboxElement.onchange = () => {
                 this._grid.properties.halign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
                 this._grid.computeCellsBounds();
-                this._grid.repaint();
             };
         }
 
@@ -82,7 +81,6 @@ export class Main {
             this._gridRightAlignedCheckboxElement.onchange = () => {
                 this._grid.properties.gridRightAligned = this._gridRightAlignedCheckboxElement.checked;
                 this._grid.computeCellsBounds();
-                this._grid.repaint();
             };
         }
 
@@ -93,7 +91,6 @@ export class Main {
             this._scrollHorizontallySmoothlyCheckboxElement.onchange = () => {
                 this._grid.properties.scrollHorizontallySmoothly = this._scrollHorizontallySmoothlyCheckboxElement.checked;
                 this._grid.computeCellsBounds();
-                this._grid.repaint();
             };
         }
 
@@ -104,7 +101,6 @@ export class Main {
             this._visibleColumnWidthAdjustCheckboxElement.onchange = () => {
                 this._grid.properties.visibleColumnWidthAdjust = this._visibleColumnWidthAdjustCheckboxElement.checked;
                 this._grid.computeCellsBounds();
-                this._grid.repaint();
             };
         }
 
@@ -143,17 +139,20 @@ export class Main {
         }
 
         this._mainDataAdapter = new MainDataAdapter();
+        this._cellAdapter = new CellAdapter();
 
-        const adapterSet: AdapterSet = {
+        const adapterSet: AdapterSetConfig = {
             schemaModel: new SchemaAdapter(),
             subgrids: [
                 {
-                    dataModel: new HeaderDataAdapter(),
                     role: 'header',
+                    dataModel: new HeaderDataAdapter(),
+                    cellModel: this._cellAdapter,
                 },
                 {
-                    dataModel: this._mainDataAdapter,
                     role: 'main',
+                    dataModel: this._mainDataAdapter,
+                    cellModel: this._cellAdapter,
                 }
             ],
         };
@@ -161,14 +160,10 @@ export class Main {
         const gridOptions: Revgrid.Options = {
             container: this._gridHostElement,
             gridProperties: {
-                renderFalsy: true,
                 editable: true,
                 singleRowSelectionMode: false,
                 autoSelectRows: false,
-                columnSelection: false,
-                rowSelection: false,
                 restoreColumnSelections: false,
-                multipleSelections: false,
                 sortOnDoubleClick: false,
                 cellPadding: defaultCellPadding,
                 halign: defaultHalign,
@@ -180,6 +175,7 @@ export class Main {
         };
 
         this._grid = new Revgrid(this._gridHostElement, adapterSet, gridOptions);
+        this._cellAdapter.setGrid(this._grid);
 
         this._fixedColumnCountTextboxElement.value = this._grid.properties.fixedColumnCount.toString();
         this._cellPaddingTextboxElement.value = this._grid.properties.cellPadding.toString();

@@ -7,9 +7,10 @@ import { newEvent } from '../event/event-util';
 import { ListChangedTypeId } from '../lib/types';
 import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
-import { SelectionDetailAccessor } from '../selection/selection-detail';
 
 export class EventBehavior {
+    uiKeyDownEventer: EventBehavior.UiKeyEventer;
+    uiKeyUpEventer: EventBehavior.UiKeyEventer;
     uiMouseClickEventer: EventBehavior.UiMouseEventer;
     uiMouseDblClickEventer: EventBehavior.UiMouseEventer;
     uiMouseDownEventer: EventBehavior.UiMouseEventer;
@@ -20,6 +21,10 @@ export class EventBehavior {
     uiMouseExitedCellEventer: EventBehavior.UiMouseEventer;
     uiWheelMoveEventer: EventBehavior.UiWheelEventer;
     uiContextMenuEventer: EventBehavior.UiMouseEventer;
+    uiTouchStartEventer: EventBehavior.UiTouchEventer;
+    uiTouchMoveEventer: EventBehavior.UiTouchEventer;
+    uiTouchEndEventer: EventBehavior.UiTouchEventer;
+    uiCopyEventer: EventBehavior.UiClipboardEventer;
 
     private _dispatchEnabled = false;
     private _destroyed = false;
@@ -31,6 +36,10 @@ export class EventBehavior {
         private readonly _descendantEventer: EventBehavior.DescendantEventer,
         private readonly _dispatchEventEventer: EventBehavior.DispatchEventEventer,
     ) {
+        this._canvasEx.focusEventer = (event) => this.processFocusEvent(event);
+        this._canvasEx.blurEventer = (event) => this.processBlurEvent(event);
+        this._canvasEx.keyDownEventer = (event) => this.processKeyDownEvent(event);
+        this._canvasEx.keyUpEventer = (event) => this.processKeyUpEvent(event);
         this._canvasEx.mouseClickEventer = (event) => this.processMouseClickEvent(event);
         this._canvasEx.mouseDblClickEventer = (event) => this.processMouseDblClickEvent(event);
         this._canvasEx.mouseDownEventer = (event) => this.processMouseDownEvent(event);
@@ -42,6 +51,10 @@ export class EventBehavior {
         this._canvasEx.mouseOutEventer = (event) => this.processMouseOutEvent(event);
         this._canvasEx.wheelMoveEventer = (event) => this.processWheelMoveEvent(event);
         this._canvasEx.contextMenuEventer = (event) => this.processContextMenuEvent(event);
+        this._canvasEx.touchStartEventer = (event) => this.processTouchStartEvent(event);
+        this._canvasEx.touchMoveEventer = (event) => this.processTouchMoveEvent(event);
+        this._canvasEx.touchEndEventer = (event) => this.processTouchEndEvent(event);
+        this._canvasEx.copyEventer = (event) => this.processCopyEvent(event);
     }
 
     destroy() {
@@ -71,8 +84,7 @@ export class EventBehavior {
         this._descendantEventer.selectionChanged();
 
         if (this._dispatchEnabled) {
-            const selectionDetail = new SelectionDetailAccessor(this._selection);
-            this.dispatchGridEvent('rev-selection-changed', false, selectionDetail);
+            this.dispatchGridEvent('rev-selection-changed', false, undefined);
         }
     }
 
@@ -126,6 +138,34 @@ export class EventBehavior {
             };
 
             this.dispatchGridEvent('rev-grid-resized', false, detail);
+        }
+    }
+
+    private processFocusEvent(event: FocusEvent) {
+        this._descendantEventer.focus(event);
+    }
+
+    private processBlurEvent(event: FocusEvent) {
+        this._descendantEventer.blur(event);
+    }
+
+    private processKeyDownEvent(event: EventDetail.Keyboard) {
+        this.uiKeyDownEventer(event);
+
+        this._descendantEventer.keyDown(event);
+
+        if (this._dispatchEnabled) {
+            this.dispatchGridEvent('rev-key-down', false, event);
+        }
+    }
+
+    private processKeyUpEvent(event: EventDetail.Keyboard) {
+        this.uiKeyUpEventer(event);
+
+        this._descendantEventer.keyUp(event);
+
+        if (this._dispatchEnabled) {
+            this.dispatchGridEvent('rev-key-up', false, event);
         }
     }
 
@@ -249,6 +289,41 @@ export class EventBehavior {
         this._descendantEventer.mouseDragEnd(event, undefined);
     }
 
+    private processTouchStartEvent(event: TouchEvent) {
+        this.uiTouchStartEventer(event);
+
+        this._descendantEventer.touchStart(event);
+
+        if (this._dispatchEnabled) {
+            this.dispatchGridEvent('rev-touch-start', false, event);
+        }
+    }
+
+    private processTouchMoveEvent(event: TouchEvent) {
+        this.uiTouchMoveEventer(event);
+
+        this._descendantEventer.touchMove(event);
+
+        if (this._dispatchEnabled) {
+            this.dispatchGridEvent('rev-touch-move', false, event);
+        }
+    }
+
+    private processTouchEndEvent(event: TouchEvent) {
+        this.uiTouchEndEventer(event);
+
+        this._descendantEventer.touchEnd(event);
+
+        if (this._dispatchEnabled) {
+            this.dispatchGridEvent('rev-touch-end', false, event);
+        }
+    }
+
+    private processCopyEvent(event: ClipboardEvent) {
+        this.uiCopyEventer(event);
+
+        this._descendantEventer.copy(event);
+    }
 
     private dispatchGridEvent<T extends EventName>(
         eventName: T,
@@ -342,8 +417,12 @@ export namespace EventBehavior {
         readonly allColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
         readonly columnsWidthChanged: (this: void, columns: ColumnInterface[], ui: boolean) => void;
-        readonly selectionChanged: (this: void) => void;
+        readonly selectionChanged: DescendantEventer.Signal;
         readonly scroll: (this:void, isX: boolean, newValue: number, index: number, offset: number) => void;
+        readonly focus: DescendantEventer.Focus;
+        readonly blur: DescendantEventer.Focus;
+        readonly keyDown: DescendantEventer.Key;
+        readonly keyUp: DescendantEventer.Key;
         readonly mouseClick: DescendantEventer.Mouse;
         readonly mouseDblClick: DescendantEventer.Mouse;
         readonly mouseDown: DescendantEventer.Mouse;
@@ -355,20 +434,32 @@ export namespace EventBehavior {
         readonly mouseDragStart: DescendantEventer.Mouse;
         readonly mouseDrag: DescendantEventer.Mouse;
         readonly mouseDragEnd: DescendantEventer.Mouse;
-        readonly rendered: (this: void) => void;
+        readonly rendered: DescendantEventer.Signal;
         readonly mouseEnteredCell: DescendantEventer.Cell;
         readonly mouseExitedCell: DescendantEventer.Cell;
-        readonly resized: (this: void) => void;
+        readonly touchStart: DescendantEventer.Touch;
+        readonly touchMove: DescendantEventer.Touch;
+        readonly touchEnd: DescendantEventer.Touch;
+        readonly copy: DescendantEventer.Clipboard;
+        readonly resized: DescendantEventer.Signal;
     }
 
     export namespace DescendantEventer {
+        export type Signal = (this: void) => void;
+        export type Focus = (this: void, event: FocusEvent) => void;
+        export type Key = (this: void, event: EventDetail.Keyboard) => void;
         export type Mouse = (this: void, event: MouseEvent, cell: ViewportCell | null | undefined) => void;
         export type Wheel = (this: void, event: WheelEvent, cell: ViewportCell | null | undefined) => void;
+        export type Touch = (this: void, event: TouchEvent) => void;
         export type Cell = (this: void, cell: ViewportCell) => void;
+        export type Clipboard = (this: void, event: ClipboardEvent) => void;
     }
 
+    export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
     export type UiMouseEventer = (this: void, mouseEvent: MouseEvent) => ViewportCell | null | undefined;
     export type UiWheelEventer = (this: void, wheelEvent: WheelEvent) => ViewportCell | null | undefined;
+    export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;
+    export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
 
     // Extra properties added to Event Detail
     // export interface ExtraDetail {

@@ -1,7 +1,7 @@
 import { ColumnProperties } from '../column/column-properties';
 import { SchemaModel } from '../model/schema-model';
 
-/** @internal */
+/** @public */
 export interface ColumnInterface {
     readonly schemaColumn: SchemaModel.Column;
     readonly index: number; // always the same as SchemaColumn index
@@ -11,10 +11,6 @@ export interface ColumnInterface {
 
     getWidth(): number;
     setWidth(width: number | undefined): boolean;
+    setWidthToAutoSizing(): boolean;
     checkColumnAutosizing(force: boolean): boolean;
-}
-
-/** @internal */
-export namespace ColumnInterface {
-
 }

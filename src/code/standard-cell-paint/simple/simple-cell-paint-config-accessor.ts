@@ -1,14 +1,8 @@
-import { ViewportCell } from '../cell/viewport-cell';
-import { ColumnProperties } from '../column/column-properties';
-import { GridProperties } from '../grid-properties';
-import { Localization } from '../lib/localization';
-import { WritablePoint } from '../lib/point';
-import { RectangleInterface } from '../lib/rectangle-interface';
-import { DataModel } from '../model/data-model';
-import { CellPaintConfig } from './cell-paint-config';
+import { ColumnProperties, DataModel, GridProperties, RectangleInterface, ViewportCell, WritablePoint } from '../../grid/grid-public-api';
+import { SimpleCellPaintConfig } from './simple-cell-paint-config';
 
 /** @public */
-export class CellPaintConfigAccessor implements CellPaintConfig {
+export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     private readonly _gridProperties: GridProperties;
     private readonly _columnProperties: ColumnProperties;
 
@@ -42,7 +36,6 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     allRowsSelected: boolean;
     bounds: RectangleInterface;
     dataRow: DataModel.DataRow;
-    formatValue: Localization.FormatFunction;
     isCellHovered: boolean;
     isCellSelected: boolean;
     isColumnHovered: boolean;
@@ -58,8 +51,8 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     isRowSelected: boolean;
     isSelected: boolean;
     isUserDataArea: boolean;
-    prefillColor: GridProperties.Color;
-    snapshot: ViewportCell.PaintSnapshot; // BeingPaintedCell
+    prefillColor: GridProperties.Color | undefined;
+    snapshot: SimpleCellPaintConfig.Snapshot | undefined; // BeingPaintedCell
     value: unknown;
 
     get backgroundSelectionColor() { return this._dataOrHeaderOrFilterProperties.backgroundSelectionColor; }

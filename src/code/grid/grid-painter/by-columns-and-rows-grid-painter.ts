@@ -6,7 +6,6 @@ import { GridProperties } from '../grid-properties';
 import { Renderer } from '../renderer/renderer';
 import { Viewport } from '../renderer/viewport';
 import { Selection } from '../selection/selection';
-import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { Mouse } from '../user-interface-input/mouse';
 import { GridPainter } from './grid-painter';
@@ -124,11 +123,11 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                 vc = cellEvent.visibleColumn;
 
                 if (!rowPrefillColors) {
-                    prefillColor = cellEvent.column.properties.backgroundColor;
+                    prefillColor = vc.column.properties.backgroundColor;
                 }
 
                 // Optionally clip to visible portion of column to prevent text from overflowing to right.
-                const columnClip = vc.activeColumn.properties.columnClip;
+                const columnClip = vc.column.properties.columnClip;
                 gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
 
                 let preferredWidth: number | undefined;
@@ -139,12 +138,10 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                             prefillColor = rowPrefillColors[r];
                         }
 
-                        const beingPaintedCell = pool[p];
-                        const subgrid = beingPaintedCell.subgrid as Subgrid;
-                        const config = subgrid.getCellPaintConfig(beingPaintedCell); // event to renderer
+                        const viewportCell = pool[p];
 
                         try {
-                            const paintWidth = this.paintCell(gc, subgrid, beingPaintedCell, config, prefillColor);
+                            const paintWidth = this.paintCell(gc, viewportCell, prefillColor);
                             if (paintWidth !== undefined) {
                                 if (preferredWidth === undefined) {
                                     preferredWidth = paintWidth;
@@ -161,7 +158,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                 gc.clipRestore();
 
                 if (preferredWidth !== undefined) {
-                    cellEvent.column.properties.preferredWidth = Math.ceil(preferredWidth);
+                    vc.column.properties.preferredWidth = Math.ceil(preferredWidth);
                 }
             }
         );

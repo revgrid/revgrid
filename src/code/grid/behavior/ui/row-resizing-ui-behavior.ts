@@ -1,12 +1,10 @@
 
-import { CellEvent } from '../../cell/cell-event';
-import { ViewportCell } from '../../cell/viewport-cell';
 import { Point } from '../../lib/point';
 import { Revgrid } from '../../revgrid';
 import { Subgrid } from '../../subgrid/subgrid';
-import { ColumnRowResizingUiBehavior } from './column-row-resizing-ui-behavior';
+import { UiBehavior } from './ui-behavior';
 
-export class RowResizingUiBehavior extends ColumnRowResizingUiBehavior {
+export class RowResizingUiBehavior extends UiBehavior {
 
     readonly typeName = RowResizingUiBehavior.typeName;
 
@@ -21,14 +19,6 @@ export class RowResizingUiBehavior extends ColumnRowResizingUiBehavior {
     private dragAreaStartingSize = -1;
 
     /**
-     * @desc get the mouse x,y coordinate
-     * @param event - the mouse event to query
-     */
-    override getMouseOffset(event: MouseEvent) {
-        return event.offsetY;
-    }
-
-    /**
      * @desc get the grid cell x,y coordinate
      */
     getGridCellValue(gridCell: Point): number {
@@ -40,11 +30,6 @@ export class RowResizingUiBehavior extends ColumnRowResizingUiBehavior {
      */
     getScrollValue(grid: Revgrid): number {
         return grid.rowScrollAnchorIndex;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    override getGridRightBottomAligned() {
-        return false;
     }
 
     /**
@@ -64,28 +49,6 @@ export class RowResizingUiBehavior extends ColumnRowResizingUiBehavior {
         grid.setRowHeight(index, value, subgrid);
     }
 
-    /**
-     * @desc returns the index of which divider I'm over
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected override overAreaDivider(_cell: ViewportCell): boolean {
-        return false; // previously returned void (undefined)
-    }
-
-    /**
-     * @desc am I over the column/row area
-     */
-    private isFirstFixedOtherArea(event: CellEvent): boolean {
-        return this.isFirstFixedColumn(event);
-    }
-
-    /**
-     * @desc return the cursor name
-     */
-    override getCursorName() {
-        return 'row-resize';
-    }
-
     // isEnabled(grid: Hypergrid): boolean {
     //     return grid.isRowResizeable();
     // }
@@ -93,4 +56,6 @@ export class RowResizingUiBehavior extends ColumnRowResizingUiBehavior {
 
 export namespace RowResizingUiBehavior {
     export const typeName = 'rowresizing';
+
+    export const cursorName = 'row-resize';
 }

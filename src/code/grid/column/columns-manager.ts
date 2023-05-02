@@ -34,6 +34,9 @@ export class ColumnsManager {
         private readonly _columnsWidthChangedEventHandler: ColumnsManager.ColumnsWidthChangedEventHandler,
     ) { }
 
+    get allColumnCount() { return this._allColumns.length; }
+    get activeColumnCount() { return this._activeColumns.length; }
+
     /** @internal */
     addBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener) {
         this._beforeCreateColumnsListeners.push(listener);
@@ -483,12 +486,12 @@ export class ColumnsManager {
     }
 
     /**
-     * @param allX - Data x coordinate.
+     * @param activeColumnIndex - Data x coordinate.
      * @return The properties for a specific column.
      * @internal
      */
-    getActiveColumnProperties(allX: number): ColumnProperties | undefined {
-        const column = this.getAllColumn(allX);
+    getActiveColumnProperties(activeColumnIndex: number): ColumnProperties | undefined {
+        const column = this.getActiveColumn(activeColumnIndex);
         return column?.properties;
     }
 
@@ -507,23 +510,6 @@ export class ColumnsManager {
         column.properties.merge(properties);
         this._behaviorChangedEventHandler();
         return column.properties;
-    }
-
-    /**
-     * Total number of columns (including active and hidden).
-     * @internal
-     */
-    getAllColumnCount() {
-        return this._allColumns.length;
-    }
-
-    /**
-     * Number of _visible_ columns.
-     * @return The total number of columns.
-     * @internal
-     */
-    getActiveColumnCount() {
-        return this._activeColumns.length;
     }
 
     /**

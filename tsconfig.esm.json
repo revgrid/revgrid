@@ -19,6 +19,7 @@
   "references": [
     { "path": "src/code/grid/tsconfig-grid.json" },
     { "path": "src/code/adapter-sets/record/tsconfig-rev-record.json" },
-    { "path": "src/code/adapter-sets/simple/tsconfig-rev-simple.json" }
+    { "path": "src/code/adapter-sets/simple/tsconfig-rev-simple.json" },
+    { "path": "src/code/standard-cell-paint/tsconfig-standard-cell-paint.json" }
   ]
 }

@@ -19,6 +19,7 @@ import { CssClassName } from '../lib/html-types';
 import { Point } from '../lib/point';
 import { Rectangle } from '../lib/rectangle';
 import { AssertError } from '../lib/revgrid-error';
+import { Writable } from '../lib/types';
 import { CanvasRenderingContext2DEx } from './canvas-rendering-context-2d-ex';
 
 /** @public */
@@ -28,6 +29,12 @@ export class CanvasEx {
     // ctx = null;
 
     repaintEventer: CanvasEx.RepaintEventer;
+
+    focusEventer: CanvasEx.FocusEventer;
+    blurEventer: CanvasEx.FocusEventer;
+
+    keyDownEventer: CanvasEx.KeyEventer;
+    keyUpEventer: CanvasEx.KeyEventer;
 
     mouseClickEventer: CanvasEx.MouseEventer;
     mouseDblClickEventer: CanvasEx.MouseEventer;
@@ -40,6 +47,12 @@ export class CanvasEx {
     mouseOutEventer: CanvasEx.MouseEventer;
     wheelMoveEventer: CanvasEx.WheelEventer;
     contextMenuEventer: CanvasEx.MouseEventer;
+
+    touchStartEventer: CanvasEx.TouchEventer;
+    touchMoveEventer: CanvasEx.TouchEventer;
+    touchEndEventer: CanvasEx.TouchEventer;
+
+    copyEventer: CanvasEx.ClipboardEventer;
 
     mouseLocation = Point.create(-1, -1);
     dragstart = Point.create(-1, -1);
@@ -72,7 +85,7 @@ export class CanvasEx {
                 this.mouseDragStartEventer(e);
                 this.dragstart = Point.create(this.mouseLocation.x, this.mouseLocation.y);
             }
-            this.mouseLocation = this.getLocal(e);
+            this.mouseLocation = this.getOffsetPoint(e);
             if (this.isDragging()) {
                 this.mouseDragEventer(e);
             }
@@ -98,11 +111,50 @@ export class CanvasEx {
             this.wheelMoveEventer(e);
         }
     };
-    private documentKeyDownEventListener = (e: KeyboardEvent) => this.finkeydown(e);
-    private documentKeyUpEventListener = (e: KeyboardEvent) => this.finkeyup(e);
 
-    private canvasFocusEventListener = () => this.finfocusgained();
-    private canvasBlurEventListener = () => this.finfocuslost();
+    private documentKeyDownEventListener = (e: KeyboardEvent) => {
+        if (this.hasFocus()) {
+            this.checkPreventDefault(e);
+
+            const key = e.key;
+
+            if (e.repeat) {
+                if (this.repeatKey === key) {
+                    this.repeatKeyCount++;
+                } else {
+                    this.repeatKey = key;
+                    this.repeatKeyStartTime = Date.now();
+                }
+            } else {
+                this.repeatKey = undefined;
+                this.repeatKeyCount = 0;
+                this.repeatKeyStartTime = 0;
+            }
+
+            const eventDetail = this.createKeyboardEventDetail(e);
+            this.keyDownEventer(eventDetail);
+        }
+    }
+    private documentKeyUpEventListener = (e: KeyboardEvent) => {
+        if (this.hasFocus()) {
+            this.checkPreventDefault(e);
+
+            this.repeatKeyCount = 0;
+            this.repeatKey = undefined;
+            this.repeatKeyStartTime = 0;
+
+            const eventDetail = this.createKeyboardEventDetail(e);
+            this.keyUpEventer(eventDetail);
+        }
+    }
+
+    private canvasFocusEventListener = (e: FocusEvent) => {
+        this.focusEventer(e);
+    }
+    private canvasBlurEventListener = (e: FocusEvent) => {
+        this.blurEventer(e);
+    }
+
     private canvasMouseOverEventListener = () => { this.hasMouse = true; }
     private canvasMouseDownEventListener = (e: MouseEvent) => {
         this.mousedown = true;
@@ -121,9 +173,23 @@ export class CanvasEx {
     private canvasContextMenuEventListener = (e: MouseEvent) => {
         this.contextMenuEventer(e);
     };
-    private canvasTouchStartEventListener = (e: TouchEvent) => this.fintouchstart(e);
-    private canvasTouchMoveEventListener = (e: TouchEvent) => this.fintouchmove(e);
-    private canvasTouchEndEventListener = (e: TouchEvent) => this.fintouchend(e);
+
+    private canvasTouchStartEventListener = (e: TouchEvent) => {
+        this.touchStartEventer(e);
+    }
+    private canvasTouchMoveEventListener = (e: TouchEvent) => {
+        this.touchMoveEventer(e);
+    }
+    private canvasTouchEndEventListener = (e: TouchEvent) => {
+        this.touchEndEventer(e);
+    }
+
+    private canvasCopyEventListener = (e: ClipboardEvent) => {
+        if (this.hasFocus()) {
+            e.preventDefault();
+            this.copyEventer(e);
+        }
+    }
 
     constructor(
         private readonly _containerElement: HTMLElement,
@@ -154,6 +220,7 @@ export class CanvasEx {
         this.canvas.addEventListener('touchstart', this.canvasTouchStartEventListener);
         this.canvas.addEventListener('touchmove', this.canvasTouchMoveEventListener);
         this.canvas.addEventListener('touchend', this.canvasTouchEndEventListener);
+        this.canvas.addEventListener('copy', this.canvasCopyEventListener);
 
         this.canvas.setAttribute('tabindex', '0');
         this.canvas.style.outline = 'none';
@@ -251,34 +318,13 @@ export class CanvasEx {
         return this._bounds;
     }
 
-    // flushBuffer deprecated in 3.3.0
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    flushBuffer() {}
-
     /**
      * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
      * @this CanvasType
      */
-    dispatchNewEvent<T extends EventName>(eventName: T, detail?: EventName.DetailMap[T]) {
+    private dispatchNewEvent<T extends EventName>(eventName: T, detail?: EventName.DetailMap[T]) {
         const event = newEvent(eventName, detail);
         return this.canvas.dispatchEvent(event);
-    }
-
-    dispatchNewTouchEvent(event: TouchEvent, name: EventName) {
-        const touches = Array.from(event.changedTouches);
-        const localPoints = touches.map((touch) => this.getLocal(touch));
-
-        const detail: EventDetail.Touch = {
-            time: Date.now(),
-            primitiveEvent: event,
-            touches: localPoints,
-        };
-
-        return this.dispatchNewEvent(name, detail);
-    }
-
-    getCharMap() {
-        return CanvasEx.charMap;
     }
 
     finkeydown(e: KeyboardEvent) {
@@ -303,15 +349,11 @@ export class CanvasEx {
             this.repeatKeyStartTime = 0;
         }
 
-        const keyboardDetail: EventDetail.Keyboard = /*this.defKeysProp(e, 'currentKeys',*/ {
-            time: Date.now(),
-            primitiveEvent: e,
-            // legacyChar: e.legacyKey,
-            // code: e.charCode,
-            // key: e.keyCode,
-            repeatCount: this.repeatKeyCount,
-            repeatStartTime: this.repeatKeyStartTime,
-        };
+
+        const keyboardDetail = e as CanvasEx.WritableEventDetailKeyboard;
+        keyboardDetail.revgrid_nowTime = Date.now();
+        keyboardDetail.revgrid_repeatCount = this.repeatKeyCount;
+        keyboardDetail.revgrid_repeatStartTime = this.repeatKeyStartTime;
 
         this.dispatchNewEvent('rev-canvas-keydown', keyboardDetail);
     }
@@ -348,41 +390,19 @@ export class CanvasEx {
         this.dispatchNewEvent('rev-canvas-focus-lost');
     }
 
-    fintouchstart(e: TouchEvent) {
-        this.dispatchNewTouchEvent(e, 'rev-canvas-touchstart');
-    }
-
-    fintouchmove(e: TouchEvent) {
-        this.dispatchNewTouchEvent(e, 'rev-canvas-touchmove');
-    }
-
-    fintouchend(e: TouchEvent) {
-        this.dispatchNewTouchEvent(e, 'rev-canvas-touchend');
-    }
-
-    getMouseLocation() {
-        return this.mouseLocation;
-    }
-
-    getOrigin() {
-        const rect = this.getCanvasBoundingClientRect();
-        const p = Point.create(rect.left, rect.top);
-        return p;
-    }
-
     /**
      * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
-    getLocal<T extends MouseEvent|Touch>(e: T) {
+    getOffsetPoint<T extends MouseEvent|Touch>(mouseEventOrTouch: T) {
         const rect = this.getCanvasBoundingClientRect();
 
-        const p = Point.create(
-            e.clientX /* / this.bodyZoomFactor*/ - rect.left,
-            e.clientY /* / this.bodyZoomFactor*/ - rect.top
+        const offsetPoint = Point.create(
+            mouseEventOrTouch.clientX /* / this.bodyZoomFactor*/ - rect.left,
+            mouseEventOrTouch.clientY /* / this.bodyZoomFactor*/ - rect.top
         );
 
-        return p;
+        return offsetPoint;
     }
 
     hasFocus() {
@@ -405,7 +425,7 @@ export class CanvasEx {
      * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
-    beDragging() {
+    private beDragging() {
         this.dragging = true;
         this.disableDocumentElementSelection();
     }
@@ -414,38 +434,30 @@ export class CanvasEx {
      * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
-    beNotDragging() {
+    private beNotDragging() {
         this.dragging = false;
         this.enableDocumentElementSelection();
     }
 
-    isDragging() {
+    private isDragging() {
         return this.dragging;
     }
 
-    disableDocumentElementSelection() {
+    private disableDocumentElementSelection() {
         const style = document.body.style;
         style.cssText = style.cssText + ' user-select: none';
     }
 
-    enableDocumentElementSelection() {
+    private enableDocumentElementSelection() {
         const style = document.body.style;
         style.cssText = style.cssText.replace(' user-select: none', '');
-    }
-
-    // setFocusable(truthy: boolean) {
-    //     this.focuser.style.display = truthy ? '' : 'none';
-    // }
-
-    isRightClick(e: MouseEvent) {
-        return e.button === 2;
     }
 
     dispatchEvent(e: Event) {
         return this.canvas.dispatchEvent(e);
     }
 
-    checkPreventDefault(e: KeyboardEvent) {
+    private checkPreventDefault(e: KeyboardEvent) {
         // prevent TAB from moving focus off the canvas element
         switch (e.key) {
             case 'TAB':
@@ -461,6 +473,32 @@ export class CanvasEx {
 
     private getCanvasBoundingClientRect() {
         return this.canvas.getBoundingClientRect();
+    }
+
+    private createKeyboardEventDetail(e: KeyboardEvent): EventDetail.Keyboard {
+        const keyboardDetail = e as CanvasEx.WritableEventDetailKeyboard;
+        keyboardDetail.revgrid_nowTime = Date.now();
+        keyboardDetail.revgrid_repeatCount = this.repeatKeyCount;
+        keyboardDetail.revgrid_repeatStartTime = this.repeatKeyStartTime;
+
+        keyboardDetail.revgrid_navigateKey = this.createKeyboardNavigateKey(e.code);
+
+        return keyboardDetail;
+    }
+
+    private createKeyboardNavigateKey(code: string) {
+        switch (code) {
+            case 'ArrowLeft': return EventDetail.Keyboard.NavigateKey.left;
+            case 'ArrowRight': return EventDetail.Keyboard.NavigateKey.right;
+            case 'ArrowUp': return EventDetail.Keyboard.NavigateKey.up;
+            case 'ArrowDown': return EventDetail.Keyboard.NavigateKey.down;
+            case 'PageUp': return EventDetail.Keyboard.NavigateKey.pageUp;
+            case 'PageDown': return EventDetail.Keyboard.NavigateKey.pageDown;
+            case 'Home': return EventDetail.Keyboard.NavigateKey.home;
+            case 'End': return EventDetail.Keyboard.NavigateKey.end;
+            default:
+                return undefined;
+        }
     }
 
     // fixCurrentKeys(keyChar: string, keydown: boolean) {
@@ -619,8 +657,15 @@ export namespace CanvasEx {
 
     export type ResizedEventer = (this: void) => void;
     export type RepaintEventer = (this: void) => void;
+
+    export type FocusEventer = (this: void, event: FocusEvent) => void;
     export type MouseEventer = (this: void, event: MouseEvent) => void;
     export type WheelEventer = (this: void, event: WheelEvent) => void;
+    export type KeyEventer = (this: void, event: EventDetail.Keyboard) => void;
+    export type TouchEventer = (this: void, event: TouchEvent) => void;
+    export type ClipboardEventer = (this: void, event: ClipboardEvent) => void;
+
+    export type WritableEventDetailKeyboard = Writable<EventDetail.Keyboard>;
 
     export interface Box {
         top: number;

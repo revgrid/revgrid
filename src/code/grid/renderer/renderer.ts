@@ -2,7 +2,6 @@ import { Animation } from '../canvas/animation';
 import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
 import { CellPainter } from '../cell-painter/cell-painter';
-import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus';
 import { GridPainter } from '../grid-painter/grid-painter';
@@ -44,7 +43,6 @@ export class Renderer {
         private readonly _viewport: Viewport,
         focus: Focus,
         selection: Selection,
-        readonly cellPainterRepository: CellPainterRepository,
         private readonly _behaviorShapeChangedEventer: Renderer.BehaviorShapeChangedEventer, // remove this when viewport handles scrolling
         private readonly _renderedEventer: Renderer.RenderedEventer,
     ) {
@@ -132,10 +130,6 @@ export class Renderer {
                 value.rebundle = true;
             }
         }
-    }
-
-    registerCellPainter(typeName: string, constructor: CellPainter.Constructor) {
-        this.cellPainterRepository.register(typeName, constructor);
     }
 
     start() {

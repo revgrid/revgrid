@@ -1,4 +1,4 @@
-import { BeingPaintedCell, CellPaintConfigAccessor } from '../../grid/grid-public-api';
+import { CellPaintConfigAccessor, ViewportCell } from '../../grid/grid-public-api';
 import { RevRecordCellPaintConfig } from './rev-record-cell-paint-config';
 import { RevRecordMainAdapter } from './rev-record-main-adapter';
 import { RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from './rev-record-types';
@@ -7,17 +7,17 @@ export class RevRecordCellPaintConfigAccessor extends CellPaintConfigAccessor im
     readonly valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId;
     readonly recordRecentChangeTypeId?: RevRecordRecentChangeTypeId;
 
-    constructor(beingPaintedCell: BeingPaintedCell, mainAdapter: RevRecordMainAdapter) {
+    constructor(beingPaintedCell: ViewportCell, mainAdapter: RevRecordMainAdapter) {
         super(beingPaintedCell, false, false)
 
-        let rowIndex = beingPaintedCell.dataCell.y;
+        let rowIndex = beingPaintedCell.dataPoint.y;
 
         if (mainAdapter.rowOrderReversed) {
             const rowCount = mainAdapter.getRowCount();
             rowIndex = rowCount - rowIndex - 1;
         }
         const recentChanges = mainAdapter.recentChanges;
-        const fieldIndex = beingPaintedCell.dataCell.x;
+        const fieldIndex = beingPaintedCell.dataPoint.x;
         this.valueRecentChangeTypeId = recentChanges.getValueRecentChangeTypeId(fieldIndex, rowIndex);
         this.recordRecentChangeTypeId = recentChanges.getRecordRecentChangeTypeId(rowIndex);
     }

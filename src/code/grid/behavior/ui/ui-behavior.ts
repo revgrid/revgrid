@@ -1,23 +1,25 @@
 
 import { CanvasEx } from '../../canvas/canvas-ex';
-import { CellEvent } from '../../cell/cell-event';
 import { ViewportCell } from '../../cell/viewport-cell';
 import { ColumnsManager } from '../../column/columns-manager';
 import { EventDetail } from '../../event/event-detail';
 import { Focus } from '../../focus';
 import { GridProperties } from '../../grid-properties';
 import { Point } from '../../lib/point';
+import { ReindexStashManager } from '../../reindex-stash-manager';
 import { Renderer } from '../../renderer/renderer';
 import { Viewport } from '../../renderer/viewport';
 import { Revgrid } from '../../revgrid';
 import { Selection } from '../../selection/selection';
+import { Subgrid } from '../../subgrid/subgrid';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { Mouse } from '../../user-interface-input/mouse';
 import { CellPropertiesBehavior } from '../cell-properties-behavior';
 import { EventBehavior } from '../event-behavior';
-import { FocusSelectionBehavior } from '../focus-selection-behavior';
+import { FocusBehavior } from '../focus-behavior';
 import { RowPropertiesBehavior } from '../row-properties-behavior';
 import { ScrollBehavior } from '../scroll-behaviour';
+import { SelectionBehavior } from '../selection-behavior';
 import { UserInterfaceInputBehavior } from '../user-interface-input-behavior';
 import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
@@ -29,9 +31,10 @@ export abstract class UiBehavior {
 
     abstract readonly typeName: string;
 
-    protected readonly focusSelectionBehavior: FocusSelectionBehavior;
-    protected readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
     protected readonly scrollBehavior: ScrollBehavior;
+    protected readonly focusBehavior: FocusBehavior;
+    protected readonly selectionBehavior: SelectionBehavior;
+    protected readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
     protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
     protected readonly cellPropertiesBehavior: CellPropertiesBehavior;
     protected readonly eventBehavior: EventBehavior;
@@ -46,12 +49,16 @@ export abstract class UiBehavior {
     protected readonly viewport: Viewport;
     protected readonly renderer: Renderer;
     protected readonly gridProperties: GridProperties;
+    protected readonly reindexStashManager: ReindexStashManager;
+
+    protected readonly mainSubgrid: Subgrid;
 
     constructor(
         protected readonly grid: Revgrid,
         services: UiBehaviorServices,
     ) {
-        this.focusSelectionBehavior = services.focusSelectionBehavior;
+        this.focusBehavior = services.focusBehavior;
+        this.selectionBehavior = services.selectionBehavior;
         this.userInterfaceInputBehavior = services.userInterfaceInputBehavior;
         this.scrollBehavior = services.scrollBehavior;
         this.rowPropertiesBehavior = services.rowPropertiesBehavior;
@@ -68,6 +75,7 @@ export abstract class UiBehavior {
         this.viewport = services.viewport;
         this.renderer = services.renderer;
         this.gridProperties = services.gridProperties;
+        this.reindexStashManager = services.reindexStashManager;
     }
 
     /**
@@ -117,9 +125,20 @@ export abstract class UiBehavior {
         this.next = this.detached;
     }
 
-    /**
-     * @desc handle mouse move down the feature chain of responsibility
-     */
+    handleKeyDown(eventDetail: EventDetail.Keyboard) {
+        if (this.next) {
+            this.next.handleKeyDown(eventDetail);
+        // } else {
+        //     return true;
+        }
+    }
+
+    handleKeyUp(eventDetail: EventDetail.Keyboard) {
+        if (this.next) {
+            this.next.handleKeyUp(eventDetail);
+        }
+    }
+
     handleMouseMove(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
         if (this.next) {
             return this.next.handleMouseMove(event, cell);
@@ -157,20 +176,6 @@ export abstract class UiBehavior {
             return this.next.handleMouseUp(event, cell);
         } else {
             return cell;
-        }
-    }
-
-    handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        if (this.next) {
-            this.next.handleKeyDown(eventDetail);
-        // } else {
-        //     return true;
-        }
-    }
-
-    handleKeyUp(eventDetail: EventDetail.Keyboard) {
-        if (this.next) {
-            this.next.handleKeyUp(eventDetail);
         }
     }
 
@@ -214,30 +219,28 @@ export abstract class UiBehavior {
         }
     }
 
-    handleTouchStart(eventDetail: EventDetail.Touch) {
+    handleTouchStart(eventDetail: TouchEvent) {
         if (this.next) {
             this.next.handleTouchStart(eventDetail);
         }
     }
 
-    handleTouchMove(eventDetail: EventDetail.Touch) {
+    handleTouchMove(eventDetail: TouchEvent) {
         if (this.next) {
             this.next.handleTouchMove(eventDetail);
         }
     }
 
-    handleTouchEnd(eventDetail: EventDetail.Touch) {
+    handleTouchEnd(eventDetail: TouchEvent) {
         if (this.next) {
             this.next.handleTouchEnd(eventDetail);
         }
     }
 
-    isFirstFixedRow(event: CellEvent) {
-        return event.gridCell.y < 1;
-    }
-
-    isFirstFixedColumn(event: CellEvent) {
-        return event.gridCell.x === 0;
+    handleCopy(eventDetail: ClipboardEvent) {
+        if (this.next) {
+            this.next.handleCopy(eventDetail);
+        }
     }
 
     setCursor() {

@@ -1,20 +1,23 @@
 
-import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { CellPaintConfig } from '../renderer/cell-paint-config';
-import { CellPainter } from './cell-painter';
+import { CanvasRenderingContext2DEx, CellPainter, RectangleInterface } from '../grid/grid-public-api';
 
 /**
  * Renders a slider button.
  * Currently however the user cannot interact with it.
+ * @public
  */
 export class SliderCellPainter implements CellPainter {
-    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+    config: SliderCellPainter.Config;
+
+    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
+        const config = this.config;
+
         const x = config.bounds.x;
         const y = config.bounds.y;
         const width = config.bounds.width;
         const height = config.bounds.height;
         gc.cache.strokeStyle = 'white';
-        const val = config.value as number;
+        const val = config.value;
         const radius = height / 2;
         const offset = width * val;
         const bgColor = config.isSelected ? config.backgroundColor : '#333333';
@@ -35,10 +38,21 @@ export class SliderCellPainter implements CellPainter {
         gc.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
         gc.fill();
         gc.closePath();
-        return 100;
+        return {
+            width: 100,
+            snapshot: undefined,
+        };
     }
 }
 
+/** @public */
 export namespace SliderCellPainter {
     export const typeName = 'Slider';
+
+    export interface Config {
+        value: number;
+        bounds: RectangleInterface;
+        backgroundColor: string;
+        isSelected: boolean;
+    }
 }

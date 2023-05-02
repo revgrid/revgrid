@@ -3,15 +3,12 @@ import { DataModel } from '../../grid/model/data-model';
 import { MetaModel } from '../../grid/model/meta-model';
 import { SchemaModel } from '../../grid/model/schema-model';
 import { CellPainter } from '../cell-painter/cell-painter';
-import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
-import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { ColumnsManager } from '../column/columns-manager';
 import { ColumnInterface } from '../common/column-interface';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { GridProperties } from '../grid-properties';
+import { ViewportCell } from '../grid-public-api';
 import { AssertError } from '../lib/revgrid-error';
-import { CellPaintConfig } from '../renderer/cell-paint-config';
-import { CellPaintConfigAccessor } from '../renderer/cell-paint-config-accessor';
 
 /** @public */
 export class Subgrid implements SubgridInterface {
@@ -35,14 +32,12 @@ export class Subgrid implements SubgridInterface {
         /** @internal */
         protected readonly _columnsManager: ColumnsManager,
         /** @internal */
-        protected readonly _cellPainterRepository: CellPainterRepository,
-        /** @internal */
         public readonly handle: Subgrid.Handle,
         public readonly role: SubgridInterface.Role,
         public readonly schemaModel: SchemaModel,
         public readonly dataModel: DataModel,
+        public readonly cellModel: CellModel,
         public readonly metaModel: MetaModel | undefined,
-        public readonly cellModel: CellModel | undefined,
         public readonly selectable: boolean,
     ) {
         switch (role) {
@@ -135,39 +130,9 @@ export class Subgrid implements SubgridInterface {
         }
     }
 
-    // Hooks
     /** @internal */
-    getCellPaintConfig(beingPaintedCell: BeingPaintedCell): CellPaintConfig {
-        let config: CellPaintConfig | undefined;
-        const cellModel = this.cellModel;
-        if (cellModel !== undefined) {
-            if (cellModel.getCellPaintConfig !== undefined) {
-                config = cellModel.getCellPaintConfig(beingPaintedCell);
-            }
-        }
-
-        if (config === undefined) {
-            return new CellPaintConfigAccessor(beingPaintedCell, this.isHeader, this.isFilter);
-        } else {
-            return config;
-        }
-    }
-
-    /** @internal */
-    getCellPainter(cellPaintConfig: CellPaintConfig, gridPainterKey: string): CellPainter {
-        let painter: CellPainter | undefined;
-        const cellModel = this.cellModel;
-        if (cellModel !== undefined) {
-            if (cellModel.getCellPainter !== undefined) {
-                painter = cellModel.getCellPainter(cellPaintConfig, gridPainterKey);
-            }
-        }
-
-        if (painter === undefined) {
-            return this._cellPainterRepository.get(gridPainterKey);
-        } else {
-            return painter;
-        }
+    getCellPainter(viewportCell: ViewportCell, prefillColor: string | undefined): CellPainter {
+        return this.cellModel.getCellPainter(viewportCell, prefillColor);
     }
 
     /** @internal */

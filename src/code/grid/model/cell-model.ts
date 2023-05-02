@@ -1,13 +1,10 @@
 import { CellEditor } from '../cell-editor/cell-editor';
 import { CellPainter } from '../cell-painter/cell-painter';
-import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { CellEvent } from '../cell/cell-event';
-import { CellPaintConfig } from '../renderer/cell-paint-config';
+import { ViewportCell } from '../cell/viewport-cell';
 
 /** @public */
 export interface CellModel {
-    getCellPaintConfig?: (this: void, beingPaintedCell: BeingPaintedCell) => CellPaintConfig | undefined;
-
     /**
      * @method DataModel#getCell
      * @summary Renderer configuration interceptor.
@@ -36,7 +33,7 @@ export interface CellModel {
      * @param gridPainterKey - Same as `config.renderer`, the proposed cell renderer name.
      * @returns An instantiated cell painter.
      */
-    getCellPainter?: (this: void, cellPaintConfig: CellPaintConfig, gridPainterKey: string) => CellPainter | undefined;
+    getCellPainter: (this: void, viewportCell: ViewportCell, prefillColor: string | undefined) => CellPainter;
 
     /**
      * @method DataModel#getCellEditorAt

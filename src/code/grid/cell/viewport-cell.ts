@@ -1,14 +1,13 @@
-import { CellPainter } from '../cell-painter/cell-painter';
 import { ColumnProperties } from '../column/column-properties';
-import { ColumnInterface } from '../common/column-interface';
 import { SubgridInterface } from '../common/subgrid-interface';
-import { Point, WritablePoint } from '../lib/point';
+import { WritablePoint } from '../lib/point';
 import { RectangleInterface } from '../lib/rectangle-interface';
 import { DataModel } from '../model/data-model';
 import { MetaModel } from '../model/meta-model';
 import { Viewport } from '../renderer/viewport';
 import { Revgrid } from '../revgrid';
 
+/** @public */
 export class ViewportCell {
 
     // caches
@@ -20,19 +19,15 @@ export class ViewportCell {
 
     private readonly viewport: Viewport;
 
-    cellPainter: CellPainter;
-    column: ColumnInterface;
-    dataCell: WritablePoint = {} as WritablePoint; // no need for initialization
+    dataPoint: WritablePoint = {} as WritablePoint; // no need for initialization
     // dataRow: DataRowObject;
     format: string;
-    gridCell: WritablePoint = {} as WritablePoint; // no need for initialization
-    gridPoint: Point; // holds EventDetail.Mouse.mouse - remove later
-    mousePoint: Point;
-    row: unknown;
     subgrid: SubgridInterface;
     visibleColumn: Viewport.ViewportColumn;
     visibleRow: Viewport.ViewportRow;
 
+    // partial render support
+    paintSnapshot: ViewportCell.PaintSnapshot | undefined;
 
     /**
      * @summary Create a new CellEvent object.
@@ -57,13 +52,10 @@ export class ViewportCell {
 
         this.subgrid = visibleRow.subgrid;
 
-        this.column = visibleColumn.activeColumn; // enumerable so will be copied to cell renderer object
+        this.dataPoint.x = this.visibleColumn.column.index;
+        this.dataPoint.y = visibleRow.subgridRowIndex;
 
-        this.gridCell.x = visibleColumn.activeColumnIndex;
-        this.gridCell.y = visibleRow.index;
-
-        this.dataCell.x = this.column.index;
-        this.dataCell.y = visibleRow.rowIndex;
+        this.paintSnapshot = undefined;
     }
 
     /**
@@ -103,7 +95,7 @@ export class ViewportCell {
             // points may not be rendered and would normally fail to reset cell's position.
             // Mock column and row objects for this.reset() to use:
             const vc: Viewport.ViewportColumn = {
-                activeColumn: this.grid.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
+                column: this.grid.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
                 activeColumnIndex: gridX,
                 index: -1,
                 left: -1,
@@ -111,7 +103,7 @@ export class ViewportCell {
                 width: -1,
             };
             const vr: Viewport.ViewportRow = {
-                rowIndex: dataY,
+                subgridRowIndex: dataY,
                 index: -1,
                 subgrid,
                 top: -1,
@@ -144,10 +136,10 @@ export class ViewportCell {
      * The raw value of the cell, unformatted.
      */
     get value() {
-        return this.subgrid.getValue(this.column, this.dataCell.y);
+        return this.subgrid.getValue(this.visibleColumn.column, this.dataPoint.y);
     }
     set value(value: DataModel.DataValue) {
-        this.subgrid.setValue(this.column, this.dataCell.y, value);
+        this.subgrid.setValue(this.visibleColumn.column, this.dataPoint.y, value);
     }
 
     /**
@@ -170,7 +162,7 @@ export class ViewportCell {
     get columnProperties() {
         let cp = this._columnProperties;
         if (!cp) {
-            cp = this.column.properties;
+            cp = this.visibleColumn.column.properties;
             // Next 5 lines were commented out in TypeScript conversion
             // if (this.isHeaderRow || this.isSummaryRow) {
             //     cp = cp.columnHeader;
@@ -238,25 +230,18 @@ export class ViewportCell {
     }
 
     /**
-     * A data column is any column that is not the row number column or the tree column.
-     */
-    get isDataColumn() {
-        return true; // this.gridCell.x >= 0;
-    }
-
-    /**
      * A data cell is a cell in both a data row and a data column.
      */
     get isDataCell() {
-        return this.isMainRow && this.isDataColumn;
+        return this.isMainRow;
     }
 
     get isRowFixed() {
-        return this.isMainRow && this.dataCell.y < this.grid.properties.fixedRowCount;
+        return this.isMainRow && this.dataPoint.y < this.grid.properties.fixedRowCount;
     }
 
     get isColumnFixed() {
-        return this.isDataColumn && this.gridCell.x < this.grid.properties.fixedColumnCount;
+        return this.visibleColumn.activeColumnIndex < this.grid.properties.fixedColumnCount;
     }
 
     get isCellFixed() {
@@ -268,7 +253,7 @@ export class ViewportCell {
     }
 
     get isHeaderCell() {
-        return this.isHeaderRow && this.isDataColumn;
+        return this.isHeaderRow;
     }
 
     get isFilterRow() {
@@ -276,7 +261,7 @@ export class ViewportCell {
     }
 
     get isFilterCell() {
-        return this.isFilterRow && this.isDataColumn;
+        return this.isFilterRow;
     }
 
     get isSummaryRow() {
@@ -284,7 +269,7 @@ export class ViewportCell {
     }
 
     get isSummaryCell() {
-        return this.isSummaryRow && this.isDataColumn;
+        return this.isSummaryRow;
     }
 
     // get isTopTotalsRow() {
@@ -312,7 +297,10 @@ export class ViewportCell {
     // }
 }
 
+/** @public */
 export namespace ViewportCell {
+    export type PaintSnapshot = Record<string, unknown>;
+
     export interface Bounds extends RectangleInterface {
     }
 }

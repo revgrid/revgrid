@@ -3,6 +3,7 @@ import { MetaModel } from '../model/meta-model';
 import { SchemaModel } from '../model/schema-model';
 import { ColumnInterface } from './column-interface';
 
+/** @public */
 export interface SubgridInterface {
     readonly role: SubgridInterface.Role;
     readonly schemaModel: SchemaModel;
@@ -25,6 +26,7 @@ export interface SubgridInterface {
     setValue(column: ColumnInterface, rowIndex: number, value: DataModel.DataValue): void;
 }
 
+/** @public */
 export namespace SubgridInterface {
     export const enum RoleEnum {
         main = 'main',

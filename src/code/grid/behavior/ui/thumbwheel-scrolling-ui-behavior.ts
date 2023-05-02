@@ -25,7 +25,7 @@ export class ThumbwheelScrollingUiBehavior extends UiBehavior {
                 }
             }
             if (deltaY) {
-                this.scrollBehavior.scrollVerticalIndex(Math.sign(deltaY)); // Update when Vertical scrolling improved
+                this.scrollBehavior.scrollVerticalIndexBy(Math.sign(deltaY)); // Update when Vertical scrolling improved
                 // grid.scrollVBy(Math.sign(deltaY));
             }
         }

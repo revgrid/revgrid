@@ -43,7 +43,7 @@ export class Mouse {
                 this._hoverCell = cell;
                 this._cellEnteredEventer(cell);
             } else {
-                if (!Point.isEqual(existingHoverCell.gridCell, cell.gridCell)) {
+                if (!Point.isEqual(existingHoverCell.dataPoint, cell.dataPoint)) {
                     this._hoverCell = undefined;
                     this._cellExitedEventer(existingHoverCell);
                     this._hoverCell = cell;

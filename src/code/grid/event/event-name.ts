@@ -1,6 +1,5 @@
 import { CellEditor } from '../cell-editor/cell-editor';
 import { CellEvent } from '../cell/cell-event';
-import { SelectionDetail } from '../selection/selection-detail';
 import { EventDetail } from './event-detail';
 
 /** @public */
@@ -10,13 +9,8 @@ export type EventName = keyof EventName.DetailMap;
 export namespace EventName {
     export interface DetailMap {
         // Canvas
-        'rev-canvas-keydown': EventDetail.Keyboard;
-        'rev-canvas-keyup': EventDetail.Keyboard;
         'rev-canvas-focus-gained': undefined;
         'rev-canvas-focus-lost': undefined;
-        'rev-canvas-touchstart': EventDetail.Touch;
-        'rev-canvas-touchmove': EventDetail.Touch;
-        'rev-canvas-touchend': EventDetail.Touch;
         'rev-canvas-resized': EventDetail.Resize;
 
         // SchemaModel / DataModel
@@ -38,13 +32,12 @@ export namespace EventName {
         'rev-editor-key-down': CellEditor.KeyEventDetail;
         'rev-editor-key-press': CellEditor.KeyEventDetail;
         'rev-editor-data-change': CellEditor.DataChangeEventDetail;
-        'rev-selection-changed': SelectionDetail;
+        'rev-selection-changed': EventDetail.Grid;
         'rev-context-menu': EventDetail.Mouse;
         'rev-mouse-up': EventDetail.Mouse;
         'rev-mouse-down': EventDetail.Mouse;
         'rev-mouse-move': EventDetail.Mouse;
         'rev-wheel-move': EventDetail.Wheel;
-        'rev-button-pressed': CellEvent;
         'rev-key-down': EventDetail.Keyboard;
         'rev-key-up': EventDetail.Keyboard;
         'rev-filter-applied': undefined;
@@ -55,9 +48,9 @@ export namespace EventName {
         'rev-columns-view-widths-changed': EventDetail.ColumnsViewWidthsChanged;
         'rev-grid-rendered': EventDetail.Grid;
         'rev-grid-resized': EventDetail.Resize;
-        'rev-touch-start': EventDetail.Touch;
-        'rev-touch-move': EventDetail.Touch;
-        'rev-touch-end': EventDetail.Touch;
+        'rev-touch-start': TouchEvent;
+        'rev-touch-move': TouchEvent;
+        'rev-touch-end': TouchEvent;
         'rev-scroll-x': EventDetail.Scroll;
         'rev-scroll-y': EventDetail.Scroll;
         'rev-request-cell-edit': CellEditor.RequestCellEditDetail;

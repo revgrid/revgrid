@@ -1,7 +1,6 @@
 import { CellEvent } from '../cell/cell-event';
 import { ViewportCell } from '../cell/viewport-cell';
 import { Effect, effectFactory } from '../effects/effects';
-import { EventDetail } from '../event/event-detail';
 import { Formatter } from '../lib/localization';
 import { WritablePoint } from '../lib/point';
 import { RectangleInterface } from '../lib/rectangle-interface';
@@ -133,15 +132,12 @@ export abstract class CellEditor {
             if (stopped) {
                 // Editing successfully stopped
                 // -> send the event down the feature chain
-                const eventDetail: EventDetail.Keyboard = {
-                    time: Date.now(),
-                    primitiveEvent: e,
-                    // legacyChar: e.legacyKey, // decorated by getKeyChar
-                    // code: e.charCode,
-                    // key: e.keyCode,
-                    editor: this
-                }
-                grid.delegateKeyDown(eventDetail);
+                // const eventDetail: EventDetail.Keyboard = {
+                //     revgrid_nowTime: Date.now(),
+                //     primitiveEvent: e,
+                //     editor: this
+                // }
+                // grid.delegateKeyDown(eventDetail);
             }
         }
 
@@ -348,17 +344,17 @@ export abstract class CellEditor {
      * @returns Data changed and pre-cell-edit event was not canceled.
      */
     saveEditorValue(value: unknown): boolean {
-        const save = (
-            !(value && value === this.initialValue) && // data changed
-            this.grid.fireBeforeCellEdit(this.viewportCell.gridCell, this.initialValue, value, this) // proceed
-        );
+        // const save = (
+        //     !(value && value === this.initialValue) && // data changed
+        //     this.grid.fireBeforeCellEdit(this.viewportCell.gridPoint, this.initialValue, value, this) // proceed
+        // );
 
-        if (save) {
-            // this.renderedCell.value = value;
-            this.grid.fireAfterCellEdit(this.viewportCell.gridCell, this.initialValue, value, this);
-        }
+        // if (save) {
+        //     // this.renderedCell.value = value;
+        //     this.grid.fireAfterCellEdit(this.viewportCell.gridPoint, this.initialValue, value, this);
+        // }
 
-        return save;
+        return false; // return save
     }
 
     /**

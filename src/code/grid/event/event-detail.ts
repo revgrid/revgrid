@@ -1,7 +1,6 @@
 import { CellEditor } from '../cell-editor/cell-editor';
 import { ViewportCell } from '../cell/viewport-cell';
 import { ColumnInterface } from '../common/column-interface';
-import { Point } from '../lib/point';
 import { Revgrid } from '../revgrid';
 
 /** @public */
@@ -20,28 +19,30 @@ export namespace EventDetail {
         revgridViewportCell?: ViewportCell;
     }
 
-    export interface Keyboard {
-        readonly time: number;
-        readonly primitiveEvent: KeyboardEvent;
-        // readonly legacyChar: e.legacyKey,
-        // readonly code: number,
-        // readonly key: number,
-        readonly repeat?: number,
-        readonly repeatCount?: number,
-        readonly repeatStartTime?: number,
-        readonly editor?: CellEditor;
+    export interface Keyboard extends KeyboardEvent {
+        readonly revgrid_nowTime: number;
+        readonly revgrid_repeatCount: number;
+        readonly revgrid_repeatStartTime: number;
+        readonly revgrid_navigateKey: Keyboard.NavigateKey | undefined;
+    }
+
+    export namespace Keyboard {
+        export const enum NavigateKey {
+            left,
+            right,
+            up,
+            down,
+            pageUp,
+            pageDown,
+            home,
+            end,
+        }
     }
 
     export interface EditorKeyboard extends Keyboard {
         readonly time: number;
         readonly grid: Revgrid,
         readonly editor: CellEditor,
-    }
-
-    export interface Touch {
-        readonly time: number;
-        readonly primitiveEvent: TouchEvent;
-        readonly touches: Point[];
     }
 
     export interface Grid {

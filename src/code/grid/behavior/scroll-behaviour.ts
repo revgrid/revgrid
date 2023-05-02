@@ -1,8 +1,8 @@
 import { CanvasEx } from '../canvas/canvas-ex';
 import { ColumnsManager } from '../column/columns-manager';
-import { SubgridInterface } from '../common/subgrid-interface';
 import { FinBar } from '../finbar/finbar';
 import { GridProperties } from '../grid-properties';
+import { AssertError } from '../grid-public-api';
 import { Viewport } from '../renderer/viewport';
 import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
@@ -28,8 +28,8 @@ export class ScrollBehavior {
         this.horizontalScroller.onchange = (x) => this.handleHScrollerChange(x);
         this.verticalScroller.onchange = (y) => this.handleVScrollerChange(y);
         this.verticalScroller.paging = {
-            up: () => this.pageUp(),
-            down: () => this.pageDown()
+            up: () => this.scrollPageUp(),
+            down: () => this.scrollPageDown()
         }
 
     }
@@ -38,9 +38,7 @@ export class ScrollBehavior {
      * The index of the row at the top of the view in the main sub grid.
      */
     get rowScrollAnchorIndex() { return this._rowScrollAnchorIndex; }
-    set rowScrollAnchorIndex(value: number) {
-        this.handleVScrollerChange(value);
-    }
+    set rowScrollAnchorIndex(value: number) { this.handleVScrollerChange(value); }
 
     get horizontalViewportSize() { return this.horizontalScroller.viewportSize; }
     get horizontalContentStart() { return this.horizontalScroller.contentStart; }
@@ -92,8 +90,8 @@ export class ScrollBehavior {
         }
     }
 
-    scrollVerticalIndex(delta: number) {
-        this.verticalScroller.scrollIndex(delta);
+    scrollVerticalIndexBy(delta: number) {
+        this.verticalScroller.scrollIndexBy(delta);
     }
 
     /**
@@ -103,7 +101,7 @@ export class ScrollBehavior {
      */
     scrollColumnsBy(offset: number) {
         if (this._viewport.scrollColumnScrollAnchor(offset, this._gridProperties.gridRightAligned)) {
-            this._viewport.computeCellsBounds();
+            this._viewport.computeColumns();
             const viewportStart = this.calculateColumnScrollAnchorViewportStart();
             this.horizontalScroller.setViewportStart(viewportStart);
             return true;
@@ -114,43 +112,82 @@ export class ScrollBehavior {
 
     scrollViewHorizontallyBy(delta: number) {
         if (this._viewport.horizontalScrollableContentOverflowed) {
-            this.horizontalScroller.scroll(delta);
+            this.horizontalScroller.scrollBy(delta);
         }
     }
 
-    scrollHorizontal(delta: number) {
-        this.horizontalScroller.scroll(delta);
+    scrollHorizontalBy(delta: number) {
+        this.horizontalScroller.scrollBy(delta);
     }
 
-    scrollToMakeVisible(activeColumnIndex: number, r: number, subgrid: SubgridInterface | undefined, maximally: boolean) {
+    setHorizontalScrollerViewportStart(start: number) {
+        this.horizontalScroller.setViewportStart(start);
+    }
+
+    scrollToMakeVisible(activeColumnIndex: number, subgridRowIndex: number, maximally: boolean) {
         let computeCellsBoundsRequired = this.updateColumnScrollAnchorsToMakeColumnVisible(activeColumnIndex, maximally);
 
-        if (subgrid === undefined || subgrid === this._subgridsManager.mainSubgrid) {
-
-            const scrollableRowRange = this._viewport.scrollableRowRange;
-            const fixedRowCount = this._gridProperties.fixedRowCount;
-            let delta: number;
-
-            if (
-                scrollableRowRange !== undefined &&
-                r >= fixedRowCount && // scroll only if target not in fixed rows
-                (
-                    // target is above scrollable rows; negative delta scrolls up
-                    (delta = r - scrollableRowRange.start - 1) < 0 ||
-
-                    // target is below scrollable rows; positive delta scrolls down
-                    (delta = r - scrollableRowRange.after) > 0
-                )
-            ) {
-                this.verticalScroller.scrollIndex(delta);
-                computeCellsBoundsRequired = true; // Do this until fix up vertical scrolling
+        const fixedRowCount = this._gridProperties.fixedRowCount;
+        // scroll only if target not in fixed rows
+        if (subgridRowIndex >= fixedRowCount) {
+            const firstScrollableActiveColumnIndex = this._viewport.firstScrollableActiveColumnIndex;
+            // Only scroll if got scrollable columns
+            if (firstScrollableActiveColumnIndex !== undefined) {
+                if (subgridRowIndex < firstScrollableActiveColumnIndex) {
+                    this.verticalScroller.scrollIndexBy(subgridRowIndex - firstScrollableActiveColumnIndex);
+                    computeCellsBoundsRequired = true; // Do this until fix up vertical scrolling
+                } else {
+                    const lastScrollableActiveColumnIndex = this._viewport.lastScrollableActiveColumnIndex;
+                    if (lastScrollableActiveColumnIndex === undefined) {
+                        throw new AssertError('SBSTMV82224'); // if first then must be last
+                    } else {
+                        if (subgridRowIndex > lastScrollableActiveColumnIndex) {
+                            this.verticalScroller.scrollIndexBy(subgridRowIndex - lastScrollableActiveColumnIndex);
+                            computeCellsBoundsRequired = true; // Do this until fix up vertical scrolling
+                        }
+                    }
+                }
             }
-
         }
 
         if (computeCellsBoundsRequired) {
             this.processComputeCellsBoundsRequired()
         }
+    }
+
+    /**
+     * @desc Scroll up one full page.
+     */
+    scrollPageUp() {
+        xx
+        const rowNum = this._viewport.getPageUpRow();
+        if (rowNum === undefined) {
+            return undefined;
+        } else {
+            this.handleVScrollerChange(rowNum);
+            return rowNum;
+        }
+    }
+
+    /**
+     * @desc Scroll down one full page.
+     */
+    scrollPageDown() {
+        const rowNum = this._viewport.getPageDownRow();
+        if (rowNum === undefined) {
+            return undefined;
+        } else {
+            this.handleVScrollerChange(rowNum);
+            return rowNum;
+        }
+    }
+
+    scrollPageLeft() {
+
+    }
+
+    scrollPageRight() {
+
     }
 
     stepScroll(directionCanvasOffsetX: number, directionCanvasOffsetY: number) {
@@ -189,7 +226,7 @@ export class ScrollBehavior {
                         if (lastVisibleScrollableColumnLeftOverflow > 0) {
                             wantedMaximallyVisibleActiveColumnIndex = lastVisibleScrollableActiveColumnIndex;
                         } else {
-                            const lastScrollableActiveColumnIndex = this._columnsManager.getActiveColumnCount() - 1;
+                            const lastScrollableActiveColumnIndex = this._columnsManager.activeColumnCount - 1;
                             if (lastVisibleScrollableActiveColumnIndex < lastScrollableActiveColumnIndex) {
                                 wantedMaximallyVisibleActiveColumnIndex = lastVisibleScrollableActiveColumnIndex + 1;
                             }
@@ -277,13 +314,13 @@ export class ScrollBehavior {
 
     private updateColumnScrollAnchorsToMakeColumnVisible(c: number, maximally: boolean) {
         const gridRightAligned = this._gridProperties.gridRightAligned
-        const scrollableColumnRange = this._viewport.scrollableColumnRange;
+        const firstViewportScrollableActiveColumnIndex = this._viewport.firstScrollableActiveColumnIndex;
         const fixedColumnCount = this._gridProperties.fixedColumnCount;
         let anchorUpdated = false;
 
         // scroll only if target not in fixed columns unless grid right aligned
-        if (scrollableColumnRange !== undefined && (c >= fixedColumnCount || gridRightAligned)) {
-            const leftDelta =  c - scrollableColumnRange.start;
+        if (firstViewportScrollableActiveColumnIndex !== undefined && (c >= fixedColumnCount || gridRightAligned)) {
+            const leftDelta =  c - firstViewportScrollableActiveColumnIndex;
             const columnIsToLeft =
                 leftDelta < 0 ||
                 (maximally && leftDelta === 0 && !this._viewport.firstScrollableVisibleColumnMaximallyVisible);
@@ -297,18 +334,23 @@ export class ScrollBehavior {
                     anchorUpdated = this._viewport.setColumnScrollAnchor(c);
                 }
             } else {
-                const rightDelta = c - scrollableColumnRange.after;
-                const columnIsToRight =
-                    rightDelta > 0 ||
-                    (maximally && rightDelta === 0 && !this._viewport.lastScrollableVisibleColumnMaximallyVisible);
+                const lastViewportScrollableActiveColumnIndex = this._viewport.lastScrollableActiveColumnIndex;
+                if (lastViewportScrollableActiveColumnIndex === undefined) {
+                    throw new AssertError('SBUCSATMCV13390');
+                } else {
+                    const rightDelta = c - lastViewportScrollableActiveColumnIndex;
+                    const columnIsToRight =
+                        rightDelta > 0 ||
+                        (maximally && rightDelta === 0 && !this._viewport.lastScrollableVisibleColumnMaximallyVisible);
 
-                if (columnIsToRight) {
-                    // target is to right of scrollable columns
-                    if (gridRightAligned) {
-                        anchorUpdated = this._viewport.setColumnScrollAnchor(c);
-                    } else {
-                        const {index, offset} = this._viewport.calculateColumnScrollAnchorToScrollIntoView(c, gridRightAligned, this.horizontalScroller.viewportSize);
-                        anchorUpdated = this._viewport.setColumnScrollAnchor(index, offset);
+                    if (columnIsToRight) {
+                        // target is to right of scrollable columns
+                        if (gridRightAligned) {
+                            anchorUpdated = this._viewport.setColumnScrollAnchor(c);
+                        } else {
+                            const {index, offset} = this._viewport.calculateColumnScrollAnchorToScrollIntoView(c, gridRightAligned, this.horizontalScroller.viewportSize);
+                            anchorUpdated = this._viewport.setColumnScrollAnchor(index, offset);
+                        }
                     }
                 }
             }
@@ -318,7 +360,7 @@ export class ScrollBehavior {
     }
 
     private processComputeCellsBoundsRequired() {
-        this._viewport.computeCellsBounds();
+        this._viewport.compute();
         const viewportStart = this.calculateColumnScrollAnchorViewportStart();
         this.horizontalScroller.setViewportStart(viewportStart);
     }
@@ -328,7 +370,7 @@ export class ScrollBehavior {
      * @param newValue - The new scroll value.
      * @internal
      */
-    public handleVScrollerChange(y: number) {
+    private handleVScrollerChange(y: number) {
         y = Math.min(this.verticalScroller.contentRange.finish, Math.max(0, Math.round(y)));
         if (y !== this._rowScrollAnchorIndex) {
             this._behaviorChangedEventer();
@@ -346,7 +388,7 @@ export class ScrollBehavior {
      * @param x - The new scroll value.
      * @internal
      */
-    public handleHScrollerChange(x: number) {
+    private handleHScrollerChange(x: number) {
         const updated = this._viewport.updateColumnScrollAnchor(
             this.horizontalScroller.viewportStart,
             this.horizontalScroller.viewportFinish,
@@ -360,10 +402,6 @@ export class ScrollBehavior {
                 this._scrollEventer(true, x, this._viewport.columnScrollAnchorIndex, this._viewport.columnScrollAnchorOffset);
             }, 0);
         }
-    }
-
-    setHorizontalScrollerViewportStart(start: number) {
-        this.horizontalScroller.setViewportStart(start);
     }
 
     /** @internal */
@@ -398,7 +436,7 @@ export class ScrollBehavior {
             //     this.cellEditor.scrollValueChangedNotification();
             // }
 
-            this._viewport.computeCellsBounds();
+            this._viewport.compute();
         }
     }
 
@@ -411,7 +449,7 @@ export class ScrollBehavior {
         this.updateHorizontalScroll(false);
         this.updateVerticalScroll(false);
 
-        this._viewport.computeCellsBounds();
+        this._viewport.computeColumns();
         const viewportStart = this.calculateColumnScrollAnchorViewportStart();
         this.horizontalScroller.setViewportStart(viewportStart);
 
@@ -436,7 +474,7 @@ export class ScrollBehavior {
 
         const gridProps = this._gridProperties;
         const gridRightAligned = gridProps.gridRightAligned;
-        const columnCount = this._columnsManager.getActiveColumnCount();
+        const columnCount = this._columnsManager.activeColumnCount;
         const fixedColumnCount = this._gridProperties.fixedColumnCount;
 
         let scrollerContentStart: number;
@@ -485,7 +523,7 @@ export class ScrollBehavior {
         }
 
         if (recalculateView) {
-            this._viewport.computeCellsBounds();
+            this._viewport.computeColumns();
             const viewportStart = this.calculateColumnScrollAnchorViewportStart();
             this.horizontalScroller.setViewportStart(viewportStart);
         }
@@ -513,48 +551,8 @@ export class ScrollBehavior {
         this.handleVScrollerChange(Math.min(this._rowScrollAnchorIndex, vMax));
 
         if (recalculateView) {
-            this._viewport.computeCellsBounds();
+            this._viewport.computeRows();
         }
-    }
-
-    /**
-     * @desc Scroll up one full page.
-     */
-    pageUp() {
-        const rowNum = this._viewport.getPageUpRow();
-        if (rowNum === undefined) {
-            return undefined;
-        } else {
-            this.handleVScrollerChange(rowNum);
-            return rowNum;
-        }
-    }
-
-    /**
-     * @desc Scroll down one full page.
-     */
-    pageDown() {
-        const rowNum = this._viewport.getPageDownRow();
-        if (rowNum === undefined) {
-            return undefined;
-        } else {
-            this.handleVScrollerChange(rowNum);
-            return rowNum;
-        }
-    }
-
-    /**
-     * @desc Not yet implemented.
-     */
-    pageLeft() {
-        throw 'page left not yet implemented';
-    }
-
-    /**
-     * @desc Not yet implemented.
-     */
-    pageRight() {
-        throw 'page right not yet implemented';
     }
 
     private calculateColumnScrollAnchorViewportStart(): number {
@@ -678,7 +676,7 @@ export class ScrollBehavior {
 
     private calculateActiveNonFixedColumnsWidth() {
         const gridLinesVWidth = this._gridProperties.gridLinesVWidth;
-        const columnCount = this._columnsManager.getActiveColumnCount();
+        const columnCount = this._columnsManager.activeColumnCount;
         const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         let result = 0;
         for (let i = fixedColumnCount; i < columnCount; i++) {

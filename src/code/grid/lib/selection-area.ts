@@ -9,6 +9,8 @@ export interface SelectionArea extends RectangleInterface {
     readonly exclusiveBottomRight: Point;
     readonly firstCorner: Corner;
 
+    readonly inclusiveFirst: Point;
+
     readonly width: number;
     readonly height: number;
     readonly size: number;

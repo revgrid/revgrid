@@ -1,5 +1,4 @@
 import { SubgridDefinition } from '../adapter-set-config';
-import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
 import { ColumnsManager } from '../column/columns-manager';
 import { SubgridInterface } from '../common/subgrid-interface';
 import { GridProperties } from '../grid-properties';
@@ -19,7 +18,6 @@ export class SubgridsManager {
 
     constructor(
         private readonly _gridProperties: GridProperties,
-        private readonly _cellPainterRepository: CellPainterRepository,
         private readonly _columnsManager: ColumnsManager,
     ) {
     }
@@ -41,7 +39,7 @@ export class SubgridsManager {
             (definition) => {
                 if (definition !== undefined) {
                     const subgridHandle = this._handledSubgrids.length;
-                    const subgrid = this.createSubgridFromDefinition(this._cellPainterRepository, subgridHandle, definition);
+                    const subgrid = this.createSubgridFromDefinition(subgridHandle, definition);
                     subgrids.push(subgrid);
                     this._handledSubgrids.push(subgrid);
                     if (subgrid.role === SubgridInterface.RoleEnum.main) {
@@ -63,7 +61,7 @@ export class SubgridsManager {
      * @desc The spec may describe either an existing data model, or a constructor for a new data model.
      * @returns either Subgrid or MainSubgrid depending on role specified in Spec
      */
-    private createSubgridFromDefinition(cellPainterRepository: CellPainterRepository, subgridHandle: Subgrid.Handle, definition: SubgridDefinition) {
+    private createSubgridFromDefinition(subgridHandle: Subgrid.Handle, definition: SubgridDefinition) {
         let subgrid: Subgrid;
 
         if (definition.role === SubgridInterface.RoleEnum.main && this._mainSubgrid !== undefined) {
@@ -76,19 +74,19 @@ export class SubgridsManager {
             if (typeof dataModel === 'function') {
                 dataModel = new dataModel();
             }
-            let metaModel = definition.metaModel;
-            if (typeof metaModel === 'function') {
-                metaModel = new metaModel();
-            }
             let cellModel = definition.cellModel;
             if (typeof cellModel === 'function') {
                 cellModel = new cellModel();
+            }
+            let metaModel = definition.metaModel;
+            if (typeof metaModel === 'function') {
+                metaModel = new metaModel();
             }
             let selectable = definition.selectable;
             if (selectable === undefined) {
                 selectable = isMainRole;
             }
-            subgrid = this.createSubgrid(cellPainterRepository, subgridHandle, role, dataModel, metaModel, cellModel, selectable);
+            subgrid = this.createSubgrid(subgridHandle, role, dataModel, cellModel, metaModel, selectable);
         }
 
         return subgrid;
@@ -96,9 +94,8 @@ export class SubgridsManager {
 
     /** @returns either Subgrid or MainSubgrid depending on role */
     private createSubgrid(
-        cellPainterRepository: CellPainterRepository,
         subgridHandle: Subgrid.Handle,
-        role: SubgridInterface.Role, dataModel: DataModel, metaModel: MetaModel | undefined, cellModel: CellModel | undefined,
+        role: SubgridInterface.Role, dataModel: DataModel, cellModel: CellModel, metaModel: MetaModel | undefined,
         selectable: boolean,
     ) {
         let subgrid: Subgrid;
@@ -106,26 +103,24 @@ export class SubgridsManager {
             subgrid = new MainSubgrid(
                 this._gridProperties,
                 this._columnsManager,
-                cellPainterRepository,
                 subgridHandle,
                 role,
                 this._columnsManager.schemaModel,
                 dataModel,
-                metaModel,
                 cellModel,
+                metaModel,
                 selectable,
             );
         } else {
             subgrid = new Subgrid(
                 this._gridProperties,
                 this._columnsManager,
-                cellPainterRepository,
                 subgridHandle,
                 role,
                 this._columnsManager.schemaModel,
                 dataModel,
-                metaModel,
                 cellModel,
+                metaModel,
                 selectable,
             );
         }

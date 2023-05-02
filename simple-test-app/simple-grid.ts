@@ -8,7 +8,7 @@ import {
     RevSimpleMainAdapter,
     RevSimpleSchemaAdapter,
     SelectionDetail,
-    Subgrid
+    SubgridInterface
 } from "..";
 
 export class SimpleGrid extends Revgrid {
@@ -34,11 +34,11 @@ export class SimpleGrid extends Revgrid {
             schemaModel: adapterSet.schemaAdapter,
             subgrids: [
                 {
-                    role: Subgrid.RoleEnum.header,
+                    role: SubgridInterface.RoleEnum.header,
                     dataModel: adapterSet.headerAdapter,
                 },
                 {
-                    role: Subgrid.RoleEnum.main,
+                    role: SubgridInterface.RoleEnum.main,
                     dataModel: adapterSet.mainAdapter,
                 }
             ],
@@ -66,7 +66,7 @@ export class SimpleGrid extends Revgrid {
 
     get fieldCount(): number { return this.schemaAdapter.getSchema().length; }
 
-    get columnCount(): number { return this.getActiveColumnCount(); }
+    get columnCount(): number { return this.activeColumnCount; }
 
     get focusedRowIndex(): number | undefined {
         const rectangles = this.getSelectedRectangles();

@@ -1,9 +1,7 @@
 
-import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { BeingPaintedCell } from '../cell/being-painted-cell';
-import { GridProperties } from '../grid-properties';
-import { CellPaintConfig } from '../renderer/cell-paint-config';
-import { CellPainter } from './cell-painter';
+import { CanvasRenderingContext2DEx, CellPainter, GridProperties, Revgrid, ViewportCell } from '../../grid/grid-public-api';
+import { SimpleCellPaintConfig } from './simple-cell-paint-config';
+import { SimpleCellPaintConfigAccessor } from './simple-cell-paint-config-accessor';
 
 const WHITESPACE = /\s\s+/g;
 
@@ -15,9 +13,103 @@ const WHITESPACE = /\s\s+/g;
  * Use `gc.cache` instead which we have implemented to cache the graphics context properties. Reads on the graphics context (`gc`) properties are expensive but not quite as expensive as writes. On read of a `gc.cache` prop, the actual `gc` prop is read into the cache once and from then on only the cache is referenced for that property. On write, the actual prop is only written to when the new value differs from the cached value.
  *
  * Clipping bounds are not set here as this is also an expensive operation. Instead, we employ a number of strategies to truncate overflowing text and content.
+ * @public
  */
 export class SimpleCellPainter implements CellPainter {
-    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined {
+    private _config: SimpleCellPaintConfig;
+
+    loadConfig(grid: Revgrid, cell: ViewportCell, prefillColor: string | undefined) {
+        const config = new SimpleCellPaintConfigAccessor(cell, cell.isHeaderCell, cell.isFilterCell);
+
+        const selection = grid.selection;
+        const subgrid = cell.subgrid;
+        const isMainRow = subgrid.isMain;
+        const isHeaderRow = subgrid.isHeader;
+        const isFilterRow = subgrid.isFilter;
+        const x = (config.gridCell = cell.gridPoint).x;
+        const r = (config.dataCell = cell.dataPoint).y;
+        const value = subgrid.getValue(cell.visibleColumn.column, r);
+
+
+        const {
+            rowSelected: isRowSelected,
+            columnSelected: isColumnSelected,
+            cellSelected: isCellSelected
+        } = selection.getCellSelectedAreaTypes(x, r, subgrid);
+
+        /* if (isHandleColumn) {
+            isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
+            config.halign = 'right';
+        } else if (isTreeColumn) {
+            isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
+            config.halign = 'left';
+        } else if (isMainRow) {
+            isSelected = isCellSelected || isRowSelected || isColumnSelected;
+        } else if (isFilterRow) {
+            isSelected = false;
+        } else if (isColumnSelected) {
+            isSelected = true;
+        } else {
+            isSelected = selection.isCellSelectedInColumn(x); // header or summary or other non-meta
+        }*/
+
+        const isSelected = isCellSelected || isRowSelected || isColumnSelected;
+        // Set cell contents:
+        // * For all cells: set `config.value` (writable property)
+        // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
+        // * For non-data row tree column cells, do nothing (these cells render blank so value is undefined)
+        // if (!isHandleColumn) {
+        config.dataRow = subgrid.getSingletonDataRow(r);
+        // } else if (isDataRow) {
+            // row handle for a data row
+            // if (config.rowHeaderNumbers) {
+            //     value = r + 1; // row number is 1-based
+            // }
+        // } else
+        if (isHeaderRow) {
+            // row handle for header row: gets "master" checkbox
+            config.allRowsSelected = selection.allRowsSelected;
+        }
+
+        config.isSelected = isSelected;
+        config.isMainRow = isMainRow;
+        config.isHeaderRow = isHeaderRow;
+        config.isFilterRow = isFilterRow;
+        config.isUserDataArea = isMainRow;
+        const hoverCell = grid.mouse.hoverCell;
+        const hasMouse = grid.canvasEx.hasMouse;
+        const columnHovered =
+            hasMouse &&
+            (hoverCell !== undefined) &&
+            (hoverCell.isDataColumn) &&
+            (hoverCell.gridPoint.x === cell.gridPoint.x);
+        const rowHovered =
+            hasMouse &&
+            subgrid.isMain &&
+            (hoverCell !== undefined) &&
+            (hoverCell.gridPoint.y === cell.gridPoint.y);
+
+        config.isColumnHovered = columnHovered;
+        config.isRowHovered = rowHovered;
+        config.bounds = cell.bounds;
+        const cellHovered = rowHovered && columnHovered;
+        config.isCellHovered = cellHovered;
+        config.isCellSelected = isCellSelected;
+        config.isRowFocused = grid.focus.isRowFocused(r, subgrid);
+        config.isRowSelected = isRowSelected;
+        config.isColumnSelected = isColumnSelected;
+        config.isInCurrentSelectionRectangle = selection.isPointInLastArea(x, r);
+        config.prefillColor = prefillColor;
+
+        config.value = value;
+
+        config.snapshot = cell.paintSnapshot as SimpleCellPaintConfig.Snapshot; // supports partial render
+
+    }
+
+    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
+        const config = this._config;
+
         const val = config.value;
         const bounds = config.bounds;
         const x = bounds.x;
@@ -25,8 +117,6 @@ export class SimpleCellPainter implements CellPainter {
         const width = bounds.width;
         const height = bounds.height;
         const partialRender = config.prefillColor === undefined; // signifies abort before rendering if same
-        const snapshot = config.snapshot as Snapshot;
-        let same = snapshot && partialRender;
         let valWidth = 0;
         let hover: GridProperties.HoverColors;
         let hoverColor: string | undefined;
@@ -39,7 +129,7 @@ export class SimpleCellPainter implements CellPainter {
 
         // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
 
-        const valText = config.formatValue(val /*, config*/);
+        const valText = config.value as string;
 
         const textFont = config.isSelected ? config.foregroundSelectionFont : config.font;
 
@@ -47,10 +137,19 @@ export class SimpleCellPainter implements CellPainter {
             ? config.foregroundSelectionColor
             : config.color;
 
-        same = same &&
-            valText === snapshot.value &&
-            textFont === snapshot.textFont &&
-            textColor === snapshot.textColor;
+        const snapshot = config.snapshot as SimpleCellPaintConfig.Snapshot | undefined;
+        let snapshotColorsLength: number;
+        let same: boolean;
+        if (snapshot === undefined) {
+            snapshotColorsLength = 0;
+            same = false;
+        } else {
+            snapshotColorsLength = snapshot.colors.length;
+            same = partialRender &&
+                valText === snapshot.value &&
+                textFont === snapshot.textFont &&
+                textColor === snapshot.textColor;
+        }
 
         // fill background only if our bgColor is populated or we are a selected cell
         const colors: string[] = [];
@@ -72,28 +171,27 @@ export class SimpleCellPainter implements CellPainter {
                 if (!inheritsBackgroundColor) {
                     foundationColor = true;
                     colors.push(config.backgroundColor);
-                    same = same && foundationColor === snapshot.foundationColor &&
+                    same = same &&
+                        snapshot !== undefined &&
+                        foundationColor === snapshot.foundationColor &&
                         config.backgroundColor === snapshot.colors[c++];
                 }
             }
 
             if (selectColor !== undefined) {
                 colors.push(selectColor);
-                same = same && selectColor === snapshot.colors[c++];
+                same = same &&
+                    snapshot !== undefined &&
+                    selectColor === snapshot.colors[c++];
             }
         }
         if (hoverColor !== undefined) {
             colors.push(hoverColor);
-            same = same && hoverColor === snapshot.colors[c++];
+            same = same && snapshot !== undefined && hoverColor === snapshot.colors[c++];
         }
 
-        // todo check if icons have changed
-        if (same && c === snapshot.colors.length) {
-            return undefined;
-        }
-
-        // return a snapshot to save in cellEvent for future comparisons by partial renderer
-        config.snapshot = {
+        // return a snapshot to save in Viewport cell for future comparisons by partial renderer
+        const newSnapshot: SimpleCellPaintConfig.Snapshot = {
             value: valText,
             textColor,
             textFont,
@@ -101,31 +199,33 @@ export class SimpleCellPainter implements CellPainter {
             colors
         };
 
-        layerColors(gc, colors, x, y, width, height, foundationColor);
+        // todo check if icons have changed
+        if (same && c === snapshotColorsLength) {
+            return {
+                width: undefined,
+                snapshot: newSnapshot,
+            };
+        } else {
+            layerColors(gc, colors, x, y, width, height, foundationColor);
 
-        // Measure left and right icons, needed for rendering and for return value (min width)
-        const leftPadding = config.cellPadding;
-        const rightPadding = config.cellPadding;
+            // Measure left and right icons, needed for rendering and for return value (min width)
+            const leftPadding = config.cellPadding;
+            const rightPadding = config.cellPadding;
 
-        // draw text
-        gc.cache.fillStyle = textColor;
-        gc.cache.font = textFont;
-        valWidth = config.isHeaderRow && config.headerTextWrapping
-            ? renderMultiLineText(gc, config, valText, leftPadding, rightPadding)
-            : renderSingleLineText(gc, config, valText, leftPadding, rightPadding);
+            // draw text
+            gc.cache.fillStyle = textColor;
+            gc.cache.font = textFont;
+            valWidth = config.isHeaderRow && config.headerTextWrapping
+                ? renderMultiLineText(gc, config, valText, leftPadding, rightPadding)
+                : renderSingleLineText(gc, config, valText, leftPadding, rightPadding);
 
-        return leftPadding + valWidth + rightPadding;
+            return {
+                width: leftPadding + valWidth + rightPadding,
+                snapshot: newSnapshot,
+            };
+        }
     }
 }
-
-interface Snapshot extends BeingPaintedCell.Snapshot {
-    value: string;
-    foundationColor: boolean;
-    textColor: string;
-    textFont: string;
-    colors: string[];
-}
-
 
 /* [SIZE NOTE] (11/1/2018): Always call `drawImage` with explicit width and height overload.
  * Possible browser bug: Although 3rd and 4th parameters to `drawImage` are optional,
@@ -141,7 +241,7 @@ interface Snapshot extends BeingPaintedCell.Snapshot {
  * @summary Renders single line text.
  * @param val - The text to render in the cell.
  */
-function renderMultiLineText(gc: CanvasRenderingContext2DEx, config: CellPaintConfig, val: string, leftPadding: number, rightPadding: number) {
+function renderMultiLineText(gc: CanvasRenderingContext2DEx, config: SimpleCellPaintConfig, val: string, leftPadding: number, rightPadding: number) {
     const x = config.bounds.x;
     const y = config.bounds.y;
     const width = config.bounds.width;
@@ -196,7 +296,7 @@ function renderMultiLineText(gc: CanvasRenderingContext2DEx, config: CellPaintCo
  * @summary Renders single line text.
  * @param val - The text to render in the cell.
  */
-function renderSingleLineText(gc: CanvasRenderingContext2DEx, config: CellPaintConfig, val: string, leftPadding: number, rightPadding: number) {
+function renderSingleLineText(gc: CanvasRenderingContext2DEx, config: SimpleCellPaintConfig, val: string, leftPadding: number, rightPadding: number) {
     let x = config.bounds.x;
     let y = config.bounds.y;
     const width = config.bounds.width;
@@ -271,7 +371,7 @@ function renderSingleLineText(gc: CanvasRenderingContext2DEx, config: CellPaintC
     return minWidth;
 }
 
-function findLines(gc: CanvasRenderingContext2DEx, config: CellPaintConfig, words: string[], width: number) {
+function findLines(gc: CanvasRenderingContext2DEx, config: SimpleCellPaintConfig, words: string[], width: number) {
 
     if (words.length <= 1) {
         return words;
@@ -307,7 +407,7 @@ function findLines(gc: CanvasRenderingContext2DEx, config: CellPaintConfig, word
     }
 }
 
-function strikeThrough(config: CellPaintConfig, gc: CanvasRenderingContext2DEx, text: string, x: number, y: number, thickness: number) {
+function strikeThrough(config: SimpleCellPaintConfig, gc: CanvasRenderingContext2DEx, text: string, x: number, y: number, thickness: number) {
     const textWidth = gc.getTextWidth(text);
 
     switch (gc.cache.textAlign) {
@@ -326,7 +426,7 @@ function strikeThrough(config: CellPaintConfig, gc: CanvasRenderingContext2DEx, 
     gc.lineTo(x + textWidth + 1, y);
 }
 
-function underline(config: CellPaintConfig, gc: CanvasRenderingContext2DEx, text: string, x: number, y: number, thickness: number) {
+function underline(config: SimpleCellPaintConfig, gc: CanvasRenderingContext2DEx, text: string, x: number, y: number, thickness: number) {
     const textHeight = gc.getTextHeight(config.font).height;
     const textWidth = gc.getTextWidth(text);
 
@@ -356,8 +456,4 @@ function layerColors(gc: CanvasRenderingContext2DEx, colors: string[], x: number
             gc.fillRect(x, y, width, height);
         }
     }
-}
-
-export namespace SimpleCellPainter {
-    export const typeName = 'SimpleCell';
 }

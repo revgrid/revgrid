@@ -1,12 +1,9 @@
 import { CanvasEx } from '../canvas/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
-import { BeingPaintedCell } from '../cell/being-painted-cell';
 import { ViewportCell } from '../cell/viewport-cell';
-import { SubgridInterface } from '../common/subgrid-interface';
 import { Focus } from '../focus';
 import { GridProperties } from '../grid-properties';
-import { CellPaintConfig } from '../renderer/cell-paint-config';
+import { RectangleInterface } from '../lib/rectangle-interface';
 import { Renderer } from '../renderer/renderer';
 import { Viewport } from '../renderer/viewport';
 import { Revgrid } from '../revgrid';
@@ -19,13 +16,11 @@ export abstract class GridPainter {
     protected readonly grid: Revgrid;
     protected readonly viewportColumns: Viewport.ViewportColumnArray;
     protected readonly viewportRows: Viewport.ViewportRowArray;
-    protected readonly viewportCellPool: BeingPaintedCell[];
+    protected readonly viewportCellPool: ViewportCell[];
 
     protected columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
     protected rowBundles = new Array<GridPainter.RowBundle>();
     protected rowPrefillColors = new Array<string>();
-
-    private readonly _cellPainterRepository: CellPainterRepository;
 
     reset = false;
     rebundle: boolean;
@@ -46,131 +41,33 @@ export abstract class GridPainter {
         this.grid = viewport.grid; // remove when fixed localizer
         this.viewportColumns = this.viewport.columns;
         this.viewportRows = this.viewport.rows;
-        this.viewportCellPool = this.viewport.cellPool as BeingPaintedCell[];
-        this._cellPainterRepository = this.renderer.cellPainterRepository;
+        this.viewportCellPool = this.viewport.cellPool as ViewportCell[];
 
         if (initialRebundle !== undefined) {
             this.rebundle = initialRebundle;
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     initialise() {
-
+        // for descendants
     }
+
     abstract paintCells(gc: CanvasRenderingContext2DEx): void;
 
-    /**
-     * @summary Render a single cell.
-     * @param beingPaintedCell
-     * @param prefillColor If omitted, this is a partial renderer; all other renderers must provide this.
-     * @returns Preferred width of renndered cell.
-     */
-    protected paintCell(gc: CanvasRenderingContext2DEx, subgrid: SubgridInterface, beingPaintedCell: BeingPaintedCell, config: CellPaintConfig, prefillColor: string | undefined): number | undefined {
-        const grid = this.grid;
-        const selection = this.selection;
-        const isMainRow = subgrid.isMain;
-        const isHeaderRow = subgrid.isHeader;
-        const isFilterRow = subgrid.isFilter;
+    protected paintCell(gc: CanvasRenderingContext2DEx, viewportCell: ViewportCell, prefillColor: string | undefined): number | undefined {
+        const subgrid = viewportCell.subgrid as Subgrid;
+        const cellPainter = (subgrid as Subgrid).getCellPainter(viewportCell, prefillColor);
 
-        const x = (config.gridCell = beingPaintedCell.gridCell).x;
-        const r = (config.dataCell = beingPaintedCell.dataCell).y;
+        const info = cellPainter.paint(gc);
+        viewportCell.paintSnapshot = info.snapshot; // supports partial render
 
-        const {
-            rowSelected: isRowSelected,
-            columnSelected: isColumnSelected,
-            cellSelected: isCellSelected
-        } = selection.getCellSelectedAreaTypes(x, r, subgrid);
-
-        /* if (isHandleColumn) {
-            isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
-            config.halign = 'right';
-        } else if (isTreeColumn) {
-            isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
-            config.halign = 'left';
-        } else if (isMainRow) {
-            isSelected = isCellSelected || isRowSelected || isColumnSelected;
-        } else if (isFilterRow) {
-            isSelected = false;
-        } else if (isColumnSelected) {
-            isSelected = true;
-        } else {
-            isSelected = selection.isCellSelectedInColumn(x); // header or summary or other non-meta
-        }*/
-
-        const isSelected = isCellSelected || isRowSelected || isColumnSelected;
-        // Set cell contents:
-        // * For all cells: set `config.value` (writable property)
-        // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
-        // * For non-data row tree column cells, do nothing (these cells render blank so value is undefined)
-        // if (!isHandleColumn) {
-            // including tree column
-        config.dataRow = subgrid.getSingletonDataRow(r);
-        const value = subgrid.getValue(beingPaintedCell.column, r);
-        // } else if (isDataRow) {
-            // row handle for a data row
-            // if (config.rowHeaderNumbers) {
-            //     value = r + 1; // row number is 1-based
-            // }
-        // } else
-        if (isHeaderRow) {
-            // row handle for header row: gets "master" checkbox
-            config.allRowsSelected = selection.allRowsSelected;
-        }
-
-        config.isSelected = isSelected;
-        config.isMainRow = isMainRow;
-        config.isHeaderRow = isHeaderRow;
-        config.isFilterRow = isFilterRow;
-        config.isUserDataArea = isMainRow;
-        const hoverCell = this.mouse.hoverCell;
-        const hasMouse = this.canvasEx.hasMouse;
-        const columnHovered =
-            hasMouse &&
-            (hoverCell !== undefined) &&
-            (hoverCell.isDataColumn) &&
-            (hoverCell.gridCell.x === beingPaintedCell.gridCell.x);
-        const rowHovered =
-            hasMouse &&
-            subgrid.isMain &&
-            (hoverCell !== undefined) &&
-            (hoverCell.gridCell.y === beingPaintedCell.gridCell.y);
-
-        config.isColumnHovered = columnHovered;
-        config.isRowHovered = rowHovered;
-        config.bounds = beingPaintedCell.bounds;
-        const cellHovered = rowHovered && columnHovered;
-        config.isCellHovered = cellHovered;
-        config.isCellSelected = isCellSelected;
-        config.isRowFocused = this.focus.isRowFocused(r, subgrid);
-        config.isRowSelected = isRowSelected;
-        config.isColumnSelected = isColumnSelected;
-        config.isInCurrentSelectionRectangle = selection.isPointInLastArea(x, r);
-        config.prefillColor = prefillColor;
-
-        config.value = value;
-
-        // This call's dataModel.getCell which developer can override to:
-        // * mutate the (writable) properties of `config` (including config.value)
-        // * mutate cell renderer choice (instance of which is returned)
-        const cellPainter = (subgrid as Subgrid).getCellPainter(config, config.cellPainter); // event to Renderer
-
-        config.formatValue = grid.getFormatter(config.format);
-
-        config.snapshot = beingPaintedCell.snapshot; // supports partial render
-        const paintWidth = cellPainter.paint(gc, config);
-        beingPaintedCell.snapshot = config.snapshot; // supports partial render
-
-        // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
-        beingPaintedCell.cellPainter = cellPainter; // renderer actually used per getCell; used by fireSyntheticButtonPressedEvent
-
-        return paintWidth;
+        return info.width;
     }
 
     paintErrorCell(err: Error, gc: CanvasRenderingContext2DEx, vc: Viewport.ViewportColumn, vr: Viewport.ViewportRow) {
         const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
 
-        const bounds = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
+        const bounds: RectangleInterface = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
 
         console.error(message);
 
@@ -179,8 +76,7 @@ export abstract class GridPainter {
         gc.rect(bounds.x, bounds.y, bounds.width, bounds.height);
         gc.clip();
 
-        const cellPainter = this._cellPainterRepository.errorCellPainter;
-        cellPainter.paintMessage(gc, bounds, message);
+        this.paintErrorMessage(gc, bounds, message);
 
         gc.cache.restore(); // discard clipping region
     }
@@ -291,15 +187,38 @@ export abstract class GridPainter {
     paintLastSelection(gc: CanvasRenderingContext2DEx, lastSelectionBounds: ViewportCell.Bounds) {
         // Render the selection model around the last selection bounds
         const gridProps = this.gridProperties;
-        const config = {
-            columnName: '',
-            bounds: lastSelectionBounds,
-            selectionRegionOverlayColor: this.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
-            selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor,
-        } as CellPaintConfig;
+        const selectionRegionOverlayColor = this.partial ? 'transparent' : gridProps.selectionRegionOverlayColor;
+        const selectionRegionOutlineColor = gridProps.selectionRegionOutlineColor;
 
-        const lastSelectionPainter = this._cellPainterRepository.lastSelectionCellPainter;
-        lastSelectionPainter.paint(gc, config);
+        const visOverlay = gc.alpha(selectionRegionOverlayColor) > 0;
+        const visOutline = gc.alpha(selectionRegionOutlineColor) > 0;
+
+        if (visOverlay || visOutline) {
+            const bounds = lastSelectionBounds;
+            const x = bounds.x;
+            const y = bounds.y;
+            const width = bounds.width;
+            const height = bounds.height;
+
+            gc.beginPath();
+
+            gc.rect(x, y, width, height);
+
+            if (visOverlay) {
+                gc.cache.fillStyle = selectionRegionOverlayColor;
+                gc.fill();
+            }
+
+            if (visOutline) {
+                gc.cache.lineWidth = 1;
+                gc.cache.strokeStyle = selectionRegionOutlineColor;
+                gc.stroke();
+            }
+
+            gc.closePath();
+        }
+
+        return undefined;
     }
 
     bundleColumns(resetCellEvents = false) {
@@ -315,7 +234,7 @@ export abstract class GridPainter {
 
         this.viewportColumns.forEach((vc) => {
             let bundle: GridPainter.ColumnBundle | undefined;
-            const backgroundColor = vc.activeColumn.properties.backgroundColor;
+            const backgroundColor = vc.column.properties.backgroundColor;
             if (bundle !== undefined && bundle.backgroundColor === backgroundColor) {
                 bundle.right = vc.rightPlus1;
             } else {
@@ -358,7 +277,7 @@ export abstract class GridPainter {
                 if (rowStripes === undefined || rowStripes.length === 0) {
                     backgroundColor = gridPrefillColor;
                 } else {
-                    const stripe = rowStripes[vr.rowIndex % rowStripes.length];
+                    const stripe = rowStripes[vr.subgridRowIndex % rowStripes.length];
                     if (stripe === undefined) {
                         backgroundColor = gridPrefillColor;
                     } else {
@@ -383,6 +302,25 @@ export abstract class GridPainter {
                 }
             }
         }
+    }
+
+    private paintErrorMessage(gc: CanvasRenderingContext2DEx, bounds: RectangleInterface, message: string) {
+        const x = bounds.x;
+        const y = bounds.y;
+        // const width = config.bounds.width;
+        const height = bounds.height;
+
+        // clear the cell
+        // (this makes use of the rect path defined by the caller)
+        gc.cache.fillStyle = '#FFD500';
+        gc.fill();
+
+        // render message text
+        gc.cache.fillStyle = '#A00';
+        gc.cache.textAlign = 'start';
+        gc.cache.textBaseline = 'middle';
+        gc.cache.font = 'bold 6pt "arial narrow", verdana, geneva';
+        gc.fillText(message, x + 4, y + height / 2 + 0.5);
     }
 }
 

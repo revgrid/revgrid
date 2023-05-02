@@ -78,7 +78,6 @@
  */
 
 import { CanvasRenderingContext2DEx } from '../canvas/canvas-rendering-context-2d-ex';
-import { CellPaintConfig } from '../renderer/cell-paint-config';
 
 /**
  * @desc Instances of `CellPainter` are used to render the 2D graphics context within the bound of a cell.
@@ -93,13 +92,17 @@ export interface CellPainter {
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
-    paint(gc: CanvasRenderingContext2DEx, config: CellPaintConfig): number | undefined;
+    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo;
 
 }
 
 /** @public */
 export namespace CellPainter {
     export type Constructor = new (...args: unknown[]) => CellPainter;
+    export interface PaintInfo {
+        readonly width: number | undefined;
+        readonly snapshot: Record<string, unknown> | undefined;
+    }
 
 
     /**

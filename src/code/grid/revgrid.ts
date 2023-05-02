@@ -3,18 +3,16 @@ import { Behavior } from './behavior/behavior';
 import { CellPropertiesBehavior } from './behavior/cell-properties-behavior';
 import { DataExtractBehavior } from './behavior/data-extract-behavior';
 import { EventBehavior } from './behavior/event-behavior';
-import { FocusSelectionBehavior } from './behavior/focus-selection-behavior';
 import { RendererBehavior } from './behavior/renderer-behaviour';
 import { RowPropertiesBehavior } from './behavior/row-properties-behavior';
 import { ScrollBehavior } from './behavior/scroll-behaviour';
+import { SelectionBehavior } from './behavior/selection-behavior';
 import { UiBehaviorManager } from './behavior/ui/ui-behavior-manager';
 import { UserInterfaceInputBehavior } from './behavior/user-interface-input-behavior';
 import { CanvasEx } from './canvas/canvas-ex';
 import { dispatchGridEvent } from './canvas/dispatch-grid-event';
 import { CellEditor } from './cell-editor/cell-editor';
 import { cellEditorFactory } from './cell-editor/cell-editor-factory';
-import { ButtonCellPainter } from './cell-painter/button-cell-painter';
-import { CellPainter } from './cell-painter/cell-painter';
 import { CellEvent } from './cell/cell-event';
 import { CellProperties } from './cell/cell-properties';
 import { ViewportCell } from './cell/viewport-cell';
@@ -42,21 +40,19 @@ import { SchemaModel } from './model/schema-model';
 import { Renderer } from './renderer/renderer';
 import { Viewport } from './renderer/viewport';
 import { Selection } from './selection/selection';
-import { SelectionDetail } from './selection/selection-detail';
 import { Subgrid } from './subgrid/subgrid';
 import { SubgridsManager } from './subgrid/subgrids-manager';
 import { Mouse } from './user-interface-input/mouse';
 
 /** @public */
-export class Revgrid implements SelectionDetail {
+export class Revgrid {
+    readonly mouse: Mouse;
     readonly selection: Selection;
     readonly focus: Focus;
     readonly properties: LoadableGridProperties;
     readonly canvasEx: CanvasEx;
     readonly viewport: Viewport;
 
-    /** @internal */
-    private readonly _mouse: Mouse;
     /** @internal */
     private readonly _columnsManager: ColumnsManager;
     /** @internal */
@@ -67,7 +63,7 @@ export class Revgrid implements SelectionDetail {
 
     private readonly _rendererBehavior: RendererBehavior;
     /** @internal */
-    private readonly _focusSelectionBehavior: FocusSelectionBehavior;
+    private readonly _focusSelectionBehavior: SelectionBehavior;
     /** @internal */
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
     /** @internal */
@@ -114,9 +110,7 @@ export class Revgrid implements SelectionDetail {
      * The index of the row at the top of the view in the main sub grid.
      */
     get rowScrollAnchorIndex() { return this._scrollBehavior.rowScrollAnchorIndex; }
-    set rowScrollAnchorIndex(value: number) {
-        this._scrollBehavior.handleVScrollerChange(value);
-    }
+    set rowScrollAnchorIndex(value: number) { this._scrollBehavior.rowScrollAnchorIndex = value; }
 
     /**
      * The index of the active column which is first in view (either on left or right depending on Grid alignment)
@@ -210,7 +204,7 @@ export class Revgrid implements SelectionDetail {
             descendantEventer,
         );
         this._rendererBehavior = this.behavior.rendererBehavior;
-        this._focusSelectionBehavior = this.behavior.focusSelectionBehavior;
+        this._focusSelectionBehavior = this.behavior.selectionBehavior;
         this._rowPropertiesBehavior = this.behavior.rowPropertiesBehavior;
         this._cellPropertiesBehavior = this.behavior.cellPropertiesBehavior;
         this._userInterfaceInputBehavior = this.behavior.userInterfaceInputBehavior;
@@ -219,7 +213,7 @@ export class Revgrid implements SelectionDetail {
         this._uiBehaviorManager = this.behavior.uiBehaviorManager;
 
         this.properties = this.behavior.gridProperties;
-        this._mouse = this.behavior.mouse;
+        this.mouse = this.behavior.mouse;
         this._columnsManager = this.behavior.columnsManager;
         this._subgridsManager = this.behavior.subgridsManager;
         this.viewport = this.behavior.viewport;
@@ -563,12 +557,8 @@ export class Revgrid implements SelectionDetail {
         this._renderer.registerGridPainter(key, constructor)
     }
 
-    registerCellPainter(typeName: string, constructor: CellPainter.Constructor) {
-        this._renderer.registerCellPainter(typeName, constructor)
-    }
-
-    computeCellsBounds() {
-        this.viewport.computeCellsBounds();
+    computeViewport() {
+        this.viewport.compute();
     }
 
     setFormatter(options?: Revgrid.LocalizationOptions) {
@@ -748,13 +738,7 @@ export class Revgrid implements SelectionDetail {
     //     this.behavior.reindex();
     // }
 
-    /**
-     * Number of _visible_ columns.
-     * @returns The number of columns.
-     */
-    getActiveColumnCount() {
-        return this._columnsManager.getActiveColumnCount();
-    }
+    get activeColumnCount() { return this._columnsManager.activeColumnCount; }
 
     /**
      * @summary Gets the number of rows in the main subgrid.
@@ -921,7 +905,6 @@ export class Revgrid implements SelectionDetail {
         this.abortEditing(); // if another editor is open, close it first
 
         if (
-            cell.isDataColumn &&
             cell.columnProperties[cell.isMainRow ? 'editable' : 'filterable']
         ) {
             cellEditor = this.getCellEditorAt(cell);
@@ -972,7 +955,7 @@ export class Revgrid implements SelectionDetail {
      * @return Column is visible.
      */
     ensureModelColIsVisible(colIndex: number, offsetX: number) {
-        const maxCols = this.getActiveColumnCount() - 1; // -1 excludes partially visible columns
+        const maxCols = this.activeColumnCount - 1; // -1 excludes partially visible columns
         const indexToCheck = colIndex + Math.sign(offsetX);
         const visible = !this.isColumnVisible(indexToCheck) || colIndex === maxCols;
 
@@ -1034,7 +1017,7 @@ export class Revgrid implements SelectionDetail {
         if (mainDataModel.toggleRow === undefined) {
             return undefined;
         } else {
-            return mainDataModel.toggleRow(event.dataCell.y, event.dataCell.x);
+            return mainDataModel.toggleRow(event.dataPoint.y, event.dataPoint.x);
         }
     }
 
@@ -1161,7 +1144,7 @@ export class Revgrid implements SelectionDetail {
     setColumnScrollAnchor(index: number, offset: number) {
         const changed = this.viewport.setColumnScrollAnchor(index, offset);
         if (changed) {
-            this.computeCellsBounds();
+            this.viewport.compute();
             const viewportStart = this.calculateColumnScrollAnchorViewportStart();
             this._scrollBehavior.setHorizontalScrollerViewportStart(viewportStart);
         }
@@ -1172,7 +1155,6 @@ export class Revgrid implements SelectionDetail {
         this.rowScrollAnchorIndex = rowIndex;
         const rowChanged = true; // fix in future
         if (columnChanged || rowChanged) {
-            this.computeCellsBounds();
 
             if (columnChanged) {
                 const viewportStart = this.calculateColumnScrollAnchorViewportStart();
@@ -1220,7 +1202,7 @@ export class Revgrid implements SelectionDetail {
     calculateActiveColumnsWidth() {
         const lineWidth = this.properties.gridLinesVWidth;
         const columnsManager = this._columnsManager;
-        const activeColumnCount = columnsManager.getActiveColumnCount();
+        const activeColumnCount = columnsManager.activeColumnCount;
         const fixedColumnCount = this.getFixedColumnCount();
 
         let width = 0;
@@ -1242,7 +1224,7 @@ export class Revgrid implements SelectionDetail {
 
     calculateActiveNonFixedColumnsWidth() {
         const gridLinesVWidth = this.properties.gridLinesVWidth;
-        const columnCount = this.getActiveColumnCount();
+        const columnCount = this.activeColumnCount;
         const fixedColumnCount = this.getFixedColumnCount();
         let result = 0;
         for (let i = fixedColumnCount; i < columnCount; i++) {
@@ -1621,18 +1603,12 @@ export class Revgrid implements SelectionDetail {
      */
     updateCursor() {
         let cursor = this.behavior.getCursorAt(-1, -1);
-        const hoverCell = this._mouse.hoverCell;
+        const hoverCell = this.mouse.hoverCell;
         if (hoverCell !== undefined) {
-            const hoverGridCell = hoverCell.gridCell;
-            const firstScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
-            if (
-                hoverGridCell &&
-                hoverGridCell.x > -1 &&
-                hoverGridCell.y > -1 &&
-                firstScrollableActiveColumnIndex !== undefined
-            ) {
-                const x = hoverGridCell.x + firstScrollableActiveColumnIndex;
-                cursor = this.behavior.getCursorAt(x, hoverGridCell.y + this._scrollBehavior.rowScrollAnchorIndex);
+            const hoverActiveColumnIndex = hoverCell.visibleColumn.activeColumnIndex;
+            const hoverSubgridRowIndex = hoverCell.visibleRow.subgridRowIndex;
+            if (hoverCell.subgrid.isMain) {
+                cursor = this.behavior.getCursorAt(hoverActiveColumnIndex, hoverSubgridRowIndex);
             }
         }
         this.beCursor(cursor);
@@ -1659,25 +1635,6 @@ export class Revgrid implements SelectionDetail {
      */
     getRenderedData(): Array<Array<unknown>> {
         return this.viewport.getVisibleCellMatrix();
-    }
-
-    /**
-     * @summary Autosize a column for best fit.
-     * @param {Column|number} columnOrIndex - The column or active column index.
-     */
-    autosizeColumn(columnOrIndex: ColumnInterface | number) {
-        let column: ColumnInterface;
-        if (typeof columnOrIndex === 'number') {
-            if (columnOrIndex >= 2) {
-                column = this._columnsManager.getActiveColumn(columnOrIndex);
-            } else {
-                throw new Error('Column index must be >= -2');
-            }
-        } else {
-            column = columnOrIndex;
-        }
-        column.checkColumnAutosizing(true);
-        this.computeCellsBounds();
     }
 
     /**
@@ -1782,11 +1739,11 @@ export class Revgrid implements SelectionDetail {
     }
 
     /**
-     * @param x - Data x coordinate.
+     * @param activeColumnIndex - Data x coordinate.
      * @return The properties for a specific column.
      */
-    getColumnProperties(x: number): ColumnProperties | undefined {
-        return this._columnsManager.getActiveColumnProperties(x);
+    getColumnProperties(activeColumnIndex: number): ColumnProperties | undefined {
+        return this._columnsManager.getActiveColumnProperties(activeColumnIndex);
     }
 
     /**
@@ -1986,6 +1943,22 @@ export class Revgrid implements SelectionDetail {
         // for descendants
     }
 
+    protected descendantEventerFocus() {
+        // for descendants
+    }
+
+    protected descendantEventerBlur() {
+        // for descendants
+    }
+
+    protected descendantProcessKeyDown(_event: EventDetail.Keyboard) {
+        // for descendants
+    }
+
+    protected descendantProcessKeyUp(_event: EventDetail.Keyboard) {
+        // for descendants
+    }
+
     protected descendantProcessMouseClick(_event: MouseEvent, _cell: ViewportCell | null | undefined) {
         // for descendants
     }
@@ -2034,11 +2007,27 @@ export class Revgrid implements SelectionDetail {
         // for descendants
     }
 
-    protected descendantProcessMouseEnteredCell(cell: ViewportCell) {
+    protected descendantProcessMouseEnteredCell(_cell: ViewportCell) {
         // for descendants
     }
 
-    protected descendantProcessMouseExitedCell(cell: ViewportCell) {
+    protected descendantProcessMouseExitedCell(_cell: ViewportCell) {
+        // for descendants
+    }
+
+    protected descendantProcessTouchStart(_event: TouchEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessTouchMove(_event: TouchEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessTouchEnd(_event: TouchEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessCopy(_event: ClipboardEvent) {
         // for descendants
     }
 
@@ -2100,46 +2089,11 @@ export class Revgrid implements SelectionDetail {
     }
 
     /**
-     * @desc Synthesize and fire a `fin-button-pressed` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticButtonPressedEvent(event: CellEvent) {
-        if (event.cellPainter instanceof ButtonCellPainter) { // Button or subclass thereof?
-            // if (event.value && event.value.subrows) {
-            //     var y = event.primitiveEvent.detail.mouse.y - event.bounds.y,
-            //         subheight = event.bounds.height / event.value.subrows;
-            //     event.subrow = Math.floor(y / subheight);
-            // }
-            return dispatchGridEvent(this, 'rev-button-pressed', false, event);
-        } else {
-            return undefined;
-        }
-    }
-
-    /**
      * @desc Synthesize and fire a `fin-column-drag-start` event.
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticOnColumnsChangedEvent() {
         return dispatchGridEvent(this, 'rev-column-changed-event', false, undefined);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-keydown` event.
-     * @param event - The canvas event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticKeydownEvent(detail: EventDetail.Keyboard) {
-        return dispatchGridEvent(this, 'rev-key-down', false, detail);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-keyup` event.
-     * @param event - The canvas event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticKeyupEvent(detail: EventDetail.Keyboard) {
-        return dispatchGridEvent(this, 'rev-key-up', false, detail);
     }
 
     /**
@@ -2156,33 +2110,6 @@ export class Revgrid implements SelectionDetail {
      */
     fireSyntheticGridResizedEvent(detail: EventDetail.Resize) {
         return dispatchGridEvent(this, 'rev-grid-resized', false, detail);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-touchstart` event.
-     * @param e - The canvas event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticTouchStartEvent(detail: EventDetail.Touch) {
-        return dispatchGridEvent(this, 'rev-touch-start', false, detail);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-touchmove` event.
-     * @param e - The canvas event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticTouchMoveEvent(detail: EventDetail.Touch) {
-        return dispatchGridEvent(this, 'rev-touch-move', false, detail);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-touchend` event.
-     * @param e - The canvas event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticTouchEndEvent(detail: EventDetail.Touch) {
-        return dispatchGridEvent(this, 'rev-touch-end', false, detail);
     }
 
     /**
@@ -2251,93 +2178,12 @@ export class Revgrid implements SelectionDetail {
     }
 
     delegateCanvasEvents() {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const grid = this;
-
-        this.addInternalEventListener('rev-canvas-keydown', (e) => {
-            if (grid.properties.readOnly) {
-                return;
-            }
-            const eventDetail = e.detail;
-            grid.fireSyntheticKeydownEvent(eventDetail);
-            grid.delegateKeyDown(eventDetail);
-        });
-
-        this.addInternalEventListener('rev-canvas-keyup', (e) => {
-            if (grid.properties.readOnly) {
-                return;
-            }
-            const eventDetail = e.detail;
-            grid.fireSyntheticKeyupEvent(eventDetail);
-            grid.delegateKeyUp(eventDetail);
-        });
-
-        this.addInternalEventListener('rev-canvas-touchstart', (e) => {
-            const eventDetail = e.detail;
-            grid.delegateTouchStart(eventDetail);
-            grid.fireSyntheticTouchStartEvent(eventDetail);
-        });
-
-        this.addInternalEventListener('rev-canvas-touchmove', (e) => {
-            const eventDetail = e.detail;
-            grid.delegateTouchMove(eventDetail);
-            grid.fireSyntheticTouchMoveEvent(e.detail);
-        });
-
-        this.addInternalEventListener('rev-canvas-touchend', (e) => {
-            const eventDetail = e.detail;
-            grid.delegateTouchEnd(eventDetail);
-            grid.fireSyntheticTouchEndEvent(eventDetail);
-        });
 
         //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
         document.body.addEventListener('copy', (evt) => {
             grid.checkClipboardCopy(evt);
         });
     }
-
-    /**
-     * @summary Generate a function name and call it on self.
-     * @desc This should also be delegated through Behavior keeping the default implementation here though.
-     * @param {event} eventDetail - The pertinent event.
-     */
-    delegateKeyDown(eventDetail: EventDetail.Keyboard) {
-        this._uiBehaviorManager.onKeyDown(eventDetail);
-    }
-
-    /**
-     * @summary Generate a function name and call it on self.
-     * @desc This should also be delegated through Behavior keeping the default implementation here though.
-     * @param event - The pertinent event.
-     */
-    delegateKeyUp(eventDetail: EventDetail.Keyboard) {
-        this._uiBehaviorManager.onKeyUp(eventDetail);
-    }
-
-    /**
-     * @desc Delegate touchstart to the Behavior model.
-     * @param event - The pertinent event.
-     */
-    delegateTouchStart(eventDetail: EventDetail.Touch) {
-        this._uiBehaviorManager.onTouchStart(eventDetail);
-    }
-
-    /**
-     * @desc Delegate touchmove to the Behavior model.
-     * @param event - The pertinent event.
-     */
-    delegateTouchMove(eventDetail: EventDetail.Touch) {
-        this._uiBehaviorManager.onTouchMove(eventDetail);
-    }
-
-    /**
-     * @desc Delegate touchend to the Behavior model.
-     * @param event - The pertinent event.
-     */
-    delegateTouchEnd(eventDetail: EventDetail.Touch) {
-        this._uiBehaviorManager.onTouchEnd(eventDetail);
-    }
-    // End Events Mixin
 
 
 
@@ -2360,8 +2206,8 @@ export class Revgrid implements SelectionDetail {
     getCellOwnProperties(allXOrRenderedCell: number | ViewportCell, y?: number, subgrid?: SubgridInterface) {
         if (typeof allXOrRenderedCell === 'object') {
             // xOrCellEvent is cellEvent
-            const column = allXOrRenderedCell.column;
-            y = allXOrRenderedCell.dataCell.y;
+            const column = allXOrRenderedCell.visibleColumn.column;
+            y = allXOrRenderedCell.dataPoint.y;
             subgrid = allXOrRenderedCell.subgrid;
             return this._cellPropertiesBehavior.getCellOwnProperties(column, y, subgrid);
         } else {
@@ -2427,8 +2273,8 @@ export class Revgrid implements SelectionDetail {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
     setCellOwnPropertiesUsingCellEvent(cellEvent: CellEvent, properties: MetaModel.CellOwnProperties) {
-        const column = cellEvent.column;
-        return this._cellPropertiesBehavior.setCellOwnProperties(column, cellEvent.dataCell.y, properties, cellEvent.subgrid);
+        const column = cellEvent.visibleColumn.column;
+        return this._cellPropertiesBehavior.setCellOwnProperties(column, cellEvent.dataPoint.y, properties, cellEvent.subgrid);
     }
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
         const column = this._columnsManager.getAllColumn(allX);
@@ -2443,8 +2289,8 @@ export class Revgrid implements SelectionDetail {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
     addCellOwnPropertiesUsingCellEvent(cellEvent: CellEvent, properties: MetaModel.CellOwnProperties) {
-        const column = cellEvent.column;
-        return this._cellPropertiesBehavior.addCellOwnProperties(column, cellEvent.dataCell.y, properties, cellEvent.subgrid);
+        const column = cellEvent.visibleColumn.column;
+        return this._cellPropertiesBehavior.addCellOwnProperties(column, cellEvent.dataPoint.y, properties, cellEvent.subgrid);
     }
     addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
         const column = this._columnsManager.getAllColumn(allX);
@@ -2466,7 +2312,7 @@ export class Revgrid implements SelectionDetail {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
     setCellProperty(cellEvent: CellEvent, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
-    setCellProperty(allX: number, y: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined;
+    setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined;
     setCellProperty(
         allXOrCellEvent: CellEvent | number,
         yOrKey: string | number,
@@ -2475,16 +2321,16 @@ export class Revgrid implements SelectionDetail {
         subgrid?: Subgrid
     ): MetaModel.CellOwnProperties | undefined {
         let column: ColumnInterface;
-        let y: number;
+        let dataY: number;
         let key: string;
         if (typeof allXOrCellEvent === 'object') {
-            column = allXOrCellEvent.column,
-            y = allXOrCellEvent.dataCell.y;
+            column = allXOrCellEvent.visibleColumn.column,
+            dataY = allXOrCellEvent.dataPoint.y;
             key = yOrKey as string;
             value = keyOrValue;
         } else {
             column = this._columnsManager.getAllColumn(allXOrCellEvent);
-            y = yOrKey as number;
+            dataY = yOrKey as number;
             key = keyOrValue as string;
         }
 
@@ -2492,8 +2338,8 @@ export class Revgrid implements SelectionDetail {
             subgrid = this.behavior.mainSubgrid;
         }
 
-        const cellOwnProperties = this._cellPropertiesBehavior.setCellProperty(column, y, key, value, subgrid);
-        this.viewport.resetCellPropertiesCache(allXOrCellEvent, y, subgrid);
+        const cellOwnProperties = this._cellPropertiesBehavior.setCellProperty(column, dataY, key, value, subgrid);
+        this.viewport.resetCellPropertiesCache(allXOrCellEvent, dataY, subgrid);
         return cellOwnProperties;
     }
 
@@ -2505,14 +2351,14 @@ export class Revgrid implements SelectionDetail {
      * Pair with endSelectionChange().
      */
     beginSelectionChange() {
-        this._focusSelectionBehavior.beginChange();
+        this._focusSelectionBehavior.beginSelectionChange();
     }
 
     /** Call after multiple selection changes to consolidate SelectionChange events.
      * Pair with beginSelectionChange().
      */
     endSelectionChange() {
-        this._focusSelectionBehavior.endChange();
+        this._focusSelectionBehavior.endSelectionChange();
     }
 
     /**
@@ -2553,156 +2399,31 @@ export class Revgrid implements SelectionDetail {
      * @param ex - extent y
      */
 
-    focusSelectRectangle(exclusiveX: number, exclusiveY: number, ex: number, ey: number, subgrid?: Subgrid) {
+    selectRectangle(exclusiveX: number, exclusiveY: number, ex: number, ey: number, subgrid?: SubgridInterface) {
         if (subgrid === undefined) {
-            subgrid = this.behavior.mainSubgrid;
-        }
-        this._focusSelectionBehavior.focusSelectOnlyRectangle(exclusiveX, exclusiveY, ex, ey, subgrid);
-    }
-
-    selectRectangle(exclusiveX: number, exclusiveY: number, ex: number, ey: number, subgrid?: Subgrid) {
-        if (subgrid === undefined) {
-            subgrid = this.behavior.mainSubgrid;
+            subgrid = this.focus.subgrid;
         }
         this._focusSelectionBehavior.selectOnlyRectangle(exclusiveX, exclusiveY, ex, ey, subgrid);
     }
 
-    selectViewportCell(x: number, y: number, areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
-        this._focusSelectionBehavior.focusSelectOnlyViewportCell(x, y, areaTypeSpecifier);
+    selectViewportCell(viewportColumnIndex: number, viewportRowIndex: number, areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
+        this._focusSelectionBehavior.selectOnlyViewportCell(viewportColumnIndex, viewportRowIndex, areaTypeSpecifier);
     }
 
-    selectToViewportCell(x: number, y: number) {
-        let selectionRectangles: Rectangle[];
-        let vc: Viewport.ViewportColumn;
-        let vr: Viewport.ViewportRow;
-        if (
-            (selectionRectangles = this.selection.rectangleList.rectangles) && selectionRectangles.length &&
-            (vc = this.viewport.columns[x]) &&
-            (vr = this.viewport.rows[y + this._subgridsManager.calculateHeaderRowCount()])
-        ) {
-            const origin = selectionRectangles[0].topLeft;
-            x = vc.activeColumnIndex;
-            y = vr.rowIndex;
-            this.selection.selectRectangle(origin.x, origin.y, x - origin.x, y - origin.y, undefined);
-            this._renderer.repaint();
-        }
-    }
-
-    selectToFinalCellOfCurrentRow() {
-        this.selectFinalCellOfCurrentRow(true);
-    }
-
-    selectFinalCellOfCurrentRow(to?: boolean) {
-        const subgrid = this.focus.subgrid;
-        const rowCount = subgrid.getRowCount();
-        if (rowCount > 0) {
-            const selection = this.selection;
-            const rectangles = selection.rectangleList.rectangles;
-            if (rectangles.length > 0) {
-                const rectangle = rectangles[0];
-                const origin = rectangle.topLeft;
-                const extent = rectangle.extent;
-                const columnCount = this._columnsManager.getActiveColumnCount();
-
-                this._scrollBehavior.scrollColumnsBy(columnCount);
-
-                selection.beginChange();
-                try {
-                    this.clearSelection();
-                    if (to) {
-                        selection.selectRectangle(origin.x, origin.y, columnCount - origin.x - 1, extent.y, undefined);
-                    } else {
-                        selection.selectRectangle(columnCount - 1, origin.y, 0, 0, undefined);
-                    }
-                } finally {
-                    selection.endChange();
-                }
-
-                this._renderer.repaint();
-            }
-        }
-    }
-
-    selectToFirstCellOfCurrentRow() {
-        this.selectFirstCellOfCurrentRow(true);
-    }
-
-    selectFirstCellOfCurrentRow(to?: boolean) {
-        const subgrid = this.focus.subgrid;
-        const rowCount = subgrid.getRowCount();
-        if (rowCount > 0) {
-            const selection = this.selection;
-            const rectangles = selection.rectangleList.rectangles;
-            if (rectangles && rectangles.length) {
-                const rectangle = rectangles[0];
-                const origin = rectangle.topLeft;
-                const extent = rectangle.extent;
-
-                selection.beginChange();
-                try {
-                    this.clearSelection();
-                    if (to) {
-                        selection.selectRectangle(origin.x, origin.y, -origin.x, extent.y, undefined);
-                    } else {
-                        selection.selectRectangle(0, origin.y, 0, 0, undefined);
-                    }
-                } finally {
-                    selection.endChange();
-                }
-
-                this._scrollBehavior.handleHScrollerChange(0);
-                this._renderer.repaint();
-            }
-        }
-    }
-
-    selectMainFinalCell(selectionAreaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
-        const subgrid = this.behavior.mainSubgrid;
-        const rowCount = subgrid.getRowCount();
-        if (rowCount > 0) {
-            this._focusSelectionBehavior.focusSelectOnlyCell(this._columnsManager.getActiveColumnCount() - 1, rowCount - 1, subgrid, selectionAreaTypeSpecifier);
-            this._renderer.repaint();
-        }
-    }
-
-    selectToFinalCell() {
-        const subgrid = this.focus.subgrid;
-        const rowCount = subgrid.getRowCount();
-        if (rowCount > 0) {
-            const selection = this.selection;
-            const rectangles = selection.rectangleList.rectangles;
-            if (rectangles && rectangles.length) {
-                const rectangle = rectangles[0];
-                const origin = rectangle.topLeft;
-                const columnCount = this._columnsManager.getActiveColumnCount();
-
-                selection.beginChange();
-                try {
-                    this.clearSelection();
-                    selection.selectRectangle(origin.x, origin.y, columnCount - origin.x - 1, rowCount - origin.y - 1, undefined);
-                } finally {
-                    selection.endChange();
-                }
-                // this.scrollBy(columnCount, rowCount);
-                this._renderer.repaint();
-            }
-        }
-    }
-
-    focusSelectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaTypeSpecifier?: SelectionArea.TypeSpecifier) {
+    selectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaTypeSpecifier?: SelectionArea.TypeSpecifier) {
         if (subgrid === undefined) {
-            subgrid = this.behavior.mainSubgrid;
+            subgrid = this.focus.subgrid;
         }
 
         if (areaTypeSpecifier === undefined) {
             areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary;
         }
 
-        this._focusSelectionBehavior.focusSelectOnlyCell(x, y, subgrid, areaTypeSpecifier);
+        this._focusSelectionBehavior.selectOnlyCell(x, y, subgrid, areaTypeSpecifier);
     }
 
-    selectRows(y1: number, y2: number, subgrid: Subgrid | undefined, focusColumnIndex?: number) {
-        this._focusSelectionBehavior.focusSelectRows(y1, y2, subgrid, focusColumnIndex);
+    selectOnlyRow(subgridRowIndex: number, subgrid: SubgridInterface) {
+        this._focusSelectionBehavior.selectOnlyRow(subgridRowIndex, subgrid);
     }
 
     selectAllRows() {
@@ -2733,7 +2454,7 @@ export class Revgrid implements SelectionDetail {
     // extendRectangleSelect(offsetX: number, offsetY: number) {
     //     const selection = this.selection;
     //     const subgrid = selection.focusedSubgrid;
-    //     let maxColumns = this.getActiveColumnCount() - 1;
+    //     let maxColumns = this.activeColumnCount - 1;
     //     let maxRows = subgrid.getRowCount() - 1;
 
     //     const maxViewableColumns = this.renderer.visibleColumns.length - 1;
@@ -2778,13 +2499,12 @@ export class Revgrid implements SelectionDetail {
      * @param useAllCells - Search in all rows and columns instead of only rendered ones.
      */
     getFocusedCellEvent(useAllCells: boolean) {
-        const focusedPoint = this.focus.point;
+        const focusedPoint = this.focus.current;
         if (focusedPoint === undefined) {
             return undefined;
         } else {
             const cellEvent = new CellEvent(this);
-            const subgrid = this.selection.focusedSubgrid;
-            const cellReseted = cellEvent.resetGridXDataY(focusedPoint.x, focusedPoint.y, subgrid, useAllCells);
+            const cellReseted = cellEvent.resetGridXDataY(focusedPoint.x, focusedPoint.y, this._subgridsManager.mainSubgrid, useAllCells);
             return cellReseted ? cellEvent : undefined;
         }
     }
@@ -2952,57 +2672,36 @@ export class Revgrid implements SelectionDetail {
     }
 
     /** @internal */
-    focusCell(c: number, r: number, subgrid?: Subgrid, selectionAreaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
-        if (subgrid === undefined) {
-            subgrid = this.behavior.mainSubgrid;
-        }
-        this._focusSelectionBehavior.focusSelectOnlyCell(c, r, subgrid, selectionAreaTypeSpecifier);
-    }
-
-    /**
-     * @desc Set the vertical scroll value.
-     * @param newValue - The new scroll value.
-     * @internal
-     */
-    handleVScrollerChange(y: number) {
-        this._scrollBehavior.handleVScrollerChange(y);
-    }
-
-    /**
-     * @desc Set the horizontal scroll value.
-     * @param x - The new scroll value.
-     * @internal
-     */
-    handleHScrollerChange(x: number) {
-        this._scrollBehavior.handleHScrollerChange(x);
+    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
+        this._focusSelectionBehavior.selectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaTypeSpecifier);
     }
 
     /**
      * @desc Scroll up one full page.
      */
-    pageUp() {
-        this._scrollBehavior.pageUp();
+    scrollPageUp() {
+        this._scrollBehavior.scrollPageUp();
     }
 
     /**
      * @desc Scroll down one full page.
      */
     pageDown() {
-        this._scrollBehavior.pageDown();
+        this._scrollBehavior.scrollPageDown();
     }
 
     /**
      * @desc Not yet implemented.
      */
     pageLeft() {
-        this._scrollBehavior.pageLeft();
+        this._scrollBehavior.scrollPageLeft();
     }
 
     /**
      * @desc Not yet implemented.
      */
     pageRight() {
-        this._scrollBehavior.pageRight();
+        this._scrollBehavior.scrollPageRight();
     }
     // End Scrolling mixin
 
@@ -3086,6 +2785,10 @@ export class Revgrid implements SelectionDetail {
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
             selectionChanged: () => this.descendantProcessSelectionChanged(),
             scroll: (isX, newValue, index, offset) => this.descendantProcessScroll(isX, newValue, index, offset),
+            focus: () => this.descendantEventerFocus(),
+            blur: () => this.descendantEventerBlur(),
+            keyDown: (event) => this.descendantProcessKeyDown(event),
+            keyUp: (event) => this.descendantProcessKeyUp(event),
             mouseClick: (event, cell) => this.descendantProcessMouseClick(event, cell),
             mouseDblClick: (event, cell) => this.descendantProcessMouseDblClick(event, cell),
             mouseDown: (event, cell) => this.descendantProcessMouseDown(event, cell),
@@ -3100,6 +2803,10 @@ export class Revgrid implements SelectionDetail {
             rendered: () => this.descendantProcessRendered(),
             mouseEnteredCell: (cell) => this.descendantProcessMouseEnteredCell(cell),
             mouseExitedCell: (cell) => this.descendantProcessMouseExitedCell(cell),
+            touchStart: (event) => this.descendantProcessTouchStart(event),
+            touchMove: (event) => this.descendantProcessTouchMove(event),
+            touchEnd: (event) => this.descendantProcessTouchEnd(event),
+            copy: (event) => this.descendantProcessCopy(event),
             resized: () => this.descendantProcessResized(),
         }
     }

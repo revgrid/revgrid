@@ -437,7 +437,7 @@ export class FinBar {
         this._setScroll(start, undefined, false);
     }
 
-    scroll(delta: number) {
+    scrollBy(delta: number) {
         // make sure does not go beyond end edge
         let newViewportStart = this._viewportStart + delta;
         if (newViewportStart < this._contentStart) {
@@ -451,7 +451,7 @@ export class FinBar {
         this._setScroll(newViewportStart, undefined, true);
     }
 
-    scrollIndex(delta: number) {
+    scrollIndexBy(delta: number) {
         // same as scroll(). Separate call for VScroller. Remove when VScroller uses Viewport
         this.index = this._viewportStart + delta;
     }

@@ -8,7 +8,7 @@ import { ColumnResizingUiBehavior } from './column-resizing-ui-behavior';
 import { ColumnSelectionUiBehavior } from './column-selection-ui-behavior';
 import { ColumnSortingUiBehavior } from './column-sorting-ui-behavior';
 import { FiltersUiBehavior } from './filters-ui-behavior';
-import { KeyPagingUiBehavior } from './key-paging-ui-behavior';
+import { FocusUiBehavior } from './focus-ui-behavior';
 import { OnHoverUiBehavior } from './on-hover-ui-behavior';
 import { RowResizingUiBehavior } from './row-resizing-ui-behavior'; // should this be commented out?
 import { RowSelectionUiBehavior } from './row-selection-ui-behavior';
@@ -39,6 +39,7 @@ export class UiBehaviorFactory {
     }
 }
 
+UiBehaviorFactory.register(FocusUiBehavior.typeName, FocusUiBehavior);
 UiBehaviorFactory.register(CellClickUiBehavior.typeName, CellClickUiBehavior);
 // UiBehaviorFactory.register(CellEditingFeature.typeName, CellEditingFeature);
 UiBehaviorFactory.register(CellSelectionUiBehavior.typeName, CellSelectionUiBehavior);
@@ -47,7 +48,6 @@ UiBehaviorFactory.register(ColumnResizingUiBehavior.typeName, ColumnResizingUiBe
 UiBehaviorFactory.register(ColumnSelectionUiBehavior.typeName, ColumnSelectionUiBehavior);
 UiBehaviorFactory.register(ColumnSortingUiBehavior.typeName, ColumnSortingUiBehavior);
 UiBehaviorFactory.register(FiltersUiBehavior.typeName, FiltersUiBehavior);
-UiBehaviorFactory.register(KeyPagingUiBehavior.typeName, KeyPagingUiBehavior);
 UiBehaviorFactory.register(OnHoverUiBehavior.typeName, OnHoverUiBehavior);
 UiBehaviorFactory.register(RowResizingUiBehavior.typeName, RowResizingUiBehavior);
 UiBehaviorFactory.register(RowSelectionUiBehavior.typeName, RowSelectionUiBehavior);

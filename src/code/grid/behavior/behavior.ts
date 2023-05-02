@@ -1,6 +1,5 @@
 import { AdapterSetConfig } from '../adapter-set-config';
 import { CanvasEx } from '../canvas/canvas-ex';
-import { CellPainterRepository } from '../cell-painter/cell-painter-repository';
 import { CellEvent } from '../cell/cell-event';
 import { ViewportCell } from '../cell/viewport-cell';
 import { ColumnsManager } from '../column/columns-manager';
@@ -16,6 +15,7 @@ import { DataModel } from '../model/data-model';
 import { MetaModel } from '../model/meta-model';
 import { ModelCallbackRouter } from '../model/model-callback-router';
 import { SchemaModel } from '../model/schema-model';
+import { ReindexStashManager } from '../reindex-stash-manager';
 import { Renderer } from '../renderer/renderer';
 import { Viewport } from '../renderer/viewport';
 import { Revgrid } from '../revgrid';
@@ -26,11 +26,12 @@ import { Mouse } from '../user-interface-input/mouse';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
 import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
-import { FocusSelectionBehavior } from './focus-selection-behavior';
+import { FocusBehavior } from './focus-behavior';
 import { ModelCallbackRouterBehavior } from './model-callback-router-behavior';
 import { RendererBehavior } from './renderer-behaviour';
 import { RowPropertiesBehavior } from './row-properties-behavior';
 import { ScrollBehavior } from './scroll-behaviour';
+import { SelectionBehavior } from './selection-behavior';
 import { UiBehaviorManager } from './ui/ui-behavior-manager';
 import { UserInterfaceInputBehavior } from './user-interface-input-behavior';
 
@@ -68,18 +69,20 @@ export class Behavior {
     readonly viewport: Viewport; // make private in future
     readonly renderer: Renderer; // make private in future
 
-    private readonly _focus: Focus;
-    private readonly _selection: Selection;
-    private readonly _columnsManager: ColumnsManager;
     private readonly _canvasEx: CanvasEx;
-    private readonly _horizontalScroller: FinBar;
-    private readonly _vertialScroller: FinBar;
+    private readonly _columnsManager: ColumnsManager;
     private readonly _subgridsManager: SubgridsManager;
     private readonly _modelCallbackRouter: ModelCallbackRouter;
+    private readonly _focus: Focus;
+    private readonly _selection: Selection;
+    private readonly _reindexStashManager: ReindexStashManager;
+    private readonly _horizontalScroller: FinBar;
+    private readonly _vertialScroller: FinBar;
 
     readonly rendererBehavior: RendererBehavior;
-    readonly focusSelectionBehavior: FocusSelectionBehavior;
     readonly scrollBehavior: ScrollBehavior;
+    readonly focusBehavior: FocusBehavior;
+    readonly selectionBehavior: SelectionBehavior;
     readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
     readonly eventBehavior: EventBehavior;
     readonly rowPropertiesBehavior: RowPropertiesBehavior;
@@ -132,8 +135,6 @@ export class Behavior {
         loadBuiltinFinbarStylesheet: boolean,
         descendantEventer: EventBehavior.DescendantEventer,
     ) {
-        const cellPainterRepository = CellPainterRepository.getDefault();
-
         this.gridProperties = new GridPropertiesAccessor(this.grid);
         this.gridProperties.loadDefaults();
         if (optionedGridProperties !== undefined) {
@@ -162,7 +163,6 @@ export class Behavior {
 
         this._subgridsManager = new SubgridsManager(
             this.gridProperties,
-            cellPainterRepository,
             this._columnsManager,
         );
 
@@ -187,7 +187,6 @@ export class Behavior {
             this.viewport,
             this._focus,
             this._selection,
-            cellPainterRepository,
             () => this.behaviorShapeChanged(),
             () => this.processRenderedEvent(),
         );
@@ -203,8 +202,14 @@ export class Behavior {
             (cell) => this.processMouseEnteredCellEvent(cell),
             (cell) => this.processMouseExitedCellEvent(cell),
         );
-        this._focus = new Focus(this._mainSubgrid);
-        this._selection = new Selection(this.gridProperties, this._columnsManager, this._focus);
+        this._focus = new Focus(
+            this._mainSubgrid,
+            this._columnsManager,
+            (x, y, maximally) => this.handleScrollToMakeVisibleEvent(x, y, maximally)
+        );
+        this._selection = new Selection(this.gridProperties, this._columnsManager, this._focus, this._mainSubgrid);
+
+        this._reindexStashManager = new ReindexStashManager(this._focus, this._selection);
 
         this.eventBehavior = new EventBehavior(
             this._canvasEx,
@@ -231,17 +236,19 @@ export class Behavior {
             this.mouse,
         );
 
-        this.focusSelectionBehavior = new FocusSelectionBehavior(
+        this.focusBehavior = new FocusBehavior(
+            this._focus,
+            (x, y) => this.scrollBehavior.scrollToMakeVisible(x, y, true),
+        );
+
+        this.selectionBehavior = new SelectionBehavior(
             this._selection,
             this._focus,
-            this.gridProperties,
-            this._columnsManager,
-            this._subgridsManager,
             this.viewport,
             this.mouse,
             () => this.renderer.repaint(),
             () => this.eventBehavior.processSelectionChangedEvent(),
-            (x, y, subgrid, maximally) => this.scrollBehavior.scrollToMakeVisible(x, y, subgrid, maximally),
+            (x, y) => this.focusBehavior.setFocusPoint(x, y),
         );
 
         this.rowPropertiesBehavior = new RowPropertiesBehavior(
@@ -261,8 +268,10 @@ export class Behavior {
             this._columnsManager,
             this._subgridsManager,
             this.renderer,
+            this._focus,
             this._selection,
             this._modelCallbackRouter,
+            this._reindexStashManager,
             () => this.behaviorShapeChanged(),
         );
 
@@ -282,9 +291,11 @@ export class Behavior {
             this._subgridsManager,
             this.viewport,
             this.renderer,
-            this.focusSelectionBehavior,
-            this.userInterfaceInputBehavior,
+            this._reindexStashManager,
             this.scrollBehavior,
+            this.focusBehavior,
+            this.selectionBehavior,
+            this.userInterfaceInputBehavior,
             this.rowPropertiesBehavior,
             this.cellPropertiesBehavior,
             this.eventBehavior,
@@ -363,7 +374,7 @@ export class Behavior {
         this._modelCallbackRouter.destroy();
         this.eventBehavior.destroy();
         this.scrollBehavior.destroy();
-        this.focusSelectionBehavior.destroy();
+        this.selectionBehavior.destroy();
         this.subgridsManager.destroy();
         this._selection.destroy();
         this.renderer.stop();
@@ -390,7 +401,6 @@ export class Behavior {
             const mainDataModel = mainSubgrid.dataModel;
             this._mainSubgrid = mainSubgrid;
             this._mainDataModel = mainDataModel;
-            this._focus.subgrid = mainSubgrid;
             this._modelCallbackRouterBehavior.registerDataModels();
             this.viewport.updateMainSubgrid();
         }
@@ -425,7 +435,7 @@ export class Behavior {
             this.renderer.requestPaint();
         } else {
             if (!this._destroyed) {
-                this.viewport.computeCellsBounds();
+                this.viewport.compute();
                 this.renderer.repaint();
             }
         }
@@ -540,12 +550,8 @@ export class Behavior {
      * @internal
      */
     getCellEditorAt(event: CellEvent) {
-        if (!event.isDataColumn) {
-            return undefined;
-        } else {
-            return undefined;
-            // return event.column.getCellEditorAt(event);
-        }
+        return undefined;
+        // return event.column.getCellEditorAt(event);
     }
 
     /**
@@ -605,7 +611,7 @@ export class Behavior {
 
     private handleBehaviorChangedEvent() {
         if (!this._destroyed) {
-            const columnCount = this._columnsManager.getAllColumnCount();
+            const columnCount = this._columnsManager.allColumnCount;
             const rowCount = this._mainSubgrid.getRowCount();
             if (columnCount !== this._behaviorChangeCheckColumnCount || rowCount !== this._behaviorChangeCheckRowCount) {
                 this._behaviorChangeCheckColumnCount = columnCount;
@@ -615,6 +621,10 @@ export class Behavior {
                 this.behaviorStateChanged();
             }
         }
+    }
+
+    private handleScrollToMakeVisibleEvent(x: number, y: number, maximally: boolean) {
+        this.scrollBehavior.scrollToMakeVisible(x, y, maximally);
     }
 
     private processCheckNeedsShapeChanged() {
