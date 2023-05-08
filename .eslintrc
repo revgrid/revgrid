@@ -20,10 +20,14 @@
           "./src/code/adapter-sets/simple/tsconfig-rev-simple.json",
           "./src/code/standard-cell-paint/tsconfig-standard-cell-paint.json",
           "./src/code/grid/tsconfig-grid.json",
+          "./src/code/grid/behavior/tsconfig-grid-behavior.json",
+          "./src/code/grid/behavior/ui/tsconfig-grid-behavior-ui.json",
+          "./src/code/grid/behavior/component/tsconfig-grid-behavior-component.json",
           "./src/code/grid/components/tsconfig-grid-components.json",
           "./src/code/grid/components/canvas-ex/tsconfig-grid-components-canvas-ex.json",
           "./src/code/grid/components/cell/tsconfig-grid-components-cell.json",
           "./src/code/grid/components/column/tsconfig-grid-components-column.json",
+          "./src/code/grid/components/focus/tsconfig-grid-components-focus.json",
           "./src/code/grid/components/event/tsconfig-grid-components-event.json",
           "./src/code/grid/components/model-callback-router/tsconfig-grid-components-model-callback-router.json",
           "./src/code/grid/components/mouse/tsconfig-grid-components-mouse.json",
@@ -33,12 +37,11 @@
           "./src/code/grid/components/view/tsconfig-grid-components-view.json",
           "./src/code/grid/components/selection/tsconfig-grid-components-selection.json",
           "./src/code/grid/components/scroller/tsconfig-grid-components-scroller.json",
-          "./src/code/grid/behavior/tsconfig-grid-behavior.json",
-          "./src/code/grid/behavior/component/tsconfig-grid-behavior-component.json",
-          "./src/code/grid/behavior/ui/tsconfig-grid-behavior-ui.json",
+          "./src/code/grid/settings-accessors/tsconfig-grid-settings-accessors.json",
           "./src/code/grid/interfaces/tsconfig-grid-interfaces.json",
           "./src/code/grid/effects/tsconfig-effects.json",
-          "./src/code/grid/lib/tsconfig-grid-lib.json"
+          "./src/code/grid/lib/tsconfig-grid-lib.json",
+          "./src/code/grid/renderer/tsconfig-grid-renderer.json" // to be removed
         ]
       },
       "extends": [
