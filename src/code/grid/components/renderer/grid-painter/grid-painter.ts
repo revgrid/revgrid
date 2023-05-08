@@ -22,7 +22,7 @@ export abstract class GridPainter {
     protected rowPrefillColors = new Array<string>();
 
     reset = false;
-    rebundle: boolean;
+    rebundle: boolean | undefined;
 
     constructor(
         protected readonly gridProperties: GridSettings,

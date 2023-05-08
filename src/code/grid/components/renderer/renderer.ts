@@ -4,7 +4,7 @@ import { CanvasRenderingContext2DEx } from '../../components/canvas-ex/canvas-re
 import { Selection } from '../../components/selection/selection';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema-model';
-import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
+import { UnreachableCaseError } from '../../lib/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
 import { Mouse } from '../mouse/mouse';
@@ -31,7 +31,7 @@ export class Renderer {
     private _destroyed = false;
 
     private _gridPainter: GridPainter;
-    private _allRepainter: GridPainter;
+    private _allRepainter: GridPainter | undefined;
 
     private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
 
@@ -104,10 +104,6 @@ export class Renderer {
     setGridPainter(key: string) {
         const gridPainter = this.gridPainterRepository.get(key);
 
-        if (!gridPainter) {
-            throw new AssertError('RSGP68240', 'Unregistered grid renderer "' + key + '"');
-        }
-
         if (gridPainter !== this._gridPainter) {
             this._gridPainter = gridPainter;
             this._gridPainter.reset = true;
@@ -118,7 +114,7 @@ export class Renderer {
         // Notify renderers that grid shape has changed
         const all = this.gridPainterRepository.allCreatedEntries();
         for (const [key, value] of all) {
-            value.reset = !blackList || blackList.indexOf(key) < 0;
+            value.reset = blackList.indexOf(key) < 0;
         }
     }
 

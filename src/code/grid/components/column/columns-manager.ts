@@ -250,7 +250,7 @@ export class ColumnsManager {
     setActiveColumnWidth(columnOrIndex: ColumnInterface | number, width: number | undefined, ui: boolean) {
         let column: ColumnInterface
         if (typeof columnOrIndex === 'number') {
-            if (columnOrIndex >= -2) {
+            if (columnOrIndex >= 0) {
                 column = this.getActiveColumn(columnOrIndex);
             } else {
                 throw new Error(`Behavior.setColumnWidth: Invalid column number ${columnOrIndex}`);

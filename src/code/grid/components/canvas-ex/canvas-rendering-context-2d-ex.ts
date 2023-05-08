@@ -3,8 +3,8 @@ import { TextTruncateType } from '../../lib/types';
 
 /** @public */
 export class CanvasRenderingContext2DEx {
-    private fontMetrics: Record<string, Record<string, number>> = {} // Record of characters and their width - previously was global
-    private fontData: Record<string, CanvasRenderingContext2DEx.TextHeight> = {}; // previously was global
+    private fontMetrics: Record<string, Record<string, number> | undefined> = {} // Record of characters and their width - previously was global
+    private fontData: Record<string, CanvasRenderingContext2DEx.TextHeight | undefined> = {}; // previously was global
     private readonly conditionalsStack: CanvasRenderingContext2DEx.ConditionalsStack = [];
 
     readonly cache: CanvasRenderingContext2DEx.Cache;
@@ -171,7 +171,7 @@ export class CanvasRenderingContext2DEx {
         const truncating = truncateType !== undefined;
         let truncString: string | undefined; //, truncWidth, truncAt;
 
-        if (!metrics) {
+        if (metrics === undefined) {
             metrics = this.fontMetrics[this.cache.font] = {};
             metrics[CanvasRenderingContext2DEx.ELLIPSIS] = this.measureText(CanvasRenderingContext2DEx.ELLIPSIS).width;
         }
@@ -264,9 +264,9 @@ export class CanvasRenderingContext2DEx {
     }
 
     getTextHeight(font: string) {
-        let result: CanvasRenderingContext2DEx.TextHeight = this.fontData[font];
+        let result = this.fontData[font];
 
-        if (result !== undefined) {
+        if (result === undefined) {
             const text = document.createElement('span');
             text.textContent = 'Hg';
             text.style.font = font;
@@ -299,7 +299,7 @@ export class CanvasRenderingContext2DEx {
                 block.style.verticalAlign = 'bottom';
                 height = blockRect.top - textRect.top;
 
-                descent = result.height - result.ascent;
+                descent = height - ascent;
 
                 result = {
                     ascent,
@@ -645,26 +645,26 @@ export namespace CanvasRenderingContext2DEx {
 
     export namespace Cache {
         export interface Values {
-            fillStyle: string | CanvasGradient /* | CanvasPattern*/;
-            font: string;
-            globalAlpha: number;
-            globalCompositeOperation: GlobalCompositeOperation;
-            imageSmoothingEnabled: boolean;
+            fillStyle: string | CanvasGradient | undefined /* | CanvasPattern*/;
+            font: string | undefined;
+            globalAlpha: number | undefined;
+            globalCompositeOperation: GlobalCompositeOperation | undefined;
+            imageSmoothingEnabled: boolean | undefined;
             // lineCap: string;
-            lineDashOffset: number;
+            lineDashOffset: number | undefined;
             // lineJoin: string;
-            lineWidth: number;
-            miterLimit: number;
+            lineWidth: number | undefined;
+            miterLimit: number | undefined;
             // mozImageSmoothingEnabled: boolean;
             // msFillRule: CanvasFillRule;
             // oImageSmoothingEnabled: boolean;
-            shadowBlur: number;
-            shadowColor: string;
-            shadowOffsetX: number;
-            shadowOffsetY: number;
-            strokeStyle: string /*| CanvasGradient | CanvasPattern*/;
-            textAlign: CanvasTextAlign;
-            textBaseline: CanvasTextBaseline;
+            shadowBlur: number | undefined;
+            shadowColor: string | undefined;
+            shadowOffsetX: number | undefined;
+            shadowOffsetY: number | undefined;
+            strokeStyle: string | undefined /*| CanvasGradient | CanvasPattern*/;
+            textAlign: CanvasTextAlign | undefined;
+            textBaseline: CanvasTextBaseline | undefined;
         }
     }
 }

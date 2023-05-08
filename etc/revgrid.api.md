@@ -165,35 +165,35 @@ export namespace CanvasRenderingContext2DEx {
         // (undocumented)
         export interface Values {
             // (undocumented)
-            fillStyle: string | CanvasGradient;
+            fillStyle: string | CanvasGradient | undefined;
             // (undocumented)
-            font: string;
+            font: string | undefined;
             // (undocumented)
-            globalAlpha: number;
+            globalAlpha: number | undefined;
             // (undocumented)
-            globalCompositeOperation: GlobalCompositeOperation;
+            globalCompositeOperation: GlobalCompositeOperation | undefined;
             // (undocumented)
-            imageSmoothingEnabled: boolean;
+            imageSmoothingEnabled: boolean | undefined;
             // (undocumented)
-            lineDashOffset: number;
+            lineDashOffset: number | undefined;
             // (undocumented)
-            lineWidth: number;
+            lineWidth: number | undefined;
             // (undocumented)
-            miterLimit: number;
+            miterLimit: number | undefined;
             // (undocumented)
-            shadowBlur: number;
+            shadowBlur: number | undefined;
             // (undocumented)
-            shadowColor: string;
+            shadowColor: string | undefined;
             // (undocumented)
-            shadowOffsetX: number;
+            shadowOffsetX: number | undefined;
             // (undocumented)
-            shadowOffsetY: number;
+            shadowOffsetY: number | undefined;
             // (undocumented)
-            strokeStyle: string;
+            strokeStyle: string | undefined;
             // (undocumented)
-            textAlign: CanvasTextAlign;
+            textAlign: CanvasTextAlign | undefined;
             // (undocumented)
-            textBaseline: CanvasTextBaseline;
+            textBaseline: CanvasTextBaseline | undefined;
         }
     }
     // (undocumented)
