@@ -8,10 +8,13 @@
 
   "include": [
     "behavior-manager.ts",
-    "../revgrid.ts",
   ],
 
   "references": [
-    { "path": "../component/subgrid/tsconfig-grid-components-subgrid.json" },
+    { "path": "component/tsconfig-grid-behavior-component.json" },
+    { "path": "ui/tsconfig-grid-behavior-ui.json" },
+    { "path": "../components/subgrid/tsconfig-grid-components-subgrid.json" },
+    { "path": "../components/cell/tsconfig-grid-components-cell.json" },
+    { "path": "../interfaces/tsconfig-grid-interfaces.json" },
   ]
 }

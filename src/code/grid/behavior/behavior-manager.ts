@@ -1,9 +1,8 @@
+import { ViewCell } from '../components/cell/view-cell';
 import { Subgrid } from '../components/subgrid/subgrid';
-import { ViewCell } from '../components/view/view-cell';
 import { GridSettings } from '../interfaces/grid-settings';
 import { MetaModel } from '../interfaces/meta-model';
 import { SchemaModel } from '../interfaces/schema-model';
-import { Revgrid } from '../revgrid';
 import { AdapterSetConfig } from './component/adapter-set-config';
 import { ComponentBehaviorManager } from './component/component-behavior-manager';
 import { EventBehavior } from './component/event-behavior';
@@ -40,7 +39,6 @@ export class BehaviorManager {
     // End RowProperties Mixin
 
     constructor(
-        private readonly grid: Revgrid,
         containerHtmlElement: HTMLElement,
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
         optionedGridProperties: Partial<GridSettings> | undefined,
@@ -50,7 +48,6 @@ export class BehaviorManager {
         descendantEventer: EventBehavior.DescendantEventer,
     ) {
         this._componentBehaviorManager = new ComponentBehaviorManager(
-            grid,
             containerHtmlElement,
             canvasContextAttributes,
             optionedGridProperties,
@@ -61,7 +58,7 @@ export class BehaviorManager {
         );
 
         this._uiBehaviorManager = new UiBehaviorManager(
-            this.grid,
+            containerHtmlElement,
             this._componentBehaviorManager.gridSettings,
             this._componentBehaviorManager.mouse,
             this._componentBehaviorManager.canvasEx,
@@ -75,7 +72,6 @@ export class BehaviorManager {
             this._componentBehaviorManager.scrollBehavior,
             this._componentBehaviorManager.focusBehavior,
             this._componentBehaviorManager.selectionBehavior,
-            this._componentBehaviorManager.userInterfaceInputBehavior,
             this._componentBehaviorManager.rowPropertiesBehavior,
             this._componentBehaviorManager.cellPropertiesBehavior,
             this._componentBehaviorManager.dataExtractBehavior,
@@ -96,7 +92,7 @@ export class BehaviorManager {
     get selectionBehavior() { return this._componentBehaviorManager.selectionBehavior; }
     get rowPropertiesBehavior() { return this._componentBehaviorManager.rowPropertiesBehavior; }
     get cellPropertiesBehavior() { return this._componentBehaviorManager.cellPropertiesBehavior; }
-    get userInterfaceInputBehavior() { return this._componentBehaviorManager.userInterfaceInputBehavior; }
+    get userInterfaceInputBehavior() { return this._componentBehaviorManager.mouse; }
     get scrollBehavior() { return this._componentBehaviorManager.scrollBehavior; }
 
     reset() {
@@ -142,10 +138,6 @@ export class BehaviorManager {
 
     endDragColumnNotification() {
         this._componentBehaviorManager.endDragColumnNotification();
-    }
-
-    getCursorAt(x: number, y: number): string | undefined {
-        return this._componentBehaviorManager.getCursorAt(x, y);
     }
 
     getCellEditorAt(cell: ViewCell) {

@@ -1,5 +1,5 @@
+import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { ViewCell } from '../../components/view/view-cell';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { isSecondaryMouseButton } from '../../lib/html-types';
 import { Point } from '../../lib/point';
@@ -67,8 +67,8 @@ export class RowSelectionUiBehavior extends UiBehavior {
             const subgrid = cell.subgrid;
             const rowSelectable =
                 subgrid.selectable &&
-                this.gridProperties.mouseRowSelection &&
-                this.gridProperties.autoSelectRows &&
+                this.gridSettings.mouseRowSelection &&
+                this.gridSettings.autoSelectRows &&
                 leftClick;
 
             if (!rowSelectable || !cell.isRowFixed) {
@@ -116,7 +116,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
     override handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (
             !this._dragArmed ||
-            !this.gridProperties.mouseRowSelection ||
+            !this.gridSettings.mouseRowSelection ||
             isSecondaryMouseButton(event)
         ) {
             return super.handleMouseDrag(event, cell);
@@ -187,7 +187,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
         const scrollableBounds = this.viewLayout.scrollableBounds;
         if (
-            this.gridProperties.scrollingEnabled &&
+            this.gridSettings.scrollingEnabled &&
             scrollableBounds !== undefined &&
             scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY)
         ) {
@@ -321,7 +321,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
             let newX: number | undefined = focusPoint.x;
             let newY: number | undefined = focusPoint.y;
 
-            if (!this.gridProperties.scrollingEnabled) {
+            if (!this.gridSettings.scrollingEnabled) {
                 newX = this.viewLayout.limitActiveColumnIndexToView(newX);
                 newY = this.viewLayout.limitRowIndexToView(newY);
             }

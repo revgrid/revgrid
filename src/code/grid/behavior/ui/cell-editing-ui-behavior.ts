@@ -1,7 +1,7 @@
 
-import { CellEditor } from '../../cell-editor/cell-editor';
-import { ViewCell } from '../../components/view/view-cell';
-import { EventDetail } from '../component/event-behavior/event-detail';
+// import { CellEditor } from '../../cell-editor/cell-editor';
+import { ViewCell } from '../../components/cell/view-cell';
+import { EventDetail } from '../../components/event/event-detail';
 import { UiBehavior } from './ui-behavior';
 
 export class CellEditingUiBehavior extends UiBehavior {
@@ -25,33 +25,31 @@ export class CellEditingUiBehavior extends UiBehavior {
     }
 
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        const grid = this.grid;
-
         const cellEvent = this.focusBehavior.getFocusedViewCell(false);
         if (cellEvent === undefined) {
             super.handleKeyDown(eventDetail);
         } else {
             // const keyboardEvent = eventDetail.primitiveEvent;
             const keyboardEvent = eventDetail;
-            if (cellEvent.columnProperties.editOnKeydown && !grid.cellEditor) {
+            if (cellEvent.columnProperties.editOnKeydown /*&& !grid.cellEditor*/) {
                 const char = keyboardEvent.key;
                 const isVisibleChar = char.length === 1 && !(keyboardEvent.metaKey || keyboardEvent.ctrlKey);
                 const isDeleteChar = char === 'DELETE' || char === 'BACKSPACE';
 
                 if (char === 'F2' || isVisibleChar || isDeleteChar) {
-                    const editor = grid.onEditorActivate(cellEvent);
+                    // const editor = grid.onEditorActivate(cellEvent);
 
-                    if (editor instanceof CellEditor) {
-                        if (isVisibleChar) {
-                            const element = editor.el;
-                            if (element instanceof HTMLInputElement) {
-                                element.value = char;
-                            }
-                        } else if (isDeleteChar) {
-                            editor.setEditorValue('');
-                        }
-                        keyboardEvent.preventDefault();
-                    }
+                    // if (editor instanceof CellEditor) {
+                    //     if (isVisibleChar) {
+                    //         const element = editor.el;
+                    //         if (element instanceof HTMLInputElement) {
+                    //             element.value = char;
+                    //         }
+                    //     } else if (isDeleteChar) {
+                    //         editor.setEditorValue('');
+                    //     }
+                    //     keyboardEvent.preventDefault();
+                    // }
                 } else {
                     super.handleKeyDown(eventDetail);
                 }
@@ -67,7 +65,7 @@ export class CellEditingUiBehavior extends UiBehavior {
             cell.isDataCell &&
             !(cell.columnProperties['editOnDoubleClick'] !== onDoubleClick) // both same (true or falsy)?
         ) {
-            this.grid.onEditorActivate(cell);
+            // this.grid.onEditorActivate(cell);
         }
     }
 }

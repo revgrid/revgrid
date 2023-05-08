@@ -1,6 +1,6 @@
 
+import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnWidth } from '../../components/column/column';
-import { ViewCell } from '../../components/view/view-cell';
 import { ColumnInterface } from '../../interfaces/column-interface';
 import { UiBehavior } from './ui-behavior';
 
@@ -27,7 +27,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         if (this._dragColumn !== undefined) {
             const mouseValue = event.offsetX;
             let delta: number;
-            if (this.gridProperties.gridRightAligned) {
+            if (this.gridSettings.gridRightAligned) {
                 delta = this._dragStart - mouseValue;
             } else {
                 delta = mouseValue - this._dragStart;
@@ -73,7 +73,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                 let vc = cell.visibleColumn;
                 let vcIndex = vc.index;
 
-                const gridRightBottomAligned = this.gridProperties.gridRightAligned;
+                const gridRightBottomAligned = this.gridSettings.gridRightAligned;
                 if (!gridRightBottomAligned) {
                     const cellOffsetX = canvasOffsetX - cell.visibleColumn.left;
                     if (cellOffsetX <= 3) {
@@ -237,7 +237,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
     }
 
     private overAreaDivider(canvasOffsetX: number, cell: ViewCell): boolean {
-        if (!this.gridProperties.gridRightAligned) {
+        if (!this.gridSettings.gridRightAligned) {
             const leftMostActiveColumnIndex = 0;
             return (cell.visibleColumn.activeColumnIndex !== leftMostActiveColumnIndex && canvasOffsetX <= 3) || canvasOffsetX >= cell.bounds.width - 3;
         } else {

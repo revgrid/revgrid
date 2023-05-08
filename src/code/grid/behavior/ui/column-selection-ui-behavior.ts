@@ -1,6 +1,6 @@
+import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { ViewCell } from '../../components/view/view-cell';
-import { SubgridInterface } from '../../grid-public-api';
+import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { isSecondaryMouseButton } from '../../lib/html-types';
 import { Point } from '../../lib/point';
 import { AssertError } from '../../lib/revgrid-error';
@@ -58,10 +58,10 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
                 return super.handleMouseDown(event, cell);
             } else {
                 if (
-                    this.gridProperties.mouseColumnSelection &&
+                    this.gridSettings.mouseColumnSelection &&
                     !isSecondaryMouseButton(event) &&
                     (
-                        this.gridProperties.autoSelectColumns ||
+                        this.gridSettings.autoSelectColumns ||
                         cell.isHeaderCell
                     )
                 ) {
@@ -83,7 +83,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
         if (
             !this._dragArmed ||
             this.isColumnDragging() ||
-            !this.gridProperties.mouseColumnSelection ||
+            !this.gridSettings.mouseColumnSelection ||
             isSecondaryMouseButton(event)
         ) {
             return super.handleMouseDrag(event, cell);
@@ -151,7 +151,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
      */
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
         const scrollableBounds = this.viewLayout.scrollableBounds;
-        if (this.gridProperties.scrollingEnabled && scrollableBounds !== undefined && scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY)) {
+        if (this.gridSettings.scrollingEnabled && scrollableBounds !== undefined && scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY)) {
             this.cancelScheduledStepScrollDrag();
             return false;
         } else {
@@ -268,7 +268,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
             let newX: number | undefined = focusPoint.x;
             let newY: number | undefined = focusPoint.y;
 
-            if (!this.gridProperties.scrollingEnabled) {
+            if (!this.gridSettings.scrollingEnabled) {
                 newX = this.viewLayout.limitActiveColumnIndexToView(newX);
                 newY = this.viewLayout.limitRowIndexToView(newY);
             }

@@ -1,20 +1,19 @@
 
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { Focus } from '../../components/focus/focus';
+import { ReindexStashManager } from '../../components/model-callback-router/reindex-stash-manager';
 import { Mouse } from '../../components/mouse/mouse';
-import { ReindexStashManager } from '../../components/reindex-stash-manager/reindex-stash-manager';
 import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { Subgrid } from '../../components/subgrid/subgrid';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ViewCell } from '../../components/view/view-cell';
 import { ViewLayout } from '../../components/view/view-layout';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { Point } from '../../lib/point';
 import { ScrollAction } from '../../lib/scroll-action';
-import { Revgrid } from '../../revgrid';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
@@ -22,7 +21,6 @@ import { FocusBehavior } from '../component/focus-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
 import { ScrollBehavior } from '../component/scroll-behaviour';
 import { SelectionBehavior } from '../component/selection-behavior';
-import { UserInterfaceInputBehavior } from '../component/user-interface-input-behavior';
 import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
@@ -36,13 +34,15 @@ export abstract class UiBehavior {
     protected readonly scrollBehavior: ScrollBehavior;
     protected readonly focusBehavior: FocusBehavior;
     protected readonly selectionBehavior: SelectionBehavior;
-    protected readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
     protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
     protected readonly cellPropertiesBehavior: CellPropertiesBehavior;
     protected readonly dataExtractBehavior: DataExtractBehavior;
     protected readonly eventBehavior: EventBehavior;
 
     protected readonly sharedState: UiBehaviorSharedState;
+    protected readonly containerHtmlElement: HTMLElement;
+
+    protected readonly gridSettings: GridSettings;
     protected readonly mouse: Mouse;
     protected readonly canvasEx: CanvasEx;
     protected readonly selection: Selection;
@@ -51,18 +51,13 @@ export abstract class UiBehavior {
     protected readonly subgridsManager: SubgridsManager;
     protected readonly viewLayout: ViewLayout;
     protected readonly renderer: Renderer;
-    protected readonly gridProperties: GridSettings;
     protected readonly reindexStashManager: ReindexStashManager;
 
     protected readonly mainSubgrid: Subgrid;
 
-    constructor(
-        protected readonly grid: Revgrid,
-        services: UiBehaviorServices,
-    ) {
+    constructor(services: UiBehaviorServices) {
         this.focusBehavior = services.focusBehavior;
         this.selectionBehavior = services.selectionBehavior;
-        this.userInterfaceInputBehavior = services.userInterfaceInputBehavior;
         this.scrollBehavior = services.scrollBehavior;
         this.rowPropertiesBehavior = services.rowPropertiesBehavior;
         this.cellPropertiesBehavior = services.cellPropertiesBehavior;
@@ -70,6 +65,7 @@ export abstract class UiBehavior {
         this.eventBehavior = services.eventBehavior;
 
         this.sharedState = services.sharedState;
+        this.gridSettings = services.gridSettings;
         this.mouse = services.mouse;
         this.canvasEx = services.canvasEx;
         this.selection = services.selection;
@@ -78,7 +74,6 @@ export abstract class UiBehavior {
         this.subgridsManager = services.subgridsManager;
         this.viewLayout = services.viewLayout;
         this.renderer = services.renderer;
-        this.gridProperties = services.gridProperties;
         this.reindexStashManager = services.reindexStashManager;
     }
 
@@ -253,15 +248,6 @@ export abstract class UiBehavior {
         }
     }
 
-    setCursor() {
-        if (this.next !== undefined) {
-            this.next.setCursor();
-        }
-        if (this.cursor !== undefined) {
-            this.grid.beCursor(this.cursor);
-        }
-    }
-
     initializeOn() {
         if (this.next) {
             this.next.initializeOn();
@@ -280,5 +266,5 @@ export abstract class UiBehavior {
 }
 
 export namespace UiBehavior {
-    export type Constructor = new (grid: Revgrid, services: UiBehaviorServices) => UiBehavior;
+    export type Constructor = new (services: UiBehaviorServices) => UiBehavior;
 }

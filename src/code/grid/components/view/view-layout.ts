@@ -1,17 +1,18 @@
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
-import { ColumnInterface } from '../../interfaces/column-interface';
 import { DataModel } from '../../interfaces/data-model';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
+import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
+import { ViewLayoutRow } from '../../interfaces/view-layout-row';
 import { Rectangle } from '../../lib/rectangle';
 import { RectangleInterface } from '../../lib/rectangle-interface';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
+import { ViewCell } from '../cell/view-cell';
 import { Column } from '../column/column';
 import { ColumnsManager } from '../column/columns-manager';
 import { Selection } from '../selection/selection';
 import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
-import { ViewCell } from './view-cell';
 
 
 /** CanvasRenderingContext2D
@@ -78,8 +79,8 @@ export class ViewLayout {
     private _mainSubgrid: Subgrid;
     private _mainDataModel: DataModel;
 
-    private _columnsByIndex = new Array<ViewLayout.ViewLayoutColumn>();  // array because number of columns will always be reasonable
-    private _rowsByDataRowIndex = new Map<number, ViewLayout.ViewLayoutRow>(); // hash because keyed by (fixed and) scrolled row indexes
+    private _columnsByIndex = new Array<ViewLayoutColumn>();  // array because number of columns will always be reasonable
+    private _rowsByDataRowIndex = new Map<number, ViewLayoutRow>(); // hash because keyed by (fixed and) scrolled row indexes
     private _cellPoolOrder: ViewLayout.CellPoolOrder | undefined;
 
     // I don't think this is used
@@ -1005,7 +1006,7 @@ export class ViewLayout {
         }
     }
 
-    createUnusedSpaceColumn(): ViewLayout.ViewLayoutColumn | undefined {
+    createUnusedSpaceColumn(): ViewLayoutColumn | undefined {
         const columns = this.columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1017,7 +1018,7 @@ export class ViewLayout {
                 if (firstColumn.left <= 0) {
                     return undefined;
                 } else {
-                    const column: ViewLayout.ViewLayoutColumn = {
+                    const column: ViewLayoutColumn = {
                         index: -1,
                         activeColumnIndex: -1,
                         column: this._dummyUnusedColumn,
@@ -1034,7 +1035,7 @@ export class ViewLayout {
                 if (lastColumnRightPlus1 >= gridRightPlus1) {
                     return undefined;
                 } else {
-                    const column: ViewLayout.ViewLayoutColumn = {
+                    const column: ViewLayoutColumn = {
                         index: columnCount,
                         activeColumnIndex: columnCount,
                         column: this._dummyUnusedColumn,
@@ -1087,7 +1088,7 @@ export class ViewLayout {
      * @param activeColumnIndex - The grid column index.
      * @returns The given column if visible or `undefined` if not.
      */
-    tryGetColumnWithActiveIndex(activeColumnIndex: number): ViewLayout.ViewLayoutColumn | undefined {
+    tryGetColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn | undefined {
         const columns = this.columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1108,7 +1109,7 @@ export class ViewLayout {
         }
     }
 
-    tryGetFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayout.ViewLayoutColumn | undefined {
+    tryGetFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn | undefined {
         const columns = this.columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1276,9 +1277,9 @@ export class ViewLayout {
                     // selection needs scrollable data
                     return undefined;
                 } else {
-                    let vc: ViewLayout.ViewLayoutColumn;
+                    let vc: ViewLayoutColumn;
                     const vci = this._columnsByIndex;
-                    let vr: ViewLayout.ViewLayoutRow;
+                    let vr: ViewLayoutRow;
                     const vri = this._rowsByDataRowIndex;
                     const lastScrollableColumn = this.columns[columnCount - 1]; // last column in scrollable section
                     const lastScrollableRow = this.rows[rowCount - 1]; // last row in scrollable data section
@@ -1457,9 +1458,9 @@ export class ViewLayout {
         const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
         const columnScrollAnchorOffset = this._columnScrollAnchorOffset;
 
-        let vcEd: ViewLayout.ViewLayoutColumn | undefined;
+        let vcEd: ViewLayoutColumn | undefined;
         let xEd: number | undefined;
-        let vrEd: ViewLayout.ViewLayoutRow | undefined;
+        let vrEd: ViewLayoutRow | undefined;
         let yEd: number | undefined;
         let sgEd: SubgridInterface | undefined;
         let isSubgridEd: boolean;
@@ -1479,7 +1480,7 @@ export class ViewLayout {
         const lastFixedColumnIndex = fixedColumnCount - 1;
 
         let fixedWidthV: number;
-        let vc: ViewLayout.ViewLayoutColumn;
+        let vc: ViewLayoutColumn;
 
         if (editorCellEvent) {
             xEd = editorCellEvent.visibleColumn.activeColumnIndex;
@@ -1767,7 +1768,7 @@ export class ViewLayout {
         let subgrid: Subgrid;
         let subgridRowIndex: number;
         let gridRowIndex: number;
-        let vr: ViewLayout.ViewLayoutRow;
+        let vr: ViewLayoutRow;
 
         if (gridSettings.fixedLinesHWidth === undefined) {
             fixedGapH = lineWidthH;
@@ -2057,20 +2058,6 @@ export namespace ViewLayout {
         RowColumn,
     }
 
-    export interface ViewLayoutColumn {
-        /** A back reference to the element's array index in {@link ViewLayout#columns}. */
-        index: number;
-        /** Dereferences {@link Behavior#columns}, the subset of _active_ columns, specifying which column to show in that position. */
-        activeColumnIndex: number;
-        column: ColumnInterface;
-        /** Pixel coordinate of the left edge of this column, rounded to nearest integer. */
-        left: number;
-        /** Pixel coordinate of the right edge of this column + 1, rounded to nearest integer. */
-        rightPlus1: number;
-        /** Width of this column in pixels, rounded to nearest integer. */
-        width: number;
-    }
-
     export class ViewLayoutColumnArray extends Array<ViewLayoutColumn> {
         gap: ViewLayoutColumnArray.Gap | undefined;
     }
@@ -2080,21 +2067,6 @@ export namespace ViewLayout {
             left: number;
             rightPlus1: number;
         }
-    }
-
-    export interface ViewLayoutRow {
-        /** A back reference to the element's array index in {@link ViewLayout#rows}. */
-        index: number;
-        /** Local vertical row coordinate within the subgrid to which the row belongs. */
-        subgridRowIndex: number;
-        /** The subgrid to which the row belongs. */
-        subgrid: SubgridInterface;
-        /** Pixel coordinate of the top edge of this row, rounded to nearest integer. */
-        top: number;
-        /** Pixel coordinate of the bottom edge of this row, rounded to nearest integer. */
-        bottom: number;
-        /** Height of this row in pixels, rounded to nearest integer. */
-        height: number;
     }
 
     export class ViewLayoutRowArray extends Array<ViewLayoutRow> {

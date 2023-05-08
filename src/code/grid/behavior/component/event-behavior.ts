@@ -1,8 +1,8 @@
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
 import { EventName } from '../../components/event/event-name';
 import { Selection } from '../../components/selection/selection';
-import { ViewCell } from '../../components/view/view-cell';
 import { ViewLayout } from '../../components/view/view-layout';
 import { ColumnInterface } from '../../interfaces/column-interface';
 import { ListChangedTypeId } from '../../lib/types';
@@ -69,6 +69,14 @@ export class EventBehavior {
 
     processActiveColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
         this._descendantEventer.activeColumnListChanged(typeId, index, count, targetIndex, ui);
+    }
+
+    processColumnsChangedEvent() {
+        this._descendantEventer.columnsChanged();
+
+        if (this._dispatchEnabled) {
+            this.dispatchGridEvent('rev-column-changed-event', false, undefined);
+        }
     }
 
     processColumnsWidthChangedEvent(columns: ColumnInterface[], ui: boolean) {
@@ -145,6 +153,14 @@ export class EventBehavior {
             };
 
             this.dispatchGridEvent('rev-grid-resized', false, detail);
+        }
+    }
+
+    processColumnSortEvent(event: EventDetail.ColumnSort) {
+        this._descendantEventer.columnSort(event);
+
+        if (this._dispatchEnabled) {
+            this.dispatchGridEvent('rev-column-sort', false, event);
         }
     }
 
@@ -430,6 +446,7 @@ export namespace EventBehavior {
     export interface DescendantEventer {
         readonly allColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
+        readonly columnsChanged: DescendantEventer.Signal;
         readonly columnsWidthChanged: (this: void, columns: ColumnInterface[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: (this: void, changedColumnsViewWidths: ViewLayout.ChangedColumnsViewWidths) => void;
         readonly selectionChanged: DescendantEventer.Signal;
@@ -457,6 +474,7 @@ export namespace EventBehavior {
         readonly touchEnd: DescendantEventer.Touch;
         readonly copy: DescendantEventer.Clipboard;
         readonly resized: DescendantEventer.Signal;
+        readonly columnSort: (this: void, eventDetail: EventDetail.ColumnSort) => void;
     }
 
     export namespace DescendantEventer {

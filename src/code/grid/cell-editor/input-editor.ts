@@ -1,4 +1,4 @@
-import { ViewCell } from '../components/view/view-cell';
+import { ViewCell } from '../components/cell/view-cell';
 import { Revgrid } from '../revgrid';
 import { CellEditor } from './cell-editor';
 

@@ -5,10 +5,10 @@ import { MetaModel } from '../../interfaces/meta-model';
 import { SchemaModel } from '../../interfaces/schema-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { AssertError } from '../../lib/revgrid-error';
+import { CellModel } from '../cell/cell-model';
+import { CellPainter } from '../cell/cell-painter';
+import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
-import { ViewCell } from '../view/view-cell';
-import { CellModel } from './cell-model';
-import { CellPainter } from './cell-painter';
 
 /** @public */
 export class Subgrid implements SubgridInterface {

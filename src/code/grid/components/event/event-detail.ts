@@ -1,7 +1,7 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
 import { ColumnInterface } from '../../interfaces/column-interface';
 import { CanvasEx } from '../canvas-ex/canvas-ex';
-import { ViewCell } from '../view/view-cell';
+import { ViewCell } from '../cell/view-cell';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */

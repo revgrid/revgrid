@@ -1,14 +1,15 @@
-import { CellPaintConfigAccessor, ViewCell } from '../../grid/grid-public-api';
+import { Revgrid, ViewCell } from '../../grid/grid-public-api';
+import { SimpleCellPaintConfigAccessor } from '../../standard-cell-paint/standard-cell-paint-public-api';
 import { RevRecordCellPaintConfig } from './rev-record-cell-paint-config';
 import { RevRecordMainAdapter } from './rev-record-main-adapter';
 import { RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
-export class RevRecordCellPaintConfigAccessor extends CellPaintConfigAccessor implements RevRecordCellPaintConfig {
+export class RevRecordCellPaintConfigAccessor extends SimpleCellPaintConfigAccessor implements RevRecordCellPaintConfig {
     readonly valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId;
     readonly recordRecentChangeTypeId?: RevRecordRecentChangeTypeId;
 
-    constructor(beingPaintedCell: ViewCell, mainAdapter: RevRecordMainAdapter) {
-        super(beingPaintedCell, false, false)
+    constructor(grid: Revgrid, beingPaintedCell: ViewCell, mainAdapter: RevRecordMainAdapter) {
+        super(grid, beingPaintedCell, false, false)
 
         let rowIndex = beingPaintedCell.dataPoint.y;
 

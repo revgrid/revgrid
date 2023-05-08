@@ -1,20 +1,11 @@
-import { ColumnsManager } from '../../components/column/columns-manager';
+import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { ViewCell } from '../../components/view/view-cell';
 import { ColumnSettings } from '../../interfaces/column-settings';
 import { UiBehavior } from './ui-behavior';
 
 export class ColumnSortingUiBehavior extends UiBehavior {
 
     readonly typeName = ColumnSortingUiBehavior.typeName;
-
-    private _columnsManager: ColumnsManager;
-
-    override initializeOn() {
-        this._columnsManager = this.grid.columnsManager;
-
-        super.initializeOn();
-    }
 
     override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (!this.sharedState.mouseDownUpClickUsedForMoveOrResize) {
@@ -44,7 +35,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         }
         if (cell !== null) {
             if (cell.isRowFixed && cell.isHeaderCell) {
-                const columnProperties = this._columnsManager.getActiveColumnProperties(cell.visibleColumn.activeColumnIndex);
+                const columnProperties = this.columnsManager.getActiveColumnProperties(cell.visibleColumn.activeColumnIndex);
                 if ((columnProperties !== undefined) && columnProperties.sortable) {
                     this.cursor = 'pointer';
                 } else {
@@ -74,7 +65,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
                 metaKey: event.metaKey,
                 shiftKey: event.shiftKey,
             }
-            this.grid.fireSyntheticColumnSortEvent(eventDetail);
+            this.eventBehavior.processColumnSortEvent(eventDetail);
         }
     }
 }

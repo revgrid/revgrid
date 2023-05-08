@@ -1,13 +1,15 @@
 import { GridSettings } from '../../../interfaces/grid-settings';
+import { ViewLayoutColumn } from '../../../interfaces/view-layout-column';
+import { ViewLayoutRow } from '../../../interfaces/view-layout-row';
 import { RectangleInterface } from '../../../lib/rectangle-interface';
 import { CanvasEx } from '../../canvas-ex/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../../canvas-ex/canvas-rendering-context-2d-ex';
+import { ViewCell } from '../../cell/view-cell';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
 import { Subgrid } from '../../subgrid/subgrid';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
-import { ViewCell } from '../../view/view-cell';
 import { ViewLayout } from '../../view/view-layout';
 
 export abstract class GridPainter {
@@ -57,7 +59,7 @@ export abstract class GridPainter {
         return info.width;
     }
 
-    paintErrorCell(err: Error, gc: CanvasRenderingContext2DEx, vc: ViewLayout.ViewLayoutColumn, vr: ViewLayout.ViewLayoutRow) {
+    paintErrorCell(err: Error, gc: CanvasRenderingContext2DEx, vc: ViewLayoutColumn, vr: ViewLayoutRow) {
         const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
 
         const bounds: RectangleInterface = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };

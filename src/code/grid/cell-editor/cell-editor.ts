@@ -1,4 +1,4 @@
-import { ViewCell } from '../components/view/view-cell';
+import { ViewCell } from '../components/cell/view-cell';
 import { Effect, effectFactory } from '../effects/effects';
 import { Formatter } from '../lib/localization';
 import { WritablePoint } from '../lib/point';

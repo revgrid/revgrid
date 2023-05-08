@@ -1,5 +1,5 @@
-import { ViewCell } from '../../components/view/view-cell';
-import { ViewLayout } from '../../components/view/view-layout';
+import { ViewCell } from '../../components/cell/view-cell';
+import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
 import { isSecondaryMouseButton } from '../../lib/html-types';
 import { AssertError } from '../../lib/revgrid-error';
 import { UiBehavior } from './ui-behavior';
@@ -14,15 +14,15 @@ interface Action {
 interface MoveAction extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
-    source: ViewLayout.ViewLayoutColumn;
-    target: ViewLayout.ViewLayoutColumn;
+    source: ViewLayoutColumn;
+    target: ViewLayoutColumn;
 }
 
 interface ScrollAction extends Action {
     type: DragActionType.Scroll;
     toRight: boolean;
     mouseOffGrid: boolean; // only considers left and right off grid
-    source: ViewLayout.ViewLayoutColumn;
+    source: ViewLayoutColumn;
 }
 
 interface NoAction extends Action {
@@ -41,7 +41,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
     static GRAB = 'grab';
 
     private _dragOverlay: HTMLCanvasElement;
-    private _dragCol: ViewLayout.ViewLayoutColumn;
+    private _dragCol: ViewLayoutColumn;
     private _scrolling = false;
     private _scrollVelocity = 0;
 
@@ -56,7 +56,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         this._dragOverlay.style.left = '0px';
         this._dragOverlay.style.display = 'none';
 
-        this.grid.containerHtmlElement.appendChild(this._dragOverlay);
+        this.containerHtmlElement.appendChild(this._dragOverlay);
 
         super.initializeOn();
     }
@@ -69,11 +69,10 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         if (cell === null) {
             return super.handleMouseDown(event, cell);
         } else {
-            const grid = this.grid;
             const ctrlKeyDown = event.ctrlKey;
             if (
                 ctrlKeyDown &&
-                grid.settings.columnsReorderable &&
+                this.gridSettings.columnsReorderable &&
                 !isSecondaryMouseButton(event) &&
                 !cell.isColumnFixed &&
                 cell.isHeaderCell
@@ -118,7 +117,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         if (
             event !== undefined &&
             event.ctrlKey &&
-            this.gridProperties.columnsReorderable &&
+            this.gridSettings.columnsReorderable &&
             !this.sharedState.columnMovingDragging
         ) {
             if (cell === undefined) {
@@ -208,15 +207,13 @@ export class ColumnMovingUiBehavior extends UiBehavior {
     }
 
     private render(dragAction: ColumnDragAction | undefined) {
-        const grid = this.grid;
-
         const dragContext = this._dragOverlay.getContext('2d', { alpha: true });
         if (dragContext === null) {
             throw new AssertError('CMR18887');
         } else {
-            this._dragOverlay.width = grid.canvasEx.width;
-            this._dragOverlay.height = grid.canvasEx.height;
-            dragContext.clearRect(0, 0, grid.canvasEx.width, grid.canvasEx.height);
+            this._dragOverlay.width = this.canvasEx.width;
+            this._dragOverlay.height = this.canvasEx.height;
+            dragContext.clearRect(0, 0, this.canvasEx.width, this.canvasEx.height);
 
             if (dragAction !== undefined) {
 
@@ -225,38 +222,37 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                         ? dragAction.target.left
                         : dragAction.target.rightPlus1;
                     dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
-                    dragContext.fillRect(indicatorX, 0, 2, grid.canvasEx.height);
+                    dragContext.fillRect(indicatorX, 0, 2, this.canvasEx.height);
                 }
 
-                const dragCol = grid.viewLayout.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex);
+                const dragCol = this.viewLayout.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex);
                 if (dragCol) {
-                    const hideAction = dragAction.type === DragActionType.Scroll && grid.settings.columnsReorderableHideable && dragAction.mouseOffGrid;
+                    const hideAction = dragAction.type === DragActionType.Scroll && this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid;
                     dragContext.fillStyle = hideAction
                         ? 'rgba(255, 50, 50, 0.2)'
                         : 'rgba(50, 50, 255, 0.2)';
-                    dragContext.fillRect(dragCol.left, 0, dragCol.width, grid.canvasEx.height);
+                    dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasEx.height);
                 }
             }
         }
     }
 
     private endDragColumn(dragAction: ColumnDragAction) {
-        const grid = this.grid;
         switch (dragAction.type) {
             case DragActionType.Scroll:
-                if (grid.settings.columnsReorderableHideable && dragAction.mouseOffGrid) {
-                    grid.hideActiveColumn(dragAction.source.activeColumnIndex);
+                if (this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid) {
+                    this.columnsManager.hideActiveColumn(dragAction.source.activeColumnIndex);
                 }
                 break;
             case DragActionType.Move:
                 if (dragAction.location === MoveLocation.Before) {
-                    grid.moveColumnBefore(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex, true);
+                    this.columnsManager.moveColumnBefore(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex, true);
                 } else {
-                    grid.moveColumnAfter(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex, true);
+                    this.columnsManager.moveColumnAfter(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex, true);
                 }
                 break;
         }
-        grid.fireSyntheticOnColumnsChangedEvent();
+        this.eventBehavior.processColumnsChangedEvent();
     }
 
     private getDragAction(event: MouseEvent): ColumnDragAction {

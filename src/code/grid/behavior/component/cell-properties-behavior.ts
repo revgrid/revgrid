@@ -1,6 +1,6 @@
+import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ViewCell } from '../../components/view/view-cell';
 import { ViewLayout } from '../../components/view/view-layout';
 import { CellProperties } from '../../interfaces/cell-properties';
 import { ColumnInterface } from '../../interfaces/column-interface';

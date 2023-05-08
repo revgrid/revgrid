@@ -1,16 +1,16 @@
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
 import { ModelCallbackRouter } from '../../components/model-callback-router/model-callback-router';
+import { ReindexStashManager } from '../../components/model-callback-router/reindex-stash-manager';
 import { Mouse } from '../../components/mouse/mouse';
-import { ReindexStashManager } from '../../components/reindex-stash-manager/reindex-stash-manager';
 import { Renderer } from '../../components/renderer/renderer';
 import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { Subgrid } from '../../components/subgrid/subgrid';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ScrollablePlane } from '../../components/view/scrollable-plane';
-import { ViewCell } from '../../components/view/view-cell';
 import { ViewLayout } from '../../components/view/view-layout';
 import { ColumnInterface } from '../../interfaces/column-interface';
 import { DataModel } from '../../interfaces/data-model';
@@ -20,7 +20,6 @@ import { SchemaModel } from '../../interfaces/schema-model';
 import { AssertError } from '../../lib/revgrid-error';
 import { ListChangedTypeId } from '../../lib/types';
 import { assignOrDelete } from '../../lib/utils';
-import { Revgrid } from '../../revgrid';
 import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
 import { AdapterSetConfig } from './adapter-set-config';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
@@ -31,7 +30,6 @@ import { ModelCallbackRouterBehavior } from './model-callback-router-behavior';
 import { RowPropertiesBehavior } from './row-properties-behavior';
 import { ScrollBehavior } from './scroll-behaviour';
 import { SelectionBehavior } from './selection-behavior';
-import { UserInterfaceInputBehavior } from './user-interface-input-behavior';
 
 const noExportProperties = [
     'columnHeader',
@@ -76,7 +74,6 @@ export class ComponentBehaviorManager {
     readonly scrollBehavior: ScrollBehavior;
     readonly focusBehavior: FocusBehavior;
     readonly selectionBehavior: SelectionBehavior;
-    readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
     readonly eventBehavior: EventBehavior;
     readonly rowPropertiesBehavior: RowPropertiesBehavior;
     readonly cellPropertiesBehavior: CellPropertiesBehavior;
@@ -123,7 +120,6 @@ export class ComponentBehaviorManager {
     // End RowProperties Mixin
 
     constructor(
-        private readonly grid: Revgrid,
         containerHtmlElement: HTMLElement,
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
         optionedGridProperties: Partial<GridSettings> | undefined,
@@ -153,6 +149,7 @@ export class ComponentBehaviorManager {
         this.columnsManager = new ColumnsManager(
             this.gridSettings,
             () => this.behaviorChanged(),
+            () => this.updateHorizontalScroll(),
             (typeId, index, count, targetIndex) => this.processAllColumnListChanged(typeId, index, count, targetIndex),
             (typeId, index, count, targetIndex, ui) => this.processActiveColumnListChanged(typeId, index, count, targetIndex, ui),
             (columns, ui) => this.processColumnsWidthChanged(columns, ui),
@@ -202,6 +199,7 @@ export class ComponentBehaviorManager {
         this.loadAdapterSet(adapterSetConfig);
 
         this.mouse = new Mouse(
+            this.canvasEx,
             (cell) => this.processMouseEnteredCellEvent(cell),
             (cell) => this.processMouseExitedCellEvent(cell),
         );
@@ -233,10 +231,6 @@ export class ComponentBehaviorManager {
             () => this.handleBehaviorChangedEvent(),
             (isX, newValue, index, offset) => this.eventBehavior.processScrollEvent(isX, newValue, index, offset),
             (y, subgrid) => this.getRowHeight(y, subgrid),
-        );
-
-        this.userInterfaceInputBehavior = new UserInterfaceInputBehavior(
-            this.mouse,
         );
 
         this.focusBehavior = new FocusBehavior(
@@ -304,7 +298,7 @@ export class ComponentBehaviorManager {
         this._behaviorChangeCheckRowCount = 0;
         this._behaviorChangeCheckColumnCount = 0;
         this.mouse.reset();
-        this.userInterfaceInputBehavior.clearMouseDown();
+        this.mouse.clearMouseDown();
         this.viewLayout.reset();
         this.scrollBehavior.reset();
 
@@ -483,16 +477,6 @@ export class ComponentBehaviorManager {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     endDragColumnNotification() {
 
-    }
-
-    /**
-     * @return the cursor at a specific x,y coordinate
-     * @param x - the x coordinate
-     * @param y - the y coordinate
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    getCursorAt(x: number, y: number): string | undefined {
-        return undefined;
     }
 
     /**
@@ -700,6 +684,11 @@ export class ComponentBehaviorManager {
         }
 
         return vertBar;
+    }
+
+    private updateHorizontalScroll() {
+        this.scrollBehavior.updateHorizontalScroll(true)
+        this.behaviorChanged(); // this probably is not required
     }
 
     /** @internal */

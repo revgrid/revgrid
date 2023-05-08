@@ -1,5 +1,5 @@
 
-import { ViewCell } from '../../components/view/view-cell';
+import { ViewCell } from '../../components/cell/view-cell';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { UnreachableCaseError } from '../../lib/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../lib/types';
@@ -10,7 +10,7 @@ export class ThumbwheelScrollingUiBehavior extends UiBehavior {
     readonly typeName = ThumbwheelScrollingUiBehavior.typeName;
 
     override handleWheelMoved(event: WheelEvent, cell: ViewCell | null | undefined) {
-        const gridProps = this.gridProperties;
+        const gridProps = this.gridSettings;
         if (gridProps.scrollingEnabled) {
             const deltaX = event.deltaX;
             const deltaY = event.deltaY;

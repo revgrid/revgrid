@@ -6,10 +6,10 @@ import { FocusBehavior } from './behavior/component/focus-behavior';
 import { RowPropertiesBehavior } from './behavior/component/row-properties-behavior';
 import { ScrollBehavior } from './behavior/component/scroll-behaviour';
 import { SelectionBehavior } from './behavior/component/selection-behavior';
-import { UserInterfaceInputBehavior } from './behavior/component/user-interface-input-behavior';
 import { CellEditor } from './cell-editor/cell-editor';
 import { cellEditorFactory } from './cell-editor/cell-editor-factory';
 import { CanvasEx } from './components/canvas-ex/canvas-ex';
+import { ViewCell } from './components/cell/view-cell';
 import { Column, ColumnWidth } from './components/column/column';
 import { ColumnsManager } from './components/column/columns-manager';
 import { EventDetail } from './components/event/event-detail';
@@ -21,7 +21,6 @@ import { Renderer } from './components/renderer/renderer';
 import { Selection } from './components/selection/selection';
 import { Subgrid } from './components/subgrid/subgrid';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
-import { ViewCell } from './components/view/view-cell';
 import { ViewLayout } from './components/view/view-layout';
 import { CellProperties } from './interfaces/cell-properties';
 import { ColumnInterface } from './interfaces/column-interface';
@@ -64,8 +63,6 @@ export class Revgrid {
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
     /** @internal */
     private readonly _cellPropertiesBehavior: CellPropertiesBehavior;
-    /** @internal */
-    private readonly _userInterfaceInputBehavior: UserInterfaceInputBehavior; // remove this in future
     /** @internal */
     private readonly _scrollBehavior: ScrollBehavior; // remove this in future
 
@@ -183,7 +180,6 @@ export class Revgrid {
 
         const descendantEventer = this.createDescendantEventer();
         this.behaviorManager = new BehaviorManager(
-            this, // to be removed
             this.containerHtmlElement,
             options.canvasContextAttributes,
             this.options.gridProperties,
@@ -196,7 +192,6 @@ export class Revgrid {
         this._selectionBehavior = this.behaviorManager.selectionBehavior;
         this._rowPropertiesBehavior = this.behaviorManager.rowPropertiesBehavior;
         this._cellPropertiesBehavior = this.behaviorManager.cellPropertiesBehavior;
-        this._userInterfaceInputBehavior = this.behaviorManager.userInterfaceInputBehavior;
         this._scrollBehavior = this.behaviorManager.scrollBehavior;
 
         this.settings = this.behaviorManager.gridProperties;
@@ -210,7 +205,7 @@ export class Revgrid {
         // Hypergrid.prototype.installPlugins(options.plugins);
 
         this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
-        this._userInterfaceInputBehavior.clearMouseDown();
+        this.mouse.clearMouseDown();
         this.setFormatter(options.localization);
 
         // if (options.data) {
@@ -816,19 +811,6 @@ export class Revgrid {
     //     return this.behavior.convertDataPointToViewPoint(dataPoint); // not implemented
     // }
 
-    /**
-     * @desc Switch the cursor for a grid instance.
-     * @param cursorName - A well know cursor name.
-     * {@link http://www.javascripter.net/faq/stylesc.htm|cursor names}
-     */
-    beCursor(cursorName: string | undefined) {
-        if (cursorName === undefined) {
-            this.containerHtmlElement.style.cursor = '';
-        } else {
-            this.containerHtmlElement.style.cursor = cursorName;
-        }
-    }
-
     createCellEditor(name: string, cellEvent: ViewCell) {
         return cellEditorFactory.tryCreate(this, name, cellEvent);
     }
@@ -1026,14 +1008,6 @@ export class Revgrid {
         return this._columnsManager.getHiddenColumns();
     }
 
-    hideActiveColumn(activeColumnIndex: number) {
-        this._columnsManager.hideActiveColumn(activeColumnIndex);
-        const activeColumns = this._columnsManager.activeColumns;
-        this.settings.columnIndexes = activeColumns.map((column) => column.index );
-        this._scrollBehavior.updateHorizontalScroll(true);
-        this.behaviorChanged();
-    }
-
     setActiveColumnsAndWidthsByName(columnNameWidths: ColumnNameWidth[]) {
         this._columnsManager.setActiveColumnsAndWidthsByName(columnNameWidths, false);
     }
@@ -1074,20 +1048,20 @@ export class Revgrid {
         this._columnsManager.showColumns(columnIndexesOrIsActiveColumnIndexes, referenceIndexOrColumnIndexes, allowDuplicateColumnsOrReferenceIndex, allowDuplicateColumns);
     }
 
+    hideActiveColumn(activeColumnIndex: number) {
+        this._columnsManager.hideActiveColumn(activeColumnIndex);
+    }
+
     clearColumns() {
         this._columnsManager.clearColumns();
     }
 
     moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean) {
         this._columnsManager.moveColumnBefore(sourceIndex, targetIndex, ui);
-        this._scrollBehavior.updateHorizontalScroll(true);
-        this.behaviorChanged();
     }
 
     moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean) {
         this._columnsManager.moveColumnAfter(sourceIndex, targetIndex, ui);
-        this._scrollBehavior.updateHorizontalScroll(true);
-        this.behaviorChanged();
     }
 
     setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]) {
@@ -1537,22 +1511,6 @@ export class Revgrid {
     }
 
     /**
-     * @desc Update the cursor under the hover cell.
-     */
-    updateCursor() {
-        let cursor = this.behaviorManager.getCursorAt(-1, -1);
-        const hoverCell = this.mouse.hoverCell;
-        if (hoverCell !== undefined) {
-            const hoverActiveColumnIndex = hoverCell.visibleColumn.activeColumnIndex;
-            const hoverSubgridRowIndex = hoverCell.visibleRow.subgridRowIndex;
-            if (hoverCell.subgrid.isMain) {
-                cursor = this.behaviorManager.getCursorAt(hoverActiveColumnIndex, hoverSubgridRowIndex);
-            }
-        }
-        this.beCursor(cursor);
-    }
-
-    /**
      * @desc Repaint the given cell.
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
@@ -1668,7 +1626,7 @@ export class Revgrid {
 
     isMouseDownInHeaderArea() {
         const headerRowCount = this._subgridsManager.calculateHeaderRowCount();
-        const mouseDown = this._userInterfaceInputBehavior.getMouseDown();
+        const mouseDown = this.mouse.getMouseDown();
         if (mouseDown === undefined) {
             return false;
         } else {
@@ -1778,14 +1736,6 @@ export class Revgrid {
     }
 
 
-    /**
-     * @desc Synthesize and fire a `fin-column-sort` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticColumnSortEvent(eventDetail: EventDetail.ColumnSort): boolean {
-        return this.dispatchGridEvent('rev-column-sort', false, eventDetail);
-    }
-
     protected descendantProcessSelectionChanged() {
         // for descendants
     }
@@ -1799,6 +1749,10 @@ export class Revgrid {
     }
 
     protected descendantProcessActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean) {
+        // for descendants
+    }
+
+    protected descendantProcessColumnsChanged() {
         // for descendants
     }
 
@@ -1902,16 +1856,21 @@ export class Revgrid {
         // for descendants
     }
 
+    protected descendantProcessColumnSort(_event: EventDetail.ColumnSort) {
+        // for descendants
+    }
+
     /**
      * @desc Synthesize and fire a `fin-editor-keyup` event.
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticEditorKeyUpEvent(inputControl: CellEditor, keyEvent: KeyboardEvent) {
-        const eventDetail: CellEditor.KeyEventDetail = {
-            editor: inputControl,
-            keyEvent: keyEvent,
-        }
-        return this.dispatchGridEvent('rev-editor-key-up', false, eventDetail);
+        // const eventDetail: CellEditor.KeyEventDetail = {
+        //     editor: inputControl,
+        //     keyEvent: keyEvent,
+        // }
+        // return this.dispatchGridEvent('rev-editor-key-up', false, eventDetail);
+        return false;
     }
 
     /**
@@ -1919,11 +1878,12 @@ export class Revgrid {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticEditorKeyDownEvent(inputControl: CellEditor, keyEvent: KeyboardEvent) {
-        const eventDetail: CellEditor.KeyEventDetail = {
-            editor: inputControl,
-            keyEvent: keyEvent,
-        }
-        return this.dispatchGridEvent('rev-editor-key-down', false, eventDetail);
+        // const eventDetail: CellEditor.KeyEventDetail = {
+        //     editor: inputControl,
+        //     keyEvent: keyEvent,
+        // }
+        // return this.dispatchGridEvent('rev-editor-key-down', false, eventDetail);
+        return false;
     }
 
     /**
@@ -1931,11 +1891,12 @@ export class Revgrid {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticEditorKeyPressEvent(inputControl: CellEditor, keyEvent: KeyboardEvent) {
-        const eventDetail: CellEditor.KeyEventDetail = {
-            editor: inputControl,
-            keyEvent: keyEvent,
-        }
-        return this.dispatchGridEvent('rev-editor-key-press', false, eventDetail);
+        // const eventDetail: CellEditor.KeyEventDetail = {
+        //     editor: inputControl,
+        //     keyEvent: keyEvent,
+        // }
+        // return this.dispatchGridEvent('rev-editor-key-press', false, eventDetail);
+        return false;
     }
 
     /**
@@ -1945,55 +1906,15 @@ export class Revgrid {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticEditorDataChangeEvent(editor: CellEditor, oldValue: unknown, newValue: unknown) {
-        const eventDetail: CellEditor.DataChangeEventDetail = {
-            editor,
-            oldValue,
-            newValue,
-            point: undefined,
-        };
+        // const eventDetail: CellEditor.DataChangeEventDetail = {
+        //     editor,
+        //     oldValue,
+        //     newValue,
+        //     point: undefined,
+        // };
 
-        return this.dispatchGridEvent('rev-editor-data-change', true, eventDetail);
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-column-drag-start` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticOnColumnsChangedEvent() {
-        return this.dispatchGridEvent('rev-column-changed-event', false, undefined);
-    }
-
-    /**
-     * @desc Synthesize and fire a fin-filter-applied event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticFilterAppliedEvent() {
-        return this.dispatchGridEvent('rev-filter-applied', false, undefined);
-    }
-
-    /**
-     * @desc Synthesize and fire a fin-grid-resized event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticGridResizedEvent(detail: EventDetail.Resize) {
-        return this.dispatchGridEvent('rev-grid-resized', false, detail);
-    }
-
-    /**
-     * @desc Synthesize and fire a scroll event.
-     * @param type - Should be either `fin-scroll-x` or `fin-scroll-y`.
-     * @param oldValue - The old scroll value.
-     * @param newValue - The new scroll value.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireScrollEvent(eventName: 'rev-scroll-x' | 'rev-scroll-y', newValue: number, index: number, offset: number) {
-        const eventDetail: EventDetail.Scroll = {
-            time: Date.now(),
-            value: newValue,
-            index,
-            offset,
-        };
-        return this.dispatchGridEvent(eventName, false, eventDetail);
+        // return this.dispatchGridEvent('rev-editor-data-change', true, eventDetail);
+        return false;
     }
 
     /**
@@ -2003,12 +1924,13 @@ export class Revgrid {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireRequestCellEdit(editor: CellEditor, cellEvent: ViewCell, value: unknown) {
-        const eventDetail: CellEditor.RequestCellEditDetail = {
-            editor,
-            value,
-            cellEvent,
-        }
-        return this.dispatchGridEvent('rev-request-cell-edit', true, eventDetail);
+        // const eventDetail: CellEditor.RequestCellEditDetail = {
+        //     editor,
+        //     value,
+        //     cellEvent,
+        // }
+        // return this.dispatchGridEvent('rev-request-cell-edit', true, eventDetail);
+        return false;
     }
 
     /**
@@ -2018,13 +1940,14 @@ export class Revgrid {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireBeforeCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor) {
-        const eventDetail: CellEditor.DataChangeEventDetail = {
-            editor: control,
-            oldValue: oldValue,
-            newValue: newValue,
-            point,
-        };
-        return this.dispatchGridEvent('rev-before-cell-edit', true, eventDetail);
+        // const eventDetail: CellEditor.DataChangeEventDetail = {
+        //     editor: control,
+        //     oldValue: oldValue,
+        //     newValue: newValue,
+        //     point,
+        // };
+        // return this.dispatchGridEvent('rev-before-cell-edit', true, eventDetail);
+        return false;
     }
 
     /**
@@ -2034,14 +1957,15 @@ export class Revgrid {
      * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireAfterCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor) {
-        const eventDetail: CellEditor.DataChangeEventDetail = {
-            editor: control,
-            oldValue: oldValue,
-            newValue: newValue,
-            point,
-        };
+        // const eventDetail: CellEditor.DataChangeEventDetail = {
+        //     editor: control,
+        //     oldValue: oldValue,
+        //     newValue: newValue,
+        //     point,
+        // };
 
-        return this.dispatchGridEvent('rev-after-cell-edit', false, eventDetail);
+        // return this.dispatchGridEvent('rev-after-cell-edit', false, eventDetail);
+        return false;
     }
 
     /**
@@ -2631,6 +2555,7 @@ export class Revgrid {
         return {
             allColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessAllColumnListChanged(typeId, index, count, targetIndex),
             activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
+            columnsChanged: () => this.descendantProcessColumnsChanged(),
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
             columnsViewWidthsChanged: (changedColumnsViewWidths) => this.descendantProcessColumnsViewWidthsChanged(changedColumnsViewWidths),
             selectionChanged: () => this.descendantProcessSelectionChanged(),
@@ -2658,6 +2583,7 @@ export class Revgrid {
             touchEnd: (event) => this.descendantProcessTouchEnd(event),
             copy: (event) => this.descendantProcessCopy(event),
             resized: () => this.descendantProcessResized(),
+            columnSort: (event) => this.descendantProcessColumnSort(event),
         }
     }
 

@@ -11,6 +11,7 @@
   ],
 
   "references": [
-    { "path": "../../grid/tsconfig-grid.json" }
+    { "path": "../../standard-cell-paint/tsconfig-standard-cell-paint.json" },
+    { "path": "../../grid/tsconfig-grid.json" },
   ]
 }

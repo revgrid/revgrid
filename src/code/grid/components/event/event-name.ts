@@ -1,5 +1,5 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
-import { ViewCell } from '../view/view-cell';
+import { ViewCell } from '../cell/view-cell';
 import { EventDetail } from './event-detail';
 
 /** @public */

@@ -1,9 +1,9 @@
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { ViewCell } from '../../components/view/view-cell';
-import { HorizontalVertical } from '../../grid-public-api';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { ScrollAction } from '../../lib/scroll-action';
+import { HorizontalVertical } from '../../lib/types';
 import { UiBehavior } from './ui-behavior';
 
 export class FocusUiBehavior extends UiBehavior {

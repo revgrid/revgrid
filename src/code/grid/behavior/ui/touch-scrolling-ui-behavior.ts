@@ -1,6 +1,6 @@
 
+import { ViewCell } from '../../components/cell/view-cell';
 import { FinBar } from '../../components/scroller/finbar-api';
-import { ViewCell } from '../../components/view/view-cell';
 import { UiBehavior } from './ui-behavior';
 
 export class TouchScrollingUiBehavior extends UiBehavior {

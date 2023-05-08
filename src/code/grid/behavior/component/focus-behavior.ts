@@ -1,10 +1,12 @@
+import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ViewCell } from '../../components/view/view-cell';
 import { ViewLayout } from '../../components/view/view-layout';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
+import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
+import { ViewLayoutRow } from '../../interfaces/view-layout-row';
 import { Point } from '../../lib/point';
 
 export class FocusBehavior {
@@ -127,7 +129,7 @@ export class FocusBehavior {
                 // When expanding selections larger than the view, the origin/corner
                 // points may not be rendered and would normally fail to reset cell's position.
                 // Mock column and row objects for this.reset() to use:
-                const vc: ViewLayout.ViewLayoutColumn = {
+                const vc: ViewLayoutColumn = {
                     column: this._columnsManager.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
                     activeColumnIndex: gridX,
                     index: -1,
@@ -135,7 +137,7 @@ export class FocusBehavior {
                     rightPlus1: -1,
                     width: -1,
                 };
-                const vr: ViewLayout.ViewLayoutRow = {
+                const vr: ViewLayoutRow = {
                     subgridRowIndex: dataY,
                     index: -1,
                     subgrid: this._subgridsManager.mainSubgrid,

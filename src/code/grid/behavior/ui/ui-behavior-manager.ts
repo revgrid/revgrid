@@ -1,16 +1,15 @@
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { Focus } from '../../components/focus/focus';
+import { ReindexStashManager } from '../../components/model-callback-router/reindex-stash-manager';
 import { Mouse } from '../../components/mouse/mouse';
-import { ReindexStashManager } from '../../components/reindex-stash-manager/reindex-stash-manager';
 import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ViewCell } from '../../components/view/view-cell';
 import { ViewLayout } from '../../components/view/view-layout';
 import { GridSettings } from '../../interfaces/grid-settings';
-import { Revgrid } from '../../revgrid';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
@@ -18,7 +17,6 @@ import { FocusBehavior } from '../component/focus-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
 import { ScrollBehavior } from '../component/scroll-behaviour';
 import { SelectionBehavior } from '../component/selection-behavior';
-import { UserInterfaceInputBehavior } from '../component/user-interface-input-behavior';
 import { UiBehavior } from './ui-behavior';
 import { UiBehaviorFactory } from './ui-behavior-factory';
 import { UiBehaviorServices } from './ui-behavior-services';
@@ -34,8 +32,8 @@ export class UiBehaviorManager {
     readonly _services: UiBehaviorServices;
 
     constructor(
-        private readonly grid: Revgrid, // remove in future
-        gridProperties: GridSettings,
+        containerHtmlElement: HTMLElement,
+        private readonly _gridSettings: GridSettings,
         mouse: Mouse,
         canvasEx: CanvasEx,
         focus: Focus,
@@ -48,7 +46,6 @@ export class UiBehaviorManager {
         scrollBehavior: ScrollBehavior,
         focusBehavior: FocusBehavior,
         selectionBehavior: SelectionBehavior,
-        userInterfaceInputBehavior: UserInterfaceInputBehavior,
         rowPropertiesBehavior: RowPropertiesBehavior,
         cellPropertiesBehavior: CellPropertiesBehavior,
         dataExtractBehavior: DataExtractBehavior,
@@ -58,6 +55,8 @@ export class UiBehaviorManager {
 
         this._services = new UiBehaviorServices(
             this._sharedState,
+            containerHtmlElement,
+            this._gridSettings,
             mouse,
             canvasEx,
             selection,
@@ -66,12 +65,10 @@ export class UiBehaviorManager {
             subgridsManager,
             viewLayout,
             renderer,
-            gridProperties,
             reindexStashManager,
             scrollBehavior,
             focusBehavior,
             selectionBehavior,
-            userInterfaceInputBehavior,
             rowPropertiesBehavior,
             cellPropertiesBehavior,
             dataExtractBehavior,
@@ -109,14 +106,14 @@ export class UiBehaviorManager {
          * @desc Built here but otherwise not in use.
          */
 
-        const featureNames = this.grid.settings.features;
+        const featureNames = this._gridSettings.features;
         if (featureNames !== undefined) {
             const maxCount = featureNames.length;
             const features = new Array<UiBehavior>(maxCount);
             let count = 0;
             for (let i = 0; i < maxCount; i++) {
                 const name = featureNames[i];
-                const feature = UiBehaviorFactory.create(name, this.grid, this._services);
+                const feature = UiBehaviorFactory.create(name, this._services);
                 if (feature === undefined) {
                     console.warn(`Feature not registered: ${name}`);
                 } else {
@@ -159,15 +156,6 @@ export class UiBehaviorManager {
     }
 
     /**
-     * @desc delegate setting the cursor up the feature chain of responsibility
-     * @internal
-     */
-    setCursor() {
-        this.grid.updateCursor();
-        this._firstUiBehavior.setCursor();
-    }
-
-    /**
      * @desc delegate handling key down to the feature chain of responsibility
      * @param event - the event details
      * @internal
@@ -175,7 +163,6 @@ export class UiBehaviorManager {
     private handleKeyDownEvent(eventDetail: EventDetail.Keyboard) {
         if (this._enabled) {
             this._firstUiBehavior.handleKeyDown(eventDetail);
-            this.setCursor();
         }
     }
 
@@ -187,7 +174,6 @@ export class UiBehaviorManager {
     private handleKeyUpEvent(eventDetail: EventDetail.Keyboard) {
         if (this._enabled) {
             this._firstUiBehavior.handleKeyUp(eventDetail);
-            this.setCursor();
         }
     }
 
@@ -199,7 +185,6 @@ export class UiBehaviorManager {
     private handleMouseMoveEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleMouseMove(event, undefined);
-            this.setCursor();
             return cell;
         } else {
             return undefined;
@@ -214,7 +199,6 @@ export class UiBehaviorManager {
     private handleClickEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleClick(event, undefined);
-            this.setCursor();
             this._sharedState.mouseDownUpClickUsedForMoveOrResize = false;
             return cell;
         } else {
@@ -229,7 +213,6 @@ export class UiBehaviorManager {
     private handleContextMenuEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleContextMenu(event, undefined);
-            this.setCursor();
             return cell;
         } else {
             return undefined;
@@ -243,7 +226,6 @@ export class UiBehaviorManager {
     private handleWheelMovedEvent(event: WheelEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleWheelMoved(event, undefined);
-            this.setCursor();
             return cell;
         } else {
             return undefined;
@@ -258,7 +240,6 @@ export class UiBehaviorManager {
     private handleMouseUpEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleMouseUp(event, undefined);
-            this.setCursor();
             return cell;
         } else {
             return undefined;
@@ -272,7 +253,6 @@ export class UiBehaviorManager {
     private handleMouseDragEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleMouseDrag(event, undefined);
-            this.setCursor();
             return cell;
         } else {
             return undefined;
@@ -287,7 +267,6 @@ export class UiBehaviorManager {
     private handleDoubleClickEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDoubleClick(event, undefined);
-            this.setCursor();
             return cell;
         } else {
             return undefined;
@@ -301,7 +280,6 @@ export class UiBehaviorManager {
     private handleMouseDownEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleMouseDown(event, undefined);
-            this.setCursor();
             return cell;
         } else {
             return undefined;
@@ -315,7 +293,6 @@ export class UiBehaviorManager {
     private handleMouseEnteredCellEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleMouseEnter(event, undefined);
-            this.setCursor();
             return cell;
         } else {
             return undefined;
@@ -329,7 +306,6 @@ export class UiBehaviorManager {
     private handleMouseExitedCellEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleMouseExit(event, undefined);
-            this.setCursor();
             return cell;
         } else {
             return undefined;

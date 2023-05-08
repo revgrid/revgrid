@@ -1,4 +1,4 @@
-import { ColumnProperties, DataModel, GridSettings, RectangleInterface, Revgrid, ViewCell, WritablePoint } from '../../grid/grid-public-api';
+import { ColumnSettings, DataModel, GridSettings, RectangleInterface, Revgrid, ViewCell, WritablePoint } from '../../grid/grid-public-api';
 import { SimpleCellPaintConfig } from './simple-cell-paint-config';
 
 /** @public */
@@ -6,11 +6,11 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     readonly columnName: string;
 
     private readonly _gridSettings: GridSettings;
-    private readonly _columnSettings: ColumnProperties;
+    private readonly _columnSettings: ColumnSettings;
 
-    private readonly _dataOrHeaderOrFilterProperties: ColumnProperties.HeaderFilter;
-    private readonly _dataOrHeaderProperties: ColumnProperties.ColumnHeader;
-    private readonly _dataOrFilterProperties: ColumnProperties.Filter;
+    private readonly _dataOrHeaderOrFilterProperties: ColumnSettings.HeaderFilter;
+    private readonly _dataOrHeaderProperties: ColumnSettings.ColumnHeader;
+    private readonly _dataOrFilterProperties: ColumnSettings.Filter;
 
     constructor(grid: Revgrid, viewCell: ViewCell, isHeader: boolean, isFilter: boolean) {
         this._gridSettings = grid.settings;

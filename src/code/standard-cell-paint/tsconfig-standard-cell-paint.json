@@ -8,7 +8,7 @@
 
   "include": [
     "*.ts",
-    "./**/*.ts",
+    "*/**/*.ts",
   ],
 
   "references": [

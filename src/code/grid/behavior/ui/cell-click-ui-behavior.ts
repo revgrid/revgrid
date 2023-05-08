@@ -1,4 +1,4 @@
-import { ViewCell } from '../../components/view/view-cell';
+import { ViewCell } from '../../components/cell/view-cell';
 import { DataModel } from '../../interfaces/data-model';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { AssertError } from '../../lib/revgrid-error';
@@ -32,11 +32,11 @@ export class CellClickUiBehavior extends UiBehavior {
             if (this.openLink(cell) !== undefined) {
                 return cell;
             } else {
-                if (this.grid.cellClicked(cell)) {
-                    return cell;
-                } else {
+                // if (this.grid.cellClicked(cell)) {
+                //     return cell;
+                // } else {
                     return super.handleClick(event, cell);
-                }
+                // }
             }
         }
     }
@@ -60,7 +60,6 @@ export class CellClickUiBehavior extends UiBehavior {
      * | _otherwise_ | A `window` reference returned by a successful call to `grid.windowOpen`. |
      */
     openLink(cellEvent: ViewCell): boolean | null | undefined | Window {
-        const grid = this.grid;
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
         const rowIndex = cellEvent.dataPoint.y;
@@ -105,16 +104,16 @@ export class CellClickUiBehavior extends UiBehavior {
             // STEP 4: Open the URL
             if (linkPropTuple !== undefined) {
                 linkPropTuple[0] = url;
-                result = grid.windowOpen(...linkPropTuple);
+                // result = grid.windowOpen(...linkPropTuple);
             } else {
-                result = grid.windowOpen(url, cellEvent.columnProperties.linkTarget);
+                // result = grid.windowOpen(url, cellEvent.columnProperties.linkTarget);
             }
         }
 
         // STEP 5: Decorate the link as "visited"
         if (result) {
             const column = cellEvent.visibleColumn.column;
-            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', grid.settings.linkVisitedColor, subgrid);
+            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', this.gridSettings.linkVisitedColor, subgrid);
             this.viewLayout.resetCellPropertiesCache(cellEvent);
             this.renderer.repaint();
         }

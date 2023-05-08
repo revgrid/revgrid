@@ -1,4 +1,4 @@
-import { AssertError } from '../../grid-public-api';
+import { AssertError } from '../../lib/revgrid-error';
 import { Focus } from '../focus/focus';
 import { Selection } from '../selection/selection';
 

@@ -1,8 +1,8 @@
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
+import { ReindexStashManager } from '../../components/model-callback-router/reindex-stash-manager';
 import { Mouse } from '../../components/mouse/mouse';
-import { ReindexStashManager } from '../../components/reindex-stash-manager/reindex-stash-manager';
 import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
@@ -15,13 +15,14 @@ import { FocusBehavior } from '../component/focus-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
 import { ScrollBehavior } from '../component/scroll-behaviour';
 import { SelectionBehavior } from '../component/selection-behavior';
-import { UserInterfaceInputBehavior } from '../component/user-interface-input-behavior';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 export class UiBehaviorServices {
 
     constructor(
         readonly sharedState: UiBehaviorSharedState,
+        readonly containerHtmlElement: HTMLElement,
+        readonly gridSettings: GridSettings,
         readonly mouse: Mouse,
         readonly canvasEx: CanvasEx,
         readonly selection: Selection,
@@ -30,13 +31,11 @@ export class UiBehaviorServices {
         readonly subgridsManager: SubgridsManager,
         readonly viewLayout: ViewLayout,
         readonly renderer: Renderer,
-        readonly gridProperties: GridSettings,
         readonly reindexStashManager: ReindexStashManager,
 
         readonly scrollBehavior: ScrollBehavior,
         readonly focusBehavior: FocusBehavior,
         readonly selectionBehavior: SelectionBehavior,
-        readonly userInterfaceInputBehavior: UserInterfaceInputBehavior,
         readonly rowPropertiesBehavior: RowPropertiesBehavior,
         readonly cellPropertiesBehavior: CellPropertiesBehavior,
         readonly dataExtractBehavior: DataExtractBehavior,

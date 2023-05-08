@@ -1,4 +1,4 @@
-import { ViewCell } from '../components/view/view-cell';
+import { ViewCell } from '../components/cell/view-cell';
 import { ColumnSettings } from '../interfaces/column-settings';
 import { DataModel } from '../interfaces/data-model';
 import { GridSettings } from '../interfaces/grid-settings';

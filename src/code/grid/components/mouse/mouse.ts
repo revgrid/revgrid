@@ -1,5 +1,6 @@
 import { Point } from '../../lib/point';
-import { ViewCell } from '../view/view-cell';
+import { CanvasEx } from '../canvas-ex/canvas-ex';
+import { ViewCell } from '../cell/view-cell';
 
 export class Mouse {
     /**
@@ -19,6 +20,7 @@ export class Mouse {
     private _hoverCell: ViewCell | undefined;
 
     constructor(
+        private readonly _canvasEx: CanvasEx,
         private readonly _cellEnteredEventer: Mouse.CellEventer,
         private readonly _cellExitedEventer: Mouse.CellEventer,
     ) {
@@ -98,6 +100,30 @@ export class Mouse {
      */
     setDragExtent(point: Point) {
         this.dragExtent = point;
+    }
+
+    /**
+     * @desc Switch the cursor for a grid instance.
+     * @param cursorName - A well know cursor name.
+     * {@link http://www.javascripter.net/faq/stylesc.htm|cursor names}
+     */
+    setCursor(cursorName: string | undefined) {
+        this._canvasEx.setCursor(cursorName);
+    }
+
+    /**
+     * @desc Update the cursor under the hover cell.
+     */
+    updateCursor() {
+        const hoverCell = this.hoverCell;
+        if (hoverCell !== undefined) {
+            // const hoverActiveColumnIndex = hoverCell.visibleColumn.activeColumnIndex;
+            // const hoverSubgridRowIndex = hoverCell.visibleRow.subgridRowIndex;
+            if (hoverCell.subgrid.isMain) {
+                // cursor = this.behaviorManager.getCursorAt(hoverActiveColumnIndex, hoverSubgridRowIndex);
+            }
+        }
+        // this.setCursor(cursor);
     }
 }
 

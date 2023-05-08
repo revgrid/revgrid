@@ -2,10 +2,11 @@ import { ColumnSettings } from '../../interfaces/column-settings';
 import { DataModel } from '../../interfaces/data-model';
 import { MetaModel } from '../../interfaces/meta-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
+import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
+import { ViewLayoutRow } from '../../interfaces/view-layout-row';
 import { WritablePoint } from '../../lib/point';
 import { RectangleInterface } from '../../lib/rectangle-interface';
 import { ColumnsManager } from '../column/columns-manager';
-import { ViewLayout } from './view-layout';
 
 /** @public */
 export class ViewCell {
@@ -21,8 +22,8 @@ export class ViewCell {
     // dataRow: DataRowObject;
     format: string;
     subgrid: SubgridInterface;
-    visibleColumn: ViewLayout.ViewLayoutColumn;
-    visibleRow: ViewLayout.ViewLayoutRow;
+    visibleColumn: ViewLayoutColumn;
+    visibleRow: ViewLayoutRow;
 
     // partial render support
     paintSnapshot: ViewCell.PaintSnapshot | undefined;
@@ -36,7 +37,7 @@ export class ViewCell {
     }
 
     // special method for use by renderer which reuses cellEvent object for performance reasons
-    reset(visibleColumn: ViewLayout.ViewLayoutColumn, visibleRow: ViewLayout.ViewLayoutRow) {
+    reset(visibleColumn: ViewLayoutColumn, visibleRow: ViewLayoutRow) {
         // getter caches
         this._columnProperties = undefined;
         this.cellOwnProperties = undefined;
@@ -62,7 +63,7 @@ export class ViewCell {
      * @param gridY - Raw vertical grid cell coordinate.
      * @returns Visibility.
      */
-    resetGridXY(vc: ViewLayout.ViewLayoutColumn | undefined, vr: ViewLayout.ViewLayoutRow | undefined) {
+    resetGridXY(vc: ViewLayoutColumn | undefined, vr: ViewLayoutRow | undefined) {
         if (vc === undefined) {
             return false;
         } else {

@@ -1,5 +1,5 @@
+import { ViewCell } from '../../components/cell/view-cell';
 import { Subgrid } from '../../components/subgrid/subgrid';
-import { ViewCell } from '../../components/view/view-cell';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { MetaModel } from '../../interfaces/meta-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';

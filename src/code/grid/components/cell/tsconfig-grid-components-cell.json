@@ -3,7 +3,7 @@
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-subgrid.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-cell.tsbuildinfo"
   },
 
   "include": [
@@ -13,7 +13,6 @@
   "references": [
     { "path": "../canvas-ex/tsconfig-grid-components-canvas-ex.json" },
     { "path": "../column/tsconfig-grid-components-column.json" },
-    { "path": "../cell/tsconfig-grid-components-cell.json" },
     { "path": "../../interfaces/tsconfig-grid-interfaces.json" },
     { "path": "../../lib/tsconfig-grid-lib.json" }
   ]

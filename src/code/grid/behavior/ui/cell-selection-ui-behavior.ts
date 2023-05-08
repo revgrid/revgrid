@@ -1,9 +1,9 @@
 
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { ViewCell } from '../../components/view/view-cell';
-import { SubgridInterface } from '../../grid-public-api';
 import { GridSettings } from '../../interfaces/grid-settings';
+import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { isSecondaryMouseButton } from '../../lib/html-types';
 import { Point } from '../../lib/point';
 import { AssertError } from '../../lib/revgrid-error';
@@ -55,13 +55,13 @@ export class CellSelectionUiBehavior extends UiBehavior {
                 this._dragging = true;
                 const focusSelectionBehavior = this.selectionBehavior;
                 let areaTypeSpecifier: SelectionArea.TypeSpecifier;
-                if (GridSettings.isSecondarySelectionAreaTypeSpecifierModifierKeyDownInMouseEvent(this.gridProperties, event)) {
+                if (GridSettings.isSecondarySelectionAreaTypeSpecifierModifierKeyDownInMouseEvent(this.gridSettings, event)) {
                     areaTypeSpecifier = SelectionArea.TypeSpecifier.Secondary;
                 } else {
                     areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary;
                 }
-                const addToggleModifier = GridSettings.isAddToggleSelectionAreaModifierKeyDownInMouseEvent(this.gridProperties, event);
-                const extendModifier = GridSettings.isExtendLastSelectionAreaModifierKeyDownInMouseEvent(this.gridProperties, event);
+                const addToggleModifier = GridSettings.isAddToggleSelectionAreaModifierKeyDownInMouseEvent(this.gridSettings, event);
+                const extendModifier = GridSettings.isExtendLastSelectionAreaModifierKeyDownInMouseEvent(this.gridSettings, event);
                 if (extendModifier) {
                     if (addToggleModifier) {
                         this.selectOnlyCell(activeColumnIndex, subgridRowIndex, subgrid, areaTypeSpecifier);
@@ -71,7 +71,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
                 } else {
                     if (addToggleModifier) {
                         let added: boolean;
-                        if (this.gridProperties.addToggleSelectionAreaModifierKeyDoesToggle) {
+                        if (this.gridSettings.addToggleSelectionAreaModifierKeyDoesToggle) {
                             added = focusSelectionBehavior.selectToggleCell(activeColumnIndex, subgridRowIndex, subgrid, areaTypeSpecifier);
                         } else {
                             focusSelectionBehavior.selectAddCell(activeColumnIndex, subgridRowIndex, subgrid, areaTypeSpecifier);
@@ -97,7 +97,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
     }
 
     override handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined) {
-        if (!this._dragging || !this.gridProperties.mouseCellSelection || isSecondaryMouseButton(event)) {
+        if (!this._dragging || !this.gridSettings.mouseCellSelection || isSecondaryMouseButton(event)) {
             return super.handleMouseDrag(event, cell);
         } else {
             this.cancelScheduledStepScrollDrag();
@@ -192,7 +192,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
      */
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
         const scrollableBounds = this.viewLayout.scrollableBounds;
-        if (this.gridProperties.scrollingEnabled && scrollableBounds !== undefined && scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY)) {
+        if (this.gridSettings.scrollingEnabled && scrollableBounds !== undefined && scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY)) {
             this.cancelScheduledStepScrollDrag();
             return false;
         } else {
@@ -296,7 +296,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
             let newX: number | undefined = focusPoint.x;
             let newY: number | undefined = focusPoint.y;
 
-            if (!this.gridProperties.scrollingEnabled) {
+            if (!this.gridSettings.scrollingEnabled) {
                 newX = this.viewLayout.limitActiveColumnIndexToView(newX);
                 newY = this.viewLayout.limitRowIndexToView(newY);
             }
@@ -331,7 +331,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
         let lastActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
 
-        if (subgrid === this.focus.subgrid && !this.gridProperties.scrollingEnabled) {
+        if (subgrid === this.focus.subgrid && !this.gridSettings.scrollingEnabled) {
             const lastVisibleScrollableActiveColumnIndex = this.viewLayout.lastScrollableActiveColumnIndex;
             const lastVisableScrollableSubgridRowIndex = this.viewLayout.lastScrollableSubgridRowIndex;
 

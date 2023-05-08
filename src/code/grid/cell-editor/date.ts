@@ -1,4 +1,4 @@
-import { ViewCell } from '../components/view/view-cell';
+import { ViewCell } from '../components/cell/view-cell';
 import { DateFormatter } from '../lib/localization';
 import { Revgrid } from '../revgrid';
 import { DateInputEditor } from './date-input-editor';

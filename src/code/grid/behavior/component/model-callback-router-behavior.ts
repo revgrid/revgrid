@@ -1,7 +1,7 @@
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
 import { ModelCallbackRouter } from '../../components/model-callback-router/model-callback-router';
-import { ReindexStashManager } from '../../components/reindex-stash-manager/reindex-stash-manager';
+import { ReindexStashManager } from '../../components/model-callback-router/reindex-stash-manager';
 import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';

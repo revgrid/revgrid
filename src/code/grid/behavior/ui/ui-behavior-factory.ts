@@ -1,6 +1,5 @@
 
 import { Registry } from '../../lib/registry';
-import { Revgrid } from '../../revgrid';
 import { CellClickUiBehavior } from './cell-click-ui-behavior';
 import { CellSelectionUiBehavior } from './cell-selection-ui-behavior';
 import { ClipboardUiBehavior } from './clipboard-ui-action';
@@ -30,12 +29,12 @@ export class UiBehaviorFactory {
         this._registry.register(name, constructor);
     }
 
-    static create(name: string, grid: Revgrid, services: UiBehaviorServices) {
+    static create(name: string, services: UiBehaviorServices) {
         const constructor = this._registry.get(name);
         if (constructor === undefined) {
             return undefined;
         } else {
-            return new constructor(grid, services);
+            return new constructor(services);
         }
     }
 }

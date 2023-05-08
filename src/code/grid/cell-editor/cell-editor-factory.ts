@@ -1,4 +1,4 @@
-import { ViewCell } from '../components/view/view-cell';
+import { ViewCell } from '../components/cell/view-cell';
 import { Registry } from '../lib/registry';
 import { AssertError } from '../lib/revgrid-error';
 import { Revgrid } from '../revgrid';

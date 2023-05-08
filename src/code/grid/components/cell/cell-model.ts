@@ -1,6 +1,6 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
-import { ViewCell } from '../view/view-cell';
 import { CellPainter } from './cell-painter';
+import { ViewCell } from './view-cell';
 
 /** @public */
 export interface CellModel {

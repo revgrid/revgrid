@@ -1,13 +1,13 @@
-import { SubgridDefinition } from '../../behavior/component/adapter-set-config';
 import { DataModel } from '../../interfaces/data-model';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { MetaModel } from '../../interfaces/meta-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { AssertError } from '../../lib/revgrid-error';
+import { CellModel } from '../cell/cell-model';
 import { ColumnsManager } from '../column/columns-manager';
-import { CellModel } from './cell-model';
 import { MainSubgrid } from './main-subgrid';
 import { Subgrid } from './subgrid';
+import { SubgridDefinition } from './subgrid-definition';
 
 /** @internal */
 export class SubgridsManager {
