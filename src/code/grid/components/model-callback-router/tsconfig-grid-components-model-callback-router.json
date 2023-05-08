@@ -1,0 +1,18 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-model-callback-router.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../event/tsconfig-grid-components-event.json" },
+    { "path": "../../interfaces/tsconfig-grid-interfaces.json" },
+    { "path": "../../lib/tsconfig-grid-lib.json" }
+  ]
+}

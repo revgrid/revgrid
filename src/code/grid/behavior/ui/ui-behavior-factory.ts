@@ -3,6 +3,7 @@ import { Registry } from '../../lib/registry';
 import { Revgrid } from '../../revgrid';
 import { CellClickUiBehavior } from './cell-click-ui-behavior';
 import { CellSelectionUiBehavior } from './cell-selection-ui-behavior';
+import { ClipboardUiBehavior } from './clipboard-ui-action';
 import { ColumnMovingUiBehavior } from './column-moving-ui-behavior';
 import { ColumnResizingUiBehavior } from './column-resizing-ui-behavior';
 import { ColumnSelectionUiBehavior } from './column-selection-ui-behavior';
@@ -53,3 +54,4 @@ UiBehaviorFactory.register(RowResizingUiBehavior.typeName, RowResizingUiBehavior
 UiBehaviorFactory.register(RowSelectionUiBehavior.typeName, RowSelectionUiBehavior);
 UiBehaviorFactory.register(ThumbwheelScrollingUiBehavior.typeName, ThumbwheelScrollingUiBehavior);
 UiBehaviorFactory.register(TouchScrollingUiBehavior.typeName, TouchScrollingUiBehavior);
+UiBehaviorFactory.register(ClipboardUiBehavior.typeName, ClipboardUiBehavior);

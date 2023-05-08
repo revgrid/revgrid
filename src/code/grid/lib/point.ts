@@ -283,3 +283,16 @@ export namespace WritablePoint {
         }
     }
 }
+
+/** @public */
+export type PartialPoint = Partial<Point>
+
+/** @public */
+export namespace PartialPoint {
+    export function create(x: number | undefined, y: number | undefined): PartialPoint {
+        return {
+            x,
+            y,
+        }
+    }
+}

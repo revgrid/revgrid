@@ -1,18 +1,17 @@
 import {
     DataModel,
-    GridProperties,
     Halign,
     IndexSignatureHack,
     RectangleInterface,
     TextTruncateType,
-    WritablePoint,
+    WritablePoint
 } from '../../grid/grid-public-api';
+import { GridSettings } from '../../grid/interfaces/grid-settings';
 
 /** @public */
 export interface SimpleCellPaintConfig {
     // not overrides also set by grid painters/renderer
     dataCell: WritablePoint;
-    gridCell: WritablePoint;
     allRowsSelected: boolean;
     bounds: RectangleInterface;
     dataRow: DataModel.DataRow;
@@ -29,21 +28,21 @@ export interface SimpleCellPaintConfig {
     isRowSelected: boolean;
     isSelected: boolean;
     isUserDataArea: boolean;
-    prefillColor: GridProperties.Color | undefined;
+    prefillColor: GridSettings.Color | undefined;
     snapshot: SimpleCellPaintConfig.Snapshot | undefined;
     value: unknown;
 
     // grid overrides
-    readonly backgroundSelectionColor: GridProperties.Color;
-    readonly color: GridProperties.Color;
-    readonly foregroundSelectionColor: GridProperties.Color;
+    readonly backgroundSelectionColor: GridSettings.Color;
+    readonly color: GridSettings.Color;
+    readonly foregroundSelectionColor: GridSettings.Color;
     readonly foregroundSelectionFont: string;
     readonly headerTextWrapping: boolean;
-    readonly hoverCellHighlight: GridProperties.HoverColors;
-    readonly hoverColumnHighlight: GridProperties.HoverColors;
-    readonly hoverRowHighlight: GridProperties.HoverColors;
+    readonly hoverCellHighlight: GridSettings.HoverColors;
+    readonly hoverColumnHighlight: GridSettings.HoverColors;
+    readonly hoverRowHighlight: GridSettings.HoverColors;
     readonly linkOnHover: boolean;
-    readonly linkColor: GridProperties.Color;
+    readonly linkColor: GridSettings.Color;
     readonly linkColorOnHover: boolean;
     readonly cellPainter: string;
     readonly strikeThrough: boolean;
@@ -58,8 +57,8 @@ export interface SimpleCellPaintConfig {
     readonly format: string | undefined;
     readonly gridLinesHWidth: number;
     readonly gridLinesVWidth: number;
-    readonly link: false | string | GridProperties.LinkProp | GridProperties.LinkFunction;
-    readonly backgroundColor: GridProperties.Color;
+    readonly link: false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
+    readonly backgroundColor: GridSettings.Color;
     readonly halign: Halign;
 }
 

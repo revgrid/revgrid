@@ -1,0 +1,17 @@
+{
+  "extends": "../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../tsbuildinfo/grid-behavior.tsbuildinfo"
+  },
+
+  "include": [
+    "behavior-manager.ts",
+    "../revgrid.ts",
+  ],
+
+  "references": [
+    { "path": "../component/subgrid/tsconfig-grid-components-subgrid.json" },
+  ]
+}

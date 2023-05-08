@@ -1,8 +1,9 @@
 
-import { ViewportCell } from '../../cell/viewport-cell';
-import { EventDetail } from '../../event/event-detail';
-import { GridProperties } from '../../grid-properties';
+import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { EventDetail } from '../../components/event/event-detail';
+import { ViewCell } from '../../components/view/view-cell';
 import { SubgridInterface } from '../../grid-public-api';
+import { GridSettings } from '../../interfaces/grid-settings';
 import { isSecondaryMouseButton } from '../../lib/html-types';
 import { Point } from '../../lib/point';
 import { AssertError } from '../../lib/revgrid-error';
@@ -28,7 +29,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
     private _dragging: boolean;
     private _stepScrollDragTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
-    override handleMouseUp(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseUp(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this._dragging) {
             this._dragging = false;
             this.cancelScheduledStepScrollDrag();
@@ -36,9 +37,9 @@ export class CellSelectionUiBehavior extends UiBehavior {
         return super.handleMouseUp(event, cell);
     }
 
-    override handleMouseDown(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell === null) {
             return super.handleMouseDown(event, cell);
@@ -54,13 +55,13 @@ export class CellSelectionUiBehavior extends UiBehavior {
                 this._dragging = true;
                 const focusSelectionBehavior = this.selectionBehavior;
                 let areaTypeSpecifier: SelectionArea.TypeSpecifier;
-                if (GridProperties.isSecondarySelectionAreaTypeSpecifierModifierKeyDownInMouseEvent(this.gridProperties, event)) {
+                if (GridSettings.isSecondarySelectionAreaTypeSpecifierModifierKeyDownInMouseEvent(this.gridProperties, event)) {
                     areaTypeSpecifier = SelectionArea.TypeSpecifier.Secondary;
                 } else {
                     areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary;
                 }
-                const addToggleModifier = GridProperties.isAddToggleSelectionAreaModifierKeyDownInMouseEvent(this.gridProperties, event);
-                const extendModifier = GridProperties.isExtendLastSelectionAreaModifierKeyDownInMouseEvent(this.gridProperties, event);
+                const addToggleModifier = GridSettings.isAddToggleSelectionAreaModifierKeyDownInMouseEvent(this.gridProperties, event);
+                const extendModifier = GridSettings.isExtendLastSelectionAreaModifierKeyDownInMouseEvent(this.gridProperties, event);
                 if (extendModifier) {
                     if (addToggleModifier) {
                         this.selectOnlyCell(activeColumnIndex, subgridRowIndex, subgrid, areaTypeSpecifier);
@@ -95,7 +96,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handleMouseDrag(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (!this._dragging || !this.gridProperties.mouseCellSelection || isSecondaryMouseButton(event)) {
             return super.handleMouseDrag(event, cell);
         } else {
@@ -105,7 +106,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
                 return cell;
             } else {
                 if (cell === undefined) {
-                    cell = this.tryGetViewportCellFromMouseEvent(event);
+                    cell = this.tryGetViewCellFromMouseEvent(event);
                 }
                 if (cell !== null) {
                     this.updateLastSelectionArea(cell);
@@ -119,32 +120,44 @@ export class CellSelectionUiBehavior extends UiBehavior {
      * @param eventDetail - the event details
      */
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        const grid = this.grid;
-        const navKey = grid.generateNavKey(eventDetail.primitiveEvent)
-        const handler = this[('handle' + navKey) as keyof CellSelectionUiBehavior] as ((keyboardEvent: KeyboardEvent) => void);
-
-        // STEP 1: Move the selection
-        if (handler) {
-            handler.call(this, eventDetail.primitiveEvent);
-
-            // STEP 2: Open the cell editor at the new position if `editable` AND edited cell had `editOnNextCell`
-            let cellEvent = grid.getFocusedCellEvent(true);
-            if (cellEvent !== undefined) {
-                if (cellEvent.columnProperties.editOnNextCell) {
-                    grid.viewport.compute(); // moving selection may have auto-scrolled
-                    cellEvent = grid.getFocusedCellEvent(false); // new cell
-                    if (cellEvent !== undefined) {
-                        grid.editAt(cellEvent); // succeeds only if `editable`
-                    }
-                }
-            }
-
-            // STEP 3: If editor not opened on new cell, take focus
-            if (!grid.cellEditor) {
-                grid.takeFocus();
-            }
-        } else {
+        const navKey = eventDetail.revgrid_navigateKey;// grid.generateNavKey(eventDetail)
+        if (navKey === undefined) {
             super.handleKeyDown(eventDetail);
+        } else {
+            switch (navKey) {
+                case CanvasEx.Keyboard.NavigateKey.left:
+                case CanvasEx.Keyboard.NavigateKey.right:
+                case CanvasEx.Keyboard.NavigateKey.up:
+                case CanvasEx.Keyboard.NavigateKey.down: {
+                    // STEP 1: Move the selection
+                    if (eventDetail.shiftKey) {
+                        this.moveShiftSelect();
+                    } else {
+                        this.selectionBehavior.selectOnlyFocusedCell(SelectionArea.TypeSpecifier.Primary);
+                    }
+
+                    // const grid = this.grid;
+                    // // STEP 2: Open the cell editor at the new position if `editable` AND edited cell had `editOnNextCell`
+                    // let cell = this.focusBehavior.getFocusedViewCell(true);
+                    // if (cell !== undefined) {
+                    //     if (cell.columnProperties.editOnNextCell) {
+                    //         this.viewLayout.compute(false); // moving selection may have auto-scrolled
+                    //         cell = this.focusBehavior.getFocusedViewCell(false); // new cell
+                    //         if (cell !== undefined) {
+                    //             grid.editAt(cell); // succeeds only if `editable`
+                    //         }
+                    //     }
+                    // }
+
+                    // // STEP 3: If editor not opened on new cell, take focus
+                    // if (!grid.cellEditor) {
+                    //     grid.takeFocus();
+                    // }
+                    break;
+                }
+                default:
+                    super.handleKeyDown(eventDetail);
+            }
         }
     }
 
@@ -152,7 +165,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
      * @desc Handle a mousedrag selection.
      * @param keys - array of the keys that are currently pressed down
      */
-    private updateLastSelectionArea(cell: ViewportCell) {
+    private updateLastSelectionArea(cell: ViewCell) {
         const extendSelectOrigin = this._extendSelectOrigin;
         if (extendSelectOrigin === undefined) {
             throw new AssertError('CSFHMDCS54455');
@@ -178,7 +191,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
      * @desc this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
      */
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
-        const scrollableBounds = this.viewport.scrollableBounds;
+        const scrollableBounds = this.viewLayout.scrollableBounds;
         if (this.gridProperties.scrollingEnabled && scrollableBounds !== undefined && scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY)) {
             this.cancelScheduledStepScrollDrag();
             return false;
@@ -189,7 +202,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
             } else {
                 this.scheduleStepScrollDrag(canvasOffsetX, canvasOffsetY);
 
-                const cell = this.viewport.findScrollableCellClosestToOffset(canvasOffsetX, canvasOffsetY);
+                const cell = this.viewLayout.findScrollableCellClosestToOffset(canvasOffsetX, canvasOffsetY);
                 if (cell !== undefined) {
                     this.updateLastSelectionArea(cell); // update the selection
                 }
@@ -273,7 +286,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
      * @param offsetY - y coordinate to start at
      */
     private moveShiftSelect() {
-        const focusPoint = this.focus.current;
+        const focusPoint = this.focus.currentSubgridPoint;
         if (focusPoint === undefined) {
             throw new AssertError('CSFMSS34440');
         } else {
@@ -284,8 +297,8 @@ export class CellSelectionUiBehavior extends UiBehavior {
             let newY: number | undefined = focusPoint.y;
 
             if (!this.gridProperties.scrollingEnabled) {
-                newX = this.viewport.limitActiveColumnIndexToViewport(newX);
-                newY = this.viewport.limitRowIndexToViewport(newY);
+                newX = this.viewLayout.limitActiveColumnIndexToView(newX);
+                newY = this.viewLayout.limitRowIndexToView(newY);
             }
 
             if (newX !== undefined && newY !== undefined) {
@@ -319,8 +332,8 @@ export class CellSelectionUiBehavior extends UiBehavior {
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
 
         if (subgrid === this.focus.subgrid && !this.gridProperties.scrollingEnabled) {
-            const lastVisibleScrollableActiveColumnIndex = this.viewport.lastScrollableActiveColumnIndex;
-            const lastVisableScrollableSubgridRowIndex = this.viewport.lastScrollableSubgridRowIndex;
+            const lastVisibleScrollableActiveColumnIndex = this.viewLayout.lastScrollableActiveColumnIndex;
+            const lastVisableScrollableSubgridRowIndex = this.viewLayout.lastScrollableSubgridRowIndex;
 
             if (lastVisibleScrollableActiveColumnIndex !== undefined) {
                 lastActiveColumnIndex = Math.min(lastActiveColumnIndex, lastVisibleScrollableActiveColumnIndex);

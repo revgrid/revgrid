@@ -7,40 +7,17 @@
   },
 
   "include": [
-    "behavior.ts",
-    "default-grid-properties.ts",
-    "grid-properties-accessor.ts",
-    "grid-properties.ts",
     "grid-public-api.ts",
-    "main-subgrid.ts",
-    "data-extract.ts",
-    "adapter-set-config.ts",
-    "focus.ts",
-    "reindex-stash-manager.ts",
     "revgrid.ts",
-    "behavior/**/*.ts",
-    "canvas/**/*.ts",
-    "cell/**/*.ts",
-    "cell-editor/**/*.ts",
-    "cell-painter/**/*.ts",
-    "column/**/*.ts",
-    "common/**/*.ts",
-    "event/**/*.ts",
-    "feature/**/*.ts",
-    // "finbar/**/*.ts",
-    "grid-painter/**/*.ts",
-    // "lib/**/*.ts",
-    "model/**/*.ts",
-    "renderer/**/*.ts",
-    "selection/**/*.ts",
-    "subgrid/**/*.ts",
-    "template/**/*.ts",
-    "user-interface-input/**/*.ts"
+    "cell-editor/*.ts",
+    "template/*.ts",
   ],
 
   "references": [
-    { "path": "effects/tsconfig-effects.json" },
-    { "path": "finbar/tsconfig-finbar.json" },
-    { "path": "lib/tsconfig-lib.json" }
+    { "path": "./components/subgrid/tsconfig-grid-components-subgrid.json" },
+    { "path": "./components/tsconfig-grid-components.json" },
+    { "path": "./interfaces/tsconfig-grid-interfaces.json" },
+    { "path": "./effects/tsconfig-effects.json" },
+    { "path": "./lib/tsconfig-grid-lib.json" }
   ]
 }

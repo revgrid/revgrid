@@ -1,5 +1,6 @@
 
-import { CanvasRenderingContext2DEx, CellPainter, GridProperties, Revgrid, ViewportCell } from '../../grid/grid-public-api';
+import { CanvasRenderingContext2DEx, CellPainter, Revgrid, ViewCell } from '../../grid/grid-public-api';
+import { GridSettings } from '../../grid/interfaces/grid-settings';
 import { SimpleCellPaintConfig } from './simple-cell-paint-config';
 import { SimpleCellPaintConfigAccessor } from './simple-cell-paint-config-accessor';
 
@@ -18,24 +19,26 @@ const WHITESPACE = /\s\s+/g;
 export class SimpleCellPainter implements CellPainter {
     private _config: SimpleCellPaintConfig;
 
-    loadConfig(grid: Revgrid, cell: ViewportCell, prefillColor: string | undefined) {
-        const config = new SimpleCellPaintConfigAccessor(cell, cell.isHeaderCell, cell.isFilterCell);
+    loadConfig(grid: Revgrid, cell: ViewCell, prefillColor: string | undefined) {
+        const config = new SimpleCellPaintConfigAccessor(grid, cell, cell.isHeaderCell, cell.isFilterCell);
 
+        const dataPoint = cell.dataPoint;
         const selection = grid.selection;
         const subgrid = cell.subgrid;
         const isMainRow = subgrid.isMain;
         const isHeaderRow = subgrid.isHeader;
         const isFilterRow = subgrid.isFilter;
-        const x = (config.gridCell = cell.gridPoint).x;
-        const r = (config.dataCell = cell.dataPoint).y;
-        const value = subgrid.getValue(cell.visibleColumn.column, r);
+        const activeColumnIndex = cell.visibleColumn.activeColumnIndex;
+        const dataRow = dataPoint.y;
+        const value = subgrid.getValue(cell.visibleColumn.column, dataRow);
 
+        config.dataCell = dataPoint;
 
         const {
             rowSelected: isRowSelected,
             columnSelected: isColumnSelected,
             cellSelected: isCellSelected
-        } = selection.getCellSelectedAreaTypes(x, r, subgrid);
+        } = selection.getCellSelectedAreaTypes(activeColumnIndex, dataRow, subgrid);
 
         /* if (isHandleColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
@@ -59,7 +62,7 @@ export class SimpleCellPainter implements CellPainter {
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
         // * For non-data row tree column cells, do nothing (these cells render blank so value is undefined)
         // if (!isHandleColumn) {
-        config.dataRow = subgrid.getSingletonDataRow(r);
+        config.dataRow = subgrid.getSingletonDataRow(dataRow);
         // } else if (isDataRow) {
             // row handle for a data row
             // if (config.rowHeaderNumbers) {
@@ -81,13 +84,12 @@ export class SimpleCellPainter implements CellPainter {
         const columnHovered =
             hasMouse &&
             (hoverCell !== undefined) &&
-            (hoverCell.isDataColumn) &&
-            (hoverCell.gridPoint.x === cell.gridPoint.x);
+            (hoverCell.visibleColumn.activeColumnIndex === activeColumnIndex);
         const rowHovered =
             hasMouse &&
             subgrid.isMain &&
             (hoverCell !== undefined) &&
-            (hoverCell.gridPoint.y === cell.gridPoint.y);
+            (hoverCell.visibleRow.index === cell.visibleRow.index);
 
         config.isColumnHovered = columnHovered;
         config.isRowHovered = rowHovered;
@@ -95,10 +97,10 @@ export class SimpleCellPainter implements CellPainter {
         const cellHovered = rowHovered && columnHovered;
         config.isCellHovered = cellHovered;
         config.isCellSelected = isCellSelected;
-        config.isRowFocused = grid.focus.isRowFocused(r, subgrid);
+        config.isRowFocused = grid.focus.isMainSubgridRowFocused(dataRow);
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
-        config.isInCurrentSelectionRectangle = selection.isPointInLastArea(x, r);
+        config.isInCurrentSelectionRectangle = selection.isPointInLastArea(activeColumnIndex, dataRow);
         config.prefillColor = prefillColor;
 
         config.value = value;
@@ -110,7 +112,6 @@ export class SimpleCellPainter implements CellPainter {
     paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
         const config = this._config;
 
-        const val = config.value;
         const bounds = config.bounds;
         const x = bounds.x;
         const y = bounds.y;
@@ -118,7 +119,7 @@ export class SimpleCellPainter implements CellPainter {
         const height = bounds.height;
         const partialRender = config.prefillColor === undefined; // signifies abort before rendering if same
         let valWidth = 0;
-        let hover: GridProperties.HoverColors;
+        let hover: GridSettings.HoverColors;
         let hoverColor: string | undefined;
         let selectColor: string | undefined;
         let foundationColor = false;
@@ -190,7 +191,7 @@ export class SimpleCellPainter implements CellPainter {
             same = same && snapshot !== undefined && hoverColor === snapshot.colors[c++];
         }
 
-        // return a snapshot to save in Viewport cell for future comparisons by partial renderer
+        // return a snapshot to save in View cell for future comparisons by partial renderer
         const newSnapshot: SimpleCellPaintConfig.Snapshot = {
             value: valText,
             textColor,

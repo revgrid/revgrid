@@ -1,6 +1,6 @@
 
-import { ViewportCell } from '../../cell/viewport-cell';
-import { FinBar } from '../../finbar/finbar-api';
+import { FinBar } from '../../components/scroller/finbar-api';
+import { ViewCell } from '../../components/view/view-cell';
 import { UiBehavior } from './ui-behavior';
 
 export class TouchScrollingUiBehavior extends UiBehavior {
@@ -20,11 +20,11 @@ export class TouchScrollingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         return cell;
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         return cell;
     }
 
@@ -69,7 +69,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
     private getTouchedBounds(eventDetail: TouchEvent) {
         const firstTouch = eventDetail.touches[0];
         const canvasFirstTouchOffsetPoint = this.canvasEx.getOffsetPoint(firstTouch);
-        const cell = this.viewport.findLeftGridLineInclusiveCellFromOffset(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
+        const cell = this.viewLayout.findLeftGridLineInclusiveCellFromOffset(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
         if (cell === undefined) {
             return undefined;
         } else {
@@ -173,7 +173,7 @@ export namespace TouchScrollingUiBehavior {
     export const MAX_TOUCHES = 70;
     export const DEC_STEP_SIZE = 5;
 
-    export interface TouchedBounds extends ViewportCell.Bounds {
+    export interface TouchedBounds extends ViewCell.Bounds {
         timestamp: number;
     }
 }

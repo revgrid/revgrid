@@ -1,5 +1,4 @@
-import { CellEvent } from '../cell/cell-event';
-import { ViewportCell } from '../cell/viewport-cell';
+import { ViewCell } from '../components/view/view-cell';
 import { Effect, effectFactory } from '../effects/effects';
 import { Formatter } from '../lib/localization';
 import { WritablePoint } from '../lib/point';
@@ -39,7 +38,7 @@ export abstract class CellEditor {
      * @this CellEditor
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    constructor(public readonly grid: Revgrid, public readonly viewportCell: ViewportCell, readonly el: HTMLElement) {
+    constructor(public readonly grid: Revgrid, public readonly viewCell: ViewCell, readonly el: HTMLElement) {
         // Mix in all enumerable properties for mustache use, typically `column` and `format`.
         // for (const key in cellEvent) {
         //     this[key] = cellEvent[key];
@@ -56,7 +55,7 @@ export abstract class CellEditor {
 
         // Only override cell editor's default 'null' localizer if the custom localizer lookup succeeds.
         // Failure is when it returns the default ('string') localizer when 'string' is not what was requested.
-        this.localizer = this.grid.localization.get(viewportCell.format); // try to get named localizer, if unsuccessful, descendants will assign
+        this.localizer = this.grid.localization.get(viewCell.format); // try to get named localizer, if unsuccessful, descendants will assign
 
         this.initialValue = value;
 
@@ -109,7 +108,7 @@ export abstract class CellEditor {
 
     keyup(e: KeyboardEvent) {
         const grid = this.grid;
-        const cellProps = this.viewportCell.columnProperties;
+        const cellProps = this.viewCell.columnProperties;
         const feedbackCount = cellProps.feedbackCount;
         const stopCancelFtn = this.specialKeyups[e.key as keyof CellEditor.SpecialKeyUps];
         let stopped = (stopCancelFtn) ? stopCancelFtn.call(this, feedbackCount) : false;
@@ -164,14 +163,14 @@ export abstract class CellEditor {
      * @desc move the editor to the current editor point
      */
     moveEditor() {
-        this.setBounds(this.viewportCell.bounds);
+        this.setBounds(this.viewCell.bounds);
     }
 
     /**
      * @this CellEditor
      */
     beginEditing() {
-        if (this.grid.fireRequestCellEdit(this, this.viewportCell, this.initialValue)) {
+        if (this.grid.fireRequestCellEdit(this, this.viewCell, this.initialValue)) {
             this.checkEditorPositionFlag = true;
             this.checkEditor();
         }
@@ -275,13 +274,13 @@ export abstract class CellEditor {
 
         let name: string;
         let options: Effect.Options;
-        const spec = this.grid.properties.feedbackEffect; // spec may e a string or an object with name and options props
+        const spec = this.grid.settings.feedbackEffect; // spec may e a string or an object with name and options props
         if (typeof spec === 'string') {
             name = spec;
             options = {};
         } else {
-            name = spec.name;
-            options = spec.options;
+            name = ''; //spec.name;
+            options = {}; //spec.options;
         }
         options.callback = () => this.errorEffectEnd(error, options);
 
@@ -346,12 +345,12 @@ export abstract class CellEditor {
     saveEditorValue(value: unknown): boolean {
         // const save = (
         //     !(value && value === this.initialValue) && // data changed
-        //     this.grid.fireBeforeCellEdit(this.viewportCell.gridPoint, this.initialValue, value, this) // proceed
+        //     this.grid.fireBeforeCellEdit(this.viewCell.gridPoint, this.initialValue, value, this) // proceed
         // );
 
         // if (save) {
         //     // this.renderedCell.value = value;
-        //     this.grid.fireAfterCellEdit(this.viewportCell.gridPoint, this.initialValue, value, this);
+        //     this.grid.fireAfterCellEdit(this.viewCell.gridPoint, this.initialValue, value, this);
         // }
 
         return false; // return save
@@ -428,7 +427,7 @@ export abstract class CellEditor {
     checkEditor() {
         if (this.checkEditorPositionFlag) {
             this.checkEditorPositionFlag = false;
-            if (this.viewportCell.isCellVisible) {
+            if (this.viewCell.isCellVisible) {
                 this.setEditorValue(this.initialValue);
                 this.attachEditor();
                 this.moveEditor();
@@ -446,7 +445,7 @@ export abstract class CellEditor {
 }
 
 export namespace CellEditor {
-    export type Constructor = new (grid: Revgrid, cellEvent: CellEvent) => CellEditor;
+    export type Constructor = new (grid: Revgrid, cellEvent: ViewCell) => CellEditor;
 
     export interface EventDetail {
         editor: CellEditor;
@@ -465,7 +464,7 @@ export namespace CellEditor {
 
     export interface RequestCellEditDetail extends EventDetail {
         value: unknown;
-        cellEvent: CellEvent;
+        cellEvent: ViewCell;
     }
 
     export type StopCancelFunction = (feedback?: number) => boolean

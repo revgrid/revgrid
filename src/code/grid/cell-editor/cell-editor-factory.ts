@@ -1,4 +1,4 @@
-import { CellEvent } from '../cell/cell-event';
+import { ViewCell } from '../components/view/view-cell';
 import { Registry } from '../lib/registry';
 import { AssertError } from '../lib/revgrid-error';
 import { Revgrid } from '../revgrid';
@@ -26,7 +26,7 @@ export class CellEditorFactory {
         this.constructorRegistry.register(TextField.typeName, TextField);
     }
 
-    tryCreate(grid: Revgrid, type: string, cellEvent: CellEvent) {
+    tryCreate(grid: Revgrid, type: string, cellEvent: ViewCell) {
         const constructor = this.constructorRegistry.get(type);
         if (constructor === undefined) {
             return undefined;
@@ -35,7 +35,7 @@ export class CellEditorFactory {
         }
     }
 
-    create(grid: Revgrid, type: string, cellEvent: CellEvent) {
+    create(grid: Revgrid, type: string, cellEvent: ViewCell) {
         const constructor = this.constructorRegistry.get(type);
         if (constructor === undefined) {
             throw new AssertError('CEFC61885', type);

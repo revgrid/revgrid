@@ -1,4 +1,10 @@
 /** @public */
+export const enum HorizontalVertical {
+    Horizontal,
+    Vertical,
+}
+
+/** @public */
 export const enum HalignEnum {
     left = 'left',
     right = 'right',
@@ -64,5 +70,5 @@ export interface ColumnNameWidth {
     width: number | undefined;
 }
 
-/** @private */
+/** @internal */
 export type IndexSignatureHack<T> = { [K in keyof T]: IndexSignatureHack<T[K]> };

@@ -1,0 +1,19 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-renderer.tsbuildinfo"
+  },
+
+  "include": [
+    "renderer.ts",
+    "render-action.ts",
+    "render-actioner.ts",
+  ],
+
+  "references": [
+    { "path": "grid-painter/tsconfig-grid-components-renderer-grid-painter.json" },
+    { "path": "../../lib/tsconfig-grid-lib.json" }
+  ]
+}

@@ -5,8 +5,8 @@ import {
     RevRecordIndex,
     RevRecordMainAdapter
 } from '..';
-import { GridSettings } from './grid-settings';
 import { RecordGrid } from './record-grid';
+import { RecordGridSettings } from './record-grid-settings';
 import { RecordStore } from './record-store';
 import { TestCellPainter } from './test-cell-painter';
 
@@ -20,7 +20,7 @@ export class Main {
     private readonly _recordStore: RecordStore;
     private readonly _mainCellPainter: TestCellPainter;
     private readonly _grid: RecordGrid;
-    private readonly _settings: GridSettings = { ...defaultGridSettings };
+    private readonly _settings: RecordGridSettings = { ...defaultGridSettings };
     private readonly _debugEnabled = true;
 
     private _integerFilterValue = 0;
@@ -784,7 +784,7 @@ export class Main {
             restoreColumnSelections: false,
             multipleSelections: false,
             sortOnDoubleClick: false,
-            ...GridSettings.createGridPropertiesFromSettings(this._settings, undefined),
+            ...RecordGridSettings.createGridPropertiesFromSettings(this._settings, undefined),
         };
 
         const grid = new RecordGrid(
@@ -1080,7 +1080,7 @@ const foregroundColor = '#f9f0f0';
 const columnHeaderBackgroundColor = '#626262';
 const columnHeaderForegroundColor = 'white';
 
-const colorMap: GridSettings.ColorMap = {
+const colorMap: RecordGridSettings.ColorMap = {
     // Grid colors
     backgroundColor: backgroundColor,
     color: foregroundColor,
@@ -1111,7 +1111,7 @@ const colorMap: GridSettings.ColorMap = {
     scrollbarThumbShadowColor: 'black',
 };
 
-const defaultGridSettings: GridSettings = {
+const defaultGridSettings: RecordGridSettings = {
     fontFamily: 'Tahoma, Geneva, sans-serif',
     fontSize: '13px',
     columnHeaderFontSize: '12px',

@@ -1,24 +1,24 @@
 
 import { CellEditor } from '../../cell-editor/cell-editor';
-import { ViewportCell } from '../../cell/viewport-cell';
-import { EventDetail } from '../../event/event-detail';
+import { ViewCell } from '../../components/view/view-cell';
+import { EventDetail } from '../component/event-behavior/event-detail';
 import { UiBehavior } from './ui-behavior';
 
 export class CellEditingUiBehavior extends UiBehavior {
 
     readonly typeName = CellEditingUiBehavior.typeName;
 
-    override handleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         this.edit(cell, false);
         return super.handleClick(event, cell);
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         this.edit(cell, true);
         return super.handleDoubleClick(event, cell);
@@ -27,7 +27,7 @@ export class CellEditingUiBehavior extends UiBehavior {
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
         const grid = this.grid;
 
-        const cellEvent = grid.getFocusedCellEvent(false);
+        const cellEvent = this.focusBehavior.getFocusedViewCell(false);
         if (cellEvent === undefined) {
             super.handleKeyDown(eventDetail);
         } else {
@@ -61,7 +61,7 @@ export class CellEditingUiBehavior extends UiBehavior {
         }
     }
 
-    edit(cell: ViewportCell | null, onDoubleClick: boolean) {
+    edit(cell: ViewCell | null, onDoubleClick: boolean) {
         if (
             cell !== null &&
             cell.isDataCell &&

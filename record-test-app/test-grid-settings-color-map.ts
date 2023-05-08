@@ -1,6 +1,6 @@
-import { GridSettings } from 'grid-settings';
+import { RecordGridSettings } from './record-grid-settings';
 
-export interface TestGridSettingsColorMap extends GridSettings.ColorMap {
+export interface TestGridSettingsColorMap extends RecordGridSettings.ColorMap {
     bkgdGreyedOut: string;
     foreGreyedOut: string;
     bkgdFocusedRow: string;

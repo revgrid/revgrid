@@ -1,4 +1,4 @@
-import { CellModel, Revgrid, SimpleCellPainter, ViewportCell } from '..';
+import { CellModel, Revgrid, SimpleCellPainter, ViewCell } from '..';
 
 export class CellAdapter implements CellModel {
     private readonly _painter = new SimpleCellPainter();
@@ -8,8 +8,8 @@ export class CellAdapter implements CellModel {
         this._grid = value;
     }
 
-    getCellPainter(viewportCell: ViewportCell, prefillColor: string | undefined) {
-        this._painter.loadConfig(this._grid, viewportCell, prefillColor);
+    getCellPainter(viewCell: ViewCell, prefillColor: string | undefined) {
+        this._painter.loadConfig(this._grid, viewCell, prefillColor);
         return this._painter;
     }
 }

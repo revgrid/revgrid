@@ -1,4 +1,4 @@
-import { ViewportCell, CellModel, CellPaintConfig, CellPainter } from '../../grid/grid-public-api';
+import { ViewCell, CellModel, CellPaintConfig, CellPainter } from '../../grid/grid-public-api';
 import { RevRecordCellPaintConfigAccessor } from './rev-record-cell-paint-config-accessor';
 import { RevRecordMainAdapter } from './rev-record-main-adapter';
 
@@ -9,7 +9,7 @@ export class RevRecordMainCellAdapter implements CellModel {
         private readonly _mainCellPainter: CellPainter) {
     }
 
-    getCellPaintConfig(beingPaintedCell: ViewportCell): CellPaintConfig {
+    getCellPaintConfig(beingPaintedCell: ViewCell): CellPaintConfig {
         return new RevRecordCellPaintConfigAccessor(beingPaintedCell, this._mainAdapter);
     }
 

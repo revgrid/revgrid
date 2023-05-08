@@ -20,8 +20,17 @@
           "./src/code/adapter-sets/simple/tsconfig-rev-simple.json",
           "./src/code/standard-cell-paint/tsconfig-standard-cell-paint.json",
           "./src/code/grid/tsconfig-grid.json",
+          "./src/code/grid/tsconfig-grid-components.json",
+          "./src/code/grid/tsconfig-grid-components-renderer.json",
+          "./src/code/grid/tsconfig-grid-components-renderer-grid-painter.json",
+          "./src/code/grid/tsconfig-grid-components-view.json",
+          "./src/code/grid/tsconfig-grid-components-selection.json",
+          "./src/code/grid/tsconfig-grid-components-scroller.json",
+          "./src/code/grid/tsconfig-behavior.json",
+          "./src/code/grid/tsconfig-behavior-components.json",
+          "./src/code/grid/tsconfig-behavior-ui.json",
+          "./src/code/grid/tsconfig-grid-interfaces.json",
           "./src/code/grid/effects/tsconfig-effects.json",
-          "./src/code/grid/finbar/tsconfig-finbar.json",
           "./src/code/grid/lib/tsconfig-lib.json"
         ]
       },

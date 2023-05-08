@@ -1,6 +1,6 @@
-import { ViewportCell } from '../../cell/viewport-cell';
-import { SubgridInterface } from '../../common/subgrid-interface';
-import { EventDetail } from '../../event/event-detail';
+import { EventDetail } from '../../components/event/event-detail';
+import { ViewCell } from '../../components/view/view-cell';
+import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { isSecondaryMouseButton } from '../../lib/html-types';
 import { Point } from '../../lib/point';
 import { AssertError } from '../../lib/revgrid-error';
@@ -32,7 +32,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
     /**
      * @param event - the event details
      */
-    override handleMouseUp(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseUp(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this._dragArmed) {
             this._dragArmed = false;
             // this.moveCellSelection();
@@ -54,9 +54,9 @@ export class RowSelectionUiBehavior extends UiBehavior {
     /**
      * @param event - the event details
      */
-    override handleMouseDown(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
 
         if (cell === null) {
@@ -85,7 +85,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
                         // if we are in the fixed area, do not apply the scroll values
                         this._dragArmed = true;
                         const subgridRowIndex = cell.visibleRow.subgridRowIndex;
-                        const focusPoint = this.focus.current;
+                        const focusPoint = this.focus.currentSubgridPoint;
                         const cellActiveColumnIndex = focusPoint === undefined ? 0 : focusPoint.x;
 
                         const focusSelectionBehavior = this.selectionBehavior;
@@ -113,7 +113,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handleMouseDrag(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (
             !this._dragArmed ||
             !this.gridProperties.mouseRowSelection ||
@@ -129,7 +129,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
                 return cell;
             } else {
                 if (cell === undefined) {
-                    cell = this.tryGetViewportCellFromMouseEvent(event);
+                    cell = this.tryGetViewCellFromMouseEvent(event);
                 }
                 if (cell !== null) {
                     this.updateLastSelectionArea(cell);
@@ -144,7 +144,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
         if (lastSelectionArea !== undefined) {
             const lastSelectionType = lastSelectionArea.areaType;
             if (lastSelectionType === SelectionArea.Type.Row) {
-                const handler = this[('handle' + eventDetail.primitiveEvent.key) as keyof RowSelectionUiBehavior] as ((this: void, detail: EventDetail.Keyboard) => void);
+                const handler = this[('handle' + eventDetail.key) as keyof RowSelectionUiBehavior] as ((this: void, detail: EventDetail.Keyboard) => void);
                 if (handler !== undefined) {
                     handler(eventDetail);
                 } else {
@@ -159,7 +159,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
     /**
      * @desc Handle a mousedrag selection
      */
-    updateLastSelectionArea(cell: ViewportCell) {
+    updateLastSelectionArea(cell: ViewCell) {
         const extendSelectOrigin = this._extendSelectOrigin;
         if (extendSelectOrigin === undefined) {
             throw new AssertError('RSFHMDCS54455');
@@ -185,7 +185,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
      * @desc this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
      */
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
-        const scrollableBounds = this.viewport.scrollableBounds;
+        const scrollableBounds = this.viewLayout.scrollableBounds;
         if (
             this.gridProperties.scrollingEnabled &&
             scrollableBounds !== undefined &&
@@ -200,7 +200,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
             } else {
                 this.scheduleStepScrollDrag(canvasOffsetX, canvasOffsetY);
 
-                const cell = this.viewport.findScrollableCellClosestToOffset(canvasOffsetX, canvasOffsetY);
+                const cell = this.viewLayout.findScrollableCellClosestToOffset(canvasOffsetX, canvasOffsetY);
                 if (cell !== undefined) {
                     this.updateLastSelectionArea(cell); // update the selection
                 }
@@ -313,7 +313,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
      * @param offsetY - y coordinate to start at
      */
     private moveShiftSelect() {
-        const focusPoint = this.focus.current;
+        const focusPoint = this.focus.currentSubgridPoint;
         if (focusPoint !== undefined) {
             const activeColumnIndex = focusPoint.x;
             const subgridRowIndex = focusPoint.y;
@@ -322,8 +322,8 @@ export class RowSelectionUiBehavior extends UiBehavior {
             let newY: number | undefined = focusPoint.y;
 
             if (!this.gridProperties.scrollingEnabled) {
-                newX = this.viewport.limitActiveColumnIndexToViewport(newX);
-                newY = this.viewport.limitRowIndexToViewport(newY);
+                newX = this.viewLayout.limitActiveColumnIndexToView(newX);
+                newY = this.viewLayout.limitRowIndexToView(newY);
             }
 
             if (newX !== undefined && newY !== undefined) {

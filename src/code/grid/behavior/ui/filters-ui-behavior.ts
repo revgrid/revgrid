@@ -1,7 +1,6 @@
 
-import { CellEvent } from '../../cell/cell-event';
-import { ViewportCell } from '../../cell/viewport-cell';
-import { EventDetail } from '../../event/event-detail';
+import { EventDetail } from '../../components/event/event-detail';
+import { ViewCell } from '../../components/view/view-cell';
 import { SelectionArea } from '../../lib/selection-area';
 import { UiBehavior } from './ui-behavior';
 
@@ -25,7 +24,7 @@ export class FiltersUiBehavior extends UiBehavior {
         const handled = false;
 
         // if (eventDetail.editor !== undefined) {
-        //     const cellEvent = eventDetail.editor.viewportCell;
+        //     const cellEvent = eventDetail.editor.viewCell;
         //     if (cellEvent.isFilterCell) {
         //         const navKey = this.grid.generateNavKey(eventDetail.primitiveEvent);
         //         const handler = this[('handle' + navKey) as keyof FiltersUiBehavior] as ((CellEvent: CellEvent) => void);
@@ -43,20 +42,20 @@ export class FiltersUiBehavior extends UiBehavior {
         }
     }
 
-    handleLEFT(cellEvent: CellEvent) {
+    handleLEFT(cellEvent: ViewCell) {
         this.moveLaterally(cellEvent, -1);
     }
 
-    handleRIGHT(cellEvent: CellEvent) {
+    handleRIGHT(cellEvent: ViewCell) {
         this.moveLaterally(cellEvent, +1);
     }
 
     handleUP = this.moveDown;
     handleDOWN = this.moveDown;
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell !== null && cell.isFilterCell) {
             this.grid.onEditorActivate(cell);
@@ -66,9 +65,9 @@ export class FiltersUiBehavior extends UiBehavior {
         }
     }
 
-    override handleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell !== null && cell.isFilterCell) {
             this.grid.onEditorActivate(cell);
@@ -78,19 +77,19 @@ export class FiltersUiBehavior extends UiBehavior {
         }
     }
 
-    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: CellEvent, deltaX: number) {
+    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell, deltaX: number) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         let gridX = cellEvent.visibleColumn.index;
         const gridY = cellEvent.visibleRow.index;
         const originX = gridX;
         const grid = this.grid;
-        const C = grid.viewport.columns.length;
+        const C = grid.viewLayout.columns.length;
 
-        const moveDownCellEvent = new CellEvent(grid); // redefine so we don't reset the original below
+        const moveDownCellEvent = new ViewCell(this.columnsManager); // redefine so we don't reset the original below
 
         while (
             (gridX = (gridX + deltaX + C) % C) !== originX &&
-            moveDownCellEvent.resetGridXY(gridX, gridY)
+            moveDownCellEvent.resetGridXY(this.viewLayout.columns[gridX], this.viewLayout.getVisibleRow(gridY))
         ) {
             if (moveDownCellEvent.columnProperties.filterable) {
                 // Select previous or next filterable column's filter cell
@@ -102,13 +101,13 @@ export class FiltersUiBehavior extends UiBehavior {
         this.moveDown(moveDownCellEvent);
     }
 
-    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: CellEvent) {
+    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         const gridX = cellEvent.visibleColumn.index;
 
         // Select first visible grid cell of this column
         const grid = this.grid;
-        this.selectionBehavior.selectOnlyViewportCell(gridX, this.subgridsManager.calculateHeaderRowCount(), SelectionArea.TypeSpecifier.Primary);
+        this.selectionBehavior.selectOnlyViewCell(gridX, this.subgridsManager.calculateHeaderRowCount(), SelectionArea.TypeSpecifier.Primary);
         grid.takeFocus();
     }
 

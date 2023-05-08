@@ -226,6 +226,7 @@ export class RevRecordFieldAdapter implements SchemaModel {
         const schemaColumn: RevRecordField.SchemaColumn = {
             name: field.name,
             index: fieldIndex,
+            initialSettings: undefined,
             field,
         };
 

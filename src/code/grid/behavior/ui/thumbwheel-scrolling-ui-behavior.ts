@@ -1,6 +1,6 @@
 
-import { ViewportCell } from '../../cell/viewport-cell';
-import { GridProperties } from '../../grid-properties';
+import { ViewCell } from '../../components/view/view-cell';
+import { GridSettings } from '../../interfaces/grid-settings';
 import { UnreachableCaseError } from '../../lib/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../lib/types';
 import { UiBehavior } from './ui-behavior';
@@ -9,7 +9,7 @@ export class ThumbwheelScrollingUiBehavior extends UiBehavior {
 
     readonly typeName = ThumbwheelScrollingUiBehavior.typeName;
 
-    override handleWheelMoved(event: WheelEvent, cell: ViewportCell | null | undefined) {
+    override handleWheelMoved(event: WheelEvent, cell: ViewCell | null | undefined) {
         const gridProps = this.gridProperties;
         if (gridProps.scrollingEnabled) {
             const deltaX = event.deltaX;
@@ -32,7 +32,7 @@ export class ThumbwheelScrollingUiBehavior extends UiBehavior {
         return cell;
     }
 
-    isHorizontalWheelScrollingAllowed(gridProps: GridProperties, event: WheelEvent) {
+    isHorizontalWheelScrollingAllowed(gridProps: GridSettings, event: WheelEvent) {
         switch (gridProps.horizontalWheelScrollingAllowed) {
             case HorizontalWheelScrollingAllowed.Never: return false;
             case HorizontalWheelScrollingAllowed.Always: return true;

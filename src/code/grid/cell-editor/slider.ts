@@ -1,10 +1,10 @@
 
-import { ViewportCell } from '../cell/viewport-cell';
+import { ViewCell } from '../components/view/view-cell';
 import { Revgrid } from '../revgrid';
 import { RangeInputEditor } from './range-input-editor';
 
 export class Slider extends RangeInputEditor {
-    constructor(grid: Revgrid, renderedCell: ViewportCell) {
+    constructor(grid: Revgrid, renderedCell: ViewCell) {
         super(grid, renderedCell);
     }
 }

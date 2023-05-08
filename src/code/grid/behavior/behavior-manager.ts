@@ -1,0 +1,175 @@
+import { Subgrid } from '../components/subgrid/subgrid';
+import { ViewCell } from '../components/view/view-cell';
+import { GridSettings } from '../interfaces/grid-settings';
+import { MetaModel } from '../interfaces/meta-model';
+import { SchemaModel } from '../interfaces/schema-model';
+import { Revgrid } from '../revgrid';
+import { AdapterSetConfig } from './component/adapter-set-config';
+import { ComponentBehaviorManager } from './component/component-behavior-manager';
+import { EventBehavior } from './component/event-behavior';
+import { UiBehaviorManager } from './ui/ui-behavior-manager';
+
+/** @internal */
+export class BehaviorManager {
+    private readonly _componentBehaviorManager: ComponentBehaviorManager;
+    private readonly _uiBehaviorManager: UiBehaviorManager;
+    // Start RowProperties Mixin
+    /** @internal */
+    // private _height: number;
+    // defaultRowHeight: number;
+    // End RowProperties Mixin
+
+    // Start DataModel Mixin
+    // allColumns: Behavior.ColumnArray;
+    // End DataModel Mixin
+
+    // Start RowProperties Mixin
+    // get height() {
+    //     return this._height || this.defaultRowHeight;
+    // }
+    // set height(height: number) {
+    //     height = Math.max(5, Math.ceil(height));
+    //     if (isNaN(height)) {
+    //         height = undefined;
+    //     }
+    //     if (height !== this._height) {
+    //         this._height = height; // previously set as not enumerable
+    //         this.grid.behaviorStateChanged();
+    //     }
+    // }
+    // End RowProperties Mixin
+
+    constructor(
+        private readonly grid: Revgrid,
+        containerHtmlElement: HTMLElement,
+        canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
+        optionedGridProperties: Partial<GridSettings> | undefined,
+        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
+        adapterSetConfig: AdapterSetConfig,
+        loadBuiltinFinbarStylesheet: boolean,
+        descendantEventer: EventBehavior.DescendantEventer,
+    ) {
+        this._componentBehaviorManager = new ComponentBehaviorManager(
+            grid,
+            containerHtmlElement,
+            canvasContextAttributes,
+            optionedGridProperties,
+            rowPropertiesPrototype,
+            adapterSetConfig,
+            loadBuiltinFinbarStylesheet,
+            descendantEventer,
+        );
+
+        this._uiBehaviorManager = new UiBehaviorManager(
+            this.grid,
+            this._componentBehaviorManager.gridSettings,
+            this._componentBehaviorManager.mouse,
+            this._componentBehaviorManager.canvasEx,
+            this._componentBehaviorManager.focus,
+            this._componentBehaviorManager.selection,
+            this._componentBehaviorManager.columnsManager,
+            this._componentBehaviorManager.subgridsManager,
+            this._componentBehaviorManager.viewLayout,
+            this._componentBehaviorManager.renderer,
+            this._componentBehaviorManager.reindexStashManager,
+            this._componentBehaviorManager.scrollBehavior,
+            this._componentBehaviorManager.focusBehavior,
+            this._componentBehaviorManager.selectionBehavior,
+            this._componentBehaviorManager.userInterfaceInputBehavior,
+            this._componentBehaviorManager.rowPropertiesBehavior,
+            this._componentBehaviorManager.cellPropertiesBehavior,
+            this._componentBehaviorManager.dataExtractBehavior,
+            this._componentBehaviorManager.eventBehavior,
+        );
+    }
+
+    get gridProperties() { return this._componentBehaviorManager.gridSettings; }
+    get mouse() { return this._componentBehaviorManager.mouse; }
+    get mainSubgrid() { return this._componentBehaviorManager.mainSubgrid; }
+    get mainDataModel() { return this._componentBehaviorManager.mainDataModel; }
+    get columnsManager() { return this._componentBehaviorManager.columnsManager; }
+    get subgridsManager() { return this._componentBehaviorManager.subgridsManager; }
+    get viewLayout() { return this._componentBehaviorManager.viewLayout; }
+    get renderer() { return this._componentBehaviorManager.renderer; }
+
+    get focusBehavior() { return this._componentBehaviorManager.focusBehavior; }
+    get selectionBehavior() { return this._componentBehaviorManager.selectionBehavior; }
+    get rowPropertiesBehavior() { return this._componentBehaviorManager.rowPropertiesBehavior; }
+    get cellPropertiesBehavior() { return this._componentBehaviorManager.cellPropertiesBehavior; }
+    get userInterfaceInputBehavior() { return this._componentBehaviorManager.userInterfaceInputBehavior; }
+    get scrollBehavior() { return this._componentBehaviorManager.scrollBehavior; }
+
+    reset() {
+        this._componentBehaviorManager.reset();
+    }
+
+    destroy() {
+        this._componentBehaviorManager.destroy();
+    }
+
+    allowEvents(allow: boolean) {
+        if (allow){
+            this._uiBehaviorManager.enable();
+        } else {
+            this._uiBehaviorManager.disable();
+        }
+        this._componentBehaviorManager.allowEvents(allow);
+    }
+
+    behaviorShapeChanged() {
+        this._componentBehaviorManager.behaviorShapeChanged();
+    }
+
+    behaviorStateChanged() {
+        this._componentBehaviorManager.behaviorStateChanged();
+    }
+
+    clearObjectProperties(obj: Record<string, unknown>, exportProps?: boolean) {
+        this._componentBehaviorManager.clearObjectProperties(obj, exportProps);
+    }
+
+    getState() {
+        return this._componentBehaviorManager.getState();
+    }
+
+    setState(properties: Record<string, unknown>) {
+        this._componentBehaviorManager.setState(properties);
+    }
+
+    addState(properties: Record<string, unknown>, settingState: boolean) {
+        this._componentBehaviorManager.addState(properties, settingState);
+    }
+
+    endDragColumnNotification() {
+        this._componentBehaviorManager.endDragColumnNotification();
+    }
+
+    getCursorAt(x: number, y: number): string | undefined {
+        return this._componentBehaviorManager.getCursorAt(x, y);
+    }
+
+    getCellEditorAt(cell: ViewCell) {
+        return this._componentBehaviorManager.getCellEditorAt(cell);
+    }
+
+    highlightCellOnHover(isColumnHovered: boolean, isRowHovered: boolean): boolean {
+        return this._componentBehaviorManager.highlightCellOnHover(isColumnHovered, isRowHovered);
+    }
+
+    getValue(x: number, y: number, subgrid: Subgrid | undefined) {
+        return this._componentBehaviorManager.getValue(x, y, subgrid);
+    }
+
+    setValue(schemaColumn: SchemaModel.Column, x: number, y: number, value: unknown, subgrid?: Subgrid) {
+        this._componentBehaviorManager.setValue(schemaColumn, x, y, value, subgrid);
+    }
+
+    behaviorChanged() {
+        this._componentBehaviorManager.behaviorChanged();
+    }
+
+    lookupFeature(key: string) {
+        return this._uiBehaviorManager.lookupFeature(key);
+    }
+
+}

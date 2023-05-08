@@ -1,26 +1,28 @@
 
-import { CanvasEx } from '../../canvas/canvas-ex';
-import { ViewportCell } from '../../cell/viewport-cell';
-import { ColumnsManager } from '../../column/columns-manager';
-import { EventDetail } from '../../event/event-detail';
-import { Focus } from '../../focus';
-import { GridProperties } from '../../grid-properties';
+import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { ColumnsManager } from '../../components/column/columns-manager';
+import { EventDetail } from '../../components/event/event-detail';
+import { Focus } from '../../components/focus/focus';
+import { Mouse } from '../../components/mouse/mouse';
+import { ReindexStashManager } from '../../components/reindex-stash-manager/reindex-stash-manager';
+import { Renderer } from '../../components/renderer/renderer';
+import { Selection } from '../../components/selection/selection';
+import { Subgrid } from '../../components/subgrid/subgrid';
+import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
+import { ViewCell } from '../../components/view/view-cell';
+import { ViewLayout } from '../../components/view/view-layout';
+import { GridSettings } from '../../interfaces/grid-settings';
 import { Point } from '../../lib/point';
-import { ReindexStashManager } from '../../reindex-stash-manager';
-import { Renderer } from '../../renderer/renderer';
-import { Viewport } from '../../renderer/viewport';
+import { ScrollAction } from '../../lib/scroll-action';
 import { Revgrid } from '../../revgrid';
-import { Selection } from '../../selection/selection';
-import { Subgrid } from '../../subgrid/subgrid';
-import { SubgridsManager } from '../../subgrid/subgrids-manager';
-import { Mouse } from '../../user-interface-input/mouse';
-import { CellPropertiesBehavior } from '../cell-properties-behavior';
-import { EventBehavior } from '../event-behavior';
-import { FocusBehavior } from '../focus-behavior';
-import { RowPropertiesBehavior } from '../row-properties-behavior';
-import { ScrollBehavior } from '../scroll-behaviour';
-import { SelectionBehavior } from '../selection-behavior';
-import { UserInterfaceInputBehavior } from '../user-interface-input-behavior';
+import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
+import { DataExtractBehavior } from '../component/data-extract-behavior';
+import { EventBehavior } from '../component/event-behavior';
+import { FocusBehavior } from '../component/focus-behavior';
+import { RowPropertiesBehavior } from '../component/row-properties-behavior';
+import { ScrollBehavior } from '../component/scroll-behaviour';
+import { SelectionBehavior } from '../component/selection-behavior';
+import { UserInterfaceInputBehavior } from '../component/user-interface-input-behavior';
 import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
@@ -37,6 +39,7 @@ export abstract class UiBehavior {
     protected readonly userInterfaceInputBehavior: UserInterfaceInputBehavior;
     protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
     protected readonly cellPropertiesBehavior: CellPropertiesBehavior;
+    protected readonly dataExtractBehavior: DataExtractBehavior;
     protected readonly eventBehavior: EventBehavior;
 
     protected readonly sharedState: UiBehaviorSharedState;
@@ -46,9 +49,9 @@ export abstract class UiBehavior {
     protected readonly focus: Focus;
     protected readonly columnsManager: ColumnsManager;
     protected readonly subgridsManager: SubgridsManager;
-    protected readonly viewport: Viewport;
+    protected readonly viewLayout: ViewLayout;
     protected readonly renderer: Renderer;
-    protected readonly gridProperties: GridProperties;
+    protected readonly gridProperties: GridSettings;
     protected readonly reindexStashManager: ReindexStashManager;
 
     protected readonly mainSubgrid: Subgrid;
@@ -63,6 +66,7 @@ export abstract class UiBehavior {
         this.scrollBehavior = services.scrollBehavior;
         this.rowPropertiesBehavior = services.rowPropertiesBehavior;
         this.cellPropertiesBehavior = services.cellPropertiesBehavior;
+        this.dataExtractBehavior = services.dataExtractBehavior;
         this.eventBehavior = services.eventBehavior;
 
         this.sharedState = services.sharedState;
@@ -72,7 +76,7 @@ export abstract class UiBehavior {
         this.focus = services.focus;
         this.columnsManager = services.columnsManager;
         this.subgridsManager = services.subgridsManager;
-        this.viewport = services.viewport;
+        this.viewLayout = services.viewLayout;
         this.renderer = services.renderer;
         this.gridProperties = services.gridProperties;
         this.reindexStashManager = services.reindexStashManager;
@@ -139,7 +143,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleMouseMove(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleMouseMove(event, cell);
         } else {
@@ -147,7 +151,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleMouseExit(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleMouseExit(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleMouseExit(event, cell);
         } else {
@@ -155,7 +159,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleMouseEnter(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleMouseEnter(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleMouseEnter(event, cell);
         } else {
@@ -163,7 +167,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleMouseDown(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleMouseDown(event, cell);
         } else {
@@ -171,7 +175,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleMouseUp(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleMouseUp(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleMouseUp(event, cell);
         } else {
@@ -179,7 +183,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleWheelMoved(event: WheelEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleWheelMoved(event: WheelEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleWheelMoved(event, cell);
         } else {
@@ -187,7 +191,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleDoubleClick(event, cell);
         } else {
@@ -195,7 +199,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleClick(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleClick(event, cell);
         } else {
@@ -203,7 +207,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleMouseDrag(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleMouseDrag(event, cell);
         } else {
@@ -211,7 +215,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleContextMenu(event: MouseEvent, cell: ViewportCell | null | undefined): ViewportCell | null | undefined {
+    handleContextMenu(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleContextMenu(event, cell);
         } else {
@@ -237,6 +241,12 @@ export abstract class UiBehavior {
         }
     }
 
+    handleScrollAction(action: ScrollAction) {
+        if (this.next) {
+            this.next.handleScrollAction(action);
+        }
+    }
+
     handleCopy(eventDetail: ClipboardEvent) {
         if (this.next) {
             this.next.handleCopy(eventDetail);
@@ -258,8 +268,8 @@ export abstract class UiBehavior {
         }
     }
 
-    protected tryGetViewportCellFromMouseEvent(event: MouseEvent): ViewportCell | null {
-        const cell = this.viewport.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
+    protected tryGetViewCellFromMouseEvent(event: MouseEvent): ViewCell | null {
+        const cell = this.viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
         if (cell === undefined) {
             return null;
         } else {

@@ -1,4 +1,4 @@
-import { GridSettings } from 'grid-settings';
+import { RecordGridSettings } from 'record-grid-settings';
 import {
     CanvasRenderingContext2DEx,
     CellPainter,
@@ -8,7 +8,7 @@ import {
 } from "..";
 
 export class TestCellPainter implements CellPainter {
-    constructor(private readonly _settings: GridSettings) {
+    constructor(private readonly _settings: RecordGridSettings) {
     }
 
     paint(

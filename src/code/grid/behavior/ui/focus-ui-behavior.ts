@@ -1,19 +1,21 @@
-import { ViewportCell } from '../../cell/viewport-cell';
-import { EventDetail } from '../../event/event-detail';
-import { Point } from '../../lib/point';
+import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { EventDetail } from '../../components/event/event-detail';
+import { ViewCell } from '../../components/view/view-cell';
+import { HorizontalVertical } from '../../grid-public-api';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
+import { ScrollAction } from '../../lib/scroll-action';
 import { UiBehavior } from './ui-behavior';
 
 export class FocusUiBehavior extends UiBehavior {
     readonly typeName = FocusUiBehavior.typeName;
 
-    override handleMouseDown(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell !== null) {
             if (cell.subgrid.isMain) {
-                this.focus.setXYCoordinates(cell.visibleColumn.activeColumnIndex, cell.visibleRow.subgridRowIndex);
+                this.focus.setXY(cell.visibleColumn.activeColumnIndex, cell.visibleRow.subgridRowIndex);
             }
         }
         return super.handleMouseDown(event, cell);
@@ -23,38 +25,53 @@ export class FocusUiBehavior extends UiBehavior {
      * @param eventDetail - the event details
      */
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        const currentFocusPoint = this.focus.current;
-        if (currentFocusPoint !== undefined) {
-            const navigateKey = eventDetail.revgrid_navigateKey;
-            if (navigateKey !== undefined) {
-                switch (navigateKey) {
-                    case EventDetail.Keyboard.NavigateKey.left:
-                        this.processNavigateKeyLeft(currentFocusPoint);
-                        break;
-                    case EventDetail.Keyboard.NavigateKey.right:
-                        this.processNavigateKeyRight(currentFocusPoint);
-                        break;
-                    case EventDetail.Keyboard.NavigateKey.up:
-                        this.processNavigateKeyUp(currentFocusPoint);
-                        break;
-                    case EventDetail.Keyboard.NavigateKey.down:
-                        this.processNavigateKeyDown(currentFocusPoint);
-                        break;
-                    case EventDetail.Keyboard.NavigateKey.pageUp:
-                        this.processNavigateKeyPageUp(currentFocusPoint, eventDetail.altKey);
-                        break;
-                    case EventDetail.Keyboard.NavigateKey.pageDown:
-                        this.processNavigateKeyPageDown(currentFocusPoint, eventDetail.altKey);
-                        break;
-                    case EventDetail.Keyboard.NavigateKey.home:
-                        this.processNavigateKeyHome(currentFocusPoint, eventDetail.ctrlKey);
-                        break;
-                    case EventDetail.Keyboard.NavigateKey.end:
-                        this.processNavigateKeyEnd(currentFocusPoint, eventDetail.ctrlKey);
-                        break;
-                    default:
-                        throw new UnreachableCaseError('FUBHKD33233', navigateKey);
-                }
+        const navigateKey = eventDetail.revgrid_navigateKey;
+        if (navigateKey !== undefined) {
+            switch (navigateKey) {
+                case CanvasEx.Keyboard.NavigateKey.left:
+                    this.focusBehavior.tryMoveFocusLeft();
+                    break;
+                case CanvasEx.Keyboard.NavigateKey.right:
+                    this.focusBehavior.tryMoveFocusRight();
+                    break;
+                case CanvasEx.Keyboard.NavigateKey.up:
+                    this.focusBehavior.tryMoveFocusUp();
+                    break;
+                case CanvasEx.Keyboard.NavigateKey.down:
+                    this.focusBehavior.tryMoveFocusDown();
+                    break;
+                case CanvasEx.Keyboard.NavigateKey.pageUp:
+                    // If implementing focus driven paging, then use focusBehavior
+                    if (eventDetail.altKey) {
+                        this.scrollBehavior.scrollPageLeft();
+                    } else {
+                        this.scrollBehavior.scrollPageUp();
+                    }
+                    break;
+                case CanvasEx.Keyboard.NavigateKey.pageDown:
+                    // If implementing focus driven paging, then use focusBehavior
+                    if (eventDetail.altKey) {
+                        this.scrollBehavior.scrollPageRight();
+                    } else {
+                        this.scrollBehavior.scrollPageDown();
+                    }
+                    break;
+                case CanvasEx.Keyboard.NavigateKey.home:
+                    if (eventDetail.ctrlKey) {
+                        this.focusBehavior.tryMoveFocusTop();
+                    } else {
+                        this.focusBehavior.tryMoveFocusFirstColumn();
+                    }
+                    break;
+                case CanvasEx.Keyboard.NavigateKey.end:
+                    if (eventDetail.ctrlKey) {
+                        this.focusBehavior.tryMoveFocusBottom();
+                    } else {
+                        this.focusBehavior.tryMoveFocusLastColumn();
+                    }
+                    break;
+                default:
+                    throw new UnreachableCaseError('FUBHKD33233', navigateKey);
             }
         }
         super.handleKeyDown(eventDetail);
@@ -84,195 +101,73 @@ export class FocusUiBehavior extends UiBehavior {
         // }
     }
 
-    private processNavigateKeyLeft(currentFocusPoint: Point) {
-        const firstScrollableActiveColumnIndex = this.gridProperties.fixedColumnCount;
-        const currentFocusX = currentFocusPoint.x;
-        if (currentFocusX > firstScrollableActiveColumnIndex) {
-            this.focus.setXCoordinate(currentFocusX - 1);
+    override handleScrollAction(action: ScrollAction) {
+        switch (action.dimension) {
+            case HorizontalVertical.Horizontal:
+                this.processHorizontalScrollAction(action);
+                break;
+            case HorizontalVertical.Vertical:
+                this.processVerticalScrollAction(action);
+                break;
+            default:
+                throw new UnreachableCaseError('FUBHSA53009', action.dimension);
         }
     }
 
-    private processNavigateKeyRight(currentFocusPoint: Point) {
-        const lastScrollableActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
-        const currentFocusX = currentFocusPoint.x;
-        if (currentFocusX < lastScrollableActiveColumnIndex) {
-            this.focus.setXCoordinate(currentFocusX + 1);
-        }
-    }
-
-    private processNavigateKeyUp(currentFocusPoint: Point) {
-        const firstScrollableSubgridRowIndex = this.gridProperties.fixedRowCount;
-        const currentFocusY = currentFocusPoint.y;
-        if (currentFocusY > firstScrollableSubgridRowIndex) {
-            this.focus.setYCoordinate(currentFocusY - 1);
-        }
-    }
-
-    private processNavigateKeyDown(currentFocusPoint: Point) {
-        const lastScrollableSubgridRowIndex = this.mainSubgrid.getRowCount() - 1;
-        const currentFocusY = currentFocusPoint.y;
-        if (currentFocusY < lastScrollableSubgridRowIndex) {
-            this.focus.setYCoordinate(currentFocusY + 1);
-        }
-    }
-
-    private processNavigateKeyPageUp(currentFocusPoint: Point, xDirection: boolean) {
-        if (xDirection) {
-            this.navigatePageLeft(currentFocusPoint);
-        } else {
-            this.navigatePageUp(currentFocusPoint);
-        }
-    }
-
-    private navigatePageLeft(currentFocusPoint: Point) {
-        const firstScrollableActiveColumnIndex = this.gridProperties.fixedColumnCount;
-        const currentFocusX = currentFocusPoint.x;
-        if (currentFocusX > firstScrollableActiveColumnIndex) {
-            const lastViewportScrollableActiveColumnIndex = this.viewport.lastScrollableActiveColumnIndex;
-            if (lastViewportScrollableActiveColumnIndex !== undefined) {
-                const firstViewportScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
-                if (firstViewportScrollableActiveColumnIndex === undefined) {
-                    throw new AssertError('FUBNXPU87521');
+    private processHorizontalScrollAction(action: ScrollAction) {
+        switch (action.type) {
+            case ScrollAction.Type.StepForward:
+                this.focusBehavior.tryMoveFocusRight();
+                break;
+            case ScrollAction.Type.StepBack:
+                this.focusBehavior.tryMoveFocusLeft();
+                break;
+            case ScrollAction.Type.PageForward:
+                this.scrollBehavior.scrollPageRight();
+                break;
+            case ScrollAction.Type.PageBack:
+                this.scrollBehavior.scrollPageLeft();
+                break;
+            case ScrollAction.Type.newViewportStart: {
+                const viewportStart = action.viewportStart;
+                if (viewportStart === undefined) {
+                    throw new AssertError('FUBPHSAV53009')
                 } else {
-                    let maxScrollCount = lastViewportScrollableActiveColumnIndex - firstScrollableActiveColumnIndex;
-                    if (maxScrollCount === 0) {
-                        maxScrollCount = 1;
-                    }
-                    let newFocusX = currentFocusX - maxScrollCount;
-                    if (newFocusX < firstScrollableActiveColumnIndex) {
-                        newFocusX = firstScrollableActiveColumnIndex;
-                    }
-                    this.focus.setXCoordinate(newFocusX);
+                    this.scrollBehavior.scrollToHorizontalViewportStart(viewportStart);
                 }
+                break;
             }
+            default:
+                throw new UnreachableCaseError('FUBPHSAU53009', action.type);
         }
     }
 
-    private navigatePageUp(currentFocusPoint: Point) {
-        const firstScrollableSubgridRowIndex = this.gridProperties.fixedRowCount;
-        const currentFocusY = currentFocusPoint.y;
-        if (currentFocusY > firstScrollableSubgridRowIndex) {
-            const lastViewportScrollableSubgridRowIndex = this.viewport.lastScrollableSubgridRowIndex;
-            if (lastViewportScrollableSubgridRowIndex !== undefined) {
-                const firstViewportScrollableSubgridRowIndex = this.viewport.firstScrollableSubgridRowIndex;
-                if (firstViewportScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('FUBNYPU87521');
+
+    private processVerticalScrollAction(action: ScrollAction) {
+        switch (action.type) {
+            case ScrollAction.Type.StepForward:
+                this.focusBehavior.tryMoveFocusDown();
+                break;
+            case ScrollAction.Type.StepBack:
+                this.focusBehavior.tryMoveFocusUp();
+                break;
+            case ScrollAction.Type.PageForward:
+                this.scrollBehavior.scrollPageDown();
+                break;
+            case ScrollAction.Type.PageBack:
+                this.scrollBehavior.scrollPageUp();
+                break;
+            case ScrollAction.Type.newViewportStart: {
+                const viewportStart = action.viewportStart;
+                if (viewportStart === undefined) {
+                    throw new AssertError('FUBPHSAV53009')
                 } else {
-                    let maxScrollCount = lastViewportScrollableSubgridRowIndex - firstScrollableSubgridRowIndex;
-                    if (maxScrollCount === 0) {
-                        maxScrollCount = 1;
-                    }
-                    let newFocusY = currentFocusY - maxScrollCount;
-                    if (newFocusY < firstScrollableSubgridRowIndex) {
-                        newFocusY = firstScrollableSubgridRowIndex;
-                    }
-                    this.focus.setYCoordinate(newFocusY);
+                    this.scrollBehavior.scrollToVerticalViewportStart(viewportStart);
                 }
+                break;
             }
-        }
-    }
-
-    private processNavigateKeyPageDown(currentFocusPoint: Point, xDirection: boolean) {
-        if (xDirection) {
-            this.navigatePageRight(currentFocusPoint);
-        } else {
-            this.navigatePageDown(currentFocusPoint);
-        }
-    }
-
-    private navigatePageRight(currentFocusPoint: Point) {
-        const lastScrollableActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
-        const currentFocusX = currentFocusPoint.x;
-        if (currentFocusX < lastScrollableActiveColumnIndex) {
-            const lastViewportScrollableActiveColumnIndex = this.viewport.lastScrollableActiveColumnIndex;
-            if (lastViewportScrollableActiveColumnIndex !== undefined) {
-                const firstViewportScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
-                if (firstViewportScrollableActiveColumnIndex === undefined) {
-                    throw new AssertError('FUBNXPF87521');
-                } else {
-                    let maxScrollCount = lastViewportScrollableActiveColumnIndex - lastScrollableActiveColumnIndex;
-                    if (maxScrollCount === 0) {
-                        maxScrollCount = 1;
-                    }
-                    let newFocusX = currentFocusX + maxScrollCount;
-                    if (newFocusX > lastScrollableActiveColumnIndex) {
-                        newFocusX = lastScrollableActiveColumnIndex;
-                    }
-                    this.focus.setXCoordinate(newFocusX);
-                }
-            }
-        }
-    }
-
-    private navigatePageDown(currentFocusPoint: Point) {
-        const lastScrollableSubgridRowIndex = this.mainSubgrid.getRowCount() - 1;
-        const currentFocusY = currentFocusPoint.y;
-        if (currentFocusY < lastScrollableSubgridRowIndex) {
-            const lastViewportScrollableSubgridRowIndex = this.viewport.lastScrollableSubgridRowIndex;
-            if (lastViewportScrollableSubgridRowIndex !== undefined) {
-                const firstViewportScrollableSubgridRowIndex = this.viewport.firstScrollableSubgridRowIndex;
-                if (firstViewportScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('FUBNXPD87521');
-                } else {
-                    let maxScrollCount = lastViewportScrollableSubgridRowIndex - lastScrollableSubgridRowIndex;
-                    if (maxScrollCount === 0) {
-                        maxScrollCount = 1;
-                    }
-                    let newFocusY = currentFocusY + maxScrollCount;
-                    if (newFocusY > lastScrollableSubgridRowIndex) {
-                        newFocusY = lastScrollableSubgridRowIndex;
-                    }
-                    this.focus.setYCoordinate(newFocusY);
-                }
-            }
-        }
-    }
-
-    private processNavigateKeyHome(currentFocusPoint: Point, yDirection: boolean) {
-        if (yDirection) {
-            this.navigateFirstRow(currentFocusPoint);
-        } else {
-            this.navigateFirstColumn(currentFocusPoint);
-        }
-    }
-
-    private navigateFirstColumn(currentFocusPoint: Point) {
-        const firstScrollableActiveColumnIndex = this.gridProperties.fixedColumnCount;
-        const currentFocusX = currentFocusPoint.x;
-        if (currentFocusX > firstScrollableActiveColumnIndex) {
-            this.focus.setXCoordinate(firstScrollableActiveColumnIndex);
-        }
-    }
-
-    private navigateFirstRow(currentFocusPoint: Point) {
-        const firstScrollableSubgridRowIndex = this.gridProperties.fixedRowCount;
-        const currentFocusY = currentFocusPoint.y;
-        if (currentFocusY > firstScrollableSubgridRowIndex) {
-            this.focus.setYCoordinate(firstScrollableSubgridRowIndex);
-        }
-    }
-
-    private processNavigateKeyEnd(currentFocusPoint: Point, yDirection: boolean) {
-        if (yDirection) {
-            this.navigateLastRow(currentFocusPoint);
-        } else {
-            this.navigateLastColumn(currentFocusPoint);
-        }
-    }
-
-    private navigateLastColumn(currentFocusPoint: Point) {
-        const lastScrollableActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
-        const currentFocusX = currentFocusPoint.x;
-        if (currentFocusX < lastScrollableActiveColumnIndex) {
-            this.focus.setXCoordinate(lastScrollableActiveColumnIndex);
-        }
-    }
-
-    private navigateLastRow(currentFocusPoint: Point) {
-        const lastScrollableSubgridRowIndex = this.mainSubgrid.getRowCount() - 1;
-        const currentFocusY = currentFocusPoint.y;
-        if (currentFocusY < lastScrollableSubgridRowIndex) {
-            this.focus.setYCoordinate(lastScrollableSubgridRowIndex);
+            default:
+                throw new UnreachableCaseError('FUBPHSAU53009', action.type);
         }
     }
 }

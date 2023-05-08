@@ -1,7 +1,6 @@
 
+import { Subgrid } from '../../components/subgrid/subgrid';
 import { Point } from '../../lib/point';
-import { Revgrid } from '../../revgrid';
-import { Subgrid } from '../../subgrid/subgrid';
 import { UiBehavior } from './ui-behavior';
 
 export class RowResizingUiBehavior extends UiBehavior {
@@ -28,15 +27,15 @@ export class RowResizingUiBehavior extends UiBehavior {
     /**
      * @desc return the grids x,y scroll value
      */
-    getScrollValue(grid: Revgrid): number {
-        return grid.rowScrollAnchorIndex;
+    getScrollValue(): number {
+        return this.viewLayout.rowScrollAnchorIndex;
     }
 
     /**
      * @desc return the width/height of the row/column of interest
      * @param index - the row/column index of interest
      */
-    private getAreaSize(grid: Revgrid, index: number, subgrid: Subgrid): number {
+    private getAreaSize(index: number, subgrid: Subgrid): number {
         return this.rowPropertiesBehavior.getRowHeight(index, subgrid);
     }
 
@@ -45,8 +44,8 @@ export class RowResizingUiBehavior extends UiBehavior {
      * @param index - the row/column index of interest
      * @param value - the width/height to set to
      */
-    private setAreaSize(grid: Revgrid, index: number, value: number, subgrid: Subgrid) {
-        grid.setRowHeight(index, value, subgrid);
+    private setAreaSize(index: number, value: number, subgrid: Subgrid) {
+        this.rowPropertiesBehavior.setRowHeight(index, value, subgrid);
     }
 
     // isEnabled(grid: Hypergrid): boolean {

@@ -1,38 +1,41 @@
-import { ColumnProperties, DataModel, GridProperties, RectangleInterface, ViewportCell, WritablePoint } from '../../grid/grid-public-api';
+import { ColumnProperties, DataModel, GridSettings, RectangleInterface, Revgrid, ViewCell, WritablePoint } from '../../grid/grid-public-api';
 import { SimpleCellPaintConfig } from './simple-cell-paint-config';
 
 /** @public */
 export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
-    private readonly _gridProperties: GridProperties;
-    private readonly _columnProperties: ColumnProperties;
+    readonly columnName: string;
+
+    private readonly _gridSettings: GridSettings;
+    private readonly _columnSettings: ColumnProperties;
 
     private readonly _dataOrHeaderOrFilterProperties: ColumnProperties.HeaderFilter;
     private readonly _dataOrHeaderProperties: ColumnProperties.ColumnHeader;
     private readonly _dataOrFilterProperties: ColumnProperties.Filter;
 
-    constructor(beingPaintedCell: ViewportCell, isHeader: boolean, isFilter: boolean) {
-        this._columnProperties = beingPaintedCell.visibleColumn.column.properties;
-        this._gridProperties = beingPaintedCell.grid.properties;
+    constructor(grid: Revgrid, viewCell: ViewCell, isHeader: boolean, isFilter: boolean) {
+        this._gridSettings = grid.settings;
+        const column = viewCell.visibleColumn.column;
+        this._columnSettings = column.settings;
+        this.columnName = column.name;
         if (isHeader) {
-            this._dataOrHeaderOrFilterProperties = this._columnProperties.columnHeader;
-            this._dataOrHeaderProperties = this._columnProperties.columnHeader;
-            this._dataOrFilterProperties = this._columnProperties;
+            this._dataOrHeaderOrFilterProperties = this._columnSettings.columnHeader;
+            this._dataOrHeaderProperties = this._columnSettings.columnHeader;
+            this._dataOrFilterProperties = this._columnSettings;
         } else {
             if (isFilter) {
-                this._dataOrHeaderOrFilterProperties = this._columnProperties.filterProperties;
-                this._dataOrFilterProperties = this._columnProperties.filterProperties;
-                this._dataOrHeaderProperties = this._columnProperties;
+                this._dataOrHeaderOrFilterProperties = this._columnSettings.filterProperties;
+                this._dataOrFilterProperties = this._columnSettings.filterProperties;
+                this._dataOrHeaderProperties = this._columnSettings;
             } else {
                 // must be data cell
-                this._dataOrHeaderOrFilterProperties = this._columnProperties;
-                this._dataOrHeaderProperties = this._columnProperties;
-                this._dataOrFilterProperties = this._columnProperties;
+                this._dataOrHeaderOrFilterProperties = this._columnSettings;
+                this._dataOrHeaderProperties = this._columnSettings;
+                this._dataOrFilterProperties = this._columnSettings;
             }
         }
     }
 
     dataCell: WritablePoint;
-    gridCell: WritablePoint;
     allRowsSelected: boolean;
     bounds: RectangleInterface;
     dataRow: DataModel.DataRow;
@@ -51,7 +54,7 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     isRowSelected: boolean;
     isSelected: boolean;
     isUserDataArea: boolean;
-    prefillColor: GridProperties.Color | undefined;
+    prefillColor: GridSettings.Color | undefined;
     snapshot: SimpleCellPaintConfig.Snapshot | undefined; // BeingPaintedCell
     value: unknown;
 
@@ -59,26 +62,25 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     get color() { return this._dataOrHeaderOrFilterProperties.color; }
     get foregroundSelectionColor() { return this._dataOrHeaderOrFilterProperties.foregroundSelectionColor; }
     get foregroundSelectionFont() { return this._dataOrHeaderProperties.foregroundSelectionFont; }
-    get headerTextWrapping() { return this._gridProperties.headerTextWrapping; }
-    get hoverCellHighlight() { return this._gridProperties.hoverCellHighlight; }
-    get hoverColumnHighlight() { return this._gridProperties.hoverColumnHighlight; }
-    get hoverRowHighlight() { return this._gridProperties.hoverRowHighlight; }
-    get linkOnHover() { return this._gridProperties.linkOnHover; }
-    get linkColor() { return this._gridProperties.linkColor; }
-    get linkColorOnHover() { return this._gridProperties.linkColorOnHover; }
+    get headerTextWrapping() { return this._gridSettings.headerTextWrapping; }
+    get hoverCellHighlight() { return this._gridSettings.hoverCellHighlight; }
+    get hoverColumnHighlight() { return this._gridSettings.hoverColumnHighlight; }
+    get hoverRowHighlight() { return this._gridSettings.hoverRowHighlight; }
+    get linkOnHover() { return this._gridSettings.linkOnHover; }
+    get linkColor() { return this._gridSettings.linkColor; }
+    get linkColorOnHover() { return this._gridSettings.linkColorOnHover; }
     get cellPainter() { return this._dataOrHeaderOrFilterProperties.cellPainter; }
-    get strikeThrough() { return this._gridProperties.strikeThrough; }
-    get textTruncateType() { return this._gridProperties.textTruncateType; }
-    get voffset() { return this._gridProperties.voffset; }
+    get strikeThrough() { return this._gridSettings.strikeThrough; }
+    get textTruncateType() { return this._gridSettings.textTruncateType; }
+    get voffset() { return this._gridSettings.voffset; }
 
-    get columnName() { return this._columnProperties.name; }
-    get cellPadding() { return this._columnProperties.cellPadding; }
-    get columnAutosizing() { return this._columnProperties.columnAutosizing; }
+    get cellPadding() { return this._columnSettings.cellPadding; }
+    get columnAutosizing() { return this._columnSettings.columnAutosizing; }
     get font() { return this._dataOrHeaderOrFilterProperties.font; }
     get format() { return this._dataOrHeaderProperties.format; }
-    get gridLinesHWidth() { return this._columnProperties.gridLinesHWidth; }
-    get gridLinesVWidth() { return this._columnProperties.gridLinesVWidth; }
-    get link() { return this._columnProperties.link; }
+    get gridLinesHWidth() { return this._columnSettings.gridLinesHWidth; }
+    get gridLinesVWidth() { return this._columnSettings.gridLinesVWidth; }
+    get link() { return this._columnSettings.link; }
 
     get backgroundColor() { return this._dataOrHeaderOrFilterProperties.backgroundColor; }
     get halign() { return this._dataOrHeaderOrFilterProperties.halign; }

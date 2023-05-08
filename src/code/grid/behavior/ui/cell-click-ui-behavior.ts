@@ -1,17 +1,16 @@
-import { CellEvent } from '../../cell/cell-event';
-import { ViewportCell } from '../../cell/viewport-cell';
-import { GridProperties } from '../../grid-properties';
+import { ViewCell } from '../../components/view/view-cell';
+import { DataModel } from '../../interfaces/data-model';
+import { GridSettings } from '../../interfaces/grid-settings';
 import { AssertError } from '../../lib/revgrid-error';
-import { DataModel } from '../../model/data-model';
 import { UiBehavior } from './ui-behavior';
 
 export class CellClickUiBehavior extends UiBehavior {
 
     readonly typeName = CellClickUiBehavior.typeName;
 
-    override handleMouseMove(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell !== null) {
             const link = cell.columnProperties.link;
@@ -23,9 +22,9 @@ export class CellClickUiBehavior extends UiBehavior {
         return super.handleMouseMove(event, cell);
     }
 
-    override handleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell === null || cell.isDataCell) {
             return super.handleClick(event, cell);
@@ -60,7 +59,7 @@ export class CellClickUiBehavior extends UiBehavior {
      * | `null` | `grid.windowOpen` failed to open a window |
      * | _otherwise_ | A `window` reference returned by a successful call to `grid.windowOpen`. |
      */
-    openLink(cellEvent: CellEvent): boolean | null | undefined | Window {
+    openLink(cellEvent: ViewCell): boolean | null | undefined | Window {
         const grid = this.grid;
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
@@ -71,8 +70,8 @@ export class CellClickUiBehavior extends UiBehavior {
         const value = subgrid.getValue(cellEvent.visibleColumn.column, rowIndex);
         const linkProp = cellEvent.columnProperties.link;
 
-        let linkPropTuple: GridProperties.LinkProp | undefined;
-        let link: boolean | string | GridProperties.LinkFunction;
+        let linkPropTuple: GridSettings.LinkProp | undefined;
+        let link: boolean | string | GridSettings.LinkFunction;
         if (Array.isArray(linkProp)) {
             link = linkProp[0];
             linkPropTuple = linkProp;
@@ -115,8 +114,8 @@ export class CellClickUiBehavior extends UiBehavior {
         // STEP 5: Decorate the link as "visited"
         if (result) {
             const column = cellEvent.visibleColumn.column;
-            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', grid.properties.linkVisitedColor, subgrid);
-            this.viewport.resetCellPropertiesCache(cellEvent);
+            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', grid.settings.linkVisitedColor, subgrid);
+            this.viewLayout.resetCellPropertiesCache(cellEvent);
             this.renderer.repaint();
         }
 

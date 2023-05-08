@@ -1,7 +1,7 @@
-import { ViewportCell } from '../../cell/viewport-cell';
+import { ViewCell } from '../../components/view/view-cell';
+import { ViewLayout } from '../../components/view/view-layout';
 import { isSecondaryMouseButton } from '../../lib/html-types';
 import { AssertError } from '../../lib/revgrid-error';
-import { Viewport } from '../../renderer/viewport';
 import { UiBehavior } from './ui-behavior';
 
 const enum MoveLocation { Before, After }
@@ -14,15 +14,15 @@ interface Action {
 interface MoveAction extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
-    source: Viewport.ViewportColumn;
-    target: Viewport.ViewportColumn;
+    source: ViewLayout.ViewLayoutColumn;
+    target: ViewLayout.ViewLayoutColumn;
 }
 
 interface ScrollAction extends Action {
     type: DragActionType.Scroll;
     toRight: boolean;
     mouseOffGrid: boolean; // only considers left and right off grid
-    source: Viewport.ViewportColumn;
+    source: ViewLayout.ViewLayoutColumn;
 }
 
 interface NoAction extends Action {
@@ -41,7 +41,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
     static GRAB = 'grab';
 
     private _dragOverlay: HTMLCanvasElement;
-    private _dragCol: Viewport.ViewportColumn;
+    private _dragCol: ViewLayout.ViewLayoutColumn;
     private _scrolling = false;
     private _scrollVelocity = 0;
 
@@ -61,9 +61,9 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         super.initializeOn();
     }
 
-    override handleMouseDown(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
 
         if (cell === null) {
@@ -73,7 +73,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             const ctrlKeyDown = event.ctrlKey;
             if (
                 ctrlKeyDown &&
-                grid.properties.columnsReorderable &&
+                grid.settings.columnsReorderable &&
                 !isSecondaryMouseButton(event) &&
                 !cell.isColumnFixed &&
                 cell.isHeaderCell
@@ -87,7 +87,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleMouseUp(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseUp(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this.sharedState.columnMovingDragging) {
             const dragAction = this.getDragAction(event);
 
@@ -114,7 +114,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         return super.handleMouseUp(event, cell);
     }
 
-    override handleMouseMove(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (
             event !== undefined &&
             event.ctrlKey &&
@@ -122,7 +122,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             !this.sharedState.columnMovingDragging
         ) {
             if (cell === undefined) {
-                cell = this.tryGetViewportCellFromMouseEvent(event);
+                cell = this.tryGetViewCellFromMouseEvent(event);
             }
             if (cell !== null && !cell.isColumnFixed && cell.isHeaderCell) {
                 this.cursor = ColumnMovingUiBehavior.GRAB;
@@ -141,7 +141,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleMouseDrag(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined) {
 
         // if (event.isColumnFixed) {
         //     super.handleMouseDrag(grid, event);
@@ -152,7 +152,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             return super.handleMouseDrag(event, cell);
         } else {
             if (cell === undefined) {
-                cell = this.tryGetViewportCellFromMouseEvent(event);
+                cell = this.tryGetViewCellFromMouseEvent(event);
             }
             if (cell !== null) {
                 if (!this.sharedState.columnMovingDragging) {
@@ -228,9 +228,9 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                     dragContext.fillRect(indicatorX, 0, 2, grid.canvasEx.height);
                 }
 
-                const dragCol = grid.viewport.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex);
+                const dragCol = grid.viewLayout.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex);
                 if (dragCol) {
-                    const hideAction = dragAction.type === DragActionType.Scroll && grid.properties.columnsReorderableHideable && dragAction.mouseOffGrid;
+                    const hideAction = dragAction.type === DragActionType.Scroll && grid.settings.columnsReorderableHideable && dragAction.mouseOffGrid;
                     dragContext.fillStyle = hideAction
                         ? 'rgba(255, 50, 50, 0.2)'
                         : 'rgba(50, 50, 255, 0.2)';
@@ -244,7 +244,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         const grid = this.grid;
         switch (dragAction.type) {
             case DragActionType.Scroll:
-                if (grid.properties.columnsReorderableHideable && dragAction.mouseOffGrid) {
+                if (grid.settings.columnsReorderableHideable && dragAction.mouseOffGrid) {
                     grid.hideActiveColumn(dragAction.source.activeColumnIndex);
                 }
                 break;
@@ -260,13 +260,13 @@ export class ColumnMovingUiBehavior extends UiBehavior {
     }
 
     private getDragAction(event: MouseEvent): ColumnDragAction {
-        const firstScrollableColumnViewLeft = this.viewport.firstScrollableColumnViewLeft;
+        const firstScrollableColumnViewLeft = this.viewLayout.firstScrollableColumnViewLeft;
         if (firstScrollableColumnViewLeft === undefined) {
             return {
                 type: DragActionType.None
             };
         } else {
-            const updatedDragCol = this.viewport.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex)
+            const updatedDragCol = this.viewLayout.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex)
             const dragCol = updatedDragCol ? updatedDragCol : this._dragCol;
             const offsetX = event.offsetX;
             if (offsetX < firstScrollableColumnViewLeft) {
@@ -286,10 +286,10 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                         source: dragCol
                     };
                 } else {
-                    let overCol = this.viewport.findLeftGridLineInclusiveColumnFromOffset(offsetX);
+                    let overCol = this.viewLayout.findLeftGridLineInclusiveColumnFromOffset(offsetX);
                     if (overCol === undefined) {
                         // must be in unused space
-                        overCol = this.viewport.createUnusedSpaceColumn();
+                        overCol = this.viewLayout.createUnusedSpaceColumn();
                         if (overCol === undefined) {
                             throw new AssertError('CMFGDA31311');
                         }

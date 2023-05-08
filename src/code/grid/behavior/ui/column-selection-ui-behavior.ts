@@ -1,5 +1,5 @@
-import { ViewportCell } from '../../cell/viewport-cell';
-import { EventDetail } from '../../event/event-detail';
+import { EventDetail } from '../../components/event/event-detail';
+import { ViewCell } from '../../components/view/view-cell';
 import { SubgridInterface } from '../../grid-public-api';
 import { isSecondaryMouseButton } from '../../lib/html-types';
 import { Point } from '../../lib/point';
@@ -29,7 +29,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
     private _stepScrollDragTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
 
-    override handleMouseUp(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseUp(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this._dragArmed) {
             this._dragArmed = false;
             this.cancelScheduledStepScrollDrag();
@@ -37,7 +37,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
         return super.handleMouseUp(event, cell);
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this._doubleClickTimer !== undefined) {
             clearTimeout(this._doubleClickTimer); // prevent mouseDown from continuing
             this._doubleClickTimer = undefined;
@@ -45,13 +45,13 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
         return super.handleDoubleClick(event, cell);
     }
 
-    override handleMouseDown(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this._doubleClickTimer !== undefined) {
             return cell;
         } else {
             // todo: >= 5 depends on header being top-most row which is currently always true but we may allow header "section" to be arbitrary position within quadrant (see also handleMouseDown in ColumnMoving.js)
             if (cell === undefined) {
-                cell = this.tryGetViewportCellFromMouseEvent(event);
+                cell = this.tryGetViewCellFromMouseEvent(event);
             }
 
             if (cell === null) {
@@ -79,7 +79,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handleMouseDrag(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (
             !this._dragArmed ||
             this.isColumnDragging() ||
@@ -94,7 +94,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
                 return cell;
             } else {
                 if (cell === undefined) {
-                    cell = this.tryGetViewportCellFromMouseEvent(event);
+                    cell = this.tryGetViewCellFromMouseEvent(event);
                 }
                 if (cell !== null) {
                     this.updateLastSelectionArea(cell);
@@ -111,7 +111,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
             if (lastSelectionType !== SelectionArea.Type.Column) {
                 super.handleKeyDown(eventDetail);
             } else {
-                const handler = this[('handle' + eventDetail.primitiveEvent.key) as keyof ColumnSelectionUiBehavior] as (() => void);
+                const handler = this[('handle' + eventDetail.key) as keyof ColumnSelectionUiBehavior] as (() => void);
                 if (handler === undefined) {
                     super.handleKeyDown(eventDetail);
                 } else {
@@ -125,7 +125,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
      * @desc Handle a mousedrag selection
      * @param keys - array of the keys that are currently pressed down
      */
-    private updateLastSelectionArea(cell: ViewportCell) {
+    private updateLastSelectionArea(cell: ViewCell) {
         const extendSelectOrigin = this._extendSelectOrigin;
         if (extendSelectOrigin === undefined) {
             throw new AssertError('CSFHMDCS54455');
@@ -150,7 +150,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
      * @desc this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
      */
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
-        const scrollableBounds = this.viewport.scrollableBounds;
+        const scrollableBounds = this.viewLayout.scrollableBounds;
         if (this.gridProperties.scrollingEnabled && scrollableBounds !== undefined && scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY)) {
             this.cancelScheduledStepScrollDrag();
             return false;
@@ -161,7 +161,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
             } else {
                 this.scheduleStepScrollDrag(canvasOffsetX, canvasOffsetY);
 
-                const cell = this.viewport.findScrollableCellClosestToOffset(canvasOffsetX, canvasOffsetY);
+                const cell = this.viewLayout.findScrollableCellClosestToOffset(canvasOffsetX, canvasOffsetY);
                 if (cell !== undefined) {
                     this.updateLastSelectionArea(cell); // update the selection
                 }
@@ -260,7 +260,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
      * @param offsetX - x coordinate to start at
      */
     private moveShiftSelect() {
-        const focusPoint = this.focus.current;
+        const focusPoint = this.focus.currentSubgridPoint;
         if (focusPoint !== undefined) {
             const activeColumnIndex = focusPoint.x;
             const subgridRowIndex = focusPoint.y;
@@ -269,8 +269,8 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
             let newY: number | undefined = focusPoint.y;
 
             if (!this.gridProperties.scrollingEnabled) {
-                newX = this.viewport.limitActiveColumnIndexToViewport(newX);
-                newY = this.viewport.limitRowIndexToViewport(newY);
+                newX = this.viewLayout.limitActiveColumnIndexToView(newX);
+                newY = this.viewLayout.limitRowIndexToView(newY);
             }
 
             if (newX !== undefined && newY !== undefined) {
@@ -303,7 +303,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
         this.scrollBehavior.setScrollingActive(false);
     }
 
-    private doubleClickDelay(cell: ViewportCell) {
+    private doubleClickDelay(cell: ViewCell) {
         if (cell.isHeaderCell) {
             const columnProperties = cell.columnProperties;
             if (columnProperties.sortable && columnProperties.sortOnDoubleClick) {
@@ -316,12 +316,12 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
         }
     }
 
-    private doubleClickTimerCallback(event: MouseEvent, cell: ViewportCell) {
+    private doubleClickTimerCallback(event: MouseEvent, cell: ViewCell) {
         this._doubleClickTimer = undefined;
         this._dragArmed = true;
 
         const cellActiveColumnIndex = cell.visibleColumn.activeColumnIndex;
-        const focusPoint = this.focus.current;
+        const focusPoint = this.focus.currentSubgridPoint;
         const subgridRowIndex = focusPoint === undefined ? 0 : focusPoint.y;
         const subgrid = this.focus.subgrid;
 

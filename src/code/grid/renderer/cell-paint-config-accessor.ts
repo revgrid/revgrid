@@ -1,24 +1,28 @@
-import { ViewportCell } from '../cell/viewport-cell';
-import { ColumnProperties } from '../column/column-properties';
-import { GridProperties } from '../grid-properties';
+import { ViewCell } from '../components/view/view-cell';
+import { ColumnSettings } from '../interfaces/column-settings';
+import { DataModel } from '../interfaces/data-model';
+import { GridSettings } from '../interfaces/grid-settings';
 import { Localization } from '../lib/localization';
 import { WritablePoint } from '../lib/point';
 import { RectangleInterface } from '../lib/rectangle-interface';
-import { DataModel } from '../model/data-model';
 import { CellPaintConfig } from './cell-paint-config';
 
 /** @public */
 export class CellPaintConfigAccessor implements CellPaintConfig {
-    private readonly _gridProperties: GridProperties;
-    private readonly _columnProperties: ColumnProperties;
+    readonly columnName: string;
 
-    private readonly _dataOrHeaderOrFilterProperties: ColumnProperties.HeaderFilter;
-    private readonly _dataOrHeaderProperties: ColumnProperties.ColumnHeader;
-    private readonly _dataOrFilterProperties: ColumnProperties.Filter;
+    private readonly _gridProperties: GridSettings;
+    private readonly _columnProperties: ColumnSettings;
 
-    constructor(beingPaintedCell: ViewportCell, isHeader: boolean, isFilter: boolean) {
-        this._columnProperties = beingPaintedCell.visibleColumn.column.properties;
-        this._gridProperties = beingPaintedCell.grid.properties;
+    private readonly _dataOrHeaderOrFilterProperties: ColumnSettings.HeaderFilter;
+    private readonly _dataOrHeaderProperties: ColumnSettings.ColumnHeader;
+    private readonly _dataOrFilterProperties: ColumnSettings.Filter;
+
+    constructor(beingPaintedCell: ViewCell, isHeader: boolean, isFilter: boolean) {
+        const column = beingPaintedCell.visibleColumn.column;
+        this.columnName = column.name;
+        this._columnProperties = column.settings;
+        // this._gridProperties = beingPaintedCell.gridProperties;
         if (isHeader) {
             this._dataOrHeaderOrFilterProperties = this._columnProperties.columnHeader;
             this._dataOrHeaderProperties = this._columnProperties.columnHeader;
@@ -58,8 +62,8 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     isRowSelected: boolean;
     isSelected: boolean;
     isUserDataArea: boolean;
-    prefillColor: GridProperties.Color;
-    snapshot: ViewportCell.PaintSnapshot; // BeingPaintedCell
+    prefillColor: GridSettings.Color;
+    snapshot: ViewCell.PaintSnapshot; // BeingPaintedCell
     value: unknown;
 
     get backgroundSelectionColor() { return this._dataOrHeaderOrFilterProperties.backgroundSelectionColor; }
@@ -78,7 +82,6 @@ export class CellPaintConfigAccessor implements CellPaintConfig {
     get textTruncateType() { return this._gridProperties.textTruncateType; }
     get voffset() { return this._gridProperties.voffset; }
 
-    get columnName() { return this._columnProperties.name; }
     get cellPadding() { return this._columnProperties.cellPadding; }
     get columnAutosizing() { return this._columnProperties.columnAutosizing; }
     get font() { return this._dataOrHeaderOrFilterProperties.font; }

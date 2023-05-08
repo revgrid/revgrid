@@ -1,7 +1,7 @@
 
-import { ViewportCell } from '../../cell/viewport-cell';
-import { ColumnWidth } from '../../column/column';
-import { ColumnInterface } from '../../common/column-interface';
+import { ColumnWidth } from '../../components/column/column';
+import { ViewCell } from '../../components/view/view-cell';
+import { ColumnInterface } from '../../interfaces/column-interface';
 import { UiBehavior } from './ui-behavior';
 
 export class ColumnResizingUiBehavior extends UiBehavior {
@@ -23,7 +23,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
     private _inPlaceAdjacentStartWidth: number;
     private _inPlaceAdjacentColumn: ColumnInterface | undefined;
 
-    override handleMouseDrag(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this._dragColumn !== undefined) {
             const mouseValue = event.offsetX;
             let delta: number;
@@ -37,8 +37,8 @@ export class ColumnResizingUiBehavior extends UiBehavior {
             if (!this._inPlaceAdjacentColumn) { // nextColumn et al instance vars defined when resizeColumnInPlace (by handleMouseDown)
                 this.columnsManager.setActiveColumnWidth(this._dragColumn, dragWidth, true);
             } else {
-                const np = this._inPlaceAdjacentColumn.properties;
-                const dp = this._dragColumn.properties;
+                const np = this._inPlaceAdjacentColumn.settings;
+                const dp = this._dragColumn.settings;
                 if (
                     0 < delta && delta <= (this._inPlaceAdjacentStartWidth - np.minimumColumnWidth) &&
                     (!dp.maximumColumnWidth || dragWidth <= dp.maximumColumnWidth)
@@ -59,9 +59,9 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleMouseDown(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
 
         if (cell === null) {
@@ -69,7 +69,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         } else {
             const canvasOffsetX = event.offsetX;
             if (cell.isHeaderRow && this.overAreaDivider(canvasOffsetX, cell)) {
-                const viewportColumnCount = this.viewport.columns.length;
+                const viewLayoutColumnCount = this.viewLayout.columns.length;
                 let vc = cell.visibleColumn;
                 let vcIndex = vc.index;
 
@@ -81,7 +81,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                         if (vcIndex < 0) {
                             return; // can't drag left-most column boundary
                         } else {
-                            vc = this.viewport.columns[vcIndex];
+                            vc = this.viewLayout.columns[vcIndex];
                             this._dragColumn = vc.column;
                             this._dragStartWidth = vc.width;
                         }
@@ -92,10 +92,10 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                 } else {
                     if (canvasOffsetX >= cell.bounds.x + cell.bounds.width - 3) {
                         vcIndex++;
-                        if (vcIndex >= viewportColumnCount) {
+                        if (vcIndex >= viewLayoutColumnCount) {
                             return; // can't drag right-most column boundary
                         } else {
-                            vc = this.viewport.columns[vcIndex];
+                            vc = this.viewLayout.columns[vcIndex];
                             this._dragColumn = vc.column;
                             this._dragStartWidth = vc.width;
                         }
@@ -149,19 +149,19 @@ export class ColumnResizingUiBehavior extends UiBehavior {
 
                 this._dragStart = canvasOffsetX;
 
-                if (this._dragColumn.properties.resizeColumnInPlace) {
+                if (this._dragColumn.settings.resizeColumnInPlace) {
                     let column: ColumnInterface | undefined;
 
                     if (!gridRightBottomAligned) {
                         vcIndex++;
-                        if (vcIndex < viewportColumnCount) {
-                            vc = this.viewport.columns[vcIndex];
+                        if (vcIndex < viewLayoutColumnCount) {
+                            vc = this.viewLayout.columns[vcIndex];
                             column = vc.column;
                         }
                     } else {
                         vcIndex--;
                         if (vcIndex >= 0) {
-                            vc = this.viewport.columns[vcIndex];
+                            vc = this.viewLayout.columns[vcIndex];
                             column = vc.column;
                         }
                     }
@@ -183,7 +183,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleMouseUp(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseUp(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this._dragColumn !== undefined) {
             this.cursor = undefined;
             this._dragColumn = undefined;
@@ -198,14 +198,14 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleMouseMove(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this._dragColumn === undefined) {
             this.cursor = undefined;
 
             cell = super.handleMouseMove(event, cell);
 
             if (cell === undefined) {
-                cell = this.tryGetViewportCellFromMouseEvent(event);
+                cell = this.tryGetViewCellFromMouseEvent(event);
             }
 
             const canvasOffsetX = event.offsetX;
@@ -214,9 +214,9 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         return cell;
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell === null) {
             return super.handleDoubleClick(event, cell);
@@ -236,16 +236,16 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         }
     }
 
-    private overAreaDivider(canvasOffsetX: number, cell: ViewportCell): boolean {
+    private overAreaDivider(canvasOffsetX: number, cell: ViewCell): boolean {
         if (!this.gridProperties.gridRightAligned) {
             const leftMostActiveColumnIndex = 0;
             return (cell.visibleColumn.activeColumnIndex !== leftMostActiveColumnIndex && canvasOffsetX <= 3) || canvasOffsetX >= cell.bounds.width - 3;
         } else {
-            const lastViewportColumnIdx = this.viewport.columns.length - 1;
-            if (lastViewportColumnIdx < 0) {
+            const lastViewLayoutColumnIdx = this.viewLayout.columns.length - 1;
+            if (lastViewLayoutColumnIdx < 0) {
                 return false;
             } else {
-                const lastVc = this.viewport.columns[lastViewportColumnIdx];
+                const lastVc = this.viewLayout.columns[lastViewLayoutColumnIdx];
                 const lastColumnIndex = lastVc.activeColumnIndex;
                 return (canvasOffsetX >= -1 && canvasOffsetX <= 3) || (cell.visibleColumn.activeColumnIndex !== lastColumnIndex && canvasOffsetX >= cell.bounds.width - 3);
             }

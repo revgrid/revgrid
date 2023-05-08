@@ -1,7 +1,7 @@
-import { ViewportCell } from '../../cell/viewport-cell';
-import { ColumnProperties } from '../../column/column-properties';
-import { ColumnsManager } from '../../column/columns-manager';
-import { EventDetail } from '../../event/event-detail';
+import { ColumnsManager } from '../../components/column/columns-manager';
+import { EventDetail } from '../../components/event/event-detail';
+import { ViewCell } from '../../components/view/view-cell';
+import { ColumnSettings } from '../../interfaces/column-settings';
 import { UiBehavior } from './ui-behavior';
 
 export class ColumnSortingUiBehavior extends UiBehavior {
@@ -16,10 +16,10 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         super.initializeOn();
     }
 
-    override handleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (!this.sharedState.mouseDownUpClickUsedForMoveOrResize) {
             if (cell === undefined) {
-                cell = this.tryGetViewportCellFromMouseEvent(event);
+                cell = this.tryGetViewCellFromMouseEvent(event);
             }
             if (cell !== null) {
                 this.sort(event, cell, false);
@@ -28,9 +28,9 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         return super.handleClick(event, cell);
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell !== null) {
             this.sort(event, cell, true);
@@ -38,9 +38,9 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         return super.handleClick(event, cell);
     }
 
-    override handleMouseMove(event: MouseEvent, cell: ViewportCell | null | undefined) {
+    override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewportCellFromMouseEvent(event);
+            cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell !== null) {
             if (cell.isRowFixed && cell.isHeaderCell) {
@@ -58,8 +58,8 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         return super.handleMouseMove(event, cell);
     }
 
-    private sort(event: MouseEvent, cell: ViewportCell, onDoubleClick: boolean) {
-        let columnProperties: ColumnProperties;
+    private sort(event: MouseEvent, cell: ViewCell, onDoubleClick: boolean) {
+        let columnProperties: ColumnSettings;
         if (
             cell.isHeaderCell &&
             (columnProperties = cell.columnProperties).sortable &&

@@ -1,4 +1,4 @@
-import { GridSettings } from 'grid-settings';
+import { RecordGridSettings } from 'record-grid-settings';
 import {
     AdapterSetConfig,
     CellEvent,
@@ -465,7 +465,7 @@ export class RecordGrid extends Revgrid {
         super.processAllColumnListChanged(typeId, index, count, targetIndex);
     }
 
-    private createGridPropertiesFromSettings(settings: Partial<GridSettings>): Partial<GridProperties> {
+    private createGridPropertiesFromSettings(settings: Partial<RecordGridSettings>): Partial<GridProperties> {
         const properties: Partial<GridProperties> = {};
 
         if (settings.fontFamily !== undefined) {
@@ -582,7 +582,7 @@ export namespace RecordGrid {
     export type RenderedEventer = (this: void/*, detail: Hypergrid.GridEventDetail*/) => void;
     export type FieldSortedEventer = (this: void) => void;
     export type ColumnWidthChangedEventer = (this: void, columnIndex: number) => void;
-    export type SettingsApplyEventer = (this: void, settings: Partial<GridSettings>) => void;
+    export type SettingsApplyEventer = (this: void, settings: Partial<RecordGridSettings>) => void;
 
     // export interface LayoutWithHeadersMap {
     //     layout: GridLayout;

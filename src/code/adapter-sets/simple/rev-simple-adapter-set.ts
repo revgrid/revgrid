@@ -89,7 +89,7 @@ export class RevSimpleAdapterSet {
                     }
                     columnHeaders[rowIndex] = header as string; // should not need this cast
                 }
-                schema[columnIndex] = { name: columnKey, index: columnIndex, headers: columnHeaders };
+                schema[columnIndex] = { name: columnKey, index: columnIndex, headers: columnHeaders, initialSettings: undefined };
             }
 
             return {
@@ -105,7 +105,7 @@ export class RevSimpleAdapterSet {
             return [];
         } else {
             const row = rows[0];
-            const result = Object.keys(row).map((key, index) => ({ name: key, index, headers: keyIsHeader ? [key] : [] }));
+            const result = Object.keys(row).map((key, index) => ({ name: key, index, initialSettings: undefined, headers: keyIsHeader ? [key] : [] }));
             return result;
         }
     }

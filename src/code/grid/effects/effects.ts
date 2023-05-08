@@ -47,7 +47,7 @@ export const effectFactory = new EffectFactory();
 /**
  * Shake element back and fourth a few times as if to say, "Nope!"
  */
- export class ShakerEffect extends Effect {
+export class ShakerEffect extends Effect {
     private duration: string;
     private transitions: string[];
     private position: string;
@@ -123,7 +123,7 @@ export class GlowerEffect extends Effect {
         super(el, options);
 
         this._duration = options?.duration ?? GlowerEffect.duration;
-        this._glowerStyles = options.styles ?? GlowerEffect.defaultStyles;
+        this._glowerStyles = (options?.styles) ?? GlowerEffect.defaultStyles;
     }
 
     start() {
@@ -163,7 +163,7 @@ export class GlowerEffect extends Effect {
     glower(event: TransitionEvent) {
         const was = this._styleWasMap.get(event.propertyName);
         // const was = this.styleWas[event.propertyName];
-        if (was.undo) {
+        if (was !== undefined && was.undo) {
             this.el.style[event.propertyName] = was.style;
             was.undo = false;
         } else {
