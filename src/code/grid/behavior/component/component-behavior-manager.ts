@@ -302,6 +302,20 @@ export class ComponentBehaviorManager {
         this.viewLayout.reset();
         this.scrollBehavior.reset();
 
+        this.columnsManager.clearColumns();
+
+        // this._columnsManager.createColumns();
+        // if (options?.data !== undefined) {
+        //     this.setData(options.data);
+        // }
+
+        this.canvasEx.resize();
+        // this.behaviorChanged();
+
+        this.behaviorShapeChanged();
+        // this.behavior.defaultRowHeight = null;
+        // this._columnsManager.autosizeAllColumns();
+
         // this.checkLoadDataModelMetadata(options);
         // const dataModelChanged = this.resetMainDataModel(options);
 

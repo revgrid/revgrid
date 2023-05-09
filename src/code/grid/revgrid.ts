@@ -67,7 +67,6 @@ export class Revgrid {
     private readonly _scrollBehavior: ScrollBehavior; // remove this in future
 
     destroyed = false;
-    options: Revgrid.Options;
 
     localization: Localization;
 
@@ -182,7 +181,7 @@ export class Revgrid {
         this.behaviorManager = new BehaviorManager(
             this.containerHtmlElement,
             options.canvasContextAttributes,
-            this.options.gridProperties,
+            options.gridProperties,
             undefined,
             adapterSetConfig,
             options.loadBuiltinFinbarStylesheet ?? true,
@@ -2512,19 +2511,6 @@ export class Revgrid {
         this.cancelEditing();
 
         this.behaviorManager.reset();
-        this._columnsManager.clearColumns();
-
-        // this._columnsManager.createColumns();
-        // if (options?.data !== undefined) {
-        //     this.setData(options.data);
-        // }
-
-        this.canvasEx.resize();
-        // this.behaviorChanged();
-
-        this.behaviorManager.behaviorShapeChanged();
-        // this.behavior.defaultRowHeight = null;
-        // this._columnsManager.autosizeAllColumns();
     }
 
     /** @internal */

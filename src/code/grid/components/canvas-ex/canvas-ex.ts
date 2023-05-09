@@ -547,7 +547,7 @@ export class CanvasEx {
         return this.canvasElement.getBoundingClientRect();
     }
 
-    private createKeyboardEventDetail(e: KeyboardEvent): CanvasEx.CanvasKeyboardEvent {
+    private createKeyboardEventDetail(e: KeyboardEvent): CanvasEx.RevgridKeyboardEvent {
         const keyboardDetail = e as CanvasEx.WritableEventDetailKeyboard;
         keyboardDetail.revgrid_nowTime = Date.now();
         keyboardDetail.revgrid_repeatCount = this.repeatKeyCount;
@@ -733,13 +733,13 @@ export namespace CanvasEx {
     export type FocusEventer = (this: void, event: FocusEvent) => void;
     export type MouseEventer = (this: void, event: MouseEvent) => void;
     export type WheelEventer = (this: void, event: WheelEvent) => void;
-    export type KeyEventer = (this: void, event: CanvasKeyboardEvent) => void;
+    export type KeyEventer = (this: void, event: RevgridKeyboardEvent) => void;
     export type TouchEventer = (this: void, event: TouchEvent) => void;
     export type ClipboardEventer = (this: void, event: ClipboardEvent) => void;
 
-    export type WritableEventDetailKeyboard = Writable<CanvasKeyboardEvent>;
+    export type WritableEventDetailKeyboard = Writable<RevgridKeyboardEvent>;
 
-    export interface CanvasKeyboardEvent extends KeyboardEvent {
+    export interface RevgridKeyboardEvent extends KeyboardEvent {
         readonly revgrid_nowTime: number;
         readonly revgrid_repeatCount: number;
         readonly revgrid_repeatStartTime: number;

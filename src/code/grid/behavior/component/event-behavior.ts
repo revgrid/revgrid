@@ -63,7 +63,7 @@ export class EventBehavior {
     processAllColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
         this._descendantEventer.allColumnListChanged(typeId, index, count, targetIndex);
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-columns-created', false, undefined);
+            this.dispatchCustomEvent('rev-columns-created', false, undefined);
         }
     }
 
@@ -75,7 +75,7 @@ export class EventBehavior {
         this._descendantEventer.columnsChanged();
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-column-changed-event', false, undefined);
+            this.dispatchCustomEvent('rev-column-changed-event', false, undefined);
         }
     }
 
@@ -87,7 +87,7 @@ export class EventBehavior {
         this._descendantEventer.columnsViewWidthsChanged(changedColumnsViewWidths);
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-columns-view-widths-changed', false, changedColumnsViewWidths)
+            this.dispatchCustomEvent('rev-columns-view-widths-changed', false, changedColumnsViewWidths)
         }
     }
 
@@ -99,7 +99,7 @@ export class EventBehavior {
         this._descendantEventer.selectionChanged();
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-selection-changed', false, undefined);
+            this.dispatchCustomEvent('rev-selection-changed', false, undefined);
         }
     }
 
@@ -114,7 +114,7 @@ export class EventBehavior {
                 index,
                 offset,
             };
-            this.dispatchGridEvent(eventName, false, eventDetail);
+            this.dispatchCustomEvent(eventName, false, eventDetail);
         }
     }
 
@@ -122,7 +122,7 @@ export class EventBehavior {
         this._descendantEventer.rendered();
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-grid-rendered', false, undefined);
+            this.dispatchCustomEvent('rev-grid-rendered', false, undefined);
         }
     }
 
@@ -130,7 +130,7 @@ export class EventBehavior {
         this._descendantEventer.mouseEnteredCell(cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-cell-enter', false, cell);
+            this.dispatchCustomEvent('rev-cell-enter', false, cell);
         }
     }
 
@@ -138,7 +138,7 @@ export class EventBehavior {
         this._descendantEventer.mouseExitedCell(cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-cell-exit', false, cell);
+            this.dispatchCustomEvent('rev-cell-exit', false, cell);
         }
     }
 
@@ -152,7 +152,7 @@ export class EventBehavior {
                 height: this._canvasEx.height
             };
 
-            this.dispatchGridEvent('rev-grid-resized', false, detail);
+            this.dispatchCustomEvent('rev-grid-resized', false, detail);
         }
     }
 
@@ -160,7 +160,7 @@ export class EventBehavior {
         this._descendantEventer.columnSort(event);
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-column-sort', false, event);
+            this.dispatchCustomEvent('rev-column-sort', false, event);
         }
     }
 
@@ -178,7 +178,7 @@ export class EventBehavior {
         this._descendantEventer.keyDown(event);
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-key-down', false, event);
+            this.dispatchCustomEvent('rev-key-down', false, event);
         }
     }
 
@@ -188,7 +188,7 @@ export class EventBehavior {
         this._descendantEventer.keyUp(event);
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-key-up', false, event);
+            this.dispatchCustomEvent('rev-key-up', false, event);
         }
     }
 
@@ -201,7 +201,7 @@ export class EventBehavior {
         this._descendantEventer.mouseClick(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseGridEvent('rev-click', event, cell);
+            this.dispatchMouseEvent('rev-click', event, cell);
         }
     }
 
@@ -215,7 +215,7 @@ export class EventBehavior {
         this._descendantEventer.mouseDblClick(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseGridEvent('rev-dbl-click', event, cell);
+            this.dispatchMouseEvent('rev-dbl-click', event, cell);
         }
     }
 
@@ -228,7 +228,7 @@ export class EventBehavior {
         this._descendantEventer.mouseDown(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseGridEvent('rev-mouse-down', event, cell);
+            this.dispatchMouseEvent('rev-mouse-down', event, cell);
         }
     }
 
@@ -241,7 +241,7 @@ export class EventBehavior {
         this._descendantEventer.mouseUp(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseGridEvent('rev-mouse-up', event, cell);
+            this.dispatchMouseEvent('rev-mouse-up', event, cell);
         }
     }
 
@@ -254,7 +254,7 @@ export class EventBehavior {
         this._descendantEventer.mouseMove(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseGridEvent('rev-mouse-move', event, cell);
+            this.dispatchMouseEvent('rev-mouse-move', event, cell);
         }
     }
 
@@ -280,7 +280,7 @@ export class EventBehavior {
         this._descendantEventer.wheelMove(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseGridEvent('rev-wheel-move', event, cell);
+            this.dispatchMouseEvent('rev-wheel-move', event, cell);
         }
     }
 
@@ -293,7 +293,7 @@ export class EventBehavior {
         this._descendantEventer.contextMenu(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseGridEvent('rev-context-menu', event, cell);
+            this.dispatchMouseEvent('rev-context-menu', event, cell);
         }
     }
 
@@ -318,7 +318,7 @@ export class EventBehavior {
         this._descendantEventer.touchStart(event);
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-touch-start', false, event);
+            this.dispatchCustomEvent('rev-touch-start', false, event);
         }
     }
 
@@ -328,7 +328,7 @@ export class EventBehavior {
         this._descendantEventer.touchMove(event);
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-touch-move', false, event);
+            this.dispatchCustomEvent('rev-touch-move', false, event);
         }
     }
 
@@ -338,7 +338,7 @@ export class EventBehavior {
         this._descendantEventer.touchEnd(event);
 
         if (this._dispatchEnabled) {
-            this.dispatchGridEvent('rev-touch-end', false, event);
+            this.dispatchCustomEvent('rev-touch-end', false, event);
         }
     }
 
@@ -348,7 +348,7 @@ export class EventBehavior {
         this._descendantEventer.copy(event);
     }
 
-    private dispatchGridEvent<T extends EventName>(
+    private dispatchCustomEvent<T extends EventName>(
         eventName: T,
         cancelable: boolean,
         eventDetail: EventName.DetailMap[T] | undefined,
@@ -426,7 +426,7 @@ export class EventBehavior {
         }
     }
 
-    private dispatchMouseGridEvent(eventName: EventName.Mouse, event: MouseEvent, cell: ViewCell | null | undefined) {
+    private dispatchMouseEvent<T extends EventName.Mouse>(eventName: T, event: MouseEvent | WheelEvent, cell: ViewCell | null | undefined) {
         if (cell === null) {
             cell = undefined;
         } else {
@@ -434,9 +434,9 @@ export class EventBehavior {
                 cell = Object.create(cell) as ViewCell; // clone cell
             }
         }
-        const eventDetail = event as EventDetail.Mouse;
-        eventDetail.revgridViewCell = cell;
-        this.dispatchGridEvent(eventName, false, eventDetail);
+        const detail = event as EventName.DetailMap[T];
+        detail.revgridViewCell = cell;
+        return this.dispatchCustomEvent(eventName, false, detail);
     }
 }
 
@@ -489,8 +489,8 @@ export namespace EventBehavior {
     }
 
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
-    export type UiMouseEventer = (this: void, mouseEvent: MouseEvent) => ViewCell | null | undefined;
-    export type UiWheelEventer = (this: void, wheelEvent: WheelEvent) => ViewCell | null | undefined;
+    export type UiMouseEventer = (this: void, mouseEvent: EventDetail.Mouse) => ViewCell | null | undefined;
+    export type UiWheelEventer = (this: void, wheelEvent: EventDetail.Wheel) => ViewCell | null | undefined;
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;
     export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
 

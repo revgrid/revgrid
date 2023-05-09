@@ -65,6 +65,8 @@ export abstract class UiBehavior {
         this.eventBehavior = services.eventBehavior;
 
         this.sharedState = services.sharedState;
+        this.containerHtmlElement = services.containerHtmlElement;
+
         this.gridSettings = services.gridSettings;
         this.mouse = services.mouse;
         this.canvasEx = services.canvasEx;

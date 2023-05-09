@@ -20,9 +20,9 @@ export namespace EventDetail {
         revgridViewCell?: ViewCell;
     }
 
-    export type Keyboard = CanvasEx.CanvasKeyboardEvent;
+    export type Keyboard = CanvasEx.RevgridKeyboardEvent;
 
-    // export interface EditorKeyboard extends Keyboard {
+        // export interface EditorKeyboard extends Keyboard {
     //     readonly time: number;
     //     readonly editor: CellEditor,
     // }

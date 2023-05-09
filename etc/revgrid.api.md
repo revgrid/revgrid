@@ -698,7 +698,7 @@ export namespace EventDetail {
     // Warning: (ae-forgotten-export) The symbol "CanvasEx" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    export type Keyboard = CanvasEx.CanvasKeyboardEvent;
+    export type Keyboard = CanvasEx.RevgridKeyboardEvent;
     // (undocumented)
     export interface Mouse extends MouseEvent {
         // (undocumented)
@@ -1986,8 +1986,6 @@ export class Revgrid {
     get nonFixedColumnsViewWidth(): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     onEditorActivate(cell: ViewCell): CellEditor | undefined;
-    // (undocumented)
-    options: Revgrid.Options;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     pageDown(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration

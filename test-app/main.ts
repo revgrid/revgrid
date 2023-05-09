@@ -1,4 +1,4 @@
-import { AdapterSetConfig, defaultGridProperties, HalignEnum, Revgrid } from '..';
+import { AdapterSetConfig, defaultGridProperties, EventDetail, HalignEnum, Revgrid } from '..';
 import { CellAdapter } from './cell-adapter';
 import { HeaderDataAdapter } from './header-data-adapter';
 import { MainDataAdapter } from './main-data-adapter';
@@ -49,8 +49,8 @@ export class Main {
             throw new Error('fixedColumnCountTextboxElement not found');
         } else {
             this._fixedColumnCountTextboxElement.onchange = () => {
-                this._grid.properties.fixedColumnCount = parseInt(this._fixedColumnCountTextboxElement.value);
-                this._grid.computeCellsBounds();
+                this._grid.settings.fixedColumnCount = parseInt(this._fixedColumnCountTextboxElement.value);
+                this._grid.computeViewLayout();
             };
         }
 
@@ -59,8 +59,8 @@ export class Main {
             throw new Error('cellPaddingTextboxElement not found');
         } else {
             this._cellPaddingTextboxElement.onchange = () => {
-                this._grid.properties.cellPadding = parseInt(this._cellPaddingTextboxElement.value);
-                this._grid.computeCellsBounds();
+                this._grid.settings.cellPadding = parseInt(this._cellPaddingTextboxElement.value);
+                this._grid.computeViewLayout();
             };
         }
 
@@ -69,8 +69,8 @@ export class Main {
             throw new Error('rightHalignCheckBoxElement not found');
         } else {
             this._rightHalignCheckboxElement.onchange = () => {
-                this._grid.properties.halign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
-                this._grid.computeCellsBounds();
+                this._grid.settings.halign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
+                this._grid.computeViewLayout();
             };
         }
 
@@ -79,8 +79,8 @@ export class Main {
             throw new Error('gridRightAlignedCheckBoxElement not found');
         } else {
             this._gridRightAlignedCheckboxElement.onchange = () => {
-                this._grid.properties.gridRightAligned = this._gridRightAlignedCheckboxElement.checked;
-                this._grid.computeCellsBounds();
+                this._grid.settings.gridRightAligned = this._gridRightAlignedCheckboxElement.checked;
+                this._grid.computeViewLayout();
             };
         }
 
@@ -89,8 +89,8 @@ export class Main {
             throw new Error('scrollHorizontallySmoothlyCheckBoxElement not found');
         } else {
             this._scrollHorizontallySmoothlyCheckboxElement.onchange = () => {
-                this._grid.properties.scrollHorizontallySmoothly = this._scrollHorizontallySmoothlyCheckboxElement.checked;
-                this._grid.computeCellsBounds();
+                this._grid.settings.scrollHorizontallySmoothly = this._scrollHorizontallySmoothlyCheckboxElement.checked;
+                this._grid.computeViewLayout();
             };
         }
 
@@ -99,8 +99,8 @@ export class Main {
             throw new Error('visibleColumnWidthAdjustCheckBoxElement not found');
         } else {
             this._visibleColumnWidthAdjustCheckboxElement.onchange = () => {
-                this._grid.properties.visibleColumnWidthAdjust = this._visibleColumnWidthAdjustCheckboxElement.checked;
-                this._grid.computeCellsBounds();
+                this._grid.settings.visibleColumnWidthAdjust = this._visibleColumnWidthAdjustCheckboxElement.checked;
+                this._grid.computeViewLayout();
             };
         }
 
@@ -177,15 +177,15 @@ export class Main {
         this._grid = new Revgrid(this._gridHostElement, adapterSet, gridOptions);
         this._cellAdapter.setGrid(this._grid);
 
-        this._fixedColumnCountTextboxElement.value = this._grid.properties.fixedColumnCount.toString();
-        this._cellPaddingTextboxElement.value = this._grid.properties.cellPadding.toString();
-        this._rightHalignCheckboxElement.checked = this._grid.properties.halign === HalignEnum.right;
-        this._gridRightAlignedCheckboxElement.checked = this._grid.properties.gridRightAligned;
-        this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.properties.scrollHorizontallySmoothly;
-        this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.properties.visibleColumnWidthAdjust;
+        this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();
+        this._cellPaddingTextboxElement.value = this._grid.settings.cellPadding.toString();
+        this._rightHalignCheckboxElement.checked = this._grid.settings.halign === HalignEnum.right;
+        this._gridRightAlignedCheckboxElement.checked = this._grid.settings.gridRightAligned;
+        this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.settings.scrollHorizontallySmoothly;
+        this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.settings.visibleColumnWidthAdjust;
         this._deleteRowIndexTextboxElement.value = '0';
 
-        this._grid.addEventListener('rev-column-sort', (event) => this._mainDataAdapter.sort(event.detail.column) )
+        this._grid.addEventListener('rev-column-sort', (event) => this._mainDataAdapter.sort((event as CustomEvent<EventDetail.ColumnSort>).detail.column) )
 
         this._grid.allowEvents(true);
 
@@ -196,20 +196,20 @@ export class Main {
                 case 'name':
                 case 'type':
                 case 'favoriteFood':
-                    column.properties.editor = 'TextField';
+                    column.settings.editor = 'TextField';
                     break;
                 case 'id':
                 case 'age':
-                    column.properties.editor = 'Number';
+                    column.settings.editor = 'Number';
                     break;
                 case 'receiveDate':
-                    column.properties.editor = 'Date';
+                    column.settings.editor = 'Date';
                     break;
                 case 'color':
-                    column.properties.editor = 'Color';
+                    column.settings.editor = 'Color';
                     break;
                 case 'restrictMovement':
-                    column.properties.editor = 'TextField'; // need something else for boolean
+                    column.settings.editor = 'TextField'; // need something else for boolean
                     break;
                 default:
                     throw new Error(`Editor does not support field: ${column.name}`);
