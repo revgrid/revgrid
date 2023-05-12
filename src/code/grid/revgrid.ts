@@ -194,6 +194,9 @@ export class Revgrid {
         this._scrollBehavior = this.behaviorManager.scrollBehavior;
 
         this.settings = this.behaviorManager.gridProperties;
+        this.focus = this.behaviorManager.focus;
+        this.selection = this.behaviorManager.selection;
+        this.canvasEx = this.behaviorManager.canvasEx;
         this.mouse = this.behaviorManager.mouse;
         this._columnsManager = this.behaviorManager.columnsManager;
         this._subgridsManager = this.behaviorManager.subgridsManager;
@@ -222,7 +225,7 @@ export class Revgrid {
             this.loadState(options.state);
         }
 
-        this._scrollBehavior.synchronizeScrollingBoundaries();
+        // this._scrollBehavior.synchronizeScrollingBoundaries();
 
         // /**
         //  * @name plugins
@@ -536,10 +539,6 @@ export class Revgrid {
         this._renderer.registerGridPainter(key, constructor)
     }
 
-    computeViewLayout() {
-        this.viewLayout.compute(false);
-    }
-
     setFormatter(options?: Revgrid.LocalizationOptions) {
         options = options ?? {};
         this.localization = new Localization(
@@ -563,14 +562,8 @@ export class Revgrid {
      * @desc Amend properties for this hypergrid only.
      * @param properties - A simple properties hash.
      */
-    addProperties(properties: Partial<GridSettings>) {
-        const result = this.settings.merge(properties);
-        if (result) {
-            this.behaviorManager.behaviorShapeChanged();
-            // this.behavior.defaultRowHeight = null;
-            // this._columnsManager.autosizeAllColumns();
-        }
-        return result;
+    addSettings(settings: Partial<GridSettings>) {
+        return this.behaviorManager.addSettings(settings);
     }
 
     /**
@@ -585,11 +578,10 @@ export class Revgrid {
     /**
      * @desc Add to the state object; then re-render the grid.
      * @param state - A grid state object.
-     * @param settingState - Clear state first (_i.e.,_ perform a set state operation).
+     * @param fromDefault - Clear state first (_i.e.,_ perform a set state operation).
      */
-    addState(state: Record<string, unknown>, settingState = false) {
-        this.behaviorManager.addState(state, settingState);
-        this.behaviorManager.behaviorShapeChanged();
+    addState(state: Record<string, unknown>, fromDefault = false) {
+        this.behaviorManager.addState(state, fromDefault);
         // this.behavior.defaultRowHeight = null;
         // this._columnsManager.autosizeAllColumns();
         // this.behaviorChanged();
@@ -666,11 +658,7 @@ export class Revgrid {
      * @desc The grid has just been rendered, make sure the column widths are optimal.
      */
     checkColumnAutosizing() {
-        const autoSized = this._columnsManager.checkColumnAutosizing(false);
-        if (autoSized) {
-            this.behaviorManager.behaviorShapeChanged();
-        }
-        return autoSized;
+        return this._columnsManager.checkColumnAutosizing(false);
     }
 
     /**
@@ -748,13 +736,6 @@ export class Revgrid {
     setValue(x: number, y: number, value: number, subgrid?: Subgrid) {
         const column = this._columnsManager.getActiveColumn(x);
         this.behaviorManager.setValue(column.schemaColumn, x, y, value, subgrid);
-    }
-
-    /**
-     * @desc I've been notified that the behavior has changed.
-     */
-    behaviorChanged() {
-        this.behaviorManager.behaviorChanged();
     }
 
     /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update */
@@ -1066,7 +1047,6 @@ export class Revgrid {
     setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]) {
         this._columnsManager.setActiveColumns(columnNameOrAllIndexArray);
         this._scrollBehavior.updateHorizontalScroll(true);
-        this.behaviorChanged();
     }
 
     /** @deprecated use setActiveColumns()*/
@@ -1084,12 +1064,7 @@ export class Revgrid {
     }
 
     setColumnScrollAnchor(index: number, offset: number) {
-        const changed = this.viewLayout.setColumnScrollAnchor(index, offset);
-        if (changed) {
-            this.viewLayout.compute(true);
-            const viewLayoutStart = this.calculateColumnScrollAnchorViewLayoutStart();
-            this._scrollBehavior.setHorizontalScrollerViewLayoutStart(viewLayoutStart);
-        }
+        return this.viewLayout.setColumnScrollAnchor(index, offset);
     }
 
     setViewport(columnIndex: number, columnOffset: number, rowIndex: number, _rowOffset: number) {
@@ -1099,7 +1074,7 @@ export class Revgrid {
         if (columnChanged || rowChanged) {
 
             if (columnChanged) {
-                const viewportStart = this.calculateColumnScrollAnchorViewLayoutStart();
+                const viewportStart = this.viewLayout.calculateHorizontalScrollableLeft();
                 this._scrollBehavior.setHorizontalScrollerViewLayoutStart(viewportStart);
             }
         }
@@ -1290,16 +1265,6 @@ export class Revgrid {
             finishAnchorLimitIndex,
             finishAnchorLimitOffset: 0,
         };
-    }
-
-    calculateColumnScrollAnchorViewLayoutStart(): number {
-        const gridRightAligned = this.settings.gridRightAligned;
-        if (gridRightAligned) {
-            const finish = this.viewLayout.calculateScrollableViewRight(this._scrollBehavior.horizontalContentFinish);
-            return finish - this._scrollBehavior.horizontalViewLayoutSize + 1;
-        } else {
-            return this.viewLayout.calculateScrollableViewLeft(this._scrollBehavior.horizontalContentStart);
-        }
     }
 
     getColumnScrollableLeft(activeIndex: number) {

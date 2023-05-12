@@ -243,6 +243,24 @@ export class ViewCell {
     // get isBottomTotalsCell() {
     //     return this.isBottomTotalsRow && this.isDataColumn;
     // }
+
+    getRowProperties() {
+        return this.subgrid.getRowProperties(this.dataPoint.y);
+    }
+
+    getRowProperty(key: string) {
+        // undefined return means there is no row properties object OR no such row property `[key]`
+        return this.subgrid.getRowProperty(this.dataPoint.y, key);
+    }
+
+    setRowPropertyRC(key: string, value: unknown) {
+        // creates new object as needed
+        const rowProperties = this.getRowProperties();
+        if (rowProperties !== undefined) {
+            (rowProperties[key as keyof MetaModel.RowProperties] as unknown) = value; // todo: call `stateChanged()` after refac-as-flags
+        }
+    }
+
 }
 
 /** @public */

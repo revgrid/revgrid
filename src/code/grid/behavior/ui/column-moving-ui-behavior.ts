@@ -256,7 +256,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
     }
 
     private getDragAction(event: MouseEvent): ColumnDragAction {
-        const firstScrollableColumnViewLeft = this.viewLayout.firstScrollableColumnViewLeft;
+        const firstScrollableColumnViewLeft = this.viewLayout.scrollableCanvasLeft;
         if (firstScrollableColumnViewLeft === undefined) {
             return {
                 type: DragActionType.None

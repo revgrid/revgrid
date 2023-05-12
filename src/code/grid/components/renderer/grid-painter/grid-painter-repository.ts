@@ -26,7 +26,6 @@ export class GridPainterRepository {
         private readonly _viewLayout: ViewLayout,
         private readonly _focus: Focus,
         private readonly _selection: Selection,
-        private readonly _resetAllGridPaintersRequiredEventer: GridPainter.ResetAllGridPaintersRequiredEventer,
         private readonly _repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         // preregister the standard grid painters
@@ -52,7 +51,6 @@ export class GridPainterRepository {
                     this._viewLayout,
                     this._focus,
                     this._selection,
-                    this._resetAllGridPaintersRequiredEventer,
                     this._repaintAllRequiredEventer,
                 );
                 this.cache.set(key, gridPainter);

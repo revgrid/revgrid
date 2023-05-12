@@ -191,7 +191,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
      * @desc this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
      */
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
-        const scrollableBounds = this.viewLayout.scrollableBounds;
+        const scrollableBounds = this.viewLayout.scrollableCanvasBounds;
         if (this.gridSettings.scrollingEnabled && scrollableBounds !== undefined && scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY)) {
             this.cancelScheduledStepScrollDrag();
             return false;

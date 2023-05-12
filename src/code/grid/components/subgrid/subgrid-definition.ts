@@ -9,5 +9,6 @@ export interface SubgridDefinition {
     dataModel: DataModel | DataModel.Constructor,
     cellModel: CellModel | CellModel.Constructor,
     metaModel?: MetaModel | MetaModel.Constructor,
+    rowPropertiesPrototype?: MetaModel.RowPropertiesPrototype,
     selectable?: boolean,
 }

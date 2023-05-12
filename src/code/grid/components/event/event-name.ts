@@ -40,7 +40,7 @@ export namespace EventName {
         'rev-cell-exit': ViewCell;
         'rev-click': EventDetail.Mouse;
         'rev-dbl-click': EventDetail.Mouse;
-        'rev-columns-view-widths-changed': EventDetail.ChangedColumnsViewWidths;
+        'rev-columns-view-widths-changed': undefined;
         'rev-grid-rendered': EventDetail.Grid;
         'rev-grid-resized': EventDetail.Resize;
         'rev-touch-start': TouchEvent;

@@ -34,7 +34,6 @@ export class ByRowsGridPainter extends GridPainter {
         viewLayout: ViewLayout,
         focus: Focus,
         selection: Selection,
-        resetAllGridPaintersRequiredEventer: GridPainter.ResetAllGridPaintersRequiredEventer,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(
@@ -45,7 +44,6 @@ export class ByRowsGridPainter extends GridPainter {
             viewLayout,
             focus,
             selection,
-            resetAllGridPaintersRequiredEventer,
             repaintAllRequiredEventer,
             ByRowsGridPainter.key,
             false,
@@ -56,28 +54,26 @@ export class ByRowsGridPainter extends GridPainter {
     paintCells(gc: CanvasRenderingContext2DEx) {
         const gridProps = this.gridProperties;
         const gridPrefillColor = gridProps.backgroundColor;
-        const rowBundles = this.rowBundles;
-        const visibleColumns = this.viewLayoutColumns;
-        const visibleRows = this.viewLayoutRows;
-        const C = visibleColumns.length;
-        const c0 = 0;
-        const cLast = C - 1;
-        const R = visibleRows.length;
-        const pool = this.viewCellPool;
-        const preferredWidths = new Array<number | undefined>(C - c0);
+        const viewLayoutColumns = this.viewLayout.columns;
+        const columnCount = viewLayoutColumns.length;
+        const viewLayoutRows = this.viewLayout.rows;
+        const rowCount = viewLayoutRows.length;
+        const lastColumnIndex = columnCount - 1;
+        const pool = this.viewLayout.getRowColumnOrderedCellPool(); // must match algorithm below
+        const preferredWidths = new Array<number | undefined>(columnCount);
         // columnClip,
         // clipToGrid,
         let firstVisibleColumnLeft: number;
         let lastVisibleColumnRight: number;
-        if (C === 0) {
+        if (columnCount === 0) {
             firstVisibleColumnLeft = 0;
             lastVisibleColumnRight = 0;
         } else {
-            firstVisibleColumnLeft = this.viewLayoutColumns[0].left;
-            lastVisibleColumnRight = this.viewLayoutColumns[cLast].rightPlus1;
+            firstVisibleColumnLeft = viewLayoutColumns[0].left;
+            lastVisibleColumnRight = viewLayoutColumns[lastColumnIndex].rightPlus1;
         }
         const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
-        const viewHeight = R ? visibleRows[R - 1].bottom : 0;
+        const viewHeight = rowCount ? viewLayoutRows[rowCount - 1].bottom : 0;
         const drawLines = gridProps.gridLinesH;
         const lineWidth = gridProps.gridLinesHWidth;
         const lineColor = gridProps.gridLinesHColor;
@@ -85,75 +81,76 @@ export class ByRowsGridPainter extends GridPainter {
         const canvasBounds = this.canvasEx.bounds;
         gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
-        if (!C || !R) { return; }
+        if (!columnCount || !rowCount) { return; }
 
         if (gc.alpha(gridPrefillColor) > 0) {
             gc.cache.fillStyle = gridPrefillColor;
             gc.fillRect(firstVisibleColumnLeft, 0, viewWidth, viewHeight);
         }
 
-        if (this.reset) {
-            this.resetAllGridPaintersRequiredEventer([]);
-            this.reset = false;
-            this.bundleRows(true);
-        }
-
-        const rowPrefillColors = this.rowPrefillColors;
-
-        for (let r = rowBundles.length; r--;) {
-            const rowBundle = rowBundles[r];
-            gc.clearFill(firstVisibleColumnLeft, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
+        let rowPrefillColors: string[] | undefined;
+        const rowBundlesAndPrefillColors = this.getRowBundlesAndPrefillColors(viewLayoutRows);
+        if (rowBundlesAndPrefillColors) {
+            const rowBundles = rowBundlesAndPrefillColors.bundles;
+            for (let r = rowBundles.length; r--;) {
+                const rowBundle = rowBundles[r];
+                gc.clearFill(firstVisibleColumnLeft, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
+            }
+            rowPrefillColors = rowBundlesAndPrefillColors.prefillColors;
+        } else {
+            rowPrefillColors = undefined;
         }
 
         // gc.clipSave(clipToGrid, firstVisibleColumnLeft, 0, lastVisibleColumnRight, viewHeight);
 
+        let cellIndex = 0;
         // For each row of each subgrid...
-        for (let p = 0, r = 0; r < R; r++) {
-            const prefillColor = rowPrefillColors[r];
+        for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            const prefillColor = rowPrefillColors === undefined ? gridProps.backgroundColor : rowPrefillColors[rowIndex];
 
-            const visibleRow = visibleRows[r];
+            const vr = viewLayoutRows[rowIndex];
 
             if (drawLines) {
                 gc.cache.fillStyle = lineColor;
-                gc.fillRect(firstVisibleColumnLeft, visibleRow.bottom, viewWidth, lineWidth);
+                gc.fillRect(firstVisibleColumnLeft, vr.bottom, viewWidth, lineWidth);
             }
 
-            // For each column (of each row)...
-            visibleColumns.forEach((vc, c) => {  // eslint-disable-line no-loop-func
-                p++;
-                const viewCell = pool[p]; // next cell across the row (redundant for first cell in row)
-                vc = viewCell.visibleColumn;
+            // For each column (of each row)... (make sure correct pool is used)
+            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+                const vc = viewLayoutColumns[columnIndex];
+                const viewCell = pool[cellIndex++];
 
                 // Optionally clip to visible portion of column to prevent text from overflowing to right.
                 const columnClip = vc.column.settings.columnClip;
-                gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
+                gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
                 try {
                     const paintWidth = this.paintCell(gc, viewCell, prefillColor);
                     if (paintWidth !== undefined) {
-                        const previousColumnPreferredWidth = preferredWidths[c];
+                        const previousColumnPreferredWidth = preferredWidths[columnIndex];
                         if (previousColumnPreferredWidth === undefined) {
-                            preferredWidths[c] = paintWidth;
+                            preferredWidths[columnIndex] = paintWidth;
                         } else {
-                            preferredWidths[c] = Math.max(previousColumnPreferredWidth, paintWidth);
+                            preferredWidths[columnIndex] = Math.max(previousColumnPreferredWidth, paintWidth);
                         }
                     }
                 } catch (e) {
-                    this.paintErrorCell(e as Error, gc, vc, visibleRows[r]);
+                    this.paintErrorCell(e as Error, gc, vc, viewLayoutRows[rowIndex]);
                 }
 
                 gc.clipRestore();
-            });
+            }
         }
 
         // gc.clipRestore(clipToGrid);
 
-        this.viewLayoutColumns.forEach((vc, c) => {
-            const preferredWidth = preferredWidths[c];
+        for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+            const vc = viewLayoutColumns[columnIndex];
+            const preferredWidth = preferredWidths[columnIndex];
             if (preferredWidth !== undefined) {
-                vc.column.settings.preferredWidth = Math.round(preferredWidth);
+                vc.column.settings.preferredWidth = Math.ceil(preferredWidth);
             }
-        });
+        }
     }
 }
 

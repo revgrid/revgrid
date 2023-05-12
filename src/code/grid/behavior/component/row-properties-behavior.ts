@@ -1,101 +1,23 @@
 import { ViewCell } from '../../components/cell/view-cell';
 import { Subgrid } from '../../components/subgrid/subgrid';
-import { GridSettings } from '../../interfaces/grid-settings';
+import { ViewLayout } from '../../components/view/view-layout';
 import { MetaModel } from '../../interfaces/meta-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
-import { AssertError } from '../../lib/revgrid-error';
 
 export class RowPropertiesBehavior {
-    constructor(
-        private readonly _gridProperties: GridSettings,
-        private readonly _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype,
-        private readonly _behaviorStateChangedEventer: RowPropertiesBehavior.BehaviouStateChangedEventer,
-        private readonly _behaviorShapeChangedEventer: RowPropertiesBehavior.BehaviorShapeChangedEventer,
-    ) {
-    }
-
-    // getRowProperties(yOrCellEvent: number | CellEvent,
-    //     rowPropertiesPrototype?: DataModel.RowPropertiesPrototype,
-    //     subgrid?: Subgrid): DataModel.RowProperties | false | undefined;
-    // getRowProperties(y: number,
-    //     rowPropertiesPrototype?: DataModel.RowPropertiesPrototype,
-    //     subgrid?: Subgrid): DataModel.RowProperties | false | undefined;
-
-    /**
-     * @param yOrCellEvent - Data row index local to `dataModel`.
-     * @returns The row height in pixels.
-     */
-    getRowHeight(y: number, subgrid: Subgrid) {
-        const rowProps = this.getRowProperties(y, subgrid);
-        if (rowProps === undefined) {
-            return this._gridProperties.defaultRowHeight;
-        } else {
-            return rowProps.height ?? this._gridProperties.defaultRowHeight;
-        }
+    constructor(private readonly _viewLayout: ViewLayout) {
     }
 
     /**
      * @desc set the pixel height of a specific row
-     * @param yOrCellEvent - Data row index local to dataModel.
+     * @param rowIndex - Data row index local to dataModel.
      * @param height - pixel height
      */
-    setRowHeight(yOrCellEvent: number, height: number, subgrid: Subgrid) {
-        this.setRowProperty(yOrCellEvent, 'height', height, subgrid);
-    }
-
-
-    getRowOwnPropertiesRC(cellEvent: ViewCell) {
-        // undefined return means there is no row properties object
-        return this.getRowPropertiesUsingCellEvent(cellEvent);
-    }
-
-    getRowPropertiesRC(renderedCell: ViewCell) {
-        // use carefully! creates new object as needed; only use when object definitely needed: for setting prop with `.rowProperties[key] = value` or `Object.assign(.rowProperties, {...})`; use `rowOwnProperties`  to avoid creating a new object when object does not exist, or `getRowProperty(key)` for getting a property that may not exist
-        const properties = this.getRowPropertiesUsingCellEvent(renderedCell);
-        if (properties) {
-            return properties;
-        } else {
-            return undefined;
+    setRowHeight(rowIndex: number, height: number, subgrid: Subgrid) {
+        const setSucceeded = subgrid.setRowProperty(rowIndex, 'height', true, height);
+        if (setSucceeded) {
+            this._viewLayout.invalidateHorizontalAll(true);
         }
-    }
-
-    getRowPropertyRC(renderedCell: ViewCell, key: string) {
-        // undefined return means there is no row properties object OR no such row property `[key]`
-        const rowProps = this.getRowOwnPropertiesRC(renderedCell);
-        return rowProps && rowProps[key as keyof MetaModel.RowProperties];
-    }
-
-    setRowPropertyRC(renderedCell: ViewCell, key: string, value: unknown) {
-        // creates new object as needed
-        const rowProperties = this.getRowPropertiesRC(renderedCell);
-        if (rowProperties !== undefined) {
-            (rowProperties[key as keyof MetaModel.RowProperties] as unknown) = value; // todo: call `stateChanged()` after refac-as-flags
-        }
-    }
-
-    /**
-     * @param yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param rowPropertiesPrototype - Prototype for a new properties object when one does not already exist. If you don't define this and one does not already exist, this call will return `undefined`.
-     * Typical defined value is `null`, which creates a plain object with no prototype, or `Object.prototype` for a more "natural" object.
-     * _(Required when 3rd param provided.)_
-     * @param subgrid- This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     * @returns The row properties object which will be one of:
-     * * object - existing row properties object or new row properties object created from `prototype`; else
-     * * `false` - MetaModel get function not set up; else
-     * * `null` - row does not exist
-     * * `undefined` - row exists but does not have any properties
-     */
-    getRowProperties(y: number, subgrid: SubgridInterface): MetaModel.RowProperties | undefined {
-        const metadata = subgrid.getRowMetadata(y);
-        if (metadata === undefined) {
-            return undefined;
-        } else {
-            return metadata.__ROW;
-        }
-    }
-
-    getRowPropertiesUsingCellEvent(cellInfo: ViewCell) {
-        return this.getRowProperties(cellInfo.dataPoint.y, cellInfo.subgrid);
     }
 
     /**
@@ -104,16 +26,15 @@ export class RowPropertiesBehavior {
      * @param properties - The new row properties object. If `undefined`, this call is a no-op.
      * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
-    setRowPropertiesUsingCellEvent(cellInfo: ViewCell, properties: MetaModel.RowProperties | undefined) {
-        this.setRowProperties(cellInfo.dataPoint.y, properties, cellInfo.subgrid)
+    setRowPropertiesUsingCell(cell: ViewCell, properties: MetaModel.RowProperties | undefined) {
+        this.setRowProperties(cell.dataPoint.y, properties, cell.subgrid)
     }
 
-    setRowProperties(y: number, properties: MetaModel.RowProperties | undefined, subgrid: SubgridInterface): void {
-        const metadata = subgrid.getRowMetadata(y);
-        this.setRowMetadataRowProperties(y, metadata, properties, subgrid);
-        // if (metadata) {
-        //     metadata.__ROW = Object.create(this._rowPropertiesPrototype);
-        // }
+    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined, subgrid: SubgridInterface): void {
+        const setSucceeded = subgrid.setRowProperties(rowIndex, properties);
+        if (setSucceeded) {
+            this._viewLayout.invalidateHorizontalAll(false);
+        }
     }
 
     /**
@@ -124,40 +45,15 @@ export class RowPropertiesBehavior {
      * @param dataModel - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
 
-    setRowPropertyUsingCellEvent(cellEvent: ViewCell, key: string, value: unknown) {
-        this.setRowProperty(cellEvent.dataPoint.y, key, value, cellEvent.subgrid);
+    setRowPropertyUsingCell(cell: ViewCell, key: string, value: unknown) {
+        this.setRowProperty(cell.dataPoint.y, key, value, cell.subgrid);
     }
 
     setRowProperty(y: number, key: string, value: unknown, subgrid: SubgridInterface) {
-        let metadata = subgrid.getRowMetadata(y);
-        if (metadata === undefined) {
-            metadata = Object.create(this._rowPropertiesPrototype) as MetaModel.RowMetadata;
-        }
-        let properties: MetaModel.RowProperties | undefined = metadata.__ROW;
-
         const isHeight = (key === 'height');
-        if (value !== undefined) {
-            if (properties === undefined) {
-                const createdProperties = Object.create(this._rowPropertiesPrototype);
-                if (createdProperties === null) {
-                    throw new AssertError('RPBSRP99441');
-                } else {
-                    properties = createdProperties as MetaModel.RowProperties;
-                }
-            }
-            properties[key as keyof MetaModel.RowProperties] = value;
-        } else {
-            if (properties !== undefined) {
-                delete properties[(isHeight ? '_height' : key) as keyof MetaModel.RowProperties];
-            }
-        }
-
-        this.setRowMetadataRowProperties(y, metadata, properties, subgrid);
-
-        if (isHeight) {
-            this._behaviorShapeChangedEventer();
-        } else {
-            this._behaviorStateChangedEventer();
+        const setSucceeded = subgrid.setRowProperty(y, key, isHeight, value);
+        if (setSucceeded) {
+            this._viewLayout.invalidateHorizontalAll(isHeight);
         }
     }
 
@@ -205,27 +101,8 @@ export class RowPropertiesBehavior {
     //         }
     //     }
     // }
-
-    private setRowMetadataRowProperties(y: number, existingMetadata: MetaModel.RowMetadata | undefined, properties: MetaModel.RowProperties | undefined, subgrid: SubgridInterface) {
-        if (existingMetadata === undefined) {
-            // Row exists but does not yet have any Metadata
-            if (properties !== undefined) {
-                existingMetadata = {
-                    __ROW: properties,
-                }
-                subgrid.setRowMetadata(y, existingMetadata);
-                this._behaviorStateChangedEventer();
-            }
-        } else {
-            // Row exists and has Metadata. Just update __ROW
-            existingMetadata.__ROW = properties;
-            subgrid.setRowMetadata(y, existingMetadata);
-            this._behaviorStateChangedEventer();
-        }
-    }
 }
 
 export namespace RowPropertiesBehavior {
-    export type BehaviouStateChangedEventer = (this: void) => void;
-    export type BehaviorShapeChangedEventer = (this: void) => void;
+    export type InvalidateViewEventer = (this: void, scrollablePlaneDimensionAsWell: boolean) => void;
 }

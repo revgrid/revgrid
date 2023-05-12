@@ -11,35 +11,24 @@ import { SubgridDefinition } from './subgrid-definition';
 
 /** @internal */
 export class SubgridsManager {
+    readonly mainSubgrid: MainSubgrid;
     readonly subgrids = new Array<Subgrid>();
     readonly _handledSubgrids = new Array<Subgrid | undefined>();
 
-    private _mainSubgrid: Subgrid;
 
     constructor(
         private readonly _gridSettings: GridSettings,
         private readonly _columnsManager: ColumnsManager,
+        definitions: SubgridDefinition[],
+        defaultRowPropertiesPrototype: MetaModel.RowPropertiesPrototype,
     ) {
-    }
-
-    get mainSubgrid() { return this._mainSubgrid; }
-
-    getSubgridByHandle(handle: Subgrid.Handle) { return this._handledSubgrids[handle]; }
-
-    destroy() {
-        this.destroySubgrids();
-    }
-
-    loadSubgrids(definitions: readonly SubgridDefinition[]) {
-        this.destroySubgrids();
-
         let mainSubgrid: MainSubgrid | undefined;
         const subgrids = this.subgrids;
         definitions.forEach(
             (definition) => {
                 if (definition !== undefined) {
                     const subgridHandle = this._handledSubgrids.length;
-                    const subgrid = this.createSubgridFromDefinition(subgridHandle, definition);
+                    const subgrid = this.createSubgridFromDefinition(subgridHandle, definition, defaultRowPropertiesPrototype);
                     subgrids.push(subgrid);
                     this._handledSubgrids.push(subgrid);
                     if (subgrid.role === SubgridInterface.RoleEnum.main) {
@@ -52,50 +41,57 @@ export class SubgridsManager {
         if (mainSubgrid === undefined) {
             throw new AssertError('SMSS98224', 'Subgrid Specs does not include main');
         } else {
-            this._mainSubgrid = mainSubgrid;
+            this.mainSubgrid = mainSubgrid;
         }
     }
+
+    destroy() {
+        this.destroySubgrids();
+    }
+
+    getSubgridByHandle(handle: Subgrid.Handle) { return this._handledSubgrids[handle]; }
 
     /**
      * @summary Resolves a `subgridSpec` to a Subgrid (and its DataModel).
      * @desc The spec may describe either an existing data model, or a constructor for a new data model.
      * @returns either Subgrid or MainSubgrid depending on role specified in Spec
      */
-    private createSubgridFromDefinition(subgridHandle: Subgrid.Handle, definition: SubgridDefinition) {
-        let subgrid: Subgrid;
+    private createSubgridFromDefinition(
+        subgridHandle: Subgrid.Handle,
+        definition: SubgridDefinition,
+        defaultRowPropertiesPrototype: MetaModel.RowPropertiesPrototype,
+    ) {
+        const role = definition.role ?? SubgridInterface.RoleEnum.main;
+        const isMainRole = role === SubgridInterface.RoleEnum.main;
 
-        if (definition.role === SubgridInterface.RoleEnum.main && this._mainSubgrid !== undefined) {
-            subgrid = this._mainSubgrid;
-        } else {
-            const role = definition.role ?? SubgridInterface.RoleEnum.main;
-            const isMainRole = role === SubgridInterface.RoleEnum.main;
-
-            let dataModel = definition.dataModel;
-            if (typeof dataModel === 'function') {
-                dataModel = new dataModel();
-            }
-            let cellModel = definition.cellModel;
-            if (typeof cellModel === 'function') {
-                cellModel = new cellModel();
-            }
-            let metaModel = definition.metaModel;
-            if (typeof metaModel === 'function') {
-                metaModel = new metaModel();
-            }
-            let selectable = definition.selectable;
-            if (selectable === undefined) {
-                selectable = isMainRole;
-            }
-            subgrid = this.createSubgrid(subgridHandle, role, dataModel, cellModel, metaModel, selectable);
+        let dataModel = definition.dataModel;
+        if (typeof dataModel === 'function') {
+            dataModel = new dataModel();
         }
-
-        return subgrid;
+        let cellModel = definition.cellModel;
+        if (typeof cellModel === 'function') {
+            cellModel = new cellModel();
+        }
+        let metaModel = definition.metaModel;
+        if (typeof metaModel === 'function') {
+            metaModel = new metaModel();
+        }
+        let rowPropertiesBehavior = definition.rowPropertiesPrototype;
+        if (metaModel !== undefined && rowPropertiesBehavior === undefined) {
+            rowPropertiesBehavior = defaultRowPropertiesPrototype;
+        }
+        let selectable = definition.selectable;
+        if (selectable === undefined) {
+            selectable = isMainRole;
+        }
+        return this.createSubgrid(subgridHandle, role, dataModel, cellModel, metaModel, rowPropertiesBehavior, selectable);
     }
 
     /** @returns either Subgrid or MainSubgrid depending on role */
     private createSubgrid(
         subgridHandle: Subgrid.Handle,
         role: SubgridInterface.Role, dataModel: DataModel, cellModel: CellModel, metaModel: MetaModel | undefined,
+        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
         selectable: boolean,
     ) {
         let subgrid: Subgrid;
@@ -109,6 +105,7 @@ export class SubgridsManager {
                 dataModel,
                 cellModel,
                 metaModel,
+                rowPropertiesPrototype,
                 selectable,
             );
         } else {
@@ -121,6 +118,7 @@ export class SubgridsManager {
                 dataModel,
                 cellModel,
                 metaModel,
+                rowPropertiesPrototype,
                 selectable,
             );
         }
@@ -180,6 +178,10 @@ export class SubgridsManager {
             },
             0
         );
+    }
+
+    calculateFooterHeight() {
+        return this.calculateFooterRowCount() * this._gridSettings.defaultRowHeight;
     }
 
     /**

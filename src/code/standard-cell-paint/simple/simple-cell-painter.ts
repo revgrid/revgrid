@@ -107,6 +107,7 @@ export class SimpleCellPainter implements CellPainter {
 
         config.snapshot = cell.paintSnapshot as SimpleCellPaintConfig.Snapshot; // supports partial render
 
+        this._config = config;
     }
 
     paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {

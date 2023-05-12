@@ -1,7 +1,6 @@
 import { ViewCell } from '../components/cell/view-cell';
 import { Subgrid } from '../components/subgrid/subgrid';
 import { GridSettings } from '../interfaces/grid-settings';
-import { MetaModel } from '../interfaces/meta-model';
 import { SchemaModel } from '../interfaces/schema-model';
 import { AdapterSetConfig } from './component/adapter-set-config';
 import { ComponentBehaviorManager } from './component/component-behavior-manager';
@@ -42,7 +41,6 @@ export class BehaviorManager {
         containerHtmlElement: HTMLElement,
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
         optionedGridProperties: Partial<GridSettings> | undefined,
-        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
         adapterSetConfig: AdapterSetConfig,
         loadBuiltinFinbarStylesheet: boolean,
         descendantEventer: EventBehavior.DescendantEventer,
@@ -51,7 +49,6 @@ export class BehaviorManager {
             containerHtmlElement,
             canvasContextAttributes,
             optionedGridProperties,
-            rowPropertiesPrototype,
             adapterSetConfig,
             loadBuiltinFinbarStylesheet,
             descendantEventer,
@@ -80,6 +77,9 @@ export class BehaviorManager {
     }
 
     get gridProperties() { return this._componentBehaviorManager.gridSettings; }
+    get focus() { return this._componentBehaviorManager.focus; }
+    get selection() { return this._componentBehaviorManager.selection; }
+    get canvasEx() { return this._componentBehaviorManager.canvasEx; }
     get mouse() { return this._componentBehaviorManager.mouse; }
     get mainSubgrid() { return this._componentBehaviorManager.mainSubgrid; }
     get mainDataModel() { return this._componentBehaviorManager.mainDataModel; }
@@ -112,13 +112,10 @@ export class BehaviorManager {
         this._componentBehaviorManager.allowEvents(allow);
     }
 
-    behaviorShapeChanged() {
-        this._componentBehaviorManager.behaviorShapeChanged();
+    addSettings(settings: Partial<GridSettings>) {
+        return this._componentBehaviorManager.addSettings(settings);
     }
 
-    behaviorStateChanged() {
-        this._componentBehaviorManager.behaviorStateChanged();
-    }
 
     clearObjectProperties(obj: Record<string, unknown>, exportProps?: boolean) {
         this._componentBehaviorManager.clearObjectProperties(obj, exportProps);
@@ -132,8 +129,8 @@ export class BehaviorManager {
         this._componentBehaviorManager.setState(properties);
     }
 
-    addState(properties: Record<string, unknown>, settingState: boolean) {
-        this._componentBehaviorManager.addState(properties, settingState);
+    addState(settings: Record<string, unknown>, fromDefault: boolean) {
+        this._componentBehaviorManager.addState(settings, fromDefault);
     }
 
     endDragColumnNotification() {
@@ -154,10 +151,6 @@ export class BehaviorManager {
 
     setValue(schemaColumn: SchemaModel.Column, x: number, y: number, value: unknown, subgrid?: Subgrid) {
         this._componentBehaviorManager.setValue(schemaColumn, x, y, value, subgrid);
-    }
-
-    behaviorChanged() {
-        this._componentBehaviorManager.behaviorChanged();
     }
 
     lookupFeature(key: string) {

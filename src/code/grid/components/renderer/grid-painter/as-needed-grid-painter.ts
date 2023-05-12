@@ -7,7 +7,6 @@ import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
-import { ByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
 import { GridPainter } from './grid-painter';
 
 /** @summary Render the grid only as needed ("partial render").
@@ -37,7 +36,7 @@ import { GridPainter } from './grid-painter';
  * @param {CanvasEx.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
 export class AsNeededGridPainter extends GridPainter {
-    private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
+    // private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
     constructor(
         gridProperties: GridSettings,
@@ -47,7 +46,6 @@ export class AsNeededGridPainter extends GridPainter {
         viewLayout: ViewLayout,
         focus: Focus,
         selection: Selection,
-        resetAllGridPaintersRequiredEventer: GridPainter.ResetAllGridPaintersRequiredEventer,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(
@@ -58,7 +56,6 @@ export class AsNeededGridPainter extends GridPainter {
             viewLayout,
             focus,
             selection,
-            resetAllGridPaintersRequiredEventer,
             repaintAllRequiredEventer,
             AsNeededGridPainter.key,
             AsNeededGridPainter.partial,
@@ -67,78 +64,77 @@ export class AsNeededGridPainter extends GridPainter {
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
-        const visibleColumns = this.viewLayoutColumns;
-        const visibleRows = this.viewLayoutRows;
-        const C = visibleColumns.length;
-        const cLast = C - 1;
-        const R = visibleRows.length;
-        let p = 0;
-        const pool = this.viewCellPool;
-        // clipToGrid,
-        // let firstVisibleColumnLeft: number;
-        // let lastVisibleColumnRight: number;
-        // if (C === 0) {
-        //     firstVisibleColumnLeft = 0;
-        //     lastVisibleColumnRight = 0;
-        // } else {
-        //     firstVisibleColumnLeft = this.visibleColumns[0].left;
-        //     lastVisibleColumnRight = this.visibleColumns[cLast].right;
-        // }
-        const viewHeight = R ? visibleRows[R - 1].bottom : 0;
+        const viewLayoutColumns = this.viewLayout.columns;
+        const columnCount = viewLayoutColumns.length;
+        const viewLayoutRows = this.viewLayout.rows;
+        const rowCount = viewLayoutRows.length;
+        if (columnCount > 0 && rowCount > 0) {
+            const lastColumnIndex = columnCount - 1;
+            const pool = this.viewLayout.getColumnRowOrderedCellPool();
+            // clipToGrid,
+            // let firstVisibleColumnLeft: number;
+            // let lastVisibleColumnRight: number;
+            // if (C === 0) {
+            //     firstVisibleColumnLeft = 0;
+            //     lastVisibleColumnRight = 0;
+            // } else {
+            //     firstVisibleColumnLeft = this.visibleColumns[0].left;
+            //     lastVisibleColumnRight = this.visibleColumns[cLast].right;
+            // }
+            const viewHeight = viewLayoutRows[rowCount - 1].bottom;
 
 
-        if (!C || !R) { return; }
+            // if (this.reset) {
+            //     this.resetAllGridPaintersRequiredEventer([]);
+            //     this.repaintAllRequiredEventer(gc);
+            //     this.reset = false;
+            // }
 
-        if (this.reset) {
-            this.resetAllGridPaintersRequiredEventer([]);
-            this.repaintAllRequiredEventer(gc);
-            this.reset = false;
-        }
+            // gc.clipSave(clipToGrid, firstVisibleColumnLeft, 0, lastVisibleColumnRight, viewHeight);
 
-        // gc.clipSave(clipToGrid, firstVisibleColumnLeft, 0, lastVisibleColumnRight, viewHeight);
+            let cellIndex = 0;
+            // For each column...
+            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+                const vc = viewLayoutColumns[columnIndex];
 
-        // For each column...
-        this.viewLayoutColumns.forEach((vc, c) => {
-            let viewCell = pool[p]; // first cell in column c
-            vc = viewCell.visibleColumn;
+                let preferredWidth: number | undefined;
 
-            let preferredWidth: number | undefined;
+                // Optionally clip to visible portion of column to prevent text from overflowing to right.
+                const columnClip = vc.column.settings.columnClip;
+                gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
-            // Optionally clip to visible portion of column to prevent text from overflowing to right.
-            const columnClip = vc.column.settings.columnClip;
-            gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
+                // For each row of each subgrid (of each column)...
+                for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                    const cell = pool[cellIndex++]; // next cell down the column (make sure correct pool is chosen above)
 
-            // For each row of each subgrid (of each column)...
-            for (let r = 0; r < R; r++, p++) {
-                viewCell = pool[p]; // next cell down the column (redundant for first cell in column)
-
-                try {
-                    // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
-                    const paintWidth = this.paintCell(gc, viewCell, undefined);
-                    if (paintWidth !== undefined) {
-                        if (preferredWidth === undefined) {
-                            preferredWidth = paintWidth;
-                        } else {
-                            preferredWidth = Math.max(preferredWidth, paintWidth);
+                    try {
+                        // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
+                        const paintWidth = this.paintCell(gc, cell, undefined);
+                        if (paintWidth !== undefined) {
+                            if (preferredWidth === undefined) {
+                                preferredWidth = paintWidth;
+                            } else {
+                                preferredWidth = Math.max(preferredWidth, paintWidth);
+                            }
                         }
+                    } catch (e) {
+                        this.paintErrorCell(e as Error, gc, vc, cell.visibleRow);
                     }
-                } catch (e) {
-                    this.paintErrorCell(e as Error, gc, vc, pool[p].visibleRow);
+                }
+
+                gc.clipRestore();
+
+                if (preferredWidth !== undefined) {
+                    vc.column.settings.preferredWidth = Math.ceil(preferredWidth);
                 }
             }
 
-            gc.clipRestore();
+            // gc.clipRestore(clipToGrid);
 
-            if (preferredWidth !== undefined) {
-                viewCell.visibleColumn.column.settings.preferredWidth = Math.ceil(preferredWidth);
-            }
-        });
-
-        // gc.clipRestore(clipToGrid);
-
-        // if (this.grid.properties.boxSizing === 'border-box') {
-        //     this.renderer.paintGridlines(gc);
-        // }
+            // if (this.grid.properties.boxSizing === 'border-box') {
+            //     this.renderer.paintGridlines(gc);
+            // }
+        }
     }
 }
 

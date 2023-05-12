@@ -2,7 +2,6 @@
 import { ColumnInterface } from '../../interfaces/column-interface';
 import { CanvasEx } from '../canvas-ex/canvas-ex';
 import { ViewCell } from '../cell/view-cell';
-import { ViewLayout } from '../view/view-layout';
 
 /** @public */
 export namespace EventDetail {
@@ -36,9 +35,6 @@ export namespace EventDetail {
         readonly value: number;
         readonly index: number;
         readonly offset: number;
-    }
-
-    export interface ChangedColumnsViewWidths extends ViewLayout.ChangedColumnsViewWidths{
     }
 
     export interface ColumnSort {

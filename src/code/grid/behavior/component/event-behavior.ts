@@ -1,5 +1,6 @@
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
 import { ViewCell } from '../../components/cell/view-cell';
+import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { EventName } from '../../components/event/event-name';
 import { Selection } from '../../components/selection/selection';
@@ -30,6 +31,7 @@ export class EventBehavior {
 
     constructor(
         private readonly _canvasEx: CanvasEx,
+        private readonly _columnsManager: ColumnsManager,
         private readonly _selection: Selection,
         private readonly _viewLayout: ViewLayout,
         private readonly _descendantEventer: EventBehavior.DescendantEventer,
@@ -54,21 +56,20 @@ export class EventBehavior {
         this._canvasEx.touchMoveEventer = (event) => this.processTouchMoveEvent(event);
         this._canvasEx.touchEndEventer = (event) => this.processTouchEndEvent(event);
         this._canvasEx.copyEventer = (event) => this.processCopyEvent(event);
+
+        this._columnsManager.allColumnListChangedEventer = (typeId, index, count, targetIndex) => this.processAllColumnListChangedEvent(
+            typeId, index, count, targetIndex
+        );
+        this._columnsManager.activeColumnListChangedEventer = (typeId, index, count, targetIndex, ui) => this.processActiveColumnListChangedEvent(
+            typeId, index, count, targetIndex, ui
+        );
+        this._columnsManager.columnsWidthChangedEventer = (columns, ui) => this.processColumnsWidthChangedEvent(columns, ui);
+
+        this._viewLayout.columnsViewWidthsChangedEventer = () => this.processColumnsViewWidthsChangedEvent();
     }
 
     destroy() {
         this._destroyed = true;
-    }
-
-    processAllColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
-        this._descendantEventer.allColumnListChanged(typeId, index, count, targetIndex);
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-columns-created', false, undefined);
-        }
-    }
-
-    processActiveColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
-        this._descendantEventer.activeColumnListChanged(typeId, index, count, targetIndex, ui);
     }
 
     processColumnsChangedEvent() {
@@ -76,18 +77,6 @@ export class EventBehavior {
 
         if (this._dispatchEnabled) {
             this.dispatchCustomEvent('rev-column-changed-event', false, undefined);
-        }
-    }
-
-    processColumnsWidthChangedEvent(columns: ColumnInterface[], ui: boolean) {
-        this._descendantEventer.columnsWidthChanged(columns, ui);
-    }
-
-    processColumnsViewWidthsChanged(changedColumnsViewWidths: ViewLayout.ChangedColumnsViewWidths) {
-        this._descendantEventer.columnsViewWidthsChanged(changedColumnsViewWidths);
-
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-columns-view-widths-changed', false, changedColumnsViewWidths)
         }
     }
 
@@ -161,6 +150,29 @@ export class EventBehavior {
 
         if (this._dispatchEnabled) {
             this.dispatchCustomEvent('rev-column-sort', false, event);
+        }
+    }
+
+    private processAllColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
+        this._descendantEventer.allColumnListChanged(typeId, index, count, targetIndex);
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-columns-created', false, undefined);
+        }
+    }
+
+    private processActiveColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
+        this._descendantEventer.activeColumnListChanged(typeId, index, count, targetIndex, ui);
+    }
+
+    private processColumnsWidthChangedEvent(columns: ColumnInterface[], ui: boolean) {
+        this._descendantEventer.columnsWidthChanged(columns, ui);
+    }
+
+    private processColumnsViewWidthsChangedEvent() {
+        this._descendantEventer.columnsViewWidthsChanged();
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-columns-view-widths-changed', false, undefined)
         }
     }
 
@@ -448,7 +460,7 @@ export namespace EventBehavior {
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
         readonly columnsChanged: DescendantEventer.Signal;
         readonly columnsWidthChanged: (this: void, columns: ColumnInterface[], ui: boolean) => void;
-        readonly columnsViewWidthsChanged: (this: void, changedColumnsViewWidths: ViewLayout.ChangedColumnsViewWidths) => void;
+        readonly columnsViewWidthsChanged: DescendantEventer.Signal;
         readonly selectionChanged: DescendantEventer.Signal;
         readonly scroll: (this:void, isX: boolean, newValue: number, index: number, offset: number) => void;
         readonly focus: DescendantEventer.Focus;

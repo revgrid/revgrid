@@ -25,6 +25,14 @@ export interface SubgridInterface {
     getRowMetadata(rowIndex: number): MetaModel.RowMetadata | undefined;
     setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined): void;
 
+    getRowProperties(rowIndex: number): MetaModel.RowProperties | undefined;
+    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined): boolean;
+
+    getRowProperty(rowIndex: number, key: string): unknown | undefined;
+    getRowHeight(rowIndex: number): number;
+
+    setRowProperty(y: number, key: string, isHeight: boolean, value: unknown): boolean;
+
     getValue(column: ColumnInterface, rowIndex: number): DataModel.DataValue;
     setValue(column: ColumnInterface, rowIndex: number, value: DataModel.DataValue): void;
 }

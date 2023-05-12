@@ -105,7 +105,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
             const index = scroller.index + (dir * delta);
             scroller.index = index;
 
-            if (index > scroller.contentRange.finish || index < 0) {
+            if (index > this.viewLayout.verticalScrollablePlaneDimension.finish || index < 0) {
                 return;
             }
 

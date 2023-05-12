@@ -431,7 +431,7 @@ export namespace ColumnSettings {
 // @public (undocumented)
 export class ColumnsManager {
     // @internal
-    constructor(_gridSettings: GridSettings, _behaviorChangedEventer: ColumnsManager.BehaviorChangedEventer, _scrollUpdateRequiredEventer: ColumnsManager.ScrollUpdateRequiredEventer, _allColumnListChangedEventer: ListChangedEventHandler, _activeColumnListChangedEventer: UiableListChangedEventHandler, _columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer);
+    constructor(schemaModel: SchemaModel, _gridSettings: GridSettings, _behaviorChangedEventer: ColumnsManager.BehaviorChangedEventer, _scrollUpdateRequiredEventer: ColumnsManager.ScrollUpdateRequiredEventer, _allColumnListChangedEventer: ListChangedEventHandler, _activeColumnListChangedEventer: UiableListChangedEventHandler, _columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer);
     // (undocumented)
     get activeColumnCount(): number;
     // @internal (undocumented)
@@ -510,8 +510,8 @@ export class ColumnsManager {
     schemaColumnsDeleted(_index: number, count: number): void;
     // @internal (undocumented)
     schemaColumnsInserted(_index: number, count: number): void;
-    // @internal (undocumented)
-    schemaModel: SchemaModel;
+    // (undocumented)
+    readonly schemaModel: SchemaModel;
     // @internal (undocumented)
     setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]): void;
     // (undocumented)

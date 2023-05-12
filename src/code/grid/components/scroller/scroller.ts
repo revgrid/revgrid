@@ -1,5 +1,5 @@
 import { AssertError } from '../../lib/revgrid-error';
-import { ScrollDimensionMonitor } from '../../lib/scroll-dimension-monitor';
+import { ScrollPlaneDimension } from '../view/scroll-plane-dimension';
 import { cssInjector } from './css-injector';
 
 // Following is the sole style requirement for bar and thumb elements.
@@ -75,13 +75,6 @@ export class Scroller {
      * Caveat: Note that a 2-finger drag on an Apple trackpad emits events with _both_ `deltaX ` and `deltaY` data so you might want to delay making the above adjustment until you can determine that you are getting Y data only with no X data at all (which is a sure bet you on a mouse wheel rather than a trackpad).
      */
     private deltaProp: Scroller.DeltaProp;
-    private _contentStart: number;
-    private _contentFinish: number;
-    private _contentSize: number;
-    private _contentNext: number; // _contentStart + _contentSize (or _contentFinish + 1)
-    private _viewportStart: number;
-    private _viewportFinish: number;
-    private _viewportSize: number;
 
 
     private _classPrefix: string | undefined
@@ -182,7 +175,7 @@ export class Scroller {
      * @param options - Options object. See the type definition for member details.
      */
     constructor(
-        private readonly _dimensionMonitor: ScrollDimensionMonitor,
+        private readonly _scrollPlaneDimension: ScrollPlaneDimension,
         options: Scroller.Options
     ) {
         this._indexMode = options.indexMode === true;
@@ -208,12 +201,7 @@ export class Scroller {
         options = options || {};
 
         // presets
-        this._viewportStart = options.index ?? 0;
         this.orientation = options.orientation ?? Scroller.OrientationEnum.vertical;
-        this._contentStart = options.range?.start ?? 0;
-        this._contentFinish = options.range?.finish ?? 100;
-        this._contentSize = this._contentFinish - this._contentStart + 1;
-        this._contentNext = this._contentFinish + 1;
         this.increment = options.increment ?? 1;
         this.paging = options.paging ?? true;
         this.barStyles = options.barStyles ?? null;
@@ -232,18 +220,15 @@ export class Scroller {
             cssInjector(cssFinBars, 'finbar-base', options.cssStylesheetReferenceElement);
         }
 
-        this._dimensionMonitor.startSizeChangedEventer = () => {
-            const monitor = this._dimensionMonitor;
-            const start = monitor.start;
-            const range: Scroller.ContentRange = {
-                start: start,
-                finish: start + monitor.size - 1,
-            };
-            this.contentRange = range;
+        this._scrollPlaneDimension.changedEventer = () => {
+            if (this._indexMode) {
+                const index = this.index;
+                this.index = index; // re-clamp
+            }
         }
 
-        this._dimensionMonitor.viewportStartChangedEventer = () => {
-            this.setViewportStart(this._dimensionMonitor.start);
+        this._scrollPlaneDimension.viewportStartChangedEventer = () => {
+            this.setViewportStart(this._scrollPlaneDimension.start);
         }
     }
 
@@ -378,38 +363,6 @@ export class Scroller {
     }
 
     /**
-     * @name range
-     * @summary Setter for the minimum and maximum scroll values.
-     * @desc Set by the constructor. These values are the limits for {@link FooBar#index|index}.
-     *
-     * The setter accepts an object with exactly two numeric properties: `.min` which must be less than `.max`. The values are extracted and the object is discarded.
-     *
-     * The getter returns a new object with `.min` and '.max`.
-     */
-    set contentRange(range: Scroller.ContentRange) {
-        this._contentStart = range.start;
-        this._contentFinish = range.finish;
-        this._contentSize = range.finish - range.start + 1;
-        this._contentNext = this._contentFinish + 1;
-        if (this._indexMode) {
-            const index = this.index;
-            this.index = index; // re-clamp
-        }
-    }
-    get contentRange() {
-        const result: Scroller.ContentRange = {
-            start: this._contentStart,
-            finish: this._contentFinish
-        };
-
-        return result;
-    }
-
-    get contentStart() { return this._contentStart; }
-    get contentFinish() { return this._contentFinish; }
-    get contentSize() { return this._contentSize; }
-
-    /**
      * @summary Index value of the scrollbar.
      * @desc This is the position of the scroll thumb.
      *
@@ -422,30 +375,20 @@ export class Scroller {
      * @see {@link Scroller#_setScroll|_setScroll}
      */
     set index(idx: number) {
-        idx = Math.min(this._contentFinish, Math.max(this._contentStart, idx)); // clamp it
+        idx = Math.min(this._scrollPlaneDimension.finish, Math.max(this._scrollPlaneDimension.start, idx)); // clamp it
         this._setScroll(idx, undefined, true);
         // this._setThumbSize();
     }
     get index() {
-        return this._viewportStart;
+        return this._scrollPlaneDimension.viewportStart;
     }
 
     get viewportStart() {
-        return this._viewportStart;
+        return this._scrollPlaneDimension.viewportStart;
     }
 
     get viewportFinish() {
-        return this._viewportFinish;
-    }
-
-    get viewportSize() {
-        return this._viewportSize;
-    }
-
-    set viewportSize(value: number) {
-        // Do not set any of the other viewport fields. These will be set later
-        this._viewportSize = value;
-        this.setThumbSize();
+        return this._scrollPlaneDimension.viewportFinish;
     }
 
     get hidden() {
@@ -458,13 +401,13 @@ export class Scroller {
 
     scrollBy(delta: number) {
         // make sure does not go beyond end edge
-        let newViewportStart = this._viewportStart + delta;
-        if (newViewportStart < this._contentStart) {
-            newViewportStart = this._contentStart;
+        let newViewportStart = this._scrollPlaneDimension.viewportStart + delta;
+        if (newViewportStart < this._scrollPlaneDimension.start) {
+            newViewportStart = this._scrollPlaneDimension.start;
         } else {
-            const viewportNext = newViewportStart + this._viewportSize;
-            if (viewportNext > this._contentNext) {
-                newViewportStart = this._contentNext - this._viewportSize;
+            const viewportNext = newViewportStart + this._scrollPlaneDimension.viewportSize;
+            if (viewportNext > this._scrollPlaneDimension.after) {
+                newViewportStart = this._scrollPlaneDimension.after - this._scrollPlaneDimension.viewportSize;
             }
         }
         this._setScroll(newViewportStart, undefined, true);
@@ -472,7 +415,7 @@ export class Scroller {
 
     scrollIndexBy(delta: number) {
         // same as scroll(). Separate call for VScroller. Remove when VScroller uses Viewport
-        this.index = this._viewportStart + delta;
+        this.index = this._scrollPlaneDimension.viewportStart + delta;
     }
 
     /**
@@ -482,8 +425,8 @@ export class Scroller {
      * @param barPosition - The new thumb position in pixels and scaled relative to the containing {@link Scroller#bar|bar} element, i.e., a proportional number in the range `0`..`thumbMax`.
      */
     private _setScroll(viewportStart: number, barPosition: number | undefined, fireOnChange: boolean) {
-        this._viewportStart = viewportStart;
-        this._viewportFinish = this._viewportStart + this._viewportSize - 1;
+        this._scrollPlaneDimension.viewportStart = viewportStart;
+        this._scrollPlaneDimension.viewportFinish = this._scrollPlaneDimension.viewportStart + this._scrollPlaneDimension.viewportSize - 1;
 
         // Display the index value in the test panel
         if (this.testPanelItem && this.testPanelItem.index instanceof HTMLElement) {
@@ -498,9 +441,9 @@ export class Scroller {
         // Move the thumb
         if (barPosition === undefined) {
             if (this._indexMode) {
-                barPosition = (viewportStart - this._contentStart) / (this._contentFinish - this._contentStart) * this._thumbMax;
+                barPosition = (viewportStart - this._scrollPlaneDimension.start) / (this._scrollPlaneDimension.finish - this._scrollPlaneDimension.start) * this._thumbMax;
             } else {
-                barPosition = (viewportStart - this._contentStart) * this._thumbScaling;
+                barPosition = (viewportStart - this._scrollPlaneDimension.start) * this._thumbScaling;
             }
         }
         this.thumb.style[this.oh.leading] = barPosition + 'px';
@@ -571,12 +514,12 @@ export class Scroller {
         //     this.containerSize = containerRect[this.oh.size];
         //     this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
         // } else {
-            // this._viewportSize = 1;
+            // this._scrollPlaneDimension.viewportSize = 1;
             // this.increment = increment || this.increment;
         // }
 
         if (this._indexMode) {
-            this._viewportSize = 1;
+            this._scrollPlaneDimension.viewportSize = 1;
         }
 
         const index = this.index;
@@ -626,11 +569,13 @@ export class Scroller {
     shortenEndBy(whichEnd: 'trailing' | 'leading', otherFinBar: Scroller | null) {
         if (!otherFinBar) {
             delete this._auxStyles;
-        } else if (otherFinBar instanceof Scroller && otherFinBar.orientation !== this.orientation) {
-            const otherStyle = window.getComputedStyle(otherFinBar.bar);
-            const ooh = orientationHashes[otherFinBar.orientation];
-            this._auxStyles = {};
-            this._auxStyles[whichEnd] = otherStyle[ooh.thickness];
+        } else {
+            if (otherFinBar instanceof Scroller && otherFinBar.orientation !== this.orientation) {
+                const otherStyle = window.getComputedStyle(otherFinBar.bar);
+                const ooh = orientationHashes[otherFinBar.orientation];
+                this._auxStyles = {};
+                this._auxStyles[whichEnd] = otherStyle[ooh.thickness];
+            }
         }
         return this; // for chaining
     }
@@ -671,10 +616,10 @@ export class Scroller {
         const thumbMarginTrailing = parseInt(thumbComp[oh.marginTrailing]);
         const thumbMargins = thumbMarginLeading + thumbMarginTrailing;
         const barSize = this.bar.getBoundingClientRect()[oh.size];
-        this._thumbScaling = barSize / this._contentSize;
-        const thumbSize = Math.max(20, barSize * this._viewportSize / this._contentSize);
+        this._thumbScaling = barSize / this._scrollPlaneDimension.size;
+        const thumbSize = Math.max(20, barSize * this._scrollPlaneDimension.viewportSize / this._scrollPlaneDimension.size);
 
-        if (this._viewportSize > 0 && this._viewportSize < this._contentSize) {
+        if (this._scrollPlaneDimension.viewportSize > 0 && this._scrollPlaneDimension.viewportSize < this._scrollPlaneDimension.size) {
             this.bar.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
         } else {
@@ -805,19 +750,19 @@ export class Scroller {
 
         if (this._indexMode) {
             barPosition = Math.min(this._thumbMax, Math.max(0, evt[this.oh.axis] - this._pinOffset));
-            viewportStart = barPosition / this._thumbMax * (this._contentFinish - this._contentStart) + this._contentStart;
+            viewportStart = barPosition / this._thumbMax * (this._scrollPlaneDimension.finish - this._scrollPlaneDimension.start) + this._scrollPlaneDimension.start;
         } else {
             barPosition = evt[this.oh.axis] - this._pinOffset;
             if (barPosition < 0) {
                 // make sure does not go beyond start edge
                 barPosition = 0;
             }
-            viewportStart = barPosition / this._thumbScaling + this._contentStart;
+            viewportStart = barPosition / this._thumbScaling + this._scrollPlaneDimension.start;
 
             // make sure does not go beyond end edge
-            const viewportNext = viewportStart + this._viewportSize;
-            if (viewportNext > this._contentNext) {
-                viewportStart = this._contentNext - this._viewportSize;
+            const viewportNext = viewportStart + this._scrollPlaneDimension.viewportSize;
+            if (viewportNext > this._scrollPlaneDimension.after) {
+                viewportStart = this._scrollPlaneDimension.after - this._scrollPlaneDimension.viewportSize;
                 barPosition = undefined;
             }
         }
@@ -855,8 +800,6 @@ export namespace Scroller {
     export interface Options {
         indexMode?: boolean;
         orientation?: Orientation;
-        index?: number;
-        range?: ContentRange;
         increment?: number;
         paging?: boolean | Paging;
         barStyles?: BarStyles;

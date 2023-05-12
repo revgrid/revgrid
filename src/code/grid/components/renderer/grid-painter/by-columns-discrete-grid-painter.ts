@@ -36,7 +36,6 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
         viewLayout: ViewLayout,
         focus: Focus,
         selection: Selection,
-        resetAllGridPaintersRequiredEventer: GridPainter.ResetAllGridPaintersRequiredEventer,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(
@@ -47,7 +46,6 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
             viewLayout,
             focus,
             selection,
-            resetAllGridPaintersRequiredEventer,
             repaintAllRequiredEventer,
             ByColumnsDiscreteGridPainter.key,
             false,
@@ -56,14 +54,12 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
-        // this = this.renderer
-        let prefillColor: string;
-        const visibleColumns = this.viewLayoutColumns;
-        const visibleRows = this.viewLayoutRows;
-        const C = visibleColumns.length;
-        const cLast = C - 1;
-        const R = visibleRows.length;
-        const pool = this.viewCellPool;
+        const viewLayoutColumns = this.viewLayout.columns;
+        const columnCount = viewLayoutColumns.length;
+        const viewLayoutRows = this.viewLayout.rows;
+        const rowCount = viewLayoutRows.length;
+        const lastColumnIndex = columnCount - 1;
+        const pool = this.viewLayout.getColumnRowOrderedCellPool(); // must match algorithm below
         // clipToGrid;
         // let firstVisibleColumnLeft: number;
         // let lastVisibleColumnRight: number;
@@ -74,38 +70,37 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
         //     firstVisibleColumnLeft = this.visibleColumns[0].left;
         //     lastVisibleColumnRight = this.visibleColumns[cLast].right;
         // }
-        const viewHeight = R ? visibleRows[R - 1].bottom : 0;
+        const viewHeight = rowCount ? viewLayoutRows[rowCount - 1].bottom : 0;
 
         const canvasBounds = this.canvasEx.bounds;
         gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
-        if (!C || !R) { return; }
+        if (!columnCount || !rowCount) { return; }
 
-        if (this.reset) {
-            this.resetAllGridPaintersRequiredEventer(['by-columns']);
-            this.reset = false;
-            this.bundleColumns(true);
-        }
+        // if (this.reset) {
+        //     this.resetAllGridPaintersRequiredEventer(['by-columns']);
+        //     this.reset = false;
+        //     this.bundleColumns(true);
+        // }
 
         // gc.clipSave(clipToGrid, firstVisibleColumnLeft, 0, lastVisibleColumnRight, viewHeight);
 
         // For each column...
-        let p = 0;
-        this.viewLayoutColumns.forEach((vc, c) => {
-            let viewCell = pool[p]; // first cell in column c
-            vc = viewCell.visibleColumn;
+        let cellIndex = 0;
+        for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+            const vc = viewLayoutColumns[columnIndex];
 
-            prefillColor = vc.column.settings.backgroundColor;
+            const prefillColor = vc.column.settings.backgroundColor;
             gc.clearFill(vc.left, 0, vc.width, viewHeight, prefillColor);
 
             // Optionally clip to visible portion of column to prevent text from overflowing to right.
             const columnClip = vc.column.settings.columnClip;
-            gc.clipSave(columnClip ?? c === cLast, 0, 0, vc.rightPlus1, viewHeight);
+            gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
             let preferredWidth: number | undefined;
             // For each row of each subgrid (of each column)...
-            for (let r = 0; r < R; r++, p++) {
-                viewCell = pool[p]; // next cell down the column (redundant for first cell in column)
+            for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                const viewCell = pool[cellIndex++]; // next cell down the column (make sure the correct pool is used above)
 
                 try {
                     const paintWidth = this.paintCell(gc, viewCell, prefillColor);
@@ -126,7 +121,7 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
             if (preferredWidth !== undefined) {
                 vc.column.settings.preferredWidth = Math.ceil(preferredWidth);
             }
-        });
+        }
 
         // gc.clipRestore(clipToGrid);
     }

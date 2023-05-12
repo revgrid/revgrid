@@ -23,6 +23,9 @@ export class Subgrid implements SubgridInterface {
     /** @internal */
     private rowProxy: Subgrid.DataRowProxy; // used if DataModel.getRowProperties not implemented
 
+    /** @internal */
+    private readonly _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | null;
+
     private _columnsManagerBeforeCreateColumnsListener = () => this.rowProxy.updateSchema();
 
     /** @internal */
@@ -38,6 +41,7 @@ export class Subgrid implements SubgridInterface {
         public readonly dataModel: DataModel,
         public readonly cellModel: CellModel,
         public readonly metaModel: MetaModel | undefined,
+        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
         public readonly selectable: boolean,
     ) {
         switch (role) {
@@ -62,6 +66,13 @@ export class Subgrid implements SubgridInterface {
         }
 
         this.rowProxy = new Subgrid.DataRowProxy(this.schemaModel, this.dataModel);
+
+        if (rowPropertiesPrototype === undefined) {
+            this._rowPropertiesPrototype = null;
+        } else {
+            this._rowPropertiesPrototype = rowPropertiesPrototype;
+        }
+
         this._columnsManager.addBeforeCreateColumnsListener(this._columnsManagerBeforeCreateColumnsListener); // put in a behavior
     }
 
@@ -130,15 +141,112 @@ export class Subgrid implements SubgridInterface {
 
     /** @internal */
     setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined) {
-
         if (this.metaModel !== undefined && this.metaModel.setRowMetadata !== undefined) {
             this.metaModel.setRowMetadata(rowIndex, newMetadata);
         }
     }
 
+    /**
+     * @param yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param rowPropertiesPrototype - Prototype for a new properties object when one does not already exist. If you don't define this and one does not already exist, this call will return `undefined`.
+     * Typical defined value is `null`, which creates a plain object with no prototype, or `Object.prototype` for a more "natural" object.
+     * _(Required when 3rd param provided.)_
+     * @returns The row properties object which will be one of:
+     * * object - existing row properties object or new row properties object created from `prototype`; else
+     * * `false` - MetaModel get function not set up; else
+     * * `null` - row does not exist
+     * * `undefined` - row exists but does not have any properties
+     */
+    getRowProperties(rowIndex: number): MetaModel.RowProperties | undefined {
+        const metadata = this.getRowMetadata(rowIndex);
+        if (metadata === undefined) {
+            return undefined;
+        } else {
+            return metadata.__ROW;
+        }
+    }
+
+    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined) {
+        const metadata = this.getRowMetadata(rowIndex);
+        return this.setRowMetadataRowProperties(rowIndex, metadata, properties);
+        // if (metadata) {
+        //     metadata.__ROW = Object.create(this._rowPropertiesPrototype);
+        // }
+    }
+
+    getRowProperty(rowIndex: number, key: string) {
+        // undefined return means there is no row properties object OR no such row property `[key]`
+        const rowProps = this.getRowProperties(rowIndex);
+        if (rowProps === undefined) {
+            return undefined;
+        } else {
+            return rowProps[key as keyof MetaModel.RowProperties];
+        }
+    }
+
+    /**
+     * @param yOrCellEvent - Data row index local to `dataModel`.
+     * @returns The row height in pixels.
+     */
+    getRowHeight(rowIndex: number) {
+        const gridSettings = this._gridSettings;
+        const rowProps = this.getRowProperties(rowIndex);
+        if (rowProps === undefined) {
+            return gridSettings.defaultRowHeight;
+        } else {
+            return rowProps.height ?? gridSettings.defaultRowHeight;
+        }
+    }
+
+    setRowProperty(y: number, key: string, isHeight: boolean, value: unknown) {
+        let metadata = this.getRowMetadata(y);
+        if (metadata === undefined) {
+            metadata = Object.create(this._rowPropertiesPrototype) as MetaModel.RowMetadata;
+        }
+        let properties: MetaModel.RowProperties | undefined = metadata.__ROW;
+
+        if (value !== undefined) {
+            if (properties === undefined) {
+                const createdProperties = Object.create(this._rowPropertiesPrototype);
+                if (createdProperties === null) {
+                    throw new AssertError('RPBSRP99441');
+                } else {
+                    properties = createdProperties as MetaModel.RowProperties;
+                }
+            }
+            properties[key as keyof MetaModel.RowProperties] = value;
+        } else {
+            if (properties !== undefined) {
+                delete properties[(isHeight ? '_height' : key) as keyof MetaModel.RowProperties];
+            }
+        }
+
+        return this.setRowMetadataRowProperties(y, metadata, properties);
+    }
+
     /** @internal */
     getCellPainter(viewCell: ViewCell, prefillColor: string | undefined): CellPainter {
         return this.cellModel.getCellPainter(viewCell, prefillColor);
+    }
+
+    private setRowMetadataRowProperties(y: number, existingMetadata: MetaModel.RowMetadata | undefined, properties: MetaModel.RowProperties | undefined) {
+        if (existingMetadata === undefined) {
+            // Row exists but does not yet have any Metadata
+            if (properties !== undefined) {
+                existingMetadata = {
+                    __ROW: properties,
+                }
+                this.setRowMetadata(y, existingMetadata);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            // Row exists and has Metadata. Just update __ROW
+            existingMetadata.__ROW = properties;
+            this.setRowMetadata(y, existingMetadata);
+            return true;
+        }
     }
 
     /** @internal */

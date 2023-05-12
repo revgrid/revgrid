@@ -9,9 +9,15 @@ import { Column, ColumnWidth } from './column';
 /** @public */
 export class ColumnsManager {
     /** @internal */
-    schemaModel: SchemaModel;
-    /** @internal */
     columnsCreated = false;
+    /** @internal */
+    invalidateViewEventer: ColumnsManager.InvalidateViewEventer;
+    /** @internal */
+    allColumnListChangedEventer: ListChangedEventer;
+    /** @internal */
+    activeColumnListChangedEventer: UiableListChangedEventer;
+    /** @internal */
+    columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer;
     /** @internal */
     private _activeColumns = new Array<Column>();
     /** @internal */
@@ -27,13 +33,11 @@ export class ColumnsManager {
 
     /** @internal */
     constructor(
+        readonly schemaModel: SchemaModel,
         private readonly _gridSettings: GridSettings,
-        private readonly _behaviorChangedEventer: ColumnsManager.BehaviorChangedEventer,
-        private readonly _scrollUpdateRequiredEventer: ColumnsManager.ScrollUpdateRequiredEventer,
-        private readonly _allColumnListChangedEventer: ListChangedEventer,
-        private readonly _activeColumnListChangedEventer: UiableListChangedEventer,
-        private readonly _columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer,
-    ) { }
+        private readonly _invalidateScrollPlaneDimensionRequiredEventer: ColumnsManager.InvalidateScrollPlaneDimensionRequiredEventer,
+    ) {
+    }
 
     get allColumnCount() { return this._allColumns.length; }
     get activeColumnCount() { return this._activeColumns.length; }
@@ -201,8 +205,9 @@ export class ColumnsManager {
 
         this.columnsCreated = true;
 
-        this._activeColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined, false);
-        this._allColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined);
+        this.invalidateViewEventer(true);
+        this.activeColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined, false);
+        this.allColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined);
     }
 
     /** @internal */
@@ -260,7 +265,8 @@ export class ColumnsManager {
         }
         const changed = column.setWidth(width);
         if (changed) {
-            this._columnsWidthChangedEventer([column], ui);
+            this.invalidateViewEventer(true);
+            this.columnsWidthChangedEventer([column], ui);
             return column;
         } else {
             return undefined;
@@ -281,7 +287,8 @@ export class ColumnsManager {
             return false;
         } else {
             changedColumns.length = changedColumnsCount;
-            this._columnsWidthChangedEventer(changedColumns, ui);
+            this.invalidateViewEventer(true);
+            this.columnsWidthChangedEventer(changedColumns, ui);
             return true;
         }
     }
@@ -305,7 +312,8 @@ export class ColumnsManager {
             return false;
         } else {
             changedColumns.length = changedColumnsCount;
-            this._columnsWidthChangedEventer(changedColumns, ui);
+            this.invalidateViewEventer(true);
+            this.columnsWidthChangedEventer(changedColumns, ui);
             return true;
         }
     }
@@ -440,7 +448,7 @@ export class ColumnsManager {
                 column.setWidth(width);
             }
         }
-        this._activeColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined, ui);
+        this.activeColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined, ui);
     }
 
     /**
@@ -456,7 +464,7 @@ export class ColumnsManager {
     /** @internal */
     hideActiveColumn(columnIndex: number) {
         this._activeColumns.splice(columnIndex, 1);
-        this._scrollUpdateRequiredEventer();
+        this._invalidateScrollPlaneDimensionRequiredEventer();
     }
 
     /** @internal */
@@ -486,6 +494,8 @@ export class ColumnsManager {
 
         const oldActiveCount = this._activeColumns.length;
         this._activeColumns.splice(0, oldActiveCount, ...newActiveColumns);
+
+        this.invalidateViewEventer(true);
     }
 
     /**
@@ -511,7 +521,7 @@ export class ColumnsManager {
 
         // column.clearProperties(); // needs implementation
         column.settings.merge(properties);
-        this._behaviorChangedEventer();
+        this.invalidateViewEventer(true); // true in case width affected
         return column.settings;
     }
 
@@ -544,7 +554,7 @@ export class ColumnsManager {
             return;
         }
         columns[target] = sourceColumn;
-        this._behaviorChangedEventer();
+        this.invalidateViewEventer(true); // true in case swapped with fixed column
     }
 
     /** @internal */
@@ -560,7 +570,7 @@ export class ColumnsManager {
         }
         this.moveActive(columns, sourceIndex, targetIndex, ui);
 
-        this._scrollUpdateRequiredEventer();
+        this._invalidateScrollPlaneDimensionRequiredEventer();
     }
 
     /** @internal */
@@ -576,7 +586,7 @@ export class ColumnsManager {
         }
         this.moveActive(columns, sourceIndex, targetIndex + 1, ui);
 
-        this._scrollUpdateRequiredEventer();
+        this._invalidateScrollPlaneDimensionRequiredEventer();
     }
 
     /** @internal */
@@ -584,14 +594,13 @@ export class ColumnsManager {
         const old = arr[oldIndex];
         arr.splice(oldIndex, 1);
         arr.splice(newIndex > oldIndex ? newIndex - 1 : newIndex, 0, old);
-        this._activeColumnListChangedEventer(ListChangedTypeId.Move, oldIndex, 1, newIndex, ui);
+        this.activeColumnListChangedEventer(ListChangedTypeId.Move, oldIndex, 1, newIndex, ui);
         return arr;
     }
 
     /** @internal */
     autosizeAllColumns() {
         this.checkColumnAutosizing(true);
-        this._behaviorChangedEventer();
     }
 
     /** @internal */
@@ -604,6 +613,9 @@ export class ColumnsManager {
             }
         }
 
+        if (autoSized) {
+            this.invalidateViewEventer(true);
+        }
         return autoSized;
     }
 
@@ -637,8 +649,8 @@ export class ColumnsManager {
 
 /** @public */
 export namespace ColumnsManager {
-    export type BehaviorChangedEventer = (this: void) => void;
-    export type ScrollUpdateRequiredEventer = (this: void) => void;
+    export type InvalidateViewEventer = (this: void, scrollablePlaneDimensionAsWell: boolean) => void;
+    export type InvalidateScrollPlaneDimensionRequiredEventer = (this: void) => void;
     export type ColumnsWidthChangedEventer = (this: void, columns: ColumnInterface[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;

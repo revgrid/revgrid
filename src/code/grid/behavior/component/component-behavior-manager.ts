@@ -10,15 +10,13 @@ import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { Subgrid } from '../../components/subgrid/subgrid';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ScrollablePlane } from '../../components/view/scrollable-plane';
+import { ScrollPlane } from '../../components/view/scroll-plane';
 import { ViewLayout } from '../../components/view/view-layout';
-import { ColumnInterface } from '../../interfaces/column-interface';
 import { DataModel } from '../../interfaces/data-model';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { MetaModel } from '../../interfaces/meta-model';
 import { SchemaModel } from '../../interfaces/schema-model';
 import { AssertError } from '../../lib/revgrid-error';
-import { ListChangedTypeId } from '../../lib/types';
 import { assignOrDelete } from '../../lib/utils';
 import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
 import { AdapterSetConfig } from './adapter-set-config';
@@ -80,7 +78,7 @@ export class ComponentBehaviorManager {
     readonly dataExtractBehavior: DataExtractBehavior;
 
     private readonly _modelCallbackRouter: ModelCallbackRouter;
-    private readonly _scrollablePlane: ScrollablePlane;
+    private readonly _scrollPlane: ScrollPlane;
     private readonly _horizontalScroller: Scroller;
     private readonly _verticalScroller: Scroller;
 
@@ -89,9 +87,6 @@ export class ComponentBehaviorManager {
     private _destroyed = false;
     private _mainSubgrid: Subgrid;
     private _mainDataModel: DataModel;
-    private _behaviorChangeCheckRowCount = 0;
-    private _behaviorChangeCheckColumnCount = 0;
-    private _needsShapeChanged = false;
 
     // Start RowProperties Mixin
     /** @internal */
@@ -123,7 +118,6 @@ export class ComponentBehaviorManager {
         containerHtmlElement: HTMLElement,
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
         optionedGridProperties: Partial<GridSettings> | undefined,
-        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
         adapterSetConfig: AdapterSetConfig,
         loadBuiltinFinbarStylesheet: boolean,
         descendantEventer: EventBehavior.DescendantEventer,
@@ -134,11 +128,6 @@ export class ComponentBehaviorManager {
             this.gridSettings.merge(optionedGridProperties);
         }
 
-        rowPropertiesPrototype ??= new ComponentBehaviorManager.DefaultRowProperties(
-            this.gridSettings,
-            () => this.behaviorStateChanged(),
-        )
-
         this.canvasEx = new CanvasEx(
             containerHtmlElement,
             canvasContextAttributes,
@@ -146,143 +135,161 @@ export class ComponentBehaviorManager {
             () => this.processCanvasResizedEvent(),
         );
 
+        let schemaModel = adapterSetConfig.schemaModel;
+        if (typeof schemaModel === 'function') {
+            schemaModel = new schemaModel();
+        }
+
         this.columnsManager = new ColumnsManager(
+            schemaModel,
             this.gridSettings,
-            () => this.behaviorChanged(),
-            () => this.updateHorizontalScroll(),
-            (typeId, index, count, targetIndex) => this.processAllColumnListChanged(typeId, index, count, targetIndex),
-            (typeId, index, count, targetIndex, ui) => this.processActiveColumnListChanged(typeId, index, count, targetIndex, ui),
-            (columns, ui) => this.processColumnsWidthChanged(columns, ui),
+            () => this.invalidateHorizontalAll(true),
         );
 
-        this.subgridsManager = new SubgridsManager(
-            this.gridSettings,
-            this.columnsManager,
-        );
+        const subgridDefinitions = adapterSetConfig.subgrids;
+        if  (subgridDefinitions.length === 0) {
+            throw new AssertError('CBM43330', 'Adapter set missing Subgrid specs');
+        } else {
+            const defaultRowPropertiesPrototype = new ComponentBehaviorManager.DefaultRowProperties(
+                this.gridSettings,
+                () => this.invalidateHorizontalAll(true),
+            );
 
-        this._modelCallbackRouter = new ModelCallbackRouter(this.columnsManager.schemaModel);
 
-        this._scrollablePlane = new ScrollablePlane(
-            this.gridSettings,
-            this.columnsManager,
-        );
+            this.subgridsManager = new SubgridsManager(
+                this.gridSettings,
+                this.columnsManager,
+                subgridDefinitions,
+                defaultRowPropertiesPrototype,
+            );
 
-        this.viewLayout = new ViewLayout(
-            this.gridSettings,
-            this.canvasEx,
-            this.columnsManager,
-            this.subgridsManager,
-            this.selection,
-            (y, subgrid) => this.rowPropertiesBehavior.getRowHeight(y, subgrid === undefined ? this.subgridsManager.mainSubgrid : subgrid),
-            () => this.processCheckNeedsShapeChanged(),
-            (changedColumnsViewWidths) => this.processColumnsViewWidthsChanged(changedColumnsViewWidths),
-        );
 
-        this.renderer = new Renderer(
-            this.gridSettings,
-            this.mouse,
-            this.canvasEx,
-            this.columnsManager,
-            this.subgridsManager,
-            this.viewLayout,
-            this.focus,
-            this.selection,
-            () => this.behaviorShapeChanged(),
-            () => this.processRenderedEvent(),
-        );
+            this._mainSubgrid = this.subgridsManager.mainSubgrid;
+            this._mainDataModel = this._mainSubgrid.dataModel;
 
-        this._horizontalScroller = this.createHorizontalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
-        containerHtmlElement.appendChild(this._horizontalScroller.bar);
-        this._verticalScroller = this.createVerticalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
-        containerHtmlElement.appendChild(this._verticalScroller.bar);
+            this.focus = new Focus(
+                this._mainSubgrid,
+                this.columnsManager,
+                (x, y, maximally) => this.handleScrollToMakeVisibleEvent(x, y, maximally)
+            );
+            this.selection = new Selection(this.gridSettings, this.columnsManager, this.focus, this._mainSubgrid);
 
-        this.loadAdapterSet(adapterSetConfig);
+            this._scrollPlane = new ScrollPlane(
+                this.canvasEx,
+                this.gridSettings,
+                this.columnsManager,
+            );
 
-        this.mouse = new Mouse(
-            this.canvasEx,
-            (cell) => this.processMouseEnteredCellEvent(cell),
-            (cell) => this.processMouseExitedCellEvent(cell),
-        );
-        this.focus = new Focus(
-            this._mainSubgrid,
-            this.columnsManager,
-            (x, y, maximally) => this.handleScrollToMakeVisibleEvent(x, y, maximally)
-        );
-        this.selection = new Selection(this.gridSettings, this.columnsManager, this.focus, this._mainSubgrid);
+            this.viewLayout = new ViewLayout(
+                this.gridSettings,
+                this.canvasEx,
+                this.columnsManager,
+                this.subgridsManager,
+                this.selection,
+            );
 
-        this.reindexStashManager = new ReindexStashManager(this.focus, this.selection);
+            this.renderer = new Renderer(
+                this.gridSettings,
+                this.mouse,
+                this.canvasEx,
+                this.columnsManager,
+                this.subgridsManager,
+                this.viewLayout,
+                this.focus,
+                this.selection,
+                () => this.processRenderedEvent(),
+            );
 
-        this.eventBehavior = new EventBehavior(
-            this.canvasEx,
-            this.selection,
-            this.viewLayout,
-            descendantEventer,
-            (event) => this.canvasEx.dispatchEvent(event),
-        );
+            // Set up UI controls
 
-        this.scrollBehavior = new ScrollBehavior(
-            this.gridSettings,
-            this.canvasEx,
-            this.columnsManager,
-            this.subgridsManager,
-            this.viewLayout,
-            this._horizontalScroller,
-            this._verticalScroller,
-            () => this.handleBehaviorChangedEvent(),
-            (isX, newValue, index, offset) => this.eventBehavior.processScrollEvent(isX, newValue, index, offset),
-            (y, subgrid) => this.getRowHeight(y, subgrid),
-        );
+            this.mouse = new Mouse(
+                this.canvasEx,
+                (cell) => this.processMouseEnteredCellEvent(cell),
+                (cell) => this.processMouseExitedCellEvent(cell),
+            );
 
-        this.focusBehavior = new FocusBehavior(
-            this.gridSettings,
-            this.mainSubgrid,
-            this.columnsManager,
-            this.subgridsManager,
-            this.viewLayout,
-            this.focus,
-            (x) => this.scrollBehavior.scrollXToMakeVisible(x, true),
-            (y) => this.scrollBehavior.scrollYToMakeVisible(y, true),
-            (x, y) => this.scrollBehavior.scrollXYToMakeVisible(x, y, true),
-        );
+            this._horizontalScroller = this.createHorizontalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
+            containerHtmlElement.appendChild(this._horizontalScroller.bar);
+            this._verticalScroller = this.createVerticalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
+            containerHtmlElement.appendChild(this._verticalScroller.bar);
 
-        this.selectionBehavior = new SelectionBehavior(
-            this.selection,
-            this.focus,
-            this.viewLayout,
-            this.mouse,
-            () => this.renderer.repaint(),
-            () => this.eventBehavior.processSelectionChangedEvent(),
-            (x, y) => this.focusBehavior.focusXY(x, y),
-        );
+            // Set up model callback handling
 
-        this.rowPropertiesBehavior = new RowPropertiesBehavior(
-            this.gridSettings,
-            rowPropertiesPrototype,
-            () => this.behaviorStateChanged(),
-            () => this.behaviorShapeChanged(),
-        );
+            this._modelCallbackRouter = new ModelCallbackRouter(this.columnsManager.schemaModel);
+            this.reindexStashManager = new ReindexStashManager(this.focus, this.selection);
 
-        this.cellPropertiesBehavior = new CellPropertiesBehavior(
-            this.columnsManager,
-            this.subgridsManager,
-            this.viewLayout,
-        );
+            // Set up behaviors
 
-        this._modelCallbackRouterBehavior = new ModelCallbackRouterBehavior(
-            this.columnsManager,
-            this.subgridsManager,
-            this.renderer,
-            this.focus,
-            this.selection,
-            this._modelCallbackRouter,
-            this.reindexStashManager,
-            () => this.behaviorShapeChanged(),
-        );
+            this.eventBehavior = new EventBehavior(
+                this.canvasEx,
+                this.columnsManager,
+                this.selection,
+                this.viewLayout,
+                descendantEventer,
+                (event) => this.canvasEx.dispatchEvent(event),
+            );
 
-        this.dataExtractBehavior = new DataExtractBehavior(
-            this.selection,
-            this.columnsManager
-        );
+            this.scrollBehavior = new ScrollBehavior(
+                this.gridSettings,
+                this.canvasEx,
+                this.columnsManager,
+                this.subgridsManager,
+                this.viewLayout,
+                this.renderer,
+                this._horizontalScroller,
+                this._verticalScroller,
+                () => this.handleBehaviorChangedEvent(),
+                (isX, newValue, index, offset) => this.eventBehavior.processScrollEvent(isX, newValue, index, offset),
+            );
+
+            this.focusBehavior = new FocusBehavior(
+                this.gridSettings,
+                this.mainSubgrid,
+                this.columnsManager,
+                this.subgridsManager,
+                this.viewLayout,
+                this.focus,
+                (x) => this.scrollBehavior.ensureColumnIsVisible(x, true),
+                (y) => this.scrollBehavior.ensureRowIsVisible(y, true),
+                (x, y) => this.scrollBehavior.scrollXYToMakeVisible(x, y, true),
+            );
+
+            this.selectionBehavior = new SelectionBehavior(
+                this.selection,
+                this.focus,
+                this.viewLayout,
+                this.mouse,
+                () => this.renderer.repaint(),
+                () => this.eventBehavior.processSelectionChangedEvent(),
+                (x, y) => this.focusBehavior.focusXY(x, y),
+            );
+
+            this.rowPropertiesBehavior = new RowPropertiesBehavior(
+                this.viewLayout,
+            );
+
+            this.cellPropertiesBehavior = new CellPropertiesBehavior(
+                this.columnsManager,
+                this.subgridsManager,
+                this.viewLayout,
+            );
+
+            this._modelCallbackRouterBehavior = new ModelCallbackRouterBehavior(
+                this.columnsManager,
+                this.subgridsManager,
+                this.viewLayout,
+                this.renderer,
+                this.focus,
+                this.selection,
+                this._modelCallbackRouter,
+                this.reindexStashManager,
+            );
+
+            this.dataExtractBehavior = new DataExtractBehavior(
+                this.selection,
+                this.columnsManager
+            );
+        }
     }
 
     get mainSubgrid() { return this._mainSubgrid; }
@@ -295,8 +302,6 @@ export class ComponentBehaviorManager {
      * @internal
      */
     reset() {
-        this._behaviorChangeCheckRowCount = 0;
-        this._behaviorChangeCheckColumnCount = 0;
         this.mouse.reset();
         this.mouse.clearMouseDown();
         this.viewLayout.reset();
@@ -312,7 +317,7 @@ export class ComponentBehaviorManager {
         this.canvasEx.resize();
         // this.behaviorChanged();
 
-        this.behaviorShapeChanged();
+        this.viewLayout.invalidateAll(true);
         // this.behavior.defaultRowHeight = null;
         // this._columnsManager.autosizeAllColumns();
 
@@ -387,33 +392,40 @@ export class ComponentBehaviorManager {
             this._modelCallbackRouter.disable();
         }
 
-        this.behaviorChanged();
+        this.viewLayout.invalidateAll(true);
     }
 
-    behaviorShapeChanged() {
-        if (this.paintLoopRunning()) {
-            this._needsShapeChanged = true;
-            this.renderer.requestPaint();
-        } else if (!this._destroyed) {
-            this.scrollBehavior.synchronizeScrollingBoundaries(); // calls computeCellsBounds
-            this.renderer.repaint();
+    addSettings(settings: Partial<GridSettings>) {
+        const result = this.gridSettings.merge(settings);
+        if (result) {
+            this.viewLayout.invalidateAll(true);
         }
+        return result;
     }
+
+    // behaviorShapeChanged() {
+    //     if (this.paintLoopRunning()) {
+    //         this.renderer.requestPaint();
+    //     } else if (!this._destroyed) {
+    //         this.scrollBehavior.synchronizeScrollingBoundaries(); // calls computeCellsBounds
+    //         this.renderer.repaint();
+    //     }
+    // }
 
     /**
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
-    behaviorStateChanged() {
-        if (this.paintLoopRunning()) {
-            this.viewLayout.invalidate();
-            this.renderer.requestPaint();
-        } else {
-            if (!this._destroyed) {
-                this.viewLayout.compute(false);
-                this.renderer.repaint();
-            }
-        }
-    }
+    // behaviorStateChanged() {
+    //     if (this.paintLoopRunning()) {
+    //         this.viewLayout.invalidate();
+    //         this.renderer.requestPaint();
+    //     } else {
+    //         if (!this._destroyed) {
+    //             this.viewLayout.compute(false);
+    //             this.renderer.repaint();
+    //         }
+    //     }
+    // }
 
     /**
      * @desc utility function to empty an object of its members
@@ -457,11 +469,11 @@ export class ComponentBehaviorManager {
     }
 
     /**
-     * @param properties - assignable grid properties
-     * @param settingState - Clear properties object before assignments.
+     * @param settings - assignable grid properties
+     * @param fromDefault - Clear properties object before assignments.
      */
-    addState(properties: Record<string, unknown>, settingState: boolean) {
-        if (settingState) {
+    addState(settings: Record<string, unknown>, fromDefault: boolean) {
+        if (fromDefault) {
             // clear all table state
             this.gridSettings.loadDefaults();
             this.columnsManager.createColumns();
@@ -469,9 +481,11 @@ export class ComponentBehaviorManager {
 
         const gridSettings = this.gridSettings as GridSettings; // this may not work
 
-        gridSettings.settingState = settingState;
-        assignOrDelete(gridSettings, properties);
+        gridSettings.settingState = fromDefault;
+        assignOrDelete(gridSettings, settings);
         delete gridSettings.settingState;
+
+        this.viewLayout.invalidateAll(true);
     }
 
     /**
@@ -569,77 +583,22 @@ export class ComponentBehaviorManager {
         }
     }
 
-    behaviorChanged() {
-        this.handleBehaviorChangedEvent();
-    }
-
-    private handleBehaviorChangedEvent() {
-        if (!this._destroyed) {
-            const columnCount = this.columnsManager.allColumnCount;
-            const rowCount = this._mainSubgrid.getRowCount();
-            if (columnCount !== this._behaviorChangeCheckColumnCount || rowCount !== this._behaviorChangeCheckRowCount) {
-                this._behaviorChangeCheckColumnCount = columnCount;
-                this._behaviorChangeCheckRowCount = rowCount;
-                this.behaviorShapeChanged();
-            } else {
-                this.behaviorStateChanged();
-            }
-        }
-    }
+    // private handleBehaviorChangedEvent() {
+    //     if (!this._destroyed) {
+    //         const columnCount = this.columnsManager.allColumnCount;
+    //         const rowCount = this._mainSubgrid.getRowCount();
+    //         if (columnCount !== this._behaviorChangeCheckColumnCount || rowCount !== this._behaviorChangeCheckRowCount) {
+    //             this._behaviorChangeCheckColumnCount = columnCount;
+    //             this._behaviorChangeCheckRowCount = rowCount;
+    //             this.behaviorShapeChanged();
+    //         } else {
+    //             this.behaviorStateChanged();
+    //         }
+    //     }
+    // }
 
     private handleScrollToMakeVisibleEvent(x: number, y: number, maximally: boolean) {
         this.scrollBehavior.scrollXYToMakeVisible(x, y, maximally);
-    }
-
-    private loadAdapterSet(adapterSetConfig: AdapterSetConfig) {
-        let schemaModel = adapterSetConfig.schemaModel;
-        if (typeof schemaModel === 'function') {
-            schemaModel = new schemaModel();
-        }
-        this.columnsManager.schemaModel = schemaModel;
-
-        const subgridDefinitions = adapterSetConfig.subgrids;
-        if  (subgridDefinitions.length === 0) {
-            throw new AssertError('BLAS43330', 'Adapter set missing Subgrid specs');
-        } else {
-            this.subgridsManager.loadSubgrids(subgridDefinitions);
-            // This is the only place where mainSubgrid is set. Update caches of mainSubgrid and mainDataModel directly instead of via events
-            // to avoid circular use loop between subsgridsManager and Focus
-            const mainSubgrid = this.subgridsManager.mainSubgrid;
-            const mainDataModel = mainSubgrid.dataModel;
-            this._mainSubgrid = mainSubgrid;
-            this._mainDataModel = mainDataModel;
-            this.viewLayout.updateMainSubgrid();
-        }
-    }
-
-    private getRowHeight(y: number, subgrid: Subgrid) {
-        return this.rowPropertiesBehavior.getRowHeight(y, subgrid);
-    }
-
-    private processCheckNeedsShapeChanged() {
-        if (this._needsShapeChanged) {
-            this.scrollBehavior.synchronizeScrollingBoundaries(); // calls computeCellsBounds
-        }
-    }
-
-    private processAllColumnListChanged(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
-        this.eventBehavior.processAllColumnListChangedEvent(typeId, index, count, targetIndex);
-        this.behaviorChanged();
-    }
-
-    private processActiveColumnListChanged(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
-        this.eventBehavior.processActiveColumnListChangedEvent(typeId, index, count, targetIndex, ui);
-        this.behaviorChanged();
-    }
-
-    private processColumnsWidthChanged(columns: ColumnInterface[], ui: boolean) {
-        this.eventBehavior.processColumnsWidthChangedEvent(columns, ui);
-        this.behaviorStateChanged();
-    }
-
-    private processColumnsViewWidthsChanged(changedColumnsViewWidths: ViewLayout.ChangedColumnsViewWidths) {
-        this.eventBehavior.processColumnsViewWidthsChanged(changedColumnsViewWidths);
     }
 
     private processRenderedEvent() {
@@ -647,21 +606,26 @@ export class ComponentBehaviorManager {
     }
 
     private processMouseEnteredCellEvent(cell: ViewCell) {
+        this.renderer.invalidateViewCell(cell)
         this.eventBehavior.processMouseEnteredCellEvent(cell);
     }
 
     private processMouseExitedCellEvent(cell: ViewCell) {
+        this.renderer.invalidateViewCell(cell)
         this.eventBehavior.processMouseExitedCellEvent(cell);
     }
 
     private processCanvasResizedEvent() {
-        this.behaviorShapeChanged();
+        this.viewLayout.invalidateAll(true);
+        this._horizontalScroller.shortenBy(this._verticalScroller).resize();
+        //this._verticalScroller.shortenBy(this._horizontalScroller);
+        this._verticalScroller.resize();
         this.eventBehavior.processCanvasResizedEvent();
     }
 
     private createHorizontalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean) {
         const horzBar = new Scroller(
-            this._scrollablePlane.horizontalDimension,
+            this._scrollPlane.horizontalDimension,
             {
                 orientation: Scroller.OrientationEnum.horizontal,
                 deltaXFactor: this.gridSettings.wheelHFactor,
@@ -681,7 +645,7 @@ export class ComponentBehaviorManager {
 
     private createVerticalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean) {
         const vertBar = new Scroller(
-            this._scrollablePlane.verticalDimension,
+            this._scrollPlane.verticalDimension,
             {
                 indexMode: true, // remove when vertical scrollbar is updated to use viewport
                 orientation: Scroller.OrientationEnum.vertical,
@@ -700,14 +664,8 @@ export class ComponentBehaviorManager {
         return vertBar;
     }
 
-    private updateHorizontalScroll() {
-        this.scrollBehavior.updateHorizontalScroll(true)
-        this.behaviorChanged(); // this probably is not required
-    }
-
-    /** @internal */
-    private paintLoopRunning() {
-        return !this.gridSettings.repaintImmediately && this.renderer.painting;
+    private invalidateHorizontalAll(scrollablePlaneDimensionAsWell: boolean) {
+        this.viewLayout.invalidateHorizontalAll(scrollablePlaneDimensionAsWell);
     }
 
     // End DataModel Mixin
@@ -852,7 +810,7 @@ export namespace ComponentBehaviorManager {
 
         constructor(
             private readonly _gridProperties: GridSettings,
-            private readonly _behaviourStateChangedEventer: RowPropertiesBehavior.BehaviouStateChangedEventer,
+            private readonly _invalidateScrollPlaneDimensionRequiredEventer: DefaultRowProperties.InvalidateScrollPlaneDimensionRequiredEventer,
         ) {
         }
 
@@ -873,8 +831,12 @@ export namespace ComponentBehaviorManager {
                     // (Instead the `height` getter is explicitly invoked and the result is included.)
                     Object.defineProperty(this, '_height', { value: height, configurable: true });
                 }
-                this._behaviourStateChangedEventer();
+                this._invalidateScrollPlaneDimensionRequiredEventer();
             }
         }
+    }
+
+    export namespace DefaultRowProperties {
+        export type InvalidateScrollPlaneDimensionRequiredEventer = (this: void) => void;
     }
 }

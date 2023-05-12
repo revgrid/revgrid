@@ -13,16 +13,17 @@ import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
 export abstract class GridPainter {
-    protected readonly viewLayoutColumns: ViewLayout.ViewLayoutColumnArray;
-    protected readonly viewLayoutRows: ViewLayout.ViewLayoutRowArray;
-    protected readonly viewCellPool: ViewCell[];
-
-    protected columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
-    protected rowBundles = new Array<GridPainter.RowBundle>();
-    protected rowPrefillColors = new Array<string>();
+    private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
+    private _rowBundlesAndPrefixColors: GridPainter.RowBundlesAndPrefillColors | undefined;
 
     reset = false;
     rebundle: boolean | undefined;
+
+    private _columnRebundlingRequired = false;
+    private _rowRebundlingRequired = false;
+
+    private _columnBundlesComputationId = -1;
+    private _rowBundlesComputationId = -1;
 
     constructor(
         protected readonly gridProperties: GridSettings,
@@ -32,19 +33,38 @@ export abstract class GridPainter {
         protected readonly viewLayout: ViewLayout,
         protected readonly focus: Focus,
         protected readonly selection: Selection,
-        protected readonly resetAllGridPaintersRequiredEventer: GridPainter.ResetAllGridPaintersRequiredEventer,
         protected readonly repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
         public readonly key: string,
         public readonly partial: boolean,
         initialRebundle: boolean | undefined,
     ) {
-        this.viewLayoutColumns = this.viewLayout.columns;
-        this.viewLayoutRows = this.viewLayout.rows;
-        this.viewCellPool = this.viewLayout.cellPool as ViewCell[];
-
         if (initialRebundle !== undefined) {
             this.rebundle = initialRebundle;
         }
+    }
+
+    flagColumnRebundlingRequired() {
+        this._columnRebundlingRequired = true;
+    }
+
+    getColumnBundles(viewLayoutColumns: ViewLayoutColumn[]) {
+        if (this._columnBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._columnRebundlingRequired) {
+            this._columnBundles = this.calculateColumnBundles(viewLayoutColumns);
+
+            this._columnBundlesComputationId = this.viewLayout.rowsColumnsComputationId;
+            this._columnRebundlingRequired = false;
+        }
+        return this._columnBundles;
+    }
+
+    getRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow[]) {
+        if (this._rowBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._rowRebundlingRequired) {
+            this._rowBundlesAndPrefixColors = this.calculateRowBundlesAndPrefillColors(viewLayoutRows);
+
+            this._rowBundlesComputationId = this.viewLayout.rowsColumnsComputationId;
+            this._rowRebundlingRequired = false;
+        }
+        return this._rowBundlesAndPrefixColors;
     }
 
     abstract paintCells(gc: CanvasRenderingContext2DEx): void;
@@ -80,19 +100,19 @@ export abstract class GridPainter {
      * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
      */
     paintGridlines(gc: CanvasRenderingContext2DEx) {
-        const visibleColumns = this.viewLayoutColumns;
-        const C = visibleColumns.length;
-        const visibleRows = this.viewLayoutRows;
-        const R = visibleRows.length;
+        const viewLayoutColumns = this.viewLayout.columns;
+        const columnCount = viewLayoutColumns.length;
+        const viewLayoutRows = this.viewLayout.rows;
+        const rowCount = viewLayoutRows.length;
 
-        if (C && R) {
+        if (columnCount && rowCount) {
             const gridProps = this.gridProperties;
-            const C1 = C - 1;
-            const R1 = R - 1;
-            const firstVisibleColumnLeft = visibleColumns[0].left;
-            const lastVisibleColumnRight = visibleColumns[C1].rightPlus1;
+            const C1 = columnCount - 1;
+            const R1 = rowCount - 1;
+            const firstVisibleColumnLeft = viewLayoutColumns[0].left;
+            const lastVisibleColumnRight = viewLayoutColumns[C1].rightPlus1;
             const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
-            const viewHeight = visibleRows[R1].bottom;
+            const viewHeight = viewLayoutRows[R1].bottom;
             const gridLinesVColor = gridProps.gridLinesVColor;
             const gridLinesHColor = gridProps.gridLinesHColor;
             // const borderBox = gridProps.boxSizing === 'border-box';
@@ -105,8 +125,8 @@ export abstract class GridPainter {
             ) {
                 const gridLinesVWidth = gridProps.gridLinesVWidth;
                 const headerRowCount = this.subgridsManager.calculateHeaderRowCount();
-                const lastHeaderRow = visibleRows[headerRowCount - 1]; // any header rows?
-                const firstDataRow = visibleRows[headerRowCount]; // any data rows?
+                const lastHeaderRow = viewLayoutRows[headerRowCount - 1]; // any header rows?
+                const firstDataRow = viewLayoutRows[headerRowCount]; // any data rows?
                 const userDataAreaTop = firstDataRow && firstDataRow.top;
                 const top = gridProps.gridLinesColumnHeader ? 0 : userDataAreaTop;
                 const bottom = gridProps.gridLinesUserDataArea ? viewHeight : lastHeaderRow && lastHeaderRow.bottom;
@@ -114,7 +134,7 @@ export abstract class GridPainter {
                 if (top !== undefined && bottom !== undefined) { // either undefined means nothing to draw
                     gc.cache.fillStyle = gridLinesVColor;
 
-                    visibleColumns.forEach((vc, c) => {
+                    viewLayoutColumns.forEach((vc, c) => {
                         if (
                             c < C1 // don't draw rule after last column
                         ) {
@@ -139,7 +159,7 @@ export abstract class GridPainter {
 
                 gc.cache.fillStyle = gridLinesHColor;
 
-                visibleRows.forEach(function(vr, r) {
+                viewLayoutRows.forEach(function(vr, r) {
                     if (r < R1) { // don't draw rule below last row
                         const y = vr.bottom;
                         gc.fillRect(firstVisibleColumnLeft, y, width, gridLinesHWidth);
@@ -150,7 +170,7 @@ export abstract class GridPainter {
             // draw fixed rule lines over grid rule lines
 
             if (gridProps.fixedLinesHWidth !== undefined) {
-                const rowGap = visibleRows.gap;
+                const rowGap = viewLayoutRows.gap;
                 if (rowGap !== undefined) {
                     gc.cache.fillStyle = gridProps.fixedLinesHColor || gridLinesHColor;
                     const edgeWidth = gridProps.fixedLinesHEdge;
@@ -164,7 +184,7 @@ export abstract class GridPainter {
             }
 
             if (gridProps.fixedLinesVWidth !== undefined) {
-                const columnGap = visibleColumns.gap;
+                const columnGap = viewLayoutColumns.gap;
                 if (columnGap !== undefined) {
                     gc.cache.fillStyle = gridProps.fixedLinesVColor || gridLinesVColor;
                     const edgeWidth = gridProps.fixedLinesVEdge;
@@ -216,18 +236,17 @@ export abstract class GridPainter {
         return undefined;
     }
 
-    bundleColumns(resetCellEvents = false) {
+    private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn[]): GridPainter.ColumnBundle[] {
         const gridProps = this.gridProperties;
+        const columnCount = viewLayoutColumns.length;
 
-        if (resetCellEvents) {
-            this.viewLayout.resetCellPoolWithColumnRowOrder()
-        }
-
-        const columnBundles = this.columnBundles;
+        const bundles = new Array<GridPainter.ColumnBundle>(columnCount); // max size
         const gridPrefillColor = gridProps.backgroundColor;
-        columnBundles.length = 0;
 
-        this.viewLayoutColumns.forEach((vc) => {
+        let bundleCount = 0;
+
+        for (let i = 0; i < columnCount; i++) {
+            const vc = viewLayoutColumns[i];
             let bundle: GridPainter.ColumnBundle | undefined;
             const backgroundColor = vc.column.settings.backgroundColor;
             if (bundle !== undefined && bundle.backgroundColor === backgroundColor) {
@@ -241,60 +260,70 @@ export abstract class GridPainter {
                         left: vc.left,
                         right: vc.rightPlus1
                     };
-                    columnBundles.push(bundle);
+                    bundles[bundleCount++] = bundle;
                 }
             }
-        });
-    }
-
-    bundleRows(resetCellEvents = false) {
-        const gridProps = this.gridProperties;
-        const R = this.viewLayoutRows.length
-
-        if (resetCellEvents) {
-            this.viewLayout.resetCellPoolWithRowColumnOrder();
         }
 
-        const rowBundles = this.rowBundles;
-        const gridPrefillColor = gridProps.backgroundColor;
-        const rowStripes = gridProps.rowStripes;
-        const rowPrefillColors = this.rowPrefillColors;
+        bundles.length = bundleCount;
 
-        rowBundles.length = 0;
-        rowPrefillColors.length = R;
+        return bundles;
+    }
 
-        for (let r = 0; r < R; r++) {
-            const vr = this.viewLayoutRows[r]; // first cell in row r
-            let backgroundColor: string;
-            if (!vr.subgrid.isMain) {
-                backgroundColor = gridPrefillColor;
-            } else {
-                if (rowStripes === undefined || rowStripes.length === 0) {
+    private calculateRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow[]): GridPainter.RowBundlesAndPrefillColors | undefined {
+        const gridProps = this.gridProperties;
+        const stripes = gridProps.rowStripes;
+        if (stripes === undefined) {
+            return undefined;
+        } else {
+            const rowCount = viewLayoutRows.length
+
+            const bundles = new Array<GridPainter.RowBundle>(rowCount); // set to max possible length
+            const gridPrefillColor = gridProps.backgroundColor;
+            const prefillColors = new Array<string>(rowCount);
+
+            let bundle: GridPainter.RowBundle | undefined;
+            let bundleCount = 0;
+            for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                const vr = viewLayoutRows[rowIndex];
+                let backgroundColor: string;
+                if (!vr.subgrid.isMain) {
                     backgroundColor = gridPrefillColor;
                 } else {
-                    const stripe = rowStripes[vr.subgridRowIndex % rowStripes.length];
-                    if (stripe === undefined) {
+                    if (stripes.length === 0) {
                         backgroundColor = gridPrefillColor;
                     } else {
-                        backgroundColor = stripe.backgroundColor ?? gridPrefillColor;
+                        const stripe = stripes[vr.subgridRowIndex % stripes.length];
+                        if (stripe === undefined) {
+                            backgroundColor = gridPrefillColor;
+                        } else {
+                            backgroundColor = stripe.backgroundColor ?? gridPrefillColor;
+                        }
+                    }
+                }
+                prefillColors[rowIndex] = backgroundColor;
+                if (bundle !== undefined && bundle.backgroundColor === backgroundColor) {
+                    bundle.bottom = vr.bottom;
+                } else {
+                    if (backgroundColor === gridPrefillColor) {
+                        bundle = undefined; // this looks wrong
+                    } else {
+                        bundle = {
+                            backgroundColor: backgroundColor,
+                            top: vr.top,
+                            bottom: vr.bottom
+                        };
+                        bundles[bundleCount++] = bundle;
                     }
                 }
             }
-            rowPrefillColors[r] = backgroundColor;
-            let bundle: GridPainter.RowBundle | undefined;
-            if (bundle !== undefined && bundle.backgroundColor === backgroundColor) {
-                bundle.bottom = vr.bottom;
-            } else {
-                if (backgroundColor === gridPrefillColor) {
-                    bundle = undefined;
-                } else {
-                    bundle = {
-                        backgroundColor: backgroundColor,
-                        top: vr.top,
-                        bottom: vr.bottom
-                    };
-                    rowBundles.push(bundle);
-                }
+            // what about final bundle
+
+            bundles.length = bundleCount;
+
+            return {
+                bundles: bundles,
+                prefillColors: prefillColors,
             }
         }
     }
@@ -330,7 +359,6 @@ export namespace GridPainter {
         viewLayout: ViewLayout,
         focus: Focus,
         selection: Selection,
-        resetAllGridPaintersEventer: ResetAllGridPaintersRequiredEventer,
         repaintAllRequired: RepaintAllRequiredEventer,
     ) => GridPainter;
 
@@ -344,5 +372,10 @@ export namespace GridPainter {
         backgroundColor: string;
         top: number;
         bottom: number;
+    }
+
+    export interface RowBundlesAndPrefillColors {
+        bundles: RowBundle[];
+        prefillColors: string[];
     }
 }
