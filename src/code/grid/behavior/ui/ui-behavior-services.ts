@@ -17,6 +17,7 @@ import { ScrollBehavior } from '../component/scroll-behaviour';
 import { SelectionBehavior } from '../component/selection-behavior';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
+/** @internal */
 export class UiBehaviorServices {
 
     constructor(

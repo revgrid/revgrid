@@ -8,6 +8,7 @@ import { SelectionArea } from '../../lib/selection-area';
 import { StartLength } from '../../lib/start-length';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class ColumnSelectionUiBehavior extends UiBehavior {
 
     readonly typeName = ColumnSelectionUiBehavior.typeName;
@@ -346,6 +347,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace ColumnSelectionUiBehavior {
     export const typeName = 'columnselection';
 

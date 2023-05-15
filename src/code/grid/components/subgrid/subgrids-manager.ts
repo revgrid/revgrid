@@ -8,7 +8,6 @@ import { MainSubgrid } from './main-subgrid';
 import { Subgrid } from './subgrid';
 import { SubgridDefinition } from './subgrid-definition';
 
-/** @internal */
 export class SubgridsManager {
     readonly mainSubgrid: MainSubgrid;
     readonly subgrids = new Array<Subgrid>();

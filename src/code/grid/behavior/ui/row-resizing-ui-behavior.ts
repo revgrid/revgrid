@@ -3,6 +3,7 @@ import { Subgrid } from '../../components/subgrid/subgrid';
 import { Point } from '../../lib/point';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class RowResizingUiBehavior extends UiBehavior {
 
     readonly typeName = RowResizingUiBehavior.typeName;
@@ -53,6 +54,7 @@ export class RowResizingUiBehavior extends UiBehavior {
     // }
 }
 
+/** @internal */
 export namespace RowResizingUiBehavior {
     export const typeName = 'rowresizing';
 

@@ -4,9 +4,7 @@ import { EventDetail } from '../../components/event/event-detail';
 import { SelectionArea } from '../../lib/selection-area';
 import { UiBehavior } from './ui-behavior';
 
-/**
- * @constructor
- */
+/** @internal */
 export class FiltersUiBehavior extends UiBehavior {
 
     readonly typeName = FiltersUiBehavior.typeName;
@@ -111,6 +109,7 @@ export class FiltersUiBehavior extends UiBehavior {
 
 }
 
+/** @internal */
 export namespace FiltersUiBehavior {
     export const typeName = 'filters';
 }

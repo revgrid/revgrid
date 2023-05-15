@@ -5,6 +5,7 @@ import { UnreachableCaseError } from '../../lib/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../lib/types';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class ThumbwheelScrollingUiBehavior extends UiBehavior {
 
     readonly typeName = ThumbwheelScrollingUiBehavior.typeName;
@@ -42,6 +43,7 @@ export class ThumbwheelScrollingUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace ThumbwheelScrollingUiBehavior {
     export const typeName = 'thumbwheelscrolling';
 }

@@ -153,14 +153,12 @@ export class ComponentBehaviorManager {
                 () => this.invalidateHorizontalAll(true),
             );
 
-
             this.subgridsManager = new SubgridsManager(
                 this.gridSettings,
                 this.columnsManager,
                 subgridDefinitions,
                 defaultRowPropertiesPrototype,
             );
-
 
             this._mainSubgrid = this.subgridsManager.mainSubgrid;
             this._mainDataModel = this._mainSubgrid.dataModel;
@@ -278,6 +276,8 @@ export class ComponentBehaviorManager {
                 this.selection,
                 this.columnsManager
             );
+
+            this.viewLayout.invalidateAll(true);
         }
     }
 

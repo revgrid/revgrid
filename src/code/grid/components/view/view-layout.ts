@@ -1,6 +1,5 @@
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
 import { DataModel } from '../../interfaces/data-model';
-import { GridSettings } from '../../interfaces/grid-settings';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
 import { ViewLayoutRow } from '../../interfaces/view-layout-row';
@@ -8,6 +7,7 @@ import { Rectangle } from '../../lib/rectangle';
 import { RectangleInterface } from '../../lib/rectangle-interface';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { HorizontalVertical } from '../../lib/types';
+import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
 import { ViewCell } from '../cell/view-cell';
 import { Column } from '../column/column';
 import { ColumnsManager } from '../column/columns-manager';
@@ -46,7 +46,7 @@ import { VerticalScrollDimension } from './vertical-scroll-dimension';
  *
  */
 export class ViewLayout {
-    invalidatedEventer: ViewLayout.InvalidatedEventer;
+    invalidateDataEventer: ViewLayout.InvalidatedEventer;
     columnsViewWidthsChangedEventer: ViewLayout.ColumnsViewWidthsChangedEventer;
 
     /**
@@ -88,23 +88,20 @@ export class ViewLayout {
     private _rowsValid = false;
 
     private _rowsColumnsComputationId = 0;
-    private _rowColumnOrderedCellPoolComputationId = 0;
-    private _columnRowOrderedCellPoolComputationId = 0;
+    private _rowColumnOrderedCellPoolComputationId = -1;
+    private _columnRowOrderedCellPoolComputationId = -1;
 
     private _mainSubgrid: Subgrid;
 
     private _columnsByIndex = new Array<ViewLayoutColumn>();  // array because number of columns will always be reasonable
     private _rowsByDataRowIndex = new Map<number, ViewLayoutRow>(); // hash because keyed by (fixed and) scrolled row indexes
 
-    // I don't think this is used
-    private _insertionBounds = new Array<number>();
-
     // Specifies the index of the column anchored to the bounds edge
     // Will be first non-fixed visible column or last visible column depending on the gridRightAligned property
     // Set to -1 if there is no space scrollable columns (ie only space for fixed columns)
-    private _columnScrollAnchorIndex: number;
+    private _columnScrollAnchorIndex = 0;
     // Specifies the number of pixels of the anchored column which have been scrolled off the view
-    private _columnScrollAnchorOffset: number;
+    private _columnScrollAnchorOffset = 0;
 
     // Specifies the number of pixels the column at the opposite end of the anchored column has off the view
     // This value will be:
@@ -138,7 +135,7 @@ export class ViewLayout {
     }
 
     constructor(
-        private readonly _gridSettings: GridSettings,
+        private readonly _gridSettings: GridSettingsAccessor,
         private readonly _canvasEx: CanvasEx,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
@@ -146,13 +143,16 @@ export class ViewLayout {
         horizontalScrollViewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer,
         verticalScrollViewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer,
     ) {
+        this._gridSettings.invalidateViewEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
+        this._gridSettings.invalidateHorizontalViewEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
+        this._gridSettings.invalidateVerticalViewEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
         this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvasEx, this._columnsManager, horizontalScrollViewportStartChangedEventer);
         this._horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
         this._verticalScrollDimension = new VerticalScrollDimension(this._gridSettings, this._canvasEx, this._subgridsManager, verticalScrollViewportStartChangedEventer);
         this._verticalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleVerticalScrollDimensionComputedEvent(withinAnimationFrame);
 
         this._dummyUnusedColumn = this._columnsManager.createDummyColumn();
-        this._columnsManager.invalidateViewEventer = (scrollablePlaneDimensionAsWell) => this.invalidateHorizontalAll(scrollablePlaneDimensionAsWell);
+        this._columnsManager.invalidateViewEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell);
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
         this.reset();
     }
@@ -170,12 +170,10 @@ export class ViewLayout {
     get rowsColumnsComputationId() { return this._rowsColumnsComputationId; }
 
     get horizontalScrollDimension() {
-        this.ensureHorizontalValid();
         return this._horizontalScrollDimension;
     }
 
     get verticalScrollDimension() {
-        this.ensureVerticalValid();
         return this._verticalScrollDimension;
     }
 
@@ -401,7 +399,6 @@ export class ViewLayout {
                 const column = columns[columnIndex];
                 for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
                     const row = rows[rowIndex];
-                    poolIndex++;
                     pool[poolIndex++].reset(column, row);
                 }
             }
@@ -417,12 +414,8 @@ export class ViewLayout {
         this._columnRowOrderedCellPool.length = 0;
         this._rowColumnOrderedCellPool.length = 0;
 
-        this._insertionBounds.length = 0;
-
         this._rowColumnOrderedCellPoolComputationId = -1;
         this._columnRowOrderedCellPoolComputationId = -1;
-
-        this._rowScrollAnchorIndex = 0;
 
         this._columnsValid = false;
         this._rowsValid = false;
@@ -432,6 +425,8 @@ export class ViewLayout {
 
         this._columnScrollAnchorIndex = 0;
         this._columnScrollAnchorOffset = 0;
+        this._rowScrollAnchorIndex = 0;
+        this._rowScrollAnchorOffset = 0;
     }
 
     invalidate(action: ViewLayout.InvalidateAction) {
@@ -465,7 +460,7 @@ export class ViewLayout {
                 throw new UnreachableCaseError('VLI42220', action.dimension);
         }
 
-        this.invalidatedEventer(action);
+        this.invalidateDataEventer(action);
     }
 
     invalidateAll(scrollDimensionAsWell: boolean) {
@@ -477,20 +472,20 @@ export class ViewLayout {
         this.invalidate(action);
     }
 
-    invalidateHorizontalAll(scrollablePlaneDimensionAsWell: boolean) {
+    invalidateHorizontalAll(scrollDimensionAsWell: boolean) {
         const action: ViewLayout.AllInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.All,
             dimension: HorizontalVertical.Horizontal,
-            scrollDimensionAsWell: scrollablePlaneDimensionAsWell,
+            scrollDimensionAsWell: scrollDimensionAsWell,
         }
         this.invalidate(action);
     }
 
-    invalidateVerticalAll(scrollablePlaneDimensionAsWell: boolean) {
+    invalidateVerticalAll(scrollDimensionAsWell: boolean) {
         const action: ViewLayout.AllInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.All,
             dimension: HorizontalVertical.Vertical,
-            scrollDimensionAsWell: scrollablePlaneDimensionAsWell,
+            scrollDimensionAsWell: scrollDimensionAsWell,
         }
         this.invalidate(action);
     }
@@ -702,8 +697,11 @@ export class ViewLayout {
     }
 
     scrollHorizontalViewportBy(delta: number) {
-        const newViewportStart = this._horizontalScrollDimension.viewportStart + delta;
-        this.setHorizontalViewportStart(newViewportStart);
+        const viewportStart = this._horizontalScrollDimension.viewportStart;
+        if (viewportStart !== undefined) {
+            const newViewportStart = viewportStart + delta;
+            this.setHorizontalViewportStart(newViewportStart);
+        }
     }
 
     setHorizontalViewportStart(value: number): boolean {
@@ -1669,13 +1667,17 @@ export class ViewLayout {
                 }
             }
         }
-        const viewportStart = this.calculateHorizontalScrollableLeft();
-        if (withinAnimationFrame) {
-            setTimeout(() => this.invalidateHorizontalAll(false), 0);
+        if (overflowed === undefined) {
+            return undefined;
         } else {
-            this.invalidateHorizontalAll(false);
+            const viewportStart = this.calculateHorizontalScrollableLeft();
+            if (withinAnimationFrame) {
+                setTimeout(() => this.invalidateHorizontalAll(false), 0);
+            } else {
+                this.invalidateHorizontalAll(false);
+            }
+            return viewportStart;
         }
-        return viewportStart;
     }
 
     private handleVerticalScrollDimensionComputedEvent(withinAnimationFrame: boolean): number {
@@ -1843,9 +1845,6 @@ export class ViewLayout {
         const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
         const columnScrollAnchorOffset = this._columnScrollAnchorOffset;
 
-        let insertionBoundsCursor = 0;
-        let previousInsertionBoundsCursorValue = 0;
-
         const gridSettings = this._gridSettings;
         // const borderBox = gridProps.boxSizing === 'border-box';
         const gridRightAligned = gridSettings.gridRightAligned;
@@ -1869,8 +1868,6 @@ export class ViewLayout {
         columns.gap = undefined;
 
         this._columnsByIndex.length = 0;
-
-        this._insertionBounds.length = 0;
 
         const gridBounds = this._canvasEx.bounds;
         const gridWidth = gridBounds.width; // horizontal pixel loop limit
@@ -2078,10 +2075,6 @@ export class ViewLayout {
                     }
 
                     vcIndex++;
-
-                    insertionBoundsCursor += Math.round(visibleWidth / 2) + previousInsertionBoundsCursorValue;
-                    this._insertionBounds.push(insertionBoundsCursor);
-                    previousInsertionBoundsCursorValue = Math.round(visibleWidth / 2);
                 }
 
                 if (isNonFixedColumn && scrollableViewportStart === undefined) {
@@ -2263,7 +2256,7 @@ export class ViewLayout {
             this._rowsValid = false;
         }
 
-        if (this._rowsValid) {
+        if (!this._rowsValid) {
             this.computeVertical(false);
             this._rowsValid = true;
         }

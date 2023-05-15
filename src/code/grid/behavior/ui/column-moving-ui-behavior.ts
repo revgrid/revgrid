@@ -4,13 +4,17 @@ import { isSecondaryMouseButton } from '../../lib/html-types';
 import { AssertError } from '../../lib/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 const enum MoveLocation { Before, After }
+/** @internal */
 const enum DragActionType { Move, Scroll, None }
 
+/** @internal */
 interface Action {
     type: DragActionType;
 }
 
+/** @internal */
 interface MoveAction extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
@@ -18,6 +22,7 @@ interface MoveAction extends Action {
     target: ViewLayoutColumn;
 }
 
+/** @internal */
 interface ScrollAction extends Action {
     type: DragActionType.Scroll;
     toRight: boolean;
@@ -25,12 +30,15 @@ interface ScrollAction extends Action {
     source: ViewLayoutColumn;
 }
 
+/** @internal */
 interface NoAction extends Action {
     type: DragActionType.None;
 }
 
+/** @internal */
 type ColumnDragAction = MoveAction | ScrollAction | NoAction
 
+/** @internal */
 export class ColumnMovingUiBehavior extends UiBehavior {
 
     readonly typeName = ColumnMovingUiBehavior.typeName;
@@ -314,6 +322,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace ColumnMovingUiBehavior {
     export const typeName = 'columnmoving';
 }

@@ -3,6 +3,7 @@ import { ViewCell } from '../../components/cell/view-cell';
 import { ScrollDimension } from '../../components/view/scroll-dimension';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class TouchScrollingUiBehavior extends UiBehavior {
 
     readonly typeName = TouchScrollingUiBehavior.typeName;
@@ -101,21 +102,24 @@ export class TouchScrollingUiBehavior extends UiBehavior {
 
     private step(scrollDimension: ScrollDimension, velocity: number, dir: number, interval: number) {
         if (velocity > 0) {
-            const delta = this.getDelta(velocity);
-            const newViewportStart = scrollDimension.viewportStart + (dir * delta);
-            this.viewLayout.setVerticalViewportStart(newViewportStart);
+            const viewportStart = scrollDimension.viewportStart;
+            if (viewportStart !== undefined) {
+                const delta = this.getDelta(velocity);
+                const newViewportStart = viewportStart + (dir * delta);
+                this.viewLayout.setVerticalViewportStart(newViewportStart);
 
-            if (newViewportStart > this.viewLayout.verticalScrollDimension.finish || newViewportStart < 0) {
-                return;
-            }
+                if (newViewportStart > this.viewLayout.verticalScrollDimension.finish || newViewportStart < 0) {
+                    return;
+                }
 
-            velocity -= TouchScrollingUiBehavior.DEC_STEP_SIZE;
+                velocity -= TouchScrollingUiBehavior.DEC_STEP_SIZE;
 
-            const nextInterval = this.updateInterval(interval, velocity);
-            this._stepTimeoutHandle = setTimeout(
-                () => this.step(scrollDimension, velocity, dir, nextInterval),
-                interval
-            );
+                const nextInterval = this.updateInterval(interval, velocity);
+                this._stepTimeoutHandle = setTimeout(
+                    () => this.step(scrollDimension, velocity, dir, nextInterval),
+                    interval
+                );
+                }
         }
     }
 
@@ -166,6 +170,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace TouchScrollingUiBehavior {
     export const typeName = 'touchscrolling';
 

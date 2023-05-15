@@ -1,8 +1,9 @@
 // Public API
 
+// export { BehaviorManager } from './behavior/behavior-manager';
 export { AdapterSetConfig } from './behavior/component/adapter-set-config';
+// export { DataExtractBehavior } from './behavior/component/data-extract-behavior';
 export { CanvasRenderingContext2DEx } from './components/canvas-ex/canvas-rendering-context-2d-ex';
-export { CellModel } from './components/cell/cell-model';
 export { CellPainter } from './components/cell/cell-painter';
 export { ViewCell } from './components/cell/view-cell';
 export { Column } from './components/column/column';

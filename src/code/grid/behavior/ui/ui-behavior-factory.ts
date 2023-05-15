@@ -17,11 +17,7 @@ import { TouchScrollingUiBehavior } from './touch-scrolling-ui-behavior';
 import { UiBehavior } from './ui-behavior';
 import { UiBehaviorServices } from './ui-behavior-services';
 
-
-
-/**
- * @classdesc Registry of feature constructors.
- */
+/** @internal */
 export class UiBehaviorFactory {
     private static _registry = new Registry<UiBehavior.Constructor>();
 

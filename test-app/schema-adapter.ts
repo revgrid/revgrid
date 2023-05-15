@@ -1,5 +1,5 @@
 import { MainRecord } from 'main-record';
-import { ColumnSettings, SchemaModel } from '../dist/types/public-api';
+import { ColumnSettings, SchemaModel } from '..';
 
 export class SchemaAdapter implements SchemaModel {
     private _callbackListener: SchemaModel.CallbackListener;

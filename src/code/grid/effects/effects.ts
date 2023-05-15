@@ -164,7 +164,7 @@ export class GlowerEffect extends Effect {
         const was = this._styleWasMap.get(event.propertyName);
         // const was = this.styleWas[event.propertyName];
         if (was !== undefined && was.undo) {
-            this.el.style[event.propertyName] = was.style;
+            this.el.style.setProperty(event.propertyName, was.style);
             was.undo = false;
         } else {
             if (--this._activeCount === 0) {

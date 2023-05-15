@@ -1,4 +1,4 @@
-import { DataModel, SchemaModel } from '../dist/types/public-api';
+import { DataModel, SchemaModel } from '..';
 import { SchemaAdapter } from './schema-adapter';
 
 export class HeaderDataAdapter implements DataModel {

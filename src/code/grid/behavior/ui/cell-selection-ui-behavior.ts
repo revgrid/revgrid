@@ -11,6 +11,7 @@ import { SelectionArea } from '../../lib/selection-area';
 import { StartLength } from '../../lib/start-length';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class CellSelectionUiBehavior extends UiBehavior {
 
     readonly typeName = CellSelectionUiBehavior.typeName;
@@ -358,6 +359,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace CellSelectionUiBehavior {
     export const typeName = 'cellselection';
 

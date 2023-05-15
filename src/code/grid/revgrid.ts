@@ -24,6 +24,7 @@ import { ViewLayout } from './components/view/view-layout';
 import { CellProperties } from './interfaces/cell-properties';
 import { ColumnInterface } from './interfaces/column-interface';
 import { ColumnSettings } from './interfaces/column-settings';
+import { DataModel } from './interfaces/data-model';
 import { GridSettings, LoadableGridSettings } from './interfaces/grid-settings';
 import { MetaModel } from './interfaces/meta-model';
 import { SchemaModel } from './interfaces/schema-model';
@@ -46,22 +47,14 @@ export class Revgrid {
     readonly canvasEx: CanvasEx;
     readonly viewLayout: ViewLayout;
 
-    /** @internal */
     private readonly _columnsManager: ColumnsManager;
-    /** @internal */
     private readonly _subgridsManager: SubgridsManager;
-    /** @internal */
     private readonly _renderer: Renderer;
 
-    /** @internal */
     private readonly _focusBehavior: FocusBehavior;
-    /** @internal */
     private readonly _selectionBehavior: SelectionBehavior;
-    /** @internal */
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
-    /** @internal */
     private readonly _cellPropertiesBehavior: CellPropertiesBehavior;
-    /** @internal */
     private readonly _scrollBehavior: ScrollBehavior; // remove this in future
 
     destroyed = false;
@@ -207,7 +200,6 @@ export class Revgrid {
         //         this.setBehavior(options); // also sets options.data
         //     }
         // }
-        this.internalReset(undefined, false);
 
         // this.resizeScrollbars();
 
@@ -306,6 +298,7 @@ export class Revgrid {
 
     /**
      * A null object behavior serves as a place holder.
+     * @internal
      */
     behaviorManager: BehaviorManager;
 
@@ -336,7 +329,7 @@ export class Revgrid {
         this.containerHtmlElement.removeAttribute(attribute);
     }
 
-    loadDefaultProperties() {
+    loadDefaultSettings() {
         /**
          * @name properties
          * @type {object}
@@ -382,7 +375,18 @@ export class Revgrid {
         nonDefaultProperties: Partial<GridSettings> | undefined,
         removeAllEventListeners = false
     ) {
-        this.internalReset(nonDefaultProperties, removeAllEventListeners);
+        this.behaviorManager.reset();
+
+        if (nonDefaultProperties !== undefined) {
+            this.settings.loadDefaults();
+            this.settings.merge(nonDefaultProperties);
+        }
+
+        if (removeAllEventListeners) {
+            this.removeAllEventListeners();
+        }
+
+        this.cancelEditing();
     }
 
     /** pluginSpec
@@ -698,7 +702,7 @@ export class Revgrid {
      * @return The data row object at y index.
      * @param y - the row index of interest
      */
-    getSingletonDataRow(y: number, subgrid?: Subgrid) {
+    getSingletonDataRow(y: number, subgrid?: Subgrid): DataModel.DataRow {
         if (subgrid === undefined) {
             return this.behaviorManager.mainSubgrid.getSingletonDataRow(y);
         } else {
@@ -710,7 +714,7 @@ export class Revgrid {
      * Retrieve all data rows from the data model.
      * > Use with caution!
      */
-    getData() {
+    getData(): readonly DataModel.DataRow[] {
         const mainDataModel = this.behaviorManager.mainDataModel;
         if (mainDataModel.getData === undefined) {
             return [];
@@ -813,28 +817,6 @@ export class Revgrid {
      */
     abortEditing() {
         return !this.cellEditor || this.cellEditor.stopEditing();
-    }
-
-    /**
-     * @summary Open the cell-editor for the cell at the given coordinates.
-     * @param cell - Coordinates of "edit point" (gridCell.x, dataCell.y).
-     * @return The cellEditor determined from the cell's render properties, which may be modified by logic added by overriding {@link DataModel#getCellEditorAt|getCellEditorAt}.
-     */
-    editAt(cell: ViewCell): CellEditor | undefined {
-        let cellEditor: CellEditor | undefined;
-
-        this.abortEditing(); // if another editor is open, close it first
-
-        if (
-            cell.columnProperties[cell.isMainRow ? 'editable' : 'filterable']
-        ) {
-            cellEditor = this.getCellEditorAt(cell);
-            if (cellEditor !== undefined) {
-                // cellEditor.beginEditing();
-            }
-        }
-
-        return cellEditor;
     }
 
     /**
@@ -1332,24 +1314,6 @@ export class Revgrid {
     // }
 
     /**
-     * @desc An edit event has occurred. Activate the editor at the coordinates specified by the event.
-     * @param cell - The horizontal coordinate.
-     * @returns The editor object or `undefined` if no editor or editor already open.
-     */
-    onEditorActivate(cell: ViewCell) {
-        return this.editAt(cell);
-    }
-
-    /**
-     * @summary Get the cell editor.
-     * @desc Delegates to the behavior.
-     * @returns The cell editor at the given coordinates.
-     */
-    getCellEditorAt(event: ViewCell) {
-        return this.behaviorManager.getCellEditorAt(event);
-    }
-
-    /**
      * @summary Toggle HiDPI support.
      * @desc HiDPI support is now *on* by default.
      * > There used to be a bug in Chrome that caused severe slow down on bit blit of large images, so this HiDPI needed to be optional.
@@ -1523,10 +1487,6 @@ export class Revgrid {
     clearAllCellProperties(x?: number) {
         const column = x === undefined ? undefined : this._columnsManager.getAllColumn(x);
         this._cellPropertiesBehavior.clearAllCellProperties(column)
-    }
-
-    lookupFeature(key: string) {
-        return this.behaviorManager.lookupFeature(key);
     }
 
     // decorateColumnArray(array) {
@@ -2345,33 +2305,6 @@ export class Revgrid {
             navKey += 'SHIFT';
         }
         return navKey;
-    }
-
-    /**
-     * @desc Clear out all state settings, data (rows), and schema (columns) of a grid instance.
-     * @param options
-     * @param options.subgrids - Consumed by {@link BehaviorManager#reset}.
-     * If omitted, previously established subgrids list is reused.
-     * @internal
-     */
-    private internalReset(
-        nonDefaultProperties: Partial<GridSettings> | undefined,
-        removeAllEventListeners = false
-    ) {
-        this.behaviorManager.reset();
-        if (nonDefaultProperties !== undefined) {
-            this.settings.loadDefaults();
-            this.settings.merge(nonDefaultProperties);
-        }
-
-        if (removeAllEventListeners) {
-            this.removeAllEventListeners();
-        }
-
-
-        this.cancelEditing();
-
-        this.behaviorManager.reset();
     }
 
     /** @internal */

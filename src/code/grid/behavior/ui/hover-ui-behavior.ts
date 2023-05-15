@@ -2,9 +2,7 @@
 import { ViewCell } from '../../components/cell/view-cell';
 import { UiBehavior } from './ui-behavior';
 
-/**
- * @constructor
- */
+/** @internal */
 export class HoverUiBehavior extends UiBehavior {
 
     readonly typeName = HoverUiBehavior.typeName;
@@ -31,6 +29,7 @@ export class HoverUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace HoverUiBehavior {
     export const typeName = 'hover';
 }

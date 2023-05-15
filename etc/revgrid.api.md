@@ -216,29 +216,6 @@ export namespace CanvasRenderingContext2DEx {
     }
 }
 
-// @public (undocumented)
-export interface CellModel {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@method" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "renderConfig"
-    getCellPainter: (this: void, viewCell: ViewCell, prefillColor: string | undefined) => CellPainter;
-}
-
-// @public (undocumented)
-export namespace CellModel {
-    // (undocumented)
-    export type Constructor = new () => CellModel;
-}
-
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 //
 // @public
@@ -1324,9 +1301,7 @@ export const enum HorizontalWheelScrollingAllowed {
     Never = 0
 }
 
-// Warning: (ae-internal-missing-underscore) The name "IndexSignatureHack" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
+// @public (undocumented)
 export type IndexSignatureHack<T> = {
     [K in keyof T]: IndexSignatureHack<T[K]>;
 };
@@ -1751,6 +1726,8 @@ export class Revgrid {
     autosizeAllColumns(): void;
     beginSelectionChange(): void;
     // Warning: (ae-forgotten-export) The symbol "BehaviorManager" needs to be exported by the entry point public-api.d.ts
+    //
+    // @internal
     behaviorManager: BehaviorManager;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     calculateActiveColumnsWidth(): number;
@@ -1872,9 +1849,6 @@ export class Revgrid {
     destroy(): void;
     // (undocumented)
     destroyed: boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    editAt(cell: ViewCell): CellEditor | undefined;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     editorTakeFocus(): void;
     // (undocumented)
@@ -1920,9 +1894,6 @@ export class Revgrid {
     getBoundsOfCell(gridCell: Point): RectangleInterface;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    getCellEditorAt(event: ViewCell): undefined;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getCellOwnProperties(allXOrRenderedCell: number | ViewCell, y?: number, subgrid?: SubgridInterface): MetaModel.CellOwnProperties | undefined;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -1947,7 +1918,7 @@ export class Revgrid {
     // (undocumented)
     getColumnScrollableLeft(activeIndex: number): number;
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    getData(): readonly import("./grid-public-api").DataModel.DataRow[];
+    getData(): readonly DataModel.DataRow[];
     // (undocumented)
     getFixedColumnCount(): number;
     // (undocumented)
@@ -1981,7 +1952,7 @@ export class Revgrid {
     // (undocumented)
     getSelectedRowIndices(): number[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    getSingletonDataRow(y: number, subgrid?: Subgrid): import("./grid-public-api").DataModel.DataRow;
+    getSingletonDataRow(y: number, subgrid?: Subgrid): DataModel.DataRow;
     // (undocumented)
     getState(): any;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -2014,17 +1985,13 @@ export class Revgrid {
     isScrollingNow(): boolean;
     isWebkit: boolean;
     // (undocumented)
-    loadDefaultProperties(): void;
+    loadDefaultSettings(): void;
     // (undocumented)
     loadState(state: Record<string, unknown>): void;
     // Warning: (ae-forgotten-export) The symbol "Localization" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
     localization: Localization;
-    // Warning: (ae-forgotten-export) The symbol "UiBehavior" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    lookupFeature(key: string): UiBehavior | undefined;
     // Warning: (ae-forgotten-export) The symbol "Mouse" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -2039,8 +2006,6 @@ export class Revgrid {
     needsStateChanged: boolean;
     // (undocumented)
     get nonFixedColumnsViewWidth(): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    onEditorActivate(cell: ViewCell): CellEditor | undefined;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     pageDown(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2577,7 +2542,7 @@ export namespace RevRecordMainAdapter {
 }
 
 // @public (undocumented)
-export class RevRecordMainCellAdapter implements CellModel {
+export class RevRecordMainCellAdapter {
     constructor(_mainAdapter: RevRecordMainAdapter, _mainCellPainter: CellPainter);
     // (undocumented)
     getCellPainter(): CellPainter;
@@ -2950,8 +2915,6 @@ export interface SimpleCellPaintConfig {
 
 // @public (undocumented)
 export namespace SimpleCellPaintConfig {
-    // Warning: (ae-incompatible-release-tags) The symbol "Snapshot" is marked as @public, but its signature references "IndexSignatureHack" which is marked as @internal
-    //
     // (undocumented)
     export type Snapshot = IndexSignatureHack<SnapshotInterface>;
     // (undocumented)
@@ -3190,13 +3153,12 @@ export class Subgrid implements SubgridInterface {
     getRowCount(): number;
     // (undocumented)
     getRowHeight(rowIndex: number): number;
-    // @internal (undocumented)
+    // (undocumented)
     getRowMetadata(rowIndex: number): MetaModel.RowMetadata | undefined;
     // (undocumented)
     getRowProperties(rowIndex: number): MetaModel.RowProperties | undefined;
     // (undocumented)
     getRowProperty(rowIndex: number, key: string): unknown;
-    // @internal
     getSingletonDataRow(rowIndex: number): DataModel.DataRow;
     // (undocumented)
     getValue(column: ColumnInterface, rowIndex: number): DataModel.DataValue;
@@ -3224,7 +3186,7 @@ export class Subgrid implements SubgridInterface {
     readonly schemaModel: SchemaModel;
     // (undocumented)
     readonly selectable: boolean;
-    // @internal (undocumented)
+    // (undocumented)
     setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined): void;
     // (undocumented)
     setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined): boolean;

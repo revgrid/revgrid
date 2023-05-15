@@ -68,13 +68,9 @@ export abstract class ScrollDimension {
 
     get viewportStart() {
         this.ensureValid();
-        const viewportStart = this._viewportStart;
-        if (viewportStart === undefined) {
-            throw new AssertError('SPDVST60998');
-        } else {
-            return viewportStart;
-        }
+        return this._viewportStart;
     }
+
     get viewportSize() {
         this.ensureValid();
         const viewportSize = this._viewportSize;
@@ -184,7 +180,7 @@ export abstract class ScrollDimension {
 
 export namespace ScrollDimension {
     export type ChangedEventer = (this: void) => void
-    export type ComputedEventer = (this: void, withinAnimationFrame: boolean) => number; // return Viewport Start
+    export type ComputedEventer = (this: void, withinAnimationFrame: boolean) => number | undefined; // return Viewport Start
     export type ViewportStartChangedEventer = (this: void) => void;
 
     export interface Anchor {

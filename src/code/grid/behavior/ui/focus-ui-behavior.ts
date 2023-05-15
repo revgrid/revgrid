@@ -4,6 +4,7 @@ import { EventDetail } from '../../components/event/event-detail';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class FocusUiBehavior extends UiBehavior {
     readonly typeName = FocusUiBehavior.typeName;
 
@@ -157,6 +158,7 @@ export class FocusUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace FocusUiBehavior {
     export const typeName = 'focus';
 }

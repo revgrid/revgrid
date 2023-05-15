@@ -1,5 +1,6 @@
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class ClipboardUiBehavior extends UiBehavior {
     readonly typeName = ClipboardUiBehavior.typeName;
 
@@ -13,6 +14,7 @@ export class ClipboardUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace ClipboardUiBehavior {
     export const typeName = 'clipboard';
 }

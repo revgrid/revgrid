@@ -3,7 +3,8 @@
   "compilerOptions": {
     // "baseUrl": "./",
     "target": "ES2022",
-    "lib": ["ES2019", "dom"],
+    "lib": ["ES2022", "dom"],
+    "module": "es2020",
     "sourceMap": true,
     "strict": true,
     "useDefineForClassFields": true,
@@ -23,7 +24,5 @@
     // "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "rootDir": "src/code",
   },
 }

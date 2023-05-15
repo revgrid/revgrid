@@ -1,5 +1,4 @@
-import { AdapterSetConfig, defaultGridProperties, EventDetail, HalignEnum, Revgrid } from '..';
-import { CellAdapter } from './cell-adapter';
+import { AdapterSetConfig, EventDetail, HalignEnum, Revgrid, SimpleCellPainter, ViewCell, defaultGridProperties } from '..';
 import { HeaderDataAdapter } from './header-data-adapter';
 import { MainDataAdapter } from './main-data-adapter';
 import { SchemaAdapter } from './schema-adapter';
@@ -19,7 +18,7 @@ export class Main {
     private readonly _gridHostElement: HTMLElement;
 
     private _mainDataAdapter: MainDataAdapter;
-    private _cellAdapter: CellAdapter;
+    private _cellPainter: SimpleCellPainter;
     private _grid: Revgrid;
 
     constructor() {
@@ -50,7 +49,6 @@ export class Main {
         } else {
             this._fixedColumnCountTextboxElement.onchange = () => {
                 this._grid.settings.fixedColumnCount = parseInt(this._fixedColumnCountTextboxElement.value);
-                this._grid.computeViewLayout();
             };
         }
 
@@ -60,7 +58,6 @@ export class Main {
         } else {
             this._cellPaddingTextboxElement.onchange = () => {
                 this._grid.settings.cellPadding = parseInt(this._cellPaddingTextboxElement.value);
-                this._grid.computeViewLayout();
             };
         }
 
@@ -70,7 +67,6 @@ export class Main {
         } else {
             this._rightHalignCheckboxElement.onchange = () => {
                 this._grid.settings.halign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
-                this._grid.computeViewLayout();
             };
         }
 
@@ -80,7 +76,6 @@ export class Main {
         } else {
             this._gridRightAlignedCheckboxElement.onchange = () => {
                 this._grid.settings.gridRightAligned = this._gridRightAlignedCheckboxElement.checked;
-                this._grid.computeViewLayout();
             };
         }
 
@@ -90,7 +85,6 @@ export class Main {
         } else {
             this._scrollHorizontallySmoothlyCheckboxElement.onchange = () => {
                 this._grid.settings.scrollHorizontallySmoothly = this._scrollHorizontallySmoothlyCheckboxElement.checked;
-                this._grid.computeViewLayout();
             };
         }
 
@@ -100,7 +94,6 @@ export class Main {
         } else {
             this._visibleColumnWidthAdjustCheckboxElement.onchange = () => {
                 this._grid.settings.visibleColumnWidthAdjust = this._visibleColumnWidthAdjustCheckboxElement.checked;
-                this._grid.computeViewLayout();
             };
         }
 
@@ -139,7 +132,7 @@ export class Main {
         }
 
         this._mainDataAdapter = new MainDataAdapter();
-        this._cellAdapter = new CellAdapter();
+        this._cellPainter = new SimpleCellPainter();
 
         const adapterSet: AdapterSetConfig = {
             schemaModel: new SchemaAdapter(),
@@ -147,12 +140,12 @@ export class Main {
                 {
                     role: 'header',
                     dataModel: new HeaderDataAdapter(),
-                    cellModel: this._cellAdapter,
+                    getCellPainterEventer: (viewCell, prefillColor) => this.getCellPainter(viewCell, prefillColor),
                 },
                 {
                     role: 'main',
                     dataModel: this._mainDataAdapter,
-                    cellModel: this._cellAdapter,
+                    getCellPainterEventer: (viewCell, prefillColor) => this.getCellPainter(viewCell, prefillColor),
                 }
             ],
         };
@@ -175,7 +168,6 @@ export class Main {
         };
 
         this._grid = new Revgrid(this._gridHostElement, adapterSet, gridOptions);
-        this._cellAdapter.setGrid(this._grid);
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();
         this._cellPaddingTextboxElement.value = this._grid.settings.cellPadding.toString();
@@ -215,6 +207,12 @@ export class Main {
                     throw new Error(`Editor does not support field: ${column.name}`);
             }
         }
+    }
+
+    getCellPainter(viewCell: ViewCell, prefillColor: string | undefined) {
+        const painter = this._cellPainter;
+        painter.loadConfig(this._grid, viewCell, prefillColor);
+        return painter;
     }
 }
 

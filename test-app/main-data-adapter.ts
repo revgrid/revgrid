@@ -1,4 +1,4 @@
-import { ColumnInterface, DataModel, SchemaModel } from '../dist/types/public-api';
+import { ColumnInterface, DataModel, SchemaModel } from '..';
 import { MainRecord } from './main-record';
 import { SchemaAdapter } from './schema-adapter';
 

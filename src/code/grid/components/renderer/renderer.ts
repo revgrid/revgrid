@@ -2,9 +2,9 @@ import { Animation } from '../../components/canvas-ex/animation';
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../../components/canvas-ex/canvas-rendering-context-2d-ex';
 import { Selection } from '../../components/selection/selection';
-import { GridSettings } from '../../interfaces/grid-settings';
 import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema-model';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
+import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
 import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
@@ -18,7 +18,6 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 export class Renderer {
-
     private readonly _gridPainterRepository: GridPainterRepository;
     private readonly _animator: Animation.Animator;
     private readonly _renderActionQueue = new RenderActionQueue()
@@ -37,7 +36,7 @@ export class Renderer {
     private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
 
     constructor(
-        private readonly _gridProperties: GridSettings,
+        private readonly _gridSettings: GridSettingsAccessor,
         mouse: Mouse,
         private readonly _canvasEx: CanvasEx,
         private readonly _columnsManager: ColumnsManager,
@@ -48,7 +47,7 @@ export class Renderer {
         private readonly _renderedEventer: Renderer.RenderedEventer,
     ) {
         this._gridPainterRepository = new GridPainterRepository(
-            this._gridProperties,
+            this._gridSettings,
             mouse,
             this._canvasEx,
             this._subgridsManager,
@@ -59,8 +58,8 @@ export class Renderer {
         );
 
         this._animator = {
-            isContinuous: this._gridProperties.enableContinuousRepaint, // TODO properties should update this dynamically
-            framesPerSecond: this._gridProperties.repaintFramesPerSecond, // TODO properties should update this dynamically
+            isContinuous: this._gridSettings.enableContinuousRepaint, // TODO properties should update this dynamically
+            framesPerSecond: this._gridSettings.repaintFramesPerSecond, // TODO properties should update this dynamically
             dirty: false,
             animating: false,
             animate: () => this.processRenderActionQueue(),
@@ -74,7 +73,8 @@ export class Renderer {
 
         this._renderActionQueue.actionsQueuedEventer = () => this._animator.dirty = true;
 
-        this._viewLayout.invalidatedEventer = (action) => this._renderActionQueue.processViewLayoutInvalidateAction(action);
+        this._gridSettings.invalidateAllDataEventer = () => this.invalidateAllData();
+        this._viewLayout.invalidateDataEventer = (action) => this._renderActionQueue.processViewLayoutInvalidateAction(action);
 
         document.addEventListener('visibilitychange', this._pageVisibilityChangeListener);
         this.setGridPainter('by-columns-and-rows');

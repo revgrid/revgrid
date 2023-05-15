@@ -5,6 +5,11 @@ import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from '../li
 import { defaultSettingsProperties } from './default-grid-settings';
 
 export class GridSettingsAccessor implements LoadableGridSettings {
+    invalidateAllDataEventer: GridSettingsAccessor.InvalidateAllDataEventer;
+    invalidateViewEventer: GridSettingsAccessor.InvalidateViewEventer;
+    invalidateHorizontalViewEventer: GridSettingsAccessor.InvalidateViewEventer;
+    invalidateVerticalViewEventer: GridSettingsAccessor.InvalidateViewEventer;
+
     private readonly _raw: GridSettings = {} as GridSettings;
     private readonly var = GridSettingsAccessor.Var.createDefault();
 
@@ -23,7 +28,12 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get backgroundSelectionColor() { return this._raw.backgroundSelectionColor; }
     set backgroundSelectionColor(value: GridSettings.Color) { this._raw.backgroundSelectionColor = value; }
     get cellPadding() { return this._raw.cellPadding; }
-    set cellPadding(value: number) { this._raw.cellPadding = value; }
+    set cellPadding(value: number) {
+        if (value !== this._raw.cellPadding) {
+            this._raw.cellPadding = value;
+            this.invalidateViewEventer(true);
+        }
+    }
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
     get mouseCellSelection() { return this._raw.mouseCellSelection; }
     set mouseCellSelection(value: boolean) { this._raw.mouseCellSelection = value; }
@@ -73,7 +83,10 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get columnsReorderableHideable() { return this._raw.columnsReorderableHideable; }
     set columnsReorderableHideable(value: boolean) { this._raw.columnsReorderableHideable = value; }
     get gridRightAligned() { return this._raw.gridRightAligned; }
-    set gridRightAligned(value: boolean) { this._raw.gridRightAligned = value; }
+    set gridRightAligned(value: boolean) {
+        this._raw.gridRightAligned = value;
+        this.invalidateHorizontalViewEventer(true);
+    }
     get defaultRowHeight() { return this._raw.defaultRowHeight; }
     set defaultRowHeight(value: number) { this._raw.defaultRowHeight = value; }
     get defaultColumnWidth() { return this._raw.defaultColumnWidth; }
@@ -125,7 +138,12 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     set filterCellPainter(value: string) { this._raw.filterCellPainter = value; }
 
     get fixedColumnCount() { return this._raw.fixedColumnCount; }
-    set fixedColumnCount(value: number) { this._raw.fixedColumnCount = value; }
+    set fixedColumnCount(value: number) {
+        if (value !== this._raw.fixedColumnCount) {
+            this._raw.fixedColumnCount = value;
+            this.invalidateHorizontalViewEventer(true);
+        }
+    }
     get fixedLinesHColor() { return this._raw.fixedLinesHColor; }
     set fixedLinesHColor(value: GridSettings.Color) { this._raw.fixedLinesHColor = value; }
     get fixedLinesHEdge() { return this._raw.fixedLinesHEdge; }
@@ -167,7 +185,10 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     set gridLinesVWidth(value: number) { this._raw.gridLinesVWidth = value; }
     /** The cell's horizontal alignment, as interpreted by the cell renderer */
     get halign() { return this._raw.halign; }
-    set halign(value: Halign) { this._raw.halign = value; }
+    set halign(value: Halign) {
+        this._raw.halign = value;
+        this.invalidateAllDataEventer();
+    }
     get headerify() { return this._raw.headerify; }
     set headerify(value: string) { this._raw.headerify = value; }
     /** Whether text in header cells is wrapped. */
@@ -212,7 +233,10 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get maximumColumnWidth() { return this._raw.maximumColumnWidth; }
     set maximumColumnWidth(value: number | undefined) { this._raw.maximumColumnWidth = value; }
     get visibleColumnWidthAdjust() { return this._raw.visibleColumnWidthAdjust; }
-    set visibleColumnWidthAdjust(value: boolean) { this._raw.visibleColumnWidthAdjust = value; }
+    set visibleColumnWidthAdjust(value: boolean) {
+        this._raw.visibleColumnWidthAdjust = value;
+        this.invalidateHorizontalViewEventer(true);
+    }
     /** Allow multiple cell region selections. */
     get multipleSelectionAreas() { return this._raw.multipleSelectionAreas; }
     set multipleSelectionAreas(value: boolean) { this._raw.multipleSelectionAreas = value; }
@@ -253,7 +277,10 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get rowStripes() { return this._raw.rowStripes; }
     set rowStripes(value: GridSettings.RowStripe[] | undefined) { this._raw.rowStripes = value; }
     get scrollHorizontallySmoothly() { return this._raw.scrollHorizontallySmoothly; }
-    set scrollHorizontallySmoothly(value: boolean) { this._raw.scrollHorizontallySmoothly = value; }
+    set scrollHorizontallySmoothly(value: boolean) {
+        this._raw.scrollHorizontallySmoothly = value;
+        this.invalidateHorizontalViewEventer(true);
+    }
     get scrollbarHoverOver() { return this._raw.scrollbarHoverOver; }
     set scrollbarHoverOver(value: string) { this._raw.scrollbarHoverOver = value; }
     get scrollbarHoverOff() { return this._raw.scrollbarHoverOff; }
@@ -543,6 +570,9 @@ export class GridSettingsAccessor implements LoadableGridSettings {
 
 export namespace GridSettingsAccessor {
     export type Constructor = new() => GridSettingsAccessor;
+
+    export type InvalidateAllDataEventer = (this: void) => void;
+    export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
 
     export interface Var {
         features: string[];

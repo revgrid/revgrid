@@ -2,9 +2,8 @@
   "name": "revgrid",
   "version": "0.1.12",
   "description": "Canvas based high performance grid",
-  "main": "dist/cjs/public-api.js",
+  "main": "dist/esm/public-api.js",
   "module": "dist/esm/public-api.js",
-  "browser": "dist/bundle/esm/revgrid.js",
   "typings": "dist/types/public-api.d.ts",
   "homepage": "https://revgrid.github.io/revgrid/",
   "repository": {

@@ -4,6 +4,7 @@ import { ColumnWidth } from '../../components/column/column';
 import { ColumnInterface } from '../../interfaces/column-interface';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class ColumnResizingUiBehavior extends UiBehavior {
 
     readonly typeName = ColumnResizingUiBehavior.typeName;
@@ -253,6 +254,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace ColumnResizingUiBehavior {
     export const typeName = 'columnresizing';
 

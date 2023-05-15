@@ -30,7 +30,6 @@ export class Scroller {
      *
      * Set this property to `null` to stop emitting such events.
      */
-    onchange: Scroller.OnChange | undefined;
     actionEventer: Scroller.ActionEventer;
 
     /**
@@ -214,7 +213,6 @@ export class Scroller {
         this.classPrefix = options.classPrefix;
         // this.container = options.container;
         // this.content = options.content;
-        this.onchange = options.onchange;
 
         // this.normal = getNormal();
 
@@ -339,7 +337,7 @@ export class Scroller {
                     let val = styles[key];
 
                     if (key in oh) {
-                        key = oh[key];
+                        key = oh[key as keyof OrientationHash];
                     }
 
                     if (!isNaN(Number(val))) {
@@ -347,14 +345,14 @@ export class Scroller {
                     } else if (/%$/.test(val)) {
                         // When bar size given as percentage of container, if bar has margins, restate size in pixels less margins.
                         // (If left as percentage, CSS's calculation will not exclude margins.)
-                        const oriented = axis[key];
-                        const margins = barRect[oriented.marginLeading] + barRect[oriented.marginTrailing];
+                        const oriented = axis[key as keyof typeof axis];
+                        const margins = barRect[(oriented.marginLeading)] + barRect[(oriented.marginTrailing)];
                         if (margins) {
                             val = parseInt(val, 10) / 100 * containerRect[oriented.size] - margins + 'px';
                         }
                     }
 
-                    bar.style[key] = val;
+                    bar.style.setProperty(key, val);
                 });
             }
         }
@@ -372,10 +370,12 @@ export class Scroller {
      *
      * @see {@link Scroller#setThumbPosition|_setScroll}
      */
-    set index(idx: number) {
-        idx = Math.min(this._scrollDimension.finish, Math.max(this._scrollDimension.start, idx)); // clamp it
-        this.setThumbPosition(idx, undefined);
+    set index(idx: number | undefined) {
+        if (idx !== undefined) {
+            idx = Math.min(this._scrollDimension.finish, Math.max(this._scrollDimension.start, idx)); // clamp it
+            this.setThumbPosition(idx, undefined);
         // this._setThumbSize();
+        }
     }
     get index() {
         return this._scrollDimension.viewportStart;
@@ -399,22 +399,28 @@ export class Scroller {
     }
 
     scrollBy(delta: number) {
-        // make sure does not go beyond end edge
-        let newViewportStart = this._scrollDimension.viewportStart + delta;
-        if (newViewportStart < this._scrollDimension.start) {
-            newViewportStart = this._scrollDimension.start;
-        } else {
-            const viewportNext = newViewportStart + this._scrollDimension.viewportSize;
-            if (viewportNext > this._scrollDimension.after) {
-                newViewportStart = this._scrollDimension.after - this._scrollDimension.viewportSize;
+        const viewportStart = this._scrollDimension.viewportStart;
+        if (viewportStart !== undefined) {
+            // make sure does not go beyond end edge
+            let newViewportStart = viewportStart + delta;
+            if (newViewportStart < this._scrollDimension.start) {
+                newViewportStart = this._scrollDimension.start;
+            } else {
+                const viewportNext = newViewportStart + this._scrollDimension.viewportSize;
+                if (viewportNext > this._scrollDimension.after) {
+                    newViewportStart = this._scrollDimension.after - this._scrollDimension.viewportSize;
+                }
             }
+            this.setThumbPosition(newViewportStart, undefined);
         }
-        this.setThumbPosition(newViewportStart, undefined);
     }
 
     scrollIndexBy(delta: number) {
-        // same as scroll(). Separate call for VScroller. Remove when VScroller uses Viewport
-        this.index = this._scrollDimension.viewportStart + delta;
+        const viewportStart = this._scrollDimension.viewportStart;
+        if (viewportStart !== undefined) {
+            // same as scroll(). Separate call for VScroller. Remove when VScroller uses Viewport
+            this.index = viewportStart + delta;
+        }
     }
 
     /**
@@ -423,21 +429,23 @@ export class Scroller {
      * @param viewportStart - The new scroll index, a value in the range `min`..`max`.
      * @param barPosition - The new thumb position in pixels and scaled relative to the containing {@link Scroller#bar|bar} element, i.e., a proportional number in the range `0`..`thumbMax`.
      */
-    private setThumbPosition(viewportStart: number, barPosition: number | undefined) {
-        // Display the index value in the test panel
-        if (this.testPanelItem && this.testPanelItem.index instanceof HTMLElement) {
-            this.testPanelItem.index.innerHTML = Math.round(viewportStart).toString();
-        }
-
-        // Move the thumb
-        if (barPosition === undefined) {
-            if (this._indexMode) {
-                barPosition = (viewportStart - this._scrollDimension.start) / (this._scrollDimension.finish - this._scrollDimension.start) * this._thumbMax;
-            } else {
-                barPosition = (viewportStart - this._scrollDimension.start) * this._thumbScaling;
+    private setThumbPosition(viewportStart: number | undefined, barPosition: number | undefined) {
+        if (viewportStart !== undefined) {
+            // Display the index value in the test panel
+            if (this.testPanelItem && this.testPanelItem.index instanceof HTMLElement) {
+                this.testPanelItem.index.innerHTML = Math.round(viewportStart).toString();
             }
+
+            // Move the thumb
+            if (barPosition === undefined) {
+                if (this._indexMode) {
+                    barPosition = (viewportStart - this._scrollDimension.start) / (this._scrollDimension.finish - this._scrollDimension.start) * this._thumbMax;
+                } else {
+                    barPosition = (viewportStart - this._scrollDimension.start) * this._thumbScaling;
+                }
+            }
+            this.thumb.style[this.oh.leading] = barPosition + 'px';
         }
-        this.thumb.style[this.oh.leading] = barPosition + 'px';
     }
 
     // scrollRealContent(idx: number) {
@@ -607,17 +615,17 @@ export class Scroller {
         const thumbMarginTrailing = parseInt(thumbComp[oh.marginTrailing]);
         const thumbMargins = thumbMarginLeading + thumbMarginTrailing;
         const barSize = this.bar.getBoundingClientRect()[oh.size];
-        this._thumbScaling = barSize / this._scrollDimension.size;
-        const thumbSize = Math.max(20, barSize * this._scrollDimension.viewportSize / this._scrollDimension.size);
 
-        if (this._scrollDimension.viewportSize > 0 && this._scrollDimension.viewportSize < this._scrollDimension.size) {
+        if (this._scrollDimension.overflowed === true) {
+            this._thumbScaling = barSize / this._scrollDimension.size;
+            const thumbSize = Math.max(20, barSize * this._scrollDimension.viewportSize / this._scrollDimension.size);
             this.bar.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
+            this._thumbMax = barSize - thumbSize - thumbMargins;
         } else {
             this.bar.style.visibility = 'hidden';
         }
 
-        this._thumbMax = barSize - thumbSize - thumbMargins;
 
         this._thumbMarginLeading = thumbMarginLeading; // used in mousedown
     }
@@ -675,34 +683,40 @@ export class Scroller {
     }
 
     private onwheel(evt: WheelEvent) {
-        this.index += evt[this.deltaProp] * this[this.deltaProp + 'Factor'] /* * this.normal */;
-        evt.stopPropagation();
-        evt.preventDefault();
+        const index = this.index;
+        if (index !== undefined) {
+            this.index = index + evt[this.deltaProp] * this[this.deltaProp + 'Factor'] /* * this.normal */;
+            evt.stopPropagation();
+            evt.preventDefault();
+        }
     }
 
     private onclick(evt: MouseEvent) {
-        const thumbBox = this.thumb.getBoundingClientRect(),
-            goingUp = evt[this.oh.coordinate] < thumbBox[this.oh.leading];
+        const index = this.index;
+        if (index !== undefined) {
+            const thumbBox = this.thumb.getBoundingClientRect(),
+                goingUp = evt[this.oh.coordinate] < thumbBox[this.oh.leading];
 
-        if (typeof this.paging === 'object') {
-            const newIndex = this.paging[goingUp ? 'up' : 'down'](Math.round(this.index));
-            if (newIndex !== undefined) {
-                this.index = newIndex;
+            if (typeof this.paging === 'object') {
+                const newIndex = this.paging[goingUp ? 'up' : 'down'](Math.round(index));
+                if (newIndex !== undefined) {
+                    this.index = newIndex;
+                }
+            } else {
+                this.index = index + (goingUp ? -this.increment : this.increment);
             }
-        } else {
-            this.index += goingUp ? -this.increment : this.increment;
+
+            // make the thumb glow momentarily
+            this.thumb.classList.add('hover');
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const self = this;
+            this.thumb.addEventListener('transitionend', function waitForIt() {
+                this.removeEventListener('transitionend', waitForIt);
+                self._bound.onmouseup(evt);
+            });
+
+            evt.stopPropagation();
         }
-
-        // make the thumb glow momentarily
-        this.thumb.classList.add('hover');
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this;
-        this.thumb.addEventListener('transitionend', function waitForIt() {
-            this.removeEventListener('transitionend', waitForIt);
-            self._bound.onmouseup(evt);
-        });
-
-        evt.stopPropagation();
     }
 
     private onmouseover() {
@@ -811,7 +825,6 @@ export namespace Scroller {
         /** Specifies whether to load builtin FinBar stylesheet. Default: true */
         loadBuiltinCssStylesheet?: boolean;
         cssStylesheetReferenceElement?: null | Element | string;
-        onchange?: OnChange;
     }
 
     export const enum OrientationEnum {
@@ -992,12 +1005,12 @@ const orientationHashes: OrientationHashes = {
 };
 
 const axis = {
-    top:    'vertical',
-    bottom: 'vertical',
-    height: 'vertical',
-    left:   'horizontal',
-    right:  'horizontal',
-    width:  'horizontal'
+    top:    orientationHashes.vertical,
+    bottom: orientationHashes.vertical,
+    height: orientationHashes.vertical,
+    left:   orientationHashes.horizontal,
+    right:  orientationHashes.horizontal,
+    width:  orientationHashes.horizontal
 };
 
 // definition inserted by gulpfile between following comments

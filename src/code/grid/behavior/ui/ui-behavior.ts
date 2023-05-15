@@ -25,6 +25,7 @@ import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
+ * @internal
  */
 export abstract class UiBehavior {
     abstract readonly typeName: string;
@@ -273,6 +274,7 @@ export abstract class UiBehavior {
     }
 }
 
+/** @internal */
 export namespace UiBehavior {
     export type Constructor = new (services: UiBehaviorServices) => UiBehavior;
 }

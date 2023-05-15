@@ -108,7 +108,6 @@ export class Subgrid implements SubgridInterface {
 
     /**
      * Since this may return RowProxy, can only have one of these rows active at any time
-     * @internal
      */
     getSingletonDataRow(rowIndex: number) {
         if (this.dataModel.getRow !== undefined) {
@@ -123,7 +122,6 @@ export class Subgrid implements SubgridInterface {
         return this.dataModel.getRowCount();
     }
 
-    /** @internal */
     getRowMetadata(rowIndex: number) {
         if (this.metaModel === undefined) {
             return undefined;
@@ -145,7 +143,6 @@ export class Subgrid implements SubgridInterface {
         }
     }
 
-    /** @internal */
     setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined) {
         if (this.metaModel !== undefined && this.metaModel.setRowMetadata !== undefined) {
             this.metaModel.setRowMetadata(rowIndex, newMetadata);

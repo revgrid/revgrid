@@ -3,6 +3,7 @@ import { EventDetail } from '../../components/event/event-detail';
 import { ColumnSettings } from '../../interfaces/column-settings';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class ColumnSortingUiBehavior extends UiBehavior {
 
     readonly typeName = ColumnSortingUiBehavior.typeName;
@@ -70,6 +71,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace ColumnSortingUiBehavior {
     export const typeName = 'columnsorting';
 }

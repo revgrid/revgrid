@@ -4,6 +4,7 @@ import { GridSettings } from '../../interfaces/grid-settings';
 import { AssertError } from '../../lib/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
+/** @internal */
 export class CellClickUiBehavior extends UiBehavior {
 
     readonly typeName = CellClickUiBehavior.typeName;
@@ -122,6 +123,7 @@ export class CellClickUiBehavior extends UiBehavior {
     }
 }
 
+/** @internal */
 export namespace CellClickUiBehavior {
     export const typeName = 'cellclick';
 }
