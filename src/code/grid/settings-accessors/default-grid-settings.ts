@@ -181,6 +181,8 @@ export const defaultSettingsProperties: Required<GridSettings> = {
      */
     cellPadding: 5,
 
+    focusedCellBorderColor: '#696969',
+
     /**
      * The name of a transformer function defined in require('synonomous/transformers').
      *
@@ -450,7 +452,7 @@ export const defaultSettingsProperties: Required<GridSettings> = {
      * @default
      * @type {string}
      */
-    selectionRegionOutlineColor: 'rgb(69, 69, 69)',
+    selectionRegionOutlineColor: 'transparent', // rgb(69, 69, 69)',
 
     /**
      * @summary Whether to automatically expand column width to accommodate widest rendered value.

@@ -115,6 +115,7 @@ export interface GridSettings {
      */
     fixedLinesVWidth: number | undefined;
     fixedRowCount: number;
+    focusedCellBorderColor: GridSettings.Color;
     font: string;
     foregroundSelectionColor: GridSettings.Color;
     foregroundSelectionFont: string;

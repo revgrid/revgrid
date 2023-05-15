@@ -1,4 +1,3 @@
-import { Point } from '../lib/point';
 import { RectangleInterface } from '../lib/rectangle-interface';
 import { SchemaModel } from './schema-model';
 // import { Hypergrid } from '../Hypergrid';
@@ -132,10 +131,10 @@ export interface DataModel {
     setValue?(schema: SchemaModel.Column, rowIndex: number, newValue: unknown): void;
 
     /** Cursor to be displayed when mouse hovers over cell containing data point */
-    getCursorName?(dataPoint: Point): string;
+    getCursorName?(schema: SchemaModel.Column, rowIndex: number): string;
 
     /** Title text to be displayed when mouse hovers over cell containing data point */
-    getTitleText?(dataPoint: Point): string;
+    getTitleText?(schema: SchemaModel.Column, rowIndex: number): string;
 }
 
 

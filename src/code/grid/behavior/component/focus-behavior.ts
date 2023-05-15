@@ -1,13 +1,13 @@
 import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
+import { Renderer } from '../../components/renderer/renderer';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
 import { ViewLayoutRow } from '../../interfaces/view-layout-row';
-import { Point } from '../../lib/point';
 
 export class FocusBehavior {
     constructor(
@@ -17,37 +17,40 @@ export class FocusBehavior {
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewLayout: ViewLayout,
         private readonly _focus: Focus,
+        private readonly _renderer: Renderer,
     ) {
 
     }
 
-    focusPointAndEnsureInView(point: Point) {
-        this._viewLayout.ensureColumnRowAreInView(point.x, point.y, true)
-        this._focus.set(point);
+    tryFocusXYAndEnsureInView(x: number, y: number) {
+        if (this.isXScrollabe(x) && this.isYScrollabe(y)) {
+            this._viewLayout.ensureColumnRowAreInView(x, y, true)
+            this._focus.setXY(x, y);
+            this._renderer.invalidateAllData();
+        }
     }
 
-    focusXYAndEnsureInView(x: number, y: number) {
-        this._viewLayout.ensureColumnRowAreInView(x, y, true)
-        this._focus.setXY(x, y);
+    tryFocusXAndEnsureInView(x: number) {
+        if (this.isXScrollabe(x)) {
+            this._viewLayout.ensureColumnIsInView(x, true)
+            this._focus.setX(x);
+            this._renderer.invalidateAllData();
+        }
     }
 
-    focusXAndEnsureInView(x: number) {
-        this._viewLayout.ensureColumnIsInView(x, true)
-        this._focus.setX(x);
-    }
-
-    focusYAndEnsureInView(y: number) {
-        this._viewLayout.ensureRowIsInView(y, true)
-        this._focus.setY(y);
+    tryFocusYAndEnsureInView(y: number) {
+        if (this.isYScrollabe(y)) {
+            this._viewLayout.ensureRowIsInView(y, true)
+            this._focus.setY(y);
+            this._renderer.invalidateAllData();
+        }
     }
 
     tryMoveFocusLeft() {
         const currentFocusPoint = this._focus.currentSubgridPoint;
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x - 1;
-            if (this.isXScrollabe(newX)) {
-                this.focusXAndEnsureInView(newX);
-            }
+            this.tryFocusXAndEnsureInView(newX);
         }
     }
 
@@ -55,9 +58,7 @@ export class FocusBehavior {
         const currentFocusPoint = this._focus.currentSubgridPoint;
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x + 1;
-            if (this.isXScrollabe(newX)) {
-                this.focusXAndEnsureInView(newX);
-            }
+            this.tryFocusXAndEnsureInView(newX);
         }
     }
 
@@ -65,9 +66,7 @@ export class FocusBehavior {
         const currentFocusPoint = this._focus.currentSubgridPoint;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y - 1;
-            if (this.isYScrollabe(newY)) {
-                this.focusYAndEnsureInView(newY);
-            }
+            this.tryFocusYAndEnsureInView(newY);
         }
     }
 
@@ -75,38 +74,28 @@ export class FocusBehavior {
         const currentFocusPoint = this._focus.currentSubgridPoint;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y + 1;
-            if (this.isYScrollabe(newY)) {
-                this.focusYAndEnsureInView(newY);
-            }
+            this.tryFocusYAndEnsureInView(newY);
         }
     }
 
     tryMoveFocusFirstColumn() {
         const newX = this._gridProperties.fixedColumnCount;
-        if (this.isXScrollabe(newX)) {
-            this.focusYAndEnsureInView(newX);
-        }
+        this.tryFocusYAndEnsureInView(newX);
     }
 
     tryMoveFocusLastColumn() {
         const newX = this._columnsManager.activeColumnCount - 1;
-        if (this.isXScrollabe(newX)) {
-            this.focusYAndEnsureInView(newX);
-        }
+        this.tryFocusYAndEnsureInView(newX);
     }
 
     tryMoveFocusTop() {
         const newY = this._gridProperties.fixedRowCount;
-        if (this.isYScrollabe(newY)) {
-            this.focusYAndEnsureInView(newY);
-        }
+        this.tryFocusYAndEnsureInView(newY);
     }
 
     tryMoveFocusBottom() {
         const newY = this._mainSubgrid.getRowCount() - 1;
-        if (this.isYScrollabe(newY)) {
-            this.focusYAndEnsureInView(newY);
-        }
+        this.tryFocusYAndEnsureInView(newY);
     }
 
     tryPageFocusLeft() {
@@ -194,17 +183,11 @@ export class FocusBehavior {
     }
 
     private isXScrollabe(x: number) {
-        return (
-            x >= this._gridProperties.fixedColumnCount &&
-            x < this._columnsManager.activeColumnCount
-        );
+        return x >= this._gridProperties.fixedColumnCount && x < this._columnsManager.activeColumnCount
     }
 
     private isYScrollabe(y: number) {
-        return (
-            y > this._gridProperties.fixedRowCount &&
-            y < this._mainSubgrid.getRowCount()
-        );
+        return y >= this._gridProperties.fixedRowCount && y < this._mainSubgrid.getRowCount()
     }
 }
 

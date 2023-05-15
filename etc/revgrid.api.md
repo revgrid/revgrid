@@ -104,7 +104,7 @@ export namespace CanvasRenderingContext2DEx {
     const // (undocumented)
     ELLIPSIS = "\u2026";
     // (undocumented)
-    export class Cache {
+    export class Cache implements Cache.Values {
         constructor(_canvasRenderingContext2D: CanvasRenderingContext2D);
         // (undocumented)
         get fillStyle(): string | CanvasGradient;
@@ -121,6 +121,9 @@ export namespace CanvasRenderingContext2DEx {
         // (undocumented)
         get imageSmoothingEnabled(): boolean;
         set imageSmoothingEnabled(value: boolean);
+        // (undocumented)
+        get lineDash(): number[];
+        set lineDash(value: number[]);
         // (undocumented)
         get lineDashOffset(): number;
         set lineDashOffset(value: number);
@@ -174,6 +177,8 @@ export namespace CanvasRenderingContext2DEx {
             globalCompositeOperation: GlobalCompositeOperation | undefined;
             // (undocumented)
             imageSmoothingEnabled: boolean | undefined;
+            // (undocumented)
+            lineDash: number[];
             // (undocumented)
             lineDashOffset: number | undefined;
             // (undocumented)
@@ -550,7 +555,7 @@ export interface DataModel {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     fetchData?(rectangles: readonly RectangleInterface[], callback?: (failure: boolean) => void): void;
-    getCursorName?(dataPoint: Point): string;
+    getCursorName?(schema: SchemaModel.Column, rowIndex: number): string;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getData?(metadataFieldName?: string): readonly DataModel.DataRow[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -563,7 +568,7 @@ export interface DataModel {
     getRowIdFromIndex?(rowIndex: number): unknown;
     // (undocumented)
     getRowIndexFromId?(rowId: unknown): number | undefined;
-    getTitleText?(dataPoint: Point): string;
+    getTitleText?(schema: SchemaModel.Column, rowIndex: number): string;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getValue(schema: SchemaModel.Column, rowIndex: number): DataModel.DataValue;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -862,6 +867,12 @@ export class Focus {
     // (undocumented)
     getCellEditorEventer: Focus.GetCellEditorEventer | undefined;
     // (undocumented)
+    isActiveColumnFocused(activeColumnIndex: number): boolean;
+    // (undocumented)
+    isCellFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface): boolean;
+    // (undocumented)
+    isMainSubgridCellFocused(activeColumnIndex: number, mainSubgridRowIndex: number): boolean;
+    // (undocumented)
     isMainSubgridRowFocused(mainSubgridRowIndex: number): boolean;
     // (undocumented)
     isSubgridRowFocused(subgridRowIndex: number, subgrid: SubgridInterface): boolean;
@@ -1061,6 +1072,8 @@ export interface GridSettings {
     fixedLinesVWidth: number | undefined;
     // (undocumented)
     fixedRowCount: number;
+    // (undocumented)
+    focusedCellBorderColor: GridSettings.Color;
     // (undocumented)
     font: string;
     // (undocumented)
@@ -1978,8 +1991,6 @@ export class Revgrid {
     // (undocumented)
     isDataVisible(c: number, rn: number): boolean;
     // (undocumented)
-    isInCurrentSelectionRectangle(x: number, y: number): boolean;
-    // (undocumented)
     isPointSelected(x: number, y: number, subgrid?: Subgrid): boolean;
     // (undocumented)
     isScrollingNow(): boolean;
@@ -2844,6 +2855,8 @@ export interface SimpleCellPaintConfig {
     // (undocumented)
     dataRow: DataModel.DataRow;
     // (undocumented)
+    readonly focusedCellBorderColor: GridSettings.Color;
+    // (undocumented)
     readonly font: string;
     // (undocumented)
     readonly foregroundSelectionColor: GridSettings.Color;
@@ -2866,6 +2879,8 @@ export interface SimpleCellPaintConfig {
     // (undocumented)
     readonly hoverRowHighlight: GridSettings.HoverColors;
     // (undocumented)
+    isCellFocused: boolean;
+    // (undocumented)
     isCellHovered: boolean;
     // (undocumented)
     isCellSelected: boolean;
@@ -2877,8 +2892,6 @@ export interface SimpleCellPaintConfig {
     isFilterRow: boolean;
     // (undocumented)
     isHeaderRow: boolean;
-    // (undocumented)
-    isInCurrentSelectionRectangle: boolean;
     // (undocumented)
     isMainRow: boolean;
     // (undocumented)
@@ -2920,9 +2933,11 @@ export namespace SimpleCellPaintConfig {
     // (undocumented)
     export interface SnapshotInterface {
         // (undocumented)
-        readonly colors: string[];
+        readonly borderColor: string | undefined;
         // (undocumented)
-        readonly foundationColor: boolean;
+        readonly firstColorIsFill: boolean;
+        // (undocumented)
+        readonly layerColors: string[];
         // (undocumented)
         readonly textColor: string;
         // (undocumented)
@@ -2958,6 +2973,8 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     // (undocumented)
     dataRow: DataModel.DataRow;
     // (undocumented)
+    get focusedCellBorderColor(): string;
+    // (undocumented)
     get font(): string;
     // (undocumented)
     get foregroundSelectionColor(): string;
@@ -2980,6 +2997,8 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     // (undocumented)
     get hoverRowHighlight(): GridSettings.HoverColors;
     // (undocumented)
+    isCellFocused: boolean;
+    // (undocumented)
     isCellHovered: boolean;
     // (undocumented)
     isCellSelected: boolean;
@@ -2995,8 +3014,6 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     isHandleColumn: boolean;
     // (undocumented)
     isHeaderRow: boolean;
-    // (undocumented)
-    isInCurrentSelectionRectangle: boolean;
     // (undocumented)
     isMainRow: boolean;
     // (undocumented)

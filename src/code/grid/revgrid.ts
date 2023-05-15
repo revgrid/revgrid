@@ -47,14 +47,22 @@ export class Revgrid {
     readonly canvasEx: CanvasEx;
     readonly viewLayout: ViewLayout;
 
+    /** @internal */
     private readonly _columnsManager: ColumnsManager;
+    /** @internal */
     private readonly _subgridsManager: SubgridsManager;
+    /** @internal */
     private readonly _renderer: Renderer;
 
+    /** @internal */
     private readonly _focusBehavior: FocusBehavior;
+    /** @internal */
     private readonly _selectionBehavior: SelectionBehavior;
+    /** @internal */
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
+    /** @internal */
     private readonly _cellPropertiesBehavior: CellPropertiesBehavior;
+    /** @internal */
     private readonly _scrollBehavior: ScrollBehavior; // remove this in future
 
     destroyed = false;
@@ -79,8 +87,6 @@ export class Revgrid {
     getSelectedRowIndices() { return this.selection.getRowIndices(); }
     getSelectedColumnIndices() { return this.selection.getColumnIndices(); }
     getSelectedRectangles() { return this.selection.rectangleList.rectangles; }
-
-    private mouseCatcher = () => this.abortEditing();
 
     /**
      * The index of the active column which is first in view (either on left or right depending on Grid alignment)
@@ -226,9 +232,6 @@ export class Revgrid {
         // // Install instance plug-ins (those that are constructors OR have an `install` method)
         // this.installPlugins(options.plugins);
 
-        // Listen for propagated mouseclicks. Used for aborting edit mode.
-        document.addEventListener('mousedown',  this.mouseCatcher);
-
         this.canvasEx.start();
         this._renderer.start();
 
@@ -253,7 +256,6 @@ export class Revgrid {
      * canvase paint loop will continue to run
      */
     destroy() {
-        document.removeEventListener('mousedown', this.mouseCatcher);
         this.removeAllEventListeners();
         this.behaviorManager.destroy();
 
@@ -2004,10 +2006,6 @@ export class Revgrid {
 
     isColumnOrRowSelected() {
         return this.selection.isColumnOrRowSelected();
-    }
-
-    isInCurrentSelectionRectangle(x: number, y: number) {
-        return this.selection.isPointInLastArea(x, y);
     }
 
     /**

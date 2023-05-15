@@ -97,10 +97,15 @@ export class SimpleCellPainter implements CellPainter {
         const cellHovered = rowHovered && columnHovered;
         config.isCellHovered = cellHovered;
         config.isCellSelected = isCellSelected;
-        config.isRowFocused = grid.focus.isMainSubgridRowFocused(dataRow);
+        const rowIsFocused = grid.focus.isSubgridRowFocused(dataRow, subgrid);
+        config.isRowFocused = rowIsFocused;
+        if (rowIsFocused) {
+            config.isCellFocused = grid.focus.isActiveColumnFocused(activeColumnIndex);
+        } else{
+            config.isCellFocused = false;
+        }
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
-        config.isInCurrentSelectionRectangle = selection.isPointInLastArea(activeColumnIndex, dataRow);
         config.prefillColor = prefillColor;
 
         config.value = value;
@@ -113,19 +118,7 @@ export class SimpleCellPainter implements CellPainter {
     paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
         const config = this._config;
 
-        const bounds = config.bounds;
-        const x = bounds.x;
-        const y = bounds.y;
-        const width = bounds.width;
-        const height = bounds.height;
         const partialRender = config.prefillColor === undefined; // signifies abort before rendering if same
-        let valWidth = 0;
-        let hover: GridSettings.HoverColors;
-        let hoverColor: string | undefined;
-        let selectColor: string | undefined;
-        let foundationColor = false;
-        let inheritsBackgroundColor: boolean;
-        let c: number;
 
         // setting gc properties are expensive, let's not do it needlessly
 
@@ -146,7 +139,7 @@ export class SimpleCellPainter implements CellPainter {
             snapshotColorsLength = 0;
             same = false;
         } else {
-            snapshotColorsLength = snapshot.colors.length;
+            snapshotColorsLength = snapshot.layerColors.length;
             same = partialRender &&
                 valText === snapshot.value &&
                 textFont === snapshot.textFont &&
@@ -154,61 +147,92 @@ export class SimpleCellPainter implements CellPainter {
         }
 
         // fill background only if our bgColor is populated or we are a selected cell
-        const colors: string[] = [];
-        c = 0;
+        const layerColors: string[] = [];
+        let layerColorIndex = 0;
+        let hoverColor: string | undefined;
         if (config.isCellHovered && config.hoverCellHighlight.enabled) {
             hoverColor = config.hoverCellHighlight.backgroundColor;
-        } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
-            hoverColor = !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
-        } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
-            hoverColor = config.isMainRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+        } else {
+            let hover: GridSettings.HoverColors;
+            if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
+                hoverColor = !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+            } else {
+                if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
+                    hoverColor = config.isMainRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+                }
+            }
         }
+
+        let firstColorIsFill = false;
         if (gc.alpha(hoverColor) < 1) {
+            let selectColor: string | undefined;
             if (config.isSelected) {
                 selectColor = config.backgroundSelectionColor;
             }
 
             if (gc.alpha(selectColor) < 1) {
-                inheritsBackgroundColor = (config.backgroundColor === config.prefillColor);
+                const inheritsBackgroundColor = (config.backgroundColor === config.prefillColor);
                 if (!inheritsBackgroundColor) {
-                    foundationColor = true;
-                    colors.push(config.backgroundColor);
+                    firstColorIsFill = true;
+                    layerColors.push(config.backgroundColor);
                     same = same &&
                         snapshot !== undefined &&
-                        foundationColor === snapshot.foundationColor &&
-                        config.backgroundColor === snapshot.colors[c++];
+                        firstColorIsFill === snapshot.firstColorIsFill && config.backgroundColor === snapshot.layerColors[layerColorIndex++];
                 }
             }
 
             if (selectColor !== undefined) {
-                colors.push(selectColor);
+                layerColors.push(selectColor);
                 same = same &&
                     snapshot !== undefined &&
-                    selectColor === snapshot.colors[c++];
+                    selectColor === snapshot.layerColors[layerColorIndex++];
             }
         }
         if (hoverColor !== undefined) {
-            colors.push(hoverColor);
-            same = same && snapshot !== undefined && hoverColor === snapshot.colors[c++];
+            layerColors.push(hoverColor);
+            same = same && snapshot !== undefined && hoverColor === snapshot.layerColors[layerColorIndex++];
         }
+
+        let borderColor: string | undefined;
+        if (config.isCellFocused) {
+            borderColor = config.focusedCellBorderColor;
+        } else {
+            borderColor = undefined;
+        }
+        same &&= snapshot !== undefined && snapshot.borderColor === borderColor;
 
         // return a snapshot to save in View cell for future comparisons by partial renderer
         const newSnapshot: SimpleCellPaintConfig.Snapshot = {
             value: valText,
             textColor,
             textFont,
-            foundationColor,
-            colors
+            borderColor,
+            firstColorIsFill: firstColorIsFill,
+            layerColors: layerColors
         };
 
-        // todo check if icons have changed
-        if (same && c === snapshotColorsLength) {
+        if (same && layerColorIndex === snapshotColorsLength) {
             return {
                 width: undefined,
                 snapshot: newSnapshot,
             };
         } else {
-            layerColors(gc, colors, x, y, width, height, foundationColor);
+            const bounds = config.bounds;
+            const x = bounds.x;
+            const y = bounds.y;
+            const width = bounds.width;
+            const height = bounds.height;
+
+            paintLayerColors(gc, layerColors, x, y, width, height, firstColorIsFill);
+
+            // paint border if required
+            if (borderColor !== undefined) {
+                gc.beginPath();
+                gc.cache.strokeStyle = borderColor;
+                gc.cache.lineDash = [1, 2];
+                gc.strokeRect(x + 0.5, y + 0.5, width - 2, height - 2);
+                gc.cache.lineDash = [];
+            }
 
             // Measure left and right icons, needed for rendering and for return value (min width)
             const leftPadding = config.cellPadding;
@@ -217,7 +241,7 @@ export class SimpleCellPainter implements CellPainter {
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
-            valWidth = config.isHeaderRow && config.headerTextWrapping
+            const valWidth = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, valText, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, valText, leftPadding, rightPadding);
 
@@ -449,9 +473,9 @@ function underline(config: SimpleCellPaintConfig, gc: CanvasRenderingContext2DEx
     gc.lineTo(x + textWidth, y);
 }
 
-function layerColors(gc: CanvasRenderingContext2DEx, colors: string[], x: number, y: number, width: number, height: number, foundationColor: boolean) {
+function paintLayerColors(gc: CanvasRenderingContext2DEx, colors: string[], x: number, y: number, width: number, height: number, firstColorIsFill: boolean) {
     for (let i = 0; i < colors.length; i++) {
-        if (foundationColor && !i) {
+        if (firstColorIsFill && i === 0) {
             gc.clearFill(x, y, width, height, colors[i]);
         } else {
             gc.cache.fillStyle = colors[i];

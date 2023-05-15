@@ -115,7 +115,7 @@ export class CanvasRenderingContext2DEx {
         let matches: RegExpMatchArray | null;
         let result: number;
 
-        if (!cssColorSpec) {
+        if (cssColorSpec === undefined) {
             // undefined so not visible; treat as transparent
             result = 0;
         } else if ((matches = cssColorSpec.match(CanvasRenderingContext2DEx.ALPHA_REGEX)) === null) {
@@ -356,12 +356,26 @@ export namespace CanvasRenderingContext2DEx {
     export type Conditional = boolean | undefined;
     export type ConditionalsStack = Conditional[];
 
-    export class Cache {
+    export class Cache implements Cache.Values {
         values: Cache.Values = {} as Cache.Values;
         valuesStack = new Array<Cache.Values>();
 
         constructor(private readonly _canvasRenderingContext2D: CanvasRenderingContext2D) {
 
+        }
+
+        get lineDash() {
+            let value = this.values.lineDash;
+            if (value === undefined) {
+                value = [];
+            }
+            return value;
+        }
+        set lineDash(value: number[]) {
+            if (value !== this.lineDash) {
+                this._canvasRenderingContext2D.setLineDash(value);
+                this.values.lineDash = value;
+            }
         }
 
         get fillStyle() {
@@ -645,6 +659,7 @@ export namespace CanvasRenderingContext2DEx {
 
     export namespace Cache {
         export interface Values {
+            lineDash: number[];
             fillStyle: string | CanvasGradient | undefined /* | CanvasPattern*/;
             font: string | undefined;
             globalAlpha: number | undefined;

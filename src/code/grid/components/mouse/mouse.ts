@@ -85,13 +85,13 @@ export class Mouse {
             const dataModel = cell.subgrid.dataModel;
             let cursorName: string | undefined;
             if (dataModel.getCursorName !== undefined) {
-                cursorName = dataModel.getCursorName(cell.dataPoint);
+                cursorName = dataModel.getCursorName(cell.visibleColumn.column.schemaColumn, cell.dataPoint.y);
             }
             let titleText: string;
             if (dataModel.getTitleText === undefined) {
                 titleText = '';
             } else {
-                titleText = dataModel.getTitleText(cell.dataPoint);
+                titleText = dataModel.getTitleText(cell.visibleColumn.column.schemaColumn, cell.dataPoint.y);
             }
 
             return {

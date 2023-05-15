@@ -1,5 +1,4 @@
 import { Focus } from '../../components/focus/focus';
-import { Mouse } from '../../components/mouse/mouse';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
@@ -11,8 +10,7 @@ export class SelectionBehavior {
         private readonly _selection: Selection,
         private readonly _focus: Focus,
         private readonly _viewLayout: ViewLayout,
-        private readonly _mouse: Mouse,
-        private readonly _focusEventer: FocusSelectionBehavior.FocusEventer,
+        private readonly _checkFocusEventer: FocusSelectionBehavior.CheckFocusEventer,
     ) {
     }
 
@@ -84,18 +82,14 @@ export class SelectionBehavior {
             selection.endChange();
         }
 
-        if (subgrid === this._focus.subgrid) {
-            const focusPoint = area.inclusiveFirst;
-            this._focusEventer(focusPoint.x, focusPoint.y);
-        }
+        const focusPoint = area.inclusiveFirst;
+        this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
 
     selectOnlyCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
         const selection = this._selection;
 
-        if (subgrid === this._focus.subgrid) {
-            this._focusEventer(activeColumnIndex, subgridRowIndex);
-        }
+        this._checkFocusEventer(activeColumnIndex, subgridRowIndex, subgrid);
 
         selection.beginChange();
         try {
@@ -123,10 +117,8 @@ export class SelectionBehavior {
         try {
             this._selection.deselectLastArea();
             const area = this._selection.selectArea(exclusiveX, exclusiveY, width, height, subgrid, areaTypeSpecifier);
-            if (subgrid === this._focus.subgrid) {
-                const focusPoint = area.inclusiveFirst;
-                this._focusEventer(focusPoint.x, focusPoint.y);
-            }
+            const focusPoint = area.inclusiveFirst;
+            this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
         } finally {
             this._selection.endChange();
         }
@@ -137,10 +129,8 @@ export class SelectionBehavior {
         try {
             this._selection.deselectLastArea();
             const area = this._selection.selectRectangle(exclusiveX, exclusiveY, width, height, subgrid);
-            if (subgrid === this._focus.subgrid) {
-                const focusPoint = area.inclusiveFirst;
-                this._focusEventer(focusPoint.x, focusPoint.y);
-            }
+            const focusPoint = area.inclusiveFirst;
+            this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
         } finally {
             this._selection.endChange();
         }
@@ -170,7 +160,7 @@ export class SelectionBehavior {
         this._selection.selectCell(x, y, subgrid, areaTypeSpecifier);
 
         if (subgrid === this._focus.subgrid) {
-            this._focusEventer(x, y);
+            this._checkFocusEventer(x, y, subgrid);
         }
     }
 
@@ -184,9 +174,7 @@ export class SelectionBehavior {
             const selection  = this._selection;
             selection.beginChange();
             try {
-                if (subgrid === this._focus.subgrid) {
-                    this._focusEventer(originX, originY);
-                }
+                this._checkFocusEventer(originX, originY, subgrid);
 
                 const priorityCoveringAreaType = priorityCoveringArea.areaType;
                 switch (priorityCoveringAreaType) {
@@ -264,5 +252,5 @@ export class SelectionBehavior {
 export namespace FocusSelectionBehavior {
     export type RepaintEventer = (this: void) => void;
     export type SelectionChangedEventer = (this: void) => void;
-    export type FocusEventer = (this: void, activeColumnIndex: number, subgridRowIndex: number) => void;
+    export type CheckFocusEventer = (this: void, activeColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface) => void;
 }

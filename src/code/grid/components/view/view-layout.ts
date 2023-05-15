@@ -502,22 +502,27 @@ export class ViewLayout {
     }
 
     invalidateActiveColumnsDeleted(index: number, count: number) {
-        const viewLayoutColumns = this.columns;
-        const viewLayoutColumnCount = viewLayoutColumns.length;
-        if (viewLayoutColumnCount === 0) {
-            throw new AssertError('VLIACD33321');
-        } else {
-            const lastViewLayoutColumn = viewLayoutColumns[viewLayoutColumnCount - 1];
-            if (index <= lastViewLayoutColumn.activeColumnIndex) {
-                const action: ViewLayout.ActiveRangeDeletedInvalidateAction = {
-                    type: ViewLayout.InvalidateAction.Type.ActiveRangeDeleted,
-                    dimension: HorizontalVertical.Horizontal,
-                    scrollDimensionAsWell: true,
-                    index,
-                    count,
-                };
-                this.invalidate(action);
+        let affected = this.verticalScrollDimension.overflowed === false;
+        if (!affected) {
+            const viewLayoutColumns = this.columns;
+            const viewLayoutColumnCount = viewLayoutColumns.length;
+            if (viewLayoutColumnCount === 0) {
+                throw new AssertError('VLIACD33321');
+            } else {
+                const lastViewLayoutColumn = viewLayoutColumns[viewLayoutColumnCount - 1];
+                affected = index <= lastViewLayoutColumn.activeColumnIndex;
             }
+        }
+
+        if (affected) {
+            const action: ViewLayout.ActiveRangeDeletedInvalidateAction = {
+                type: ViewLayout.InvalidateAction.Type.ActiveRangeDeleted,
+                dimension: HorizontalVertical.Horizontal,
+                scrollDimensionAsWell: true,
+                index,
+                count,
+            };
+            this.invalidate(action);
         }
     }
 
@@ -540,8 +545,13 @@ export class ViewLayout {
     }
 
     invalidateDataRowsInserted(index: number, count: number) {
-        const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
-        if (lastScrollableSubgridRowIndex === undefined || index <= lastScrollableSubgridRowIndex) {
+        let lastScrollableSubgridRowIndex: number | undefined;
+        const affected =
+            this.verticalScrollDimension.overflowed !== true ||
+            (lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex) === undefined ||
+            index <= lastScrollableSubgridRowIndex;
+
+        if (affected) {
             const action: ViewLayout.DataRangeInsertedInvalidateAction = {
                 type: ViewLayout.InvalidateAction.Type.DataRangeInserted,
                 dimension: HorizontalVertical.Vertical,
@@ -554,20 +564,25 @@ export class ViewLayout {
     }
 
     invalidateDataRowsDeleted(index: number, count: number) {
-        const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
-        if (lastScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('VLIDRD33321');
-        } else {
-            if (index <= lastScrollableSubgridRowIndex) {
-                const action: ViewLayout.DataRangeDeletedInvalidateAction = {
-                    type: ViewLayout.InvalidateAction.Type.DataRangeDeleted,
-                    dimension: HorizontalVertical.Vertical,
-                    scrollDimensionAsWell: true,
-                    index,
-                    count,
-                };
-                this.invalidate(action);
+        let affected = this.verticalScrollDimension.overflowed === false;
+        if (!affected) {
+            const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
+            if (lastScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('VLIDRD33321');
+            } else {
+                affected = index <= lastScrollableSubgridRowIndex;
             }
+        }
+
+        if (affected) {
+            const action: ViewLayout.DataRangeDeletedInvalidateAction = {
+                type: ViewLayout.InvalidateAction.Type.DataRangeDeleted,
+                dimension: HorizontalVertical.Vertical,
+                scrollDimensionAsWell: true,
+                index,
+                count,
+            };
+            this.invalidate(action);
         }
     }
 
@@ -590,21 +605,26 @@ export class ViewLayout {
     }
 
     invalidateDataRowsMoved(oldRowIndex: number, newRowIndex: number, rowCount: number) {
-        const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
-        if (lastScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('VLIDRM33321');
-        } else {
-            if (oldRowIndex <= lastScrollableSubgridRowIndex || newRowIndex <= lastScrollableSubgridRowIndex) {
-                const action: ViewLayout.DataRangeMovedInvalidateAction = {
-                    type: ViewLayout.InvalidateAction.Type.DataRangeMoved,
-                    dimension: HorizontalVertical.Vertical,
-                    scrollDimensionAsWell: true,
-                    oldIndex: oldRowIndex,
-                    newIndex: newRowIndex,
-                    count: rowCount,
-                };
-                this.invalidate(action);
+        let affected = this.verticalScrollDimension.overflowed === false;
+        if (!affected) {
+            const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
+            if (lastScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('VLIDRM33321');
+            } else {
+                affected = oldRowIndex <= lastScrollableSubgridRowIndex || newRowIndex <= lastScrollableSubgridRowIndex;
             }
+        }
+
+        if (affected) {
+            const action: ViewLayout.DataRangeMovedInvalidateAction = {
+                type: ViewLayout.InvalidateAction.Type.DataRangeMoved,
+                dimension: HorizontalVertical.Vertical,
+                scrollDimensionAsWell: true,
+                oldIndex: oldRowIndex,
+                newIndex: newRowIndex,
+                count: rowCount,
+            };
+            this.invalidate(action);
         }
     }
 

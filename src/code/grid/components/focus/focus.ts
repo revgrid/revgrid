@@ -108,12 +108,28 @@ export class Focus {
         }
     }
 
-    isMainSubgridRowFocused(mainSubgridRowIndex: number) {
-        return this._currentSubgridPoint !== undefined && mainSubgridRowIndex === this._currentSubgridPoint.y;
+    isActiveColumnFocused(activeColumnIndex: number) {
+        return this._currentSubgridPoint !== undefined && activeColumnIndex === this._currentSubgridPoint.x;
     }
 
     isSubgridRowFocused(subgridRowIndex: number, subgrid: SubgridInterface) {
         return subgrid === this._mainSubgrid && this.isMainSubgridRowFocused(subgridRowIndex);
+    }
+
+    isMainSubgridRowFocused(mainSubgridRowIndex: number) {
+        return this._currentSubgridPoint !== undefined && mainSubgridRowIndex === this._currentSubgridPoint.y;
+    }
+
+    isCellFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface) {
+        return subgrid === this._mainSubgrid && this.isMainSubgridCellFocused(activeColumnIndex, subgridRowIndex);
+    }
+
+    isMainSubgridCellFocused(activeColumnIndex: number, mainSubgridRowIndex: number) {
+        return (
+            this._currentSubgridPoint !== undefined &&
+            activeColumnIndex === this._currentSubgridPoint.x &&
+            mainSubgridRowIndex === this._currentSubgridPoint.y
+        );
     }
 
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataModel: DataModel) {

@@ -10,11 +10,12 @@ import { GridSettings } from '../../grid/interfaces/grid-settings';
 
 /** @public */
 export interface SimpleCellPaintConfig {
-    // not overrides also set by grid painters/renderer
+    // not overrides
     dataCell: WritablePoint;
     allRowsSelected: boolean;
     bounds: RectangleInterface;
     dataRow: DataModel.DataRow;
+    isCellFocused: boolean;
     isCellHovered: boolean;
     isCellSelected: boolean;
     isColumnHovered: boolean;
@@ -22,17 +23,19 @@ export interface SimpleCellPaintConfig {
     isMainRow: boolean;
     isFilterRow: boolean;
     isHeaderRow: boolean;
-    isInCurrentSelectionRectangle: boolean;
     isRowHovered: boolean;
     isRowFocused: boolean;
     isRowSelected: boolean;
     isSelected: boolean;
     isUserDataArea: boolean;
     prefillColor: GridSettings.Color | undefined;
-    snapshot: SimpleCellPaintConfig.Snapshot | undefined;
     value: unknown;
 
+    // set by painter
+    snapshot: SimpleCellPaintConfig.Snapshot | undefined;
+
     // grid overrides
+    readonly focusedCellBorderColor: GridSettings.Color;
     readonly backgroundSelectionColor: GridSettings.Color;
     readonly color: GridSettings.Color;
     readonly foregroundSelectionColor: GridSettings.Color;
@@ -68,8 +71,9 @@ export namespace SimpleCellPaintConfig {
         readonly value: string;
         readonly textColor: string;
         readonly textFont: string;
-        readonly foundationColor: boolean;
-        readonly colors: string[];
+        readonly borderColor: string | undefined;
+        readonly firstColorIsFill: boolean;
+        readonly layerColors: string[];
     }
 
     export type Snapshot = IndexSignatureHack<SnapshotInterface>;

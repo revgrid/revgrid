@@ -241,14 +241,18 @@ export class ComponentBehaviorManager {
                 this.subgridsManager,
                 this.viewLayout,
                 this.focus,
+                this.renderer,
             );
 
             this.selectionBehavior = new SelectionBehavior(
                 this.selection,
                 this.focus,
                 this.viewLayout,
-                this.mouse,
-                (x, y) => this.focusBehavior.focusXYAndEnsureInView(x, y),
+                (x, y, subgrid) => {
+                    // if (subgrid === this._focus.subgrid && x >= this.gridSettings.fixedColumnCount && y >= this.gridSettings.fixedRowCount) {
+                    //     this.focusBehavior.focusXYAndEnsureInView(x, y)
+                    // }
+                },
             );
 
             this.rowPropertiesBehavior = new RowPropertiesBehavior(

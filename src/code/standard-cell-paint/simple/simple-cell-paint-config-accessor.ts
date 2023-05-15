@@ -39,6 +39,7 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     allRowsSelected: boolean;
     bounds: RectangleInterface;
     dataRow: DataModel.DataRow;
+    isCellFocused: boolean;
     isCellHovered: boolean;
     isCellSelected: boolean;
     isColumnHovered: boolean;
@@ -48,7 +49,6 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     isFilterRow: boolean;
     isHandleColumn: boolean;
     isHeaderRow: boolean;
-    isInCurrentSelectionRectangle: boolean;
     isRowHovered: boolean;
     isRowFocused: boolean;
     isRowSelected: boolean;
@@ -58,6 +58,7 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
     snapshot: SimpleCellPaintConfig.Snapshot | undefined; // BeingPaintedCell
     value: unknown;
 
+    get focusedCellBorderColor() { return this._gridSettings.focusedCellBorderColor; }
     get backgroundSelectionColor() { return this._dataOrHeaderOrFilterProperties.backgroundSelectionColor; }
     get color() { return this._dataOrHeaderOrFilterProperties.color; }
     get foregroundSelectionColor() { return this._dataOrHeaderOrFilterProperties.foregroundSelectionColor; }

@@ -38,8 +38,27 @@ export class MainDataAdapter implements DataModel {
         return record[fieldName];
     }
 
-    getRowId?(rowIndex: number): number {
+    getRowId(rowIndex: number): number {
         return this._data[rowIndex].id;
+    }
+
+    getTitleText(columnSchema: SchemaModel.Column, rowIndex: number) {
+        const record = this._data[rowIndex];
+        const fieldName = (columnSchema as SchemaAdapter.Column).name;
+        const prefix = fieldName + ': '
+        switch (fieldName) {
+            case 'id': return prefix + record.id.toString();
+            case 'name': return prefix + record.name;
+            case 'type': return prefix + record.type;
+            case 'color': return prefix + record.color;
+            case 'age': return prefix + record.age.toString();
+            case 'receiveDate': return prefix + record.receiveDate.toDateString();
+            case 'favoriteFood': return prefix + record.favoriteFood;
+            case 'restrictMovement': return prefix + record.restrictMovement ? 'true' : 'false';
+            default:
+                throw new Error(`Unexpected field name: ${fieldName}`);
+        }
+
     }
 
     sort(column: ColumnInterface) {

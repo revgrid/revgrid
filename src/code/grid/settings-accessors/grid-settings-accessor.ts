@@ -158,12 +158,32 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     set fixedLinesVWidth(value: number | undefined) { this._raw.fixedLinesVWidth = value; }
     get fixedRowCount() { return this._raw.fixedRowCount; }
     set fixedRowCount(value: number) { this._raw.fixedRowCount = value; }
+    get focusedCellBorderColor() { return this._raw.focusedCellBorderColor; }
+    set focusedCellBorderColor(value: string) {
+        this._raw.focusedCellBorderColor = value;
+        this.invalidateAllDataEventer();
+    }
     get font() { return this._raw.font; }
-    set font(value: string) { this._raw.font = value; }
-    get foregroundSelectionColor() { return this._raw.foregroundSelectionColor; }
-    set foregroundSelectionColor(value: GridSettings.Color) { this._raw.foregroundSelectionColor = value; }
-    get foregroundSelectionFont() { return this._raw.foregroundSelectionFont; }
-    set foregroundSelectionFont(value: string) { this._raw.foregroundSelectionFont = value; }
+    set font(value: string) {
+        this._raw.font = value;
+        this.invalidateAllDataEventer();
+    }
+    get foregroundSelectionColor() {
+        return this._raw.foregroundSelectionColor;
+        this.invalidateAllDataEventer();
+    }
+    set foregroundSelectionColor(value: GridSettings.Color) {
+        this._raw.foregroundSelectionColor = value;
+        this.invalidateAllDataEventer();
+    }
+    get foregroundSelectionFont() {
+        return this._raw.foregroundSelectionFont;
+        this.invalidateAllDataEventer();
+    }
+    set foregroundSelectionFont(value: string) {
+        this._raw.foregroundSelectionFont = value;
+        this.invalidateAllDataEventer();
+    }
     /** Name of a formatter for cell text. */
     get format() { return this._raw.format; }
     set format(value: string | undefined) { this._raw.format = value; }

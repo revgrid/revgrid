@@ -46,7 +46,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
             return super.handleMouseDown(event, cell);
         } else {
             const subgrid = cell.subgrid;
-            const isSelectable = subgrid.selectable && this.cellPropertiesBehavior.getCellProperty(cell.visibleColumn.column, cell.visibleRow.subgridRowIndex, 'cellSelection', subgrid);
+            const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.visibleColumn.column, cell.visibleRow.subgridRowIndex, 'cellSelection', subgrid);
 
             if (!isSelectable || isSecondaryMouseButton(event)) {
                 return super.handleMouseDown(event, cell);
