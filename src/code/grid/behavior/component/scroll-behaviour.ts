@@ -1,32 +1,21 @@
-import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
 import { ColumnsManager } from '../../components/column/columns-manager';
-import { Renderer } from '../../components/renderer/renderer';
-import { Scroller } from '../../components/scroller/scroller';
 import { Subgrid } from '../../components/subgrid/subgrid';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { GridSettings } from '../../interfaces/grid-settings';
-import { AssertError } from '../../lib/revgrid-error';
 
 export class ScrollBehavior {
-    private _sbPrevVScrollValue: number | undefined;
     private _scrollingActive = false;
     private _resizeScrollbarsTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
     constructor(
         private readonly _gridSettings: GridSettings,
-        private readonly _canvasEx: CanvasEx,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewLayout: ViewLayout,
-        private readonly _renderer: Renderer,
-        readonly horizontalScroller: Scroller,
-        readonly verticalScroller: Scroller,
-        private readonly _behaviorChangedEventer: ScrollBehavior.BehaviourChangedEventer,
-        private readonly _scrollEventer: ScrollBehavior.ScrollEventer,
     ) {
-        this.horizontalScroller.onchange = (x) => this.handleHScrollerChange(x);
-        this.verticalScroller.onchange = (y) => this.handleVScrollerChange(y);
+        // this.horizontalScroller.onchange = (x) => this.handleHScrollerChange(x);
+        // this.verticalScroller.onchange = (y) => this.handleVScrollerChange(y);
         // this.verticalScroller.paging = {
         //     up: () => this.scrollPageUp(),
         //     down: () => this.scrollPageDown()
@@ -34,14 +23,13 @@ export class ScrollBehavior {
 
     }
 
-    destroy() {
-        this.checkClearResizeScrollbarsTimeout();
-    }
+    // destroy() {
+    //     this.checkClearResizeScrollbarsTimeout();
+    // }
 
     reset() {
         this._scrollingActive = false;
-        this._sbPrevVScrollValue = undefined;
-        this.checkClearResizeScrollbarsTimeout();
+        // this.checkClearResizeScrollbarsTimeout();
     }
 
     /** @internal */
@@ -57,291 +45,117 @@ export class ScrollBehavior {
     }
 
     /**
-     * @summary Scroll horizontal and vertically by the provided offsets.
-     * @param offsetColumnCount - Scroll in the x direction this many columns.
-     * @param offsetY - Scroll in the y direction this many rows.
-     */
-    scrollBy(offsetColumnCount: number, offsetY: number) {
-        this.scrollColumnsBy(offsetColumnCount);
-        this.scrollVBy(offsetY);
-    }
-
-    scrollToVerticalViewportStart(start: number) {
-        // Todo
-    }
-
-    scrollVTo(rowIndex: number) {
-        this.handleVScrollerChange(rowIndex);
-    }
-
-    /**
-     * @summary Scroll vertically by the provided offset.
-     * @param offsetY - Scroll in the y direction this much.
-     */
-    scrollVBy(offsetY: number) {
-        const max = this._viewLayout.verticalScrollablePlaneDimension.finish;
-        const oldValue = this._viewLayout.rowScrollAnchorIndex;
-        const newValue = Math.min(max, Math.max(0, oldValue + offsetY));
-        if (newValue !== oldValue) {
-            this.handleVScrollerChange(newValue);
-        }
-    }
-
-    scrollVerticalIndexBy(delta: number) {
-        this.verticalScroller.scrollIndexBy(delta);
-    }
-
-    /**
-     * @summary Scroll horizontally by the provided offset.
-     * @param offset - Scroll in the x direction this much.
-     * @returns true if scrolled
-     */
-    scrollColumnsBy(offset: number) {
-        return this._viewLayout.scrollColumnScrollAnchor(offset, this._gridSettings.gridRightAligned);
-            // this._renderer.invalidateView()
-            // this._viewLayout.computeColumns(true);
-            // const viewportStart = this.calculateScrollableViewLeft();
-            // this.horizontalScroller.setViewportStart(viewportStart);
-    }
-
-    scrollViewHorizontallyBy(delta: number) {
-        if (this._viewLayout.horizontalScrollableContentOverflowed) {
-            this.horizontalScroller.scrollBy(delta);
-        }
-    }
-
-    scrollHorizontalBy(delta: number) {
-        this.horizontalScroller.scrollBy(delta);
-    }
-
-    scrollToHorizontalViewportStart(viewportStart: number) {
-        // needs more work
-        this._viewLayout.updateColumnScrollAnchor(
-            viewportStart,
-            this.horizontalScroller.viewportFinish,
-            this._viewLayout.verticalScrollablePlaneDimension.start,
-            this._viewLayout.verticalScrollablePlaneDimension.finish,
-        );
-    }
-
-    setHorizontalScrollerViewLayoutStart(start: number) {
-        this.horizontalScroller.setViewportStart(start);
-    }
-
-    ensureColumnIsVisible(activeColumnIndex: number, maximally: boolean) {
-        this._viewLayout.updateColumnScrollAnchorsToMakeColumnVisible(activeColumnIndex, maximally);
-    }
-
-    ensureColumnIsMaximallyVisible(activeColumnIndex: number) {
-        const computeCellsBoundsRequired = this._viewLayout.updateColumnScrollAnchorsToMakeColumnVisible(activeColumnIndex, true);
-        return computeCellsBoundsRequired; // scroll was required
-    }
-
-    ensureRowIsVisible(subgridRowIndex: number, _maximally: boolean) {
-        let computeCellsBoundsRequired: boolean;
-
-        const fixedRowCount = this._gridSettings.fixedRowCount;
-        // scroll only if target not in fixed rows
-        if (subgridRowIndex < fixedRowCount) {
-            computeCellsBoundsRequired = false;
-        } else {
-            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-            // Only scroll if got scrollable columns
-            if (firstScrollableSubgridRowIndex === undefined) {
-                computeCellsBoundsRequired = false;
-            } else {
-                if (subgridRowIndex < firstScrollableSubgridRowIndex) {
-                    this.verticalScroller.scrollIndexBy(subgridRowIndex - firstScrollableSubgridRowIndex);
-                    computeCellsBoundsRequired = true; // Do this until fix up vertical scrolling
-                } else {
-                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                    if (lastScrollableSubgridRowIndex === undefined) {
-                        throw new AssertError('SBSXTMV82224'); // if first then must be last
-                    } else {
-                        if (subgridRowIndex <= lastScrollableSubgridRowIndex) {
-                            computeCellsBoundsRequired = false;
-                        } else {
-                            this.verticalScroller.scrollIndexBy(subgridRowIndex - lastScrollableSubgridRowIndex);
-                            computeCellsBoundsRequired = true; // Do this until fix up vertical scrolling
-                        }
-                    }
-                }
-            }
-        }
-
-        if (computeCellsBoundsRequired) {
-            this.processComputeCellsBoundsRequired()
-        }
-    }
-
-    ensureRowIsMaximallyVisible(rowIndex: number) {
-        const firstScrollableRowIndex = this._viewLayout.firstScrollableRowIndex;
-        if (firstScrollableRowIndex === undefined) {
-            return false;
-        } else {
-            if (rowIndex < firstScrollableRowIndex) {
-                this.scrollVBy(rowIndex - firstScrollableRowIndex);
-                return true;
-            } else {
-                const lastScrollableRowIndex = this._viewLayout.lastScrollableRowIndex;
-                if (lastScrollableRowIndex === undefined) {
-                    return false;
-                } else {
-                    if (rowIndex > lastScrollableRowIndex) {
-                        this.scrollVBy(rowIndex - lastScrollableRowIndex);
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-
-    scrollXYToMakeVisible(activeColumnIndex: number, subgridRowIndex: number, maximally: boolean) {
-        let computeCellsBoundsRequired = this.updateColumnScrollAnchorsToMakeColumnVisible(activeColumnIndex, maximally);
-
-        const fixedRowCount = this._gridSettings.fixedRowCount;
-        // scroll only if target not in fixed rows
-        if (subgridRowIndex >= fixedRowCount) {
-            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-            // Only scroll if got scrollable columns
-            if (firstScrollableSubgridRowIndex !== undefined) {
-                if (subgridRowIndex < firstScrollableSubgridRowIndex) {
-                    this.verticalScroller.scrollIndexBy(subgridRowIndex - firstScrollableSubgridRowIndex);
-                    computeCellsBoundsRequired = true; // Do this until fix up vertical scrolling
-                } else {
-                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                    if (lastScrollableSubgridRowIndex === undefined) {
-                        throw new AssertError('SBSXYTMV82224'); // if first then must be last
-                    } else {
-                        if (subgridRowIndex > lastScrollableSubgridRowIndex) {
-                            this.verticalScroller.scrollIndexBy(subgridRowIndex - lastScrollableSubgridRowIndex);
-                            computeCellsBoundsRequired = true; // Do this until fix up vertical scrolling
-                        }
-                    }
-                }
-            }
-        }
-
-        if (computeCellsBoundsRequired) {
-            this.processComputeCellsBoundsRequired()
-        }
-    }
-
-    /**
      * @desc Scroll up one full page.
      */
-    scrollPageUp() {
-        // const firstScrollableSubgridRowIndex = this.gridProperties.fixedRowCount;
-        // const currentFocusY = currentFocusPoint.y;
-        // if (currentFocusY > firstScrollableSubgridRowIndex) {
-        //     const lastViewportScrollableSubgridRowIndex = this.viewport.lastScrollableSubgridRowIndex;
-        //     if (lastViewportScrollableSubgridRowIndex !== undefined) {
-        //         const firstViewportScrollableSubgridRowIndex = this.viewport.firstScrollableSubgridRowIndex;
-        //         if (firstViewportScrollableSubgridRowIndex === undefined) {
-        //             throw new AssertError('FUBNYPU87521');
-        //         } else {
-        //             let maxScrollCount = lastViewportScrollableSubgridRowIndex - firstScrollableSubgridRowIndex;
-        //             if (maxScrollCount === 0) {
-        //                 maxScrollCount = 1;
-        //             }
-        //             let newFocusY = currentFocusY - maxScrollCount;
-        //             if (newFocusY < firstScrollableSubgridRowIndex) {
-        //                 newFocusY = firstScrollableSubgridRowIndex;
-        //             }
-        //             this.focus.setYCoordinate(newFocusY);
-        //         }
-        //     }
-        // }
-    }
+    // scrollPageUp() {
+    //     const firstScrollableSubgridRowIndex = this.gridProperties.fixedRowCount;
+    //     const currentFocusY = currentFocusPoint.y;
+    //     if (currentFocusY > firstScrollableSubgridRowIndex) {
+    //         const lastViewportScrollableSubgridRowIndex = this.viewport.lastScrollableSubgridRowIndex;
+    //         if (lastViewportScrollableSubgridRowIndex !== undefined) {
+    //             const firstViewportScrollableSubgridRowIndex = this.viewport.firstScrollableSubgridRowIndex;
+    //             if (firstViewportScrollableSubgridRowIndex === undefined) {
+    //                 throw new AssertError('FUBNYPU87521');
+    //             } else {
+    //                 let maxScrollCount = lastViewportScrollableSubgridRowIndex - firstScrollableSubgridRowIndex;
+    //                 if (maxScrollCount === 0) {
+    //                     maxScrollCount = 1;
+    //                 }
+    //                 let newFocusY = currentFocusY - maxScrollCount;
+    //                 if (newFocusY < firstScrollableSubgridRowIndex) {
+    //                     newFocusY = firstScrollableSubgridRowIndex;
+    //                 }
+    //                 this.focus.setYCoordinate(newFocusY);
+    //             }
+    //         }
+    //     }
+    // }
 
     /**
      * @desc Scroll down one full page.
      */
-    scrollPageDown() {
-        // const lastScrollableSubgridRowIndex = this.mainSubgrid.getRowCount() - 1;
-        // const currentFocusY = currentFocusPoint.y;
-        // if (currentFocusY < lastScrollableSubgridRowIndex) {
-        //     const lastViewportScrollableSubgridRowIndex = this.viewport.lastScrollableSubgridRowIndex;
-        //     if (lastViewportScrollableSubgridRowIndex !== undefined) {
-        //         const firstViewportScrollableSubgridRowIndex = this.viewport.firstScrollableSubgridRowIndex;
-        //         if (firstViewportScrollableSubgridRowIndex === undefined) {
-        //             throw new AssertError('FUBNXPD87521');
-        //         } else {
-        //             let maxScrollCount = lastViewportScrollableSubgridRowIndex - lastScrollableSubgridRowIndex;
-        //             if (maxScrollCount === 0) {
-        //                 maxScrollCount = 1;
-        //             }
-        //             let newFocusY = currentFocusY + maxScrollCount;
-        //             if (newFocusY > lastScrollableSubgridRowIndex) {
-        //                 newFocusY = lastScrollableSubgridRowIndex;
-        //             }
-        //             this.focus.setYCoordinate(newFocusY);
-        //         }
-        //     }
-        // }
-        // const rowNum = this._viewport.getPageDownRow();
-        // if (rowNum === undefined) {
-        //     return undefined;
-        // } else {
-        //     this.handleVScrollerChange(rowNum);
-        //     return rowNum;
-        // }
-    }
+    // scrollPageDown() {
+    //     const lastScrollableSubgridRowIndex = this.mainSubgrid.getRowCount() - 1;
+    //     const currentFocusY = currentFocusPoint.y;
+    //     if (currentFocusY < lastScrollableSubgridRowIndex) {
+    //         const lastViewportScrollableSubgridRowIndex = this.viewport.lastScrollableSubgridRowIndex;
+    //         if (lastViewportScrollableSubgridRowIndex !== undefined) {
+    //             const firstViewportScrollableSubgridRowIndex = this.viewport.firstScrollableSubgridRowIndex;
+    //             if (firstViewportScrollableSubgridRowIndex === undefined) {
+    //                 throw new AssertError('FUBNXPD87521');
+    //             } else {
+    //                 let maxScrollCount = lastViewportScrollableSubgridRowIndex - lastScrollableSubgridRowIndex;
+    //                 if (maxScrollCount === 0) {
+    //                     maxScrollCount = 1;
+    //                 }
+    //                 let newFocusY = currentFocusY + maxScrollCount;
+    //                 if (newFocusY > lastScrollableSubgridRowIndex) {
+    //                     newFocusY = lastScrollableSubgridRowIndex;
+    //                 }
+    //                 this.focus.setYCoordinate(newFocusY);
+    //             }
+    //         }
+    //     }
+    //     const rowNum = this._viewport.getPageDownRow();
+    //     if (rowNum === undefined) {
+    //         return undefined;
+    //     } else {
+    //         this.handleVScrollerChange(rowNum);
+    //         return rowNum;
+    //     }
+    // }
 
-    scrollPageLeft() {
-        // const currentFocusSubgridX = this._focus.currentSubgridX;
-        // if (currentFocusSubgridX !== undefined) {
-        //     const viewportFocusOffset = this.calculateViewportFocusOffset();
-        //     const firstScrollableActiveColumnIndex = this._gridProperties.fixedColumnCount;
-        //     if (currentFocusSubgridX > firstScrollableActiveColumnIndex) {
-        //         this._viewport.getPageDownRow
-        //         const lastViewportScrollableActiveColumnIndex = this.viewport.lastScrollableActiveColumnIndex;
-        //         if (lastViewportScrollableActiveColumnIndex !== undefined) {
-        //             const firstViewportScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
-        //             if (firstViewportScrollableActiveColumnIndex === undefined) {
-        //                 throw new AssertError('FUBNXPU87521');
-        //             } else {
-        //                 let maxScrollCount = lastViewportScrollableActiveColumnIndex - firstScrollableActiveColumnIndex;
-        //                 if (maxScrollCount === 0) {
-        //                     maxScrollCount = 1;
-        //                 }
-        //                 let newFocusX = currentFocusSubgridX - maxScrollCount;
-        //                 if (newFocusX < firstScrollableActiveColumnIndex) {
-        //                     newFocusX = firstScrollableActiveColumnIndex;
-        //                 }
-        //                 this.focus.setXCoordinate(newFocusX);
-        //             }
-        //         }
-        //     }
-        // }
-    }
+    // scrollPageLeft() {
+    //     const currentFocusSubgridX = this._focus.currentSubgridX;
+    //     if (currentFocusSubgridX !== undefined) {
+    //         const viewportFocusOffset = this.calculateViewportFocusOffset();
+    //         const firstScrollableActiveColumnIndex = this._gridProperties.fixedColumnCount;
+    //         if (currentFocusSubgridX > firstScrollableActiveColumnIndex) {
+    //             this._viewport.getPageDownRow
+    //             const lastViewportScrollableActiveColumnIndex = this.viewport.lastScrollableActiveColumnIndex;
+    //             if (lastViewportScrollableActiveColumnIndex !== undefined) {
+    //                 const firstViewportScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
+    //                 if (firstViewportScrollableActiveColumnIndex === undefined) {
+    //                     throw new AssertError('FUBNXPU87521');
+    //                 } else {
+    //                     let maxScrollCount = lastViewportScrollableActiveColumnIndex - firstScrollableActiveColumnIndex;
+    //                     if (maxScrollCount === 0) {
+    //                         maxScrollCount = 1;
+    //                     }
+    //                     let newFocusX = currentFocusSubgridX - maxScrollCount;
+    //                     if (newFocusX < firstScrollableActiveColumnIndex) {
+    //                         newFocusX = firstScrollableActiveColumnIndex;
+    //                     }
+    //                     this.focus.setXCoordinate(newFocusX);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    scrollPageRight() {
-        // const lastScrollableActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
-        // const currentFocusX = currentFocusPoint.x;
-        // if (currentFocusX < lastScrollableActiveColumnIndex) {
-        //     const lastViewportScrollableActiveColumnIndex = this.viewport.lastScrollableActiveColumnIndex;
-        //     if (lastViewportScrollableActiveColumnIndex !== undefined) {
-        //         const firstViewportScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
-        //         if (firstViewportScrollableActiveColumnIndex === undefined) {
-        //             throw new AssertError('FUBNXPF87521');
-        //         } else {
-        //             let maxScrollCount = lastViewportScrollableActiveColumnIndex - lastScrollableActiveColumnIndex;
-        //             if (maxScrollCount === 0) {
-        //                 maxScrollCount = 1;
-        //             }
-        //             let newFocusX = currentFocusX + maxScrollCount;
-        //             if (newFocusX > lastScrollableActiveColumnIndex) {
-        //                 newFocusX = lastScrollableActiveColumnIndex;
-        //             }
-        //             this.focus.setXCoordinate(newFocusX);
-        //         }
-        //     }
-        // }
-
-    }
+    // scrollPageRight() {
+    //     const lastScrollableActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
+    //     const currentFocusX = currentFocusPoint.x;
+    //     if (currentFocusX < lastScrollableActiveColumnIndex) {
+    //         const lastViewportScrollableActiveColumnIndex = this.viewport.lastScrollableActiveColumnIndex;
+    //         if (lastViewportScrollableActiveColumnIndex !== undefined) {
+    //             const firstViewportScrollableActiveColumnIndex = this.viewport.firstScrollableActiveColumnIndex;
+    //             if (firstViewportScrollableActiveColumnIndex === undefined) {
+    //                 throw new AssertError('FUBNXPF87521');
+    //             } else {
+    //                 let maxScrollCount = lastViewportScrollableActiveColumnIndex - lastScrollableActiveColumnIndex;
+    //                 if (maxScrollCount === 0) {
+    //                     maxScrollCount = 1;
+    //                 }
+    //                 let newFocusX = currentFocusX + maxScrollCount;
+    //                 if (newFocusX > lastScrollableActiveColumnIndex) {
+    //                     newFocusX = lastScrollableActiveColumnIndex;
+    //                 }
+    //                 this.focus.setXCoordinate(newFocusX);
+    //             }
+    //         }
+    //     }
+    // }
 
     stepScroll(directionCanvasOffsetX: number, directionCanvasOffsetY: number) {
         let stepped = this.stepScrollColumn(directionCanvasOffsetX);
@@ -391,7 +205,7 @@ export class ScrollBehavior {
             if (wantedMaximallyVisibleActiveColumnIndex === undefined) {
                 return false;
             } else {
-                this.ensureColumnIsMaximallyVisible(wantedMaximallyVisibleActiveColumnIndex);
+                this._viewLayout.ensureColumnIsInView(wantedMaximallyVisibleActiveColumnIndex, true);
                 return true;
             }
         }
@@ -408,7 +222,7 @@ export class ScrollBehavior {
                 const headerPlusFixedRowCount = this._subgridsManager.calculateHeaderPlusFixedRowCount();
                 const firstVisibleScrollableRowIndex = viewLayout.firstScrollableRowIndex;
                 if (firstVisibleScrollableRowIndex !== undefined && firstVisibleScrollableRowIndex > headerPlusFixedRowCount) {
-                    this.scrollVBy(-1);
+                    this._viewLayout.scrollVerticalViewportBy(-1);
                     return true;
                 } else {
                     return false;
@@ -420,7 +234,7 @@ export class ScrollBehavior {
                     const lastScrollableRowIndex = headerRowCount + subgridsManager.mainSubgrid.getRowCount() - 1;
                     const lastVisibleScrollableRowIndex = viewLayout.lastScrollableRowIndex;
                     if (lastVisibleScrollableRowIndex !== undefined && lastVisibleScrollableRowIndex < lastScrollableRowIndex) {
-                        this.scrollVBy(+1);
+                        this._viewLayout.scrollVerticalViewportBy(+1);
                         return true;
                     } else {
                         return false;
@@ -443,38 +257,38 @@ export class ScrollBehavior {
      * @param newValue - The new scroll value.
      * @internal
      */
-    private handleVScrollerChange(y: number) {
-        y = Math.min(this._viewLayout.verticalScrollablePlaneDimension.finish, Math.max(0, Math.round(y)));
-        if (y !== this._viewLayout.rowScrollAnchorIndex) {
-            // const oldY = this.vScrollValue;
-            this._viewLayout.rowScrollAnchorIndex = y; // may need to be before this.behaviorChanged()
-            this.scrollValueChangedNotification(false);
-            setTimeout(() => {
-                this._scrollEventer(false, y, -1, -1);
-            }, 0);
-        }
-    }
+    // private handleVScrollerChange(y: number) {
+    //     y = Math.min(this._viewLayout.verticalScrollDimension.finish, Math.max(0, Math.round(y)));
+    //     if (y !== this._viewLayout.rowScrollAnchorIndex) {
+    //         // const oldY = this.vScrollValue;
+    //         this._viewLayout.setVerticalViewportStart(y); // may need to be before this.behaviorChanged()
+    //         this.scrollValueChangedNotification(false);
+    //         setTimeout(() => {
+    //             this._scrollEventer(false, y, -1, -1);
+    //         }, 0);
+    //     }
+    // }
 
     /**
      * @desc Set the horizontal scroll value.
      * @param x - The new scroll value.
      * @internal
      */
-    private handleHScrollerChange(x: number) {
-        const updated = this._viewLayout.updateColumnScrollAnchor(
-            this.horizontalScroller.viewportStart,
-            this.horizontalScroller.viewportFinish,
-            this._viewLayout.verticalScrollablePlaneDimension.start,
-            this._viewLayout.verticalScrollablePlaneDimension.finish,
-        );
-        if (updated) {
-            this._behaviorChangedEventer();
-            this.scrollValueChangedNotification(true);
-            setTimeout(() => {
-                this._scrollEventer(true, x, this._viewLayout.columnScrollAnchorIndex, this._viewLayout.columnScrollAnchorOffset);
-            }, 0);
-        }
-    }
+    // private handleHScrollerChange(x: number) {
+    //     const updated = this._viewLayout.scrollHorizontallyTo(
+    //         this.horizontalScroller.viewportStart,
+    //         this.horizontalScroller.viewportFinish,
+    //         this._viewLayout.verticalScrollDimension.start,
+    //         this._viewLayout.verticalScrollDimension.finish,
+    //     );
+    //     if (updated) {
+    //         this._behaviorChangedEventer();
+    //         this.scrollValueChangedNotification(true);
+    //         setTimeout(() => {
+    //             this._scrollEventer(true, x, this._viewLayout.columnScrollAnchorIndex, this._viewLayout.columnScrollAnchorOffset);
+    //         }, 0);
+    //     }
+    // }
 
     // /** @internal */
     // private resizeScrollbars() {
@@ -496,29 +310,29 @@ export class ScrollBehavior {
 
     // HScroller only calls when change has occurred so it sets force true
     // Eventually VScroller should also only call when changed
-    /** @internal */
-    private scrollValueChangedNotification(force: boolean) {
-        const rowScrollAnchorIndex = this._viewLayout.rowScrollAnchorIndex;
-        if (
-            force ||
-            rowScrollAnchorIndex !== this._sbPrevVScrollValue
-        ) {
-            this._sbPrevVScrollValue = rowScrollAnchorIndex;
+    // /** @internal */
+    // private scrollValueChangedNotification(force: boolean) {
+    //     const rowScrollAnchorIndex = this._viewLayout.rowScrollAnchorIndex;
+    //     if (
+    //         force ||
+    //         rowScrollAnchorIndex !== this._sbPrevVScrollValue
+    //     ) {
+    //         this._sbPrevVScrollValue = rowScrollAnchorIndex;
 
-            // if (this.cellEditor) {
-            //     this.cellEditor.scrollValueChangedNotification();
-            // }
+    //         // if (this.cellEditor) {
+    //         //     this.cellEditor.scrollValueChangedNotification();
+    //         // }
 
-            this._viewLayout.compute(false);
-        }
-    }
+    //         this._viewLayout.compute(false);
+    //     }
+    // }
 
     /**
      * @desc The data dimensions have changed, or our pixel boundaries have changed.
      * Adjust the scrollbar properties as necessary.
      * @internal
      */
-    public synchronizeScrollingBoundaries() {
+    // public synchronizeScrollingBoundaries() {
         // this.updateHorizontalScroll(false);
         // this.updateVerticalScroll(false);
 
@@ -533,14 +347,14 @@ export class ScrollBehavior {
         //         this.resizeScrollbars()
         //     }, 0);
         // }
-    }
+    // }
 
-    private checkClearResizeScrollbarsTimeout() {
-        if (this._resizeScrollbarsTimeoutHandle !== undefined) {
-            clearTimeout(this._resizeScrollbarsTimeoutHandle);
-            this._resizeScrollbarsTimeoutHandle = undefined;
-        }
-    }
+    // private checkClearResizeScrollbarsTimeout() {
+    //     if (this._resizeScrollbarsTimeoutHandle !== undefined) {
+    //         clearTimeout(this._resizeScrollbarsTimeoutHandle);
+    //         this._resizeScrollbarsTimeoutHandle = undefined;
+    //     }
+    // }
 
     // public updateHorizontalScroll(recalculateView: boolean) {
         // const canvasBounds = this._canvasEx.getBounds();
@@ -628,133 +442,133 @@ export class ScrollBehavior {
     //     }
     // }
 
-    private calculateColumnScrollInactiveAnchorLimits(
-        gridRightAligned: boolean,
-        columnCount: number,
-        fixedColumnCount: number
-    ): ViewLayout.ScrollAnchorLimits {
-        let startAnchorLimitIndex: number;
-        let finishAnchorLimitIndex: number;
-        if (gridRightAligned) {
-            finishAnchorLimitIndex = columnCount - 1;
-            startAnchorLimitIndex = finishAnchorLimitIndex;
-        } else {
-            startAnchorLimitIndex = fixedColumnCount;
-            finishAnchorLimitIndex = startAnchorLimitIndex;
-        }
-        return {
-            startAnchorLimitIndex,
-            startAnchorLimitOffset: 0,
-            finishAnchorLimitIndex,
-            finishAnchorLimitOffset: 0,
-        };
-    }
+    // private calculateColumnScrollInactiveAnchorLimits(
+    //     gridRightAligned: boolean,
+    //     columnCount: number,
+    //     fixedColumnCount: number
+    // ): ViewLayout.ScrollAnchorLimits {
+    //     let startAnchorLimitIndex: number;
+    //     let finishAnchorLimitIndex: number;
+    //     if (gridRightAligned) {
+    //         finishAnchorLimitIndex = columnCount - 1;
+    //         startAnchorLimitIndex = finishAnchorLimitIndex;
+    //     } else {
+    //         startAnchorLimitIndex = fixedColumnCount;
+    //         finishAnchorLimitIndex = startAnchorLimitIndex;
+    //     }
+    //     return {
+    //         startAnchorLimitIndex,
+    //         startAnchorLimitOffset: 0,
+    //         finishAnchorLimitIndex,
+    //         finishAnchorLimitOffset: 0,
+    //     };
+    // }
 
-    private calculateColumnScrollContentSizeAndAnchorLimits(
-        contentStart: number, // Fixed columns width + fixed gridline width
-        viewportSize: number,
-        gridRightAligned: boolean,
-        columnCount: number,
-        fixedColumnCount: number,
-    ): ViewLayout.ScrollContentSizeAndAnchorLimits {
-        let contentSize = this.calculateActiveNonFixedColumnsWidth();
-        let anchorLimits: ViewLayout.ScrollAnchorLimits;
+    // private calculateColumnScrollContentSizeAndAnchorLimits(
+    //     contentStart: number, // Fixed columns width + fixed gridline width
+    //     viewportSize: number,
+    //     gridRightAligned: boolean,
+    //     columnCount: number,
+    //     fixedColumnCount: number,
+    // ): ViewLayout.ScrollContentSizeAndAnchorLimits {
+    //     let contentSize = this.calculateActiveNonFixedColumnsWidth();
+    //     let anchorLimits: ViewLayout.ScrollAnchorLimits;
 
-        const contentOverflowed = contentSize > viewportSize && columnCount > fixedColumnCount
-        if (contentOverflowed) {
-            let leftAnchorLimitIndex: number;
-            let leftAnchorLimitOffset: number;
-            let rightAnchorLimitIndex: number;
-            let rightAnchorLimitOffset: number;
+    //     const contentOverflowed = contentSize > viewportSize && columnCount > fixedColumnCount
+    //     if (contentOverflowed) {
+    //         let leftAnchorLimitIndex: number;
+    //         let leftAnchorLimitOffset: number;
+    //         let rightAnchorLimitIndex: number;
+    //         let rightAnchorLimitOffset: number;
 
-            const gridLinesVWidth = this._gridSettings.gridLinesVWidth;
-            if (gridRightAligned) {
-                rightAnchorLimitIndex = columnCount - 1;
-                rightAnchorLimitOffset = 0;
-                let prevColumnGridLineFinish = contentStart - 1;
-                const lowestViewportFinish = prevColumnGridLineFinish + viewportSize;
-                let lowestViewportStartColumnIndex = fixedColumnCount;
-                let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this._columnsManager.getActiveColumnWidth(lowestViewportStartColumnIndex);
-                while (lowestViewportStartColumnFinish <= lowestViewportFinish) {
-                    prevColumnGridLineFinish = lowestViewportStartColumnFinish;
-                    lowestViewportStartColumnIndex++;
-                    lowestViewportStartColumnFinish = prevColumnGridLineFinish + (this._columnsManager.getActiveColumnWidth(lowestViewportStartColumnIndex) + gridLinesVWidth);
-                }
-                leftAnchorLimitIndex = lowestViewportStartColumnIndex;
-                leftAnchorLimitOffset = lowestViewportStartColumnFinish - lowestViewportFinish;
-                if (!this._gridSettings.scrollHorizontallySmoothly) {
-                    // Since we cannot show a partial column on right, this may prevent leftmost columns from being displayed in viewport
-                    // Extend scrollable size (content size) so that the previous column can be shown on end when viewport is at start of content.
-                    contentSize += (lowestViewportFinish - prevColumnGridLineFinish);
-                    if (leftAnchorLimitOffset !== 0) {
-                        leftAnchorLimitOffset = 0;
-                        if (leftAnchorLimitIndex > fixedColumnCount) {
-                            leftAnchorLimitIndex--;
-                        }
-                    }
-                }
-            } else {
-                leftAnchorLimitIndex = fixedColumnCount;
-                leftAnchorLimitOffset = 0;
-                const highestViewportStart = contentSize - viewportSize;
-                let nextColumnLeft = contentSize;
-                let highestViewportStartColumnIndex = columnCount - 1;
-                let highestViewportStartColumnLeft = nextColumnLeft - this._columnsManager.getActiveColumnWidth(highestViewportStartColumnIndex);
-                while (highestViewportStartColumnLeft > highestViewportStart) {
-                    nextColumnLeft = highestViewportStartColumnLeft;
-                    highestViewportStartColumnIndex--;
-                    highestViewportStartColumnLeft = nextColumnLeft - (this._columnsManager.getActiveColumnWidth(highestViewportStartColumnIndex) + gridLinesVWidth);
-                }
-                rightAnchorLimitIndex = highestViewportStartColumnIndex;
-                rightAnchorLimitOffset = highestViewportStart - highestViewportStartColumnLeft;
-                if (!this._gridSettings.scrollHorizontallySmoothly) {
-                    // Since we cannot show a partial column on left, this may prevent rightmost columns from being displayed in viewport
-                    // Extend scrollable size (content size) so that the subsequent column can be shown on start when viewport is at end of content.
-                    contentSize += (nextColumnLeft - highestViewportStart);
-                    if (rightAnchorLimitOffset !== 0) {
-                        rightAnchorLimitOffset = 0;
-                        if (rightAnchorLimitIndex < columnCount - 1) {
-                            rightAnchorLimitIndex++;
-                        }
-                    }
-                }
-            }
+    //         const gridLinesVWidth = this._gridSettings.gridLinesVWidth;
+    //         if (gridRightAligned) {
+    //             rightAnchorLimitIndex = columnCount - 1;
+    //             rightAnchorLimitOffset = 0;
+    //             let prevColumnGridLineFinish = contentStart - 1;
+    //             const lowestViewportFinish = prevColumnGridLineFinish + viewportSize;
+    //             let lowestViewportStartColumnIndex = fixedColumnCount;
+    //             let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this._columnsManager.getActiveColumnWidth(lowestViewportStartColumnIndex);
+    //             while (lowestViewportStartColumnFinish <= lowestViewportFinish) {
+    //                 prevColumnGridLineFinish = lowestViewportStartColumnFinish;
+    //                 lowestViewportStartColumnIndex++;
+    //                 lowestViewportStartColumnFinish = prevColumnGridLineFinish + (this._columnsManager.getActiveColumnWidth(lowestViewportStartColumnIndex) + gridLinesVWidth);
+    //             }
+    //             leftAnchorLimitIndex = lowestViewportStartColumnIndex;
+    //             leftAnchorLimitOffset = lowestViewportStartColumnFinish - lowestViewportFinish;
+    //             if (!this._gridSettings.scrollHorizontallySmoothly) {
+    //                 // Since we cannot show a partial column on right, this may prevent leftmost columns from being displayed in viewport
+    //                 // Extend scrollable size (content size) so that the previous column can be shown on end when viewport is at start of content.
+    //                 contentSize += (lowestViewportFinish - prevColumnGridLineFinish);
+    //                 if (leftAnchorLimitOffset !== 0) {
+    //                     leftAnchorLimitOffset = 0;
+    //                     if (leftAnchorLimitIndex > fixedColumnCount) {
+    //                         leftAnchorLimitIndex--;
+    //                     }
+    //                 }
+    //             }
+    //         } else {
+    //             leftAnchorLimitIndex = fixedColumnCount;
+    //             leftAnchorLimitOffset = 0;
+    //             const highestViewportStart = contentSize - viewportSize;
+    //             let nextColumnLeft = contentSize;
+    //             let highestViewportStartColumnIndex = columnCount - 1;
+    //             let highestViewportStartColumnLeft = nextColumnLeft - this._columnsManager.getActiveColumnWidth(highestViewportStartColumnIndex);
+    //             while (highestViewportStartColumnLeft > highestViewportStart) {
+    //                 nextColumnLeft = highestViewportStartColumnLeft;
+    //                 highestViewportStartColumnIndex--;
+    //                 highestViewportStartColumnLeft = nextColumnLeft - (this._columnsManager.getActiveColumnWidth(highestViewportStartColumnIndex) + gridLinesVWidth);
+    //             }
+    //             rightAnchorLimitIndex = highestViewportStartColumnIndex;
+    //             rightAnchorLimitOffset = highestViewportStart - highestViewportStartColumnLeft;
+    //             if (!this._gridSettings.scrollHorizontallySmoothly) {
+    //                 // Since we cannot show a partial column on left, this may prevent rightmost columns from being displayed in viewport
+    //                 // Extend scrollable size (content size) so that the subsequent column can be shown on start when viewport is at end of content.
+    //                 contentSize += (nextColumnLeft - highestViewportStart);
+    //                 if (rightAnchorLimitOffset !== 0) {
+    //                     rightAnchorLimitOffset = 0;
+    //                     if (rightAnchorLimitIndex < columnCount - 1) {
+    //                         rightAnchorLimitIndex++;
+    //                     }
+    //                 }
+    //             }
+    //         }
 
-            anchorLimits = {
-                startAnchorLimitIndex: leftAnchorLimitIndex,
-                startAnchorLimitOffset: leftAnchorLimitOffset,
-                finishAnchorLimitIndex: rightAnchorLimitIndex,
-                finishAnchorLimitOffset: rightAnchorLimitOffset,
-            }
-        } else {
-            anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
-        }
+    //         anchorLimits = {
+    //             startAnchorLimitIndex: leftAnchorLimitIndex,
+    //             startAnchorLimitOffset: leftAnchorLimitOffset,
+    //             finishAnchorLimitIndex: rightAnchorLimitIndex,
+    //             finishAnchorLimitOffset: rightAnchorLimitOffset,
+    //         }
+    //     } else {
+    //         anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
+    //     }
 
-        return {
-            contentSize,
-            contentOverflowed,
-            anchorLimits,
-        };
-    }
+    //     return {
+    //         contentSize,
+    //         contentOverflowed,
+    //         anchorLimits,
+    //     };
+    // }
 
-    private calculateActiveNonFixedColumnsWidth() {
-        const gridLinesVWidth = this._gridSettings.gridLinesVWidth;
-        const columnCount = this._columnsManager.activeColumnCount;
-        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
-        let result = 0;
-        for (let i = fixedColumnCount; i < columnCount; i++) {
-            result += this._columnsManager.getActiveColumnWidth(i);
-        }
+    // private calculateActiveNonFixedColumnsWidth() {
+    //     const gridLinesVWidth = this._gridSettings.gridLinesVWidth;
+    //     const columnCount = this._columnsManager.activeColumnCount;
+    //     const fixedColumnCount = this._columnsManager.getFixedColumnCount();
+    //     let result = 0;
+    //     for (let i = fixedColumnCount; i < columnCount; i++) {
+    //         result += this._columnsManager.getActiveColumnWidth(i);
+    //     }
 
-        if (gridLinesVWidth > 0) {
-            const scrollableColumnCount = columnCount - fixedColumnCount;
-            if (scrollableColumnCount > 1) {
-                result += (scrollableColumnCount - 1) * gridLinesVWidth;
-            }
-        }
+    //     if (gridLinesVWidth > 0) {
+    //         const scrollableColumnCount = columnCount - fixedColumnCount;
+    //         if (scrollableColumnCount > 1) {
+    //             result += (scrollableColumnCount - 1) * gridLinesVWidth;
+    //         }
+    //     }
 
-        return result;
-    }
+    //     return result;
+    // }
 }
 
 export namespace ScrollBehavior {

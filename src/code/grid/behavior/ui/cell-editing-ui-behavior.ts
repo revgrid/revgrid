@@ -16,12 +16,12 @@ export class CellEditingUiBehavior extends UiBehavior {
         return super.handleClick(event, cell);
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
         this.edit(cell, true);
-        return super.handleDoubleClick(event, cell);
+        return super.handleDblClick(event, cell);
     }
 
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {

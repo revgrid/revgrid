@@ -214,12 +214,12 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         return cell;
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell === null) {
-            return super.handleDoubleClick(event, cell);
+            return super.handleDblClick(event, cell);
         } else {
             const canvasOffsetX = event.offsetX;
             if (cell.isHeaderRow && this.overAreaDivider(canvasOffsetX, cell)) {
@@ -228,10 +228,10 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                     ? this.columnsManager.getActiveColumn(cell.visibleColumn.activeColumnIndex - 1)
                     : cell.visibleColumn.column;
                 column.setWidthToAutoSizing();
-                this.renderer.repaint();
+                this.viewLayout.invalidateAll(true);
                 return cell;
             } else  {
-                return super.handleDoubleClick(event, cell);
+                return super.handleDblClick(event, cell);
             }
         }
     }

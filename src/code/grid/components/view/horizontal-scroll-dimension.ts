@@ -1,21 +1,27 @@
 import { GridSettings } from '../../interfaces/grid-settings';
+import { HorizontalVertical } from '../../lib/types';
 import { CanvasEx } from '../canvas-ex/canvas-ex';
 import { ColumnsManager } from '../column/columns-manager';
-import { ScrollPlaneDimension } from './scroll-plane-dimension';
+import { ScrollDimension } from './scroll-dimension';
 
-export class HorizontalScrollPlaneDimension extends ScrollPlaneDimension {
+export class HorizontalScrollDimension extends ScrollDimension {
     constructor(
-        canvasEx: CanvasEx,
         private readonly _gridSettings: GridSettings,
+        canvasEx: CanvasEx,
         private readonly _columnsManager: ColumnsManager,
+        viewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer,
     ) {
-        super(canvasEx);
+        super(
+            HorizontalVertical.Horizontal,
+            canvasEx,
+            viewportStartChangedEventer,
+        );
     }
 
     override reset() {
         const index = this._columnsManager.getFixedColumnCount();
         const offset = 0;
-        const anchorLimits: ScrollPlaneDimension.ScrollAnchorLimits = {
+        const anchorLimits: ScrollDimension.ScrollAnchorLimits = {
             startAnchorLimitIndex: index,
             startAnchorLimitOffset: offset,
             finishAnchorLimitIndex: index,
@@ -26,7 +32,7 @@ export class HorizontalScrollPlaneDimension extends ScrollPlaneDimension {
         super.reset();
     }
 
-    calculateColumnScrollAnchor(viewportStart: number): ScrollPlaneDimension.Anchor {
+    calculateColumnScrollAnchor(viewportStart: number): ScrollDimension.Anchor {
         this.ensureValid();
 
         // viewportFinish: number, _start: number, contentFinish: number
@@ -125,7 +131,7 @@ export class HorizontalScrollPlaneDimension extends ScrollPlaneDimension {
      * @param activeColumnIndex - index of column to bring into view
      * @returns Scroll Anchor which will ensure the column is displayed
      */
-    calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean): ScrollPlaneDimension.Anchor {
+    calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean): ScrollDimension.Anchor {
         this.ensureValid();
 
         const gridProperties = this._gridSettings;
@@ -204,6 +210,8 @@ export class HorizontalScrollPlaneDimension extends ScrollPlaneDimension {
     }
 
     protected override compute() {
+        // called within Animation Frame
+
         const canvasBounds = this._canvasEx.getBounds();
 
         const gridSettings = this._gridSettings;
@@ -221,17 +229,9 @@ export class HorizontalScrollPlaneDimension extends ScrollPlaneDimension {
         }
         const viewportSize = canvasBounds.width - scrollableStart;
 
-        let scrollableFinish: number;
         if (viewportSize <= 0) {
             const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
             this.setDimensionValues(undefined, undefined, undefined, undefined, anchorLimits);
-
-            scrollableFinish = scrollableStart - 1;
-            this.horizontalScroller.contentRange = {
-                start: scrollableStart,
-                finish: scrollableFinish // hMax
-            };
-            this.horizontalScroller.viewportSize = -1;
         } else {
             const contentSizeAndAnchorLimits = this.calculateScrollableSizeAndAnchorLimits(
                 scrollableStart,
@@ -242,13 +242,6 @@ export class HorizontalScrollPlaneDimension extends ScrollPlaneDimension {
             );
             const { scrollableSize, overflowed, anchorLimits } = contentSizeAndAnchorLimits;
             this.setDimensionValues(scrollableStart, scrollableSize, viewportSize, overflowed, anchorLimits);
-
-            scrollableFinish = scrollableStart + scrollableSize - 1;
-            this.horizontalScroller.contentRange = {
-                start: scrollableStart,
-                finish: scrollableFinish // hMax
-            };
-            this.horizontalScroller.viewportSize = viewportSize;
         }
     }
 
@@ -258,9 +251,9 @@ export class HorizontalScrollPlaneDimension extends ScrollPlaneDimension {
         gridRightAligned: boolean,
         columnCount: number,
         fixedColumnCount: number,
-    ): ScrollPlaneDimension.ScrollableSizeAndAnchorLimits {
+    ): ScrollDimension.ScrollableSizeAndAnchorLimits {
         let scrollableSize = this.calculateActiveNonFixedColumnsWidth();
-        let anchorLimits: ScrollPlaneDimension.ScrollAnchorLimits;
+        let anchorLimits: ScrollDimension.ScrollAnchorLimits;
 
         const overflowed = scrollableSize > viewportSize && columnCount > fixedColumnCount
         if (overflowed) {
@@ -343,7 +336,7 @@ export class HorizontalScrollPlaneDimension extends ScrollPlaneDimension {
         gridRightAligned: boolean,
         columnCount: number,
         fixedColumnCount: number
-    ): ScrollPlaneDimension.ScrollAnchorLimits {
+    ): ScrollDimension.ScrollAnchorLimits {
         let startAnchorLimitIndex: number;
         let finishAnchorLimitIndex: number;
         if (gridRightAligned) {

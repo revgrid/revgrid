@@ -330,11 +330,11 @@ export class RowSelectionUiBehavior extends UiBehavior {
                 const focusSelectionBehavior = this.selectionBehavior;
                 focusSelectionBehavior.replaceLastAreaWithRows(activeColumnIndex, subgridRowIndex, newX, newY, this.focus.subgrid);
 
-                if (this.scrollBehavior.ensureRowIsMaximallyVisible(newX)) {
+                if (this.viewLayout.ensureRowIsInView(newX, true)) {
                     this.pingAutoScroll();
                 }
 
-                this.renderer.repaint();
+                this.renderer.invalidateView();
             }
         }
     }

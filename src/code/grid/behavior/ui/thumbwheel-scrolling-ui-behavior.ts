@@ -9,7 +9,7 @@ export class ThumbwheelScrollingUiBehavior extends UiBehavior {
 
     readonly typeName = ThumbwheelScrollingUiBehavior.typeName;
 
-    override handleWheelMoved(event: WheelEvent, cell: ViewCell | null | undefined) {
+    override handleWheelMove(event: WheelEvent, cell: ViewCell | null | undefined) {
         const gridProps = this.gridSettings;
         if (gridProps.scrollingEnabled) {
             const deltaX = event.deltaX;
@@ -18,14 +18,14 @@ export class ThumbwheelScrollingUiBehavior extends UiBehavior {
             if (deltaX) {
                 if (this.isHorizontalWheelScrollingAllowed(gridProps, event)) {
                     if (gridProps.scrollHorizontallySmoothly) {
-                        this.scrollBehavior.scrollViewHorizontallyBy(deltaX);
+                        this.viewLayout.scrollHorizontalViewportBy(deltaX);
                     } else {
-                        this.scrollBehavior.scrollColumnsBy(Math.sign(deltaX));
+                        this.viewLayout.scrollColumnsBy(Math.sign(deltaX));
                     }
                 }
             }
             if (deltaY) {
-                this.scrollBehavior.scrollVerticalIndexBy(Math.sign(deltaY)); // Update when Vertical scrolling improved
+                this.viewLayout.scrollRowsBy(Math.sign(deltaY)); // Update when Vertical scrolling improved
                 // grid.scrollVBy(Math.sign(deltaY));
             }
         }

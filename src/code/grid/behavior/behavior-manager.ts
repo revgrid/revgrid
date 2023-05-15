@@ -57,7 +57,6 @@ export class BehaviorManager {
         this._uiBehaviorManager = new UiBehaviorManager(
             containerHtmlElement,
             this._componentBehaviorManager.gridSettings,
-            this._componentBehaviorManager.mouse,
             this._componentBehaviorManager.canvasEx,
             this._componentBehaviorManager.focus,
             this._componentBehaviorManager.selection,
@@ -66,6 +65,7 @@ export class BehaviorManager {
             this._componentBehaviorManager.viewLayout,
             this._componentBehaviorManager.renderer,
             this._componentBehaviorManager.reindexStashManager,
+            this._componentBehaviorManager.mouse,
             this._componentBehaviorManager.scrollBehavior,
             this._componentBehaviorManager.focusBehavior,
             this._componentBehaviorManager.selectionBehavior,

@@ -133,20 +133,6 @@ export class Renderer {
         Animation.deregisterAnimator(this._animator);
     }
 
-    requestPaint() {
-        this._animator.dirty = true;
-    }
-
-    repaint() {
-        if (this._gridProperties.repaintImmediately) {
-            if (this._columnsManager.columnsCreated) {
-                Animation.animate(this._animator, performance.now());
-            }
-        } else {
-            this.requestPaint();
-        }
-    }
-
     modelUpdated() {
         ++this._lastModelUpdateId;
     }
@@ -284,13 +270,13 @@ export class Renderer {
                     try {
                         gc.cache.save();
 
-                        this._viewLayout.ensureValid();
+                        this._viewLayout.ensureValidWhileWithinAnimationFrame();
 
                         for (let i = 0; i < actionsCount; i++) {
                             const action = renderActions[i];
                             switch (action.type) {
                                 case RenderAction.Type.PaintAll: {
-                                    this.paintAll();
+                                    this.paintAll(gc);
                                     break;
                                 }
                                 default:
@@ -298,13 +284,13 @@ export class Renderer {
                             }
                         }
 
-                        this._renderedEventer();
+                        setTimeout(() => this._renderedEventer(), 0); // process outside frame animation
 
                         const lastModelUpdateId = this._lastModelUpdateId;
                         if (this._lastRenderedModelUpdateId !== lastModelUpdateId) {
                             this._lastRenderedModelUpdateId = lastModelUpdateId;
                             // do not resolve in animation frame call back
-                            setTimeout(() => this.resolveWaitModelRendered(lastModelUpdateId), 0);
+                            setTimeout(() => this.resolveWaitModelRendered(lastModelUpdateId), 0); // process outside frame animation
                         }
 
                     } catch (e) {
@@ -318,63 +304,33 @@ export class Renderer {
         }
     }
 
-    private paintAll() {
-        if (this._documentHidden) {
-            return false;
-        } else {
-            if (!this._destroyed) {
-
-                const gc = this._canvasEx.gc;
-                try {
-                    gc.cache.save();
-
-                    this._viewLayout.ensureValid();
-
-                    this._gridPainter.paintCells(gc);
+    private paintAll(gc: CanvasRenderingContext2DEx) {
+        this._gridPainter.paintCells(gc);
 
 
-                    // if (this.grid.cellEditor) {
-                    //     this.grid.cellEditor.gridRenderedNotification();
-                    // }
+        // if (this.grid.cellEditor) {
+        //     this.grid.cellEditor.gridRenderedNotification();
+        // }
 
-                    // Grid render also calculates mix width for each column.
-                    // Check here to see if there was a change and if so immediately re-render
-                    // before end-of-thread so user sees only the results of the 2nd render.
-                    // Mostly important on first render after setData. Note that stack overflow
-                    // will not happen because this will only be called once per data change.
-                    if (this._columnsManager.checkColumnAutosizing(false)) {
-                        this._viewLayout.ensureValid();
-                        this._gridPainter.paintCells(gc);
-                    }
+        // Grid render also calculates mix width for each column.
+        // Check here to see if there was a change and if so immediately re-render
+        // before end-of-thread so user sees only the results of the 2nd render.
+        // Mostly important on first render after setData. Note that stack overflow
+        // will not happen because this will only be called once per data change.
+        if (this._columnsManager.checkColumnAutosizing(false, true)) {
+            this._viewLayout.ensureValidWhileWithinAnimationFrame();
+            this._gridPainter.paintCells(gc);
+        }
 
-                    this._gridPainter.paintGridlines(gc);
+        this._gridPainter.paintGridlines(gc);
 
-                    const lastSelectionBounds = this._viewLayout.calculateLastSelectionBounds();
-                    if (lastSelectionBounds !== undefined) {
-                        this._gridPainter.paintLastSelection(gc, lastSelectionBounds);
+        const lastSelectionBounds = this._viewLayout.calculateLastSelectionBounds();
+        if (lastSelectionBounds !== undefined) {
+            this._gridPainter.paintLastSelection(gc, lastSelectionBounds);
 
-                        // if (this._gridPainter.key === 'by-cells') {
-                        //     this._gridPainter.reset = true; // fixes GRID-490
-                        // }
-                    }
-
-                    this._renderedEventer();
-
-                    const lastModelUpdateId = this._lastModelUpdateId;
-                    if (this._lastRenderedModelUpdateId !== lastModelUpdateId) {
-                        this._lastRenderedModelUpdateId = lastModelUpdateId;
-                        // do not resolve in animation frame call back
-                        setTimeout(() => this.resolveWaitModelRendered(lastModelUpdateId), 0);
-                    }
-
-                } catch (e) {
-                    console.error(e);
-                } finally {
-                    gc.cache.restore();
-                }
-            }
-
-            return true;
+            // if (this._gridPainter.key === 'by-cells') {
+            //     this._gridPainter.reset = true; // fixes GRID-490
+            // }
         }
     }
 }

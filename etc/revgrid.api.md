@@ -431,9 +431,11 @@ export namespace ColumnSettings {
 // @public (undocumented)
 export class ColumnsManager {
     // @internal
-    constructor(schemaModel: SchemaModel, _gridSettings: GridSettings, _behaviorChangedEventer: ColumnsManager.BehaviorChangedEventer, _scrollUpdateRequiredEventer: ColumnsManager.ScrollUpdateRequiredEventer, _allColumnListChangedEventer: ListChangedEventHandler, _activeColumnListChangedEventer: UiableListChangedEventHandler, _columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer);
+    constructor(schemaModel: SchemaModel, _gridSettings: GridSettings, _invalidateScrollDimensionRequiredEventer: ColumnsManager.InvalidateScrollDimensionRequiredEventer);
     // (undocumented)
     get activeColumnCount(): number;
+    // @internal (undocumented)
+    activeColumnListChangedEventer: UiableListChangedEventHandler;
     // @internal (undocumented)
     get activeColumns(): readonly Column[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -446,6 +448,8 @@ export class ColumnsManager {
     // (undocumented)
     get allColumnCount(): number;
     // @internal (undocumented)
+    allColumnListChangedEventer: ListChangedEventHandler;
+    // @internal (undocumented)
     get allColumns(): readonly Column[];
     // @internal (undocumented)
     allSchemaColumnsDeleted(): void;
@@ -456,11 +460,13 @@ export class ColumnsManager {
     // (undocumented)
     calculateFixedColumnsWidth(): number;
     // @internal (undocumented)
-    checkColumnAutosizing(force: boolean): boolean;
+    checkColumnAutosizing(force: boolean, withinAnimationFrame?: boolean): boolean;
     // @internal (undocumented)
     clearColumns(): void;
     // @internal (undocumented)
     columnsCreated: boolean;
+    // @internal (undocumented)
+    columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer;
     // @internal (undocumented)
     createColumns(): void;
     // @internal (undocumented)
@@ -494,6 +500,8 @@ export class ColumnsManager {
     //
     // @internal
     hideColumns(allColumnIndexes: number | number[]): void;
+    // @internal (undocumented)
+    invalidateViewEventer: ColumnsManager.InvalidateViewEventer;
     // (undocumented)
     isColumnFixed(activeColumnIndex: number): boolean;
     // @internal (undocumented)
@@ -546,11 +554,11 @@ export namespace ColumnsManager {
     // (undocumented)
     export type BeforeCreateColumnsListener = (this: void) => void;
     // (undocumented)
-    export type BehaviorChangedEventer = (this: void) => void;
-    // (undocumented)
     export type ColumnsWidthChangedEventer = (this: void, columns: ColumnInterface[], ui: boolean) => void;
     // (undocumented)
-    export type ScrollUpdateRequiredEventer = (this: void) => void;
+    export type InvalidateScrollDimensionRequiredEventer = (this: void) => void;
+    // (undocumented)
+    export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
 }
 
 // @public (undocumented)
@@ -565,6 +573,7 @@ export interface DataModel {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     fetchData?(rectangles: readonly RectangleInterface[], callback?: (failure: boolean) => void): void;
+    getCursorName?(dataPoint: Point): string;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getData?(metadataFieldName?: string): readonly DataModel.DataRow[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -577,6 +586,7 @@ export interface DataModel {
     getRowIdFromIndex?(rowIndex: number): unknown;
     // (undocumented)
     getRowIndexFromId?(rowId: unknown): number | undefined;
+    getTitleText?(dataPoint: Point): string;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getValue(schema: SchemaModel.Column, rowIndex: number): DataModel.DataValue;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -588,16 +598,6 @@ export interface DataModel {
     setRow?(rowIndex: number, dataRow?: DataModel.DataRow): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setValue?(schema: SchemaModel.Column, rowIndex: number, newValue: unknown): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-    // Warning: (tsdoc-code-span-missing-delimiter) The code span is missing its closing backtick
-    // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    toggleRow?(rowIndex: number, columnIndex?: number, toggle?: boolean): boolean | undefined;
 }
 
 // @public (undocumented)
@@ -667,11 +667,6 @@ export namespace EventDetail {
         readonly schemaColumnIndex: number;
         // (undocumented)
         readonly time: number;
-    }
-    // Warning: (ae-forgotten-export) The symbol "ViewLayout" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    export interface ChangedColumnsViewWidths extends ViewLayout.ChangedColumnsViewWidths {
     }
     // (undocumented)
     export interface ColumnSort {
@@ -743,15 +738,27 @@ export namespace EventDetail {
         readonly time: number;
     }
     // (undocumented)
-    export interface Scroll {
+    export interface ScrollerAction {
         // (undocumented)
-        readonly index: number;
+        readonly type: ScrollerAction.Type;
         // (undocumented)
-        readonly offset: number;
+        readonly viewportStart: number | undefined;
+    }
+    // (undocumented)
+    export namespace ScrollerAction {
         // (undocumented)
-        readonly time: number;
-        // (undocumented)
-        readonly value: number;
+        export const enum Type {
+            // (undocumented)
+            newViewportStart = 4,
+            // (undocumented)
+            PageBack = 3,
+            // (undocumented)
+            PageForward = 2,
+            // (undocumented)
+            StepBack = 1,
+            // (undocumented)
+            StepForward = 0
+        }
     }
     // (undocumented)
     export interface Wheel extends WheelEvent {
@@ -780,7 +787,7 @@ export namespace EventName {
         // (undocumented)
         'rev-columns-created': undefined;
         // (undocumented)
-        'rev-columns-view-widths-changed': EventDetail.ChangedColumnsViewWidths;
+        'rev-columns-view-widths-changed': undefined;
         // (undocumented)
         'rev-context-menu': EventDetail.Mouse;
         // (undocumented)
@@ -812,6 +819,10 @@ export namespace EventName {
         // (undocumented)
         'rev-grid-resized': EventDetail.Resize;
         // (undocumented)
+        'rev-horizontal-scroll-viewport-changed': undefined;
+        // (undocumented)
+        'rev-horizontal-scroller-action': EventDetail.ScrollerAction;
+        // (undocumented)
         'rev-key-down': EventDetail.Keyboard;
         // (undocumented)
         'rev-key-up': EventDetail.Keyboard;
@@ -824,10 +835,6 @@ export namespace EventName {
         // (undocumented)
         'rev-schema-loaded': undefined;
         // (undocumented)
-        'rev-scroll-x': EventDetail.Scroll;
-        // (undocumented)
-        'rev-scroll-y': EventDetail.Scroll;
-        // (undocumented)
         'rev-selection-changed': EventDetail.Grid;
         // (undocumented)
         'rev-touch-end': TouchEvent;
@@ -835,6 +842,10 @@ export namespace EventName {
         'rev-touch-move': TouchEvent;
         // (undocumented)
         'rev-touch-start': TouchEvent;
+        // (undocumented)
+        'rev-vertical-scroll-viewport-changed': undefined;
+        // (undocumented)
+        'rev-vertical-scroller-action': EventDetail.ScrollerAction;
         // (undocumented)
         'rev-wheel-move': EventDetail.Wheel;
     }
@@ -844,7 +855,7 @@ export namespace EventName {
 
 // @public (undocumented)
 export class Focus {
-    constructor(_mainSubgrid: SubgridInterface, _columnsManager: ColumnsManager, _scrollToMakeVisibleEventer: Focus.ScrollToMakeVisibleEventer);
+    constructor(_mainSubgrid: SubgridInterface, _columnsManager: ColumnsManager);
     // (undocumented)
     adjustForColumnsDeleted(columnIndex: number, columnCount: number): void;
     // (undocumented)
@@ -872,6 +883,8 @@ export class Focus {
     // (undocumented)
     get currentSubgridY(): number | undefined;
     // (undocumented)
+    getCellEditorEventer: Focus.GetCellEditorEventer | undefined;
+    // (undocumented)
     isMainSubgridRowFocused(mainSubgridRowIndex: number): boolean;
     // (undocumented)
     isSubgridRowFocused(subgridRowIndex: number, subgrid: SubgridInterface): boolean;
@@ -895,6 +908,58 @@ export class Focus {
 
 // @public (undocumented)
 export namespace Focus {
+    // (undocumented)
+    export interface CellEditor {
+        // (undocumented)
+        clickEventer: CellEditor.MouseEventer;
+        // (undocumented)
+        closeEventer: (this: void) => void;
+        // (undocumented)
+        dblClickEventer: CellEditor.MouseEventer;
+        // (undocumented)
+        hide(): void;
+        // (undocumented)
+        keyDownEventer: CellEditor.KeyEventer;
+        // (undocumented)
+        keyPressEventer: CellEditor.KeyEventer;
+        // (undocumented)
+        keyUpEventer: CellEditor.KeyEventer;
+        // (undocumented)
+        mouseDownEventer: CellEditor.MouseEventer;
+        // (undocumented)
+        mouseUpEventer: CellEditor.MouseEventer;
+        // (undocumented)
+        setBounds(bounds: RectangleInterface): void;
+        // (undocumented)
+        show(bounds: RectangleInterface): void;
+        // (undocumented)
+        wantDownArrow: boolean;
+        // (undocumented)
+        wantEscape: boolean;
+        // (undocumented)
+        wantLeftArrow: boolean;
+        // (undocumented)
+        wantReturn: boolean;
+        // (undocumented)
+        wantRightArrow: boolean;
+        // (undocumented)
+        wantTab: boolean;
+        // (undocumented)
+        wantUpArrow: boolean;
+        // (undocumented)
+        wheelMoveEventer: CellEditor.WheelEventer;
+    }
+    // (undocumented)
+    export namespace CellEditor {
+        // (undocumented)
+        export type KeyEventer = (this: void, eventDetail: EventDetail.Keyboard) => void;
+        // (undocumented)
+        export type MouseEventer = (this: void, event: MouseEvent, cell: ViewCell | undefined) => void;
+        // (undocumented)
+        export type WheelEventer = (this: void, event: WheelEvent, cell: ViewCell | undefined) => void;
+    }
+    // (undocumented)
+    export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor;
     // (undocumented)
     export type ScrollToMakeVisibleEventer = (this: void, activeColumnIndex: number, subgridRowIndex: number, maximally: boolean) => void;
     // (undocumented)
@@ -1675,9 +1740,9 @@ export class Revgrid {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addEventListener(eventName: string, listener: CanvasEx.EventListener): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    addProperties(properties: Partial<GridSettings>): boolean;
+    addSettings(settings: Partial<GridSettings>): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    addState(state: Record<string, unknown>, settingState?: boolean): void;
+    addState(state: Record<string, unknown>, fromDefault?: boolean): void;
     // (undocumented)
     get allColumns(): readonly Column[];
     // (undocumented)
@@ -1685,16 +1750,12 @@ export class Revgrid {
     // (undocumented)
     autosizeAllColumns(): void;
     beginSelectionChange(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    behaviorChanged(): void;
     // Warning: (ae-forgotten-export) The symbol "BehaviorManager" needs to be exported by the entry point public-api.d.ts
     behaviorManager: BehaviorManager;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     calculateActiveColumnsWidth(): number;
     // (undocumented)
     calculateActiveNonFixedColumnsWidth(): number;
-    // (undocumented)
-    calculateColumnScrollAnchorViewLayoutStart(): number;
     // (undocumented)
     calculateColumnScrollContentSizeAndAnchorLimits(contentStart: number, // Fixed columns width + fixed gridline width
     viewportSize: number, gridRightAligned: boolean, columnCount: number, fixedColumnCount: number): ViewLayout.ScrollContentSizeAndAnchorLimits;
@@ -1714,8 +1775,6 @@ export class Revgrid {
     canvasDiv: HTMLDivElement;
     // (undocumented)
     readonly canvasEx: CanvasEx;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    cellClicked(event: ViewCell): boolean | undefined;
     // Warning: (ae-forgotten-export) The symbol "CellEditor" needs to be exported by the entry point public-api.d.ts
     cellEditor: CellEditor | undefined;
     // Warning: (ae-forgotten-export) The symbol "CellEditorFactory" needs to be exported by the entry point public-api.d.ts
@@ -1733,8 +1792,6 @@ export class Revgrid {
     get columnScrollAnchorOffset(): number;
     // @internal (undocumented)
     get columnsManager(): ColumnsManager;
-    // (undocumented)
-    computeViewLayout(): void;
     // (undocumented)
     readonly containerHtmlElement: HTMLElement;
     // (undocumented)
@@ -1756,13 +1813,17 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessColumnSort(_event: EventDetail.ColumnSort): void;
     // (undocumented)
-    protected descendantProcessColumnsViewWidthsChanged(_changedColumnsViewWidths: ViewLayout.ChangedColumnsViewWidths): void;
+    protected descendantProcessColumnsViewWidthsChanged(): void;
     // (undocumented)
     protected descendantProcessColumnsWidthChanged(_columns: ColumnInterface[], _ui: boolean): void;
     // (undocumented)
     protected descendantProcessContextMenu(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessCopy(_event: ClipboardEvent): void;
+    // (undocumented)
+    protected descendantProcessHorizontalScrollerAction(_event: EventDetail.ScrollerAction): void;
+    // (undocumented)
+    protected descendantProcessHorizontalScrollViewportStartChanged(): void;
     // (undocumented)
     protected descendantProcessKeyDown(_event: EventDetail.Keyboard): void;
     // (undocumented)
@@ -1794,8 +1855,6 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessResized(): void;
     // (undocumented)
-    protected descendantProcessScroll(isX: boolean, newValue: number, index: number, offset: number): void;
-    // (undocumented)
     protected descendantProcessSelectionChanged(): void;
     // (undocumented)
     protected descendantProcessTouchEnd(_event: TouchEvent): void;
@@ -1803,6 +1862,10 @@ export class Revgrid {
     protected descendantProcessTouchMove(_event: TouchEvent): void;
     // (undocumented)
     protected descendantProcessTouchStart(_event: TouchEvent): void;
+    // (undocumented)
+    protected descendantProcessVerticalScrollerAction(_event: EventDetail.ScrollerAction): void;
+    // (undocumented)
+    protected descendantProcessVerticalScrollViewportStartChanged(): void;
     // (undocumented)
     protected descendantProcessWheelMove(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
     // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "Hypgrid"
@@ -1817,12 +1880,6 @@ export class Revgrid {
     // (undocumented)
     endDragColumnNotification(): void;
     endSelectionChange(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    ensureModelColIsVisible(colIndex: number, offsetX: number): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    ensureModelRowIsVisible(rowIndex: number, offsetY: number, subgrid: Subgrid): boolean;
     // (undocumented)
     fireAfterCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -1841,7 +1898,7 @@ export class Revgrid {
     get fixedColumnsViewWidth(): number;
     // (undocumented)
     readonly focus: Focus;
-    // @internal (undocumented)
+    // (undocumented)
     focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaTypeSpecifier?: SelectionArea.TypeSpecifier): void;
     // (undocumented)
     formatValue(localizerName: string | undefined, value: unknown): string;
@@ -1952,8 +2009,6 @@ export class Revgrid {
     // (undocumented)
     isInCurrentSelectionRectangle(x: number, y: number): boolean;
     // (undocumented)
-    isMouseDownInHeaderArea(): boolean;
-    // (undocumented)
     isPointSelected(x: number, y: number, subgrid?: Subgrid): boolean;
     // (undocumented)
     isScrollingNow(): boolean;
@@ -2013,16 +2068,10 @@ export class Revgrid {
     reset(nonDefaultProperties: Partial<GridSettings> | undefined, removeAllEventListeners?: boolean): void;
     // (undocumented)
     resetGridBorder(edge?: string): void;
-    get rowScrollAnchorIndex(): number;
-    set rowScrollAnchorIndex(value: number);
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    scrollBy(offsetColumnCount: number, offsetY: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     scrollColumnsBy(offset: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     scrollPageUp(): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    scrollVBy(offsetY: number): void;
     // (undocumented)
     scrollViewHorizontallyBy(delta: number): void;
     // (undocumented)
@@ -2066,7 +2115,7 @@ export class Revgrid {
     // (undocumented)
     setColumnProperties(x: number, properties: ColumnSettings): void;
     // (undocumented)
-    setColumnScrollAnchor(index: number, offset: number): void;
+    setColumnScrollAnchor(index: number, offset: number): boolean;
     // (undocumented)
     setColumnWidths(columnWidths: ColumnWidth[]): boolean;
     // (undocumented)
@@ -2087,8 +2136,6 @@ export class Revgrid {
     readonly settings: LoadableGridSettings;
     // (undocumented)
     setValue(x: number, y: number, value: number, subgrid?: Subgrid): void;
-    // (undocumented)
-    setViewport(columnIndex: number, columnOffset: number, rowIndex: number, _rowOffset: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     //
@@ -2112,10 +2159,11 @@ export class Revgrid {
     toggleHiDPI(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     updateSize(): void;
+    // Warning: (ae-forgotten-export) The symbol "ViewLayout" needs to be exported by the entry point public-api.d.ts
+    //
     // (undocumented)
     readonly viewLayout: ViewLayout;
     waitModelRendered(): Promise<number>;
-    windowOpen(url: string, name: string, features?: string): Window | null;
 }
 
 // @public (undocumented)
@@ -3123,13 +3171,13 @@ export class Subgrid implements SubgridInterface {
     constructor(
     _gridSettings: GridSettings,
     _columnsManager: ColumnsManager,
-    handle: Subgrid.Handle, role: SubgridInterface.Role, schemaModel: SchemaModel, dataModel: DataModel, cellModel: CellModel, metaModel: MetaModel | undefined, selectable: boolean);
-    // (undocumented)
-    readonly cellModel: CellModel;
+    handle: Subgrid.Handle, role: SubgridInterface.Role, schemaModel: SchemaModel, dataModel: DataModel, metaModel: MetaModel | undefined, getCellPainterEventer: SubgridDefinition.GetCellPainterEventer, selectable: boolean, defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean, rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined);
     // @internal (undocumented)
     protected readonly _columnsManager: ColumnsManager;
     // (undocumented)
     readonly dataModel: DataModel;
+    // (undocumented)
+    readonly defaultRowHeight: number | undefined;
     // @internal (undocumented)
     destroy(): void;
     // @internal (undocumented)
@@ -3140,8 +3188,14 @@ export class Subgrid implements SubgridInterface {
     getCellPainter(viewCell: ViewCell, prefillColor: string | undefined): CellPainter;
     // (undocumented)
     getRowCount(): number;
+    // (undocumented)
+    getRowHeight(rowIndex: number): number;
     // @internal (undocumented)
     getRowMetadata(rowIndex: number): MetaModel.RowMetadata | undefined;
+    // (undocumented)
+    getRowProperties(rowIndex: number): MetaModel.RowProperties | undefined;
+    // (undocumented)
+    getRowProperty(rowIndex: number, key: string): unknown;
     // @internal
     getSingletonDataRow(rowIndex: number): DataModel.DataRow;
     // (undocumented)
@@ -3165,11 +3219,17 @@ export class Subgrid implements SubgridInterface {
     // (undocumented)
     readonly role: SubgridInterface.Role;
     // (undocumented)
+    readonly rowHeightsCanDiffer: boolean;
+    // (undocumented)
     readonly schemaModel: SchemaModel;
     // (undocumented)
     readonly selectable: boolean;
     // @internal (undocumented)
     setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined): void;
+    // (undocumented)
+    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined): boolean;
+    // (undocumented)
+    setRowProperty(y: number, key: string, isHeight: boolean, value: unknown): boolean;
     // (undocumented)
     setValue(column: ColumnInterface, rowIndex: number, value: DataModel.DataValue): void;
 }
@@ -3199,15 +3259,27 @@ export namespace Subgrid {
 // @public (undocumented)
 export interface SubgridDefinition {
     // (undocumented)
-    cellModel: CellModel | CellModel.Constructor;
-    // (undocumented)
     dataModel: DataModel | DataModel.Constructor;
+    // (undocumented)
+    defaultRowHeight?: number;
+    // (undocumented)
+    getCellPainterEventer: SubgridDefinition.GetCellPainterEventer;
     // (undocumented)
     metaModel?: MetaModel | MetaModel.Constructor;
     // (undocumented)
     role?: SubgridInterface.Role;
     // (undocumented)
+    rowPropertiesCanSpecifyRowHeight?: boolean;
+    // (undocumented)
+    rowPropertiesPrototype?: MetaModel.RowPropertiesPrototype;
+    // (undocumented)
     selectable?: boolean;
+}
+
+// @public (undocumented)
+export namespace SubgridDefinition {
+    // (undocumented)
+    export type GetCellPainterEventer = (this: void, viewCell: ViewCell, prefillColor: string | undefined) => CellPainter;
 }
 
 // @public (undocumented)
@@ -3219,7 +3291,13 @@ export interface SubgridInterface {
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
+    getRowHeight(rowIndex: number): number;
+    // (undocumented)
     getRowMetadata(rowIndex: number): MetaModel.RowMetadata | undefined;
+    // (undocumented)
+    getRowProperties(rowIndex: number): MetaModel.RowProperties | undefined;
+    // (undocumented)
+    getRowProperty(rowIndex: number, key: string): unknown | undefined;
     // (undocumented)
     getSingletonDataRow(rowIndex: number): DataModel.DataRow;
     // (undocumented)
@@ -3244,6 +3322,10 @@ export interface SubgridInterface {
     readonly selectable: boolean;
     // (undocumented)
     setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined): void;
+    // (undocumented)
+    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined): boolean;
+    // (undocumented)
+    setRowProperty(y: number, key: string, isHeight: boolean, value: unknown): boolean;
     // (undocumented)
     setValue(column: ColumnInterface, rowIndex: number, value: DataModel.DataValue): void;
 }
@@ -3322,6 +3404,10 @@ export class ViewCell {
     // (undocumented)
     format: string;
     // (undocumented)
+    getRowProperties(): MetaModel.RowProperties | undefined;
+    // (undocumented)
+    getRowProperty(key: string): unknown;
+    // (undocumented)
     get isCellFixed(): boolean;
     get isCellVisible(): boolean;
     // (undocumented)
@@ -3350,6 +3436,8 @@ export class ViewCell {
     reset(visibleColumn: ViewLayoutColumn, visibleRow: ViewLayoutRow): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     resetGridXY(vc: ViewLayoutColumn | undefined, vr: ViewLayoutRow | undefined): boolean;
+    // (undocumented)
+    setRowPropertyRC(key: string, value: unknown): void;
     // (undocumented)
     subgrid: SubgridInterface;
     get value(): DataModel.DataValue;
@@ -3391,7 +3479,7 @@ export namespace WritablePoint {
 //
 // src/code/grid/cell-editor/cell-editor-factory.ts:14:4 - (tsdoc-undefined-tag) The TSDoc tag "@classdesc" is not defined in this configuration
 // src/code/grid/components/selection/selection.ts:20:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/components/view/view-layout.ts:24:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/components/view/view-layout.ts:28:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

@@ -5,9 +5,9 @@ import { UiBehavior } from './ui-behavior';
 /**
  * @constructor
  */
-export class OnHoverUiBehavior extends UiBehavior {
+export class HoverUiBehavior extends UiBehavior {
 
-    readonly typeName = OnHoverUiBehavior.typeName;
+    readonly typeName = HoverUiBehavior.typeName;
 
     override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
@@ -31,6 +31,6 @@ export class OnHoverUiBehavior extends UiBehavior {
     }
 }
 
-export namespace OnHoverUiBehavior {
-    export const typeName = 'onhover';
+export namespace HoverUiBehavior {
+    export const typeName = 'hover';
 }

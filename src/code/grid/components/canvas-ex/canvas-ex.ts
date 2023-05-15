@@ -489,12 +489,14 @@ export class CanvasEx {
         return this.canvasElement.dispatchEvent(e);
     }
 
-    setCursor(cursorName: string | undefined) {
+    setCursorAndTitleText(cursorName: string | undefined, titleText: string) {
         if (cursorName === undefined) {
             this.canvasElement.style.cursor = '';
         } else {
             this.canvasElement.style.cursor = cursorName;
         }
+
+        this.canvasElement.title = titleText;
     }
 
     /**

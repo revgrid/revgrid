@@ -37,12 +37,12 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
         return super.handleMouseUp(event, cell);
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (this._doubleClickTimer !== undefined) {
             clearTimeout(this._doubleClickTimer); // prevent mouseDown from continuing
             this._doubleClickTimer = undefined;
         }
-        return super.handleDoubleClick(event, cell);
+        return super.handleDblClick(event, cell);
     }
 
     override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
@@ -277,11 +277,11 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
                 const focusSelectionBehavior = this.selectionBehavior;
                 focusSelectionBehavior.replaceLastAreaWithColumns(activeColumnIndex, subgridRowIndex, newX, newY, this.focus.subgrid);
 
-                if (this.scrollBehavior.ensureColumnIsMaximallyVisible(newX)) {
+                if (this.viewLayout.ensureColumnIsInView(newX, true)) {
                     this.pingAutoScroll();
                 }
 
-                this.renderer.repaint();
+                this.renderer.invalidateView();
             }
         }
     }

@@ -53,7 +53,7 @@ export class FiltersUiBehavior extends UiBehavior {
     handleUP = this.moveDown;
     handleDOWN = this.moveDown;
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
@@ -61,7 +61,7 @@ export class FiltersUiBehavior extends UiBehavior {
             // this.grid.onEditorActivate(cell);
             return cell;
         } else {
-            return super.handleDoubleClick(event, cell);
+            return super.handleDblClick(event, cell);
         }
     }
 

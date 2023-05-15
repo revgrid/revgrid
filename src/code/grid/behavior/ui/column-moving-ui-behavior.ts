@@ -197,7 +197,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                 return;
             }
 
-            if (this.scrollBehavior.scrollColumnsBy(this._scrollVelocity)) {
+            if (this.viewLayout.scrollColumnsBy(this._scrollVelocity)) {
                 this.render(action);
             }
 

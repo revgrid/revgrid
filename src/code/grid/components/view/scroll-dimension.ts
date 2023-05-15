@@ -1,10 +1,10 @@
 import { AssertError } from '../../lib/revgrid-error';
+import { HorizontalVertical } from '../../lib/types';
 import { CanvasEx } from '../canvas-ex/canvas-ex';
 
-export abstract class ScrollPlaneDimension {
-    changedEventer: ScrollPlaneDimension.ChangedEventer;
-    computedEventer: ScrollPlaneDimension.ComputedEventer;
-    viewportStartChangedEventer: ScrollPlaneDimension.ViewportStartChangedEventer;
+export abstract class ScrollDimension {
+    changedEventer: ScrollDimension.ChangedEventer;
+    computedEventer: ScrollDimension.ComputedEventer;
 
 
     private _start: number | undefined;
@@ -22,7 +22,9 @@ export abstract class ScrollPlaneDimension {
     private _viewportStart: number | undefined;
 
     constructor(
+        public readonly horizontalVertical: HorizontalVertical,
         protected readonly _canvasEx: CanvasEx,
+        private readonly _viewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer,
     ) {
 
     }
@@ -129,15 +131,32 @@ export abstract class ScrollPlaneDimension {
         } else {
             this.compute();
             this._valid = true;
-            this._viewportStart = this.computedEventer();
+            this._viewportStart = this.computedEventer(false);
             this.changedEventer();
+            return false;
         }
     }
 
-    setViewportStart(value: number | undefined) {
+    ensureValidWhileWithinAnimationFrame() {
+        if (this._valid) {
+            return true;
+        } else {
+            this.compute();
+            this._valid = true;
+            this._viewportStart = this.computedEventer(true);
+            setTimeout(() => this.changedEventer(), 0);
+            return false;
+        }
+    }
+
+    setViewportStart(value: number | undefined, withinAnimationFrame: boolean) {
         if (value !== this._viewportStart) {
             this._viewportStart = value;
-            setTimeout(() => this.viewportStartChangedEventer(), 0); // do in next tick as can be fired in animation frame
+            if (withinAnimationFrame) {
+                setTimeout(() => this._viewportStartChangedEventer(), 0);
+            } else {
+                this._viewportStartChangedEventer();
+            }
         }
     }
 
@@ -146,8 +165,9 @@ export abstract class ScrollPlaneDimension {
         size: number | undefined,
         viewportSize: number | undefined,
         overflowed: boolean | undefined,
-        anchorLimits: ScrollPlaneDimension.ScrollAnchorLimits
+        anchorLimits: ScrollDimension.ScrollAnchorLimits
     ) {
+        // set within animation frame
         this._start = start;
         this._size = size;
         this._viewportSize = viewportSize;
@@ -162,9 +182,9 @@ export abstract class ScrollPlaneDimension {
     protected abstract compute(): void;
 }
 
-export namespace ScrollPlaneDimension {
+export namespace ScrollDimension {
     export type ChangedEventer = (this: void) => void
-    export type ComputedEventer = (this: void) => number; // return Viewport Start
+    export type ComputedEventer = (this: void, withinAnimationFrame: boolean) => number; // return Viewport Start
     export type ViewportStartChangedEventer = (this: void) => void;
 
     export interface Anchor {

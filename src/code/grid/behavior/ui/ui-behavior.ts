@@ -13,7 +13,6 @@ import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { Point } from '../../lib/point';
-import { ScrollAction } from '../../lib/scroll-action';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
@@ -28,22 +27,12 @@ import { UiBehaviorSharedState } from './ui-behavior-shared-state';
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  */
 export abstract class UiBehavior {
-
     abstract readonly typeName: string;
-
-    protected readonly scrollBehavior: ScrollBehavior;
-    protected readonly focusBehavior: FocusBehavior;
-    protected readonly selectionBehavior: SelectionBehavior;
-    protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
-    protected readonly cellPropertiesBehavior: CellPropertiesBehavior;
-    protected readonly dataExtractBehavior: DataExtractBehavior;
-    protected readonly eventBehavior: EventBehavior;
 
     protected readonly sharedState: UiBehaviorSharedState;
     protected readonly containerHtmlElement: HTMLElement;
 
     protected readonly gridSettings: GridSettings;
-    protected readonly mouse: Mouse;
     protected readonly canvasEx: CanvasEx;
     protected readonly selection: Selection;
     protected readonly focus: Focus;
@@ -53,22 +42,23 @@ export abstract class UiBehavior {
     protected readonly renderer: Renderer;
     protected readonly reindexStashManager: ReindexStashManager;
 
+    protected readonly mouse: Mouse;
+
+    protected readonly scrollBehavior: ScrollBehavior;
+    protected readonly focusBehavior: FocusBehavior;
+    protected readonly selectionBehavior: SelectionBehavior;
+    protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
+    protected readonly cellPropertiesBehavior: CellPropertiesBehavior;
+    protected readonly dataExtractBehavior: DataExtractBehavior;
+    protected readonly eventBehavior: EventBehavior;
+
     protected readonly mainSubgrid: Subgrid;
 
     constructor(services: UiBehaviorServices) {
-        this.focusBehavior = services.focusBehavior;
-        this.selectionBehavior = services.selectionBehavior;
-        this.scrollBehavior = services.scrollBehavior;
-        this.rowPropertiesBehavior = services.rowPropertiesBehavior;
-        this.cellPropertiesBehavior = services.cellPropertiesBehavior;
-        this.dataExtractBehavior = services.dataExtractBehavior;
-        this.eventBehavior = services.eventBehavior;
-
         this.sharedState = services.sharedState;
         this.containerHtmlElement = services.containerHtmlElement;
 
         this.gridSettings = services.gridSettings;
-        this.mouse = services.mouse;
         this.canvasEx = services.canvasEx;
         this.selection = services.selection;
         this.focus = services.focus;
@@ -77,6 +67,16 @@ export abstract class UiBehavior {
         this.viewLayout = services.viewLayout;
         this.renderer = services.renderer;
         this.reindexStashManager = services.reindexStashManager;
+
+        this.mouse = services.mouse;
+
+        this.focusBehavior = services.focusBehavior;
+        this.selectionBehavior = services.selectionBehavior;
+        this.scrollBehavior = services.scrollBehavior;
+        this.rowPropertiesBehavior = services.rowPropertiesBehavior;
+        this.cellPropertiesBehavior = services.cellPropertiesBehavior;
+        this.dataExtractBehavior = services.dataExtractBehavior;
+        this.eventBehavior = services.eventBehavior;
     }
 
     /**
@@ -180,17 +180,17 @@ export abstract class UiBehavior {
         }
     }
 
-    handleWheelMoved(event: WheelEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleWheelMove(event: WheelEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
-            return this.next.handleWheelMoved(event, cell);
+            return this.next.handleWheelMove(event, cell);
         } else {
             return cell;
         }
     }
 
-    handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
-            return this.next.handleDoubleClick(event, cell);
+            return this.next.handleDblClick(event, cell);
         } else {
             return cell;
         }
@@ -238,15 +238,21 @@ export abstract class UiBehavior {
         }
     }
 
-    handleScrollAction(action: ScrollAction) {
-        if (this.next) {
-            this.next.handleScrollAction(action);
-        }
-    }
-
     handleCopy(eventDetail: ClipboardEvent) {
         if (this.next) {
             this.next.handleCopy(eventDetail);
+        }
+    }
+
+    handleHorizontalScrollerAction(action: EventDetail.ScrollerAction) {
+        if (this.next) {
+            this.next.handleHorizontalScrollerAction(action);
+        }
+    }
+
+    handleVerticalScrollerAction(action: EventDetail.ScrollerAction) {
+        if (this.next) {
+            this.next.handleVerticalScrollerAction(action);
         }
     }
 

@@ -1,6 +1,6 @@
 
 import { ViewCell } from '../../components/cell/view-cell';
-import { FinBar } from '../../components/scroller/finbar-api';
+import { ScrollDimension } from '../../components/view/scroll-dimension';
 import { UiBehavior } from './ui-behavior';
 
 export class TouchScrollingUiBehavior extends UiBehavior {
@@ -24,7 +24,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
         return cell;
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         return cell;
     }
 
@@ -37,8 +37,8 @@ export class TouchScrollingUiBehavior extends UiBehavior {
             const xOffset = (lastTouch.x - currentTouch.x) / lastTouch.width;
             const yOffset = (lastTouch.y - currentTouch.y) / lastTouch.height;
 
-            this.scrollBehavior.scrollHorizontalBy(xOffset);
-            this.scrollBehavior.scrollVerticalIndexBy(yOffset);
+            this.viewLayout.scrollHorizontalViewportBy(xOffset);
+            this.viewLayout.scrollVerticalViewportBy(yOffset);
 
             if (touchCount >= TouchScrollingUiBehavior.MAX_TOUCHES) {
                 this.touches.shift();
@@ -82,30 +82,30 @@ export class TouchScrollingUiBehavior extends UiBehavior {
     private decelerateY(startTouch: TouchScrollingUiBehavior.TouchedBounds, endTouch: TouchScrollingUiBehavior.TouchedBounds) {
         const offset = endTouch.y - startTouch.y;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
-        this.decelerate(this.scrollBehavior.verticalScroller, offset, timeOffset);
+        this.decelerate(this.viewLayout.verticalScrollDimension, offset, timeOffset);
     }
 
     private decelerateX(startTouch: TouchScrollingUiBehavior.TouchedBounds, endTouch: TouchScrollingUiBehavior.TouchedBounds) {
         const offset = endTouch.x - startTouch.x;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
-        this.decelerate(this.scrollBehavior.horizontalScroller, offset, timeOffset);
+        this.decelerate(this.viewLayout.horizontalScrollDimension, offset, timeOffset);
     }
 
-    private decelerate(scroller: FinBar, offset: number, timeOffset: number) {
+    private decelerate(scrollDimension: ScrollDimension, offset: number, timeOffset: number) {
         const velocity = (Math.abs(offset) / timeOffset) * 100;
         const dir = -Math.sign(offset);
         const interval = this.getInitialInterval(velocity);
 
-        this.step(scroller, velocity, dir, interval);
+        this.step(scrollDimension, velocity, dir, interval);
     }
 
-    private step(scroller: FinBar, velocity: number, dir: number, interval: number) {
+    private step(scrollDimension: ScrollDimension, velocity: number, dir: number, interval: number) {
         if (velocity > 0) {
             const delta = this.getDelta(velocity);
-            const index = scroller.index + (dir * delta);
-            scroller.index = index;
+            const newViewportStart = scrollDimension.viewportStart + (dir * delta);
+            this.viewLayout.setVerticalViewportStart(newViewportStart);
 
-            if (index > this.viewLayout.verticalScrollablePlaneDimension.finish || index < 0) {
+            if (newViewportStart > this.viewLayout.verticalScrollDimension.finish || newViewportStart < 0) {
                 return;
             }
 
@@ -113,7 +113,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
 
             const nextInterval = this.updateInterval(interval, velocity);
             this._stepTimeoutHandle = setTimeout(
-                () => this.step(scroller, velocity, dir, nextInterval),
+                () => this.step(scrollDimension, velocity, dir, nextInterval),
                 interval
             );
         }

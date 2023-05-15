@@ -1,5 +1,6 @@
 import { AssertError } from '../../lib/revgrid-error';
-import { ScrollPlaneDimension } from '../view/scroll-plane-dimension';
+import { EventDetail } from '../event/event-detail';
+import { ScrollDimension } from '../view/scroll-dimension';
 import { cssInjector } from './css-injector';
 
 // Following is the sole style requirement for bar and thumb elements.
@@ -30,6 +31,7 @@ export class Scroller {
      * Set this property to `null` to stop emitting such events.
      */
     onchange: Scroller.OnChange | undefined;
+    actionEventer: Scroller.ActionEventer;
 
     /**
      * @name paging
@@ -175,7 +177,7 @@ export class Scroller {
      * @param options - Options object. See the type definition for member details.
      */
     constructor(
-        private readonly _scrollPlaneDimension: ScrollPlaneDimension,
+        private readonly _scrollDimension: ScrollDimension,
         options: Scroller.Options
     ) {
         this._indexMode = options.indexMode === true;
@@ -220,15 +222,11 @@ export class Scroller {
             cssInjector(cssFinBars, 'finbar-base', options.cssStylesheetReferenceElement);
         }
 
-        this._scrollPlaneDimension.changedEventer = () => {
+        this._scrollDimension.changedEventer = () => {
             if (this._indexMode) {
                 const index = this.index;
                 this.index = index; // re-clamp
             }
-        }
-
-        this._scrollPlaneDimension.viewportStartChangedEventer = () => {
-            this.setViewportStart(this._scrollPlaneDimension.start);
         }
     }
 
@@ -372,50 +370,51 @@ export class Scroller {
      *
      * Use this value as an alternative to (or in addition to) using the {@link Scroller#onchange|onchange} callback function.
      *
-     * @see {@link Scroller#_setScroll|_setScroll}
+     * @see {@link Scroller#setThumbPosition|_setScroll}
      */
     set index(idx: number) {
-        idx = Math.min(this._scrollPlaneDimension.finish, Math.max(this._scrollPlaneDimension.start, idx)); // clamp it
-        this._setScroll(idx, undefined, true);
+        idx = Math.min(this._scrollDimension.finish, Math.max(this._scrollDimension.start, idx)); // clamp it
+        this.setThumbPosition(idx, undefined);
         // this._setThumbSize();
     }
     get index() {
-        return this._scrollPlaneDimension.viewportStart;
+        return this._scrollDimension.viewportStart;
     }
 
     get viewportStart() {
-        return this._scrollPlaneDimension.viewportStart;
+        return this._scrollDimension.viewportStart;
     }
 
     get viewportFinish() {
-        return this._scrollPlaneDimension.viewportFinish;
+        return this._scrollDimension.viewportFinish;
     }
 
     get hidden() {
         return this.bar.style.visibility === 'hidden'
     }
 
-    setViewportStart(start: number) {
-        this._setScroll(start, undefined, false);
+    processViewportStartChanged() {
+        const viewportStart = this._scrollDimension.viewportStart;
+        this.setThumbPosition(viewportStart, undefined);
     }
 
     scrollBy(delta: number) {
         // make sure does not go beyond end edge
-        let newViewportStart = this._scrollPlaneDimension.viewportStart + delta;
-        if (newViewportStart < this._scrollPlaneDimension.start) {
-            newViewportStart = this._scrollPlaneDimension.start;
+        let newViewportStart = this._scrollDimension.viewportStart + delta;
+        if (newViewportStart < this._scrollDimension.start) {
+            newViewportStart = this._scrollDimension.start;
         } else {
-            const viewportNext = newViewportStart + this._scrollPlaneDimension.viewportSize;
-            if (viewportNext > this._scrollPlaneDimension.after) {
-                newViewportStart = this._scrollPlaneDimension.after - this._scrollPlaneDimension.viewportSize;
+            const viewportNext = newViewportStart + this._scrollDimension.viewportSize;
+            if (viewportNext > this._scrollDimension.after) {
+                newViewportStart = this._scrollDimension.after - this._scrollDimension.viewportSize;
             }
         }
-        this._setScroll(newViewportStart, undefined, true);
+        this.setThumbPosition(newViewportStart, undefined);
     }
 
     scrollIndexBy(delta: number) {
         // same as scroll(). Separate call for VScroller. Remove when VScroller uses Viewport
-        this.index = this._scrollPlaneDimension.viewportStart + delta;
+        this.index = this._scrollDimension.viewportStart + delta;
     }
 
     /**
@@ -424,26 +423,18 @@ export class Scroller {
      * @param viewportStart - The new scroll index, a value in the range `min`..`max`.
      * @param barPosition - The new thumb position in pixels and scaled relative to the containing {@link Scroller#bar|bar} element, i.e., a proportional number in the range `0`..`thumbMax`.
      */
-    private _setScroll(viewportStart: number, barPosition: number | undefined, fireOnChange: boolean) {
-        this._scrollPlaneDimension.viewportStart = viewportStart;
-        this._scrollPlaneDimension.viewportFinish = this._scrollPlaneDimension.viewportStart + this._scrollPlaneDimension.viewportSize - 1;
-
+    private setThumbPosition(viewportStart: number, barPosition: number | undefined) {
         // Display the index value in the test panel
         if (this.testPanelItem && this.testPanelItem.index instanceof HTMLElement) {
             this.testPanelItem.index.innerHTML = Math.round(viewportStart).toString();
         }
 
-        // Call the callback
-        if (this.onchange && fireOnChange) {
-            this.onchange(Math.round(viewportStart));
-        }
-
         // Move the thumb
         if (barPosition === undefined) {
             if (this._indexMode) {
-                barPosition = (viewportStart - this._scrollPlaneDimension.start) / (this._scrollPlaneDimension.finish - this._scrollPlaneDimension.start) * this._thumbMax;
+                barPosition = (viewportStart - this._scrollDimension.start) / (this._scrollDimension.finish - this._scrollDimension.start) * this._thumbMax;
             } else {
-                barPosition = (viewportStart - this._scrollPlaneDimension.start) * this._thumbScaling;
+                barPosition = (viewportStart - this._scrollDimension.start) * this._thumbScaling;
             }
         }
         this.thumb.style[this.oh.leading] = barPosition + 'px';
@@ -514,13 +505,13 @@ export class Scroller {
         //     this.containerSize = containerRect[this.oh.size];
         //     this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
         // } else {
-            // this._scrollPlaneDimension.viewportSize = 1;
+            // this._scrollDimension.viewportSize = 1;
             // this.increment = increment || this.increment;
         // }
 
-        if (this._indexMode) {
-            this._scrollPlaneDimension.viewportSize = 1;
-        }
+        // if (this._indexMode) {
+        //     this._scrollDimension.viewportSize = 1;
+        // }
 
         const index = this.index;
         this.testPanelItem = this.testPanelItem || this._addTestPanelItem();
@@ -616,10 +607,10 @@ export class Scroller {
         const thumbMarginTrailing = parseInt(thumbComp[oh.marginTrailing]);
         const thumbMargins = thumbMarginLeading + thumbMarginTrailing;
         const barSize = this.bar.getBoundingClientRect()[oh.size];
-        this._thumbScaling = barSize / this._scrollPlaneDimension.size;
-        const thumbSize = Math.max(20, barSize * this._scrollPlaneDimension.viewportSize / this._scrollPlaneDimension.size);
+        this._thumbScaling = barSize / this._scrollDimension.size;
+        const thumbSize = Math.max(20, barSize * this._scrollDimension.viewportSize / this._scrollDimension.size);
 
-        if (this._scrollPlaneDimension.viewportSize > 0 && this._scrollPlaneDimension.viewportSize < this._scrollPlaneDimension.size) {
+        if (this._scrollDimension.viewportSize > 0 && this._scrollDimension.viewportSize < this._scrollDimension.size) {
             this.bar.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
         } else {
@@ -750,24 +741,31 @@ export class Scroller {
 
         if (this._indexMode) {
             barPosition = Math.min(this._thumbMax, Math.max(0, evt[this.oh.axis] - this._pinOffset));
-            viewportStart = barPosition / this._thumbMax * (this._scrollPlaneDimension.finish - this._scrollPlaneDimension.start) + this._scrollPlaneDimension.start;
+            viewportStart = barPosition / this._thumbMax * (this._scrollDimension.finish - this._scrollDimension.start) + this._scrollDimension.start;
         } else {
             barPosition = evt[this.oh.axis] - this._pinOffset;
             if (barPosition < 0) {
                 // make sure does not go beyond start edge
                 barPosition = 0;
             }
-            viewportStart = barPosition / this._thumbScaling + this._scrollPlaneDimension.start;
+            viewportStart = barPosition / this._thumbScaling + this._scrollDimension.start;
 
-            // make sure does not go beyond end edge
-            const viewportNext = viewportStart + this._scrollPlaneDimension.viewportSize;
-            if (viewportNext > this._scrollPlaneDimension.after) {
-                viewportStart = this._scrollPlaneDimension.after - this._scrollPlaneDimension.viewportSize;
-                barPosition = undefined;
-            }
+            // // make sure does not go beyond end edge
+            // const viewportNext = viewportStart + this._scrollDimension.viewportSize;
+            // if (viewportNext > this._scrollDimension.after) {
+            //     viewportStart = this._scrollDimension.after - this._scrollDimension.viewportSize;
+            //     barPosition = undefined;
+            // }
         }
 
-        this._setScroll(viewportStart, barPosition, true);
+        const action: EventDetail.ScrollerAction = {
+            type: EventDetail.ScrollerAction.Type.newViewportStart,
+            viewportStart,
+        };
+
+        this.actionEventer(action);
+
+        // this._setScroll(viewportStart, barPosition, true);
 
         evt.stopPropagation();
         evt.preventDefault();
@@ -865,6 +863,7 @@ export namespace Scroller {
     export type BarStyles = Record<string, string>;
 
     export type OnChange = (this: void, index: number) => void;
+    export type ActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;
 }
 
 function extend(obj: Record<string, string>, styles: Record<string, string> | undefined, auxStyles: Record<string, string> | undefined) {

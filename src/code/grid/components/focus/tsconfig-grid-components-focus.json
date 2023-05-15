@@ -12,6 +12,8 @@
 
   "references": [
     { "path": "../column/tsconfig-grid-components-column.json" },
+    { "path": "../cell/tsconfig-grid-components-cell.json" },
+    { "path": "../event/tsconfig-grid-components-event.json" },
     { "path": "../../interfaces/tsconfig-grid-interfaces.json" },
     { "path": "../../lib/tsconfig-grid-lib.json" }
   ]

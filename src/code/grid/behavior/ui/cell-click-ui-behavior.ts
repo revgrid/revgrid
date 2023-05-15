@@ -59,15 +59,15 @@ export class CellClickUiBehavior extends UiBehavior {
      * | `null` | `grid.windowOpen` failed to open a window |
      * | _otherwise_ | A `window` reference returned by a successful call to `grid.windowOpen`. |
      */
-    openLink(cellEvent: ViewCell): boolean | null | undefined | Window {
+    openLink(viewCell: ViewCell): boolean | null | undefined | Window {
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
-        const rowIndex = cellEvent.dataPoint.y;
-        const subgrid = cellEvent.subgrid;
+        const rowIndex = viewCell.dataPoint.y;
+        const subgrid = viewCell.subgrid;
         const dataRow = subgrid.getSingletonDataRow(rowIndex);
-        const config = Object.create(cellEvent.columnProperties, { dataRow: { value: dataRow } });
-        const value = subgrid.getValue(cellEvent.visibleColumn.column, rowIndex);
-        const linkProp = cellEvent.columnProperties.link;
+        const config = Object.create(viewCell.columnProperties, { dataRow: { value: dataRow } });
+        const value = subgrid.getValue(viewCell.visibleColumn.column, rowIndex);
+        const linkProp = viewCell.columnProperties.link;
 
         let linkPropTuple: GridSettings.LinkProp | undefined;
         let link: boolean | string | GridSettings.LinkFunction;
@@ -93,7 +93,7 @@ export class CellClickUiBehavior extends UiBehavior {
                 break;
 
             case 'function':
-                unknownUrl = link(cellEvent);
+                unknownUrl = link(viewCell);
                 break;
         }
 
@@ -112,10 +112,10 @@ export class CellClickUiBehavior extends UiBehavior {
 
         // STEP 5: Decorate the link as "visited"
         if (result) {
-            const column = cellEvent.visibleColumn.column;
+            const column = viewCell.visibleColumn.column;
             this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', this.gridSettings.linkVisitedColor, subgrid);
-            this.viewLayout.resetCellPropertiesCache(cellEvent);
-            this.renderer.repaint();
+            this.viewLayout.resetCellPropertiesCache(viewCell);
+            this.renderer.invalidateViewCell(viewCell);
         }
 
         return result;

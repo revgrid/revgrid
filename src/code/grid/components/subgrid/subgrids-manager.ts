@@ -3,7 +3,6 @@ import { GridSettings } from '../../interfaces/grid-settings';
 import { MetaModel } from '../../interfaces/meta-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { AssertError } from '../../lib/revgrid-error';
-import { CellModel } from '../cell/cell-model';
 import { ColumnsManager } from '../column/columns-manager';
 import { MainSubgrid } from './main-subgrid';
 import { Subgrid } from './subgrid';
@@ -68,14 +67,12 @@ export class SubgridsManager {
         if (typeof dataModel === 'function') {
             dataModel = new dataModel();
         }
-        let cellModel = definition.cellModel;
-        if (typeof cellModel === 'function') {
-            cellModel = new cellModel();
-        }
         let metaModel = definition.metaModel;
         if (typeof metaModel === 'function') {
             metaModel = new metaModel();
         }
+
+        const rowHeightsCanDiffer = definition.rowPropertiesCanSpecifyRowHeight === true;
         let rowPropertiesBehavior = definition.rowPropertiesPrototype;
         if (metaModel !== undefined && rowPropertiesBehavior === undefined) {
             rowPropertiesBehavior = defaultRowPropertiesPrototype;
@@ -84,15 +81,27 @@ export class SubgridsManager {
         if (selectable === undefined) {
             selectable = isMainRole;
         }
-        return this.createSubgrid(subgridHandle, role, dataModel, cellModel, metaModel, rowPropertiesBehavior, selectable);
+        return this.createSubgrid(
+            subgridHandle,
+            role,
+            dataModel,
+            metaModel,
+            definition.getCellPainterEventer,
+            selectable,
+            definition.defaultRowHeight,
+            rowHeightsCanDiffer,
+            rowPropertiesBehavior,
+        );
     }
 
     /** @returns either Subgrid or MainSubgrid depending on role */
     private createSubgrid(
         subgridHandle: Subgrid.Handle,
-        role: SubgridInterface.Role, dataModel: DataModel, cellModel: CellModel, metaModel: MetaModel | undefined,
-        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
+        role: SubgridInterface.Role, dataModel: DataModel, metaModel: MetaModel | undefined,
+        getCellPainterEventer: SubgridDefinition.GetCellPainterEventer,
         selectable: boolean,
+        defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
+        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
     ) {
         let subgrid: Subgrid;
         if (role === SubgridInterface.RoleEnum.main) {
@@ -103,10 +112,12 @@ export class SubgridsManager {
                 role,
                 this._columnsManager.schemaModel,
                 dataModel,
-                cellModel,
                 metaModel,
-                rowPropertiesPrototype,
+                getCellPainterEventer,
                 selectable,
+                defaultRowHeight,
+                rowHeightsCanDiffer,
+                rowPropertiesPrototype,
             );
         } else {
             subgrid = new Subgrid(
@@ -116,10 +127,12 @@ export class SubgridsManager {
                 role,
                 this._columnsManager.schemaModel,
                 dataModel,
-                cellModel,
                 metaModel,
-                rowPropertiesPrototype,
+                getCellPainterEventer,
                 selectable,
+                defaultRowHeight,
+                rowHeightsCanDiffer,
+                rowPropertiesPrototype,
             );
         }
 

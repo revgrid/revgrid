@@ -13,7 +13,6 @@ import { ViewCell } from './components/cell/view-cell';
 import { Column, ColumnWidth } from './components/column/column';
 import { ColumnsManager } from './components/column/columns-manager';
 import { EventDetail } from './components/event/event-detail';
-import { EventName } from './components/event/event-name';
 import { Focus } from './components/focus/focus';
 import { Mouse } from './components/mouse/mouse';
 import { GridPainter } from './components/renderer/grid-painter/grid-painter';
@@ -32,7 +31,6 @@ import { SubgridInterface } from './interfaces/subgrid-interface';
 import { CssClassName } from './lib/html-types';
 import { DateFormatter, Localization, NumberFormatter } from './lib/localization';
 import { Point, WritablePoint } from './lib/point';
-import { Rectangle } from './lib/rectangle';
 import { RectangleInterface } from './lib/rectangle-interface';
 import { AssertError } from './lib/revgrid-error';
 import { SelectionArea } from './lib/selection-area';
@@ -90,12 +88,6 @@ export class Revgrid {
     getSelectedRectangles() { return this.selection.rectangleList.rectangles; }
 
     private mouseCatcher = () => this.abortEditing();
-
-    /**
-     * The index of the row at the top of the view in the main sub grid.
-     */
-    get rowScrollAnchorIndex() { return this.viewLayout.rowScrollAnchorIndex; }
-    set rowScrollAnchorIndex(value: number) { this._scrollBehavior.scrollVTo(value); }
 
     /**
      * The index of the active column which is first in view (either on left or right depending on Grid alignment)
@@ -182,7 +174,6 @@ export class Revgrid {
             this.containerHtmlElement,
             options.canvasContextAttributes,
             options.gridProperties,
-            undefined,
             adapterSetConfig,
             options.loadBuiltinFinbarStylesheet ?? true,
             descendantEventer,
@@ -207,7 +198,6 @@ export class Revgrid {
         // Hypergrid.prototype.installPlugins(options.plugins);
 
         this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
-        this.mouse.clearMouseDown();
         this.setFormatter(options.localization);
 
         // if (options.data) {
@@ -880,45 +870,6 @@ export class Revgrid {
     }
 
     /**
-     * @summary Scroll in the `offsetX` direction if column index `colIndex` is not visible.
-     * @param colIndex - The column index in question.
-     * @param offsetX - The direction and magnitude to scroll if we need to.
-     * @return Column is visible.
-     */
-    ensureModelColIsVisible(colIndex: number, offsetX: number) {
-        const maxCols = this.activeColumnCount - 1; // -1 excludes partially visible columns
-        const indexToCheck = colIndex + Math.sign(offsetX);
-        const visible = !this.isColumnVisible(indexToCheck) || colIndex === maxCols;
-
-        if (visible) {
-            //the scroll position is the leftmost column
-            this._scrollBehavior.scrollColumnsBy(offsetX);
-        }
-
-        return visible;
-    }
-
-    /**
-     * @summary Scroll in the `offsetY` direction if column index c is not visible.
-     * @param rowIndex - The column index in question.
-     * @param offsetX - The direction and magnitude to scroll if we need to.
-     * @return Row is visible.
-     */
-    ensureModelRowIsVisible(rowIndex: number, offsetY: number, subgrid: Subgrid) {
-        const maxRows = subgrid.getRowCount() - 1; // -1 excludes partially visible rows
-        const scrollOffset = (offsetY > -1) ? 1 : 0; // 1 to keep one blank line below active cell, 0 to keep zero lines above active cell
-        const indexToCheck = rowIndex + scrollOffset;
-        const visible = !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
-
-        if (visible) {
-            //the scroll position is the topmost row
-            this._scrollBehavior.scrollVBy(offsetY);
-        }
-
-        return visible;
-    }
-
-    /**
      * @summary Answer which data cell is under a pixel value mouse point.
      * @param mouse - The mouse point to interrogate.
      */
@@ -931,32 +882,7 @@ export class Revgrid {
      * @returns The pixel based bounds rectangle given a data cell point.
      */
     getBoundsOfCell(gridCell: Point): RectangleInterface {
-        const {x, y, width, height} = this.viewLayout.getBoundsOfCell(gridCell.x, gridCell.y);
-
-        //convert to a proper rectangle
-        return new Rectangle(x, y, width, height);
-    }
-
-    /**
-     * @desc Determine the cell and delegate to the behavior (model).
-     * {@link Local#cellClicked}
-     * @param event - The cell event to interrogate.
-     * {@link DataModel#toggleRow}'s return value which may or may not be implemented.
-     */
-    cellClicked(event: ViewCell): boolean | undefined {
-        const mainDataModel = this.behaviorManager.mainDataModel;
-        if (mainDataModel.toggleRow === undefined) {
-            return undefined;
-        } else {
-            return mainDataModel.toggleRow(event.dataPoint.y, event.dataPoint.x);
-        }
-    }
-
-    /**
-     * To intercept link clicks, override this method (either on the prototype to apply to all grid instances or on an instance to apply to a specific grid instance).
-     */
-    windowOpen(url: string, name: string, features?: string) {
-        return window.open(url, name, features);
+        return this.viewLayout.getBoundsOfCell(gridCell.x, gridCell.y);
     }
 
     getSchema(): readonly SchemaModel.Column[] {
@@ -1046,7 +972,6 @@ export class Revgrid {
 
     setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]) {
         this._columnsManager.setActiveColumns(columnNameOrAllIndexArray);
-        this._scrollBehavior.updateHorizontalScroll(true);
     }
 
     /** @deprecated use setActiveColumns()*/
@@ -1065,19 +990,6 @@ export class Revgrid {
 
     setColumnScrollAnchor(index: number, offset: number) {
         return this.viewLayout.setColumnScrollAnchor(index, offset);
-    }
-
-    setViewport(columnIndex: number, columnOffset: number, rowIndex: number, _rowOffset: number) {
-        const columnChanged = this.viewLayout.setColumnScrollAnchor(columnIndex, columnOffset);
-        this.rowScrollAnchorIndex = rowIndex;
-        const rowChanged = true; // fix in future
-        if (columnChanged || rowChanged) {
-
-            if (columnChanged) {
-                const viewportStart = this.viewLayout.calculateHorizontalScrollableLeft();
-                this._scrollBehavior.setHorizontalScrollerViewLayoutStart(viewportStart);
-            }
-        }
     }
 
     /**
@@ -1335,7 +1247,7 @@ export class Revgrid {
         if (subgrid === undefined) {
             subgrid = this.behaviorManager.mainSubgrid;
         }
-        return this._rowPropertiesBehavior.getRowHeight(rowIndex, subgrid);
+        return subgrid.getRowHeight(rowIndex);
     }
 
     /**
@@ -1588,16 +1500,6 @@ export class Revgrid {
         this.behaviorManager.endDragColumnNotification();
     }
 
-    isMouseDownInHeaderArea() {
-        const headerRowCount = this._subgridsManager.calculateHeaderRowCount();
-        const mouseDown = this.mouse.getMouseDown();
-        if (mouseDown === undefined) {
-            return false;
-        } else {
-            return mouseDown.x < 0 || mouseDown.y < headerRowCount;
-        }
-    }
-
     /**
      * @param activeColumnIndex - Data x coordinate.
      * @return The properties for a specific column.
@@ -1704,10 +1606,6 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessScroll(isX: boolean, newValue: number, index: number, offset: number) {
-        // for descendants
-    }
-
     protected descendantProcessAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
         // for descendants
     }
@@ -1724,7 +1622,7 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessColumnsViewWidthsChanged(_changedColumnsViewWidths: ViewLayout.ChangedColumnsViewWidths) {
+    protected descendantProcessColumnsViewWidthsChanged() {
         // for descendants
     }
 
@@ -1821,6 +1719,22 @@ export class Revgrid {
     }
 
     protected descendantProcessColumnSort(_event: EventDetail.ColumnSort) {
+        // for descendants
+    }
+
+    protected descendantProcessHorizontalScrollViewportStartChanged() {
+        // for descendants
+    }
+
+    protected descendantProcessVerticalScrollViewportStartChanged() {
+        // for descendants
+    }
+
+    protected descendantProcessHorizontalScrollerAction(_event: EventDetail.ScrollerAction) {
+        // for descendants
+    }
+
+    protected descendantProcessVerticalScrollerAction(_event: EventDetail.ScrollerAction) {
         // for descendants
     }
 
@@ -2380,36 +2294,18 @@ export class Revgrid {
     }
 
     /**
-     * @summary Scroll horizontal and vertically by the provided offsets.
-     * @param offsetColumnCount - Scroll in the x direction this many columns.
-     * @param offsetY - Scroll in the y direction this many rows.
-     */
-    scrollBy(offsetColumnCount: number, offsetY: number) {
-        this._scrollBehavior.scrollBy(offsetColumnCount, offsetY);
-    }
-
-    /**
-     * @summary Scroll vertically by the provided offset.
-     * @param offsetY - Scroll in the y direction this much.
-     */
-    scrollVBy(offsetY: number) {
-        this._scrollBehavior.scrollVBy(offsetY);
-    }
-
-    /**
      * @summary Scroll horizontally by the provided offset.
      * @param offset - Scroll in the x direction this much.
      * @returns true if scrolled
      */
     scrollColumnsBy(offset: number) {
-        this._scrollBehavior.scrollColumnsBy(offset);
+        this.viewLayout.scrollColumnsBy(offset);
     }
 
     scrollViewHorizontallyBy(delta: number) {
-        this._scrollBehavior.scrollViewHorizontallyBy(delta);
+        this.viewLayout.scrollHorizontalViewportBy(delta);
     }
 
-    /** @internal */
     focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
         this._selectionBehavior.selectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaTypeSpecifier);
     }
@@ -2418,28 +2314,28 @@ export class Revgrid {
      * @desc Scroll up one full page.
      */
     scrollPageUp() {
-        this._scrollBehavior.scrollPageUp();
+        this._focusBehavior.tryPageFocusUp();
     }
 
     /**
      * @desc Scroll down one full page.
      */
     pageDown() {
-        this._scrollBehavior.scrollPageDown();
+        this._focusBehavior.tryPageFocusDown();
     }
 
     /**
      * @desc Not yet implemented.
      */
     pageLeft() {
-        this._scrollBehavior.scrollPageLeft();
+        this._focusBehavior.tryPageFocusLeft();
     }
 
     /**
      * @desc Not yet implemented.
      */
     pageRight() {
-        this._scrollBehavior.scrollPageRight();
+        this._focusBehavior.tryPageFocusRight();
     }
     // End Scrolling mixin
 
@@ -2508,9 +2404,8 @@ export class Revgrid {
             activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
             columnsChanged: () => this.descendantProcessColumnsChanged(),
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
-            columnsViewWidthsChanged: (changedColumnsViewWidths) => this.descendantProcessColumnsViewWidthsChanged(changedColumnsViewWidths),
+            columnsViewWidthsChanged: () => this.descendantProcessColumnsViewWidthsChanged(),
             selectionChanged: () => this.descendantProcessSelectionChanged(),
-            scroll: (isX, newValue, index, offset) => this.descendantProcessScroll(isX, newValue, index, offset),
             focus: () => this.descendantEventerFocus(),
             blur: () => this.descendantEventerBlur(),
             keyDown: (event) => this.descendantProcessKeyDown(event),
@@ -2535,6 +2430,10 @@ export class Revgrid {
             copy: (event) => this.descendantProcessCopy(event),
             resized: () => this.descendantProcessResized(),
             columnSort: (event) => this.descendantProcessColumnSort(event),
+            horizontalScrollViewportStartChanged: () => this.descendantProcessHorizontalScrollViewportStartChanged(),
+            verticalScrollViewportStartChanged: () => this.descendantProcessVerticalScrollViewportStartChanged(),
+            horizontalScrollerAction: (action) => this.descendantProcessHorizontalScrollerAction(action),
+            verticalScrollerAction: (action) => this.descendantProcessVerticalScrollerAction(action),
         }
     }
 
@@ -2550,98 +2449,6 @@ export class Revgrid {
             });
         }
     }
-
-    private dispatchGridEvent<T extends EventName>(
-        eventName: T,
-        cancelable: boolean,
-        eventDetail: EventName.DetailMap[T] | undefined,
-    ): boolean {
-        if (this.destroyed) {
-            return false;
-        }
-
-        // let eventInitDictOrDetail: DispatchGridEvent.EventInitDictOrDetail;
-        // if (eventDetail === undefined) {
-        //     eventInitDictOrDetail = {};
-        // } else {
-        //     if (eventDetail instanceof CustomEvent) {
-        //         eventInitDictOrDetail = Object({});
-        //         throw new Error('dispatchGridEvent should not be passed CustomEvents anymore [1]');
-        //     } else {
-        //         eventInitDictOrDetail = eventDetail;
-        //     }
-        // }
-
-        // if (!("type" in eventInitDictOrDetail)) {
-        //     (eventInitDictOrDetail as DispatchGridEvent.ExtraDetail).type = eventName;
-        // }
-
-        // let eventInitDict: CustomEventInit<DispatchGridEvent.ExtraDetail>;
-
-        // if (!("detail" in eventInitDictOrDetail)) {
-        //     eventInitDict = {
-        //         detail: eventInitDictOrDetail as DispatchGridEvent.ExtraDetail,
-        //     };
-        // } else {
-        //     eventInitDict = eventInitDictOrDetail as CustomEventInit<DispatchGridEvent.ExtraDetail>;
-        //     throw new Error('dispatchGridEvent should not be passed CustomEvents anymore [2]');
-        // }
-
-        // const detail = eventInitDict.detail;
-
-        // if (!detail.grid) {
-        //     // CellEvent objects already have a (read-only) `grid` prop
-        //     detail.grid = grid;
-        // }
-
-        // detail.time = Date.now();
-
-        // if (primitiveEvent !== undefined) {
-        //     if (!detail.primitiveEvent) {
-        //         detail.primitiveEvent = primitiveEvent;
-        //     }
-        //     wantedDetailFields.forEach((key) => {
-        //         if (key in primitiveEvent && !(key in detail)) {
-        //             detail[key] = primitiveEvent[key] as unknown;
-        //         }
-        //     });
-        //     if ("dataRow" in primitiveEvent) {
-        //         // reference (without invoking) cellEvent's `dataRow` getter when available
-        //         Object.defineProperty(detail, "row", {
-        //             get: function () {
-        //                 return primitiveEvent.dataRow;
-        //             },
-        //         });
-        //     }
-        // }
-
-        // eventInitDict.cancelable = cancelable;
-
-        // const event = newEvent(eventName, eventDetail, cancelable);
-
-        const eventInit: CustomEventInit<EventName.DetailMap[T]> = {
-            detail: eventDetail,
-            cancelable,
-        };
-
-        const event = new CustomEvent<EventName.DetailMap[T]>(eventName, eventInit);
-
-        return this.canvasEx.dispatchEvent(event);
-    }
-        // private stringifyFunctions() {
-    //     const self = this;
-    //     return Object.keys(this).reduce(function(obj, key) {
-    //         if (key !== 'toJSON') {
-    //             obj[key] = /^function /.test(key)
-    //                 ? null // anon func: no point in saving because key itself is already the stringified function
-    //                 : self[key].toString() // stringify the function
-    //                     .replace(/^function anonymous\(/, 'function(') // clean up Chromium artifact
-    //                     .replace('\n/*``*/)', ')'); // clean up Chromium artifact
-    //         }
-    //         return obj;
-    //     }, {});
-    // }
-
 }
 
 

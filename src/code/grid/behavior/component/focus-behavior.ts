@@ -17,21 +17,28 @@ export class FocusBehavior {
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewLayout: ViewLayout,
         private readonly _focus: Focus,
-        private readonly _scrollXToMakeVisibleEventer: FocusBehavior.ScrollXToMakeVisibleEventer,
-        private readonly _scrollYToMakeVisibleEventer: FocusBehavior.ScrollYToMakeVisibleEventer,
-        private readonly _scrollXYToMakeVisibleEventer: FocusBehavior.ScrollXYToMakeVisibleEventer,
     ) {
 
     }
 
-    focusPoint(point: Point) {
-        this._scrollXYToMakeVisibleEventer(point.x, point.y);
+    focusPointAndEnsureInView(point: Point) {
+        this._viewLayout.ensureColumnRowAreInView(point.x, point.y, true)
         this._focus.set(point);
     }
 
-    focusXY(x: number, y: number) {
-        this._scrollXYToMakeVisibleEventer(x, y);
+    focusXYAndEnsureInView(x: number, y: number) {
+        this._viewLayout.ensureColumnRowAreInView(x, y, true)
         this._focus.setXY(x, y);
+    }
+
+    focusXAndEnsureInView(x: number) {
+        this._viewLayout.ensureColumnIsInView(x, true)
+        this._focus.setX(x);
+    }
+
+    focusYAndEnsureInView(y: number) {
+        this._viewLayout.ensureRowIsInView(y, true)
+        this._focus.setY(y);
     }
 
     tryMoveFocusLeft() {
@@ -39,7 +46,7 @@ export class FocusBehavior {
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x - 1;
             if (this.isXScrollabe(newX)) {
-                this.scrollAndFocusX(newX);
+                this.focusXAndEnsureInView(newX);
             }
         }
     }
@@ -49,7 +56,7 @@ export class FocusBehavior {
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x + 1;
             if (this.isXScrollabe(newX)) {
-                this.scrollAndFocusX(newX);
+                this.focusXAndEnsureInView(newX);
             }
         }
     }
@@ -59,7 +66,7 @@ export class FocusBehavior {
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y - 1;
             if (this.isYScrollabe(newY)) {
-                this.scrollAndFocusY(newY);
+                this.focusYAndEnsureInView(newY);
             }
         }
     }
@@ -69,7 +76,7 @@ export class FocusBehavior {
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y + 1;
             if (this.isYScrollabe(newY)) {
-                this.scrollAndFocusY(newY);
+                this.focusYAndEnsureInView(newY);
             }
         }
     }
@@ -77,45 +84,65 @@ export class FocusBehavior {
     tryMoveFocusFirstColumn() {
         const newX = this._gridProperties.fixedColumnCount;
         if (this.isXScrollabe(newX)) {
-            this.scrollAndFocusY(newX);
+            this.focusYAndEnsureInView(newX);
         }
     }
 
     tryMoveFocusLastColumn() {
         const newX = this._columnsManager.activeColumnCount - 1;
         if (this.isXScrollabe(newX)) {
-            this.scrollAndFocusY(newX);
+            this.focusYAndEnsureInView(newX);
         }
     }
 
     tryMoveFocusTop() {
         const newY = this._gridProperties.fixedRowCount;
         if (this.isYScrollabe(newY)) {
-            this.scrollAndFocusY(newY);
+            this.focusYAndEnsureInView(newY);
         }
     }
 
     tryMoveFocusBottom() {
         const newY = this._mainSubgrid.getRowCount() - 1;
         if (this.isYScrollabe(newY)) {
-            this.scrollAndFocusY(newY);
+            this.focusYAndEnsureInView(newY);
         }
     }
 
     tryPageFocusLeft() {
-        // focus driven paging
+        const anchor = this._viewLayout.calculatePageLeftColumnAnchor();
+        if (anchor !== undefined) {
+            const activeColumnIndex = anchor.index;
+            this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
+            this._focus.setX(activeColumnIndex);
+        }
     }
 
     tryPageFocusRight() {
-        // focus driven paging
+        const anchor = this._viewLayout.calculatePageRightColumnAnchor();
+        if (anchor !== undefined) {
+            const activeColumnIndex = anchor.index;
+            this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
+            this._focus.setX(activeColumnIndex);
+        }
     }
 
     tryPageFocusUp() {
-        // focus driven paging
+        const anchor = this._viewLayout.calculatePageUpRowAnchor();
+        if (anchor !== undefined) {
+            const rowIndex = anchor.index;
+            this._viewLayout.setRowScrollAnchor(rowIndex, anchor.offset);
+            this._focus.setY(rowIndex);
+        }
     }
 
     tryPageFocusDown() {
-        // focus driven paging
+        const anchor = this._viewLayout.calculatePageDownRowAnchor();
+        if (anchor !== undefined) {
+            const rowIndex = anchor.index;
+            this._viewLayout.setRowScrollAnchor(anchor.index, anchor.offset);
+            this._focus.setY(rowIndex);
+        }
     }
 
     getFocusedViewCell(useAllCells: boolean) {
@@ -178,16 +205,6 @@ export class FocusBehavior {
             y > this._gridProperties.fixedRowCount &&
             y < this._mainSubgrid.getRowCount()
         );
-    }
-
-    private scrollAndFocusX(x: number) {
-        this._scrollXToMakeVisibleEventer(x);
-        this._focus.setX(x);
-    }
-
-    private scrollAndFocusY(y: number) {
-        this._scrollYToMakeVisibleEventer(y);
-        this._focus.setY(y);
     }
 }
 

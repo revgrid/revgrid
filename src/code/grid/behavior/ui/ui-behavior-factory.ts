@@ -9,7 +9,7 @@ import { ColumnSelectionUiBehavior } from './column-selection-ui-behavior';
 import { ColumnSortingUiBehavior } from './column-sorting-ui-behavior';
 import { FiltersUiBehavior } from './filters-ui-behavior';
 import { FocusUiBehavior } from './focus-ui-behavior';
-import { OnHoverUiBehavior } from './on-hover-ui-behavior';
+import { HoverUiBehavior } from './hover-ui-behavior';
 import { RowResizingUiBehavior } from './row-resizing-ui-behavior'; // should this be commented out?
 import { RowSelectionUiBehavior } from './row-selection-ui-behavior';
 import { ThumbwheelScrollingUiBehavior } from './thumbwheel-scrolling-ui-behavior';
@@ -48,7 +48,7 @@ UiBehaviorFactory.register(ColumnResizingUiBehavior.typeName, ColumnResizingUiBe
 UiBehaviorFactory.register(ColumnSelectionUiBehavior.typeName, ColumnSelectionUiBehavior);
 UiBehaviorFactory.register(ColumnSortingUiBehavior.typeName, ColumnSortingUiBehavior);
 UiBehaviorFactory.register(FiltersUiBehavior.typeName, FiltersUiBehavior);
-UiBehaviorFactory.register(OnHoverUiBehavior.typeName, OnHoverUiBehavior);
+UiBehaviorFactory.register(HoverUiBehavior.typeName, HoverUiBehavior);
 UiBehaviorFactory.register(RowResizingUiBehavior.typeName, RowResizingUiBehavior);
 UiBehaviorFactory.register(RowSelectionUiBehavior.typeName, RowSelectionUiBehavior);
 UiBehaviorFactory.register(ThumbwheelScrollingUiBehavior.typeName, ThumbwheelScrollingUiBehavior);

@@ -23,7 +23,6 @@ export class UiBehaviorServices {
         readonly sharedState: UiBehaviorSharedState,
         readonly containerHtmlElement: HTMLElement,
         readonly gridSettings: GridSettings,
-        readonly mouse: Mouse,
         readonly canvasEx: CanvasEx,
         readonly selection: Selection,
         readonly focus: Focus,
@@ -32,6 +31,8 @@ export class UiBehaviorServices {
         readonly viewLayout: ViewLayout,
         readonly renderer: Renderer,
         readonly reindexStashManager: ReindexStashManager,
+
+        readonly mouse: Mouse,
 
         readonly scrollBehavior: ScrollBehavior,
         readonly focusBehavior: FocusBehavior,
@@ -43,6 +44,4 @@ export class UiBehaviorServices {
     ) {
 
     }
-
-
 }

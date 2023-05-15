@@ -34,7 +34,6 @@ export class UiBehaviorManager {
     constructor(
         containerHtmlElement: HTMLElement,
         private readonly _gridSettings: GridSettings,
-        mouse: Mouse,
         canvasEx: CanvasEx,
         focus: Focus,
         selection: Selection,
@@ -43,6 +42,7 @@ export class UiBehaviorManager {
         viewLayout: ViewLayout,
         renderer: Renderer,
         reindexStashManager: ReindexStashManager,
+        mouse: Mouse,
         scrollBehavior: ScrollBehavior,
         focusBehavior: FocusBehavior,
         selectionBehavior: SelectionBehavior,
@@ -57,7 +57,6 @@ export class UiBehaviorManager {
             this._sharedState,
             containerHtmlElement,
             this._gridSettings,
-            mouse,
             canvasEx,
             selection,
             focus,
@@ -66,6 +65,7 @@ export class UiBehaviorManager {
             viewLayout,
             renderer,
             reindexStashManager,
+            mouse,
             scrollBehavior,
             focusBehavior,
             selectionBehavior,
@@ -93,6 +93,8 @@ export class UiBehaviorManager {
         this._eventBehavior.uiTouchMoveEventer = (event) => this.handleTouchMoveEvent(event);
         this._eventBehavior.uiTouchEndEventer = (event) => this.handleTouchEndEvent(event);
         this._eventBehavior.uiCopyEventer = (event) => this.handleCopyEvent(event);
+        this._eventBehavior.uiHorizontalScrollerActionEventer = (event) => this.handleHorizontalScrollerActionEvent(event);
+        this._eventBehavior.uiHorizontalScrollerActionEventer = (event) => this.handleVerticalScrollerActionEvent(event);
     }
 
     load() {
@@ -225,7 +227,7 @@ export class UiBehaviorManager {
      */
     private handleWheelMovedEvent(event: WheelEvent): ViewCell | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiBehavior.handleWheelMoved(event, undefined);
+            const cell = this._firstUiBehavior.handleWheelMove(event, undefined);
             return cell;
         } else {
             return undefined;
@@ -266,7 +268,7 @@ export class UiBehaviorManager {
      */
     private handleDoubleClickEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiBehavior.handleDoubleClick(event, undefined);
+            const cell = this._firstUiBehavior.handleDblClick(event, undefined);
             return cell;
         } else {
             return undefined;
@@ -349,6 +351,18 @@ export class UiBehaviorManager {
     private handleCopyEvent(eventDetail: ClipboardEvent) {
         if (this._enabled) {
             this._firstUiBehavior.handleCopy(eventDetail);
+        }
+    }
+
+    private handleHorizontalScrollerActionEvent(eventDetail: EventDetail.ScrollerAction) {
+        if (this._enabled) {
+            this._firstUiBehavior.handleHorizontalScrollerAction(eventDetail);
+        }
+    }
+
+    private handleVerticalScrollerActionEvent(eventDetail: EventDetail.ScrollerAction) {
+        if (this._enabled) {
+            this._firstUiBehavior.handleVerticalScrollerAction(eventDetail);
         }
     }
 }

@@ -35,7 +35,7 @@ export class ColumnsManager {
     constructor(
         readonly schemaModel: SchemaModel,
         private readonly _gridSettings: GridSettings,
-        private readonly _invalidateScrollPlaneDimensionRequiredEventer: ColumnsManager.InvalidateScrollPlaneDimensionRequiredEventer,
+        private readonly _invalidateScrollDimensionRequiredEventer: ColumnsManager.InvalidateScrollDimensionRequiredEventer,
     ) {
     }
 
@@ -464,7 +464,7 @@ export class ColumnsManager {
     /** @internal */
     hideActiveColumn(columnIndex: number) {
         this._activeColumns.splice(columnIndex, 1);
-        this._invalidateScrollPlaneDimensionRequiredEventer();
+        this._invalidateScrollDimensionRequiredEventer();
     }
 
     /** @internal */
@@ -570,7 +570,7 @@ export class ColumnsManager {
         }
         this.moveActive(columns, sourceIndex, targetIndex, ui);
 
-        this._invalidateScrollPlaneDimensionRequiredEventer();
+        this._invalidateScrollDimensionRequiredEventer();
     }
 
     /** @internal */
@@ -586,7 +586,7 @@ export class ColumnsManager {
         }
         this.moveActive(columns, sourceIndex, targetIndex + 1, ui);
 
-        this._invalidateScrollPlaneDimensionRequiredEventer();
+        this._invalidateScrollDimensionRequiredEventer();
     }
 
     /** @internal */
@@ -604,7 +604,7 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    checkColumnAutosizing(force: boolean) {
+    checkColumnAutosizing(force: boolean, withinAnimationFrame = false) {
         let autoSized = false;
 
         for (const column of this._activeColumns) {
@@ -614,7 +614,11 @@ export class ColumnsManager {
         }
 
         if (autoSized) {
-            this.invalidateViewEventer(true);
+            if (withinAnimationFrame) {
+                setTimeout(() => this.invalidateViewEventer(true), 0);
+            } else {
+                this.invalidateViewEventer(true);
+            }
         }
         return autoSized;
     }
@@ -649,8 +653,8 @@ export class ColumnsManager {
 
 /** @public */
 export namespace ColumnsManager {
-    export type InvalidateViewEventer = (this: void, scrollablePlaneDimensionAsWell: boolean) => void;
-    export type InvalidateScrollPlaneDimensionRequiredEventer = (this: void) => void;
+    export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+    export type InvalidateScrollDimensionRequiredEventer = (this: void) => void;
     export type ColumnsWidthChangedEventer = (this: void, columns: ColumnInterface[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;

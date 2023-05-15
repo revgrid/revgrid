@@ -10,7 +10,6 @@ import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { Subgrid } from '../../components/subgrid/subgrid';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ScrollPlane } from '../../components/view/scroll-plane';
 import { ViewLayout } from '../../components/view/view-layout';
 import { DataModel } from '../../interfaces/data-model';
 import { GridSettings } from '../../interfaces/grid-settings';
@@ -60,14 +59,14 @@ const noExportProperties = [
 export class ComponentBehaviorManager {
     readonly gridSettings: GridSettingsAccessor;
     readonly canvasEx: CanvasEx;
-    readonly mouse: Mouse;
     readonly focus: Focus;
     readonly selection: Selection;
     readonly reindexStashManager: ReindexStashManager;
     readonly columnsManager: ColumnsManager;
     readonly subgridsManager: SubgridsManager;
-    readonly viewLayout: ViewLayout; // make private in future
-    readonly renderer: Renderer; // make private in future
+    readonly viewLayout: ViewLayout;
+    readonly renderer: Renderer;
+    readonly mouse: Mouse;
 
     readonly scrollBehavior: ScrollBehavior;
     readonly focusBehavior: FocusBehavior;
@@ -77,10 +76,9 @@ export class ComponentBehaviorManager {
     readonly cellPropertiesBehavior: CellPropertiesBehavior;
     readonly dataExtractBehavior: DataExtractBehavior;
 
-    private readonly _modelCallbackRouter: ModelCallbackRouter;
-    private readonly _scrollPlane: ScrollPlane;
     private readonly _horizontalScroller: Scroller;
     private readonly _verticalScroller: Scroller;
+    private readonly _modelCallbackRouter: ModelCallbackRouter;
 
     private readonly _modelCallbackRouterBehavior: ModelCallbackRouterBehavior;
 
@@ -170,14 +168,13 @@ export class ComponentBehaviorManager {
             this.focus = new Focus(
                 this._mainSubgrid,
                 this.columnsManager,
-                (x, y, maximally) => this.handleScrollToMakeVisibleEvent(x, y, maximally)
             );
-            this.selection = new Selection(this.gridSettings, this.columnsManager, this.focus, this._mainSubgrid);
-
-            this._scrollPlane = new ScrollPlane(
-                this.canvasEx,
+            this.selection = new Selection(
                 this.gridSettings,
                 this.columnsManager,
+                this.focus,
+                this._mainSubgrid,
+                () => this.processSelectionChangedEvent(),
             );
 
             this.viewLayout = new ViewLayout(
@@ -186,6 +183,8 @@ export class ComponentBehaviorManager {
                 this.columnsManager,
                 this.subgridsManager,
                 this.selection,
+                () => this.processHorizontalScrollViewportStartChangedEvent(),
+                () => this.processVerticalScrollViewportStartChangedEvent(),
             );
 
             this.renderer = new Renderer(
@@ -223,23 +222,18 @@ export class ComponentBehaviorManager {
             this.eventBehavior = new EventBehavior(
                 this.canvasEx,
                 this.columnsManager,
-                this.selection,
                 this.viewLayout,
+                this._horizontalScroller,
+                this._verticalScroller,
                 descendantEventer,
                 (event) => this.canvasEx.dispatchEvent(event),
             );
 
             this.scrollBehavior = new ScrollBehavior(
                 this.gridSettings,
-                this.canvasEx,
                 this.columnsManager,
                 this.subgridsManager,
                 this.viewLayout,
-                this.renderer,
-                this._horizontalScroller,
-                this._verticalScroller,
-                () => this.handleBehaviorChangedEvent(),
-                (isX, newValue, index, offset) => this.eventBehavior.processScrollEvent(isX, newValue, index, offset),
             );
 
             this.focusBehavior = new FocusBehavior(
@@ -249,9 +243,6 @@ export class ComponentBehaviorManager {
                 this.subgridsManager,
                 this.viewLayout,
                 this.focus,
-                (x) => this.scrollBehavior.ensureColumnIsVisible(x, true),
-                (y) => this.scrollBehavior.ensureRowIsVisible(y, true),
-                (x, y) => this.scrollBehavior.scrollXYToMakeVisible(x, y, true),
             );
 
             this.selectionBehavior = new SelectionBehavior(
@@ -259,9 +250,7 @@ export class ComponentBehaviorManager {
                 this.focus,
                 this.viewLayout,
                 this.mouse,
-                () => this.renderer.repaint(),
-                () => this.eventBehavior.processSelectionChangedEvent(),
-                (x, y) => this.focusBehavior.focusXY(x, y),
+                (x, y) => this.focusBehavior.focusXYAndEnsureInView(x, y),
             );
 
             this.rowPropertiesBehavior = new RowPropertiesBehavior(
@@ -303,7 +292,6 @@ export class ComponentBehaviorManager {
      */
     reset() {
         this.mouse.reset();
-        this.mouse.clearMouseDown();
         this.viewLayout.reset();
         this.scrollBehavior.reset();
 
@@ -374,7 +362,7 @@ export class ComponentBehaviorManager {
         this._destroyed = true;
         this._modelCallbackRouter.destroy();
         this.eventBehavior.destroy();
-        this.scrollBehavior.destroy();
+        // this.scrollBehavior.destroy();
         this.selectionBehavior.destroy();
         this.subgridsManager.destroy();
         this.selection.destroy();
@@ -597,8 +585,14 @@ export class ComponentBehaviorManager {
     //     }
     // }
 
-    private handleScrollToMakeVisibleEvent(x: number, y: number, maximally: boolean) {
-        this.scrollBehavior.scrollXYToMakeVisible(x, y, maximally);
+    private processHorizontalScrollViewportStartChangedEvent() {
+        this._horizontalScroller.processViewportStartChanged();
+        this.eventBehavior.processHorizontalScrollViewportStartChangedEvent();
+    }
+
+    private processVerticalScrollViewportStartChangedEvent() {
+        this._verticalScroller.processViewportStartChanged();
+        this.eventBehavior.processVerticalScrollViewportStartChangedEvent();
     }
 
     private processRenderedEvent() {
@@ -623,9 +617,14 @@ export class ComponentBehaviorManager {
         this.eventBehavior.processCanvasResizedEvent();
     }
 
+    private processSelectionChangedEvent() {
+        this.renderer.invalidateView();
+        this.eventBehavior.processSelectionChangedEvent();
+    }
+
     private createHorizontalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean) {
         const horzBar = new Scroller(
-            this._scrollPlane.horizontalDimension,
+            this.viewLayout.horizontalScrollDimension,
             {
                 orientation: Scroller.OrientationEnum.horizontal,
                 deltaXFactor: this.gridSettings.wheelHFactor,
@@ -645,7 +644,7 @@ export class ComponentBehaviorManager {
 
     private createVerticalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean) {
         const vertBar = new Scroller(
-            this._scrollPlane.verticalDimension,
+            this.viewLayout.verticalScrollDimension,
             {
                 indexMode: true, // remove when vertical scrollbar is updated to use viewport
                 orientation: Scroller.OrientationEnum.vertical,
@@ -810,7 +809,7 @@ export namespace ComponentBehaviorManager {
 
         constructor(
             private readonly _gridProperties: GridSettings,
-            private readonly _invalidateScrollPlaneDimensionRequiredEventer: DefaultRowProperties.InvalidateScrollPlaneDimensionRequiredEventer,
+            private readonly _invalidateScrollDimensionRequiredEventer: DefaultRowProperties.InvalidateScrollDimensionRequiredEventer,
         ) {
         }
 
@@ -831,12 +830,12 @@ export namespace ComponentBehaviorManager {
                     // (Instead the `height` getter is explicitly invoked and the result is included.)
                     Object.defineProperty(this, '_height', { value: height, configurable: true });
                 }
-                this._invalidateScrollPlaneDimensionRequiredEventer();
+                this._invalidateScrollDimensionRequiredEventer();
             }
         }
     }
 
     export namespace DefaultRowProperties {
-        export type InvalidateScrollPlaneDimensionRequiredEventer = (this: void) => void;
+        export type InvalidateScrollDimensionRequiredEventer = (this: void) => void;
     }
 }

@@ -46,8 +46,10 @@ export namespace EventName {
         'rev-touch-start': TouchEvent;
         'rev-touch-move': TouchEvent;
         'rev-touch-end': TouchEvent;
-        'rev-scroll-x': EventDetail.Scroll;
-        'rev-scroll-y': EventDetail.Scroll;
+        'rev-horizontal-scroll-viewport-changed': undefined;
+        'rev-vertical-scroll-viewport-changed': undefined;
+        'rev-horizontal-scroller-action': EventDetail.ScrollerAction;
+        'rev-vertical-scroller-action': EventDetail.ScrollerAction;
         // 'rev-request-cell-edit': CellEditor.RequestCellEditDetail;
         // 'rev-before-cell-edit': CellEditor.DataChangeEventDetail;
         // 'rev-after-cell-edit': CellEditor.DataChangeEventDetail;

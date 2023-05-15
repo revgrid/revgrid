@@ -1,3 +1,4 @@
+import { Point } from '../lib/point';
 import { RectangleInterface } from '../lib/rectangle-interface';
 import { SchemaModel } from './schema-model';
 // import { Hypergrid } from '../Hypergrid';
@@ -130,45 +131,11 @@ export interface DataModel {
      */
     setValue?(schema: SchemaModel.Column, rowIndex: number, newValue: unknown): void;
 
-    /**
-     * @summary Mouse was clicked on a grid row.
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     *
-     * Hypergrid calls this method from one place, {@link Local#cellClicked behavior.cellClicked}, which is called from src/features/CellClick when user clicks on a tree or data cell.
-     *
-     * The data model may consume or ignore the click.
-     *
-     * If the data model consumes the click by modifying some data in the existing data set, it should dispatch the 'rev-data-loaded` data event to the grid, which causes a grid "repaint" (which re-renders rows and columns in place).
-     *
-     * If the data model consumes the click by transforming the data, it should dispatch the following data events to the grid:
-     *    * 'rev-data-prereindex' before transforming the data
-     *    * 'rev-data-postreindex' after transforming the data
-     *
-     * This causes Hypergrid to save the current row and/or column selections before and then attempt to restore them after, before a "shape change" (which recalculates row and column bounding rects and then re-renders them).
-     *
-     * "Transforming the data" means altering the data set (by adding/removing rows, _etc._). The typical use case for this is a click on a cell containing a drill-down control.
-     *
-     * After rerendering, Hypergrid dispatches a DOM event with the same _type_ (same event string) to the grid's `<canvas>` element for the benefit of any application listeners.
-     *
-     * #### Parameters:
-     *
-     * @param rowIndex
-     *
-     * @param columnIndex - For the drill-down control use case, implementations should call `this.isTreeCol(columnIndex)` if they want to restrict the response to clicks in the tree column (rather than any column). Although defined in Hypergrid's call, implementations should not depend on it, which may be useful for testing purposes.
-     *
-     * @param toggle - One of:
-     * * `undefined` (or omitted) - Toggle row.
-     * * `true` - Expand row iff currently collapsed.
-     * * `false` - Collapse row iff currently expanded.
-     * > NOTE: Implementation of this parameter is optional. It may be useful for testing purposes but Hypergrid does not define actual parameter in its call in {@link Hypergrid#cellClicked}.
-     *
-     * @returns If click was consumed by the data model:
-     * * `undefined` Not consumed: Row had no drill-down control.
-     * * `true` Consumed: Row had a drill-down control which was toggled.
-     * * `false` Not consumed: Row had a drill-down control but it was already in requested state.
-     * > NOTE: Implementation of a return value is optional as of version v3.0.0. It may be useful for testing purposes but {@link Hypergrid#cellClicked} no longer uses the return value (depending instead on the implementation dispatching data events), so implementations no longer need to support it. Therefore, in general, applications should no depend on a return value. For particular requirements, however, an applications may make a private contract with a data model implementation for a return value (that may or may not follow the above definition. Regardless of the implementation, the return value of this method is propagated through the return values of {@link Local#cellClicked} -> {@link Hypergrid#cellClicked} -> the application.
-     */
-    toggleRow?(rowIndex: number, columnIndex?: number, toggle?: boolean): boolean | undefined;
+    /** Cursor to be displayed when mouse hovers over cell containing data point */
+    getCursorName?(dataPoint: Point): string;
+
+    /** Title text to be displayed when mouse hovers over cell containing data point */
+    getTitleText?(dataPoint: Point): string;
 }
 
 

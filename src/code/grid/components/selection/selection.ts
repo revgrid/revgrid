@@ -25,8 +25,6 @@ export class Selection {
     readonly columns = new SelectionRangeList();
     readonly rectangleList = new SelectionRectangleList();
 
-    changedEventer: Selection.ChangedEventer;
-
     private _subgrid: SubgridInterface;
     private _lastArea: LastSelectionArea | undefined;
     private _allRowsSelected = false;
@@ -42,7 +40,8 @@ export class Selection {
         private readonly _columnsManager: ColumnsManager,
         private readonly _focus: Focus,
         private readonly _mainSubgrid: SubgridInterface,
-    ) {
+        private readonly _changedEventer: Selection.ChangedEventer,
+        ) {
         this._subgrid = this._mainSubgrid;
     }
 
@@ -91,7 +90,7 @@ export class Selection {
                 // }
 
                 if (!silentlyChanged) {
-                    this.changedEventer();
+                    this._changedEventer();
                 }
             }
         } else {
@@ -132,7 +131,15 @@ export class Selection {
     }
 
     saveSnapshot() {
-        this._snapshot = new Selection(this._gridProperties, this._columnsManager, this._focus, this._subgrid);
+        this._snapshot = new Selection(
+            this._gridProperties,
+            this._columnsManager,
+            this._focus,
+            this._subgrid,
+            () => {
+                throw new AssertError('SSS40912');
+            },
+        );
         this._snapshot.assign(this);
     }
 

@@ -5,10 +5,10 @@ import { MetaModel } from '../../interfaces/meta-model';
 import { SchemaModel } from '../../interfaces/schema-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { AssertError } from '../../lib/revgrid-error';
-import { CellModel } from '../cell/cell-model';
 import { CellPainter } from '../cell/cell-painter';
 import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
+import { SubgridDefinition } from './subgrid-definition';
 
 /** @public */
 export class Subgrid implements SubgridInterface {
@@ -21,11 +21,13 @@ export class Subgrid implements SubgridInterface {
     protected _destroyed = false;
 
     /** @internal */
+    private readonly _getCellPainterEventer: SubgridDefinition.GetCellPainterEventer;
+    /** @internal */
     private rowProxy: Subgrid.DataRowProxy; // used if DataModel.getRowProperties not implemented
-
     /** @internal */
     private readonly _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | null;
 
+    /** @internal */
     private _columnsManagerBeforeCreateColumnsListener = () => this.rowProxy.updateSchema();
 
     /** @internal */
@@ -39,10 +41,12 @@ export class Subgrid implements SubgridInterface {
         public readonly role: SubgridInterface.Role,
         public readonly schemaModel: SchemaModel,
         public readonly dataModel: DataModel,
-        public readonly cellModel: CellModel,
         public readonly metaModel: MetaModel | undefined,
-        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
+        getCellPainterEventer: SubgridDefinition.GetCellPainterEventer,
         public readonly selectable: boolean,
+        public readonly defaultRowHeight: number | undefined,
+        public readonly rowHeightsCanDiffer: boolean,
+        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
     ) {
         switch (role) {
             case 'main':
@@ -64,6 +68,8 @@ export class Subgrid implements SubgridInterface {
                 const never: never = role
             }
         }
+
+        this._getCellPainterEventer = getCellPainterEventer;
 
         this.rowProxy = new Subgrid.DataRowProxy(this.schemaModel, this.dataModel);
 
@@ -190,11 +196,22 @@ export class Subgrid implements SubgridInterface {
      */
     getRowHeight(rowIndex: number) {
         const gridSettings = this._gridSettings;
-        const rowProps = this.getRowProperties(rowIndex);
-        if (rowProps === undefined) {
-            return gridSettings.defaultRowHeight;
+        let rowHeight: number | undefined;
+        if (this.rowHeightsCanDiffer) {
+            const rowProps = this.getRowProperties(rowIndex);
+            if (rowProps !== undefined) {
+                rowHeight = rowProps.height;
+                if (rowHeight !== undefined) {
+                    return rowHeight;
+                }
+            }
+        }
+
+        const subgridDefaultRowHeight = this.defaultRowHeight;
+        if (subgridDefaultRowHeight !== undefined) {
+            return subgridDefaultRowHeight;
         } else {
-            return rowProps.height ?? gridSettings.defaultRowHeight;
+            return gridSettings.defaultRowHeight;
         }
     }
 
@@ -226,7 +243,7 @@ export class Subgrid implements SubgridInterface {
 
     /** @internal */
     getCellPainter(viewCell: ViewCell, prefillColor: string | undefined): CellPainter {
-        return this.cellModel.getCellPainter(viewCell, prefillColor);
+        return this._getCellPainterEventer(viewCell, prefillColor);
     }
 
     private setRowMetadataRowProperties(y: number, existingMetadata: MetaModel.RowMetadata | undefined, properties: MetaModel.RowProperties | undefined) {

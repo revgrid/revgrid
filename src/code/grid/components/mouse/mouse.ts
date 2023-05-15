@@ -3,21 +3,8 @@ import { CanvasEx } from '../canvas-ex/canvas-ex';
 import { ViewCell } from '../cell/view-cell';
 
 export class Mouse {
-    /**
-     * The pixel location of an initial mousedown click, either for editing a cell or for dragging a selection.
-     */
-    private mouseDown = new Array<Point>(); // [];
-
-    /**
-     * The extent from the mousedown point during a drag operation.
-     */
-    dragExtent: Point | undefined;
-
-    /**
-     * The pixel location of the current hovered cell.
-     * @todo Need to detect hovering over bottom totals.
-     */
     private _hoverCell: ViewCell | undefined;
+    private _operationCursorName: string | undefined; // gets priority over hover cell cursor
 
     constructor(
         private readonly _canvasEx: CanvasEx,
@@ -38,95 +25,88 @@ export class Mouse {
         if (cell === undefined) {
             if (existingHoverCell !== undefined) {
                 this._hoverCell = undefined;
+                this.updateCursorAndTitleText();
                 this._cellExitedEventer(existingHoverCell);
             }
         } else {
             if (existingHoverCell === undefined) {
                 this._hoverCell = cell;
                 this._cellEnteredEventer(cell);
+                this.updateCursorAndTitleText();
             } else {
                 if (!Point.isEqual(existingHoverCell.dataPoint, cell.dataPoint)) {
                     this._hoverCell = undefined;
                     this._cellExitedEventer(existingHoverCell);
                     this._hoverCell = cell;
                     this._cellEnteredEventer(cell);
+                    this.updateCursorAndTitleText();
                 }
             }
         }
     }
 
-    /**
-     * @returns The initial mouse position on a mouse down event for cell editing or a drag operation.
-     */
-    getMouseDown() {
-        if (this.mouseDown.length > 0) {
-            return this.mouseDown[this.mouseDown.length - 1];
+    setOperationCursor(cursorName: string | undefined) {
+        this._operationCursorName = cursorName;
+        let titleText: string;
+        if (cursorName !== undefined) {
+            titleText = '';
         } else {
-            return undefined;
-        }
-    }
-
-    /**
-     * @desc Remove the last item from the mouse down stack.
-     */
-    popMouseDown() {
-        return this.mouseDown.pop();
-    }
-
-    /**
-     * @desc Empty out the mouse down stack.
-     */
-    clearMouseDown() {
-        this.mouseDown = [Point.create(-1, -1)];
-        this.dragExtent = undefined;
-    }
-
-    /**
-     * Set the mouse point that initiated a cell edit or drag operation.
-     */
-    setMouseDown(point: Point) {
-        this.mouseDown.push(point);
-    }
-
-    /**
-     * @returns The extent point of the current drag selection rectangle.
-     */
-    getDragExtent() {
-        return this.dragExtent;
-    }
-
-    /**
-     * @summary Set the extent point of the current drag selection operation.
-     */
-    setDragExtent(point: Point) {
-        this.dragExtent = point;
-    }
-
-    /**
-     * @desc Switch the cursor for a grid instance.
-     * @param cursorName - A well know cursor name.
-     * {@link http://www.javascripter.net/faq/stylesc.htm|cursor names}
-     */
-    setCursor(cursorName: string | undefined) {
-        this._canvasEx.setCursor(cursorName);
-    }
-
-    /**
-     * @desc Update the cursor under the hover cell.
-     */
-    updateCursor() {
-        const hoverCell = this.hoverCell;
-        if (hoverCell !== undefined) {
-            // const hoverActiveColumnIndex = hoverCell.visibleColumn.activeColumnIndex;
-            // const hoverSubgridRowIndex = hoverCell.visibleRow.subgridRowIndex;
-            if (hoverCell.subgrid.isMain) {
-                // cursor = this.behaviorManager.getCursorAt(hoverActiveColumnIndex, hoverSubgridRowIndex);
+            const cursorNameAndTitleText = this.getCellCursorNameAndTitleText();
+            if (cursorNameAndTitleText === undefined) {
+                titleText = '';
+            } else {
+                cursorName = cursorNameAndTitleText.cursorName;
+                titleText = cursorNameAndTitleText.titleText;
             }
         }
-        // this.setCursor(cursor);
+        this._canvasEx.setCursorAndTitleText(cursorName, titleText);
+    }
+
+    private updateCursorAndTitleText() {
+        if (this._operationCursorName === undefined) {
+            if (this._hoverCell === undefined) {
+                this._canvasEx.setCursorAndTitleText(undefined, '');
+            } else {
+                const cursorNameAndTitleText = this.getCellCursorNameAndTitleText();
+                if (cursorNameAndTitleText === undefined) {
+                    this._canvasEx.setCursorAndTitleText(undefined, '');
+                } else {
+                    this._canvasEx.setCursorAndTitleText(cursorNameAndTitleText.cursorName, cursorNameAndTitleText.titleText);
+                }
+            }
+        }
+    }
+
+    private getCellCursorNameAndTitleText(): Mouse.CursorNameAndTitleText | undefined {
+        const cell = this._hoverCell;
+        if (cell === undefined) {
+            return undefined;
+        } else {
+            const dataModel = cell.subgrid.dataModel;
+            let cursorName: string | undefined;
+            if (dataModel.getCursorName !== undefined) {
+                cursorName = dataModel.getCursorName(cell.dataPoint);
+            }
+            let titleText: string;
+            if (dataModel.getTitleText === undefined) {
+                titleText = '';
+            } else {
+                titleText = dataModel.getTitleText(cell.dataPoint);
+            }
+
+            return {
+                cursorName,
+                titleText,
+            };
+        }
     }
 }
 
 export namespace Mouse {
     export type CellEventer = (this: void, cell: ViewCell) => void;
+
+    export interface CursorNameAndTitleText {
+        readonly cursorName: string | undefined;
+        readonly titleText: string;
+    }
 }

@@ -30,11 +30,19 @@ export namespace EventDetail {
         readonly time: number;
     }
 
-    export interface Scroll {
-        readonly time: number;
-        readonly value: number;
-        readonly index: number;
-        readonly offset: number;
+    export interface ScrollerAction {
+        readonly type: ScrollerAction.Type;
+        readonly viewportStart: number | undefined;
+    }
+
+    export namespace ScrollerAction {
+        export const enum Type {
+            StepForward,
+            StepBack,
+            PageForward,
+            PageBack,
+            newViewportStart,
+        }
     }
 
     export interface ColumnSort {

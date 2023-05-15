@@ -2,8 +2,6 @@ import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
 import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
-import { ScrollAction } from '../../lib/scroll-action';
-import { HorizontalVertical } from '../../lib/types';
 import { UiBehavior } from './ui-behavior';
 
 export class FocusUiBehavior extends UiBehavior {
@@ -43,17 +41,17 @@ export class FocusUiBehavior extends UiBehavior {
                 case CanvasEx.Keyboard.NavigateKey.pageUp:
                     // If implementing focus driven paging, then use focusBehavior
                     if (eventDetail.altKey) {
-                        this.scrollBehavior.scrollPageLeft();
+                        this.focusBehavior.tryPageFocusLeft();
                     } else {
-                        this.scrollBehavior.scrollPageUp();
+                        this.focusBehavior.tryPageFocusUp();
                     }
                     break;
                 case CanvasEx.Keyboard.NavigateKey.pageDown:
                     // If implementing focus driven paging, then use focusBehavior
                     if (eventDetail.altKey) {
-                        this.scrollBehavior.scrollPageRight();
+                        this.focusBehavior.tryPageFocusRight();
                     } else {
-                        this.scrollBehavior.scrollPageDown();
+                        this.focusBehavior.tryPageFocusDown();
                     }
                     break;
                 case CanvasEx.Keyboard.NavigateKey.home:
@@ -101,39 +99,26 @@ export class FocusUiBehavior extends UiBehavior {
         // }
     }
 
-    override handleScrollAction(action: ScrollAction) {
-        switch (action.dimension) {
-            case HorizontalVertical.Horizontal:
-                this.processHorizontalScrollAction(action);
-                break;
-            case HorizontalVertical.Vertical:
-                this.processVerticalScrollAction(action);
-                break;
-            default:
-                throw new UnreachableCaseError('FUBHSA53009', action.dimension);
-        }
-    }
-
-    private processHorizontalScrollAction(action: ScrollAction) {
+    override handleHorizontalScrollerAction(action: EventDetail.ScrollerAction) {
         switch (action.type) {
-            case ScrollAction.Type.StepForward:
+            case EventDetail.ScrollerAction.Type.StepForward:
                 this.focusBehavior.tryMoveFocusRight();
                 break;
-            case ScrollAction.Type.StepBack:
+            case EventDetail.ScrollerAction.Type.StepBack:
                 this.focusBehavior.tryMoveFocusLeft();
                 break;
-            case ScrollAction.Type.PageForward:
-                this.scrollBehavior.scrollPageRight();
+            case EventDetail.ScrollerAction.Type.PageForward:
+                this.focusBehavior.tryPageFocusRight();
                 break;
-            case ScrollAction.Type.PageBack:
-                this.scrollBehavior.scrollPageLeft();
+            case EventDetail.ScrollerAction.Type.PageBack:
+                this.focusBehavior.tryPageFocusLeft();
                 break;
-            case ScrollAction.Type.newViewportStart: {
+            case EventDetail.ScrollerAction.Type.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new AssertError('FUBPHSAV53009')
                 } else {
-                    this.scrollBehavior.scrollToHorizontalViewportStart(viewportStart);
+                    this.viewLayout.setHorizontalViewportStart(viewportStart);
                 }
                 break;
             }
@@ -143,26 +128,26 @@ export class FocusUiBehavior extends UiBehavior {
     }
 
 
-    private processVerticalScrollAction(action: ScrollAction) {
+    override handleVerticalScrollerAction(action: EventDetail.ScrollerAction) {
         switch (action.type) {
-            case ScrollAction.Type.StepForward:
+            case EventDetail.ScrollerAction.Type.StepForward:
                 this.focusBehavior.tryMoveFocusDown();
                 break;
-            case ScrollAction.Type.StepBack:
+            case EventDetail.ScrollerAction.Type.StepBack:
                 this.focusBehavior.tryMoveFocusUp();
                 break;
-            case ScrollAction.Type.PageForward:
-                this.scrollBehavior.scrollPageDown();
+            case EventDetail.ScrollerAction.Type.PageForward:
+                this.focusBehavior.tryPageFocusDown();
                 break;
-            case ScrollAction.Type.PageBack:
-                this.scrollBehavior.scrollPageUp();
+            case EventDetail.ScrollerAction.Type.PageBack:
+                this.focusBehavior.tryPageFocusUp();
                 break;
-            case ScrollAction.Type.newViewportStart: {
+            case EventDetail.ScrollerAction.Type.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new AssertError('FUBPHSAV53009')
                 } else {
-                    this.scrollBehavior.scrollToVerticalViewportStart(viewportStart);
+                    this.viewLayout.setVerticalViewportStart(viewportStart);
                 }
                 break;
             }

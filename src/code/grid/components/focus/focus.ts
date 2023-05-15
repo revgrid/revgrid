@@ -1,12 +1,17 @@
 import { DataModel } from '../../interfaces/data-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { PartialPoint, Point } from '../../lib/point';
+import { RectangleInterface } from '../../lib/rectangle-interface';
 import { AssertError } from '../../lib/revgrid-error';
+import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
+import { EventDetail } from '../event/event-detail';
 
 /** @public */
 export class Focus {
     readonly subgrid: SubgridInterface;
+
+    getCellEditorEventer: Focus.GetCellEditorEventer | undefined;
 
     private _currentSubgridPoint: Point | undefined;
     private _previousSubgridPoint: Point | undefined;
@@ -18,7 +23,6 @@ export class Focus {
     constructor(
         private readonly _mainSubgrid: SubgridInterface,
         private readonly _columnsManager: ColumnsManager,
-        private readonly _scrollToMakeVisibleEventer: Focus.ScrollToMakeVisibleEventer,
     ) {
         this.subgrid = this._mainSubgrid;
     }
@@ -28,7 +32,6 @@ export class Focus {
 
     get currentSubgridPoint() { return this._currentSubgridPoint; }
     get previousSubgridPoint() { return this._previousSubgridPoint; }
-
 
     get canvasX() { return this._canvasX; }
     get canvasY() { return this._canvasY; }
@@ -42,7 +45,6 @@ export class Focus {
         if (this._currentSubgridPoint === undefined || this._currentSubgridPoint.x !== currentSubgridPoint.x || this._currentSubgridPoint.y !== currentSubgridPoint.y) {
             this._previousSubgridPoint = this._currentSubgridPoint;
             this._currentSubgridPoint = currentSubgridPoint;
-            this._scrollToMakeVisibleEventer(this._currentSubgridPoint.x, this._currentSubgridPoint.y, true);
         }
 
         if (canvasPoint !== undefined) {
@@ -71,8 +73,6 @@ export class Focus {
             if (canvasX !== undefined) {
                 this._canvasX = canvasX;
             }
-
-            this._scrollToMakeVisibleEventer(this._currentSubgridPoint.x, this._currentSubgridPoint.y, true);
         }
     }
 
@@ -88,8 +88,6 @@ export class Focus {
             if (canvasY !== undefined) {
                 this._canvasY = canvasY;
             }
-
-            this._scrollToMakeVisibleEventer(this._currentSubgridPoint.x, this._currentSubgridPoint.y, true);
         }
     }
 
@@ -107,8 +105,6 @@ export class Focus {
             if (canvasY !== undefined) {
                 this._canvasY = canvasY;
             }
-
-            this._scrollToMakeVisibleEventer(this._currentSubgridPoint.x, this._currentSubgridPoint.y, true);
         }
     }
 
@@ -284,6 +280,43 @@ export class Focus {
 /** @public */
 export namespace Focus {
     export type ScrollToMakeVisibleEventer = (this: void, activeColumnIndex: number, subgridRowIndex: number, maximally: boolean) => void;
+    export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor;
+
+    export interface CellEditor {
+        // Request keys which would normally close editor and possibly exit a cell
+        wantTab: boolean;
+        wantReturn: boolean;
+        wantEscape: boolean;
+        wantLeftArrow: boolean;
+        wantRightArrow: boolean;
+        wantUpArrow: boolean;
+        wantDownArrow: boolean;
+
+        // positioning of control
+        hide(): void;
+        show(bounds: RectangleInterface): void;
+        setBounds(bounds: RectangleInterface): void;
+
+        // UI events
+        keyDownEventer: CellEditor.KeyEventer;
+        keyUpEventer: CellEditor.KeyEventer;
+        keyPressEventer: CellEditor.KeyEventer;
+
+        clickEventer: CellEditor.MouseEventer;
+        dblClickEventer: CellEditor.MouseEventer;
+        mouseDownEventer: CellEditor.MouseEventer;
+        mouseUpEventer: CellEditor.MouseEventer;
+        wheelMoveEventer: CellEditor.WheelEventer;
+
+        // Editor advises it is finished
+        closeEventer: (this: void) => void;
+    }
+
+    export namespace CellEditor {
+        export type KeyEventer = (this: void, eventDetail: EventDetail.Keyboard) => void;
+        export type MouseEventer = (this: void, event: MouseEvent, cell: ViewCell | undefined) => void;
+        export type WheelEventer = (this: void, event: WheelEvent, cell: ViewCell | undefined) => void;
+    }
 
     export interface Stash {
         readonly current: Stash.Point | undefined;

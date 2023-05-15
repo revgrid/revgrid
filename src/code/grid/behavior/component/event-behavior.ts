@@ -3,7 +3,7 @@ import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { EventName } from '../../components/event/event-name';
-import { Selection } from '../../components/selection/selection';
+import { Scroller } from '../../components/scroller/scroller';
 import { ViewLayout } from '../../components/view/view-layout';
 import { ColumnInterface } from '../../interfaces/column-interface';
 import { ListChangedTypeId } from '../../lib/types';
@@ -25,6 +25,8 @@ export class EventBehavior {
     uiTouchMoveEventer: EventBehavior.UiTouchEventer;
     uiTouchEndEventer: EventBehavior.UiTouchEventer;
     uiCopyEventer: EventBehavior.UiClipboardEventer;
+    uiHorizontalScrollerActionEventer: EventBehavior.UiScrollerActionEventer;
+    uiVerticalScrollerActionEventer: EventBehavior.UiScrollerActionEventer;
 
     private _dispatchEnabled = false;
     private _destroyed = false;
@@ -32,8 +34,9 @@ export class EventBehavior {
     constructor(
         private readonly _canvasEx: CanvasEx,
         private readonly _columnsManager: ColumnsManager,
-        private readonly _selection: Selection,
         private readonly _viewLayout: ViewLayout,
+        private readonly _horizontalScroller: Scroller,
+        private readonly _verticalScroller: Scroller,
         private readonly _descendantEventer: EventBehavior.DescendantEventer,
         private readonly _dispatchEventEventer: EventBehavior.DispatchEventEventer,
     ) {
@@ -66,6 +69,9 @@ export class EventBehavior {
         this._columnsManager.columnsWidthChangedEventer = (columns, ui) => this.processColumnsWidthChangedEvent(columns, ui);
 
         this._viewLayout.columnsViewWidthsChangedEventer = () => this.processColumnsViewWidthsChangedEvent();
+
+        this._horizontalScroller.actionEventer = (action) => this.processHorizontalScrollerEvent(action);
+        this._verticalScroller.actionEventer = (action) => this.processVerticalScrollerEvent(action);
     }
 
     destroy() {
@@ -92,18 +98,19 @@ export class EventBehavior {
         }
     }
 
-    processScrollEvent(isX: boolean, newValue: number, index: number, offset: number) {
-        this._descendantEventer.scroll(isX, newValue, index, offset);
+    processHorizontalScrollViewportStartChangedEvent() {
+        this._descendantEventer.horizontalScrollViewportStartChanged();
 
         if (this._dispatchEnabled) {
-            const eventName = isX ? 'rev-scroll-x' : 'rev-scroll-y';
-            const eventDetail: EventDetail.Scroll = {
-                time: Date.now(),
-                value: newValue,
-                index,
-                offset,
-            };
-            this.dispatchCustomEvent(eventName, false, eventDetail);
+            this.dispatchCustomEvent('rev-horizontal-scroll-viewport-changed', false, undefined);
+        }
+    }
+
+    processVerticalScrollViewportStartChangedEvent() {
+        this._descendantEventer.verticalScrollViewportStartChanged();
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-vertical-scroll-viewport-changed', false, undefined);
         }
     }
 
@@ -360,6 +367,26 @@ export class EventBehavior {
         this._descendantEventer.copy(event);
     }
 
+    private processHorizontalScrollerEvent(action: EventDetail.ScrollerAction) {
+        this.uiHorizontalScrollerActionEventer(action);
+
+        this._descendantEventer.horizontalScrollerAction(action);
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-horizontal-scroller-action', false, action);
+        }
+    }
+
+    private processVerticalScrollerEvent(action: EventDetail.ScrollerAction) {
+        this.uiVerticalScrollerActionEventer(action);
+
+        this._descendantEventer.verticalScrollerAction(action);
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-vertical-scroller-action', false, action);
+        }
+    }
+
     private dispatchCustomEvent<T extends EventName>(
         eventName: T,
         cancelable: boolean,
@@ -462,7 +489,6 @@ export namespace EventBehavior {
         readonly columnsWidthChanged: (this: void, columns: ColumnInterface[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: DescendantEventer.Signal;
         readonly selectionChanged: DescendantEventer.Signal;
-        readonly scroll: (this:void, isX: boolean, newValue: number, index: number, offset: number) => void;
         readonly focus: DescendantEventer.Focus;
         readonly blur: DescendantEventer.Focus;
         readonly keyDown: DescendantEventer.Key;
@@ -487,6 +513,10 @@ export namespace EventBehavior {
         readonly copy: DescendantEventer.Clipboard;
         readonly resized: DescendantEventer.Signal;
         readonly columnSort: (this: void, eventDetail: EventDetail.ColumnSort) => void;
+        readonly horizontalScrollViewportStartChanged: DescendantEventer.Signal;
+        readonly verticalScrollViewportStartChanged: DescendantEventer.Signal;
+        readonly horizontalScrollerAction: DescendantEventer.ScrollerAction;
+        readonly verticalScrollerAction: DescendantEventer.ScrollerAction;
     }
 
     export namespace DescendantEventer {
@@ -498,6 +528,7 @@ export namespace EventBehavior {
         export type Touch = (this: void, event: TouchEvent) => void;
         export type Cell = (this: void, cell: ViewCell) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
+        export type ScrollerAction = (this: void, event: EventDetail.ScrollerAction) => void;
     }
 
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
@@ -505,6 +536,7 @@ export namespace EventBehavior {
     export type UiWheelEventer = (this: void, wheelEvent: EventDetail.Wheel) => ViewCell | null | undefined;
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;
     export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
+    export type UiScrollerActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;
 
     // Extra properties added to Event Detail
     // export interface ExtraDetail {

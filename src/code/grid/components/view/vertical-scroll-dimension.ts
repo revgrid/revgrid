@@ -1,18 +1,25 @@
 import { GridSettings } from '../../interfaces/grid-settings';
+import { HorizontalVertical } from '../../lib/types';
 import { CanvasEx } from '../canvas-ex/canvas-ex';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
-import { ScrollPlaneDimension } from './scroll-plane-dimension';
+import { ScrollDimension } from './scroll-dimension';
 
-export class VerticalScrollPlaneDimension extends ScrollPlaneDimension {
+export class VerticalScrollDimension extends ScrollDimension {
     constructor(
-        canvasEx: CanvasEx,
         private readonly _gridSettings: GridSettings,
+        canvasEx: CanvasEx,
         private readonly _subgridsManager: SubgridsManager,
+        viewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer,
     ) {
-        super(canvasEx);
+        super(
+            HorizontalVertical.Vertical,
+            canvasEx,
+            viewportStartChangedEventer,
+        );
     }
 
     protected override compute() {
+        // called within Animation Frame
         const mainSubgrid = this._subgridsManager.mainSubgrid;
         const subgridRowCount = mainSubgrid.getRowCount();
         const gridProps = this._gridSettings;
@@ -30,12 +37,11 @@ export class VerticalScrollPlaneDimension extends ScrollPlaneDimension {
         }
 
         const finish = Math.max(0, subgridRowCount - gridProps.fixedRowCount - lastPageRowCount);
-        const anchorLimits: ScrollPlaneDimension.ScrollAnchorLimits = {
-            // not currently used so set to dummy values
-            startAnchorLimitIndex: -1,
-            startAnchorLimitOffset: -1,
-            finishAnchorLimitIndex: -1,
-            finishAnchorLimitOffset: -1,
+        const anchorLimits: ScrollDimension.ScrollAnchorLimits = {
+            startAnchorLimitIndex: this._gridSettings.fixedRowCount,
+            startAnchorLimitOffset: 0,
+            finishAnchorLimitIndex: subgridRowCount - 1,
+            finishAnchorLimitOffset: 0,
         }
         // Viewport size and overflowed cannot currently be calculated.  Set to -1 and undefined
         this.setDimensionValues(0, finish + 1, -1, undefined, anchorLimits);

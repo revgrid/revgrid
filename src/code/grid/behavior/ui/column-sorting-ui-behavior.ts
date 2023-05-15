@@ -19,7 +19,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         return super.handleClick(event, cell);
     }
 
-    override handleDoubleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }

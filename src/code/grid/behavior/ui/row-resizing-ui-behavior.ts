@@ -36,7 +36,7 @@ export class RowResizingUiBehavior extends UiBehavior {
      * @param index - the row/column index of interest
      */
     private getAreaSize(index: number, subgrid: Subgrid): number {
-        return this.rowPropertiesBehavior.getRowHeight(index, subgrid);
+        return subgrid.getRowHeight(index);
     }
 
     /**

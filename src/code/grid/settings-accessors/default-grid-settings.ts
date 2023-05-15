@@ -792,7 +792,7 @@ export const defaultSettingsProperties: Required<GridSettings> = {
         'columnsorting',
         'cellclick',
         // 'cellediting',
-        'onhover',
+        'hover',
         'touchscrolling',
         'thumbwheelscrolling',
         'clipboard'

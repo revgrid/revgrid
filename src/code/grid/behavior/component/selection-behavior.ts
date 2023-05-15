@@ -12,14 +12,8 @@ export class SelectionBehavior {
         private readonly _focus: Focus,
         private readonly _viewLayout: ViewLayout,
         private readonly _mouse: Mouse,
-        private readonly _repaintEventer: FocusSelectionBehavior.RepaintEventer,
-        private readonly _selectionChangedEventer: FocusSelectionBehavior.SelectionChangedEventer,
         private readonly _focusEventer: FocusSelectionBehavior.FocusEventer,
     ) {
-        this._selection.changedEventer = () => {
-            this._selectionChangedEventer();
-            this._repaintEventer();
-        }
     }
 
     destroy() {
@@ -49,7 +43,6 @@ export class SelectionBehavior {
      */
     clearSelection() {
         this._selection.clear();
-        this._mouse.clearMouseDown();
     }
 
     selectOnlyColumn(activeColumnIndex: number) {
