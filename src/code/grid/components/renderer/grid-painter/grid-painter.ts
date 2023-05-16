@@ -26,13 +26,13 @@ export abstract class GridPainter {
     private _rowBundlesComputationId = -1;
 
     constructor(
-        protected readonly gridProperties: GridSettings,
-        protected readonly mouse: Mouse,
+        protected readonly gridSettings: GridSettings,
         protected readonly canvasEx: CanvasEx,
         protected readonly subgridsManager: SubgridsManager,
         protected readonly viewLayout: ViewLayout,
         protected readonly focus: Focus,
         protected readonly selection: Selection,
+        protected readonly mouse: Mouse,
         protected readonly repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
         public readonly key: string,
         public readonly partial: boolean,
@@ -106,7 +106,7 @@ export abstract class GridPainter {
         const rowCount = viewLayoutRows.length;
 
         if (columnCount && rowCount) {
-            const gridProps = this.gridProperties;
+            const gridProps = this.gridSettings;
             const C1 = columnCount - 1;
             const R1 = rowCount - 1;
             const firstVisibleColumnLeft = viewLayoutColumns[0].left;
@@ -199,45 +199,150 @@ export abstract class GridPainter {
         }
     }
 
-    paintLastSelection(gc: CanvasRenderingContext2DEx, lastSelectionBounds: ViewCell.Bounds) {
-        // Render the selection model around the last selection bounds
-        const gridProps = this.gridProperties;
-        const selectionRegionOverlayColor = this.partial ? 'transparent' : gridProps.selectionRegionOverlayColor;
-        const selectionRegionOutlineColor = gridProps.selectionRegionOutlineColor;
+    checkPaintLastSelection(gc: CanvasRenderingContext2DEx) {
+        const lastSelectionBounds = this.calculateLastSelectionBounds();
 
-        const visOverlay = gc.alpha(selectionRegionOverlayColor) > 0;
-        const visOutline = gc.alpha(selectionRegionOutlineColor) > 0;
+        if (lastSelectionBounds !== undefined) {
+            // Render the selection model around the last selection bounds
+            const gridProps = this.gridSettings;
+            const selectionRegionOverlayColor = this.partial ? 'transparent' : gridProps.selectionRegionOverlayColor;
+            const selectionRegionOutlineColor = gridProps.selectionRegionOutlineColor;
 
-        if (visOverlay || visOutline) {
-            const bounds = lastSelectionBounds;
-            const x = bounds.x;
-            const y = bounds.y;
-            const width = bounds.width;
-            const height = bounds.height;
+            const visOverlay = gc.alpha(selectionRegionOverlayColor) > 0;
+            const visOutline = gc.alpha(selectionRegionOutlineColor) > 0;
 
-            gc.beginPath();
+            if (visOverlay || visOutline) {
+                const bounds = lastSelectionBounds;
+                const x = bounds.x;
+                const y = bounds.y;
+                const width = bounds.width;
+                const height = bounds.height;
 
-            gc.rect(x, y, width, height);
+                gc.beginPath();
 
-            if (visOverlay) {
-                gc.cache.fillStyle = selectionRegionOverlayColor;
-                gc.fill();
+                gc.rect(x, y, width, height);
+
+                if (visOverlay) {
+                    gc.cache.fillStyle = selectionRegionOverlayColor;
+                    gc.fill();
+                }
+
+                if (visOutline) {
+                    gc.cache.lineWidth = 1;
+                    gc.cache.strokeStyle = selectionRegionOutlineColor;
+                    gc.stroke();
+                }
+
+                gc.closePath();
+
+                // if (this._gridPainter.key === 'by-cells') {
+                //     this._gridPainter.reset = true; // fixes GRID-490
+                // }
             }
+        }
+    }
 
-            if (visOutline) {
-                gc.cache.lineWidth = 1;
-                gc.cache.strokeStyle = selectionRegionOutlineColor;
-                gc.stroke();
-            }
+    calculateLastSelectionBounds(): ViewCell.Bounds | undefined {
+        const columns = this.viewLayout.columns;
+        const rows = this.viewLayout.rows;
+        const columnCount = columns.length;
+        const rowCount = rows.length;
 
-            gc.closePath();
+        if (columnCount === 0 || rowCount === 0) {
+            // nothing visible
+            return undefined;
         }
 
-        return undefined;
+        const gridProps = this.gridSettings;
+        const selection = this.selection;
+
+        const selectionArea = selection.lastArea;
+
+        if (selectionArea === undefined) {
+            return undefined; // no selection
+        } else {
+            // todo not sure what this is for; might be defunct logic
+            if (selectionArea.topLeft.x === -1) {
+                // no selected area, lets exit
+                return undefined;
+            } else {
+                const firstScrollableColumnIndex = this.viewLayout.firstScrollableColumnIndex;
+                const firstScrollableRowIndex = this.viewLayout.firstScrollableRowIndex;
+                if (firstScrollableColumnIndex === undefined || firstScrollableRowIndex === undefined) {
+                    // selection needs scrollable data
+                    return undefined;
+                } else {
+                    let vc: ViewLayoutColumn;
+                    let vr: ViewLayoutRow;
+                    const lastScrollableColumn = columns[columnCount - 1]; // last column in scrollable section
+                    const lastScrollableRow = rows[rowCount - 1]; // last row in scrollable data section
+                    const firstScrollableColumn = columns[firstScrollableColumnIndex];
+                    const firstScrollableActiveColumnIndex = firstScrollableColumn.activeColumnIndex;
+                    const firstScrollableRow = rows[firstScrollableRowIndex];
+                    const firstScrollableSubgridRowIndex = firstScrollableRow.subgridRowIndex;
+                    const fixedColumnCount = gridProps.fixedColumnCount;
+                    const fixedRowCount = gridProps.fixedRowCount;
+                    const headerRowCount = this.subgridsManager.calculateHeaderRowCount();
+
+                    if (
+                        // entire selection scrolled out of view to left of visible columns; or
+                        (vc = columns[0]) &&
+                        selectionArea.exclusiveBottomRight.x < vc.activeColumnIndex ||
+
+                        // entire selection scrolled out of view between fixed columns and scrollable columns; or
+                        fixedColumnCount &&
+                        (vc = columns[fixedColumnCount - 1]) &&
+                        selectionArea.topLeft.x > vc.activeColumnIndex &&
+                        selectionArea.exclusiveBottomRight.x < firstScrollableColumn.activeColumnIndex ||
+
+                        // entire selection scrolled out of view to right of visible columns; or
+                        lastScrollableColumn &&
+                        selectionArea.topLeft.x > lastScrollableColumn.activeColumnIndex ||
+
+                        // entire selection scrolled out of view above visible rows; or
+                        (vr = rows[headerRowCount]) &&
+                        selectionArea.exclusiveBottomRight.y < vr.subgridRowIndex ||
+
+                        // entire selection scrolled out of view between fixed rows and scrollable rows; or
+                        fixedRowCount &&
+                        firstScrollableRow !== undefined &&
+                        (vr = rows[headerRowCount + fixedRowCount - 1]) &&
+                        selectionArea.topLeft.y > vr.subgridRowIndex &&
+                        selectionArea.exclusiveBottomRight.y < firstScrollableRow.subgridRowIndex ||
+
+                        // entire selection scrolled out of view below visible rows
+                        lastScrollableRow &&
+                        selectionArea.topLeft.y > lastScrollableRow.subgridRowIndex
+                    ) {
+                        return undefined;
+                    } else {
+                        const vcOrigin = columns[selectionArea.topLeft.x - firstScrollableActiveColumnIndex] || firstScrollableColumn;
+                        const vrOrigin = rows[selectionArea.topLeft.y - firstScrollableSubgridRowIndex] || firstScrollableRow;
+                        const vcCorner = columns[selectionArea.exclusiveBottomRight.x - firstScrollableActiveColumnIndex] ||
+                            (selectionArea.exclusiveBottomRight.x > lastScrollableColumn.activeColumnIndex ? lastScrollableColumn : firstScrollableColumn);
+                        const vrCorner = rows[selectionArea.exclusiveBottomRight.y - firstScrollableSubgridRowIndex] ||
+                            (selectionArea.exclusiveBottomRight.y > lastScrollableRow.subgridRowIndex ? lastScrollableRow : firstScrollableRow);
+
+                        if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
+                            return undefined;
+                        } else {
+                            const bounds: ViewCell.Bounds = {
+                                x: vcOrigin.left,
+                                y: vrOrigin.top,
+                                width: vcCorner.rightPlus1 - vcOrigin.left,
+                                height: vrCorner.bottom - vrOrigin.top
+                            };
+
+                            return bounds;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn[]): GridPainter.ColumnBundle[] {
-        const gridProps = this.gridProperties;
+        const gridProps = this.gridSettings;
         const columnCount = viewLayoutColumns.length;
 
         const bundles = new Array<GridPainter.ColumnBundle>(columnCount); // max size
@@ -271,7 +376,7 @@ export abstract class GridPainter {
     }
 
     private calculateRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow[]): GridPainter.RowBundlesAndPrefillColors | undefined {
-        const gridProps = this.gridProperties;
+        const gridProps = this.gridSettings;
         const stripes = gridProps.rowStripes;
         if (stripes === undefined) {
             return undefined;
@@ -353,12 +458,12 @@ export namespace GridPainter {
     export type RepaintAllRequiredEventer = (this: void, gc: CanvasRenderingContext2DEx) => void;
     export type Constructor = new(
         gridProperties: GridSettings,
-        mouse: Mouse,
         canvasEx: CanvasEx,
         subgridsManager: SubgridsManager,
         viewLayout: ViewLayout,
         focus: Focus,
         selection: Selection,
+        mouse: Mouse,
         repaintAllRequired: RepaintAllRequiredEventer,
     ) => GridPainter;
 

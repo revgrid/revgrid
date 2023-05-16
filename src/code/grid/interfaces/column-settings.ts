@@ -14,7 +14,7 @@ export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSetti
     columnAutosizingMax: number;
     columnClip: boolean | undefined;
     editOnKeydown: boolean;
-    editOnNextCell: boolean;
+    editOnFocusCell: boolean;
     editor: string | undefined;
     feedbackCount: number;
     editable: boolean;

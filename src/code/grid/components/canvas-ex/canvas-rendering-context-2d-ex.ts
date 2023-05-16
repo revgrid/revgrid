@@ -85,6 +85,10 @@ export class CanvasRenderingContext2DEx {
         return this.canvasRenderingContext2D.getImageData(sx, sy, sw, sh);
     }
 
+    putImageData(imageData: ImageData, sx: number, sy: number) {
+        return this.canvasRenderingContext2D.putImageData(imageData, sx, sy);
+    }
+
     quadraticCurveTo(cpx: number, cpy: number, x: number, y: number) {
         return this.canvasRenderingContext2D.quadraticCurveTo(cpx, cpy, x, y);
     }

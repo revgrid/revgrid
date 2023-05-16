@@ -99,8 +99,8 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get editOnKeydown() { return this._raw.editOnKeydown; }
     set editOnKeydown(value: boolean) { this._raw.editOnKeydown = value; }
     /** Open cell editor when cell selected via keyboard navigation. */
-    get editOnNextCell() { return this._raw.editOnNextCell; }
-    set editOnNextCell(value: boolean) { this._raw.editOnNextCell = value; }
+    get editOnFocusCell() { return this._raw.editOnFocusCell; }
+    set editOnFocusCell(value: boolean) { this._raw.editOnFocusCell = value; }
     /** Name of a cell editor. */
     get editor() { return this._raw.editor; }
     set editor(value: string | undefined) { this._raw.editor = value; }
@@ -280,6 +280,10 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     set repaintFramesPerSecond(value: number) { this._raw.repaintFramesPerSecond = value; }
     get resizeColumnInPlace() { return this._raw.resizeColumnInPlace; }
     set resizeColumnInPlace(value: boolean) { this._raw.resizeColumnInPlace = value; }
+    get resizedEventDebounceExtendedWhenPossible() { return this._raw.resizedEventDebounceExtendedWhenPossible; }
+    set resizedEventDebounceExtendedWhenPossible(value: boolean) { this._raw.resizedEventDebounceExtendedWhenPossible = value; }
+    get resizedEventDebounceInterval() { return this._raw.resizedEventDebounceInterval; }
+    set resizedEventDebounceInterval(value: number) { this._raw.resizedEventDebounceInterval = value; }
     /** Restore column selections across data transformations (`reindex` calls). */
     get restoreColumnSelections() { return this._raw.restoreColumnSelections; }
     set restoreColumnSelections(value: boolean) { this._raw.restoreColumnSelections = value; }

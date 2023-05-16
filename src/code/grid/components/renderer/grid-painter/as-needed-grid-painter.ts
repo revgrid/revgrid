@@ -40,22 +40,22 @@ export class AsNeededGridPainter extends GridPainter {
 
     constructor(
         gridProperties: GridSettings,
-        mouse: Mouse,
         canvasEx: CanvasEx,
         subgridsManager: SubgridsManager,
         viewLayout: ViewLayout,
         focus: Focus,
         selection: Selection,
+        mouse: Mouse,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(
             gridProperties,
-            mouse,
             canvasEx,
             subgridsManager,
             viewLayout,
             focus,
             selection,
+            mouse,
             repaintAllRequiredEventer,
             AsNeededGridPainter.key,
             AsNeededGridPainter.partial,

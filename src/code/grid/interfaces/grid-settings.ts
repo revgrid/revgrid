@@ -51,7 +51,7 @@ export interface GridSettings {
     editOnDoubleClick: boolean;
     editOnKeydown: boolean;
     /** Open cell editor when cell selected via keyboard navigation. */
-    editOnNextCell: boolean;
+    editOnFocusCell: boolean;
     /** Name of a cell editor. */
     editor: string | undefined;
     // /** Emit events arising from SchemaModel and DataModel callbacks */
@@ -194,6 +194,10 @@ export interface GridSettings {
     repaintImmediately: boolean;
     repaintFramesPerSecond: number;
     resizeColumnInPlace: boolean;
+    /** Reduce resize processing even more by increasing debounce when lots of resize observer call backs are occurring */
+    resizedEventDebounceExtendedWhenPossible: boolean;
+    /** Reduce resize processing with debounce.  In milliseconds */
+    resizedEventDebounceInterval: number;
     /** Restore column selections across data transformations (`reindex` calls). */
     restoreColumnSelections: boolean;
     /** Restore row selections across data transformations (`reindex` calls). */

@@ -14,7 +14,7 @@ export class FocusUiBehavior extends UiBehavior {
         }
         if (cell !== null) {
             if (cell.subgrid.isMain) {
-                this.focusBehavior.tryFocusXYAndEnsureInView(cell.visibleColumn.activeColumnIndex, cell.visibleRow.subgridRowIndex);
+                this.focusBehavior.tryFocusXYAndEnsureInView(cell.visibleColumn.activeColumnIndex, cell.visibleRow.subgridRowIndex, cell);
             }
         }
         return super.handleMouseDown(event, cell);

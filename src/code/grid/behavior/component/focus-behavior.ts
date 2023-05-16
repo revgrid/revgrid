@@ -22,10 +22,10 @@ export class FocusBehavior {
 
     }
 
-    tryFocusXYAndEnsureInView(x: number, y: number) {
+    tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell | undefined) {
         if (this.isXScrollabe(x) && this.isYScrollabe(y)) {
             this._viewLayout.ensureColumnRowAreInView(x, y, true)
-            this._focus.setXY(x, y);
+            this._focus.setXY(x, y, cell, undefined, undefined);
             this._renderer.invalidateAllData();
         }
     }
@@ -33,7 +33,7 @@ export class FocusBehavior {
     tryFocusXAndEnsureInView(x: number) {
         if (this.isXScrollabe(x)) {
             this._viewLayout.ensureColumnIsInView(x, true)
-            this._focus.setX(x);
+            this._focus.setX(x, undefined, undefined);
             this._renderer.invalidateAllData();
         }
     }
@@ -41,7 +41,7 @@ export class FocusBehavior {
     tryFocusYAndEnsureInView(y: number) {
         if (this.isYScrollabe(y)) {
             this._viewLayout.ensureRowIsInView(y, true)
-            this._focus.setY(y);
+            this._focus.setY(y, undefined, undefined);
             this._renderer.invalidateAllData();
         }
     }
@@ -103,7 +103,7 @@ export class FocusBehavior {
         if (anchor !== undefined) {
             const activeColumnIndex = anchor.index;
             this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
-            this._focus.setX(activeColumnIndex);
+            this._focus.setX(activeColumnIndex, undefined, undefined);
         }
     }
 
@@ -112,7 +112,7 @@ export class FocusBehavior {
         if (anchor !== undefined) {
             const activeColumnIndex = anchor.index;
             this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
-            this._focus.setX(activeColumnIndex);
+            this._focus.setX(activeColumnIndex, undefined, undefined);
         }
     }
 
@@ -121,7 +121,7 @@ export class FocusBehavior {
         if (anchor !== undefined) {
             const rowIndex = anchor.index;
             this._viewLayout.setRowScrollAnchor(rowIndex, anchor.offset);
-            this._focus.setY(rowIndex);
+            this._focus.setY(rowIndex, undefined, undefined);
         }
     }
 
@@ -130,7 +130,7 @@ export class FocusBehavior {
         if (anchor !== undefined) {
             const rowIndex = anchor.index;
             this._viewLayout.setRowScrollAnchor(anchor.index, anchor.offset);
-            this._focus.setY(rowIndex);
+            this._focus.setY(rowIndex, undefined, undefined);
         }
     }
 

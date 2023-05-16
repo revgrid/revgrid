@@ -48,12 +48,12 @@ export class Renderer {
     ) {
         this._gridPainterRepository = new GridPainterRepository(
             this._gridSettings,
-            mouse,
             this._canvasEx,
             this._subgridsManager,
             this._viewLayout,
             focus,
             selection,
+            mouse,
             (gc) => this.repaintAll(gc),
         );
 
@@ -324,14 +324,7 @@ export class Renderer {
 
         this._gridPainter.paintGridlines(gc);
 
-        const lastSelectionBounds = this._viewLayout.calculateLastSelectionBounds();
-        if (lastSelectionBounds !== undefined) {
-            this._gridPainter.paintLastSelection(gc, lastSelectionBounds);
-
-            // if (this._gridPainter.key === 'by-cells') {
-            //     this._gridPainter.reset = true; // fixes GRID-490
-            // }
-        }
+        this._gridPainter.checkPaintLastSelection(gc);
     }
 }
 

@@ -70,14 +70,25 @@ export class CanvasEx {
     width: number;
     height: number;
     // bodyZoomFactor: number;
+    /** @internal */
     private _bounds = new Rectangle(0, 0, 0, 0);
-    private _devicePixelRatio: number;
+    /** @internal */
+    private _devicePixelRatio = 1;
+    /** @internal */
     private _containerWidth: number;
+    /** @internal */
     private _containerHeight: number;
 
-    private eventlistenerInfos = new Map<string, CanvasEx.ListenerInfo[]>();
+    /** @internal */
+    private _eventlistenerInfos = new Map<string, CanvasEx.ListenerInfo[]>();
 
-    private _resizeObserver = new ResizeObserver(() => this.resize());
+    /** @internal */
+    private _resizeTimeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    /** @internal */
+    private _resizeObserver = new ResizeObserver(() => {
+        setTimeout(() => this.resize(), 0); // do not process within observer callback
+    })
 
     private documentMouseMoveEventListener = (e: MouseEvent) => {
         if ((this.hasMouse || this.isDragging()) && this.eventsEnabled) {
@@ -253,7 +264,7 @@ export class CanvasEx {
 
     addExternalEventListener(eventName: string, listener: CanvasEx.EventListener) {
         let alreadyAttached: boolean;
-        let listenerInfos = this.eventlistenerInfos.get(eventName);
+        let listenerInfos = this._eventlistenerInfos.get(eventName);
         if (listenerInfos === undefined) {
             listenerInfos = [];
             alreadyAttached = false;
@@ -272,21 +283,21 @@ export class CanvasEx {
                 }
             };
             listenerInfos.push(info);
-            this.eventlistenerInfos.set(eventName, listenerInfos);
+            this._eventlistenerInfos.set(eventName, listenerInfos);
 
             this.canvasElement.addEventListener(eventName, listener as EventListener);
         }
     }
 
     removeExternalEventListener(eventName: string, listener: CanvasEx.EventListener) {
-        const listenerInfos = this.eventlistenerInfos.get(eventName);
+        const listenerInfos = this._eventlistenerInfos.get(eventName);
 
         if (listenerInfos !== undefined) {
             listenerInfos.find(
                 (info, index) => {
                     if (info.listener === listener) {
                         if (listenerInfos.length === 1) {
-                            this.eventlistenerInfos.delete(eventName);
+                            this._eventlistenerInfos.delete(eventName);
                         } else {
                             listenerInfos.splice(index, 1); // remove it from the list
                         }
@@ -301,7 +312,7 @@ export class CanvasEx {
     }
 
     removeAllExternalEventListeners() {
-        for (const [key, value] of this.eventlistenerInfos) {
+        for (const [key, value] of this._eventlistenerInfos) {
             value.forEach(
                 (info) => {
                     const eventName = key;
@@ -318,6 +329,7 @@ export class CanvasEx {
 
     stop() {
         this._resizeObserver.disconnect();
+        this.checkClearResizeTimeout();
     }
 
     checksize() {
@@ -331,6 +343,14 @@ export class CanvasEx {
         if (containerRect === undefined) {
             containerRect = this.getContainerBoundingClientRect();
         }
+
+        const oldWidth = this._bounds.width;
+        const oldHeight = this._bounds.height;
+        let imageData: ImageData | undefined;
+        if (oldWidth > 0 && oldHeight > 0) {
+            imageData = this.gc.getImageData(0, 0, oldWidth * this._devicePixelRatio, oldHeight * this._devicePixelRatio);
+        }
+
         this._containerWidth = containerRect.width;
         this._containerHeight = containerRect.height;
 
@@ -352,10 +372,14 @@ export class CanvasEx {
         this.canvasElement.style.width = width + 'px';
         this.canvasElement.style.height = height + 'px';
 
+        if (imageData !== undefined) {
+            this.gc.putImageData(imageData, 0, 0);
+        }
+
         this.gc.scale(ratio, ratio);
 
         this._bounds = new Rectangle(0, 0, width, height);
-        this._resizedEventer();
+        this.processResizedEventerWithDebounce();
     }
 
     /**
@@ -497,6 +521,29 @@ export class CanvasEx {
         }
 
         this.canvasElement.title = titleText;
+    }
+
+    private processResizedEventerWithDebounce(): void {
+        if (this._gridSettings.resizedEventDebounceExtendedWhenPossible) {
+            this.checkClearResizeTimeout();
+        }
+
+        if (this._resizeTimeoutId === undefined) {
+            this._resizeTimeoutId = setTimeout(
+                () => {
+                    this._resizeTimeoutId = undefined;
+                    this._resizedEventer();
+                },
+                this._gridSettings.resizedEventDebounceInterval,
+            );
+        }
+    }
+
+    private checkClearResizeTimeout() {
+        if (this._resizeTimeoutId !== undefined) {
+            clearTimeout(this._resizeTimeoutId);
+            this._resizeTimeoutId = undefined;
+        }
     }
 
     /**

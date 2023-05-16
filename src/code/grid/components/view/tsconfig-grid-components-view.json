@@ -14,8 +14,6 @@
     { "path": "../cell/tsconfig-grid-components-cell.json" },
     { "path": "../column/tsconfig-grid-components-column.json" },
     { "path": "../subgrid/tsconfig-grid-components-subgrid.json" },
-    { "path": "../focus/tsconfig-grid-components-focus.json" },
-    { "path": "../selection/tsconfig-grid-components-selection.json" },
     { "path": "../../interfaces/tsconfig-grid-interfaces.json" },
     { "path": "../../lib/tsconfig-grid-lib.json" }
   ]

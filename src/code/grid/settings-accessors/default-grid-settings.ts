@@ -378,6 +378,9 @@ export const defaultSettingsProperties: Required<GridSettings> = {
      */
     resizeColumnInPlace: false,
 
+    resizedEventDebounceExtendedWhenPossible: false,
+    resizedEventDebounceInterval: 100, // milliseconds
+
     //for immediate painting, set these values to 0, true respectively
     repaintFramesPerSecond: 60,
     repaintImmediately: false,
@@ -526,7 +529,7 @@ export const defaultSettingsProperties: Required<GridSettings> = {
      *
      * Generally set at the grid level. If set at the column (or cell) level, note that the property pertains to the cell navigated _to,_ not the cell navigated _away from._
      */
-    editOnNextCell: false,
+    editOnFocusCell: false,
 
 
     /* COLUMN SORTING */

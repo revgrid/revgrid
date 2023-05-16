@@ -163,26 +163,28 @@ export class ComponentBehaviorManager {
             this._mainSubgrid = this.subgridsManager.mainSubgrid;
             this._mainDataModel = this._mainSubgrid.dataModel;
 
+            this.viewLayout = new ViewLayout(
+                this.gridSettings,
+                this.canvasEx,
+                this.columnsManager,
+                this.subgridsManager,
+                () => this.processHorizontalScrollViewportStartChangedEvent(),
+                () => this.processVerticalScrollViewportStartChangedEvent(),
+            );
+
             this.focus = new Focus(
+                this.gridSettings,
                 this._mainSubgrid,
                 this.columnsManager,
+                this.viewLayout,
             );
+
             this.selection = new Selection(
                 this.gridSettings,
                 this.columnsManager,
                 this.focus,
                 this._mainSubgrid,
                 () => this.processSelectionChangedEvent(),
-            );
-
-            this.viewLayout = new ViewLayout(
-                this.gridSettings,
-                this.canvasEx,
-                this.columnsManager,
-                this.subgridsManager,
-                this.selection,
-                () => this.processHorizontalScrollViewportStartChangedEvent(),
-                () => this.processVerticalScrollViewportStartChangedEvent(),
             );
 
             this.renderer = new Renderer(

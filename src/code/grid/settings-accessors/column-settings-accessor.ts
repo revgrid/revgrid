@@ -15,7 +15,7 @@ export class ColumnSettingsAccessor implements MergableColumnSettings {
     private _editable: boolean | undefined;
     private _editOnDoubleClick: boolean | undefined;
     private _editOnKeydown: boolean | undefined;
-    private _editOnNextCell: boolean | undefined;
+    private _editOnFocusCell: boolean | undefined;
     private _editor: string | undefined;
     private _feedbackCount: number | undefined;
     private _filterable: boolean | undefined;
@@ -46,7 +46,87 @@ export class ColumnSettingsAccessor implements MergableColumnSettings {
         this.filterProperties = new ColumnSettingsAccessor.Filter(this._gridSettings);
 
         if (initialColumnSettings !== undefined) {
-            // todo initialise stuff here
+            if (initialColumnSettings.cellPadding !== undefined) {
+                this._cellPadding = initialColumnSettings.cellPadding;
+            }
+            if (initialColumnSettings.mouseCellSelection !== undefined) {
+                this._mouseCellSelection = initialColumnSettings.mouseCellSelection;
+            }
+            if (initialColumnSettings.columnAutosizingMax !== undefined) {
+                this._columnAutosizingMax = initialColumnSettings.columnAutosizingMax;
+            }
+            if (initialColumnSettings.columnClip !== undefined) {
+                this._columnClip = initialColumnSettings.columnClip;
+            }
+            if (initialColumnSettings.editable !== undefined) {
+                this._editable = initialColumnSettings.editable;
+            }
+            if (initialColumnSettings.editOnDoubleClick !== undefined) {
+                this._editOnDoubleClick = initialColumnSettings.editOnDoubleClick;
+            }
+            if (initialColumnSettings.editOnKeydown !== undefined) {
+                this._editOnKeydown = initialColumnSettings.editOnKeydown;
+            }
+            if (initialColumnSettings.editOnFocusCell !== undefined) {
+                this._editOnFocusCell = initialColumnSettings.editOnFocusCell;
+            }
+            if (initialColumnSettings.editor !== undefined) {
+                this._editor = initialColumnSettings.editor;
+            }
+            if (initialColumnSettings.feedbackCount !== undefined) {
+                this._feedbackCount = initialColumnSettings.feedbackCount;
+            }
+            if (initialColumnSettings.filterable !== undefined) {
+                this._filterable = initialColumnSettings.filterable;
+            }
+            if (initialColumnSettings.font !== undefined) {
+                this._font = initialColumnSettings.font;
+            }
+            if (initialColumnSettings.format !== undefined) {
+                this._format = initialColumnSettings.format;
+            }
+            if (initialColumnSettings.gridLinesVWidth !== undefined) {
+                this._gridLinesVWidth = initialColumnSettings.gridLinesVWidth;
+            }
+            if (initialColumnSettings.gridLinesHWidth !== undefined) {
+                this._gridLinesHWidth = initialColumnSettings.gridLinesHWidth;
+            }
+            if (initialColumnSettings.halign !== undefined) {
+                this._halign = initialColumnSettings.halign;
+            }
+            if (initialColumnSettings.link !== undefined) {
+                this._link = initialColumnSettings.link;
+            }
+            if (initialColumnSettings.linkTarget !== undefined) {
+                this._linkTarget = initialColumnSettings.linkTarget;
+            }
+            if (initialColumnSettings.maximumColumnWidth !== undefined) {
+                this._maximumColumnWidth = initialColumnSettings.maximumColumnWidth;
+            }
+            if (initialColumnSettings.resizeColumnInPlace !== undefined) {
+                this._resizeColumnInPlace = initialColumnSettings.resizeColumnInPlace;
+            }
+            if (initialColumnSettings.sortOnDoubleClick !== undefined) {
+                this._sortOnDoubleClick = initialColumnSettings.sortOnDoubleClick;
+            }
+            if (initialColumnSettings.sortable !== undefined) {
+                this._sortable = initialColumnSettings.sortable;
+            }
+            if (initialColumnSettings.backgroundColor !== undefined) {
+                this._backgroundColor = initialColumnSettings.backgroundColor;
+            }
+            if (initialColumnSettings.columnAutosized !== undefined) {
+                this._columnAutosized = initialColumnSettings.columnAutosized;
+            }
+            if (initialColumnSettings.columnAutosizing !== undefined) {
+                this._columnAutosizing = initialColumnSettings.columnAutosizing;
+            }
+            if (initialColumnSettings.minimumColumnWidth !== undefined) {
+                this._minimumColumnWidth = initialColumnSettings.minimumColumnWidth;
+            }
+            if (initialColumnSettings.width !== undefined) {
+                this._width = initialColumnSettings.width;
+            }
         }
 
         // switch (_column.index) {
@@ -72,8 +152,8 @@ export class ColumnSettingsAccessor implements MergableColumnSettings {
     set editOnDoubleClick(value: boolean) { this._editOnDoubleClick = value; }
     get editOnKeydown() { return this._editOnKeydown ?? this._gridSettings.editOnKeydown; }
     set editOnKeydown(value: boolean) { this._editOnKeydown = value; }
-    get editOnNextCell() { return this._editOnNextCell ?? this._gridSettings.editOnNextCell; }
-    set editOnNextCell(value: boolean) { this._editOnNextCell = value; }
+    get editOnFocusCell() { return this._editOnFocusCell ?? this._gridSettings.editOnFocusCell; }
+    set editOnFocusCell(value: boolean) { this._editOnFocusCell = value; }
     get editor() { return this._editor ?? this._gridSettings.editor; }
     set editor(value: string | undefined) { this._editor = value; }
     get feedbackCount() { return this._feedbackCount ?? this._gridSettings.feedbackCount; }

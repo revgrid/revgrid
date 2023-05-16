@@ -20,12 +20,12 @@ export class GridPainterRepository {
 
     constructor(
         private readonly _gridProperties: GridSettings,
-        private readonly _mouse: Mouse,
         private readonly _canvasEx: CanvasEx,
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewLayout: ViewLayout,
         private readonly _focus: Focus,
         private readonly _selection: Selection,
+        private readonly _mouse: Mouse,
         private readonly _repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         // preregister the standard grid painters
@@ -45,12 +45,12 @@ export class GridPainterRepository {
             } else {
                 gridPainter = new constructor(
                     this._gridProperties,
-                    this._mouse,
                     this._canvasEx,
                     this._subgridsManager,
                     this._viewLayout,
                     this._focus,
                     this._selection,
+                    this._mouse,
                     this._repaintAllRequiredEventer,
                 );
                 this.cache.set(key, gridPainter);

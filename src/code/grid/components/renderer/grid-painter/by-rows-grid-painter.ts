@@ -28,22 +28,22 @@ import { GridPainter } from './grid-painter';
 export class ByRowsGridPainter extends GridPainter {
     constructor(
         gridProperties: GridSettings,
-        mouse: Mouse,
         canvasEx: CanvasEx,
         subgridsManager: SubgridsManager,
         viewLayout: ViewLayout,
         focus: Focus,
         selection: Selection,
+        mouse: Mouse,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(
             gridProperties,
-            mouse,
             canvasEx,
             subgridsManager,
             viewLayout,
             focus,
             selection,
+            mouse,
             repaintAllRequiredEventer,
             ByRowsGridPainter.key,
             false,
@@ -52,7 +52,7 @@ export class ByRowsGridPainter extends GridPainter {
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
-        const gridProps = this.gridProperties;
+        const gridProps = this.gridSettings;
         const gridPrefillColor = gridProps.backgroundColor;
         const viewLayoutColumns = this.viewLayout.columns;
         const columnCount = viewLayoutColumns.length;

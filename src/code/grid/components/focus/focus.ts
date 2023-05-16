@@ -1,4 +1,5 @@
 import { DataModel } from '../../interfaces/data-model';
+import { GridSettings } from '../../interfaces/grid-settings';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { PartialPoint, Point } from '../../lib/point';
 import { RectangleInterface } from '../../lib/rectangle-interface';
@@ -6,6 +7,7 @@ import { AssertError } from '../../lib/revgrid-error';
 import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
 import { EventDetail } from '../event/event-detail';
+import { ViewLayout } from '../view/view-layout';
 
 /** @public */
 export class Focus {
@@ -20,9 +22,13 @@ export class Focus {
     private _canvasX: number | undefined;
     private _canvasY: number | undefined;
 
+    private _editor: Focus.CellEditor | undefined;
+
     constructor(
+        private readonly _gridSettings: GridSettings,
         private readonly _mainSubgrid: SubgridInterface,
         private readonly _columnsManager: ColumnsManager,
+        private readonly _viewLayout: ViewLayout,
     ) {
         this.subgrid = this._mainSubgrid;
     }
@@ -41,26 +47,28 @@ export class Focus {
         this._currentSubgridPoint = undefined;
     }
 
-    set(currentSubgridPoint: Point, canvasPoint?: PartialPoint | undefined) {
+    set(currentSubgridPoint: Point, cell: ViewCell | undefined, canvasPoint: PartialPoint | undefined) {
         if (this._currentSubgridPoint === undefined || this._currentSubgridPoint.x !== currentSubgridPoint.x || this._currentSubgridPoint.y !== currentSubgridPoint.y) {
             this._previousSubgridPoint = this._currentSubgridPoint;
             this._currentSubgridPoint = currentSubgridPoint;
-        }
 
-        if (canvasPoint !== undefined) {
-            const x = canvasPoint.x;
-            if (x !== undefined) {
-                this._canvasX = x;
+            if (canvasPoint !== undefined) {
+                const x = canvasPoint.x;
+                if (x !== undefined) {
+                    this._canvasX = x;
+                }
+
+                const y = canvasPoint.y;
+                if (y !== undefined) {
+                    this._canvasY = y;
+                }
             }
 
-            const y = canvasPoint.y;
-            if (y !== undefined) {
-                this._canvasY = y;
-            }
+            this.closeAndCheckTryOpenEditor(cell);
         }
     }
 
-    setX(activeColumnIndex: number, canvasX?: number) {
+    setX(activeColumnIndex: number, cell: ViewCell | undefined, canvasX: number | undefined) {
         if (this._currentSubgridPoint === undefined || this._currentSubgridPoint.x !== activeColumnIndex) {
             this._previousSubgridPoint = this._currentSubgridPoint;
             const y = this._currentSubgridPoint === undefined ? 0 : this._currentSubgridPoint.y;
@@ -73,10 +81,12 @@ export class Focus {
             if (canvasX !== undefined) {
                 this._canvasX = canvasX;
             }
+
+            this.closeAndCheckTryOpenEditor(cell);
         }
     }
 
-    setY(subgridRowIndex: number, canvasY?: number) {
+    setY(subgridRowIndex: number, cell: ViewCell | undefined, canvasY: number | undefined) {
         if (this._currentSubgridPoint === undefined || this._currentSubgridPoint.y !== subgridRowIndex) {
             this._previousSubgridPoint = this._currentSubgridPoint;
             const x = this._currentSubgridPoint === undefined ? 0 : this._currentSubgridPoint.x;
@@ -88,10 +98,12 @@ export class Focus {
             if (canvasY !== undefined) {
                 this._canvasY = canvasY;
             }
+
+            this.closeAndCheckTryOpenEditor(cell);
         }
     }
 
-    setXY(activeColumnIndex: number, subgridRowIndex: number, canvasX?: number, canvasY?: number) {
+    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell | undefined, canvasX: number | undefined, canvasY: number | undefined) {
         if (this._currentSubgridPoint === undefined || this._currentSubgridPoint.x !== activeColumnIndex || this._currentSubgridPoint.y !== subgridRowIndex) {
             this._previousSubgridPoint = this._currentSubgridPoint;
             this._currentSubgridPoint = {
@@ -105,6 +117,8 @@ export class Focus {
             if (canvasY !== undefined) {
                 this._canvasY = canvasY;
             }
+
+            this.closeAndCheckTryOpenEditor(cell);
         }
     }
 
@@ -130,6 +144,46 @@ export class Focus {
             activeColumnIndex === this._currentSubgridPoint.x &&
             mainSubgridRowIndex === this._currentSubgridPoint.y
         );
+    }
+
+    tryOpenEditor(cell: ViewCell | undefined) {
+        if (this._editor === undefined && this.getCellEditorEventer !== undefined) {
+            const currentSubgridPoint = this._currentSubgridPoint;
+            if (currentSubgridPoint !== undefined) {
+                const x = currentSubgridPoint.x;
+                const y = currentSubgridPoint.y;
+                if (cell === undefined) {
+                    cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(x, y);
+                } else {
+                    if (x !== cell.visibleColumn.activeColumnIndex || y !== cell.visibleRow.subgridRowIndex) {
+                        throw new AssertError('FE55598', 'Cell is not focused');
+                    }
+                }
+                if (cell !== undefined) {
+                    const editor = this.getCellEditorEventer(cell);
+                    if (editor !== undefined) {
+                        editor.closedEventer = () => this.handleEditorClosed();
+                        this._editor = editor;
+                    }
+                }
+            }
+        }
+    }
+
+    closeAndCheckTryOpenEditor(cell: ViewCell | undefined) {
+        if (this._editor !== undefined) {
+            this._editor.closedEventer = undefined;
+            this._editor.close(false);
+            this._editor = undefined;
+        }
+
+        const currentSubgridPoint = this._currentSubgridPoint;
+        if (currentSubgridPoint !== undefined) {
+            const column = this._columnsManager.getActiveColumn(currentSubgridPoint.x);
+            if (column.settings.editOnFocusCell) {
+                this.tryOpenEditor(cell);
+            }
+        }
     }
 
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataModel: DataModel) {
@@ -243,6 +297,13 @@ export class Focus {
         }
     }
 
+    private handleEditorClosed() {
+        if (this._editor !== undefined) {
+            this._editor.closedEventer = undefined;
+            this._editor = undefined;
+        }
+    }
+
     private createStashPoint(point: Point): Focus.Stash.Point | undefined {
         const dataModel = this._mainSubgrid.dataModel;
         if (dataModel.getRowIdFromIndex === undefined) {
@@ -296,42 +357,53 @@ export class Focus {
 /** @public */
 export namespace Focus {
     export type ScrollToMakeVisibleEventer = (this: void, activeColumnIndex: number, subgridRowIndex: number, maximally: boolean) => void;
-    export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor;
+    export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor | undefined;
 
     export interface CellEditor {
         // Request keys which would normally close editor and possibly exit a cell
-        wantTab: boolean;
-        wantReturn: boolean;
-        wantEscape: boolean;
-        wantLeftArrow: boolean;
-        wantRightArrow: boolean;
-        wantUpArrow: boolean;
-        wantDownArrow: boolean;
+        readonly wantTab: boolean;
+        readonly wantReturn: boolean;
+        readonly wantEscape: boolean;
+        readonly wantLeftArrow: boolean;
+        readonly wantRightArrow: boolean;
+        readonly wantUpArrow: boolean;
+        readonly wantDownArrow: boolean;
+        readonly wantWheelMove: boolean;
+
+        readonly paintConfig: CellEditor.PaintConfig;
 
         // positioning of control
         hide(): void;
-        show(bounds: RectangleInterface): void;
-        setBounds(bounds: RectangleInterface): void;
+        paint(bounds: RectangleInterface): void;
+
+        close(cancel: boolean): void;
 
         // UI events
-        keyDownEventer: CellEditor.KeyEventer;
-        keyUpEventer: CellEditor.KeyEventer;
-        keyPressEventer: CellEditor.KeyEventer;
+        keyDown(eventDetail: EventDetail.Keyboard): void;
+        keyUp(eventDetail: EventDetail.Keyboard): void;
+        keyPress(eventDetail: EventDetail.Keyboard): void;
 
-        clickEventer: CellEditor.MouseEventer;
-        dblClickEventer: CellEditor.MouseEventer;
-        mouseDownEventer: CellEditor.MouseEventer;
-        mouseUpEventer: CellEditor.MouseEventer;
-        wheelMoveEventer: CellEditor.WheelEventer;
+        click(event: MouseEvent, cell: ViewCell | undefined): void;
+        dblClick(event: MouseEvent, cell: ViewCell | undefined): void;
+        mouseDown(event: MouseEvent, cell: ViewCell | undefined): void;
+        mouseUp(event: MouseEvent, cell: ViewCell | undefined): void;
+        wheelMove(event: WheelEvent, cell: ViewCell | undefined): void;
 
         // Editor advises it is finished
-        closeEventer: (this: void) => void;
+        closedEventer: ((this: void) => void) | undefined;
     }
 
     export namespace CellEditor {
-        export type KeyEventer = (this: void, eventDetail: EventDetail.Keyboard) => void;
-        export type MouseEventer = (this: void, event: MouseEvent, cell: ViewCell | undefined) => void;
-        export type WheelEventer = (this: void, event: WheelEvent, cell: ViewCell | undefined) => void;
+        export interface PaintConfig {
+            readonly paintCellBackground: boolean;
+            readonly paintCellContent: boolean;
+            readonly paintCellBorder: boolean;
+
+            readonly beforeCellBackground: boolean;
+            readonly beforeCellContent: boolean;
+            readonly beforeCellBorder: boolean;
+            readonly last: boolean;
+        }
     }
 
     export interface Stash {

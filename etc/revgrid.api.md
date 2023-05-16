@@ -86,6 +86,8 @@ export class CanvasRenderingContext2DEx {
     // (undocumented)
     moveTo(x: number, y: number): void;
     // (undocumented)
+    putImageData(imageData: ImageData, sx: number, sy: number): void;
+    // (undocumented)
     quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
     // (undocumented)
     rect(x: number, y: number, width: number, height: number): void;
@@ -330,9 +332,9 @@ export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSetti
     // (undocumented)
     editOnDoubleClick: boolean;
     // (undocumented)
-    editOnKeydown: boolean;
+    editOnFocusCell: boolean;
     // (undocumented)
-    editOnNextCell: boolean;
+    editOnKeydown: boolean;
     // (undocumented)
     editor: string | undefined;
     // (undocumented)
@@ -837,7 +839,8 @@ export namespace EventName {
 
 // @public (undocumented)
 export class Focus {
-    constructor(_mainSubgrid: SubgridInterface, _columnsManager: ColumnsManager);
+    // Warning: (ae-forgotten-export) The symbol "ViewLayout" needs to be exported by the entry point public-api.d.ts
+    constructor(_gridSettings: GridSettings, _mainSubgrid: SubgridInterface, _columnsManager: ColumnsManager, _viewLayout: ViewLayout);
     // (undocumented)
     adjustForColumnsDeleted(columnIndex: number, columnCount: number): void;
     // (undocumented)
@@ -856,6 +859,8 @@ export class Focus {
     get canvasY(): number | undefined;
     // (undocumented)
     clear(): void;
+    // (undocumented)
+    closeAndCheckTryOpenEditor(cell: ViewCell | undefined): void;
     // (undocumented)
     createStash(): Focus.Stash;
     // (undocumented)
@@ -883,15 +888,17 @@ export class Focus {
     // Warning: (ae-forgotten-export) The symbol "PartialPoint" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    set(currentSubgridPoint: Point, canvasPoint?: PartialPoint | undefined): void;
+    set(currentSubgridPoint: Point, cell: ViewCell | undefined, canvasPoint: PartialPoint | undefined): void;
     // (undocumented)
-    setX(activeColumnIndex: number, canvasX?: number): void;
+    setX(activeColumnIndex: number, cell: ViewCell | undefined, canvasX: number | undefined): void;
     // (undocumented)
-    setXY(activeColumnIndex: number, subgridRowIndex: number, canvasX?: number, canvasY?: number): void;
+    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell | undefined, canvasX: number | undefined, canvasY: number | undefined): void;
     // (undocumented)
-    setY(subgridRowIndex: number, canvasY?: number): void;
+    setY(subgridRowIndex: number, cell: ViewCell | undefined, canvasY: number | undefined): void;
     // (undocumented)
     readonly subgrid: SubgridInterface;
+    // (undocumented)
+    tryOpenEditor(cell: ViewCell | undefined): void;
 }
 
 // @public (undocumented)
@@ -899,55 +906,70 @@ export namespace Focus {
     // (undocumented)
     export interface CellEditor {
         // (undocumented)
-        clickEventer: CellEditor.MouseEventer;
+        click(event: MouseEvent, cell: ViewCell | undefined): void;
         // (undocumented)
-        closeEventer: (this: void) => void;
+        close(cancel: boolean): void;
         // (undocumented)
-        dblClickEventer: CellEditor.MouseEventer;
+        closedEventer: ((this: void) => void) | undefined;
+        // (undocumented)
+        dblClick(event: MouseEvent, cell: ViewCell | undefined): void;
         // (undocumented)
         hide(): void;
         // (undocumented)
-        keyDownEventer: CellEditor.KeyEventer;
+        keyDown(eventDetail: EventDetail.Keyboard): void;
         // (undocumented)
-        keyPressEventer: CellEditor.KeyEventer;
+        keyPress(eventDetail: EventDetail.Keyboard): void;
         // (undocumented)
-        keyUpEventer: CellEditor.KeyEventer;
+        keyUp(eventDetail: EventDetail.Keyboard): void;
         // (undocumented)
-        mouseDownEventer: CellEditor.MouseEventer;
+        mouseDown(event: MouseEvent, cell: ViewCell | undefined): void;
         // (undocumented)
-        mouseUpEventer: CellEditor.MouseEventer;
+        mouseUp(event: MouseEvent, cell: ViewCell | undefined): void;
         // (undocumented)
-        setBounds(bounds: RectangleInterface): void;
+        paint(bounds: RectangleInterface): void;
         // (undocumented)
-        show(bounds: RectangleInterface): void;
+        readonly paintConfig: CellEditor.PaintConfig;
         // (undocumented)
-        wantDownArrow: boolean;
+        readonly wantDownArrow: boolean;
         // (undocumented)
-        wantEscape: boolean;
+        readonly wantEscape: boolean;
         // (undocumented)
-        wantLeftArrow: boolean;
+        readonly wantLeftArrow: boolean;
         // (undocumented)
-        wantReturn: boolean;
+        readonly wantReturn: boolean;
         // (undocumented)
-        wantRightArrow: boolean;
+        readonly wantRightArrow: boolean;
         // (undocumented)
-        wantTab: boolean;
+        readonly wantTab: boolean;
         // (undocumented)
-        wantUpArrow: boolean;
+        readonly wantUpArrow: boolean;
         // (undocumented)
-        wheelMoveEventer: CellEditor.WheelEventer;
+        readonly wantWheelMove: boolean;
+        // (undocumented)
+        wheelMove(event: WheelEvent, cell: ViewCell | undefined): void;
     }
     // (undocumented)
     export namespace CellEditor {
         // (undocumented)
-        export type KeyEventer = (this: void, eventDetail: EventDetail.Keyboard) => void;
-        // (undocumented)
-        export type MouseEventer = (this: void, event: MouseEvent, cell: ViewCell | undefined) => void;
-        // (undocumented)
-        export type WheelEventer = (this: void, event: WheelEvent, cell: ViewCell | undefined) => void;
+        export interface PaintConfig {
+            // (undocumented)
+            readonly beforeCellBackground: boolean;
+            // (undocumented)
+            readonly beforeCellBorder: boolean;
+            // (undocumented)
+            readonly beforeCellContent: boolean;
+            // (undocumented)
+            readonly last: boolean;
+            // (undocumented)
+            readonly paintCellBackground: boolean;
+            // (undocumented)
+            readonly paintCellBorder: boolean;
+            // (undocumented)
+            readonly paintCellContent: boolean;
+        }
     }
     // (undocumented)
-    export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor;
+    export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor | undefined;
     // (undocumented)
     export type ScrollToMakeVisibleEventer = (this: void, activeColumnIndex: number, subgridRowIndex: number, maximally: boolean) => void;
     // (undocumented)
@@ -1022,9 +1044,9 @@ export interface GridSettings {
     // (undocumented)
     editable: boolean;
     editOnDoubleClick: boolean;
+    editOnFocusCell: boolean;
     // (undocumented)
     editOnKeydown: boolean;
-    editOnNextCell: boolean;
     editor: string | undefined;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -1155,6 +1177,8 @@ export interface GridSettings {
     repaintImmediately: boolean;
     // (undocumented)
     resizeColumnInPlace: boolean;
+    resizedEventDebounceExtendedWhenPossible: boolean;
+    resizedEventDebounceInterval: number;
     restoreColumnSelections: boolean;
     restoreRowSelections: boolean;
     restoreSingleCellSelection: boolean;
@@ -2135,8 +2159,6 @@ export class Revgrid {
     toggleHiDPI(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     updateSize(): void;
-    // Warning: (ae-forgotten-export) The symbol "ViewLayout" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     readonly viewLayout: ViewLayout;
     waitModelRendered(): Promise<number>;
@@ -3458,7 +3480,7 @@ export namespace WritablePoint {
 //
 // src/code/grid/cell-editor/cell-editor-factory.ts:14:4 - (tsdoc-undefined-tag) The TSDoc tag "@classdesc" is not defined in this configuration
 // src/code/grid/components/selection/selection.ts:20:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/components/view/view-layout.ts:28:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/components/view/view-layout.ts:27:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

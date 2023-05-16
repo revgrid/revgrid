@@ -181,7 +181,7 @@ export class HorizontalScrollDimension extends ScrollDimension {
             // calculate relative right of activeColumnIndex;
             const rightPlus1 = left + this._columnsManager.getActiveColumnWidth(index);
             // calculate viewportStart needed to just fit in column
-            const viewportStart = rightPlus1 - this.size;
+            const viewportStart = rightPlus1 - this.viewportSize;
             // find column which starts at or crosses this viewport Start
             while (left > viewportStart) {
                 index--;
