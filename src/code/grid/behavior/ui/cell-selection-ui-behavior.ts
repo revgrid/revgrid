@@ -46,13 +46,13 @@ export class CellSelectionUiBehavior extends UiBehavior {
             return super.handleMouseDown(event, cell);
         } else {
             const subgrid = cell.subgrid;
-            const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.visibleColumn.column, cell.visibleRow.subgridRowIndex, 'cellSelection', subgrid);
+            const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
 
             if (!isSelectable || isSecondaryMouseButton(event)) {
                 return super.handleMouseDown(event, cell);
             } else {
-                const activeColumnIndex = cell.visibleColumn.activeColumnIndex;
-                const subgridRowIndex = cell.visibleRow.subgridRowIndex;
+                const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
+                const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
                 this._dragging = true;
                 const focusSelectionBehavior = this.selectionBehavior;
                 let areaTypeSpecifier: SelectionArea.TypeSpecifier;
@@ -173,8 +173,8 @@ export class CellSelectionUiBehavior extends UiBehavior {
         } else {
             const subgrid = cell.subgrid;
             if (subgrid === extendSelectOrigin.subgrid) {
-                const lastCellX = cell.visibleColumn.activeColumnIndex;
-                const lastCellY = cell.visibleRow.subgridRowIndex;
+                const lastCellX = cell.viewLayoutColumn.activeColumnIndex;
+                const lastCellY = cell.viewLayoutRow.subgridRowIndex;
 
                 const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellX, extendSelectOrigin.point.x);
                 const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellY, extendSelectOrigin.point.y);

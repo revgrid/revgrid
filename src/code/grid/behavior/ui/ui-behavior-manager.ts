@@ -94,7 +94,7 @@ export class UiBehaviorManager {
         this._eventBehavior.uiTouchEndEventer = (event) => this.handleTouchEndEvent(event);
         this._eventBehavior.uiCopyEventer = (event) => this.handleCopyEvent(event);
         this._eventBehavior.uiHorizontalScrollerActionEventer = (event) => this.handleHorizontalScrollerActionEvent(event);
-        this._eventBehavior.uiHorizontalScrollerActionEventer = (event) => this.handleVerticalScrollerActionEvent(event);
+        this._eventBehavior.uiVerticalScrollerActionEventer = (event) => this.handleVerticalScrollerActionEvent(event);
     }
 
     load() {

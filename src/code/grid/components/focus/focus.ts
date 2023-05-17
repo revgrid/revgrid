@@ -155,7 +155,7 @@ export class Focus {
                 if (cell === undefined) {
                     cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(x, y);
                 } else {
-                    if (x !== cell.visibleColumn.activeColumnIndex || y !== cell.visibleRow.subgridRowIndex) {
+                    if (x !== cell.viewLayoutColumn.activeColumnIndex || y !== cell.viewLayoutRow.subgridRowIndex) {
                         throw new AssertError('FE55598', 'Cell is not focused');
                     }
                 }

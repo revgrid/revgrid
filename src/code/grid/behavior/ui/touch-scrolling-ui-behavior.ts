@@ -119,7 +119,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
                     () => this.step(scrollDimension, velocity, dir, nextInterval),
                     interval
                 );
-                }
+            }
         }
     }
 

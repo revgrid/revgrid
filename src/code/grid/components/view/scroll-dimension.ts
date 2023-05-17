@@ -5,7 +5,8 @@ import { CanvasEx } from '../canvas-ex/canvas-ex';
 export abstract class ScrollDimension {
     changedEventer: ScrollDimension.ChangedEventer;
     computedEventer: ScrollDimension.ComputedEventer;
-
+    scrollerTargettedViewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer;
+    eventBehaviorTargettedViewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer;
 
     private _start: number | undefined;
     private _size: number | undefined;
@@ -24,7 +25,6 @@ export abstract class ScrollDimension {
     constructor(
         public readonly horizontalVertical: HorizontalVertical,
         protected readonly _canvasEx: CanvasEx,
-        private readonly _viewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer,
     ) {
 
     }
@@ -34,7 +34,7 @@ export abstract class ScrollDimension {
     get exists() { return this._overflowed !== undefined; }
 
     get start() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         if (this._start === undefined) {
             throw new AssertError('SPDST60998');
         } else {
@@ -42,7 +42,7 @@ export abstract class ScrollDimension {
         }
     }
     get size() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         if (this._size === undefined) {
             throw new AssertError('SPDSI60998');
         } else {
@@ -50,7 +50,7 @@ export abstract class ScrollDimension {
         }
     }
     get finish() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         if (this._start === undefined || this._size === undefined) {
             throw new AssertError('SPDF60998');
         } else {
@@ -58,7 +58,7 @@ export abstract class ScrollDimension {
         }
     }
     get after() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         if (this._start === undefined || this._size === undefined) {
             throw new AssertError('SPDA60998');
         } else {
@@ -67,12 +67,12 @@ export abstract class ScrollDimension {
     }
 
     get viewportStart() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         return this._viewportStart;
     }
 
     get viewportSize() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         const viewportSize = this._viewportSize;
         if (viewportSize === undefined) {
             throw new AssertError('SPDVSI60998');
@@ -81,7 +81,7 @@ export abstract class ScrollDimension {
         }
     }
     get viewportFinish() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         const viewportStart = this._viewportStart;
         const viewportSize = this._viewportSize;
         if (viewportStart === undefined || viewportSize === undefined) {
@@ -92,24 +92,24 @@ export abstract class ScrollDimension {
     }
 
     get startScrollAnchorLimitIndex() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         return this._startScrollAnchorLimitIndex;
     }
     get startScrollAnchorLimitOffset() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         return this._startScrollAnchorLimitOffset;
     }
     get finishScrollAnchorLimitIndex() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         return this._finishScrollAnchorLimitIndex;
     }
     get finishScrollAnchorLimitOffset() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         return this._finishScrollAnchorLimitOffset;
     }
 
     get overflowed() {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
         return this._overflowed;
     }
 
@@ -121,39 +121,64 @@ export abstract class ScrollDimension {
         this._valid = false;
     }
 
-    ensureValid() {
-        if (this._valid) {
-            return true;
-        } else {
-            this.compute();
-            this._valid = true;
-            this._viewportStart = this.computedEventer(false);
-            this.changedEventer();
-            return false;
-        }
+    ensureValidOutsideAnimationFrame() {
+        return this.ensureValid(false);
     }
 
-    ensureValidWhileWithinAnimationFrame() {
-        if (this._valid) {
-            return true;
-        } else {
-            this.compute();
-            this._valid = true;
-            this._viewportStart = this.computedEventer(true);
-            setTimeout(() => this.changedEventer(), 0);
-            return false;
-        }
+    ensureValidInsideAnimationFrame() {
+        return this.ensureValid(true);
     }
 
     setViewportStart(value: number | undefined, withinAnimationFrame: boolean) {
         if (value !== this._viewportStart) {
             this._viewportStart = value;
             if (withinAnimationFrame) {
-                setTimeout(() => this._viewportStartChangedEventer(), 0);
+                setTimeout(() => this.notifyViewportStartChanged(), 0);
             } else {
-                this._viewportStartChangedEventer();
+                this.notifyViewportStartChanged();
             }
         }
+    }
+
+    isScrollAnchorWithinStartLimit(index: number, offset: number) {
+        const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
+        const result =
+            (index > startScrollAnchorLimitIndex)
+            ||
+            (
+                (index === startScrollAnchorLimitIndex) &&
+                (offset >= this.startScrollAnchorLimitOffset)
+            );
+        return result;
+    }
+
+    isScrollAnchorWithinFinishLimit(index: number, offset: number) {
+        const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
+        const result =
+            (index < finishScrollAnchorLimitIndex)
+            ||
+            (
+                (index === finishScrollAnchorLimitIndex) &&
+                (offset <= this.finishScrollAnchorLimitOffset)
+            );
+        return result;
+    }
+
+    calculateLimitedScrollAnchor(index: number, offset: number): ScrollDimension.Anchor {
+        if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
+            index = this.startScrollAnchorLimitIndex;
+            offset = this.startScrollAnchorLimitOffset;
+        } else {
+            if (!this.isScrollAnchorWithinFinishLimit(index, offset)) {
+                index = this.finishScrollAnchorLimitIndex;
+                offset = this.finishScrollAnchorLimitOffset;
+            }
+        }
+
+        return {
+            index,
+            offset
+        };
     }
 
     protected setDimensionValues(
@@ -176,6 +201,36 @@ export abstract class ScrollDimension {
     }
 
     protected abstract compute(): void;
+
+    private ensureValid(withinAnimationFrame: boolean) {
+        if (this._valid) {
+            return true;
+        } else {
+            this.compute();
+            this._valid = true;
+            const viewportStart = this.computedEventer(withinAnimationFrame);
+            const viewportStartChanged = viewportStart !== this._viewportStart;
+            this._viewportStart = viewportStart;
+            if (withinAnimationFrame) {
+                setTimeout(() => this.notifyChanged(viewportStartChanged), 0);
+            } else {
+                this.notifyChanged(viewportStartChanged);
+            }
+            return false;
+        }
+    }
+
+    private notifyChanged(viewportStartChanged: boolean) {
+        this.changedEventer();
+        if (viewportStartChanged) {
+            this.notifyViewportStartChanged();
+        }
+    }
+
+    private notifyViewportStartChanged() {
+        this.scrollerTargettedViewportStartChangedEventer();
+        this.eventBehaviorTargettedViewportStartChangedEventer();
+    }
 }
 
 export namespace ScrollDimension {

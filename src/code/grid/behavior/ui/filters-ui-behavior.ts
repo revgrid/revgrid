@@ -77,8 +77,8 @@ export class FiltersUiBehavior extends UiBehavior {
 
     private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell, deltaX: number) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
-        let gridX = cellEvent.visibleColumn.index;
-        const gridY = cellEvent.visibleRow.index;
+        let gridX = cellEvent.viewLayoutColumn.index;
+        const gridY = cellEvent.viewLayoutRow.index;
         const originX = gridX;
         const C = this.viewLayout.columns.length;
 
@@ -100,7 +100,7 @@ export class FiltersUiBehavior extends UiBehavior {
 
     private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
-        const gridX = cellEvent.visibleColumn.index;
+        const gridX = cellEvent.viewLayoutColumn.index;
 
         // Select first visible grid cell of this column
         this.selectionBehavior.selectOnlyViewCell(gridX, this.subgridsManager.calculateHeaderRowCount(), SelectionArea.TypeSpecifier.Primary);

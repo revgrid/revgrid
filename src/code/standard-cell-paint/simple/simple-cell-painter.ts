@@ -28,9 +28,9 @@ export class SimpleCellPainter implements CellPainter {
         const isMainRow = subgrid.isMain;
         const isHeaderRow = subgrid.isHeader;
         const isFilterRow = subgrid.isFilter;
-        const activeColumnIndex = cell.visibleColumn.activeColumnIndex;
+        const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
         const dataRow = dataPoint.y;
-        const value = subgrid.getValue(cell.visibleColumn.column, dataRow);
+        const value = subgrid.getValue(cell.viewLayoutColumn.column, dataRow);
 
         config.dataCell = dataPoint;
 
@@ -84,12 +84,12 @@ export class SimpleCellPainter implements CellPainter {
         const columnHovered =
             hasMouse &&
             (hoverCell !== undefined) &&
-            (hoverCell.visibleColumn.activeColumnIndex === activeColumnIndex);
+            (hoverCell.viewLayoutColumn.activeColumnIndex === activeColumnIndex);
         const rowHovered =
             hasMouse &&
             subgrid.isMain &&
             (hoverCell !== undefined) &&
-            (hoverCell.visibleRow.index === cell.visibleRow.index);
+            (hoverCell.viewLayoutRow.index === cell.viewLayoutRow.index);
 
         config.isColumnHovered = columnHovered;
         config.isRowHovered = rowHovered;

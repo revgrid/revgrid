@@ -36,7 +36,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         }
         if (cell !== null) {
             if (cell.isRowFixed && cell.isHeaderCell) {
-                const columnProperties = this.columnsManager.getActiveColumnProperties(cell.visibleColumn.activeColumnIndex);
+                const columnProperties = this.columnsManager.getActiveColumnProperties(cell.viewLayoutColumn.activeColumnIndex);
                 if ((columnProperties !== undefined) && columnProperties.sortable) {
                     this.cursor = 'pointer';
                 } else {
@@ -59,8 +59,8 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         ) {
             const eventDetail: EventDetail.ColumnSort = {
                 time: Date.now(),
-                column: cell.visibleColumn.column,
-                activeColumnIndex: cell.visibleColumn.activeColumnIndex,
+                column: cell.viewLayoutColumn.column,
+                activeColumnIndex: cell.viewLayoutColumn.activeColumnIndex,
                 altKey: event.altKey,
                 ctrlKey: event.ctrlKey,
                 metaKey: event.metaKey,

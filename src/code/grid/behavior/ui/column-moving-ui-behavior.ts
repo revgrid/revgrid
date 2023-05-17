@@ -163,7 +163,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             }
             if (cell !== null) {
                 if (!this.sharedState.columnMovingDragging) {
-                    this._dragCol = cell.visibleColumn;
+                    this._dragCol = cell.viewLayoutColumn;
                     this._dragOverlay.width = this.canvasEx.width;
                     this._dragOverlay.height = this.canvasEx.height;
                     this._dragOverlay.style.display = '';

@@ -14,7 +14,7 @@ export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
 
     constructor(grid: Revgrid, viewCell: ViewCell, isHeader: boolean, isFilter: boolean) {
         this._gridSettings = grid.settings;
-        const column = viewCell.visibleColumn.column;
+        const column = viewCell.viewLayoutColumn.column;
         this._columnSettings = column.settings;
         this.columnName = column.name;
         if (isHeader) {

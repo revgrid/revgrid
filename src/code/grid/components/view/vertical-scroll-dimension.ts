@@ -9,12 +9,10 @@ export class VerticalScrollDimension extends ScrollDimension {
         private readonly _gridSettings: GridSettings,
         canvasEx: CanvasEx,
         private readonly _subgridsManager: SubgridsManager,
-        viewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer,
     ) {
         super(
             HorizontalVertical.Vertical,
             canvasEx,
-            viewportStartChangedEventer,
         );
     }
 

@@ -6,7 +6,6 @@ import { cssInjector } from './css-injector';
 // Following is the sole style requirement for bar and thumb elements.
 // Maintained in code so not dependent being in stylesheet.
 const BAR_STYLE = 'position: absolute;';
-const THUMB_STYLE = 'position: absolute;';
 
 export class Scroller {
     /**
@@ -31,6 +30,7 @@ export class Scroller {
      * Set this property to `null` to stop emitting such events.
      */
     actionEventer: Scroller.ActionEventer;
+    visibilityChangedEventer: Scroller.VisibilityChangedEventer;
 
     /**
      * @name paging
@@ -45,16 +45,13 @@ export class Scroller {
      */
     paging: boolean | Scroller.Paging;
 
-    // Only use index and not viewport - legacy to support vertical scrolling until it uses viewport
-    private _indexMode: boolean;
     /**
      * @summary The generated scrollbar thumb element.
      * @desc The thumb element's parent element is always the {@link Scroller#bar|bar} element.
      *
      * This property is typically referenced internally only. The size and position of the thumb element is maintained by `_calcThumb()`.
      */
-    private thumb: HTMLDivElement;
-    private _orientation: Scroller.Orientation;
+    private _thumb: HTMLDivElement;
     /**
      * @readonly
      * @summary <u>O</u>rientation <u>h</u>ash for this scrollbar.
@@ -64,7 +61,7 @@ export class Scroller {
      *
      * This object is useful externally for coding generalized {@link finbarOnChange} event handler functions that serve both horizontal and vertical scrollbars.
      */
-    private oh: OrientationHash;
+    private readonly _orientationHash: OrientationHash;
     /**
      * @summary The name of the `WheelEvent` property this scrollbar should listen to.
      * @desc Set by the constructor. See the similarly named property in the {@link finbarOptions} object.
@@ -75,10 +72,10 @@ export class Scroller {
      *
      * Caveat: Note that a 2-finger drag on an Apple trackpad emits events with _both_ `deltaX ` and `deltaY` data so you might want to delay making the above adjustment until you can determine that you are getting Y data only with no X data at all (which is a sure bet you on a mouse wheel rather than a trackpad).
      */
-    private deltaProp: Scroller.DeltaProp;
+    private readonly _deltaProp: Scroller.DeltaProp;
 
+    private readonly _classPrefix: string;
 
-    private _classPrefix: string | undefined
     private _auxStyles?: Record<string, string>;
     private testPanelItem: Scroller.TestPanelItem | undefined;
     /**
@@ -96,7 +93,7 @@ export class Scroller {
     // private container: HTMLElement;
     // private content: HTMLElement;
 
-    private dragging: boolean;
+    private _dragging: boolean;
     /**
      * Wheel metric normalization, applied equally to all three axes.
      *
@@ -177,54 +174,72 @@ export class Scroller {
      */
     constructor(
         private readonly _scrollDimension: ScrollDimension,
-        options: Scroller.Options
+        private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
+        private readonly orientation: Scroller.Orientation,
+        deltaXFactor: number,
+        deltaYFactor: number,
+        classPrefix: string | undefined,
+        loadBuiltinCssStylesheet: boolean,
+        cssStylesheetReferenceElement: HTMLElement,
+        private readonly _spaceAccomodatedScroller: Scroller | undefined,
     ) {
-        this._indexMode = options.indexMode === true;
         // make bound versions of all the mouse event handler
         const bound = this._bound;
-        this.thumb = document.createElement('div');
-        const thumb = this.thumb;
+        this._thumb = document.createElement('div');
+        const thumb = this._thumb;
         thumb.classList.add('thumb');
-        thumb.setAttribute('style', THUMB_STYLE);
+        thumb.style.position = 'absolute';
         thumb.onclick = bound.shortStop;
         thumb.onmouseover = bound.onmouseover;
         thumb.onmouseout = this._bound.onmouseout;
 
         this.bar = document.createElement('div');
         const bar = this.bar;
-        bar.classList.add('finbar-vertical');
-        bar.setAttribute('style', BAR_STYLE);
+        bar.style.position = 'absolute';
         bar.onmousedown = this._bound.onmousedown;
         if (this.paging) { bar.onclick = bound.onclick; }
         bar.appendChild(thumb);
         bar.addEventListener('wheel', this._bound.onwheel);
 
-        options = options || {};
-
         // presets
-        this.orientation = options.orientation ?? Scroller.OrientationEnum.vertical;
-        this.increment = options.increment ?? 1;
-        this.paging = options.paging ?? true;
-        this.barStyles = options.barStyles ?? null;
-        this.deltaProp = options.deltaProp ?? (this.orientation === Scroller.OrientationEnum.vertical ? Scroller.DeltaPropEnum.deltaY : Scroller.DeltaPropEnum.deltaX);
-        this.deltaXFactor = options.deltaXFactor ?? 1;
-        this.deltaYFactor = options.deltaYFactor ?? 1;
-        this.deltaZFactor = options.deltaZFactor ?? 1;
-        this.classPrefix = options.classPrefix;
+        this.orientation = orientation;
+        if (classPrefix === undefined || classPrefix === '') {
+            this._classPrefix = Scroller.defaultClassPrefix;
+        } else {
+            this._classPrefix = classPrefix;
+        }
+        this._orientationHash = orientationHashes[this.orientation];
+        bar.classList.add(`${this._classPrefix}-${orientation}`);
+        this._deltaProp = this._orientationHash.delta;
+        this.increment = 1;
+        this.paging = true;
+        this.barStyles = null;
+        this._deltaProp = (this.orientation === 'vertical' ? Scroller.DeltaPropEnum.deltaY : Scroller.DeltaPropEnum.deltaX);
+        this.deltaXFactor = deltaXFactor;
+        this.deltaYFactor = deltaYFactor;
+        this.deltaZFactor = 1;
         // this.container = options.container;
         // this.content = options.content;
 
         // this.normal = getNormal();
 
-        if (options.loadBuiltinCssStylesheet !== false) {
-            cssInjector(cssFinBars, 'finbar-base', options.cssStylesheetReferenceElement);
+        if (loadBuiltinCssStylesheet) {
+            cssInjector(cssFinBars, 'finbar-base', cssStylesheetReferenceElement);
         }
 
         this._scrollDimension.changedEventer = () => {
             if (this._indexMode) {
                 const index = this.index;
                 this.index = index; // re-clamp
+            } else {
+                this.setThumbSize();
             }
+        }
+
+        this._scrollDimension.scrollerTargettedViewportStartChangedEventer = () => this.handleViewportStartChanged();
+
+        if (this._spaceAccomodatedScroller !== undefined) {
+            this._spaceAccomodatedScroller.visibilityChangedEventer = () => this.handleSpaceAccomodatedScrollerVisibilityChangedEvent();
         }
     }
 
@@ -237,62 +252,33 @@ export class Scroller {
      *
      * Setting this property resets `this.oh` and `this.deltaProp` and changes the class names so as to reposition the scrollbar as per the CSS rules for the new orientation.
      */
-    set orientation(orientation: Scroller.Orientation) {
-        if (orientation === this._orientation) {
-            return;
-        }
+    // set orientation(orientation: Scroller.Orientation) {
+    //     if (orientation === this._orientation) {
+    //         return;
+    //     }
 
-        this._orientation = orientation;
+    //     this._orientation = orientation;
 
-        this.oh = orientationHashes[this._orientation];
+    //     this._orientationHash = orientationHashes[this._orientation];
 
-        if (!this.oh) {
-            error('Invalid value for `options._orientation.');
-        }
+    //     if (!this._orientationHash) {
+    //         error('Invalid value for `options._orientation.');
+    //     }
 
-        this.deltaProp = this.oh.delta;
+    //     this._deltaProp = this._orientationHash.delta;
 
-        this.bar.className = this.bar.className.replace(/(vertical|horizontal)/g, orientation);
+    //     this.bar.className = this.bar.className.replace(/(vertical|horizontal)/g, orientation);
 
-        if (this.bar.style.cssText !== BAR_STYLE || this.thumb.style.cssText !== THUMB_STYLE) {
-            this.bar.setAttribute('style', BAR_STYLE);
-            this.thumb.setAttribute('style', THUMB_STYLE);
-            this.resize();
-        }
-    }
+    //     if (this.bar.style.cssText !== BAR_STYLE || this._thumb.style.cssText !== THUMB_STYLE) {
+    //         this.bar.setAttribute('style', BAR_STYLE);
+    //         this._thumb.setAttribute('style', THUMB_STYLE);
+    //         this.resize();
+    //     }
+    // }
 
-    get orientation() {
-        return this._orientation;
-    }
-
-    /**
-     * @summary Add a CSS class name to the bar element's class list.
-     * @desc Set by the constructor. See the similarly named property in the {@link finbarOptions} object.
-     *
-     * The bar element's class list will always include `finbar-vertical` (or `finbar-horizontal` based on the current orientation). Whenever this property is set to some value, first the old prefix+orientation is removed from the bar element's class list; then the new prefix+orientation is added to the bar element's class list. This property causes _an additional_ class name to be added to the bar element's class list. Therefore, this property will only add at most one additional class name to the list.
-     *
-     * To remove _classname-orientation_ from the bar element's class list, set this property to a falsy value, such as `null`.
-     *
-     * > NOTE: You only need to specify an additional class name when you need to have mulltiple different styles of scrollbars on the same page. If this is not a requirement, then you don't need to make a new class; you would just create some additional rules using the same selectors in the built-in stylesheet (../css/finbars.css):
-     * *`div.finbar-vertical` (or `div.finbar-horizontal`) for the scrollbar
-     * *`div.finbar-vertical > div` (or `div.finbar-horizontal > div`) for the "thumb."
-     *
-     * Of course, your rules should come after the built-ins.
-     */
-    set classPrefix(prefix: string | undefined) {
-        if (this._classPrefix !== undefined) {
-            this.bar.classList.remove(this._classPrefix + this.orientation);
-        }
-
-        this._classPrefix = prefix;
-
-        if (prefix !== undefined) {
-            this.bar.classList.add(prefix + '-' + this.orientation);
-        }
-    }
-    get classPrefix() {
-        return this._classPrefix;
-    }
+    // get orientation() {
+    //     return this._orientation;
+    // }
 
     /**
      * @name style
@@ -300,7 +286,7 @@ export class Scroller {
      * @desc See type definition for more details. These styles are applied directly to the scrollbar's `bar` element.
      *
      * Values are adjusted as follows before being applied to the element:
-     * 1. Included "pseudo-property" names from the scrollbar's orientation hash, {@link Scroller#oh|oh}, are translated to actual property names before being applied.
+     * 1. Included "pseudo-property" names from the scrollbar's orientation hash, {@link Scroller#_orientationHash|oh}, are translated to actual property names before being applied.
      * 2. When there are margins, percentages are translated to absolute pixel values because CSS ignores margins in its percentage calculations.
      * 3. If you give a value without a unit (a raw number), "px" unit is appended.
      *
@@ -328,7 +314,7 @@ export class Scroller {
                 throw new AssertError('F23334');
             } else {
                 const containerRect = container.getBoundingClientRect();
-                const oh = this.oh;
+                const oh = this._orientationHash;
 
                 // Before applying new styles, revert all styles to values inherited from stylesheets
                 bar.setAttribute('style', BAR_STYLE);
@@ -373,7 +359,7 @@ export class Scroller {
     set index(idx: number | undefined) {
         if (idx !== undefined) {
             idx = Math.min(this._scrollDimension.finish, Math.max(this._scrollDimension.start, idx)); // clamp it
-            this.setThumbPosition(idx, undefined);
+            this.setThumbPosition(idx);
         // this._setThumbSize();
         }
     }
@@ -381,72 +367,39 @@ export class Scroller {
         return this._scrollDimension.viewportStart;
     }
 
-    get viewportStart() {
-        return this._scrollDimension.viewportStart;
-    }
-
-    get viewportFinish() {
-        return this._scrollDimension.viewportFinish;
-    }
-
     get hidden() {
         return this.bar.style.visibility === 'hidden'
     }
 
-    processViewportStartChanged() {
-        const viewportStart = this._scrollDimension.viewportStart;
-        this.setThumbPosition(viewportStart, undefined);
+    get thickness() {
+        const computedStyle = window.getComputedStyle(this.bar);
+        return computedStyle[this._orientationHash.thickness];
     }
 
-    scrollBy(delta: number) {
-        const viewportStart = this._scrollDimension.viewportStart;
-        if (viewportStart !== undefined) {
-            // make sure does not go beyond end edge
-            let newViewportStart = viewportStart + delta;
-            if (newViewportStart < this._scrollDimension.start) {
-                newViewportStart = this._scrollDimension.start;
-            } else {
-                const viewportNext = newViewportStart + this._scrollDimension.viewportSize;
-                if (viewportNext > this._scrollDimension.after) {
-                    newViewportStart = this._scrollDimension.after - this._scrollDimension.viewportSize;
-                }
-            }
-            this.setThumbPosition(newViewportStart, undefined);
-        }
-    }
+    // scrollBy(delta: number) {
+    //     const viewportStart = this._scrollDimension.viewportStart;
+    //     if (viewportStart !== undefined) {
+    //         // make sure does not go beyond end edge
+    //         let newViewportStart = viewportStart + delta;
+    //         if (newViewportStart < this._scrollDimension.start) {
+    //             newViewportStart = this._scrollDimension.start;
+    //         } else {
+    //             const viewportNext = newViewportStart + this._scrollDimension.viewportSize;
+    //             if (viewportNext > this._scrollDimension.after) {
+    //                 newViewportStart = this._scrollDimension.after - this._scrollDimension.viewportSize;
+    //             }
+    //         }
+    //         this.setThumbPosition(newViewportStart);
+    //     }
+    // }
 
-    scrollIndexBy(delta: number) {
-        const viewportStart = this._scrollDimension.viewportStart;
-        if (viewportStart !== undefined) {
-            // same as scroll(). Separate call for VScroller. Remove when VScroller uses Viewport
-            this.index = viewportStart + delta;
-        }
-    }
-
-    /**
-     * @summary Move the thumb.
-     * @desc Also displays the index value in the test panel and invokes the callback.
-     * @param viewportStart - The new scroll index, a value in the range `min`..`max`.
-     * @param barPosition - The new thumb position in pixels and scaled relative to the containing {@link Scroller#bar|bar} element, i.e., a proportional number in the range `0`..`thumbMax`.
-     */
-    private setThumbPosition(viewportStart: number | undefined, barPosition: number | undefined) {
-        if (viewportStart !== undefined) {
-            // Display the index value in the test panel
-            if (this.testPanelItem && this.testPanelItem.index instanceof HTMLElement) {
-                this.testPanelItem.index.innerHTML = Math.round(viewportStart).toString();
-            }
-
-            // Move the thumb
-            if (barPosition === undefined) {
-                if (this._indexMode) {
-                    barPosition = (viewportStart - this._scrollDimension.start) / (this._scrollDimension.finish - this._scrollDimension.start) * this._thumbMax;
-                } else {
-                    barPosition = (viewportStart - this._scrollDimension.start) * this._thumbScaling;
-                }
-            }
-            this.thumb.style[this.oh.leading] = barPosition + 'px';
-        }
-    }
+    // scrollIndexBy(delta: number) {
+    //     const viewportStart = this._scrollDimension.viewportStart;
+    //     if (viewportStart !== undefined) {
+    //         // same as scroll(). Separate call for VScroller. Remove when VScroller uses Viewport
+    //         this.index = viewportStart + delta;
+    //     }
+    // }
 
     // scrollRealContent(idx: number) {
     //     const containerRect = this.content.parentElement.getBoundingClientRect();
@@ -475,7 +428,7 @@ export class Scroller {
      *
      * @returns Self for chaining.
      */
-    resize(): Scroller {
+    resize() {
         // const bar = this.bar;
 
         // if (!bar.parentNode) {
@@ -527,66 +480,16 @@ export class Scroller {
         if (this._indexMode) {
             this.index = index;
         }
-
-        return this;
-    }
-
-    /**
-     * @summary Shorten trailing end of scrollbar by thickness of some other scrollbar.
-     * @desc In the "classical" scenario where vertical scroll bar is on the right and horizontal scrollbar is on the bottom, you want to shorten the "trailing end" (bottom and right ends, respectively) of at least one of them so they don't overlay.
-     *
-     * This convenience function is an programmatic alternative to hardcoding the correct style with the correct value in your stylesheet; or setting the correct style with the correct value in the {@link Scroller#barStyles|barStyles} object.
-     *
-     * @see {@link Scroller#foreshortenBy|foreshortenBy}.
-     *
-     * @param otherFinBar - Other scrollbar to avoid by shortening this one; `null` removes the trailing space
-     * @returns Self for chaining
-     */
-    shortenBy(otherFinBar: Scroller | null) {
-        return this.shortenEndBy('trailing', otherFinBar);
-    }
-
-    /**
-     * @summary Shorten leading end of scrollbar by thickness of some other scrollbar.
-     * @desc Supports non-classical scrollbar scenarios where vertical scroll bar may be on left and horizontal scrollbar may be on top, in which case you want to shorten the "leading end" rather than the trailing end.
-     * @see {@link Scroller#shortenBy|shortenBy}.
-     * @param otherFinBar - Other scrollbar to avoid by shortening this one; `null` removes the trailing space
-     * @returns Self for chaining
-     */
-    foreshortenBy(otherFinBar: Scroller | null) {
-        return this.shortenEndBy('leading', otherFinBar);
-    }
-
-    /**
-     * @summary Generalized shortening function.
-     * @see {@link Scroller#shortenBy|shortenBy}.
-     * @see {@link Scroller#foreshortenBy|foreshortenBy}.
-     * @param whichEnd - a CSS style property name or an orientation hash name that translates to a CSS style property name.
-     * @param otherFinBar - Other scrollbar to avoid by shortening this one; `null` removes the trailing space
-     * @returns Self for chaining
-     */
-    shortenEndBy(whichEnd: 'trailing' | 'leading', otherFinBar: Scroller | null) {
-        if (!otherFinBar) {
-            delete this._auxStyles;
-        } else {
-            if (otherFinBar instanceof Scroller && otherFinBar.orientation !== this.orientation) {
-                const otherStyle = window.getComputedStyle(otherFinBar.bar);
-                const ooh = orientationHashes[otherFinBar.orientation];
-                this._auxStyles = {};
-                this._auxStyles[whichEnd] = otherStyle[ooh.thickness];
-            }
-        }
-        return this; // for chaining
     }
 
     /**
      * @summary Remove the scrollbar.
      * @desc Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
      */
-    remove() {
+    destroy() {
         this.bar.onmousedown = null;
-        this._removeEvt('mousemove');
-        this._removeEvt('mouseup');
+        this.removeEventListener('mousemove');
+        this.removeEventListener('mouseup');
 
         const parentElement = this.bar.parentElement;
         if (parentElement === null) {
@@ -594,13 +497,42 @@ export class Scroller {
         } else {
             parentElement.removeEventListener('wheel', this._bound.onwheel);
 
-            this.bar.onclick =
-                this.thumb.onclick =
-                    this.thumb.onmouseover =
-                        this.thumb.ontransitionend =
-                            this.thumb.onmouseout = null;
+            this.bar.onclick = null;
+            this._thumb.onclick = null;
+            this._thumb.onmouseover = null;
+            this._thumb.ontransitionend = null;
+            this._thumb.onmouseout = null;
 
             this.bar.remove();
+        }
+    }
+
+    private handleViewportStartChanged() {
+        const viewportStart = this._scrollDimension.viewportStart;
+        this.setThumbPosition(viewportStart);
+    }
+
+    /**
+     * @summary Move the thumb.
+     * @desc Also displays the index value in the test panel and invokes the callback.
+     * @param viewportStart - The new scroll index, a value in the range `min`..`max`.
+     * @param barPosition - The new thumb position in pixels and scaled relative to the containing {@link Scroller#bar|bar} element, i.e., a proportional number in the range `0`..`thumbMax`.
+     */
+    private setThumbPosition(viewportStart: number | undefined) {
+        if (viewportStart !== undefined) {
+            // Display the index value in the test panel
+            if (this.testPanelItem && this.testPanelItem.index instanceof HTMLElement) {
+                this.testPanelItem.index.innerHTML = Math.round(viewportStart).toString();
+            }
+
+            // Move the thumb
+            let barPosition: number;
+            if (this._indexMode) {
+                barPosition = (viewportStart - this._scrollDimension.start) / (this._scrollDimension.finish - this._scrollDimension.start) * this._thumbMax;
+            } else {
+                barPosition = (viewportStart - this._scrollDimension.start) * this._thumbScaling;
+            }
+            this._thumb.style[this._orientationHash.leading] = barPosition + 'px';
         }
     }
 
@@ -609,21 +541,32 @@ export class Scroller {
      * @desc The thumb size has an absolute minimum of 20 (pixels).
      */
     private setThumbSize() {
-        const oh = this.oh;
-        const thumbComp = window.getComputedStyle(this.thumb);
+        const oh = this._orientationHash;
+        const thumbComp = window.getComputedStyle(this._thumb);
         const thumbMarginLeading = parseInt(thumbComp[oh.marginLeading]);
         const thumbMarginTrailing = parseInt(thumbComp[oh.marginTrailing]);
         const thumbMargins = thumbMarginLeading + thumbMarginTrailing;
         const barSize = this.bar.getBoundingClientRect()[oh.size];
 
+        const oldHidden = this.hidden;
         if (this._scrollDimension.overflowed === true) {
             this._thumbScaling = barSize / this._scrollDimension.size;
             const thumbSize = Math.max(20, barSize * this._scrollDimension.viewportSize / this._scrollDimension.size);
-            this.bar.style.visibility = 'visible';
-            this.thumb.style[oh.size] = thumbSize + 'px';
+            this._thumb.style[oh.size] = thumbSize + 'px';
             this._thumbMax = barSize - thumbSize - thumbMargins;
+            if (oldHidden) {
+                this.bar.style.visibility = 'visible';
+                if (this.visibilityChangedEventer !== undefined) {
+                    this.visibilityChangedEventer();
+                }
+            }
         } else {
-            this.bar.style.visibility = 'hidden';
+            if (!oldHidden) {
+                this.bar.style.visibility = 'hidden';
+                if (this.visibilityChangedEventer !== undefined) {
+                    this.visibilityChangedEventer();
+                }
+            }
         }
 
 
@@ -666,13 +609,13 @@ export class Scroller {
         return testPanelItem;
     }
 
-    private _addEvt(evtName: string) {
+    private addEventListener(evtName: string) {
         const spy = this.testPanelItem && this.testPanelItem[evtName];
         if (spy) { spy.classList.add('listening'); }
         window.addEventListener(evtName, this._bound['on' + evtName]);
     }
 
-    private _removeEvt(evtName: string) {
+    private removeEventListener(evtName: string) {
         const spy = this.testPanelItem && this.testPanelItem[evtName];
         if (spy) { spy.classList.remove('listening'); }
         window.removeEventListener(evtName, this._bound['on' + evtName]);
@@ -685,7 +628,7 @@ export class Scroller {
     private onwheel(evt: WheelEvent) {
         const index = this.index;
         if (index !== undefined) {
-            this.index = index + evt[this.deltaProp] * this[this.deltaProp + 'Factor'] /* * this.normal */;
+            this.index = index + evt[this._deltaProp] * this[this._deltaProp + 'Factor'] /* * this.normal */;
             evt.stopPropagation();
             evt.preventDefault();
         }
@@ -694,8 +637,8 @@ export class Scroller {
     private onclick(evt: MouseEvent) {
         const index = this.index;
         if (index !== undefined) {
-            const thumbBox = this.thumb.getBoundingClientRect(),
-                goingUp = evt[this.oh.coordinate] < thumbBox[this.oh.leading];
+            const thumbBox = this._thumb.getBoundingClientRect(),
+                goingUp = evt[this._orientationHash.coordinate] < thumbBox[this._orientationHash.leading];
 
             if (typeof this.paging === 'object') {
                 const newIndex = this.paging[goingUp ? 'up' : 'down'](Math.round(index));
@@ -707,10 +650,10 @@ export class Scroller {
             }
 
             // make the thumb glow momentarily
-            this.thumb.classList.add('hover');
+            this._thumb.classList.add('hover');
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const self = this;
-            this.thumb.addEventListener('transitionend', function waitForIt() {
+            this._thumb.addEventListener('transitionend', function waitForIt() {
                 this.removeEventListener('transitionend', waitForIt);
                 self._bound.onmouseup(evt);
             });
@@ -720,24 +663,24 @@ export class Scroller {
     }
 
     private onmouseover() {
-        this.thumb.classList.add('hover');
+        this._thumb.classList.add('hover');
     }
 
     private onmouseout() {
-        if (!this.dragging) {
-            this.thumb.classList.remove('hover');
+        if (!this._dragging) {
+            this._thumb.classList.remove('hover');
         }
     }
 
     private onmousedown(evt: MouseEvent) {
-        const thumbBox = this.thumb.getBoundingClientRect();
-        this._pinOffset = evt[this.oh.axis] - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this._thumbMarginLeading;
+        const thumbBox = this._thumb.getBoundingClientRect();
+        this._pinOffset = evt[this._orientationHash.axis] - thumbBox[this._orientationHash.leading] + this.bar.getBoundingClientRect()[this._orientationHash.leading] + this._thumbMarginLeading;
         document.documentElement.style.cursor = 'default';
 
-        this.dragging = true;
+        this._dragging = true;
 
-        this._addEvt('mousemove');
-        this._addEvt('mouseup');
+        this.addEventListener('mousemove');
+        this.addEventListener('mouseup');
 
         evt.stopPropagation();
         evt.preventDefault();
@@ -754,10 +697,10 @@ export class Scroller {
         let viewportStart: number;
 
         if (this._indexMode) {
-            barPosition = Math.min(this._thumbMax, Math.max(0, evt[this.oh.axis] - this._pinOffset));
+            barPosition = Math.min(this._thumbMax, Math.max(0, evt[this._orientationHash.axis] - this._pinOffset));
             viewportStart = barPosition / this._thumbMax * (this._scrollDimension.finish - this._scrollDimension.start) + this._scrollDimension.start;
         } else {
-            barPosition = evt[this.oh.axis] - this._pinOffset;
+            barPosition = evt[this._orientationHash.axis] - this._pinOffset;
             if (barPosition < 0) {
                 // make sure does not go beyond start edge
                 barPosition = 0;
@@ -786,14 +729,14 @@ export class Scroller {
     }
 
     private onmouseup(evt: MouseEvent) {
-        this._removeEvt('mousemove');
-        this._removeEvt('mouseup');
+        this.removeEventListener('mousemove');
+        this.removeEventListener('mouseup');
 
-        this.dragging = false;
+        this._dragging = false;
 
         document.documentElement.style.cursor = 'auto';
 
-        const thumbBox = this.thumb.getBoundingClientRect();
+        const thumbBox = this._thumb.getBoundingClientRect();
         if (
             thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
             thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom
@@ -806,9 +749,25 @@ export class Scroller {
         evt.stopPropagation();
         evt.preventDefault();
     }
+
+    private handleSpaceAccomodatedScrollerVisibilityChangedEvent() {
+        const spaceAccomodatedScroller = this._spaceAccomodatedScroller;
+        if (spaceAccomodatedScroller === undefined) {
+            throw new AssertError('SHSACVCE33321');
+        } else {
+            this._auxStyles = {};
+            if (!spaceAccomodatedScroller.hidden) {
+                // use 'leading' if reduce size at other end
+                this._auxStyles['trailing'] = spaceAccomodatedScroller.thickness;
+            }
+            this.style = {};
+        }
+    }
 }
 
 export namespace Scroller {
+    export const defaultClassPrefix = 'finbar';
+
     export interface Options {
         indexMode?: boolean;
         orientation?: Orientation;
@@ -827,11 +786,7 @@ export namespace Scroller {
         cssStylesheetReferenceElement?: null | Element | string;
     }
 
-    export const enum OrientationEnum {
-        vertical = 'vertical',
-        horizontal = 'horizontal',
-    }
-    export type Orientation = keyof typeof OrientationEnum;
+    export type Orientation = keyof OrientationHashes;
 
     export const enum DeltaPropEnum {
         deltaX = 'deltaX',
@@ -875,8 +830,8 @@ export namespace Scroller {
 
     export type BarStyles = Record<string, string>;
 
-    export type OnChange = (this: void, index: number) => void;
     export type ActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;
+    export type VisibilityChangedEventer = (this: void) => void;
 }
 
 function extend(obj: Record<string, string>, styles: Record<string, string> | undefined, auxStyles: Record<string, string> | undefined) {
@@ -1017,7 +972,3 @@ const axis = {
 /* inject:css */
 const cssFinBars = 'div.finbar-horizontal,div.finbar-vertical{margin:3px}div.finbar-horizontal>.thumb,div.finbar-vertical>.thumb{background-color:#d3d3d3;-webkit-box-shadow:0 0 1px #000;-moz-box-shadow:0 0 1px #000;box-shadow:0 0 1px #000;border-radius:4px;margin:2px;opacity:.4;transition:opacity .5s}div.finbar-horizontal>.thumb.hover,div.finbar-vertical>.thumb.hover{opacity:1;transition:opacity .5s}div.finbar-vertical{top:0;bottom:0;right:0;width:11px}div.finbar-vertical>.thumb{top:0;right:0;width:7px}div.finbar-horizontal{left:0;right:0;bottom:0;height:11px}div.finbar-horizontal>.thumb{left:0;bottom:0;height:7px}';
 /* endinject */
-
-function error(msg: string) {
-    throw 'finbars: ' + msg;
-}

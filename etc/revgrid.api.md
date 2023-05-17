@@ -3446,11 +3446,11 @@ export class ViewCell {
     // Warning: (ae-forgotten-export) The symbol "ViewLayoutColumn" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    visibleColumn: ViewLayoutColumn;
+    viewLayoutColumn: ViewLayoutColumn;
     // Warning: (ae-forgotten-export) The symbol "ViewLayoutRow" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    visibleRow: ViewLayoutRow;
+    viewLayoutRow: ViewLayoutRow;
 }
 
 // @public (undocumented)
@@ -3480,7 +3480,7 @@ export namespace WritablePoint {
 //
 // src/code/grid/cell-editor/cell-editor-factory.ts:14:4 - (tsdoc-undefined-tag) The TSDoc tag "@classdesc" is not defined in this configuration
 // src/code/grid/components/selection/selection.ts:20:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/components/view/view-layout.ts:27:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/components/view/view-layout.ts:26:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

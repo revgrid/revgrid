@@ -270,7 +270,7 @@ export class Renderer {
                     try {
                         gc.cache.save();
 
-                        this._viewLayout.ensureValidWhileWithinAnimationFrame();
+                        this._viewLayout.ensureValidInsideAnimationFrame();
 
                         for (let i = 0; i < actionsCount; i++) {
                             const action = renderActions[i];
@@ -318,7 +318,7 @@ export class Renderer {
         // Mostly important on first render after setData. Note that stack overflow
         // will not happen because this will only be called once per data change.
         if (this._columnsManager.checkColumnAutosizing(false, true)) {
-            this._viewLayout.ensureValidWhileWithinAnimationFrame();
+            this._viewLayout.ensureValidInsideAnimationFrame();
             this._gridPainter.paintCells(gc);
         }
 

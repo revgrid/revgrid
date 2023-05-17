@@ -1827,7 +1827,7 @@ export class Revgrid {
     getCellOwnProperties(allXOrRenderedCell: number | ViewCell, y?: number, subgrid?: SubgridInterface) {
         if (typeof allXOrRenderedCell === 'object') {
             // xOrCellEvent is cellEvent
-            const column = allXOrRenderedCell.visibleColumn.column;
+            const column = allXOrRenderedCell.viewLayoutColumn.column;
             y = allXOrRenderedCell.dataPoint.y;
             subgrid = allXOrRenderedCell.subgrid;
             return this._cellPropertiesBehavior.getCellOwnProperties(column, y, subgrid);
@@ -1894,7 +1894,7 @@ export class Revgrid {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
     setCellOwnPropertiesUsingCellEvent(cellEvent: ViewCell, properties: MetaModel.CellOwnProperties) {
-        const column = cellEvent.visibleColumn.column;
+        const column = cellEvent.viewLayoutColumn.column;
         return this._cellPropertiesBehavior.setCellOwnProperties(column, cellEvent.dataPoint.y, properties, cellEvent.subgrid);
     }
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
@@ -1910,7 +1910,7 @@ export class Revgrid {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
     addCellOwnPropertiesUsingCellEvent(cellEvent: ViewCell, properties: MetaModel.CellOwnProperties) {
-        const column = cellEvent.visibleColumn.column;
+        const column = cellEvent.viewLayoutColumn.column;
         return this._cellPropertiesBehavior.addCellOwnProperties(column, cellEvent.dataPoint.y, properties, cellEvent.subgrid);
     }
     addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
@@ -1945,7 +1945,7 @@ export class Revgrid {
         let dataY: number;
         let key: string;
         if (typeof allXOrCellEvent === 'object') {
-            column = allXOrCellEvent.visibleColumn.column,
+            column = allXOrCellEvent.viewLayoutColumn.column,
             dataY = allXOrCellEvent.dataPoint.y;
             key = yOrKey as string;
             value = keyOrValue;

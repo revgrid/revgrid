@@ -22,8 +22,8 @@ export class ViewCell {
     // dataRow: DataRowObject;
     format: string;
     subgrid: SubgridInterface;
-    visibleColumn: ViewLayoutColumn;
-    visibleRow: ViewLayoutRow;
+    viewLayoutColumn: ViewLayoutColumn;
+    viewLayoutRow: ViewLayoutRow;
 
     // partial render support
     paintSnapshot: ViewCell.PaintSnapshot | undefined;
@@ -45,12 +45,12 @@ export class ViewCell {
 
         // this.disabled = undefined;
 
-        this.visibleColumn = visibleColumn;
-        this.visibleRow = visibleRow;
+        this.viewLayoutColumn = visibleColumn;
+        this.viewLayoutRow = visibleRow;
 
         this.subgrid = visibleRow.subgrid;
 
-        this.dataPoint.x = this.visibleColumn.column.index;
+        this.dataPoint.x = this.viewLayoutColumn.column.index;
         this.dataPoint.y = visibleRow.subgridRowIndex;
 
         this.paintSnapshot = undefined;
@@ -84,10 +84,10 @@ export class ViewCell {
      * The raw value of the cell, unformatted.
      */
     get value() {
-        return this.subgrid.getValue(this.visibleColumn.column, this.dataPoint.y);
+        return this.subgrid.getValue(this.viewLayoutColumn.column, this.dataPoint.y);
     }
     set value(value: DataModel.DataValue) {
-        this.subgrid.setValue(this.visibleColumn.column, this.dataPoint.y, value);
+        this.subgrid.setValue(this.viewLayoutColumn.column, this.dataPoint.y, value);
     }
 
     /**
@@ -96,10 +96,10 @@ export class ViewCell {
     get bounds(): ViewCell.Bounds {
         if (this._bounds === undefined) {
             this._bounds = {
-                x: this.visibleColumn.left,
-                y: this.visibleRow.top,
-                width: this.visibleColumn.width,
-                height: this.visibleRow.height
+                x: this.viewLayoutColumn.left,
+                y: this.viewLayoutRow.top,
+                width: this.viewLayoutColumn.width,
+                height: this.viewLayoutRow.height
             }
             return this._bounds;
         } else {
@@ -110,7 +110,7 @@ export class ViewCell {
     get columnProperties() {
         let cp = this._columnProperties;
         if (!cp) {
-            cp = this.visibleColumn.column.settings;
+            cp = this.viewLayoutColumn.column.settings;
             // Next 5 lines were commented out in TypeScript conversion
             // if (this.isHeaderRow || this.isSummaryRow) {
             //     cp = cp.columnHeader;
@@ -133,7 +133,7 @@ export class ViewCell {
     // clone(assign = false) {
     //     const cellEvent = new CellInfo(this.grid, this.gridX, this.gridY);
 
-    //     cellEvent.resetGridXY(this.visibleColumn.index, this.visibleRow.index);
+    //     cellEvent.resetGridXY(this.visibleColumn.index, this.viewLayoutRow.index);
 
     //     if (assign) {
     //         cellEvent.renderer = this.renderer;
@@ -155,13 +155,13 @@ export class ViewCell {
      * "Visible" means scrolled into view.
      */
     get isRowVisible() {
-        return !!this.visibleRow;
+        return !!this.viewLayoutRow;
     }
     /**
      * "Visible" means scrolled into view.
      */
     get isColumnVisible() {
-        return !!this.visibleColumn;
+        return !!this.viewLayoutColumn;
     }
     /**
      * "Visible" means scrolled into view.
@@ -189,7 +189,7 @@ export class ViewCell {
     }
 
     get isColumnFixed() {
-        return this._columnsManager.isColumnFixed(this.visibleColumn.activeColumnIndex);
+        return this._columnsManager.isColumnFixed(this.viewLayoutColumn.activeColumnIndex);
     }
 
     get isCellFixed() {

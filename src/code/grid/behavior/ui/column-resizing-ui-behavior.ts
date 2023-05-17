@@ -71,12 +71,12 @@ export class ColumnResizingUiBehavior extends UiBehavior {
             const canvasOffsetX = event.offsetX;
             if (cell.isHeaderRow && this.overAreaDivider(canvasOffsetX, cell)) {
                 const viewLayoutColumnCount = this.viewLayout.columns.length;
-                let vc = cell.visibleColumn;
+                let vc = cell.viewLayoutColumn;
                 let vcIndex = vc.index;
 
                 const gridRightBottomAligned = this.gridSettings.gridRightAligned;
                 if (!gridRightBottomAligned) {
-                    const cellOffsetX = canvasOffsetX - cell.visibleColumn.left;
+                    const cellOffsetX = canvasOffsetX - cell.viewLayoutColumn.left;
                     if (cellOffsetX <= 3) {
                         vcIndex--;
                         if (vcIndex < 0) {
@@ -87,7 +87,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                             this._dragStartWidth = vc.width;
                         }
                     } else {
-                        this._dragColumn = cell.visibleColumn.column;
+                        this._dragColumn = cell.viewLayoutColumn.column;
                         this._dragStartWidth = cell.bounds.width;
                     }
                 } else {
@@ -101,7 +101,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                             this._dragStartWidth = vc.width;
                         }
                     } else {
-                        this._dragColumn = cell.visibleColumn.column;
+                        this._dragColumn = cell.viewLayoutColumn.column;
                         this._dragStartWidth = cell.bounds.width;
                     }
                 }
@@ -224,10 +224,10 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         } else {
             const canvasOffsetX = event.offsetX;
             if (cell.isHeaderRow && this.overAreaDivider(canvasOffsetX, cell)) {
-                const mouseClickNearLeft = canvasOffsetX - cell.visibleColumn.left <= 3;
+                const mouseClickNearLeft = canvasOffsetX - cell.viewLayoutColumn.left <= 3;
                 const column = mouseClickNearLeft
-                    ? this.columnsManager.getActiveColumn(cell.visibleColumn.activeColumnIndex - 1)
-                    : cell.visibleColumn.column;
+                    ? this.columnsManager.getActiveColumn(cell.viewLayoutColumn.activeColumnIndex - 1)
+                    : cell.viewLayoutColumn.column;
                 column.setWidthToAutoSizing();
                 this.viewLayout.invalidateAll(true);
                 return cell;
@@ -240,7 +240,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
     private overAreaDivider(canvasOffsetX: number, cell: ViewCell): boolean {
         if (!this.gridSettings.gridRightAligned) {
             const leftMostActiveColumnIndex = 0;
-            return (cell.visibleColumn.activeColumnIndex !== leftMostActiveColumnIndex && canvasOffsetX <= 3) || canvasOffsetX >= cell.bounds.width - 3;
+            return (cell.viewLayoutColumn.activeColumnIndex !== leftMostActiveColumnIndex && canvasOffsetX <= 3) || canvasOffsetX >= cell.bounds.width - 3;
         } else {
             const lastViewLayoutColumnIdx = this.viewLayout.columns.length - 1;
             if (lastViewLayoutColumnIdx < 0) {
@@ -248,7 +248,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
             } else {
                 const lastVc = this.viewLayout.columns[lastViewLayoutColumnIdx];
                 const lastColumnIndex = lastVc.activeColumnIndex;
-                return (canvasOffsetX >= -1 && canvasOffsetX <= 3) || (cell.visibleColumn.activeColumnIndex !== lastColumnIndex && canvasOffsetX >= cell.bounds.width - 3);
+                return (canvasOffsetX >= -1 && canvasOffsetX <= 3) || (cell.viewLayoutColumn.activeColumnIndex !== lastColumnIndex && canvasOffsetX >= cell.bounds.width - 3);
             }
         }
     }

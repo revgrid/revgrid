@@ -168,8 +168,6 @@ export class ComponentBehaviorManager {
                 this.canvasEx,
                 this.columnsManager,
                 this.subgridsManager,
-                () => this.processHorizontalScrollViewportStartChangedEvent(),
-                () => this.processVerticalScrollViewportStartChangedEvent(),
             );
 
             this.focus = new Focus(
@@ -207,10 +205,32 @@ export class ComponentBehaviorManager {
                 (cell) => this.processMouseExitedCellEvent(cell),
             );
 
-            this._horizontalScroller = this.createHorizontalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
-            containerHtmlElement.appendChild(this._horizontalScroller.bar);
-            this._verticalScroller = this.createVerticalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet);
+            this._verticalScroller = new Scroller(
+                this.viewLayout.verticalScrollDimension,
+                true, // remove when vertical scrollbar is updated to use viewport
+                'vertical',
+                1,
+                this.gridSettings.wheelVFactor,
+                this.gridSettings.vScrollbarClassPrefix,
+                loadBuiltinFinbarStylesheet,
+                containerHtmlElement,
+                undefined,
+            );
             containerHtmlElement.appendChild(this._verticalScroller.bar);
+
+            this._horizontalScroller = new Scroller(
+                this.viewLayout.horizontalScrollDimension,
+                false,
+                'horizontal',
+                this.gridSettings.wheelHFactor,
+                1,
+                this.gridSettings.hScrollbarClassPrefix,
+                loadBuiltinFinbarStylesheet,
+                containerHtmlElement,
+                this._verticalScroller,
+            );
+            this._horizontalScroller = this.createHorizontalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet, this._verticalScroller);
+            containerHtmlElement.appendChild(this._horizontalScroller.bar);
 
             // Set up model callback handling
 
@@ -366,15 +386,17 @@ export class ComponentBehaviorManager {
 
     destroy() {
         this._destroyed = true;
-        this._modelCallbackRouter.destroy();
-        this.eventBehavior.destroy();
-        // this.scrollBehavior.destroy();
-        this.selectionBehavior.destroy();
-        this.subgridsManager.destroy();
-        this.selection.destroy();
         this.renderer.stop();
         this.canvasEx.stop();
+        this._modelCallbackRouter.destroy();
+        this.selectionBehavior.destroy();
+        this.eventBehavior.destroy();
+        // this.scrollBehavior.destroy();
+        this._horizontalScroller.destroy();
+        this._verticalScroller.destroy();
         this.renderer.destroy();
+        this.selection.destroy();
+        this.subgridsManager.destroy();
     }
 
     allowEvents(allow: boolean){
@@ -591,16 +613,6 @@ export class ComponentBehaviorManager {
     //     }
     // }
 
-    private processHorizontalScrollViewportStartChangedEvent() {
-        this._horizontalScroller.processViewportStartChanged();
-        this.eventBehavior.processHorizontalScrollViewportStartChangedEvent();
-    }
-
-    private processVerticalScrollViewportStartChangedEvent() {
-        this._verticalScroller.processViewportStartChanged();
-        this.eventBehavior.processVerticalScrollViewportStartChangedEvent();
-    }
-
     private processRenderedEvent() {
         this.eventBehavior.processRenderedEvent();
     }
@@ -616,10 +628,9 @@ export class ComponentBehaviorManager {
     }
 
     private processCanvasResizedEvent() {
-        this.viewLayout.invalidateAll(true);
-        this._horizontalScroller.shortenBy(this._verticalScroller).resize();
-        //this._verticalScroller.shortenBy(this._horizontalScroller);
+        this._horizontalScroller.resize();
         this._verticalScroller.resize();
+        this.viewLayout.invalidateAll(true);
         this.eventBehavior.processCanvasResizedEvent();
     }
 
@@ -628,45 +639,36 @@ export class ComponentBehaviorManager {
         this.eventBehavior.processSelectionChangedEvent();
     }
 
-    private createHorizontalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean) {
-        const horzBar = new Scroller(
+    private createHorizontalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean, spaceAccomodatedScroller: Scroller | undefined) {
+        const scroller = new Scroller(
             this.viewLayout.horizontalScrollDimension,
-            {
-                orientation: Scroller.OrientationEnum.horizontal,
-                deltaXFactor: this.gridSettings.wheelHFactor,
-                loadBuiltinCssStylesheet: loadBuiltinFinbarCssStylesheet,
-                cssStylesheetReferenceElement: containerHtmlElement
-            }
+            false,
+            'horizontal',
+            this.gridSettings.wheelHFactor,
+            1,
+            this.gridSettings.hScrollbarClassPrefix,
+            loadBuiltinFinbarCssStylesheet,
+            containerHtmlElement,
+            spaceAccomodatedScroller,
         );
 
-        const hPrefix = this.gridSettings.hScrollbarClassPrefix;
-
-        if (hPrefix && hPrefix !== '') {
-            horzBar.classPrefix = hPrefix;
-        }
-
-        return horzBar;
+        return scroller;
     }
 
-    private createVerticalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean) {
-        const vertBar = new Scroller(
+    private createVerticalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean, spaceAccomodatedScroller: Scroller | undefined) {
+        const scroller = new Scroller(
             this.viewLayout.verticalScrollDimension,
-            {
-                indexMode: true, // remove when vertical scrollbar is updated to use viewport
-                orientation: Scroller.OrientationEnum.vertical,
-                deltaYFactor: this.gridSettings.wheelVFactor,
-                loadBuiltinCssStylesheet: loadBuiltinFinbarCssStylesheet,
-                cssStylesheetReferenceElement: containerHtmlElement,
-            }
+            true, // remove when vertical scrollbar is updated to use viewport
+            'vertical',
+            1,
+            this.gridSettings.wheelVFactor,
+            this.gridSettings.vScrollbarClassPrefix,
+            loadBuiltinFinbarCssStylesheet,
+            containerHtmlElement,
+            spaceAccomodatedScroller,
         );
 
-        const vPrefix = this.gridSettings.vScrollbarClassPrefix;
-
-        if (vPrefix && vPrefix !== '') {
-            vertBar.classPrefix = vPrefix;
-        }
-
-        return vertBar;
+        return scroller;
     }
 
     private invalidateHorizontalAll(scrollablePlaneDimensionAsWell: boolean) {

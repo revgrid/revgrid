@@ -133,8 +133,8 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
         } else {
             const subgrid = cell.subgrid;
             if (subgrid === extendSelectOrigin.subgrid) {
-                const lastCellX = cell.visibleColumn.activeColumnIndex;
-                const lastCellY = cell.visibleRow.subgridRowIndex;
+                const lastCellX = cell.viewLayoutColumn.activeColumnIndex;
+                const lastCellY = cell.viewLayoutRow.subgridRowIndex;
 
                 const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellX, extendSelectOrigin.point.x);
                 const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellY, extendSelectOrigin.point.y);
@@ -321,7 +321,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
         this._doubleClickTimer = undefined;
         this._dragArmed = true;
 
-        const cellActiveColumnIndex = cell.visibleColumn.activeColumnIndex;
+        const cellActiveColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
         const focusPoint = this.focus.currentSubgridPoint;
         const subgridRowIndex = focusPoint === undefined ? 0 : focusPoint.y;
         const subgrid = this.focus.subgrid;

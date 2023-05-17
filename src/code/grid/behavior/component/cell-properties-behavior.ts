@@ -220,7 +220,7 @@ export class CellPropertiesBehavior {
         // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
         let cellOwnProperties = renderedCell.cellOwnProperties;
         if (cellOwnProperties === undefined) {
-            cellOwnProperties = this.getCellOwnProperties(renderedCell.visibleColumn.column, renderedCell.visibleRow.subgridRowIndex, renderedCell.subgrid);
+            cellOwnProperties = this.getCellOwnProperties(renderedCell.viewLayoutColumn.column, renderedCell.viewLayoutRow.subgridRowIndex, renderedCell.subgrid);
             renderedCell.cellOwnProperties = cellOwnProperties;
         }
         return cellOwnProperties;

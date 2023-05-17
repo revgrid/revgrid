@@ -69,6 +69,8 @@ export class EventBehavior {
         this._columnsManager.columnsWidthChangedEventer = (columns, ui) => this.processColumnsWidthChangedEvent(columns, ui);
 
         this._viewLayout.columnsViewWidthsChangedEventer = () => this.processColumnsViewWidthsChangedEvent();
+        this._viewLayout.horizontalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processHorizontalScrollViewportStartChangedEvent();
+        this._viewLayout.verticalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processVerticalScrollViewportStartChangedEvent();
 
         this._horizontalScroller.actionEventer = (action) => this.processHorizontalScrollerEvent(action);
         this._verticalScroller.actionEventer = (action) => this.processVerticalScrollerEvent(action);
@@ -95,22 +97,6 @@ export class EventBehavior {
 
         if (this._dispatchEnabled) {
             this.dispatchCustomEvent('rev-selection-changed', false, undefined);
-        }
-    }
-
-    processHorizontalScrollViewportStartChangedEvent() {
-        this._descendantEventer.horizontalScrollViewportStartChanged();
-
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-horizontal-scroll-viewport-changed', false, undefined);
-        }
-    }
-
-    processVerticalScrollViewportStartChangedEvent() {
-        this._descendantEventer.verticalScrollViewportStartChanged();
-
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-vertical-scroll-viewport-changed', false, undefined);
         }
     }
 
@@ -180,6 +166,22 @@ export class EventBehavior {
 
         if (this._dispatchEnabled) {
             this.dispatchCustomEvent('rev-columns-view-widths-changed', false, undefined)
+        }
+    }
+
+    private processHorizontalScrollViewportStartChangedEvent() {
+        this._descendantEventer.horizontalScrollViewportStartChanged();
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-horizontal-scroll-viewport-changed', false, undefined);
+        }
+    }
+
+    private processVerticalScrollViewportStartChangedEvent() {
+        this._descendantEventer.verticalScrollViewportStartChanged();
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-vertical-scroll-viewport-changed', false, undefined);
         }
     }
 

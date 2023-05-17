@@ -134,7 +134,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                                 }
                             }
                         } catch (e) {
-                            this.paintErrorCell(e as Error, gc, vc, viewCell.visibleRow);
+                            this.paintErrorCell(e as Error, gc, vc, viewCell.viewLayoutRow);
                         }
                     // }
                 }

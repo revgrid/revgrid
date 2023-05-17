@@ -85,7 +85,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
                     } else {
                         // if we are in the fixed area, do not apply the scroll values
                         this._dragArmed = true;
-                        const subgridRowIndex = cell.visibleRow.subgridRowIndex;
+                        const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
                         const focusPoint = this.focus.currentSubgridPoint;
                         const cellActiveColumnIndex = focusPoint === undefined ? 0 : focusPoint.x;
 
@@ -167,8 +167,8 @@ export class RowSelectionUiBehavior extends UiBehavior {
         } else {
             const subgrid = cell.subgrid;
             if (subgrid === extendSelectOrigin.subgrid) {
-                const lastCellX = cell.visibleColumn.activeColumnIndex;
-                const lastCellY = cell.visibleRow.subgridRowIndex;
+                const lastCellX = cell.viewLayoutColumn.activeColumnIndex;
+                const lastCellY = cell.viewLayoutRow.subgridRowIndex;
 
                 const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellX, extendSelectOrigin.point.x);
                 const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(lastCellY, extendSelectOrigin.point.y);

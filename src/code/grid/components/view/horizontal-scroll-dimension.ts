@@ -9,12 +9,10 @@ export class HorizontalScrollDimension extends ScrollDimension {
         private readonly _gridSettings: GridSettings,
         canvasEx: CanvasEx,
         private readonly _columnsManager: ColumnsManager,
-        viewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer,
     ) {
         super(
             HorizontalVertical.Horizontal,
             canvasEx,
-            viewportStartChangedEventer,
         );
     }
 
@@ -32,98 +30,9 @@ export class HorizontalScrollDimension extends ScrollDimension {
         super.reset();
     }
 
-    calculateColumnScrollAnchor(viewportStart: number): ScrollDimension.Anchor {
-        this.ensureValid();
-
-        // viewportFinish: number, _start: number, contentFinish: number
-        const scrollableStart = this.start;
-        const columnCount = this._columnsManager.activeColumnCount;
-        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
-        const gridProps = this._gridSettings;
-        const gridLinesVWidth = gridProps.gridLinesVWidth;
-        const gridRightAligned = gridProps.gridRightAligned;
-        const scrollHorizontallySmoothly = gridProps.scrollHorizontallySmoothly;
-
-        if (gridRightAligned) {
-            const viewportSize = this.viewportSize;
-            const viewportFinish = viewportStart + viewportSize - 1;
-            const scrollableFinish = scrollableStart + this.size - 1;
-            if (viewportFinish >= scrollableFinish) {
-                return {
-                    index: columnCount - 1,
-                    offset: 0
-                };
-            } else {
-                let prevColumnLeft = scrollableFinish;
-                let columnLeft: number;
-                let lastColumnDone = false;
-                for (let i = columnCount - 1; i >= fixedColumnCount; i--) {
-                    columnLeft = prevColumnLeft - this._columnsManager.getActiveColumnWidth(i);
-                    if (lastColumnDone) {
-                        columnLeft -= gridLinesVWidth;
-                    } else {
-                        lastColumnDone = true;
-                    }
-
-                    if (viewportFinish < columnLeft) {
-                        prevColumnLeft = columnLeft;
-                    } else {
-                        let offset: number;
-                        if (!scrollHorizontallySmoothly) {
-                            offset = 0;
-                        } else {
-                            offset = Math.ceil(prevColumnLeft - viewportFinish - 1);
-                        }
-                        return {
-                            index: i,
-                            offset,
-                        };
-                    }
-                }
-                return {
-                    index: fixedColumnCount,
-                    offset: 0,
-                };
-            }
-        } else {
-            let left = scrollableStart;
-            let nextLeft: number;
-            for (let i = fixedColumnCount; i < columnCount; i++) {
-                nextLeft = this._columnsManager.getActiveColumnWidth(i) + gridLinesVWidth + left;
-                if (viewportStart > nextLeft) {
-                    left = nextLeft;
-                } else {
-                    let index: number;
-                    if (viewportStart === nextLeft) {
-                        index = i + 1;
-                        left = nextLeft;
-                    } else {
-                        index = i;
-                    }
-                    let offset: number;
-                    if (!scrollHorizontallySmoothly) {
-                        offset = 0;
-                    } else {
-                        offset = Math.ceil(viewportStart - left);
-                    }
-                    return {
-                        index,
-                        offset
-                    };
-                }
-            }
-
-            let index: number;
-            if (columnCount === fixedColumnCount) {
-                index = fixedColumnCount;
-            } else {
-                index = columnCount -1;
-            }
-            return {
-                index,
-                offset: 0,
-            };
-        }
+    calculateLimitedScrollAnchorFromViewportStart(viewportStart: number): ScrollDimension.Anchor {
+        const anchor = this.calculateScrollAnchorFromViewportStart(viewportStart);
+        return this.calculateLimitedScrollAnchor(anchor.index, anchor.offset);
     }
 
     /**
@@ -132,7 +41,7 @@ export class HorizontalScrollDimension extends ScrollDimension {
      * @returns Scroll Anchor which will ensure the column is displayed
      */
     calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean): ScrollDimension.Anchor {
-        this.ensureValid();
+        this.ensureValidOutsideAnimationFrame();
 
         const gridProperties = this._gridSettings;
         const gridLinesVWidth = gridProperties.gridLinesVWidth;
@@ -371,5 +280,99 @@ export class HorizontalScrollDimension extends ScrollDimension {
         }
 
         return result;
+    }
+
+    private calculateScrollAnchorFromViewportStart(viewportStart: number): ScrollDimension.Anchor {
+        this.ensureValidOutsideAnimationFrame();
+
+        // viewportFinish: number, _start: number, contentFinish: number
+        const scrollableStart = this.start;
+        const columnCount = this._columnsManager.activeColumnCount;
+        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
+        const gridProps = this._gridSettings;
+        const gridLinesVWidth = gridProps.gridLinesVWidth;
+        const gridRightAligned = gridProps.gridRightAligned;
+        const scrollHorizontallySmoothly = gridProps.scrollHorizontallySmoothly;
+
+        if (gridRightAligned) {
+            const viewportSize = this.viewportSize;
+            const viewportFinish = viewportStart + viewportSize - 1;
+            const scrollableFinish = scrollableStart + this.size - 1;
+            if (viewportFinish >= scrollableFinish) {
+                return {
+                    index: columnCount - 1,
+                    offset: 0
+                };
+            } else {
+                let prevColumnLeft = scrollableFinish;
+                let columnLeft: number;
+                let lastColumnDone = false;
+                for (let i = columnCount - 1; i >= fixedColumnCount; i--) {
+                    columnLeft = prevColumnLeft - this._columnsManager.getActiveColumnWidth(i);
+                    if (lastColumnDone) {
+                        columnLeft -= gridLinesVWidth;
+                    } else {
+                        lastColumnDone = true;
+                    }
+
+                    if (viewportFinish < columnLeft) {
+                        prevColumnLeft = columnLeft;
+                    } else {
+                        let offset: number;
+                        if (!scrollHorizontallySmoothly) {
+                            offset = 0;
+                        } else {
+                            offset = Math.ceil(prevColumnLeft - viewportFinish - 1);
+                        }
+                        return {
+                            index: i,
+                            offset,
+                        };
+                    }
+                }
+                return {
+                    index: fixedColumnCount,
+                    offset: 0,
+                };
+            }
+        } else {
+            let left = scrollableStart;
+            let nextLeft: number;
+            for (let i = fixedColumnCount; i < columnCount; i++) {
+                nextLeft = this._columnsManager.getActiveColumnWidth(i) + gridLinesVWidth + left;
+                if (viewportStart > nextLeft) {
+                    left = nextLeft;
+                } else {
+                    let index: number;
+                    if (viewportStart === nextLeft) {
+                        index = i + 1;
+                        left = nextLeft;
+                    } else {
+                        index = i;
+                    }
+                    let offset: number;
+                    if (!scrollHorizontallySmoothly) {
+                        offset = 0;
+                    } else {
+                        offset = Math.ceil(viewportStart - left);
+                    }
+                    return {
+                        index,
+                        offset
+                    };
+                }
+            }
+
+            let index: number;
+            if (columnCount === fixedColumnCount) {
+                index = fixedColumnCount;
+            } else {
+                index = columnCount -1;
+            }
+            return {
+                index,
+                offset: 0,
+            };
+        }
     }
 }
