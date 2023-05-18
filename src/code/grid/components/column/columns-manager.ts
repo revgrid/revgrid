@@ -226,6 +226,18 @@ export class ColumnsManager {
         return column !== undefined ? column.getWidth() : 0;
     }
 
+    /** @internal */
+    getActiveColumnRoundedWidth(x: number) {
+        const column = this.getActiveColumn(x);
+        return column !== undefined ? Math.round(column.getWidth()) : 0;
+    }
+
+    /** @internal */
+    getActiveColumnCeilWidth(x: number) {
+        const column = this.getActiveColumn(x);
+        return column !== undefined ? Math.ceil(column.getWidth()) : 0;
+    }
+
     /**
      * @returns The total width of all the fixed columns.
      */
@@ -237,7 +249,7 @@ export class ColumnsManager {
             let total = 0;
 
             for (let i = 0; i < count; i++) {
-                const columnWidth = this.getActiveColumnWidth(i);
+                const columnWidth = this.getActiveColumnRoundedWidth(i);
                 total += columnWidth;
             }
 
@@ -246,7 +258,6 @@ export class ColumnsManager {
             return total;
         }
     }
-
 
     /**
      * @param columnOrIndex - The column or active column index.

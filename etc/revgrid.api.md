@@ -459,6 +459,8 @@ export class ColumnsManager {
     endSchemaChange(): void;
     // @internal (undocumented)
     getActiveColumn(x: number): Column;
+    // @internal (undocumented)
+    getActiveColumnCeilWidth(x: number): number;
     // @internal
     getActiveColumnIndexByAllIndex(allIndex: number): number;
     // @internal
@@ -467,6 +469,8 @@ export class ColumnsManager {
     //
     // @internal (undocumented)
     getActiveColumnProperties(activeColumnIndex: number): ColumnSettings | undefined;
+    // @internal (undocumented)
+    getActiveColumnRoundedWidth(x: number): number;
     // @internal (undocumented)
     getActiveColumnWidth(x: number): number;
     // @internal (undocumented)

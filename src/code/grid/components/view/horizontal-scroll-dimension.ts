@@ -17,14 +17,7 @@ export class HorizontalScrollDimension extends ScrollDimension {
     }
 
     override reset() {
-        const index = this._columnsManager.getFixedColumnCount();
-        const offset = 0;
-        const anchorLimits: ScrollDimension.ScrollAnchorLimits = {
-            startAnchorLimitIndex: index,
-            startAnchorLimitOffset: offset,
-            finishAnchorLimitIndex: index,
-            finishAnchorLimitOffset: offset,
-        }
+        const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
         this.setDimensionValues(undefined, undefined, undefined, undefined, anchorLimits);
 
         super.reset();
@@ -54,15 +47,15 @@ export class HorizontalScrollDimension extends ScrollDimension {
             let left = gridLinesVWidth;
             while (index >= activeColumnIndex) {
                 index--;
-                left -= (this._columnsManager.getActiveColumnWidth(index) + gridLinesVWidth);
+                left -= (this._columnsManager.getActiveColumnRoundedWidth(index) + gridLinesVWidth);
             }
             // calculate viewportFinish needed to just fit in column
             const viewportFinishPlus1 = left + this.size;
             // find column which finishes at or crosses this viewport Finish
-            let rightPlus1 = left + this._columnsManager.getActiveColumnWidth(index);
+            let rightPlus1 = left + this._columnsManager.getActiveColumnRoundedWidth(index);
             while (rightPlus1 < viewportFinishPlus1) {
                 index++;
-                rightPlus1 += (this._columnsManager.getActiveColumnWidth(index) + gridLinesVWidth);
+                rightPlus1 += (this._columnsManager.getActiveColumnRoundedWidth(index) + gridLinesVWidth);
             }
             // work out index and offset
             if (rightPlus1 === viewportFinishPlus1) {
@@ -84,17 +77,17 @@ export class HorizontalScrollDimension extends ScrollDimension {
             // calculate relative left of activeColumnIndex
             let left = 0;
             while (index < activeColumnIndex) {
-                left += (this._columnsManager.getActiveColumnWidth(index) + gridLinesVWidth);
+                left += (this._columnsManager.getActiveColumnRoundedWidth(index) + gridLinesVWidth);
                 index++;
             }
             // calculate relative right of activeColumnIndex;
-            const rightPlus1 = left + this._columnsManager.getActiveColumnWidth(index);
+            const rightPlus1 = left + this._columnsManager.getActiveColumnRoundedWidth(index);
             // calculate viewportStart needed to just fit in column
             const viewportStart = rightPlus1 - this.viewportSize;
             // find column which starts at or crosses this viewport Start
             while (left > viewportStart) {
                 index--;
-                left -= (this._columnsManager.getActiveColumnWidth(index) + gridLinesVWidth);
+                left -= (this._columnsManager.getActiveColumnRoundedWidth(index) + gridLinesVWidth);
             }
             // work out index and offset
             if (left === viewportStart) {
@@ -118,49 +111,99 @@ export class HorizontalScrollDimension extends ScrollDimension {
         }
     }
 
+    calculateScrollStart (): number {
+        const gridSettings = this._gridSettings;
+        const fixedColumnCount = gridSettings.fixedColumnCount;
+        if (fixedColumnCount === 0) {
+            return 0;
+        } else {
+            const fixedColumnsWidth = this._columnsManager.calculateFixedColumnsWidth();
+            const fixedLinesVWidth = gridSettings.fixedLinesVWidth ?? gridSettings.gridLinesVWidth;
+            return  fixedColumnsWidth + fixedLinesVWidth;
+        }
+    }
+
     protected override compute() {
         // called within Animation Frame
 
         const canvasBounds = this._canvasEx.getBounds();
 
-        const gridSettings = this._gridSettings;
-        const gridRightAligned = gridSettings.gridRightAligned;
-        const columnCount = this._columnsManager.activeColumnCount;
-        const fixedColumnCount = gridSettings.fixedColumnCount;
-
-        let scrollableStart: number;
-        if (fixedColumnCount === 0) {
-            scrollableStart = 0;
-        } else {
-            const fixedColumnsWidth = this._columnsManager.calculateFixedColumnsWidth();
-            const fixedLinesVWidth = gridSettings.fixedLinesVWidth ?? gridSettings.gridLinesVWidth;
-            scrollableStart = fixedColumnsWidth + fixedLinesVWidth;
-        }
-        const viewportSize = canvasBounds.width - scrollableStart;
+        const scrollStart = this.calculateScrollStart();
+        const viewportSize = canvasBounds.width - scrollStart;
 
         if (viewportSize <= 0) {
-            const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
+            const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
             this.setDimensionValues(undefined, undefined, undefined, undefined, anchorLimits);
         } else {
             const contentSizeAndAnchorLimits = this.calculateScrollableSizeAndAnchorLimits(
-                scrollableStart,
+                scrollStart,
                 viewportSize,
-                gridRightAligned,
-                columnCount,
-                fixedColumnCount,
             );
             const { scrollableSize, overflowed, anchorLimits } = contentSizeAndAnchorLimits;
-            this.setDimensionValues(scrollableStart, scrollableSize, viewportSize, overflowed, anchorLimits);
+            this.setDimensionValues(scrollStart, scrollableSize, viewportSize, overflowed, anchorLimits);
         }
+    }
+
+    isScrollAnchorWithinStartLimit(index: number, offset: number) {
+        const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
+        if (index > startScrollAnchorLimitIndex) {
+            return true;
+        } else {
+            if (index < startScrollAnchorLimitIndex) {
+                return false;
+            } else {
+                if (this._gridSettings.gridRightAligned) {
+                    return offset <= this.startScrollAnchorLimitOffset;
+                } else {
+                    return offset >= this.startScrollAnchorLimitOffset;
+                }
+            }
+        }
+    }
+
+    isScrollAnchorWithinFinishLimit(index: number, offset: number) {
+        const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
+        if (index < finishScrollAnchorLimitIndex) {
+            return true;
+        } else {
+            if (index > finishScrollAnchorLimitIndex) {
+                return false;
+            } else {
+                if (this._gridSettings.gridRightAligned) {
+                    return offset >= this.finishScrollAnchorLimitOffset;
+                } else {
+                    return offset <= this.finishScrollAnchorLimitOffset;
+                }
+            }
+        }
+    }
+
+    calculateLimitedScrollAnchor(index: number, offset: number): ScrollDimension.Anchor {
+        if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
+            index = this.startScrollAnchorLimitIndex;
+            offset = this.startScrollAnchorLimitOffset;
+        } else {
+            if (!this.isScrollAnchorWithinFinishLimit(index, offset)) {
+                index = this.finishScrollAnchorLimitIndex;
+                offset = this.finishScrollAnchorLimitOffset;
+            }
+        }
+
+        return {
+            index,
+            offset
+        };
     }
 
     private calculateScrollableSizeAndAnchorLimits(
         scrollableStart: number, // Fixed columns width + fixed gridline width
         viewportSize: number,
-        gridRightAligned: boolean,
-        columnCount: number,
-        fixedColumnCount: number,
     ): ScrollDimension.ScrollableSizeAndAnchorLimits {
+        const gridSettings = this._gridSettings;
+        const gridRightAligned = gridSettings.gridRightAligned;
+        const fixedColumnCount = gridSettings.fixedColumnCount;
+        const columnCount = this._columnsManager.activeColumnCount;
+
         let scrollableSize = this.calculateActiveNonFixedColumnsWidth();
         let anchorLimits: ScrollDimension.ScrollAnchorLimits;
 
@@ -178,11 +221,11 @@ export class HorizontalScrollDimension extends ScrollDimension {
                 let prevColumnGridLineFinish = scrollableStart - 1;
                 const lowestViewportFinish = prevColumnGridLineFinish + viewportSize;
                 let lowestViewportStartColumnIndex = fixedColumnCount;
-                let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this._columnsManager.getActiveColumnWidth(lowestViewportStartColumnIndex);
+                let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this._columnsManager.getActiveColumnRoundedWidth(lowestViewportStartColumnIndex);
                 while (lowestViewportStartColumnFinish <= lowestViewportFinish) {
                     prevColumnGridLineFinish = lowestViewportStartColumnFinish;
                     lowestViewportStartColumnIndex++;
-                    lowestViewportStartColumnFinish = prevColumnGridLineFinish + (this._columnsManager.getActiveColumnWidth(lowestViewportStartColumnIndex) + gridLinesVWidth);
+                    lowestViewportStartColumnFinish = prevColumnGridLineFinish + (this._columnsManager.getActiveColumnRoundedWidth(lowestViewportStartColumnIndex) + gridLinesVWidth);
                 }
                 leftAnchorLimitIndex = lowestViewportStartColumnIndex;
                 leftAnchorLimitOffset = lowestViewportStartColumnFinish - lowestViewportFinish;
@@ -198,16 +241,17 @@ export class HorizontalScrollDimension extends ScrollDimension {
                     }
                 }
             } else {
-                leftAnchorLimitIndex = fixedColumnCount;
-                leftAnchorLimitOffset = 0;
+                const leftAnchor = this.calculateLeftMostAnchorLimit();
+                leftAnchorLimitIndex = leftAnchor.index;
+                leftAnchorLimitOffset = leftAnchor.offset;
                 const highestViewportStart = scrollableSize - viewportSize;
                 let nextColumnLeft = scrollableSize;
                 let highestViewportStartColumnIndex = columnCount - 1;
-                let highestViewportStartColumnLeft = nextColumnLeft - this._columnsManager.getActiveColumnWidth(highestViewportStartColumnIndex);
+                let highestViewportStartColumnLeft = nextColumnLeft - this._columnsManager.getActiveColumnRoundedWidth(highestViewportStartColumnIndex);
                 while (highestViewportStartColumnLeft > highestViewportStart) {
                     nextColumnLeft = highestViewportStartColumnLeft;
                     highestViewportStartColumnIndex--;
-                    highestViewportStartColumnLeft = nextColumnLeft - (this._columnsManager.getActiveColumnWidth(highestViewportStartColumnIndex) + gridLinesVWidth);
+                    highestViewportStartColumnLeft = nextColumnLeft - (this._columnsManager.getActiveColumnRoundedWidth(highestViewportStartColumnIndex) + gridLinesVWidth);
                 }
                 rightAnchorLimitIndex = highestViewportStartColumnIndex;
                 rightAnchorLimitOffset = highestViewportStart - highestViewportStartColumnLeft;
@@ -231,7 +275,7 @@ export class HorizontalScrollDimension extends ScrollDimension {
                 finishAnchorLimitOffset: rightAnchorLimitOffset,
             }
         } else {
-            anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
+            anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
         }
 
         return {
@@ -241,26 +285,57 @@ export class HorizontalScrollDimension extends ScrollDimension {
         };
     }
 
-    private calculateColumnScrollInactiveAnchorLimits(
-        gridRightAligned: boolean,
-        columnCount: number,
-        fixedColumnCount: number
-    ): ScrollDimension.ScrollAnchorLimits {
-        let startAnchorLimitIndex: number;
-        let finishAnchorLimitIndex: number;
-        if (gridRightAligned) {
-            finishAnchorLimitIndex = columnCount - 1;
-            startAnchorLimitIndex = finishAnchorLimitIndex;
+    private calculateColumnScrollInactiveAnchorLimits(): ScrollDimension.ScrollAnchorLimits {
+        let anchor: ScrollDimension.Anchor;
+        if (this._gridSettings.gridRightAligned) {
+            anchor = this.calculateRightMostAnchorLimit();
         } else {
-            startAnchorLimitIndex = fixedColumnCount;
-            finishAnchorLimitIndex = startAnchorLimitIndex;
+            anchor = this.calculateLeftMostAnchorLimit();
         }
         return {
-            startAnchorLimitIndex,
-            startAnchorLimitOffset: 0,
-            finishAnchorLimitIndex,
-            finishAnchorLimitOffset: 0,
+            startAnchorLimitIndex: anchor.index,
+            startAnchorLimitOffset: anchor.offset,
+            finishAnchorLimitIndex: anchor.index,
+            finishAnchorLimitOffset: anchor.offset,
         };
+    }
+
+    private calculateLeftMostAnchorLimit(): ScrollDimension.Anchor {
+        return {
+            index: this._gridSettings.fixedColumnCount,
+            offset: 0,
+        };
+    }
+    private calculateRightMostAnchorLimit(): ScrollDimension.Anchor {
+        if (this._gridSettings.gridRightAligned) {
+            return {
+                index: this._columnsManager.activeColumnCount - 1,
+                offset: 0,
+            };
+        } else {
+            const fixedColumnCount = this._gridSettings.fixedColumnCount;
+            const columnsManager = this._columnsManager;
+            let index: number | undefined;
+            let offset: number | undefined;
+            for (let columnIndex = columnsManager.activeColumnCount - 1; columnIndex >= fixedColumnCount; columnIndex--) {
+                const width = columnsManager.getActiveColumnRoundedWidth(columnIndex);
+                if (width > 0) {
+                    index = columnIndex;
+                    offset = width - 1;
+                    break;
+                }
+            }
+
+            if (index === undefined || offset === undefined) {
+                index = 0;
+                offset = 0;
+            }
+
+            return {
+                index,
+                offset,
+            };
+        }
     }
 
     private calculateActiveNonFixedColumnsWidth() {
@@ -269,7 +344,7 @@ export class HorizontalScrollDimension extends ScrollDimension {
         const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         let result = 0;
         for (let i = fixedColumnCount; i < columnCount; i++) {
-            result += this._columnsManager.getActiveColumnWidth(i);
+            result += this._columnsManager.getActiveColumnRoundedWidth(i);
         }
 
         if (gridLinesVWidth > 0) {
@@ -285,6 +360,8 @@ export class HorizontalScrollDimension extends ScrollDimension {
     private calculateScrollAnchorFromViewportStart(viewportStart: number): ScrollDimension.Anchor {
         this.ensureValidOutsideAnimationFrame();
 
+        viewportStart = Math.round(viewportStart);
+
         // viewportFinish: number, _start: number, contentFinish: number
         const scrollableStart = this.start;
         const columnCount = this._columnsManager.activeColumnCount;
@@ -296,38 +373,38 @@ export class HorizontalScrollDimension extends ScrollDimension {
 
         if (gridRightAligned) {
             const viewportSize = this.viewportSize;
-            const viewportFinish = viewportStart + viewportSize - 1;
-            const scrollableFinish = scrollableStart + this.size - 1;
-            if (viewportFinish >= scrollableFinish) {
-                return {
-                    index: columnCount - 1,
-                    offset: 0
-                };
+            const viewportAfter = viewportStart + viewportSize;
+            const scrollableAfter = scrollableStart + this.size;
+            if (viewportAfter >= scrollableAfter) {
+                return this.calculateRightMostAnchorLimit();
             } else {
-                let prevColumnLeft = scrollableFinish;
+                let prevColumnLeft = scrollableAfter;
                 let columnLeft: number;
                 let lastColumnDone = false;
                 for (let i = columnCount - 1; i >= fixedColumnCount; i--) {
-                    columnLeft = prevColumnLeft - this._columnsManager.getActiveColumnWidth(i);
                     if (lastColumnDone) {
-                        columnLeft -= gridLinesVWidth;
+                        prevColumnLeft -= gridLinesVWidth;
                     } else {
                         lastColumnDone = true;
                     }
-
-                    if (viewportFinish < columnLeft) {
-                        prevColumnLeft = columnLeft;
-                    } else {
-                        let offset: number;
-                        if (!scrollHorizontallySmoothly) {
-                            offset = 0;
+                    const width = this._columnsManager.getActiveColumnRoundedWidth(i);
+                    if (width > 0) {
+                        columnLeft = prevColumnLeft - width;
+                        if (viewportAfter <= columnLeft) {
+                            prevColumnLeft = columnLeft;
                         } else {
-                            offset = Math.ceil(prevColumnLeft - viewportFinish - 1);
+                            let offset: number;
+                            if (!scrollHorizontallySmoothly) {
+                                offset = 0;
+                            } else {
+                                const columnAfter = columnLeft + width;
+                                offset = columnAfter - viewportAfter;
+                            }
+                            return {
+                                index: i,
+                                offset,
+                            };
                         }
-                        return {
-                            index: i,
-                            offset,
-                        };
                     }
                 }
                 return {
@@ -339,7 +416,7 @@ export class HorizontalScrollDimension extends ScrollDimension {
             let left = scrollableStart;
             let nextLeft: number;
             for (let i = fixedColumnCount; i < columnCount; i++) {
-                nextLeft = this._columnsManager.getActiveColumnWidth(i) + gridLinesVWidth + left;
+                nextLeft = this._columnsManager.getActiveColumnRoundedWidth(i) + gridLinesVWidth + left;
                 if (viewportStart > nextLeft) {
                     left = nextLeft;
                 } else {

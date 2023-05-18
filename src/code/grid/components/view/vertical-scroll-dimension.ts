@@ -16,6 +16,29 @@ export class VerticalScrollDimension extends ScrollDimension {
         );
     }
 
+    calculateLimitedScrollAnchor(index: number, _offset: number): ScrollDimension.Anchor {
+        const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
+        if (index < this.startScrollAnchorLimitIndex) {
+            return {
+                index: startScrollAnchorLimitIndex,
+                offset: 0,
+            };
+        } else {
+            const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
+            if (index > finishScrollAnchorLimitIndex) {
+                return {
+                    index: finishScrollAnchorLimitIndex,
+                    offset: 0,
+                };
+            } else {
+                return {
+                    index,
+                    offset: _offset,
+                };
+            }
+        }
+    }
+
     protected override compute() {
         // called within Animation Frame
         const mainSubgrid = this._subgridsManager.mainSubgrid;

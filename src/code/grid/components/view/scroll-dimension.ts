@@ -140,47 +140,6 @@ export abstract class ScrollDimension {
         }
     }
 
-    isScrollAnchorWithinStartLimit(index: number, offset: number) {
-        const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
-        const result =
-            (index > startScrollAnchorLimitIndex)
-            ||
-            (
-                (index === startScrollAnchorLimitIndex) &&
-                (offset >= this.startScrollAnchorLimitOffset)
-            );
-        return result;
-    }
-
-    isScrollAnchorWithinFinishLimit(index: number, offset: number) {
-        const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
-        const result =
-            (index < finishScrollAnchorLimitIndex)
-            ||
-            (
-                (index === finishScrollAnchorLimitIndex) &&
-                (offset <= this.finishScrollAnchorLimitOffset)
-            );
-        return result;
-    }
-
-    calculateLimitedScrollAnchor(index: number, offset: number): ScrollDimension.Anchor {
-        if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
-            index = this.startScrollAnchorLimitIndex;
-            offset = this.startScrollAnchorLimitOffset;
-        } else {
-            if (!this.isScrollAnchorWithinFinishLimit(index, offset)) {
-                index = this.finishScrollAnchorLimitIndex;
-                offset = this.finishScrollAnchorLimitOffset;
-            }
-        }
-
-        return {
-            index,
-            offset
-        };
-    }
-
     protected setDimensionValues(
         start: number | undefined,
         size: number | undefined,
