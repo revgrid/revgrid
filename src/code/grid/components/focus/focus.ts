@@ -2,11 +2,10 @@ import { DataModel } from '../../interfaces/data-model';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { PartialPoint, Point } from '../../lib/point';
-import { RectangleInterface } from '../../lib/rectangle-interface';
 import { AssertError } from '../../lib/revgrid-error';
+import { CellEditor } from '../cell/cell-editor';
 import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
-import { EventDetail } from '../event/event-detail';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
@@ -22,7 +21,7 @@ export class Focus {
     private _canvasX: number | undefined;
     private _canvasY: number | undefined;
 
-    private _editor: Focus.CellEditor | undefined;
+    private _editor: CellEditor | undefined;
 
     constructor(
         private readonly _gridSettings: GridSettings,
@@ -41,6 +40,8 @@ export class Focus {
 
     get canvasX() { return this._canvasX; }
     get canvasY() { return this._canvasY; }
+
+    get editor() { return this._editor; }
 
     clear() {
         this._previousSubgridPoint = this.currentSubgridPoint;
@@ -358,53 +359,6 @@ export class Focus {
 export namespace Focus {
     export type ScrollToMakeVisibleEventer = (this: void, activeColumnIndex: number, subgridRowIndex: number, maximally: boolean) => void;
     export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor | undefined;
-
-    export interface CellEditor {
-        // Request keys which would normally close editor and possibly exit a cell
-        readonly wantTab: boolean;
-        readonly wantReturn: boolean;
-        readonly wantEscape: boolean;
-        readonly wantLeftArrow: boolean;
-        readonly wantRightArrow: boolean;
-        readonly wantUpArrow: boolean;
-        readonly wantDownArrow: boolean;
-        readonly wantWheelMove: boolean;
-
-        readonly paintConfig: CellEditor.PaintConfig;
-
-        // positioning of control
-        hide(): void;
-        paint(bounds: RectangleInterface): void;
-
-        close(cancel: boolean): void;
-
-        // UI events
-        keyDown(eventDetail: EventDetail.Keyboard): void;
-        keyUp(eventDetail: EventDetail.Keyboard): void;
-        keyPress(eventDetail: EventDetail.Keyboard): void;
-
-        click(event: MouseEvent, cell: ViewCell | undefined): void;
-        dblClick(event: MouseEvent, cell: ViewCell | undefined): void;
-        mouseDown(event: MouseEvent, cell: ViewCell | undefined): void;
-        mouseUp(event: MouseEvent, cell: ViewCell | undefined): void;
-        wheelMove(event: WheelEvent, cell: ViewCell | undefined): void;
-
-        // Editor advises it is finished
-        closedEventer: ((this: void) => void) | undefined;
-    }
-
-    export namespace CellEditor {
-        export interface PaintConfig {
-            readonly paintCellBackground: boolean;
-            readonly paintCellContent: boolean;
-            readonly paintCellBorder: boolean;
-
-            readonly beforeCellBackground: boolean;
-            readonly beforeCellContent: boolean;
-            readonly beforeCellBorder: boolean;
-            readonly last: boolean;
-        }
-    }
 
     export interface Stash {
         readonly current: Stash.Point | undefined;

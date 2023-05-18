@@ -9,7 +9,7 @@ import { CanvasRenderingContext2DEx, CellPainter, RectangleInterface } from '../
 export class SparkLineCellPainter implements CellPainter {
     config: SparkLineCellPainter.Config;
 
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
+    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined {
         const config = this.config;
 
         let x = config.bounds.x;
@@ -20,10 +20,7 @@ export class SparkLineCellPainter implements CellPainter {
         gc.beginPath();
         const val = config.value as number[];
         if (!val || !val.length) {
-            return {
-                width: undefined,
-                snapshot: undefined,
-            };
+            return undefined;
         } else {
             const count = val.length;
             const eWidth = width / count;
@@ -49,10 +46,7 @@ export class SparkLineCellPainter implements CellPainter {
             gc.stroke();
             gc.closePath();
 
-            return {
-                width: count * 10,
-                snapshot: undefined,
-            };
+            return count * 10;
         }
     }
 }

@@ -1,8 +1,7 @@
-import { SimpleCellPaintConfig } from '../../standard-cell-paint/standard-cell-paint-public-api';
 import { RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
 /** @public */
-export interface RevRecordCellPaintConfig extends SimpleCellPaintConfig {
+export interface RevRecordCellPaintConfig {
     // /** Has color if internal border to be drawn  */
     // readonly internalBorder: string | undefined;
     /** Flags if cell has recently been changed and the change type */

@@ -38,12 +38,12 @@ export class ColumnSettingsAccessor implements MergableColumnSettings {
     private _minimumColumnWidth: number | undefined;
     private _width: number | undefined;
 
-    readonly columnHeader: ColumnSettingsAccessor.ColumnHeader;
-    readonly filterProperties: ColumnSettingsAccessor.Filter;
+    readonly header: ColumnSettingsAccessor.ColumnHeader;
+    readonly filter: ColumnSettingsAccessor.Filter;
 
-    constructor(private readonly _gridSettings: GridSettings, initialColumnSettings: Partial<ColumnSettings> | undefined) {
-        this.columnHeader = new ColumnSettingsAccessor.ColumnHeader(this._gridSettings);
-        this.filterProperties = new ColumnSettingsAccessor.Filter(this._gridSettings);
+    constructor(readonly gridSettings: GridSettings, initialColumnSettings: Partial<ColumnSettings> | undefined) {
+        this.header = new ColumnSettingsAccessor.ColumnHeader(this.gridSettings);
+        this.filter = new ColumnSettingsAccessor.Filter(this.gridSettings);
 
         if (initialColumnSettings !== undefined) {
             if (initialColumnSettings.cellPadding !== undefined) {
@@ -138,67 +138,67 @@ export class ColumnSettingsAccessor implements MergableColumnSettings {
     get preferredWidth() { return this._preferredWidth; }
     set preferredWidth(value: number | undefined) { this._preferredWidth = value; }
 
-    get cellPadding() { return this._cellPadding ?? this._gridSettings.cellPadding; }
+    get cellPadding() { return this._cellPadding ?? this.gridSettings.cellPadding; }
     set cellPadding(value: number) { this._cellPadding = value; }
-    get mouseCellSelection() { return this._mouseCellSelection ?? this._gridSettings.mouseCellSelection; }
+    get mouseCellSelection() { return this._mouseCellSelection ?? this.gridSettings.mouseCellSelection; }
     set mouseCellSelection(value: boolean) { this._mouseCellSelection = value; }
-    get columnAutosizingMax() { return this._columnAutosizingMax ?? this._gridSettings.columnAutosizingMax; }
+    get columnAutosizingMax() { return this._columnAutosizingMax ?? this.gridSettings.columnAutosizingMax; }
     set columnAutosizingMax(value: number) { this._columnAutosizingMax = value; }
-    get columnClip() { return this._columnClip ?? this._gridSettings.columnClip; }
+    get columnClip() { return this._columnClip ?? this.gridSettings.columnClip; }
     set columnClip(value: boolean | undefined) { this._columnClip = value; }
-    get editable() { return this._editable ?? this._gridSettings.editable; }
+    get editable() { return this._editable ?? this.gridSettings.editable; }
     set editable(value: boolean) { this._editable = value; }
-    get editOnDoubleClick() { return this._editOnDoubleClick ?? this._gridSettings.editOnDoubleClick; }
+    get editOnDoubleClick() { return this._editOnDoubleClick ?? this.gridSettings.editOnDoubleClick; }
     set editOnDoubleClick(value: boolean) { this._editOnDoubleClick = value; }
-    get editOnKeydown() { return this._editOnKeydown ?? this._gridSettings.editOnKeydown; }
+    get editOnKeydown() { return this._editOnKeydown ?? this.gridSettings.editOnKeydown; }
     set editOnKeydown(value: boolean) { this._editOnKeydown = value; }
-    get editOnFocusCell() { return this._editOnFocusCell ?? this._gridSettings.editOnFocusCell; }
+    get editOnFocusCell() { return this._editOnFocusCell ?? this.gridSettings.editOnFocusCell; }
     set editOnFocusCell(value: boolean) { this._editOnFocusCell = value; }
-    get editor() { return this._editor ?? this._gridSettings.editor; }
+    get editor() { return this._editor ?? this.gridSettings.editor; }
     set editor(value: string | undefined) { this._editor = value; }
-    get feedbackCount() { return this._feedbackCount ?? this._gridSettings.feedbackCount; }
+    get feedbackCount() { return this._feedbackCount ?? this.gridSettings.feedbackCount; }
     set feedbackCount(value: number) { this._feedbackCount = value; }
-    get filterable() { return this._filterable ?? this._gridSettings.filterable; }
+    get filterable() { return this._filterable ?? this.gridSettings.filterable; }
     set filterable(value: boolean) { this._filterable = value; }
-    get font() { return this._font ?? this._gridSettings.font; }
+    get font() { return this._font ?? this.gridSettings.font; }
     set font(value: string) { this._font = value; }
-    get format() { return this._format ?? this._gridSettings.format; }
+    get format() { return this._format ?? this.gridSettings.format; }
     set format(value: string | undefined) { this._format = value; }
-    get gridLinesVWidth() { return this._gridLinesVWidth ?? this._gridSettings.gridLinesVWidth; }
+    get gridLinesVWidth() { return this._gridLinesVWidth ?? this.gridSettings.gridLinesVWidth; }
     set gridLinesVWidth(value: number) { this._gridLinesVWidth = value; }
-    get gridLinesHWidth() { return this._gridLinesHWidth ?? this._gridSettings.gridLinesHWidth; }
+    get gridLinesHWidth() { return this._gridLinesHWidth ?? this.gridSettings.gridLinesHWidth; }
     set gridLinesHWidth(value: number) { this._gridLinesHWidth = value; }
-    get halign() { return this._halign ?? this._gridSettings.halign; }
+    get halign() { return this._halign ?? this.gridSettings.halign; }
     set halign(value: Halign) { this._halign = value; }
-    get link() { return this._link ?? this._gridSettings.link; }
+    get link() { return this._link ?? this.gridSettings.link; }
     set link(value: false | string | GridSettings.LinkProp | GridSettings.LinkFunction) { this._link = value; }
-    get linkTarget() { return this._linkTarget ?? this._gridSettings.linkTarget; }
+    get linkTarget() { return this._linkTarget ?? this.gridSettings.linkTarget; }
     set linkTarget(value: string) { this._linkTarget = value; }
-    get maximumColumnWidth() { return this._maximumColumnWidth ?? this._gridSettings.maximumColumnWidth; }
+    get maximumColumnWidth() { return this._maximumColumnWidth ?? this.gridSettings.maximumColumnWidth; }
     set maximumColumnWidth(value: number | undefined) { this._maximumColumnWidth = value; }
-    get resizeColumnInPlace() { return this._resizeColumnInPlace ?? this._gridSettings.resizeColumnInPlace; }
+    get resizeColumnInPlace() { return this._resizeColumnInPlace ?? this.gridSettings.resizeColumnInPlace; }
     set resizeColumnInPlace(value: boolean) { this._resizeColumnInPlace = value; }
-    get sortOnDoubleClick() { return this._sortOnDoubleClick ?? this._gridSettings.sortOnDoubleClick; }
+    get sortOnDoubleClick() { return this._sortOnDoubleClick ?? this.gridSettings.sortOnDoubleClick; }
     set sortOnDoubleClick(value: boolean) { this._sortOnDoubleClick = value; }
-    get sortable() { return this._sortable ?? this._gridSettings.sortable; }
+    get sortable() { return this._sortable ?? this.gridSettings.sortable; }
     set sortable(value: boolean) { this._sortable = value; }
 
-    get backgroundColor() { return this._backgroundColor ?? this._gridSettings.backgroundColor; }
+    get backgroundColor() { return this._backgroundColor ?? this.gridSettings.backgroundColor; }
     set backgroundColor(value: GridSettings.Color) { this._backgroundColor = value; }
-    get columnAutosized() { return this._columnAutosized ?? this._gridSettings.columnAutosized; }
+    get columnAutosized() { return this._columnAutosized ?? this.gridSettings.columnAutosized; }
     set columnAutosized(value: boolean) { this._columnAutosized = value; }
-    get columnAutosizing() { return this._columnAutosizing ?? this._gridSettings.columnAutosizing; }
+    get columnAutosizing() { return this._columnAutosizing ?? this.gridSettings.columnAutosizing; }
     set columnAutosizing(value: boolean) { this._columnAutosizing = value; }
-    get minimumColumnWidth() { return this._minimumColumnWidth ?? this._gridSettings.minimumColumnWidth; }
+    get minimumColumnWidth() { return this._minimumColumnWidth ?? this.gridSettings.minimumColumnWidth; }
     set minimumColumnWidth(value: number) { this._minimumColumnWidth = value; }
-    get width() { return this._width ?? this._gridSettings.width; }
+    get width() { return this._width ?? this.gridSettings.width; }
     set width(value: number) { this._width = value; }
 
-    get color() { return this._gridSettings.color; }
-    get backgroundSelectionColor() { return this._gridSettings.backgroundSelectionColor; }
-    get foregroundSelectionColor() { return this._gridSettings.foregroundSelectionColor; }
-    get foregroundSelectionFont() { return this._gridSettings.foregroundSelectionFont; }
-    get cellPainter() { return this._gridSettings.cellPainter; }
+    get color() { return this.gridSettings.color; }
+    get backgroundSelectionColor() { return this.gridSettings.backgroundSelectionColor; }
+    get foregroundSelectionColor() { return this.gridSettings.foregroundSelectionColor; }
+    get foregroundSelectionFont() { return this.gridSettings.foregroundSelectionFont; }
+    get cellPainter() { return this.gridSettings.cellPainter; }
 
     // not yet implemented
     // toJSON() {
@@ -219,7 +219,7 @@ export class ColumnSettingsAccessor implements MergableColumnSettings {
 }
 
 export namespace ColumnSettingsAccessor {
-    export class ColumnHeader implements ColumnSettings.ColumnHeader {
+    export class ColumnHeader implements ColumnSettings.Header {
         constructor(private readonly _gridProperties: GridSettings) {
 //
         }

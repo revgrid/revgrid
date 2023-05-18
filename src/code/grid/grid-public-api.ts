@@ -4,7 +4,9 @@
 export { AdapterSetConfig } from './behavior/component/adapter-set-config';
 // export { DataExtractBehavior } from './behavior/component/data-extract-behavior';
 export { CanvasRenderingContext2DEx } from './components/canvas-ex/canvas-rendering-context-2d-ex';
+export { CellEditor } from './components/cell/cell-editor';
 export { CellPainter } from './components/cell/cell-painter';
+export { CellSettingsAccessor } from './components/cell/cell-settings-accessor';
 export { ViewCell } from './components/cell/view-cell';
 export { Column } from './components/column/column';
 export { ColumnsManager } from './components/column/columns-manager';

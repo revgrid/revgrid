@@ -1,4 +1,4 @@
-import { AdapterSetConfig, EventDetail, HalignEnum, Revgrid, SimpleCellPainter, ViewCell, defaultGridProperties } from '..';
+import { AdapterSetConfig, CellEditor, EventDetail, HalignEnum, Revgrid, TextCellPainter, ViewCell, defaultGridProperties } from '..';
 import { HeaderDataAdapter } from './header-data-adapter';
 import { MainDataAdapter } from './main-data-adapter';
 import { SchemaAdapter } from './schema-adapter';
@@ -18,7 +18,7 @@ export class Main {
     private readonly _gridHostElement: HTMLElement;
 
     private _mainDataAdapter: MainDataAdapter;
-    private _cellPainter: SimpleCellPainter;
+    private _cellPainter: TextCellPainter;
     private _grid: Revgrid;
 
     constructor() {
@@ -132,7 +132,7 @@ export class Main {
         }
 
         this._mainDataAdapter = new MainDataAdapter();
-        this._cellPainter = new SimpleCellPainter();
+        this._cellPainter = new TextCellPainter();
 
         const adapterSet: AdapterSetConfig = {
             schemaModel: new SchemaAdapter(),
@@ -209,9 +209,9 @@ export class Main {
         }
     }
 
-    getCellPainter(viewCell: ViewCell, prefillColor: string | undefined) {
+    getCellPainter(viewCell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined) {
         const painter = this._cellPainter;
-        painter.loadConfig(this._grid, viewCell, prefillColor);
+        painter.setCell(viewCell, cellEditorPainter, this._grid);
         return painter;
     }
 }

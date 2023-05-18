@@ -21,7 +21,7 @@ export class ButtonCellPainter implements CellPainter {
     // (undocumented)
     config: ButtonCellPainter.Config;
     // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo;
+    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -223,27 +223,114 @@ export namespace CanvasRenderingContext2DEx {
     }
 }
 
+// @public (undocumented)
+export interface CellEditor {
+    click?(event: MouseEvent, cell: ViewCell | undefined): void;
+    close(cancel: boolean): void;
+    closedEventer?: ((this: void) => void) | undefined;
+    dblClick?(event: MouseEvent, cell: ViewCell | undefined): void;
+    hide?(): void;
+    keyDown?(event: KeyboardEvent): void;
+    keyPress?(event: KeyboardEvent): void;
+    keyUp?(event: KeyboardEvent): void;
+    mouseDown?(event: MouseEvent, cell: ViewCell | undefined): void;
+    mouseUp?(event: MouseEvent, cell: ViewCell | undefined): void;
+    readonly painter?: CellEditor.Painter;
+    setBounds?(bounds: RectangleInterface): void;
+    readonly wantDownArrow?: boolean;
+    readonly wantEscape?: boolean;
+    readonly wantLeftArrow?: boolean;
+    readonly wantReturn?: boolean;
+    readonly wantRightArrow?: boolean;
+    readonly wantTab?: boolean;
+    readonly wantUpArrow?: boolean;
+    wheelMove?(event: WheelEvent, cell: ViewCell | undefined): void;
+}
+
+// @public (undocumented)
+export namespace CellEditor {
+    export interface Painter {
+        readonly afterCell: boolean;
+        readonly beforeCellBackground: boolean;
+        readonly beforeCellBorder: boolean;
+        readonly beforeCellContent: boolean;
+        paint(cell: ViewCell, cellSettingsAccessor: CellSettingsAccessor): number | undefined;
+        readonly paintCellBackground: boolean;
+        readonly paintCellBorder: boolean;
+        readonly paintCellContent: boolean;
+    }
+}
+
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 //
 // @public
 export interface CellPainter {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo;
+    paint(gc: CanvasRenderingContext2DEx, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
 export namespace CellPainter {
-    // (undocumented)
-    export type Constructor = new (...args: unknown[]) => CellPainter;
-    // (undocumented)
-    export interface PaintInfo {
-        // (undocumented)
-        readonly snapshot: Record<string, unknown> | undefined;
-        // (undocumented)
-        readonly width: number | undefined;
-    }
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     export function roundRect(gc: CanvasRenderingContext2DEx, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean): void;
+}
+
+// @public (undocumented)
+export class CellSettingsAccessor {
+    // (undocumented)
+    get backgroundColor(): string;
+    // (undocumented)
+    get backgroundSelectionColor(): string;
+    // (undocumented)
+    get cellPadding(): number;
+    // (undocumented)
+    get cellPainter(): string;
+    // (undocumented)
+    get color(): string;
+    // (undocumented)
+    get columnAutosizing(): boolean;
+    // (undocumented)
+    get columnName(): string;
+    // (undocumented)
+    get focusedCellBorderColor(): string;
+    // (undocumented)
+    get font(): string;
+    // (undocumented)
+    get foregroundSelectionColor(): string;
+    // (undocumented)
+    get foregroundSelectionFont(): string;
+    // (undocumented)
+    get format(): string | undefined;
+    // (undocumented)
+    get gridLinesHWidth(): number;
+    // (undocumented)
+    get gridLinesVWidth(): number;
+    // (undocumented)
+    get halign(): "left" | "right" | "center" | "start" | "end";
+    // (undocumented)
+    get headerTextWrapping(): boolean;
+    // (undocumented)
+    get hoverCellHighlight(): GridSettings.HoverColors;
+    // (undocumented)
+    get hoverColumnHighlight(): GridSettings.HoverColors;
+    // (undocumented)
+    get hoverRowHighlight(): GridSettings.HoverColors;
+    // (undocumented)
+    get link(): string | false | GridSettings.LinkProp | GridSettings.LinkFunction;
+    // (undocumented)
+    get linkColor(): string;
+    // (undocumented)
+    get linkColorOnHover(): boolean;
+    // (undocumented)
+    get linkOnHover(): boolean;
+    // (undocumented)
+    setColumn(column: ColumnInterface, isHeader: boolean, isFilter: boolean): void;
+    // (undocumented)
+    get strikeThrough(): boolean;
+    // (undocumented)
+    get textTruncateType(): TextTruncateType | undefined;
+    // (undocumented)
+    get voffset(): number;
 }
 
 // @public (undocumented)
@@ -306,7 +393,7 @@ export interface ColumnNameWidth {
 }
 
 // @public (undocumented)
-export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSettings.ColumnHeader, ColumnSettings.Filter {
+export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSettings.Header, ColumnSettings.Filter {
     // (undocumented)
     backgroundColor: GridSettings.Color;
     // (undocumented)
@@ -326,8 +413,6 @@ export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSetti
     // (undocumented)
     columnClip: boolean | undefined;
     // (undocumented)
-    readonly columnHeader: ColumnSettings.ColumnHeader;
-    // (undocumented)
     editable: boolean;
     // (undocumented)
     editOnDoubleClick: boolean;
@@ -340,9 +425,9 @@ export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSetti
     // (undocumented)
     feedbackCount: number;
     // (undocumented)
-    filterable: boolean;
+    readonly filter: ColumnSettings.Filter;
     // (undocumented)
-    readonly filterProperties: ColumnSettings.Filter;
+    filterable: boolean;
     // (undocumented)
     font: string;
     // (undocumented)
@@ -356,7 +441,11 @@ export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSetti
     // (undocumented)
     gridLinesVWidth: number;
     // (undocumented)
+    readonly gridSettings: GridSettings;
+    // (undocumented)
     halign: Halign;
+    // (undocumented)
+    readonly header: ColumnSettings.Header;
     // (undocumented)
     link: false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
     // (undocumented)
@@ -382,16 +471,16 @@ export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSetti
 // @public (undocumented)
 export namespace ColumnSettings {
     // (undocumented)
-    export interface ColumnHeader extends HeaderFilter {
+    export interface Filter extends HeaderFilter {
+        // (undocumented)
+        editor: string | undefined;
+    }
+    // (undocumented)
+    export interface Header extends HeaderFilter {
         // (undocumented)
         foregroundSelectionFont: string;
         // (undocumented)
         format: string | undefined;
-    }
-    // (undocumented)
-    export interface Filter extends HeaderFilter {
-        // (undocumented)
-        editor: string | undefined;
     }
     // (undocumented)
     export interface HeaderFilter {
@@ -874,6 +963,8 @@ export class Focus {
     // (undocumented)
     get currentSubgridY(): number | undefined;
     // (undocumented)
+    get editor(): CellEditor | undefined;
+    // (undocumented)
     getCellEditorEventer: Focus.GetCellEditorEventer | undefined;
     // (undocumented)
     isActiveColumnFocused(activeColumnIndex: number): boolean;
@@ -907,71 +998,6 @@ export class Focus {
 
 // @public (undocumented)
 export namespace Focus {
-    // (undocumented)
-    export interface CellEditor {
-        // (undocumented)
-        click(event: MouseEvent, cell: ViewCell | undefined): void;
-        // (undocumented)
-        close(cancel: boolean): void;
-        // (undocumented)
-        closedEventer: ((this: void) => void) | undefined;
-        // (undocumented)
-        dblClick(event: MouseEvent, cell: ViewCell | undefined): void;
-        // (undocumented)
-        hide(): void;
-        // (undocumented)
-        keyDown(eventDetail: EventDetail.Keyboard): void;
-        // (undocumented)
-        keyPress(eventDetail: EventDetail.Keyboard): void;
-        // (undocumented)
-        keyUp(eventDetail: EventDetail.Keyboard): void;
-        // (undocumented)
-        mouseDown(event: MouseEvent, cell: ViewCell | undefined): void;
-        // (undocumented)
-        mouseUp(event: MouseEvent, cell: ViewCell | undefined): void;
-        // (undocumented)
-        paint(bounds: RectangleInterface): void;
-        // (undocumented)
-        readonly paintConfig: CellEditor.PaintConfig;
-        // (undocumented)
-        readonly wantDownArrow: boolean;
-        // (undocumented)
-        readonly wantEscape: boolean;
-        // (undocumented)
-        readonly wantLeftArrow: boolean;
-        // (undocumented)
-        readonly wantReturn: boolean;
-        // (undocumented)
-        readonly wantRightArrow: boolean;
-        // (undocumented)
-        readonly wantTab: boolean;
-        // (undocumented)
-        readonly wantUpArrow: boolean;
-        // (undocumented)
-        readonly wantWheelMove: boolean;
-        // (undocumented)
-        wheelMove(event: WheelEvent, cell: ViewCell | undefined): void;
-    }
-    // (undocumented)
-    export namespace CellEditor {
-        // (undocumented)
-        export interface PaintConfig {
-            // (undocumented)
-            readonly beforeCellBackground: boolean;
-            // (undocumented)
-            readonly beforeCellBorder: boolean;
-            // (undocumented)
-            readonly beforeCellContent: boolean;
-            // (undocumented)
-            readonly last: boolean;
-            // (undocumented)
-            readonly paintCellBackground: boolean;
-            // (undocumented)
-            readonly paintCellBorder: boolean;
-            // (undocumented)
-            readonly paintCellContent: boolean;
-        }
-    }
     // (undocumented)
     export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor | undefined;
     // (undocumented)
@@ -1793,8 +1819,8 @@ export class Revgrid {
     canvasDiv: HTMLDivElement;
     // (undocumented)
     readonly canvasEx: CanvasEx;
-    // Warning: (ae-forgotten-export) The symbol "CellEditor" needs to be exported by the entry point public-api.d.ts
-    cellEditor: CellEditor | undefined;
+    // Warning: (ae-forgotten-export) The symbol "CellEditor_2" needs to be exported by the entry point public-api.d.ts
+    cellEditor: CellEditor_2 | undefined;
     // Warning: (ae-forgotten-export) The symbol "CellEditorFactory" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -1815,7 +1841,7 @@ export class Revgrid {
     // (undocumented)
     convertViewPointToDataPoint(unscrolled: Point): Point;
     // (undocumented)
-    createCellEditor(name: string, cellEvent: ViewCell): CellEditor | undefined;
+    createCellEditor(name: string, cellEvent: ViewCell): CellEditor_2 | undefined;
     // @internal (undocumented)
     createColumns(): void;
     // (undocumented)
@@ -1896,19 +1922,19 @@ export class Revgrid {
     endDragColumnNotification(): void;
     endSelectionChange(): void;
     // (undocumented)
-    fireAfterCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor): boolean;
+    fireAfterCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor_2): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireBeforeCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor): boolean;
+    fireBeforeCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor_2): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireRequestCellEdit(editor: CellEditor, cellEvent: ViewCell, value: unknown): boolean;
+    fireRequestCellEdit(editor: CellEditor_2, cellEvent: ViewCell, value: unknown): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireSyntheticEditorDataChangeEvent(editor: CellEditor, oldValue: unknown, newValue: unknown): boolean;
+    fireSyntheticEditorDataChangeEvent(editor: CellEditor_2, oldValue: unknown, newValue: unknown): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireSyntheticEditorKeyDownEvent(inputControl: CellEditor, keyEvent: KeyboardEvent): boolean;
+    fireSyntheticEditorKeyDownEvent(inputControl: CellEditor_2, keyEvent: KeyboardEvent): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireSyntheticEditorKeyPressEvent(inputControl: CellEditor, keyEvent: KeyboardEvent): boolean;
+    fireSyntheticEditorKeyPressEvent(inputControl: CellEditor_2, keyEvent: KeyboardEvent): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireSyntheticEditorKeyUpEvent(inputControl: CellEditor, keyEvent: KeyboardEvent): boolean;
+    fireSyntheticEditorKeyUpEvent(inputControl: CellEditor_2, keyEvent: KeyboardEvent): boolean;
     // (undocumented)
     get fixedColumnsViewWidth(): number;
     // (undocumented)
@@ -2285,7 +2311,7 @@ export class RevRecordAssertError extends RevRecordInternalError {
 }
 
 // @public (undocumented)
-export interface RevRecordCellPaintConfig extends SimpleCellPaintConfig {
+export interface RevRecordCellPaintConfig {
     readonly recordRecentChangeTypeId?: RevRecordRecentChangeTypeId;
     readonly valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId;
 }
@@ -2856,242 +2882,12 @@ export namespace SchemaModel {
     export function normalizeColumns(columns: (Column | string)[]): Column[];
 }
 
-// @public (undocumented)
-export interface SimpleCellPaintConfig {
-    // (undocumented)
-    allRowsSelected: boolean;
-    // (undocumented)
-    readonly backgroundColor: GridSettings.Color;
-    // (undocumented)
-    readonly backgroundSelectionColor: GridSettings.Color;
-    // (undocumented)
-    bounds: RectangleInterface;
-    // (undocumented)
-    readonly cellPadding: number;
-    // (undocumented)
-    readonly cellPainter: string;
-    // (undocumented)
-    readonly color: GridSettings.Color;
-    // (undocumented)
-    readonly columnAutosizing: boolean;
-    // (undocumented)
-    readonly columnName: string;
-    // (undocumented)
-    dataCell: WritablePoint;
-    // (undocumented)
-    dataRow: DataModel.DataRow;
-    // (undocumented)
-    readonly focusedCellBorderColor: GridSettings.Color;
-    // (undocumented)
-    readonly font: string;
-    // (undocumented)
-    readonly foregroundSelectionColor: GridSettings.Color;
-    // (undocumented)
-    readonly foregroundSelectionFont: string;
-    // (undocumented)
-    readonly format: string | undefined;
-    // (undocumented)
-    readonly gridLinesHWidth: number;
-    // (undocumented)
-    readonly gridLinesVWidth: number;
-    // (undocumented)
-    readonly halign: Halign;
-    // (undocumented)
-    readonly headerTextWrapping: boolean;
-    // (undocumented)
-    readonly hoverCellHighlight: GridSettings.HoverColors;
-    // (undocumented)
-    readonly hoverColumnHighlight: GridSettings.HoverColors;
-    // (undocumented)
-    readonly hoverRowHighlight: GridSettings.HoverColors;
-    // (undocumented)
-    isCellFocused: boolean;
-    // (undocumented)
-    isCellHovered: boolean;
-    // (undocumented)
-    isCellSelected: boolean;
-    // (undocumented)
-    isColumnHovered: boolean;
-    // (undocumented)
-    isColumnSelected: boolean;
-    // (undocumented)
-    isFilterRow: boolean;
-    // (undocumented)
-    isHeaderRow: boolean;
-    // (undocumented)
-    isMainRow: boolean;
-    // (undocumented)
-    isRowFocused: boolean;
-    // (undocumented)
-    isRowHovered: boolean;
-    // (undocumented)
-    isRowSelected: boolean;
-    // (undocumented)
-    isSelected: boolean;
-    // (undocumented)
-    isUserDataArea: boolean;
-    // (undocumented)
-    readonly link: false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
-    // (undocumented)
-    readonly linkColor: GridSettings.Color;
-    // (undocumented)
-    readonly linkColorOnHover: boolean;
-    // (undocumented)
-    readonly linkOnHover: boolean;
-    // (undocumented)
-    prefillColor: GridSettings.Color | undefined;
-    // (undocumented)
-    snapshot: SimpleCellPaintConfig.Snapshot | undefined;
-    // (undocumented)
-    readonly strikeThrough: boolean;
-    // (undocumented)
-    readonly textTruncateType: TextTruncateType | undefined;
-    // (undocumented)
-    value: unknown;
-    // (undocumented)
-    readonly voffset: number;
-}
-
-// @public (undocumented)
-export namespace SimpleCellPaintConfig {
-    // (undocumented)
-    export type Snapshot = IndexSignatureHack<SnapshotInterface>;
-    // (undocumented)
-    export interface SnapshotInterface {
-        // (undocumented)
-        readonly borderColor: string | undefined;
-        // (undocumented)
-        readonly firstColorIsFill: boolean;
-        // (undocumented)
-        readonly layerColors: string[];
-        // (undocumented)
-        readonly textColor: string;
-        // (undocumented)
-        readonly textFont: string;
-        // (undocumented)
-        readonly value: string;
-    }
-}
-
-// @public (undocumented)
-export class SimpleCellPaintConfigAccessor implements SimpleCellPaintConfig {
-    constructor(grid: Revgrid, viewCell: ViewCell, isHeader: boolean, isFilter: boolean);
-    // (undocumented)
-    allRowsSelected: boolean;
-    // (undocumented)
-    get backgroundColor(): string;
-    // (undocumented)
-    get backgroundSelectionColor(): string;
-    // (undocumented)
-    bounds: RectangleInterface;
-    // (undocumented)
-    get cellPadding(): number;
-    // (undocumented)
-    get cellPainter(): string;
-    // (undocumented)
-    get color(): string;
-    // (undocumented)
-    get columnAutosizing(): boolean;
-    // (undocumented)
-    readonly columnName: string;
-    // (undocumented)
-    dataCell: WritablePoint;
-    // (undocumented)
-    dataRow: DataModel.DataRow;
-    // (undocumented)
-    get focusedCellBorderColor(): string;
-    // (undocumented)
-    get font(): string;
-    // (undocumented)
-    get foregroundSelectionColor(): string;
-    // (undocumented)
-    get foregroundSelectionFont(): string;
-    // (undocumented)
-    get format(): string | undefined;
-    // (undocumented)
-    get gridLinesHWidth(): number;
-    // (undocumented)
-    get gridLinesVWidth(): number;
-    // (undocumented)
-    get halign(): "left" | "right" | "center" | "start" | "end";
-    // (undocumented)
-    get headerTextWrapping(): boolean;
-    // (undocumented)
-    get hoverCellHighlight(): GridSettings.HoverColors;
-    // (undocumented)
-    get hoverColumnHighlight(): GridSettings.HoverColors;
-    // (undocumented)
-    get hoverRowHighlight(): GridSettings.HoverColors;
-    // (undocumented)
-    isCellFocused: boolean;
-    // (undocumented)
-    isCellHovered: boolean;
-    // (undocumented)
-    isCellSelected: boolean;
-    // (undocumented)
-    isColumnHovered: boolean;
-    // (undocumented)
-    isColumnSelected: boolean;
-    // (undocumented)
-    isDataColumn: boolean;
-    // (undocumented)
-    isFilterRow: boolean;
-    // (undocumented)
-    isHandleColumn: boolean;
-    // (undocumented)
-    isHeaderRow: boolean;
-    // (undocumented)
-    isMainRow: boolean;
-    // (undocumented)
-    isRowFocused: boolean;
-    // (undocumented)
-    isRowHovered: boolean;
-    // (undocumented)
-    isRowSelected: boolean;
-    // (undocumented)
-    isSelected: boolean;
-    // (undocumented)
-    isUserDataArea: boolean;
-    // (undocumented)
-    get link(): string | false | GridSettings.LinkProp | GridSettings.LinkFunction;
-    // (undocumented)
-    get linkColor(): string;
-    // (undocumented)
-    get linkColorOnHover(): boolean;
-    // (undocumented)
-    get linkOnHover(): boolean;
-    // (undocumented)
-    prefillColor: GridSettings.Color | undefined;
-    // (undocumented)
-    snapshot: SimpleCellPaintConfig.Snapshot | undefined;
-    // (undocumented)
-    get strikeThrough(): boolean;
-    // (undocumented)
-    get textTruncateType(): TextTruncateType | undefined;
-    // (undocumented)
-    value: unknown;
-    // (undocumented)
-    get voffset(): number;
-}
-
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-//
-// @public
-export class SimpleCellPainter implements CellPainter {
-    // (undocumented)
-    loadConfig(grid: Revgrid, cell: ViewCell, prefillColor: string | undefined): void;
-    // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo;
-}
-
 // @public
 export class SliderCellPainter implements CellPainter {
     // (undocumented)
     config: SliderCellPainter.Config;
     // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo;
+    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3116,7 +2912,7 @@ export class SparkBarCellPainter implements CellPainter {
     // (undocumented)
     config: SparkBarCellPainter.Config;
     // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo;
+    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3145,7 +2941,7 @@ export class SparkLineCellPainter implements CellPainter {
     // (undocumented)
     config: SparkLineCellPainter.Config;
     // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo;
+    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3191,7 +2987,7 @@ export class Subgrid implements SubgridInterface {
     // (undocumented)
     get fixedRowCount(): number;
     // @internal (undocumented)
-    getCellPainter(viewCell: ViewCell, prefillColor: string | undefined): CellPainter;
+    getCellPainter(viewCell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
@@ -3284,7 +3080,7 @@ export interface SubgridDefinition {
 // @public (undocumented)
 export namespace SubgridDefinition {
     // (undocumented)
-    export type GetCellPainterEventer = (this: void, viewCell: ViewCell, prefillColor: string | undefined) => CellPainter;
+    export type GetCellPainterEventer = (this: void, viewCell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined) => CellPainter;
 }
 
 // @public (undocumented)
@@ -3357,7 +3153,7 @@ export namespace SubgridInterface {
 // @public (undocumented)
 export class TagCellPainter implements CellPainter {
     // (undocumented)
-    paint(_gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo;
+    paint(_gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3371,6 +3167,18 @@ export namespace TagCellPainter {
         // (undocumented)
         floor: number;
     }
+}
+
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+//
+// @public
+export class TextCellPainter implements CellPainter {
+    // (undocumented)
+    paint(gc: CanvasRenderingContext2DEx, prefillColor: string | undefined): number | undefined;
+    // (undocumented)
+    setCell(cell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined, grid: Revgrid): void;
 }
 
 // @public (undocumented)

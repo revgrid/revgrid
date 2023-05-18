@@ -8,7 +8,7 @@ import { CanvasRenderingContext2DEx, CellPainter, RectangleInterface } from '../
 export class SparkBarCellPainter implements CellPainter {
     config: SparkBarCellPainter.Config;
 
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
+    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined {
         const config = this.config;
 
         let x = config.bounds.x;
@@ -19,10 +19,7 @@ export class SparkBarCellPainter implements CellPainter {
         gc.beginPath();
         const val = config.value;
         if (!val || !val.length) {
-            return {
-                width: undefined,
-                snapshot: undefined,
-            };
+            return undefined;
         } else {
             const count = val.length;
             const eWidth = width / count;
@@ -38,10 +35,7 @@ export class SparkBarCellPainter implements CellPainter {
                 x += eWidth;
             }
             gc.closePath();
-            return {
-                width: count * 10,
-                snapshot: undefined,
-            };
+            return count * 10;
         }
     }
 }

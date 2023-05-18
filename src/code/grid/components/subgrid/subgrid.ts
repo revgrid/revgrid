@@ -5,6 +5,7 @@ import { MetaModel } from '../../interfaces/meta-model';
 import { SchemaModel } from '../../interfaces/schema-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { AssertError } from '../../lib/revgrid-error';
+import { CellEditor } from '../cell/cell-editor';
 import { CellPainter } from '../cell/cell-painter';
 import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
@@ -239,8 +240,8 @@ export class Subgrid implements SubgridInterface {
     }
 
     /** @internal */
-    getCellPainter(viewCell: ViewCell, prefillColor: string | undefined): CellPainter {
-        return this._getCellPainterEventer(viewCell, prefillColor);
+    getCellPainter(viewCell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter {
+        return this._getCellPainterEventer(viewCell, cellEditorPainter);
     }
 
     private setRowMetadataRowProperties(y: number, existingMetadata: MetaModel.RowMetadata | undefined, properties: MetaModel.RowProperties | undefined) {

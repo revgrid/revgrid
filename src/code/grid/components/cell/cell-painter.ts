@@ -92,19 +92,12 @@ export interface CellPainter {
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo;
+    paint(gc: CanvasRenderingContext2DEx, prefillColor: string | undefined): number | undefined;
 
 }
 
 /** @public */
 export namespace CellPainter {
-    export type Constructor = new (...args: unknown[]) => CellPainter;
-    export interface PaintInfo {
-        readonly width: number | undefined;
-        readonly snapshot: Record<string, unknown> | undefined;
-    }
-
-
     /**
      * @desc A simple implementation of rounding a cell.
      * @param x - the x grid coordinate of my origin

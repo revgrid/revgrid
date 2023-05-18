@@ -2,8 +2,10 @@ import { GridSettings } from '../../../interfaces/grid-settings';
 import { ViewLayoutColumn } from '../../../interfaces/view-layout-column';
 import { ViewLayoutRow } from '../../../interfaces/view-layout-row';
 import { RectangleInterface } from '../../../lib/rectangle-interface';
+import { AssertError } from '../../../lib/revgrid-error';
 import { CanvasEx } from '../../canvas-ex/canvas-ex';
 import { CanvasRenderingContext2DEx } from '../../canvas-ex/canvas-rendering-context-2d-ex';
+import { CellEditor } from '../../cell/cell-editor';
 import { ViewCell } from '../../cell/view-cell';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -69,14 +71,63 @@ export abstract class GridPainter {
 
     abstract paintCells(gc: CanvasRenderingContext2DEx): void;
 
-    protected paintCell(gc: CanvasRenderingContext2DEx, viewCell: ViewCell, prefillColor: string | undefined): number | undefined {
+    protected getPaintableCellEditorInfo(setBoundsRequired: boolean): GridPainter.PaintableCellEditorInfo | undefined {
+        const focus = this.focus;
+        const cellEditor = focus.editor;
+        if (cellEditor === undefined) {
+            return undefined;
+        } else {
+            const painter = cellEditor.painter;
+            if (painter === undefined) {
+                return undefined;
+            } else {
+                const focusCurrentPoint = focus.currentSubgridPoint;
+                if (focusCurrentPoint === undefined) {
+                    throw new AssertError('GPGPCEI60099');
+                } else {
+                    let boundSetBoundsFunction: GridPainter.PaintableCellEditorInfo.BoundSetBoundsFunction | undefined;
+                    if (setBoundsRequired && cellEditor.setBounds !== undefined) {
+                        boundSetBoundsFunction = cellEditor.setBounds.bind(cellEditor);
+                    }
+                    return {
+                        painter,
+                        focusActiveColumnIndex: focusCurrentPoint.x,
+                        focusMainSubgridRowIndex: focusCurrentPoint.y,
+                        boundSetBoundsFunction,
+                    };
+                }
+            }
+        }
+    }
+
+    protected paintCell(
+        gc: CanvasRenderingContext2DEx,
+        viewCell: ViewCell,
+        prefillColor: string | undefined,
+        paintableCellEditorInfo: GridPainter.PaintableCellEditorInfo | undefined,
+    ): number | undefined {
         const subgrid = viewCell.subgrid as Subgrid;
-        const cellPainter = (subgrid as Subgrid).getCellPainter(viewCell, prefillColor);
+        let cellEditorPainter: CellEditor.Painter | undefined;
+        if (
+            // Is this a focused cell with an editor which requires painting?
+            paintableCellEditorInfo !== undefined &&
+            viewCell.viewLayoutColumn.activeColumnIndex === paintableCellEditorInfo.focusActiveColumnIndex &&
+            viewCell.viewLayoutRow.subgridRowIndex === paintableCellEditorInfo.focusMainSubgridRowIndex &&
+            subgrid.isMain
+        ) {
+            cellEditorPainter = paintableCellEditorInfo.painter;
 
-        const info = cellPainter.paint(gc);
-        viewCell.paintSnapshot = info.snapshot; // supports partial render
+            // Cell pool has been revalidated so an editor probably needs to be moved. Move it by calling the setBounds function on CellEditor.Painter
+            const boundSetBoundsFunction = paintableCellEditorInfo.boundSetBoundsFunction;
+            if (boundSetBoundsFunction !== undefined) {
+                boundSetBoundsFunction(viewCell.bounds);
+            }
+        }
+        const cellPainter = (subgrid as Subgrid).getCellPainter(viewCell, cellEditorPainter);
 
-        return info.width;
+        const preferredWidth = cellPainter.paint(gc, prefillColor);
+
+        return preferredWidth;
     }
 
     paintErrorCell(err: Error, gc: CanvasRenderingContext2DEx, vc: ViewLayoutColumn, vr: ViewLayoutRow) {
@@ -482,5 +533,16 @@ export namespace GridPainter {
     export interface RowBundlesAndPrefillColors {
         bundles: RowBundle[];
         prefillColors: string[];
+    }
+
+    export interface PaintableCellEditorInfo {
+        readonly painter: CellEditor.Painter;
+        readonly focusActiveColumnIndex: number;
+        readonly focusMainSubgridRowIndex: number;
+        readonly boundSetBoundsFunction: PaintableCellEditorInfo.BoundSetBoundsFunction | undefined;
+    }
+
+    export namespace PaintableCellEditorInfo {
+        export type BoundSetBoundsFunction = (bounds: RectangleInterface) => void;
     }
 }

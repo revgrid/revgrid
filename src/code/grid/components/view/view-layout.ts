@@ -351,9 +351,12 @@ export class ViewLayout {
         }
     }
 
+    get columnRowCellPoolComputationInvalid() { return this._columnRowOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
+    get rowColumnCellPoolComputationInvalid() { return this._rowColumnOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
+
     getRowColumnOrderedCellPool() {
         const pool = this._rowColumnOrderedCellPool;
-        if (this._rowColumnOrderedCellPoolComputationId !== this._rowsColumnsComputationId) {
+        if (this.rowColumnCellPoolComputationInvalid) {
             const rows = this._rows;
             const rowCount = rows.length;
             const columns = this._columns;
@@ -378,7 +381,7 @@ export class ViewLayout {
 
     getColumnRowOrderedCellPool() {
         const pool = this._columnRowOrderedCellPool;
-        if (this._columnRowOrderedCellPoolComputationId !== this._rowsColumnsComputationId) {
+        if (this.columnRowCellPoolComputationInvalid) {
             const rows = this._rows;
             const rowCount = rows.length;
             const columns = this._columns;

@@ -1,6 +1,7 @@
 import { DataModel } from '../../interfaces/data-model';
 import { MetaModel } from '../../interfaces/meta-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
+import { CellEditor } from '../cell/cell-editor';
 import { CellPainter } from '../cell/cell-painter';
 import { ViewCell } from '../cell/view-cell';
 
@@ -18,5 +19,9 @@ export interface SubgridDefinition {
 
 /** @public */
 export namespace SubgridDefinition {
-    export type GetCellPainterEventer = (this: void, viewCell: ViewCell, prefillColor: string | undefined) => CellPainter;
+    export type GetCellPainterEventer = (
+        this: void,
+        viewCell: ViewCell,
+        cellEditorPainter: CellEditor.Painter | undefined
+    ) => CellPainter;
 }

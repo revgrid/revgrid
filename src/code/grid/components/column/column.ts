@@ -87,7 +87,7 @@ export class Column implements ColumnInterface {
             if (!this._settings.columnAutosizing && width === this._settings.width) {
                 return false;
             } else {
-                this._settings.width = width;
+                this._settings.width = Math.ceil(width);
                 this._settings.columnAutosizing = false;
                 return true;
             }

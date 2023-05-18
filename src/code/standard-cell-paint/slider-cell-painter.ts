@@ -9,7 +9,7 @@ import { CanvasRenderingContext2DEx, CellPainter, RectangleInterface } from '../
 export class SliderCellPainter implements CellPainter {
     config: SliderCellPainter.Config;
 
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
+    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined {
         const config = this.config;
 
         const x = config.bounds.x;
@@ -38,10 +38,7 @@ export class SliderCellPainter implements CellPainter {
         gc.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
         gc.fill();
         gc.closePath();
-        return {
-            width: 100,
-            snapshot: undefined,
-        };
+        return 100;
     }
 }
 

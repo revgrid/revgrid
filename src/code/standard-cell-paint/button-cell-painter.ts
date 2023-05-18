@@ -8,7 +8,7 @@ import { CanvasRenderingContext2DEx, CellPainter, RectangleInterface } from '../
 export class ButtonCellPainter implements CellPainter {
     config: ButtonCellPainter.Config;
 
-    paint(gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
+    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined {
         const config = this.config;
 
         const val = config.value;
@@ -46,10 +46,7 @@ export class ButtonCellPainter implements CellPainter {
         gc.cache.font = height - 2 + 'px sans-serif';
         gc.fillText(val, x + ox, y + oy);
 
-        return {
-            width: undefined,
-            snapshot: undefined,
-        };
+        return undefined;
     }
 }
 

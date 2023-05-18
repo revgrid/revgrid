@@ -2,9 +2,11 @@ import { Halign } from '../lib/types';
 import { GridSettings } from './grid-settings';
 
 /** @public */
-export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSettings.ColumnHeader, ColumnSettings.Filter {
-    readonly columnHeader: ColumnSettings.ColumnHeader;
-    readonly filterProperties: ColumnSettings.Filter;
+export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSettings.Header, ColumnSettings.Filter {
+    readonly gridSettings: GridSettings
+
+    readonly header: ColumnSettings.Header;
+    readonly filter: ColumnSettings.Filter;
 
     preferredWidth?: number;
 
@@ -60,7 +62,7 @@ export namespace ColumnSettings {
         halign: Halign;
     }
 
-    export interface ColumnHeader extends HeaderFilter {
+    export interface Header extends HeaderFilter {
         format: string | undefined;
         foregroundSelectionFont: string;
         // autosizing: boolean | undefined;

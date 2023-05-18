@@ -4,7 +4,7 @@ import { CanvasRenderingContext2DEx, CellPainter } from '../grid/grid-public-api
 /** @public */
 export class TagCellPainter implements CellPainter {
 
-    paint(_gc: CanvasRenderingContext2DEx): CellPainter.PaintInfo {
+    paint(_gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined {
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {
         //     const tagband = tagbands.find((tagband) => {
@@ -27,10 +27,7 @@ export class TagCellPainter implements CellPainter {
         //         gc.fill();
         //     }
         // }
-        return {
-            width: undefined,
-            snapshot: undefined,
-        };
+        return undefined;
     }
 }
 

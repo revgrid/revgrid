@@ -59,13 +59,14 @@ export class ByColumnsGridPainter extends GridPainter {
     }
 
     paintCells(gc: CanvasRenderingContext2DEx) {
-        // this = this.renderer
-        const viewLayoutColumns = this.viewLayout.columns;
-        const viewLayoutRows = this.viewLayout.rows;
+        const viewLayout = this.viewLayout;
+        const viewLayoutColumns = viewLayout.columns;
+        const viewLayoutRows = viewLayout.rows;
         const columnCount = viewLayoutColumns.length;
         const lastColumnIndex = columnCount - 1;
         const rowCount = viewLayoutRows.length;
-        const pool = this.viewLayout.getColumnRowOrderedCellPool(); // must match algorithm below
+        const paintableCellEditorInfo = this.getPaintableCellEditorInfo(viewLayout.columnRowCellPoolComputationInvalid); // Make sure called before getting pool
+        const pool = viewLayout.getColumnRowOrderedCellPool(); // must match algorithm below and computationInvalid above
             // clipToGrid;
         let firstVisibleColumnLeft: number;
         let lastVisibleColumnRight: number;
@@ -119,7 +120,7 @@ export class ByColumnsGridPainter extends GridPainter {
                 const cell = pool[cellIndex++]; // next cell down the column (redundant for first cell in column)
 
                 try {
-                    const paintWidth = this.paintCell(gc, cell, prefillColor);
+                    const paintWidth = this.paintCell(gc, cell, prefillColor, paintableCellEditorInfo);
                     if (paintWidth !== undefined) {
                         if (preferredWidth === undefined) {
                             preferredWidth = paintWidth;
