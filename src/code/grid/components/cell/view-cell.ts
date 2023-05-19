@@ -26,7 +26,7 @@ export class ViewCell {
     viewLayoutRow: ViewLayoutRow;
 
     // partial render support
-    paintSnapshot: ViewCell.PaintSnapshot | undefined;
+    paintFingerprint: ViewCell.PaintFingerprint | undefined;
 
     /**
      * @summary Create a new CellEvent object.
@@ -53,7 +53,7 @@ export class ViewCell {
         this.dataPoint.x = this.viewLayoutColumn.column.index;
         this.dataPoint.y = visibleRow.subgridRowIndex;
 
-        this.paintSnapshot = undefined;
+        this.paintFingerprint = undefined;
     }
 
     /**
@@ -265,7 +265,7 @@ export class ViewCell {
 
 /** @public */
 export namespace ViewCell {
-    export type PaintSnapshot = Record<string, unknown>;
+    export type PaintFingerprint = Record<string, unknown>;
 
     export interface Bounds extends RectangleInterface {
     }

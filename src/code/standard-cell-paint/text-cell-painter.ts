@@ -69,19 +69,19 @@ export class TextCellPainter implements CellPainter {
         const value = subgrid.getValue(cell.viewLayoutColumn.column, subgridRowIndex);
         const valText = value as string;
 
-        const snapshot = cell.paintSnapshot as Snapshot | undefined;
-        let snapshotColorsLength: number;
+        const fingerprint = cell.paintFingerprint as PaintFingerprint | undefined;
+        let fingerprintColorsLength: number;
         let same: boolean;
-        if (snapshot === undefined) {
-            snapshotColorsLength = 0;
+        if (fingerprint === undefined) {
+            fingerprintColorsLength = 0;
             same = false;
         } else {
-            snapshotColorsLength = snapshot.layerColors.length;
+            fingerprintColorsLength = fingerprint.layerColors.length;
             const partialRender = prefillColor === undefined; // signifies abort before rendering if same
             same = partialRender &&
-                valText === snapshot.value &&
-                textFont === snapshot.textFont &&
-                textColor === snapshot.textColor;
+                valText === fingerprint.value &&
+                textFont === fingerprint.textFont &&
+                textColor === fingerprint.textColor;
         }
 
         const isMainSubgrid = subgrid.isMain;
@@ -131,21 +131,21 @@ export class TextCellPainter implements CellPainter {
                     firstColorIsFill = true;
                     layerColors.push(settings.backgroundColor);
                     same = same &&
-                        snapshot !== undefined &&
-                        firstColorIsFill === snapshot.firstColorIsFill && settings.backgroundColor === snapshot.layerColors[layerColorIndex++];
+                        fingerprint !== undefined &&
+                        firstColorIsFill === fingerprint.firstColorIsFill && settings.backgroundColor === fingerprint.layerColors[layerColorIndex++];
                 }
             }
 
             if (selectColor !== undefined) {
                 layerColors.push(selectColor);
                 same = same &&
-                    snapshot !== undefined &&
-                    selectColor === snapshot.layerColors[layerColorIndex++];
+                    fingerprint !== undefined &&
+                    selectColor === fingerprint.layerColors[layerColorIndex++];
             }
         }
         if (hoverColor !== undefined) {
             layerColors.push(hoverColor);
-            same = same && snapshot !== undefined && hoverColor === snapshot.layerColors[layerColorIndex++];
+            same = same && fingerprint !== undefined && hoverColor === fingerprint.layerColors[layerColorIndex++];
         }
 
         const cellFocused = isMainSubgrid && grid.focus.isMainSubgridCellFocused(activeColumnIndex, subgridRowIndex);
@@ -155,14 +155,14 @@ export class TextCellPainter implements CellPainter {
         } else {
             borderColor = undefined;
         }
-        same &&= snapshot !== undefined && snapshot.borderColor === borderColor;
+        same &&= fingerprint !== undefined && fingerprint.borderColor === borderColor;
 
         const cellEditorPainter = this._cellEditorPainter;
         const editorPaint = cellEditorPainter === undefined
-        same &&= snapshot !== undefined && snapshot.editorPaint === editorPaint;
+        same &&= fingerprint !== undefined && fingerprint.editorPaint === editorPaint;
 
-        // return a snapshot to save in View cell for future comparisons by partial renderer
-        const newSnapshot: Snapshot = {
+        // return a fingerprint to save in View cell for future comparisons by partial renderer
+        const newFingerprint: PaintFingerprint = {
             value: valText,
             textColor,
             textFont,
@@ -171,9 +171,9 @@ export class TextCellPainter implements CellPainter {
             layerColors,
             editorPaint,
         };
-        cell.paintSnapshot = newSnapshot; // supports partial render
+        cell.paintFingerprint = newFingerprint; // supports partial render
 
-        if (same && layerColorIndex === snapshotColorsLength) {
+        if (same && layerColorIndex === fingerprintColorsLength) {
             return undefined;
         } else {
             const bounds = cell.bounds;
@@ -239,7 +239,7 @@ export class TextCellPainter implements CellPainter {
  * effect on `drawImage` in the case of SVGs on these browsers.
  */
 
-export interface SnapshotInterface {
+export interface PaintFingerprintInterface {
     readonly value: string;
     readonly textColor: string;
     readonly textFont: string;
@@ -249,7 +249,7 @@ export interface SnapshotInterface {
     readonly editorPaint: boolean;
 }
 
-export type Snapshot = IndexSignatureHack<SnapshotInterface>;
+export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
 
 /**
  * @summary Renders single line text.

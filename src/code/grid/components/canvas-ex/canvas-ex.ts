@@ -602,7 +602,7 @@ export class CanvasEx {
         keyboardDetail.revgrid_repeatCount = this.repeatKeyCount;
         keyboardDetail.revgrid_repeatStartTime = this.repeatKeyStartTime;
 
-        keyboardDetail.revgrid_navigateKey = this.createKeyboardNavigateKey(e.code);
+        keyboardDetail.revgrid_navigateKey = this.createKeyboardNavigateKey(e.key);
 
         return keyboardDetail;
     }

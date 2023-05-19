@@ -171,12 +171,22 @@ export class Focus {
         }
     }
 
-    closeAndCheckTryOpenEditor(cell: ViewCell | undefined) {
+    /** Returns true editor was already opened or could be opend by key */
+    tryOpenEditorWithKey(_key: string) {
+        // not yet implemented
+        return this.editor !== undefined;
+    }
+
+    closeEditor() {
         if (this._editor !== undefined) {
             this._editor.closedEventer = undefined;
             this._editor.close(false);
             this._editor = undefined;
         }
+    }
+
+    closeAndCheckTryOpenEditor(cell: ViewCell | undefined) {
+        this.closeEditor();
 
         const currentSubgridPoint = this._currentSubgridPoint;
         if (currentSubgridPoint !== undefined) {

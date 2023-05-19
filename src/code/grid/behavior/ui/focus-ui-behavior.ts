@@ -1,6 +1,8 @@
 import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { CellEditor } from '../../components/cell/cell-editor';
 import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
+import { KeyboardEventKey } from '../../lib/html-types';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
@@ -20,26 +22,55 @@ export class FocusUiBehavior extends UiBehavior {
         return super.handleMouseDown(event, cell);
     }
 
+    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+        if (cell === undefined) {
+            cell = this.tryGetViewCellFromMouseEvent(event);
+        }
+        if (cell !== null) {
+            if (this.gridSettings.editOnDoubleClick && cell.subgrid.isMain && !cell.isCellFixed) {
+                this.focus.tryOpenEditor(cell);
+            }
+        }
+        return super.handleDblClick(event, cell);
+    }
+
     /**
      * @param eventDetail - the event details
      */
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
         const navigateKey = eventDetail.revgrid_navigateKey;
+        let consumedByEditor = false;
         if (navigateKey !== undefined) {
             switch (navigateKey) {
-                case CanvasEx.Keyboard.NavigateKey.left:
-                    this.focusBehavior.tryMoveFocusLeft();
+                case CanvasEx.Keyboard.NavigateKey.left: {
+                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantLeftArrow');
+                    if (!consumedByEditor) {
+                        this.focusBehavior.tryMoveFocusLeft();
+                    }
                     break;
-                case CanvasEx.Keyboard.NavigateKey.right:
-                    this.focusBehavior.tryMoveFocusRight();
+                }
+                case CanvasEx.Keyboard.NavigateKey.right: {
+                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantRightArrow');
+                    if (!consumedByEditor) {
+                        this.focusBehavior.tryMoveFocusRight();
+                    }
                     break;
-                case CanvasEx.Keyboard.NavigateKey.up:
-                    this.focusBehavior.tryMoveFocusUp();
+                }
+                case CanvasEx.Keyboard.NavigateKey.up: {
+                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantUpArrow');
+                    if (!consumedByEditor) {
+                        this.focusBehavior.tryMoveFocusUp();
+                    }
                     break;
-                case CanvasEx.Keyboard.NavigateKey.down:
-                    this.focusBehavior.tryMoveFocusDown();
+                }
+                case CanvasEx.Keyboard.NavigateKey.down: {
+                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantDownArrow');
+                    if (!consumedByEditor) {
+                        this.focusBehavior.tryMoveFocusDown();
+                    }
                     break;
-                case CanvasEx.Keyboard.NavigateKey.pageUp:
+                }
+                case CanvasEx.Keyboard.NavigateKey.pageUp: {
                     // If implementing focus driven paging, then use focusBehavior
                     if (eventDetail.altKey) {
                         this.focusBehavior.tryPageFocusLeft();
@@ -47,7 +78,8 @@ export class FocusUiBehavior extends UiBehavior {
                         this.focusBehavior.tryPageFocusUp();
                     }
                     break;
-                case CanvasEx.Keyboard.NavigateKey.pageDown:
+                }
+                case CanvasEx.Keyboard.NavigateKey.pageDown: {
                     // If implementing focus driven paging, then use focusBehavior
                     if (eventDetail.altKey) {
                         this.focusBehavior.tryPageFocusRight();
@@ -55,25 +87,72 @@ export class FocusUiBehavior extends UiBehavior {
                         this.focusBehavior.tryPageFocusDown();
                     }
                     break;
-                case CanvasEx.Keyboard.NavigateKey.home:
-                    if (eventDetail.ctrlKey) {
-                        this.focusBehavior.tryMoveFocusTop();
-                    } else {
-                        this.focusBehavior.tryMoveFocusFirstColumn();
+                }
+                case CanvasEx.Keyboard.NavigateKey.home: {
+                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantHome');
+                    if (!consumedByEditor) {
+                        if (eventDetail.ctrlKey) {
+                            this.focusBehavior.tryMoveFocusTop();
+                        } else {
+                            this.focusBehavior.tryMoveFocusFirstColumn();
+                        }
                     }
                     break;
-                case CanvasEx.Keyboard.NavigateKey.end:
-                    if (eventDetail.ctrlKey) {
-                        this.focusBehavior.tryMoveFocusBottom();
-                    } else {
-                        this.focusBehavior.tryMoveFocusLastColumn();
+                }
+                case CanvasEx.Keyboard.NavigateKey.end: {
+                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantEnd');
+                    if (!consumedByEditor) {
+                        if (eventDetail.ctrlKey) {
+                            this.focusBehavior.tryMoveFocusBottom();
+                        } else {
+                            this.focusBehavior.tryMoveFocusLastColumn();
+                        }
                     }
                     break;
+                }
                 default:
                     throw new UnreachableCaseError('FUBHKD33233', navigateKey);
             }
+        } else {
+            const key = eventDetail.key;
+            switch (key) {
+                case KeyboardEventKey.Tab: {
+                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantTab');
+                    if (!consumedByEditor) {
+                        this.focusBehavior.tryMoveFocusLeft();
+                    }
+                    break;
+                }
+                case KeyboardEventKey.Return: {
+                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantReturn');
+                    if (!consumedByEditor) {
+                        this.focusBehavior.tryMoveFocusDown();
+                    }
+                    break;
+                }
+                case KeyboardEventKey.Escape: {
+                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantEscape');
+                    if (!consumedByEditor) {
+                        this.focus.closeEditor();
+                    }
+                    break;
+                }
+                default: {
+                    if (key === this.gridSettings.editKey) {
+                        this.focus.tryOpenEditor(undefined);
+                        consumedByEditor = true;
+                    } else {
+                        if (this.gridSettings.editOnKeydown) {
+                            consumedByEditor = this.focus.tryOpenEditorWithKey(key);
+                        }
+                    }
+                }
+            }
         }
-        super.handleKeyDown(eventDetail);
+
+        if (!consumedByEditor) {
+            super.handleKeyDown(eventDetail);
+        }
 
         // // STEP 1: Move the selection
         // if (handler) {
@@ -154,6 +233,16 @@ export class FocusUiBehavior extends UiBehavior {
             }
             default:
                 throw new UnreachableCaseError('FUBPHSAU53009', action.type);
+        }
+    }
+
+    private checkDivertToEditor(eventDetail: EventDetail.Keyboard, wantProperty: keyof CellEditor): boolean {
+        const editor = this.focus.editor;
+        if (editor !== undefined && editor[wantProperty] && editor.keyDown !== undefined) {
+            editor.keyDown(eventDetail);
+            return true;
+        } else {
+            return false;
         }
     }
 }

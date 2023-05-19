@@ -101,6 +101,8 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     /** Open cell editor when cell selected via keyboard navigation. */
     get editOnFocusCell() { return this._raw.editOnFocusCell; }
     set editOnFocusCell(value: boolean) { this._raw.editOnFocusCell = value; }
+    get editKey() { return this._raw.editKey; }
+    set editKey(value: string) { this._raw.editKey = value; }
     /** Name of a cell editor. */
     get editor() { return this._raw.editor; }
     set editor(value: string | undefined) { this._raw.editor = value; }

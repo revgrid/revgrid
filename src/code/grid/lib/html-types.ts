@@ -44,3 +44,9 @@ export namespace ModifierKey {
         }
     }
 }
+
+export namespace KeyboardEventKey {
+    export const Tab = 'Tab';
+    export const Escape = 'Escape';
+    export const Return = 'Return';
+}

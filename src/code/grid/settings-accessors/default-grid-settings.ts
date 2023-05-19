@@ -531,6 +531,8 @@ export const defaultSettingsProperties: Required<GridSettings> = {
      */
     editOnFocusCell: false,
 
+    editKey: 'F2',
+
 
     /* COLUMN SORTING */
 

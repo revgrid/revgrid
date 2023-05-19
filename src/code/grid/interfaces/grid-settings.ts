@@ -50,6 +50,8 @@ export interface GridSettings {
     /** Edit cell on double-click rather than single-click. */
     editOnDoubleClick: boolean;
     editOnKeydown: boolean;
+    /** Keyboard event key for editing a cell */
+    editKey: string;
     /** Open cell editor when cell selected via keyboard navigation. */
     editOnFocusCell: boolean;
     /** Name of a cell editor. */

@@ -231,14 +231,15 @@ export interface CellEditor {
     dblClick?(event: MouseEvent, cell: ViewCell | undefined): void;
     hide?(): void;
     keyDown?(event: KeyboardEvent): void;
-    keyPress?(event: KeyboardEvent): void;
     keyUp?(event: KeyboardEvent): void;
     mouseDown?(event: MouseEvent, cell: ViewCell | undefined): void;
     mouseUp?(event: MouseEvent, cell: ViewCell | undefined): void;
     readonly painter?: CellEditor.Painter;
     setBounds?(bounds: RectangleInterface): void;
     readonly wantDownArrow?: boolean;
+    readonly wantEnd?: boolean;
     readonly wantEscape?: boolean;
+    readonly wantHome?: boolean;
     readonly wantLeftArrow?: boolean;
     readonly wantReturn?: boolean;
     readonly wantRightArrow?: boolean;
@@ -955,6 +956,8 @@ export class Focus {
     // (undocumented)
     closeAndCheckTryOpenEditor(cell: ViewCell | undefined): void;
     // (undocumented)
+    closeEditor(): void;
+    // (undocumented)
     createStash(): Focus.Stash;
     // (undocumented)
     get currentSubgridPoint(): Point | undefined;
@@ -994,6 +997,7 @@ export class Focus {
     readonly subgrid: SubgridInterface;
     // (undocumented)
     tryOpenEditor(cell: ViewCell | undefined): void;
+    tryOpenEditorWithKey(_key: string): boolean;
 }
 
 // @public (undocumented)
@@ -1073,6 +1077,7 @@ export interface GridSettings {
     defaultRowHeight: number;
     // (undocumented)
     editable: boolean;
+    editKey: string;
     editOnDoubleClick: boolean;
     editOnFocusCell: boolean;
     // (undocumented)
@@ -3244,7 +3249,7 @@ export class ViewCell {
     // (undocumented)
     get isSummaryRow(): boolean;
     // (undocumented)
-    paintSnapshot: ViewCell.PaintSnapshot | undefined;
+    paintFingerprint: ViewCell.PaintFingerprint | undefined;
     // (undocumented)
     reset(visibleColumn: ViewLayoutColumn, visibleRow: ViewLayoutRow): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -3271,7 +3276,7 @@ export namespace ViewCell {
     export interface Bounds extends RectangleInterface {
     }
     // (undocumented)
-    export type PaintSnapshot = Record<string, unknown>;
+    export type PaintFingerprint = Record<string, unknown>;
 }
 
 // @public (undocumented)

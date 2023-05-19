@@ -19,6 +19,10 @@ export interface CellEditor {
     readonly wantUpArrow?: boolean;
     /** If true, editor wants to handle Down Arrow key instead of grid */
     readonly wantDownArrow?: boolean;
+    /** If true, editor wants to handle Home key instead of grid */
+    readonly wantHome?: boolean;
+    /** If true, editor wants to handle End key instead of grid */
+    readonly wantEnd?: boolean;
 
     /** If provided, a cell painter will use the CellEditor's painter to paint the editor when the cell contains the editor */
     readonly painter?: CellEditor.Painter;
@@ -37,8 +41,6 @@ export interface CellEditor {
     keyDown?(event: KeyboardEvent): void;
     /** Implement if editor wants key up events */
     keyUp?(event: KeyboardEvent): void;
-    /** Implement if editor wants key press events */
-    keyPress?(event: KeyboardEvent): void;
 
     /** Implement if editor wants mouse click events */
     click?(event: MouseEvent, cell: ViewCell | undefined): void;
