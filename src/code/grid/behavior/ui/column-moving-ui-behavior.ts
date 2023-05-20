@@ -233,7 +233,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                     dragContext.fillRect(indicatorX, 0, 2, this.canvasEx.height);
                 }
 
-                const dragCol = this.viewLayout.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex);
+                const dragCol = this.viewLayout.findColumnWithActiveIndex(this._dragCol.activeColumnIndex);
                 if (dragCol) {
                     const hideAction = dragAction.type === DragActionType.Scroll && this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid;
                     dragContext.fillStyle = hideAction
@@ -270,7 +270,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                 type: DragActionType.None
             };
         } else {
-            const updatedDragCol = this.viewLayout.tryGetColumnWithActiveIndex(this._dragCol.activeColumnIndex)
+            const updatedDragCol = this.viewLayout.findColumnWithActiveIndex(this._dragCol.activeColumnIndex)
             const dragCol = updatedDragCol ? updatedDragCol : this._dragCol;
             const offsetX = event.offsetX;
             if (offsetX < firstScrollableColumnViewLeft) {
@@ -290,7 +290,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                         source: dragCol
                     };
                 } else {
-                    let overCol = this.viewLayout.findLeftGridLineInclusiveColumnFromOffset(offsetX);
+                    let overCol = this.viewLayout.findLeftGridLineInclusiveColumnFromCanvasOffset(offsetX);
                     if (overCol === undefined) {
                         // must be in unused space
                         overCol = this.viewLayout.createUnusedSpaceColumn();

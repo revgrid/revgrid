@@ -787,7 +787,7 @@ export const defaultSettingsProperties: Required<GridSettings> = {
      * Used to access registered features -- unless behavior has a non-empty `features` property (array of feature contructors).
      */
     features: [
-        'focus',
+        'focusscroll',
         'filters',
         'cellselection',
         // 'keypaging',

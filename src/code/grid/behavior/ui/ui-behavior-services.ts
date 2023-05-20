@@ -11,9 +11,8 @@ import { GridSettings } from '../../interfaces/grid-settings';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
-import { FocusBehavior } from '../component/focus-behavior';
+import { FocusScrollBehavior } from '../component/focus-scroll-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
-import { ScrollBehavior } from '../component/scroll-behaviour';
 import { SelectionBehavior } from '../component/selection-behavior';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
@@ -35,8 +34,7 @@ export class UiBehaviorServices {
 
         readonly mouse: Mouse,
 
-        readonly scrollBehavior: ScrollBehavior,
-        readonly focusBehavior: FocusBehavior,
+        readonly focusScrollBehavior: FocusScrollBehavior,
         readonly selectionBehavior: SelectionBehavior,
         readonly rowPropertiesBehavior: RowPropertiesBehavior,
         readonly cellPropertiesBehavior: CellPropertiesBehavior,

@@ -25,7 +25,7 @@ export class CellEditingUiBehavior extends UiBehavior {
     }
 
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        const cellEvent = this.focusBehavior.getFocusedViewCell(false);
+        const cellEvent = this.focusScrollBehavior.getFocusedViewCell(false);
         if (cellEvent === undefined) {
             super.handleKeyDown(eventDetail);
         } else {

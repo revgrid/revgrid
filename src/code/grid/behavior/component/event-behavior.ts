@@ -216,7 +216,7 @@ export class EventBehavior {
     private processMouseClickEvent(event: MouseEvent) {
         let cell = this.uiMouseClickEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
+            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
         }
 
         this._descendantEventer.mouseClick(event, cell);
@@ -229,7 +229,7 @@ export class EventBehavior {
     private processMouseDblClickEvent(event: MouseEvent) {
         let cell = this.uiMouseDblClickEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
+            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
         }
 
 
@@ -243,7 +243,7 @@ export class EventBehavior {
     private processMouseDownEvent(event: MouseEvent) {
         let cell = this.uiMouseDownEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
+            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
         }
 
         this._descendantEventer.mouseDown(event, cell);
@@ -256,7 +256,7 @@ export class EventBehavior {
     private processMouseUpEvent(event: MouseEvent) {
         let cell = this.uiMouseUpEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
+            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
         }
 
         this._descendantEventer.mouseUp(event, cell);
@@ -269,7 +269,7 @@ export class EventBehavior {
     private processMouseMoveEvent(event: MouseEvent) {
         let cell = this.uiMouseMoveEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
+            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
         }
 
         this._descendantEventer.mouseMove(event, cell);
@@ -295,7 +295,7 @@ export class EventBehavior {
     private processWheelMoveEvent(event: WheelEvent) {
         let cell = this.uiWheelMoveEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
+            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
         }
 
         this._descendantEventer.wheelMove(event, cell);
@@ -308,7 +308,7 @@ export class EventBehavior {
     private processContextMenuEvent(event: MouseEvent) {
         let cell = this.uiContextMenuEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
+            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
         }
 
         this._descendantEventer.contextMenu(event, cell);

@@ -46,6 +46,7 @@ import { VerticalScrollDimension } from './vertical-scroll-dimension';
 export class ViewLayout {
     invalidateDataEventer: ViewLayout.InvalidatedEventer;
     columnsViewWidthsChangedEventer: ViewLayout.ColumnsViewWidthsChangedEventer;
+    cellPoolComputedEventer: ViewLayout.CellPoolComputedEventer;
 
     /**
      * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
@@ -374,6 +375,7 @@ export class ViewLayout {
                 }
             }
             this._rowColumnOrderedCellPoolComputationId = this._rowsColumnsComputationId;
+            this.cellPoolComputedEventer();
         }
 
         return pool;
@@ -398,6 +400,7 @@ export class ViewLayout {
                 }
             }
             this._columnRowOrderedCellPoolComputationId = this._rowsColumnsComputationId;
+            this.cellPoolComputedEventer();
         }
 
         return pool;
@@ -810,39 +813,35 @@ export class ViewLayout {
     }
 
     ensureRowIsInView(mainSubgridRowIndex: number, _maximally: boolean) {
-        let viewportStartChanged: boolean;
-
         const fixedRowCount = this._gridSettings.fixedRowCount;
         // scroll only if target not in fixed rows
         if (mainSubgridRowIndex < fixedRowCount) {
-            viewportStartChanged = false;
+            return false;
         } else {
             const firstScrollableSubgridRowIndex = this.firstScrollableSubgridRowIndex;
             // Only scroll if got scrollable columns
             if (firstScrollableSubgridRowIndex === undefined) {
-                viewportStartChanged = false;
+                return false;
             } else {
                 if (mainSubgridRowIndex < firstScrollableSubgridRowIndex) {
-                    this.setRowScrollAnchor(firstScrollableSubgridRowIndex, 0);
-                    viewportStartChanged = true; // Do this until fix up vertical scrolling
+                    this.setRowScrollAnchor(mainSubgridRowIndex, 0);
+                    return true;
                 } else {
                     const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
                     if (lastScrollableSubgridRowIndex === undefined) {
                         throw new AssertError('SBSXTMV82224'); // if first then must be last
                     } else {
                         if (mainSubgridRowIndex <= lastScrollableSubgridRowIndex) {
-                            viewportStartChanged = false;
+                            return false;
                         } else {
                             const newFirstIndex = lastScrollableSubgridRowIndex - this._verticalScrollDimension.viewportSize + 1;
                             this.setRowScrollAnchor(newFirstIndex, 0);
-                            viewportStartChanged = true; // Do this until fix up vertical scrolling
+                            return true;
                         }
                     }
                 }
             }
         }
-
-        return viewportStartChanged;
     }
 
     calculateHorizontalScrollableLeft(): number {
@@ -936,8 +935,8 @@ export class ViewLayout {
      * @param point
      * @returns Cell coordinates
      */
-    findLeftGridLineInclusiveCellFromOffset(x: number, y: number): ViewCell | undefined {
-        const columnIndex = this.findIndexOfLeftGridLineInclusiveColumnFromOffset(x);
+    findLeftGridLineInclusiveCellFromCanvasOffset(x: number, y: number): ViewCell | undefined {
+        const columnIndex = this.findIndexOfLeftGridLineInclusiveColumnFromCanvasOffset(x);
         if (columnIndex === undefined) {
             return undefined;
         } else {
@@ -946,7 +945,7 @@ export class ViewLayout {
             if (row === undefined) {
                 return undefined;
             } else {
-                const cell = this.findCellWithViewpointIndex(columnIndex, row.index);
+                const cell = this.findCellAtViewpointIndex(columnIndex, row.index);
                 if (cell === undefined) {
                     throw new AssertError('VGCFMP34440');
                 } else {
@@ -956,28 +955,8 @@ export class ViewLayout {
         }
     }
 
-    findCellFromOffset(x: number, y: number): ViewCell | undefined {
-        const columnIndex = this.findColumnIndexFromOffset(x);
-        if (columnIndex < 0) {
-            return undefined;
-        } else {
-            const rows = this._rows;
-            const row = rows.find((aVr) => y < aVr.bottom);
-            if (row === undefined) {
-                return undefined;
-            } else {
-                const cell = this.findCellWithViewpointIndex(columnIndex, row.index);
-                if (cell === undefined) {
-                    throw new AssertError('VGCFMP34440');
-                } else {
-                    return cell;
-                }
-            }
-        }
-    }
-
-    findScrollableCellClosestToOffset(canvasOffsetX: number, canvasOffsetY: number) {
-        const columnIndex = this.findIndexOfScrollableColumnClosestToOffset(canvasOffsetX);
+    findScrollableCellClosestToCanvasOffset(canvasOffsetX: number, canvasOffsetY: number) {
+        const columnIndex = this.findIndexOfScrollableColumnClosestToCanvasOffset(canvasOffsetX);
         if (columnIndex === undefined) {
             return undefined;
         } else {
@@ -985,13 +964,13 @@ export class ViewLayout {
             if (rowIndex === undefined) {
                 return undefined;
             } else {
-                return this.findCellWithViewpointIndex(columnIndex, rowIndex);
+                return this.findCellAtViewpointIndex(columnIndex, rowIndex);
             }
         }
     }
 
-    findLeftGridLineInclusiveColumnFromOffset(canvasOffsetX: number) {
-        const index = this.findIndexOfLeftGridLineInclusiveColumnFromOffset(canvasOffsetX);
+    findLeftGridLineInclusiveColumnFromCanvasOffset(canvasOffsetX: number) {
+        const index = this.findIndexOfLeftGridLineInclusiveColumnFromCanvasOffset(canvasOffsetX);
         if (index === undefined) {
             return undefined;
         } else {
@@ -999,7 +978,7 @@ export class ViewLayout {
         }
     }
 
-    findIndexOfLeftGridLineInclusiveColumnFromOffset(canvasOffsetX: number) {
+    findIndexOfLeftGridLineInclusiveColumnFromCanvasOffset(canvasOffsetX: number) {
         const columns = this._columns;
         const columnCount = columns.length;
         if (canvasOffsetX < 0 || columnCount === 0) {
@@ -1015,7 +994,7 @@ export class ViewLayout {
         }
     }
 
-    findColumnIndexFromOffset(canvasOffsetX: number) {
+    findColumnIndexOfCanvasOffset(canvasOffsetX: number) {
         const columns = this._columns;
         const columnCount = columns.length;
         if (canvasOffsetX < 0 || columnCount === 0) {
@@ -1035,7 +1014,7 @@ export class ViewLayout {
         }
     }
 
-    findRowIndexFromOffset(canvasOffsetY: number) {
+    findRowIndexOfCanvasOffset(canvasOffsetY: number) {
         const rows = this._rows;
         const rowCount = rows.length;
         if (canvasOffsetY < 0 || rowCount === 0) {
@@ -1055,7 +1034,7 @@ export class ViewLayout {
         }
     }
 
-    findIndexOfScrollableColumnClosestToOffset(canvasOffsetX: number) {
+    findIndexOfScrollableColumnClosestToCanvasOffset(canvasOffsetX: number) {
         const firstScrollableColumnViewLeft = this.scrollableCanvasLeft;
         if (firstScrollableColumnViewLeft === undefined) {
             return undefined;
@@ -1077,7 +1056,7 @@ export class ViewLayout {
                         return lastScrollableColumnIndex;
                     }
                 } else {
-                    const columnIndex = this.findColumnIndexFromOffset(canvasOffsetX);
+                    const columnIndex = this.findColumnIndexOfCanvasOffset(canvasOffsetX);
                     if (columnIndex < 0) {
                         throw new AssertError('VFIOSCCTOL33390')
                     } else {
@@ -1110,7 +1089,7 @@ export class ViewLayout {
                     if (y >= lastScrollableRow.bottom) {
                         return lastScrollableRowIndex;
                     } else {
-                        const rowIndex = this.findRowIndexFromOffset(y);
+                        const rowIndex = this.findRowIndexOfCanvasOffset(y);
                         if (rowIndex < 0) {
                             throw new AssertError('VFIOSRCTOL33391')
                         } else {
@@ -1194,11 +1173,11 @@ export class ViewLayout {
      * @returns The given column is visible.
      */
     isActiveColumnVisible(activeIndex: number) {
-        return this.tryGetColumnWithActiveIndex(activeIndex) !== undefined;
+        return this.findColumnWithActiveIndex(activeIndex) !== undefined;
     }
 
     isActiveColumnFullyVisible(activeIndex: number) {
-        return this.tryGetFullyVisibleColumnWithActiveIndex(activeIndex) !== undefined;
+        return this.findFullyVisibleColumnWithActiveIndex(activeIndex) !== undefined;
     }
 
     /**
@@ -1208,7 +1187,7 @@ export class ViewLayout {
      * @param activeColumnIndex - The grid column index.
      * @returns The given column if visible or `undefined` if not.
      */
-    tryGetColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn | undefined {
+    findColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1229,7 +1208,31 @@ export class ViewLayout {
         }
     }
 
-    tryGetFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn | undefined {
+    findColumnWithAllIndex(allColumnIndex: number): ViewLayoutColumn | undefined {
+        const columns = this._columns;
+        const columnCount = columns.length;
+        for (let i = 0; i < columnCount; i++) {
+            const column = columns[i];
+            if (column.column.index === allColumnIndex) {
+                return column;
+            }
+        }
+        return undefined;
+    }
+
+    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: SubgridInterface) {
+        const rows = this._rows;
+        const rowCount = rows.length;
+        for (let i = 0; i < rowCount; i++) {
+            const row = rows[i];
+            if (row.subgridRowIndex === subgridRowIndex && row.subgrid === subgrid) {
+                return row;
+            }
+        }
+        return undefined;
+    }
+
+    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1480,52 +1483,35 @@ export class ViewLayout {
         }
     }
 
-    /**
-     * Overridable for alternative or faster logic.
-     * @param CellEvent
-     * @returns {object} Layered config object.
-     */
-    // assignProps: layerProps,
-
-    /**
-     * @param allColumnIndexOrCellEvent - This is the "data" x coordinate.
-     * @param subgridRowIndex - This is the "data" y coordinate. Omit if `colIndexOrCellEvent` is a `CellEvent`.
-     * @param subgrid Omit if `colIndexOrCellEvent` is a `CellEvent`.
-     * @returns The matching `CellEvent` object from the renderer's pool. Returns `undefined` if the requested cell is not currently visible (due to being scrolled out of view).
-     */
-    findCellWithDataIndex(allColumnIndexOrCellEvent: number | ViewCell, subgridRowIndex?: number, subgrid?: SubgridInterface) {
-        let allColumnIndex: number;
-        const pool = this.getAPool();
-
-        if (typeof allColumnIndexOrCellEvent === 'object') {
-            // colIndexOrCellEvent is a cell event object
-            subgrid = allColumnIndexOrCellEvent.subgrid;
-            subgridRowIndex = allColumnIndexOrCellEvent.dataPoint.y;
-            allColumnIndex = allColumnIndexOrCellEvent.dataPoint.x;
+    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface) {
+        const column = this.findColumnWithActiveIndex(activeColumnIndex);
+        if (column === undefined) {
+            return undefined;
         } else {
-            allColumnIndex = allColumnIndexOrCellEvent;
-        }
-
-        if (subgrid === undefined) {
-            subgrid = this._mainSubgrid;
-        }
-
-        let len = this._columns.length;
-        len *= this._rows.length;
-        for (let p = 0; p < len; ++p) {
-            const cell = pool[p];
-            if (
-                cell.subgrid === subgrid &&
-                cell.dataPoint.x === allColumnIndex &&
-                cell.dataPoint.y === subgridRowIndex
-            ) {
-                return cell;
+            const row = this.findRowWithSubgridRowIndex(subgridRowIndex, subgrid);
+            if (row === undefined) {
+                return undefined;
+            } else {
+                return this.findCellAtViewpointIndex(column.index, row.index);
             }
         }
-        return undefined;
     }
 
-    findCellWithViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number) {
+    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface) {
+        const column = this.findColumnWithAllIndex(allColumnIndex);
+        if (column === undefined) {
+            return undefined;
+        } else {
+            const row = this.findRowWithSubgridRowIndex(subgridRowIndex, subgrid);
+            if (row === undefined) {
+                return undefined;
+            } else {
+                return this.findCellAtViewpointIndex(column.index, row.index);
+            }
+        }
+    }
+
+    findCellAtViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number) {
         if (this._columnRowOrderedCellPoolComputationId === this._rowsColumnsComputationId) {
             const cellIndex = viewportColumnIndex * this._rows.length + viewportRowIndex;
             return this._columnRowOrderedCellPool[cellIndex];
@@ -1553,13 +1539,23 @@ export class ViewLayout {
         }
     }
 
-    /**
-     * Resets the cell properties cache in the matching `CellEvent` object from the renderer's pool. This will insure that a new cell properties object will be known to the renderer. (Normally, the cache is not reset until the pool is updated by the next call to {@link ViewLayout#computeCellBounds}).
-     */
-    resetCellPropertiesCache(xOrCellEvent: number | ViewCell, y?: number, subgrid?: Subgrid) {
-        const cell = this.findCellWithDataIndex(xOrCellEvent, y, subgrid);
-        if (cell) {
-            cell.clearCellOwnProperties();
+    findCellAtCanvasOffset(x: number, y: number): ViewCell | undefined {
+        const columnIndex = this.findColumnIndexOfCanvasOffset(x);
+        if (columnIndex < 0) {
+            return undefined;
+        } else {
+            const rows = this._rows;
+            const row = rows.find((aVr) => y < aVr.bottom);
+            if (row === undefined) {
+                return undefined;
+            } else {
+                const cell = this.findCellAtViewpointIndex(columnIndex, row.index);
+                if (cell === undefined) {
+                    throw new AssertError('VGCFMP34440');
+                } else {
+                    return cell;
+                }
+            }
         }
     }
 
@@ -2155,7 +2151,7 @@ export namespace ViewLayout {
     export type CheckNeedsShapeChangedEventer = (this: void) => void;
     export type InvalidatedEventer = (this: void, action: InvalidateAction) => void;
     export type ColumnsViewWidthsChangedEventer = (this: void) => void;
-    export type ComputedEventer = (this: void) => void;
+    export type CellPoolComputedEventer = (this: void) => void;
 
     // export interface ChangedColumnsViewWidths {
     //     fixedChanged: boolean,

@@ -145,7 +145,14 @@ export class CellPropertiesBehavior {
      * @returns Cell's own properties object, which will be created by this call if it did not already exist.
      */
     /** @internal */
-    setCellProperty(column: ColumnInterface, rowIndex: number, key: string, value: unknown | undefined, subgrid: SubgridInterface) {
+    setCellProperty(
+        column: ColumnInterface,
+        rowIndex: number,
+        key: string,
+        value: unknown | undefined,
+        subgrid: SubgridInterface,
+        optionalCell: ViewCell | undefined,
+    ) {
         let metadata = subgrid.getRowMetadata(rowIndex);
         let properties: MetaModel.CellOwnProperties | undefined;
         if (value === undefined) {
@@ -171,6 +178,14 @@ export class CellPropertiesBehavior {
             properties[key] = value;
             subgrid.setRowMetadata(rowIndex, metadata);
         }
+
+        if (optionalCell === undefined) {
+            optionalCell = this._viewLayout.findCellAtDataPoint(column.index, rowIndex, subgrid);
+        }
+        if (optionalCell !== undefined) {
+            optionalCell.clearCellOwnProperties();
+        }
+
         return properties;
     }
 
@@ -181,7 +196,7 @@ export class CellPropertiesBehavior {
      */
     /** @internal */
     deleteCellProperty(column: ColumnInterface, rowIndex: number, key: string, subgrid: SubgridInterface) {
-        this.setCellProperty(column, rowIndex, key, undefined, subgrid);
+        this.setCellProperty(column, rowIndex, key, undefined, subgrid, undefined);
     }
 
     /**

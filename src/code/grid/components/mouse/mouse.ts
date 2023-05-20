@@ -1,4 +1,3 @@
-import { Point } from '../../lib/point';
 import { CanvasEx } from '../canvas-ex/canvas-ex';
 import { ViewCell } from '../cell/view-cell';
 
@@ -34,7 +33,7 @@ export class Mouse {
                 this._cellEnteredEventer(cell);
                 this.updateCursorAndTitleText();
             } else {
-                if (!Point.isEqual(existingHoverCell.dataPoint, cell.dataPoint)) {
+                if (!ViewCell.sameByDataPoint(existingHoverCell, cell)) {
                     this._hoverCell = undefined;
                     this._cellExitedEventer(existingHoverCell);
                     this._hoverCell = cell;
@@ -85,13 +84,13 @@ export class Mouse {
             const dataModel = cell.subgrid.dataModel;
             let cursorName: string | undefined;
             if (dataModel.getCursorName !== undefined) {
-                cursorName = dataModel.getCursorName(cell.viewLayoutColumn.column.schemaColumn, cell.dataPoint.y);
+                cursorName = dataModel.getCursorName(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
             }
             let titleText: string;
             if (dataModel.getTitleText === undefined) {
                 titleText = '';
             } else {
-                titleText = dataModel.getTitleText(cell.viewLayoutColumn.column.schemaColumn, cell.dataPoint.y);
+                titleText = dataModel.getTitleText(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
             }
 
             return {

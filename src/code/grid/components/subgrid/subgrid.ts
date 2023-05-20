@@ -193,7 +193,6 @@ export class Subgrid implements SubgridInterface {
      * @returns The row height in pixels.
      */
     getRowHeight(rowIndex: number) {
-        const gridSettings = this._gridSettings;
         let rowHeight: number | undefined;
         if (this.rowHeightsCanDiffer) {
             const rowProps = this.getRowProperties(rowIndex);
@@ -205,11 +204,15 @@ export class Subgrid implements SubgridInterface {
             }
         }
 
+        return this.getDefaultRowHeight();
+    }
+
+    getDefaultRowHeight() {
         const subgridDefaultRowHeight = this.defaultRowHeight;
         if (subgridDefaultRowHeight !== undefined) {
             return subgridDefaultRowHeight;
         } else {
-            return gridSettings.defaultRowHeight;
+            return this._gridSettings.defaultRowHeight;
         }
     }
 

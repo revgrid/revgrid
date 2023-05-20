@@ -63,7 +63,7 @@ export class CellClickUiBehavior extends UiBehavior {
     openLink(viewCell: ViewCell): boolean | null | undefined | Window {
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
-        const rowIndex = viewCell.dataPoint.y;
+        const rowIndex = viewCell.viewLayoutRow.subgridRowIndex;
         const subgrid = viewCell.subgrid;
         const dataRow = subgrid.getSingletonDataRow(rowIndex);
         const config = Object.create(viewCell.columnProperties, { dataRow: { value: dataRow } });
@@ -114,8 +114,7 @@ export class CellClickUiBehavior extends UiBehavior {
         // STEP 5: Decorate the link as "visited"
         if (result) {
             const column = viewCell.viewLayoutColumn.column;
-            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', this.gridSettings.linkVisitedColor, subgrid);
-            this.viewLayout.resetCellPropertiesCache(viewCell);
+            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', this.gridSettings.linkVisitedColor, subgrid, viewCell);
             this.renderer.invalidateViewCell(viewCell);
         }
 

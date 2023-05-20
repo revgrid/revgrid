@@ -148,7 +148,7 @@ export class TextCellPainter implements CellPainter {
             same = same && fingerprint !== undefined && hoverColor === fingerprint.layerColors[layerColorIndex++];
         }
 
-        const cellFocused = isMainSubgrid && grid.focus.isMainSubgridCellFocused(activeColumnIndex, subgridRowIndex);
+        const cellFocused = isMainSubgrid && grid.focus.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
         let borderColor: string | undefined;
         if (cellFocused) {
             borderColor = settings.focusedCellBorderColor;
@@ -193,19 +193,19 @@ export class TextCellPainter implements CellPainter {
                 let valWidth: number | undefined;
 
                 if (cellEditorPainter.beforeCellBackground) {
-                    cellEditorPainter.paint(cell, settings);
+                    cellEditorPainter.paint(gc, cell, settings);
                 }
                 if (cellEditorPainter.paintCellBackground) {
                     paintLayerColors(gc, bounds, layerColors, firstColorIsFill);
                 }
                 if (cellEditorPainter.beforeCellBorder) {
-                    cellEditorPainter.paint(cell, settings);
+                    cellEditorPainter.paint(gc, cell, settings);
                 }
                 if (cellEditorPainter.paintCellBorder) {
                     checkPaintBorder(gc, bounds, borderColor);
                 }
                 if (cellEditorPainter.beforeCellContent) {
-                    cellEditorPainter.paint(cell, settings);
+                    cellEditorPainter.paint(gc, cell, settings);
                 }
                 if (cellEditorPainter.paintCellContent) {
                     // draw text - should be exactly the same as above (apart from the return)
@@ -216,7 +216,7 @@ export class TextCellPainter implements CellPainter {
                         : renderSingleLineText(gc, settings, bounds, valText, leftPadding, rightPadding, isMainSubgrid, cellHovered);
                 }
                 if (cellEditorPainter.afterCell) {
-                    valWidth = cellEditorPainter.paint(cell, settings);
+                    valWidth = cellEditorPainter.paint(gc, cell, settings);
                 }
 
                 if (valWidth === undefined) {

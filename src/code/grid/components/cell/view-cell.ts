@@ -4,22 +4,11 @@ import { MetaModel } from '../../interfaces/meta-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
 import { ViewLayoutRow } from '../../interfaces/view-layout-row';
-import { WritablePoint } from '../../lib/point';
 import { RectangleInterface } from '../../lib/rectangle-interface';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @public */
 export class ViewCell {
-
-    // caches
-    cellOwnProperties: MetaModel.CellOwnProperties | undefined; // only get via CellPropertiesBehavior
-    public _bounds: ViewCell.Bounds | undefined;
-    private _columnProperties: ColumnSettings | undefined;
-
-    // this.disabled: boolean;
-
-    dataPoint: WritablePoint = {} as WritablePoint; // no need for initialization
-    // dataRow: DataRowObject;
     format: string;
     subgrid: SubgridInterface;
     viewLayoutColumn: ViewLayoutColumn;
@@ -28,16 +17,16 @@ export class ViewCell {
     // partial render support
     paintFingerprint: ViewCell.PaintFingerprint | undefined;
 
-    /**
-     * @summary Create a new CellEvent object.
-     * @param gridX - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
-     * @param gridY - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
-     */
+    // caches
+    cellOwnProperties: MetaModel.CellOwnProperties | undefined; // only get via CellPropertiesBehavior
+    private _bounds: ViewCell.Bounds | undefined;
+    private _columnProperties: ColumnSettings | undefined;
+
     constructor(private readonly _columnsManager: ColumnsManager) {
     }
 
     // special method for use by renderer which reuses cellEvent object for performance reasons
-    reset(visibleColumn: ViewLayoutColumn, visibleRow: ViewLayoutRow) {
+    reset(viewLayoutColumn: ViewLayoutColumn, viewLayoutRow: ViewLayoutRow) {
         // getter caches
         this._columnProperties = undefined;
         this.cellOwnProperties = undefined;
@@ -45,13 +34,10 @@ export class ViewCell {
 
         // this.disabled = undefined;
 
-        this.viewLayoutColumn = visibleColumn;
-        this.viewLayoutRow = visibleRow;
+        this.viewLayoutColumn = viewLayoutColumn;
+        this.viewLayoutRow = viewLayoutRow;
 
-        this.subgrid = visibleRow.subgrid;
-
-        this.dataPoint.x = this.viewLayoutColumn.column.index;
-        this.dataPoint.y = visibleRow.subgridRowIndex;
+        this.subgrid = viewLayoutRow.subgrid;
 
         this.paintFingerprint = undefined;
     }
@@ -84,10 +70,10 @@ export class ViewCell {
      * The raw value of the cell, unformatted.
      */
     get value() {
-        return this.subgrid.getValue(this.viewLayoutColumn.column, this.dataPoint.y);
+        return this.subgrid.getValue(this.viewLayoutColumn.column, this.viewLayoutRow.subgridRowIndex);
     }
     set value(value: DataModel.DataValue) {
-        this.subgrid.setValue(this.viewLayoutColumn.column, this.dataPoint.y, value);
+        this.subgrid.setValue(this.viewLayoutColumn.column, this.viewLayoutRow.subgridRowIndex, value);
     }
 
     /**
@@ -185,7 +171,7 @@ export class ViewCell {
     }
 
     get isRowFixed() {
-        return this.subgrid.isRowFixed(this.dataPoint.y);
+        return this.subgrid.isRowFixed(this.viewLayoutRow.subgridRowIndex);
     }
 
     get isColumnFixed() {
@@ -245,12 +231,12 @@ export class ViewCell {
     // }
 
     getRowProperties() {
-        return this.subgrid.getRowProperties(this.dataPoint.y);
+        return this.subgrid.getRowProperties(this.viewLayoutRow.subgridRowIndex);
     }
 
     getRowProperty(key: string) {
         // undefined return means there is no row properties object OR no such row property `[key]`
-        return this.subgrid.getRowProperty(this.dataPoint.y, key);
+        return this.subgrid.getRowProperty(this.viewLayoutRow.subgridRowIndex, key);
     }
 
     setRowPropertyRC(key: string, value: unknown) {
@@ -268,5 +254,13 @@ export namespace ViewCell {
     export type PaintFingerprint = Record<string, unknown>;
 
     export interface Bounds extends RectangleInterface {
+    }
+
+    export function sameByDataPoint(left: ViewCell, right: ViewCell) {
+        return (
+            left.viewLayoutRow.subgridRowIndex === right.viewLayoutRow.subgridRowIndex &&
+            left.viewLayoutColumn.column.index === right.viewLayoutColumn.column.index &&
+            left.subgrid === right.subgrid
+        );
     }
 }

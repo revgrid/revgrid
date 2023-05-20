@@ -66,8 +66,7 @@ export class BehaviorManager {
             this._componentBehaviorManager.renderer,
             this._componentBehaviorManager.reindexStashManager,
             this._componentBehaviorManager.mouse,
-            this._componentBehaviorManager.scrollBehavior,
-            this._componentBehaviorManager.focusBehavior,
+            this._componentBehaviorManager.focusScrollBehavior,
             this._componentBehaviorManager.selectionBehavior,
             this._componentBehaviorManager.rowPropertiesBehavior,
             this._componentBehaviorManager.cellPropertiesBehavior,
@@ -88,12 +87,11 @@ export class BehaviorManager {
     get viewLayout() { return this._componentBehaviorManager.viewLayout; }
     get renderer() { return this._componentBehaviorManager.renderer; }
 
-    get focusBehavior() { return this._componentBehaviorManager.focusBehavior; }
+    get focusScrollBehavior() { return this._componentBehaviorManager.focusScrollBehavior; }
     get selectionBehavior() { return this._componentBehaviorManager.selectionBehavior; }
     get rowPropertiesBehavior() { return this._componentBehaviorManager.rowPropertiesBehavior; }
     get cellPropertiesBehavior() { return this._componentBehaviorManager.cellPropertiesBehavior; }
     get userInterfaceInputBehavior() { return this._componentBehaviorManager.mouse; }
-    get scrollBehavior() { return this._componentBehaviorManager.scrollBehavior; }
 
     reset() {
         this._componentBehaviorManager.reset();

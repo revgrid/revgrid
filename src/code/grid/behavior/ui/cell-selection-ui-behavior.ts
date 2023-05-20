@@ -197,13 +197,13 @@ export class CellSelectionUiBehavior extends UiBehavior {
             this.cancelScheduledStepScrollDrag();
             return false;
         } else {
-            const stepScrolled = this.scrollBehavior.stepScroll(canvasOffsetX, canvasOffsetY);
+            const stepScrolled = this.focusScrollBehavior.stepScroll(canvasOffsetX, canvasOffsetY);
             if (!stepScrolled) {
                 return false;
             } else {
                 this.scheduleStepScrollDrag(canvasOffsetX, canvasOffsetY);
 
-                const cell = this.viewLayout.findScrollableCellClosestToOffset(canvasOffsetX, canvasOffsetY);
+                const cell = this.viewLayout.findScrollableCellClosestToCanvasOffset(canvasOffsetX, canvasOffsetY);
                 if (cell !== undefined) {
                     this.updateLastSelectionArea(cell); // update the selection
                 }
@@ -316,7 +316,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
     }
 
     private scheduleStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
-        this.scrollBehavior.setScrollingActive(true);
+        this.focusScrollBehavior.setScrollingActive(true);
         this._stepScrollDragTimeoutHandle = setTimeout(() => this.checkStepScrollDrag(canvasOffsetX, canvasOffsetY), 25);
     }
 
@@ -325,7 +325,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
             clearTimeout(this._stepScrollDragTimeoutHandle);
             this._stepScrollDragTimeoutHandle = undefined;
         }
-        this.scrollBehavior.setScrollingActive(false);
+        this.focusScrollBehavior.setScrollingActive(false);
     }
 
     private selectOnlyCell(originX: number, originY: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {

@@ -255,7 +255,7 @@ export namespace CellEditor {
         readonly beforeCellBackground: boolean;
         readonly beforeCellBorder: boolean;
         readonly beforeCellContent: boolean;
-        paint(cell: ViewCell, cellSettingsAccessor: CellSettingsAccessor): number | undefined;
+        paint(gc: CanvasRenderingContext2DEx, cell: ViewCell, cellSettingsAccessor: CellSettingsAccessor): number | undefined;
         readonly paintCellBackground: boolean;
         readonly paintCellBorder: boolean;
         readonly paintCellContent: boolean;
@@ -934,7 +934,7 @@ export namespace EventName {
 // @public (undocumented)
 export class Focus {
     // Warning: (ae-forgotten-export) The symbol "ViewLayout" needs to be exported by the entry point public-api.d.ts
-    constructor(_gridSettings: GridSettings, _mainSubgrid: SubgridInterface, _columnsManager: ColumnsManager, _viewLayout: ViewLayout);
+    constructor(_mainSubgrid: SubgridInterface, _columnsManager: ColumnsManager, _viewLayout: ViewLayout, _cellInvalidatedEventer: Focus.CellInvalidatedEventer);
     // (undocumented)
     adjustForColumnsDeleted(columnIndex: number, columnCount: number): void;
     // (undocumented)
@@ -951,6 +951,7 @@ export class Focus {
     get canvasX(): number | undefined;
     // (undocumented)
     get canvasY(): number | undefined;
+    get cell(): ViewCell | undefined;
     // (undocumented)
     clear(): void;
     // (undocumented)
@@ -972,9 +973,11 @@ export class Focus {
     // (undocumented)
     isActiveColumnFocused(activeColumnIndex: number): boolean;
     // (undocumented)
-    isCellFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface): boolean;
+    isCellFocused(cell: ViewCell): boolean;
     // (undocumented)
-    isMainSubgridCellFocused(activeColumnIndex: number, mainSubgridRowIndex: number): boolean;
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface): boolean;
+    // (undocumented)
+    isMainSubgridGridPointFocused(activeColumnIndex: number, mainSubgridRowIndex: number): boolean;
     // (undocumented)
     isMainSubgridRowFocused(mainSubgridRowIndex: number): boolean;
     // (undocumented)
@@ -986,7 +989,7 @@ export class Focus {
     // Warning: (ae-forgotten-export) The symbol "PartialPoint" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    set(currentSubgridPoint: Point, cell: ViewCell | undefined, canvasPoint: PartialPoint | undefined): void;
+    set(newFocusPoint: Point, cell: ViewCell | undefined, canvasPoint: PartialPoint | undefined): void;
     // (undocumented)
     setX(activeColumnIndex: number, cell: ViewCell | undefined, canvasX: number | undefined): void;
     // (undocumented)
@@ -1003,9 +1006,9 @@ export class Focus {
 // @public (undocumented)
 export namespace Focus {
     // (undocumented)
-    export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor | undefined;
+    export type CellInvalidatedEventer = (this: void, cell: ViewCell) => void;
     // (undocumented)
-    export type ScrollToMakeVisibleEventer = (this: void, activeColumnIndex: number, subgridRowIndex: number, maximally: boolean) => void;
+    export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor | undefined;
     // (undocumented)
     export interface Stash {
         // (undocumented)
@@ -1782,7 +1785,7 @@ export class Revgrid {
     // (undocumented)
     addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    addCellOwnPropertiesUsingCellEvent(cellEvent: ViewCell, properties: MetaModel.CellOwnProperties): void;
+    addCellOwnPropertiesUsingCellEvent(cell: ViewCell, properties: MetaModel.CellOwnProperties): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addEventListener(eventName: string, listener: CanvasEx.EventListener): void;
@@ -2135,10 +2138,10 @@ export class Revgrid {
     // (undocumented)
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    setCellOwnPropertiesUsingCellEvent(cellEvent: ViewCell, properties: MetaModel.CellOwnProperties): void;
+    setCellOwnPropertiesUsingCellEvent(cell: ViewCell, properties: MetaModel.CellOwnProperties): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    setCellProperty(cellEvent: ViewCell, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
+    setCellProperty(cell: ViewCell, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
     // (undocumented)
     setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined;
     // @deprecated (undocumented)
@@ -2994,6 +2997,8 @@ export class Subgrid implements SubgridInterface {
     // @internal (undocumented)
     getCellPainter(viewCell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
     // (undocumented)
+    getDefaultRowHeight(): number;
+    // (undocumented)
     getRowCount(): number;
     // (undocumented)
     getRowHeight(rowIndex: number): number;
@@ -3206,19 +3211,14 @@ export class UnreachableCaseError extends RevgridError {
 
 // @public (undocumented)
 export class ViewCell {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     constructor(_columnsManager: ColumnsManager);
     get bounds(): ViewCell.Bounds;
-    // (undocumented)
-    _bounds: ViewCell.Bounds | undefined;
     // (undocumented)
     cellOwnProperties: MetaModel.CellOwnProperties | undefined;
     // (undocumented)
     clearCellOwnProperties(): void;
     // (undocumented)
     get columnProperties(): ColumnSettings;
-    // (undocumented)
-    dataPoint: WritablePoint;
     // (undocumented)
     format: string;
     // (undocumented)
@@ -3251,7 +3251,7 @@ export class ViewCell {
     // (undocumented)
     paintFingerprint: ViewCell.PaintFingerprint | undefined;
     // (undocumented)
-    reset(visibleColumn: ViewLayoutColumn, visibleRow: ViewLayoutRow): void;
+    reset(viewLayoutColumn: ViewLayoutColumn, viewLayoutRow: ViewLayoutRow): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     resetGridXY(vc: ViewLayoutColumn | undefined, vr: ViewLayoutRow | undefined): boolean;
     // (undocumented)
@@ -3277,6 +3277,8 @@ export namespace ViewCell {
     }
     // (undocumented)
     export type PaintFingerprint = Record<string, unknown>;
+    // (undocumented)
+    export function sameByDataPoint(left: ViewCell, right: ViewCell): boolean;
 }
 
 // @public (undocumented)

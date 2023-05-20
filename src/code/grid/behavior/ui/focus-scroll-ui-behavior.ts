@@ -7,8 +7,8 @@ import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FocusUiBehavior extends UiBehavior {
-    readonly typeName = FocusUiBehavior.typeName;
+export class FocusScrollUiBehavior extends UiBehavior {
+    readonly typeName = FocusScrollUiBehavior.typeName;
 
     override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
@@ -16,7 +16,7 @@ export class FocusUiBehavior extends UiBehavior {
         }
         if (cell !== null) {
             if (cell.subgrid.isMain) {
-                this.focusBehavior.tryFocusXYAndEnsureInView(cell.viewLayoutColumn.activeColumnIndex, cell.viewLayoutRow.subgridRowIndex, cell);
+                this.focusScrollBehavior.tryFocusXYAndEnsureInView(cell.viewLayoutColumn.activeColumnIndex, cell.viewLayoutRow.subgridRowIndex, cell);
             }
         }
         return super.handleMouseDown(event, cell);
@@ -45,46 +45,46 @@ export class FocusUiBehavior extends UiBehavior {
                 case CanvasEx.Keyboard.NavigateKey.left: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantLeftArrow');
                     if (!consumedByEditor) {
-                        this.focusBehavior.tryMoveFocusLeft();
+                        this.focusScrollBehavior.tryMoveFocusLeft();
                     }
                     break;
                 }
                 case CanvasEx.Keyboard.NavigateKey.right: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantRightArrow');
                     if (!consumedByEditor) {
-                        this.focusBehavior.tryMoveFocusRight();
+                        this.focusScrollBehavior.tryMoveFocusRight();
                     }
                     break;
                 }
                 case CanvasEx.Keyboard.NavigateKey.up: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantUpArrow');
                     if (!consumedByEditor) {
-                        this.focusBehavior.tryMoveFocusUp();
+                        this.focusScrollBehavior.tryMoveFocusUp();
                     }
                     break;
                 }
                 case CanvasEx.Keyboard.NavigateKey.down: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantDownArrow');
                     if (!consumedByEditor) {
-                        this.focusBehavior.tryMoveFocusDown();
+                        this.focusScrollBehavior.tryMoveFocusDown();
                     }
                     break;
                 }
                 case CanvasEx.Keyboard.NavigateKey.pageUp: {
                     // If implementing focus driven paging, then use focusBehavior
                     if (eventDetail.altKey) {
-                        this.focusBehavior.tryPageFocusLeft();
+                        this.focusScrollBehavior.tryPageFocusLeft();
                     } else {
-                        this.focusBehavior.tryPageFocusUp();
+                        this.focusScrollBehavior.tryPageFocusUp();
                     }
                     break;
                 }
                 case CanvasEx.Keyboard.NavigateKey.pageDown: {
                     // If implementing focus driven paging, then use focusBehavior
                     if (eventDetail.altKey) {
-                        this.focusBehavior.tryPageFocusRight();
+                        this.focusScrollBehavior.tryPageFocusRight();
                     } else {
-                        this.focusBehavior.tryPageFocusDown();
+                        this.focusScrollBehavior.tryPageFocusDown();
                     }
                     break;
                 }
@@ -92,9 +92,9 @@ export class FocusUiBehavior extends UiBehavior {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantHome');
                     if (!consumedByEditor) {
                         if (eventDetail.ctrlKey) {
-                            this.focusBehavior.tryMoveFocusTop();
+                            this.focusScrollBehavior.moveFocusTop();
                         } else {
-                            this.focusBehavior.tryMoveFocusFirstColumn();
+                            this.focusScrollBehavior.moveFocusFirstColumn();
                         }
                     }
                     break;
@@ -103,9 +103,9 @@ export class FocusUiBehavior extends UiBehavior {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantEnd');
                     if (!consumedByEditor) {
                         if (eventDetail.ctrlKey) {
-                            this.focusBehavior.tryMoveFocusBottom();
+                            this.focusScrollBehavior.moveFocusBottom();
                         } else {
-                            this.focusBehavior.tryMoveFocusLastColumn();
+                            this.focusScrollBehavior.moveFocusLastColumn();
                         }
                     }
                     break;
@@ -119,14 +119,14 @@ export class FocusUiBehavior extends UiBehavior {
                 case KeyboardEventKey.Tab: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantTab');
                     if (!consumedByEditor) {
-                        this.focusBehavior.tryMoveFocusLeft();
+                        this.focusScrollBehavior.tryMoveFocusLeft();
                     }
                     break;
                 }
                 case KeyboardEventKey.Return: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantReturn');
                     if (!consumedByEditor) {
-                        this.focusBehavior.tryMoveFocusDown();
+                        this.focusScrollBehavior.tryMoveFocusDown();
                     }
                     break;
                 }
@@ -182,16 +182,16 @@ export class FocusUiBehavior extends UiBehavior {
     override handleHorizontalScrollerAction(action: EventDetail.ScrollerAction) {
         switch (action.type) {
             case EventDetail.ScrollerAction.Type.StepForward:
-                this.focusBehavior.tryMoveFocusRight();
+                this.focusScrollBehavior.tryScrollRight();
                 break;
             case EventDetail.ScrollerAction.Type.StepBack:
-                this.focusBehavior.tryMoveFocusLeft();
+                this.focusScrollBehavior.tryScrollLeft();
                 break;
             case EventDetail.ScrollerAction.Type.PageForward:
-                this.focusBehavior.tryPageFocusRight();
+                this.focusScrollBehavior.tryScrollPageRight();
                 break;
             case EventDetail.ScrollerAction.Type.PageBack:
-                this.focusBehavior.tryPageFocusLeft();
+                this.focusScrollBehavior.tryScrollPageLeft();
                 break;
             case EventDetail.ScrollerAction.Type.newViewportStart: {
                 const viewportStart = action.viewportStart;
@@ -211,16 +211,16 @@ export class FocusUiBehavior extends UiBehavior {
     override handleVerticalScrollerAction(action: EventDetail.ScrollerAction) {
         switch (action.type) {
             case EventDetail.ScrollerAction.Type.StepForward:
-                this.focusBehavior.tryMoveFocusDown();
+                this.focusScrollBehavior.tryScrollDown();
                 break;
             case EventDetail.ScrollerAction.Type.StepBack:
-                this.focusBehavior.tryMoveFocusUp();
+                this.focusScrollBehavior.tryScrollUp();
                 break;
             case EventDetail.ScrollerAction.Type.PageForward:
-                this.focusBehavior.tryPageFocusDown();
+                this.focusScrollBehavior.tryScrollPageDown();
                 break;
             case EventDetail.ScrollerAction.Type.PageBack:
-                this.focusBehavior.tryPageFocusUp();
+                this.focusScrollBehavior.tryScrollPageUp();
                 break;
             case EventDetail.ScrollerAction.Type.newViewportStart: {
                 const viewportStart = action.viewportStart;
@@ -248,6 +248,6 @@ export class FocusUiBehavior extends UiBehavior {
 }
 
 /** @internal */
-export namespace FocusUiBehavior {
-    export const typeName = 'focus';
+export namespace FocusScrollUiBehavior {
+    export const typeName = 'focusscroll';
 }

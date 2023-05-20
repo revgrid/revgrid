@@ -16,9 +16,8 @@ import { Point } from '../../lib/point';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
-import { FocusBehavior } from '../component/focus-behavior';
+import { FocusScrollBehavior } from '../component/focus-scroll-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
-import { ScrollBehavior } from '../component/scroll-behaviour';
 import { SelectionBehavior } from '../component/selection-behavior';
 import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
@@ -45,8 +44,7 @@ export abstract class UiBehavior {
 
     protected readonly mouse: Mouse;
 
-    protected readonly scrollBehavior: ScrollBehavior;
-    protected readonly focusBehavior: FocusBehavior;
+    protected readonly focusScrollBehavior: FocusScrollBehavior;
     protected readonly selectionBehavior: SelectionBehavior;
     protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
     protected readonly cellPropertiesBehavior: CellPropertiesBehavior;
@@ -71,9 +69,8 @@ export abstract class UiBehavior {
 
         this.mouse = services.mouse;
 
-        this.focusBehavior = services.focusBehavior;
+        this.focusScrollBehavior = services.focusScrollBehavior;
         this.selectionBehavior = services.selectionBehavior;
-        this.scrollBehavior = services.scrollBehavior;
         this.rowPropertiesBehavior = services.rowPropertiesBehavior;
         this.cellPropertiesBehavior = services.cellPropertiesBehavior;
         this.dataExtractBehavior = services.dataExtractBehavior;
@@ -264,7 +261,7 @@ export abstract class UiBehavior {
     }
 
     protected tryGetViewCellFromMouseEvent(event: MouseEvent): ViewCell | null {
-        const cell = this.viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
+        const cell = this.viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
         if (cell === undefined) {
             return null;
         } else {

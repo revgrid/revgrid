@@ -1,4 +1,5 @@
 import { GridSettings } from '../../interfaces/grid-settings';
+import { AssertError } from '../../lib/revgrid-error';
 import { HorizontalVertical } from '../../lib/types';
 import { CanvasEx } from '../canvas-ex/canvas-ex';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
@@ -41,31 +42,62 @@ export class VerticalScrollDimension extends ScrollDimension {
 
     protected override compute() {
         // called within Animation Frame
+
+        const gridSettings = this._gridSettings;
+        const fixedRowCount = gridSettings.fixedRowCount;
         const mainSubgrid = this._subgridsManager.mainSubgrid;
-        const subgridRowCount = mainSubgrid.getRowCount();
-        const gridProps = this._gridSettings;
         const scrollableHeight = this.getVisibleScrollHeight();
-        const lineGap = gridProps.gridLinesHWidth;
-        let rowsHeight = 0;
-        let lastPageRowCount = 0;
 
-        while (lastPageRowCount < subgridRowCount && rowsHeight < scrollableHeight) {
-            rowsHeight += mainSubgrid.getRowHeight(subgridRowCount - lastPageRowCount - 1) + lineGap;
-            lastPageRowCount++;
-        }
-        if (rowsHeight > scrollableHeight) {
-            lastPageRowCount--;
-        }
+        let start: number | undefined;
+        let size: number | undefined;
+        let viewportSize: number | undefined;
+        let overflowed: boolean | undefined;
+        let anchorLimits: ScrollDimension.ScrollAnchorLimits;
 
-        const finish = Math.max(0, subgridRowCount - gridProps.fixedRowCount - lastPageRowCount);
-        const anchorLimits: ScrollDimension.ScrollAnchorLimits = {
-            startAnchorLimitIndex: this._gridSettings.fixedRowCount,
-            startAnchorLimitOffset: 0,
-            finishAnchorLimitIndex: subgridRowCount - 1,
-            finishAnchorLimitOffset: 0,
+        if (scrollableHeight <= 0) {
+            start = undefined;
+            size = undefined;
+            viewportSize = undefined;
+            overflowed = undefined
+            anchorLimits = {
+                startAnchorLimitIndex: fixedRowCount,
+                startAnchorLimitOffset: 0,
+                finishAnchorLimitIndex: fixedRowCount,
+                finishAnchorLimitOffset: 0,
+            }
+
+        } else {
+            if (mainSubgrid.rowHeightsCanDiffer) {
+                throw new AssertError('VSDC07339', 'Differing row heights in MainSubgrid not yet implemented');
+                // const lineGap = gridSettings.gridLinesHWidth;
+                // let rowsHeight = 0;
+                // let lastPageRowCount = 0;
+                        // while (lastPageRowCount < mainSubgridRowCount && rowsHeight < scrollableHeight) {
+                //     rowsHeight += mainSubgrid.getRowHeight(mainSubgridRowCount - lastPageRowCount - 1) + lineGap;
+                //     lastPageRowCount++;
+                // }
+                // if (rowsHeight > scrollableHeight) {
+                //     lastPageRowCount--;
+                // }
+
+                // const finish = Math.max(0, mainSubgridRowCount - gridSettings.fixedRowCount - lastPageRowCount);
+            } else {
+                start = fixedRowCount;
+                size = mainSubgrid.getRowCount() - start;
+                const mainRowHeight = mainSubgrid.getDefaultRowHeight();
+                viewportSize = scrollableHeight / mainRowHeight;
+                overflowed = viewportSize < size;
+
+                anchorLimits = {
+                    startAnchorLimitIndex: fixedRowCount,
+                    startAnchorLimitOffset: 0,
+                    finishAnchorLimitIndex: size - 1,
+                    finishAnchorLimitOffset: 0,
+                }
+            }
         }
         // Viewport size and overflowed cannot currently be calculated.  Set to -1 and undefined
-        this.setDimensionValues(0, finish + 1, -1, undefined, anchorLimits);
+        this.setDimensionValues(start, size, viewportSize, overflowed, anchorLimits);
     }
 
     private getVisibleScrollHeight() {
@@ -90,9 +122,9 @@ export class VerticalScrollDimension extends ScrollDimension {
         for (let i = 0; i < subgrids.length && !isMain; ++i) {
             const subgrid = subgrids[i];
             isMain = subgrid.isMain;
-            const R = isMain ? gridSettings.fixedRowCount : subgrid.getRowCount();
-            for (let r = 0; r < R; ++r) {
-                height += subgrid.getRowHeight(r);
+            const headerRowCount = isMain ? gridSettings.fixedRowCount : subgrid.getRowCount();
+            for (let rowIndex = 0; rowIndex < headerRowCount; ++rowIndex) {
+                height += subgrid.getRowHeight(rowIndex);
                 height += gridLinesHWidth;
             }
             // add in fixed rule thickness excess

@@ -71,7 +71,6 @@ export class AsNeededGridPainter extends GridPainter {
         const rowCount = viewLayoutRows.length;
         if (columnCount > 0 && rowCount > 0) {
             const lastColumnIndex = columnCount - 1;
-            const paintableCellEditorInfo = this.getPaintableCellEditorInfo(viewLayout.columnRowCellPoolComputationInvalid); // Make sure called before getting pool
             const pool = viewLayout.getColumnRowOrderedCellPool(); // must match algorithm below and computationInvalid above
             // clipToGrid,
             // let firstVisibleColumnLeft: number;
@@ -111,7 +110,7 @@ export class AsNeededGridPainter extends GridPainter {
 
                     try {
                         // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
-                        const paintWidth = this.paintCell(gc, cell, undefined, paintableCellEditorInfo);
+                        const paintWidth = this.paintCell(gc, cell, undefined);
                         if (paintWidth !== undefined) {
                             if (preferredWidth === undefined) {
                                 preferredWidth = paintWidth;

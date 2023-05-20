@@ -60,7 +60,6 @@ export class ByRowsGridPainter extends GridPainter {
         const viewLayoutRows = viewLayout.rows;
         const rowCount = viewLayoutRows.length;
         const lastColumnIndex = columnCount - 1;
-        const paintableCellEditorInfo = this.getPaintableCellEditorInfo(viewLayout.rowColumnCellPoolComputationInvalid); // Make sure called before getting pool
         const pool = viewLayout.getRowColumnOrderedCellPool(); // must match algorithm below and computationInvalid above
         const preferredWidths = new Array<number | undefined>(columnCount);
         // columnClip,
@@ -127,7 +126,7 @@ export class ByRowsGridPainter extends GridPainter {
                 gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
                 try {
-                    const paintWidth = this.paintCell(gc, viewCell, prefillColor, paintableCellEditorInfo);
+                    const paintWidth = this.paintCell(gc, viewCell, prefillColor);
                     if (paintWidth !== undefined) {
                         const previousColumnPreferredWidth = preferredWidths[columnIndex];
                         if (previousColumnPreferredWidth === undefined) {

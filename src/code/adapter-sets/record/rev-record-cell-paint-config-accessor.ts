@@ -7,15 +7,15 @@ export class RevRecordCellPaintConfigAccessor implements RevRecordCellPaintConfi
     readonly valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId;
     readonly recordRecentChangeTypeId?: RevRecordRecentChangeTypeId;
 
-    constructor(beingPaintedCell: ViewCell, mainAdapter: RevRecordMainAdapter) {
-        let rowIndex = beingPaintedCell.dataPoint.y;
+    constructor(cell: ViewCell, mainAdapter: RevRecordMainAdapter) {
+        let rowIndex = cell.viewLayoutRow.subgridRowIndex;
 
         if (mainAdapter.rowOrderReversed) {
             const rowCount = mainAdapter.getRowCount();
             rowIndex = rowCount - rowIndex - 1;
         }
         const recentChanges = mainAdapter.recentChanges;
-        const fieldIndex = beingPaintedCell.dataPoint.x;
+        const fieldIndex = cell.viewLayoutColumn.column.index;
         this.valueRecentChangeTypeId = recentChanges.getValueRecentChangeTypeId(fieldIndex, rowIndex);
         this.recordRecentChangeTypeId = recentChanges.getRecordRecentChangeTypeId(rowIndex);
     }

@@ -70,7 +70,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
     private getTouchedBounds(eventDetail: TouchEvent) {
         const firstTouch = eventDetail.touches[0];
         const canvasFirstTouchOffsetPoint = this.canvasEx.getOffsetPoint(firstTouch);
-        const cell = this.viewLayout.findLeftGridLineInclusiveCellFromOffset(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
+        const cell = this.viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
         if (cell === undefined) {
             return undefined;
         } else {

@@ -8,7 +8,7 @@ import { ColumnResizingUiBehavior } from './column-resizing-ui-behavior';
 import { ColumnSelectionUiBehavior } from './column-selection-ui-behavior';
 import { ColumnSortingUiBehavior } from './column-sorting-ui-behavior';
 import { FiltersUiBehavior } from './filters-ui-behavior';
-import { FocusUiBehavior } from './focus-ui-behavior';
+import { FocusScrollUiBehavior } from './focus-scroll-ui-behavior';
 import { HoverUiBehavior } from './hover-ui-behavior';
 import { RowResizingUiBehavior } from './row-resizing-ui-behavior'; // should this be commented out?
 import { RowSelectionUiBehavior } from './row-selection-ui-behavior';
@@ -35,7 +35,7 @@ export class UiBehaviorFactory {
     }
 }
 
-UiBehaviorFactory.register(FocusUiBehavior.typeName, FocusUiBehavior);
+UiBehaviorFactory.register(FocusScrollUiBehavior.typeName, FocusScrollUiBehavior);
 UiBehaviorFactory.register(CellClickUiBehavior.typeName, CellClickUiBehavior);
 // UiBehaviorFactory.register(CellEditingFeature.typeName, CellEditingFeature);
 UiBehaviorFactory.register(CellSelectionUiBehavior.typeName, CellSelectionUiBehavior);

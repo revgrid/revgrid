@@ -1,4 +1,5 @@
 import { RectangleInterface } from '../../lib/rectangle-interface';
+import { CanvasRenderingContext2DEx } from '../canvas-ex/canvas-rendering-context-2d-ex';
 import { CellSettingsAccessor } from './cell-settings-accessor';
 import { ViewCell } from './view-cell';
 
@@ -82,8 +83,9 @@ export namespace CellEditor {
 
         /**
          * Implement if Cell Painter should defer painting of editor to the editor itself (normally not defined if editor is (say) a HTML Input element)
+         * Runs within context of Animation Frame so do not access other DOM elements
          * Return the preferred width if the auto column sizing in the Grid should take into account the editor's width
         */
-        paint(cell: ViewCell, cellSettingsAccessor: CellSettingsAccessor): number | undefined;
+        paint(gc: CanvasRenderingContext2DEx, cell: ViewCell, cellSettingsAccessor: CellSettingsAccessor): number | undefined;
     }
 }

@@ -195,7 +195,7 @@ export class Renderer {
         }
     }
 
-    invalidateDataRowCells(rowIndex: number, columnIndexes: number[]) {
+    invalidateDataRowCells(rowIndex: number, allColumnIndexes: number[]) {
         const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (firstScrollableSubgridRowIndex === undefined) {
             throw new AssertError('RIDRCSF33321');
@@ -206,14 +206,14 @@ export class Renderer {
                     throw new AssertError('RIDRCSL33321');
                 } else {
                     if (rowIndex <= lastScrollableSubgridRowIndex) {
-                        this._renderActionQueue.invalidateDataRowCells(rowIndex, columnIndexes);
+                        this._renderActionQueue.invalidateDataRowCells(rowIndex, allColumnIndexes);
                     }
                 }
             }
         }
     }
 
-    invalidateDataCell(columnIndex: number, rowIndex: number) {
+    invalidateDataCell(allColumnIndex: number, rowIndex: number) {
         const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (firstScrollableSubgridRowIndex === undefined) {
             throw new AssertError('RIDRCFR33321');
@@ -225,7 +225,7 @@ export class Renderer {
                 } else {
                     if (rowIndex <= lastScrollableSubgridRowIndex) {
                         // add support for (active) columns
-                        this._renderActionQueue.invalidateDataCell(columnIndex, rowIndex);
+                        this._renderActionQueue.invalidateDataCell(allColumnIndex, rowIndex);
                     }
                 }
             }

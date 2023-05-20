@@ -22,10 +22,9 @@ import { AdapterSetConfig } from './adapter-set-config';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
 import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
-import { FocusBehavior } from './focus-behavior';
+import { FocusScrollBehavior } from './focus-scroll-behavior';
 import { ModelCallbackRouterBehavior } from './model-callback-router-behavior';
 import { RowPropertiesBehavior } from './row-properties-behavior';
-import { ScrollBehavior } from './scroll-behaviour';
 import { SelectionBehavior } from './selection-behavior';
 
 const noExportProperties = [
@@ -68,8 +67,7 @@ export class ComponentBehaviorManager {
     readonly renderer: Renderer;
     readonly mouse: Mouse;
 
-    readonly scrollBehavior: ScrollBehavior;
-    readonly focusBehavior: FocusBehavior;
+    readonly focusScrollBehavior: FocusScrollBehavior;
     readonly selectionBehavior: SelectionBehavior;
     readonly eventBehavior: EventBehavior;
     readonly rowPropertiesBehavior: RowPropertiesBehavior;
@@ -171,10 +169,10 @@ export class ComponentBehaviorManager {
             );
 
             this.focus = new Focus(
-                this.gridSettings,
                 this._mainSubgrid,
                 this.columnsManager,
                 this.viewLayout,
+                (cell) => this.invalidateViewCellRender(cell),
             );
 
             this.selection = new Selection(
@@ -207,7 +205,7 @@ export class ComponentBehaviorManager {
 
             this._verticalScroller = new Scroller(
                 this.viewLayout.verticalScrollDimension,
-                true, // remove when vertical scrollbar is updated to use viewport
+                false, // remove when vertical scrollbar is updated to use viewport
                 'vertical',
                 1,
                 this.gridSettings.wheelVFactor,
@@ -249,21 +247,13 @@ export class ComponentBehaviorManager {
                 (event) => this.canvasEx.dispatchEvent(event),
             );
 
-            this.scrollBehavior = new ScrollBehavior(
-                this.gridSettings,
-                this.columnsManager,
-                this.subgridsManager,
-                this.viewLayout,
-            );
-
-            this.focusBehavior = new FocusBehavior(
+            this.focusScrollBehavior = new FocusScrollBehavior(
                 this.gridSettings,
                 this.mainSubgrid,
                 this.columnsManager,
                 this.subgridsManager,
                 this.viewLayout,
                 this.focus,
-                this.renderer,
             );
 
             this.selectionBehavior = new SelectionBehavior(
@@ -319,7 +309,7 @@ export class ComponentBehaviorManager {
     reset() {
         this.mouse.reset();
         this.viewLayout.reset();
-        this.scrollBehavior.reset();
+        this.focusScrollBehavior.reset();
 
         this.columnsManager.clearColumns();
 
@@ -391,7 +381,7 @@ export class ComponentBehaviorManager {
         this._modelCallbackRouter.destroy();
         this.selectionBehavior.destroy();
         this.eventBehavior.destroy();
-        // this.scrollBehavior.destroy();
+        // this.focusScrollBehavior.destroy();
         this._horizontalScroller.destroy();
         this._verticalScroller.destroy();
         this.renderer.destroy();
@@ -418,30 +408,6 @@ export class ComponentBehaviorManager {
         }
         return result;
     }
-
-    // behaviorShapeChanged() {
-    //     if (this.paintLoopRunning()) {
-    //         this.renderer.requestPaint();
-    //     } else if (!this._destroyed) {
-    //         this.scrollBehavior.synchronizeScrollingBoundaries(); // calls computeCellsBounds
-    //         this.renderer.repaint();
-    //     }
-    // }
-
-    /**
-     * @desc The dimensions of the grid data have changed. You've been notified.
-     */
-    // behaviorStateChanged() {
-    //     if (this.paintLoopRunning()) {
-    //         this.viewLayout.invalidate();
-    //         this.renderer.requestPaint();
-    //     } else {
-    //         if (!this._destroyed) {
-    //             this.viewLayout.compute(false);
-    //             this.renderer.repaint();
-    //         }
-    //     }
-    // }
 
     /**
      * @desc utility function to empty an object of its members
@@ -673,6 +639,10 @@ export class ComponentBehaviorManager {
 
     private invalidateHorizontalAll(scrollablePlaneDimensionAsWell: boolean) {
         this.viewLayout.invalidateHorizontalAll(scrollablePlaneDimensionAsWell);
+    }
+
+    private invalidateViewCellRender(cell: ViewCell) {
+        this.renderer.invalidateViewCell(cell);
     }
 
     // End DataModel Mixin

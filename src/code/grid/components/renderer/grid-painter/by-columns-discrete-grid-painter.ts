@@ -60,7 +60,6 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
         const viewLayoutRows = viewLayout.rows;
         const rowCount = viewLayoutRows.length;
         const lastColumnIndex = columnCount - 1;
-        const paintableCellEditorInfo = this.getPaintableCellEditorInfo(viewLayout.columnRowCellPoolComputationInvalid); // Make sure called before getting pool
         const pool = viewLayout.getColumnRowOrderedCellPool(); // must match algorithm below and computationInvalid above
         // clipToGrid;
         // let firstVisibleColumnLeft: number;
@@ -105,7 +104,7 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
                 const viewCell = pool[cellIndex++]; // next cell down the column (make sure the correct pool is used above)
 
                 try {
-                    const paintWidth = this.paintCell(gc, viewCell, prefillColor, paintableCellEditorInfo);
+                    const paintWidth = this.paintCell(gc, viewCell, prefillColor);
                     if (paintWidth !== undefined) {
                         if (preferredWidth === undefined) {
                             preferredWidth = paintWidth;

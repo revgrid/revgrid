@@ -2,9 +2,8 @@ import { BehaviorManager } from './behavior/behavior-manager';
 import { AdapterSetConfig } from './behavior/component/adapter-set-config';
 import { CellPropertiesBehavior } from './behavior/component/cell-properties-behavior';
 import { EventBehavior } from './behavior/component/event-behavior';
-import { FocusBehavior } from './behavior/component/focus-behavior';
+import { FocusScrollBehavior } from './behavior/component/focus-scroll-behavior';
 import { RowPropertiesBehavior } from './behavior/component/row-properties-behavior';
-import { ScrollBehavior } from './behavior/component/scroll-behaviour';
 import { SelectionBehavior } from './behavior/component/selection-behavior';
 import { CellEditor } from './cell-editor/cell-editor';
 import { cellEditorFactory } from './cell-editor/cell-editor-factory';
@@ -55,15 +54,13 @@ export class Revgrid {
     private readonly _renderer: Renderer;
 
     /** @internal */
-    private readonly _focusBehavior: FocusBehavior;
+    private readonly _focusScrollBehavior: FocusScrollBehavior;
     /** @internal */
     private readonly _selectionBehavior: SelectionBehavior;
     /** @internal */
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
     /** @internal */
     private readonly _cellPropertiesBehavior: CellPropertiesBehavior;
-    /** @internal */
-    private readonly _scrollBehavior: ScrollBehavior; // remove this in future
 
     destroyed = false;
 
@@ -177,11 +174,10 @@ export class Revgrid {
             options.loadBuiltinFinbarStylesheet ?? true,
             descendantEventer,
         );
-        this._focusBehavior = this.behaviorManager.focusBehavior;
+        this._focusScrollBehavior = this.behaviorManager.focusScrollBehavior;
         this._selectionBehavior = this.behaviorManager.selectionBehavior;
         this._rowPropertiesBehavior = this.behaviorManager.rowPropertiesBehavior;
         this._cellPropertiesBehavior = this.behaviorManager.cellPropertiesBehavior;
-        this._scrollBehavior = this.behaviorManager.scrollBehavior;
 
         this.settings = this.behaviorManager.gridProperties;
         this.focus = this.behaviorManager.focus;
@@ -858,7 +854,7 @@ export class Revgrid {
      * @param mouse - The mouse point to interrogate.
      */
     getGridCellFromMousePoint(mouse: Point) {
-        return this.viewLayout.findLeftGridLineInclusiveCellFromOffset(mouse.x, mouse.y);
+        return this.viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(mouse.x, mouse.y);
     }
 
     /**
@@ -1828,7 +1824,7 @@ export class Revgrid {
         if (typeof allXOrRenderedCell === 'object') {
             // xOrCellEvent is cellEvent
             const column = allXOrRenderedCell.viewLayoutColumn.column;
-            y = allXOrRenderedCell.dataPoint.y;
+            y = allXOrRenderedCell.viewLayoutRow.subgridRowIndex;
             subgrid = allXOrRenderedCell.subgrid;
             return this._cellPropertiesBehavior.getCellOwnProperties(column, y, subgrid);
         } else {
@@ -1893,9 +1889,9 @@ export class Revgrid {
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    setCellOwnPropertiesUsingCellEvent(cellEvent: ViewCell, properties: MetaModel.CellOwnProperties) {
-        const column = cellEvent.viewLayoutColumn.column;
-        return this._cellPropertiesBehavior.setCellOwnProperties(column, cellEvent.dataPoint.y, properties, cellEvent.subgrid);
+    setCellOwnPropertiesUsingCellEvent(cell: ViewCell, properties: MetaModel.CellOwnProperties) {
+        const column = cell.viewLayoutColumn.column;
+        return this._cellPropertiesBehavior.setCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
         const column = this._columnsManager.getAllColumn(allX);
@@ -1909,9 +1905,9 @@ export class Revgrid {
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    addCellOwnPropertiesUsingCellEvent(cellEvent: ViewCell, properties: MetaModel.CellOwnProperties) {
-        const column = cellEvent.viewLayoutColumn.column;
-        return this._cellPropertiesBehavior.addCellOwnProperties(column, cellEvent.dataPoint.y, properties, cellEvent.subgrid);
+    addCellOwnPropertiesUsingCellEvent(cell: ViewCell, properties: MetaModel.CellOwnProperties) {
+        const column = cell.viewLayoutColumn.column;
+        return this._cellPropertiesBehavior.addCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
         const column = this._columnsManager.getAllColumn(allX);
@@ -1932,25 +1928,28 @@ export class Revgrid {
      * @param key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    setCellProperty(cellEvent: ViewCell, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
+    setCellProperty(cell: ViewCell, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
     setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined;
     setCellProperty(
-        allXOrCellEvent: ViewCell | number,
+        allXOrCell: ViewCell | number,
         yOrKey: string | number,
         keyOrValue: string | MetaModel.CellOwnProperty,
         value?: MetaModel.CellOwnProperty,
         subgrid?: Subgrid
     ): MetaModel.CellOwnProperties | undefined {
+        let optionalCell: ViewCell | undefined;
         let column: ColumnInterface;
         let dataY: number;
         let key: string;
-        if (typeof allXOrCellEvent === 'object') {
-            column = allXOrCellEvent.viewLayoutColumn.column,
-            dataY = allXOrCellEvent.dataPoint.y;
+        if (typeof allXOrCell === 'object') {
+            optionalCell = allXOrCell;
+            column = allXOrCell.viewLayoutColumn.column,
+            dataY = allXOrCell.viewLayoutRow.subgridRowIndex;
             key = yOrKey as string;
             value = keyOrValue;
         } else {
-            column = this._columnsManager.getAllColumn(allXOrCellEvent);
+            optionalCell = undefined;
+            column = this._columnsManager.getAllColumn(allXOrCell);
             dataY = yOrKey as number;
             key = keyOrValue as string;
         }
@@ -1959,9 +1958,7 @@ export class Revgrid {
             subgrid = this.behaviorManager.mainSubgrid;
         }
 
-        const cellOwnProperties = this._cellPropertiesBehavior.setCellProperty(column, dataY, key, value, subgrid);
-        this.viewLayout.resetCellPropertiesCache(allXOrCellEvent, dataY, subgrid);
-        return cellOwnProperties;
+        return this._cellPropertiesBehavior.setCellProperty(column, dataY, key, value, subgrid, optionalCell);
     }
 
     // End GridCellProperties Mixin
@@ -2116,7 +2113,7 @@ export class Revgrid {
      * @param useAllCells - Search in all rows and columns instead of only rendered ones.
      */
     getFocusedViewCell(useAllCells: boolean) {
-        return this._focusBehavior.getFocusedViewCell(useAllCells);
+        return this._focusScrollBehavior.getFocusedViewCell(useAllCells);
     }
 
 
@@ -2248,7 +2245,7 @@ export class Revgrid {
      * @returns The `scrollingNow` field.
      */
     isScrollingNow() {
-        return this._scrollBehavior.isScrollingActive();
+        return this._focusScrollBehavior.isScrollingActive();
     }
 
     /**
@@ -2272,28 +2269,28 @@ export class Revgrid {
      * @desc Scroll up one full page.
      */
     scrollPageUp() {
-        this._focusBehavior.tryPageFocusUp();
+        this._focusScrollBehavior.tryPageFocusUp();
     }
 
     /**
      * @desc Scroll down one full page.
      */
     pageDown() {
-        this._focusBehavior.tryPageFocusDown();
+        this._focusScrollBehavior.tryPageFocusDown();
     }
 
     /**
      * @desc Not yet implemented.
      */
     pageLeft() {
-        this._focusBehavior.tryPageFocusLeft();
+        this._focusScrollBehavior.tryPageFocusLeft();
     }
 
     /**
      * @desc Not yet implemented.
      */
     pageRight() {
-        this._focusBehavior.tryPageFocusRight();
+        this._focusScrollBehavior.tryPageFocusRight();
     }
     // End Scrolling mixin
 
