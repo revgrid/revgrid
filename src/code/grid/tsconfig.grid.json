@@ -1,0 +1,24 @@
+{
+  "extends": "../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../tsbuildinfo/grid.tsbuildinfo"
+  },
+
+  "include": [
+    "grid-public-api.ts",
+    "revgrid.ts",
+    "./cell-editor/*.ts",
+    "template/*.ts",
+  ],
+
+  "references": [
+    { "path": "./components/subgrid/tsconfig.grid-components-subgrid.json" },
+    { "path": "./components/tsconfig.grid-components.json" },
+    { "path": "./behavior/component/tsconfig.grid-behavior-component.json" },
+    { "path": "./behavior/tsconfig.grid-behavior.json" },
+    { "path": "./interfaces/tsconfig.grid-interfaces.json" },
+    { "path": "./lib/tsconfig.grid-lib.json" }
+  ]
+}

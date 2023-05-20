@@ -2,10 +2,8 @@
   "extends": "../../../../tsconfig.esm.json",
 
   "compilerOptions": {
-    "strictNullChecks": false,
-    "noImplicitAny": false,
     "composite": true,
-    "tsBuildInfoFile": "../../../../tsbuildinfo/effects.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../tsbuildinfo/grid-interfaces.tsbuildinfo"
   },
 
   "include": [
@@ -13,5 +11,6 @@
   ],
 
   "references": [
+    { "path": "../lib/tsconfig.grid-lib.json" }
   ]
 }

@@ -13,7 +13,7 @@ const generateCommonConfig = (isDev) => ({
     plugins: isDev ? [new SourceMapDevToolPlugin({})] : [],
 });
 
-const generateTsLoaderBlock = (filename) => ({
+const generateTsLoaderBlock = () => ({
     module: {
         rules: [
             {
@@ -22,7 +22,7 @@ const generateTsLoaderBlock = (filename) => ({
                     loader: 'ts-loader',
                     options: {
                         projectReferences: true,
-                        configFile: path.resolve(__dirname, filename),
+                        configFile: path.resolve(__dirname, 'src', 'code', 'tsconfig.code.json'),
                     },
                 },
                 exclude: /node_modules/,
@@ -34,7 +34,7 @@ const generateTsLoaderBlock = (filename) => ({
 const generateUmdConfig = (isDev) => {
     return {
         ...generateCommonConfig(isDev),
-        ...generateTsLoaderBlock('tsconfig.esm.json'),
+        ...generateTsLoaderBlock(),
         output: {
             filename: isDev ? './bundles/umd/revgrid.js' : './bundles/umd/revgrid.min.js',
             library: {
@@ -48,7 +48,7 @@ const generateUmdConfig = (isDev) => {
 const generateEsmConfig = (isDev) => {
     return {
         ...generateCommonConfig(isDev),
-        ...generateTsLoaderBlock('tsconfig.esm.json'),
+        ...generateTsLoaderBlock(),
         output: {
             filename: isDev ? './bundles/esm/revgrid.js' : './bundles/esm/revgrid.min.js',
             library: {

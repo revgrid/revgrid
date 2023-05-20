@@ -7,16 +7,6 @@
     "declarationDir": "lib",
     "sourceMap": true,
     "inlineSourceMap": false,
-    "tsBuildInfoFile": "tsbuildinfo/esm.tsbuildinfo",
-    "composite": true,
     "rootDir": "src/code",
   },
-
-  "include": [
-    "src/code/public-api.ts"
-  ],
-
-  "references": [
-    { "path": "src/code/tsconfig.code.json" },
-  ]
 }

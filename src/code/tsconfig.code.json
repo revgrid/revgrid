@@ -1,19 +1,20 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.esm.json",
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../tsbuildinfo/code.tsbuildinfo"
+    "tsBuildInfoFile": "../../tsbuildinfo/code.tsbuildinfo",
   },
 
   "include": [
+    "public-api.ts"
   ],
 
   "references": [
-    { "path": "grid/tsconfig-grid.json" },
-    { "path": "adapter-sets/record/tsconfig-rev-record.json" },
-    { "path": "adapter-sets/simple/tsconfig-rev-simple.json" },
-    { "path": "standard-cell-painters/tsconfig-standard-cell-painters.json" },
-    // { "path": "standard-cell-editors/tsconfig-standard-cell-editors.json" }
+    { "path": "grid/tsconfig.grid.json" },
+    { "path": "adapter-sets/record/tsconfig.rev-record.json" },
+    { "path": "adapter-sets/simple/tsconfig.rev-simple.json" },
+    { "path": "standard-cell-painters/tsconfig.standard-cell-painters.json" },
+    // { "path": "standard-cell-editors/tsconfig.standard-cell-editors.json" }
   ]
 }

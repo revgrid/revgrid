@@ -3,14 +3,14 @@
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../../../tsbuildinfo/grid-interfaces.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../tsbuildinfo/simple.tsbuildinfo"
   },
 
   "include": [
-    "*.ts"
+    "./*.ts"
   ],
 
   "references": [
-    { "path": "../lib/tsconfig-grid-lib.json" }
+    { "path": "../../grid/tsconfig.grid.json" }
   ]
 }

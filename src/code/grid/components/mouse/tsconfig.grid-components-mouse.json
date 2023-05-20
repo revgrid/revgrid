@@ -11,7 +11,7 @@
   ],
 
   "references": [
-    { "path": "../view/tsconfig-grid-components-view.json" },
-    { "path": "../../lib/tsconfig-grid-lib.json" }
+    { "path": "../view/tsconfig.grid-components-view.json" },
+    { "path": "../../lib/tsconfig.grid-lib.json" }
   ]
 }

@@ -1,10 +1,10 @@
 import { ViewCell } from '../grid/components/cell/view-cell';
-import { Effect, effectFactory } from '../grid/effects/effects';
 import { Formatter } from '../grid/lib/localization';
 import { WritablePoint } from '../grid/lib/point';
 import { RectangleInterface } from '../grid/lib/rectangle-interface';
 import { numberToPixels } from '../grid/lib/utils';
 import { Revgrid } from '../grid/revgrid';
+import { Effect, effectFactory } from './effects/effects';
 
 export abstract class CellEditor {
 

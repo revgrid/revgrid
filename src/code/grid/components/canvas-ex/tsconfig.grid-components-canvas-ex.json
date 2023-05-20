@@ -11,7 +11,7 @@
   ],
 
   "references": [
-    { "path": "../../interfaces/tsconfig-grid-interfaces.json" },
-    { "path": "../../lib/tsconfig-grid-lib.json" }
+    { "path": "../../interfaces/tsconfig.grid-interfaces.json" },
+    { "path": "../../lib/tsconfig.grid-lib.json" }
   ]
 }

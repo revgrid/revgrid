@@ -2040,7 +2040,7 @@ export class ViewLayout {
                         // at least one scrollable row in main subgrid
                         this._firstScrollableRowIndex = afterFixedRowIndex;
                         this._lastScrollableRowIndex = rowIndex - 1;
-                        viewportStart = this.rows[afterFixedRowIndex].top;
+                        viewportStart = rows[afterFixedRowIndex].top;
                     }
 
                     if (afterFixedRowIndex > subgridFirstRowIndex) {

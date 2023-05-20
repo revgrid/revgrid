@@ -3,7 +3,7 @@
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../../tsbuildinfo/standard-cell-editors.tsbuildinfo"
+    "tsBuildInfoFile": "../../../tsbuildinfo/standard-cell-painters.tsbuildinfo"
   },
 
   "include": [
@@ -11,6 +11,6 @@
   ],
 
   "references": [
-    { "path": "../grid/tsconfig-grid.json" },
+    { "path": "../grid/tsconfig.grid.json" },
   ]
 }

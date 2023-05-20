@@ -13,8 +13,8 @@
   ],
 
   "references": [
-    { "path": "../event/tsconfig-grid-components-event.json" },
-    { "path": "../view/tsconfig-grid-components-view.json" },
-    { "path": "../../lib/tsconfig-grid-lib.json" }
+    { "path": "../event/tsconfig.grid-components-event.json" },
+    { "path": "../view/tsconfig.grid-components-view.json" },
+    { "path": "../../lib/tsconfig.grid-lib.json" }
   ]
 }
