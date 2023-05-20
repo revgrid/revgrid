@@ -22,19 +22,18 @@ export class SubgridsManager {
     ) {
         let mainSubgrid: MainSubgrid | undefined;
         const subgrids = this.subgrids;
-        definitions.forEach(
-            (definition) => {
-                if (definition !== undefined) {
-                    const subgridHandle = this._handledSubgrids.length;
-                    const subgrid = this.createSubgridFromDefinition(subgridHandle, definition, defaultRowPropertiesPrototype);
-                    subgrids.push(subgrid);
-                    this._handledSubgrids.push(subgrid);
-                    if (subgrid.role === SubgridInterface.RoleEnum.main) {
-                        mainSubgrid = subgrid as MainSubgrid;
-                    }
+        definitions.sort((left, right) => SubgridInterface.Role.gridOrderCompare(left.role, right.role));
+        for (const definition of definitions) {
+            if (definition !== undefined) {
+                const subgridHandle = this._handledSubgrids.length;
+                const subgrid = this.createSubgridFromDefinition(subgridHandle, definition, defaultRowPropertiesPrototype);
+                subgrids.push(subgrid);
+                this._handledSubgrids.push(subgrid);
+                if (subgrid.role === SubgridInterface.RoleEnum.main) {
+                    mainSubgrid = subgrid as MainSubgrid;
                 }
             }
-        );
+        }
 
         if (mainSubgrid === undefined) {
             throw new AssertError('SMSS98224', 'Subgrid Specs does not include main');
@@ -59,7 +58,7 @@ export class SubgridsManager {
         definition: SubgridDefinition,
         defaultRowPropertiesPrototype: MetaModel.RowPropertiesPrototype,
     ) {
-        const role = definition.role ?? SubgridInterface.RoleEnum.main;
+        const role = definition.role ?? SubgridInterface.Role.defaultRole;
         const isMainRole = role === SubgridInterface.RoleEnum.main;
 
         let dataModel = definition.dataModel;
@@ -172,28 +171,146 @@ export class SubgridsManager {
         return this.calculateHeaderRowCount() + this._gridSettings.fixedRowCount;
     }
 
-    /**
-     * @summary Gets the number of "footer rows".
-     * @desc Defined as the sum of all rows in all subgrids after the main subgrid.  Rework to return row count of footer subgrid
-     * @returns The total number of rows of all subgrids following the data subgrid.
-     */
-    calculateFooterRowCount() {
-        let gotMain = false;
-        return this.subgrids.reduce(
-            (rows, subgrid) => {
-                if (gotMain) {
-                    rows += subgrid.getRowCount();
-                } else {
-                    gotMain = subgrid.isMain;
-                }
-                return rows;
-            },
-            0
-        );
+    calculatePreMainRowCount() {
+        let count = 0;
+        for (const subgrid of this.subgrids) {
+            if (subgrid.isMain) {
+                break;
+            }
+            count += subgrid.getRowCount();
+        }
+        return count;
     }
 
-    calculateFooterHeight() {
-        return this.calculateFooterRowCount() * this._gridSettings.defaultRowHeight;
+    calculatePreMainHeight() {
+        let height = 0;
+        let subgridCount = 0;
+        for (const subgrid of this.subgrids) {
+            if (subgrid.isMain) {
+                break;
+            }
+            height += subgrid.calculateHeight();
+            subgridCount++;
+        }
+        if (subgridCount > 1) {
+            height += (subgridCount - 1) * this._gridSettings.gridLinesHWidth
+        }
+        return height;
+    }
+
+    calculatePostMainRowCount() {
+        let count = 0;
+        let hadMain = false;
+        for (const subgrid of this.subgrids) {
+            if (hadMain) {
+                count += subgrid.getRowCount();
+            }
+            if (subgrid.isMain) {
+                hadMain = true;
+            }
+        }
+        return count;
+    }
+
+    calculatePostMainHeight(): SubgridsManager.PostMainHeights {
+        let hadMain = false;
+        let othersHeight = 0;
+        let footersHeight = 0;
+        let footerSubgridCount = 0
+        let otherSubgridCount = 0;
+        for (const subgrid of this.subgrids) {
+            if (hadMain) {
+                const subgridHeight = subgrid.calculateHeight();
+                if (subgrid.isFooter) {
+                    footersHeight += subgridHeight;
+                    footerSubgridCount++;
+                } else {
+                    othersHeight += subgridHeight;
+                    otherSubgridCount++;
+                }
+            }
+            if (subgrid.isMain) {
+                hadMain = true;
+            }
+        }
+
+        if (footerSubgridCount > 1) {
+            footersHeight += (footerSubgridCount - 1) * this._gridSettings.gridLinesHWidth;
+        }
+
+        let allPostMainSubgridsHeight = footersHeight + othersHeight;
+        const allPostMainSubgridCount = footerSubgridCount + otherSubgridCount;
+        if (allPostMainSubgridCount > 1) {
+            allPostMainSubgridsHeight += (allPostMainSubgridCount - 1) * this._gridSettings.gridLinesHWidth
+        }
+
+        return {
+            allPostMainSubgridsHeight,
+            footersHeight,
+        }
+    }
+
+    calculateSummariesFootersHeights(): SubgridsManager.SummariesFootersHeights {
+        let summariesHeight = 0;
+        let footersHeight = 0;
+        let footerSubgridCount = 0;
+        let summarySubgridCount = 0;
+        for (const subgrid of this.subgrids) {
+            if (subgrid.isFooter) {
+                footersHeight += subgrid.calculateHeight();
+                footerSubgridCount++;
+            } else {
+                if (subgrid.isSummary) {
+                    summariesHeight += subgrid.calculateHeight();
+                    summarySubgridCount++;
+                }
+            }
+        }
+        if (footerSubgridCount > 1) {
+            summariesHeight += (footerSubgridCount - 1) * this._gridSettings.gridLinesHWidth
+        }
+        if (summarySubgridCount > 1) {
+            footersHeight += (summarySubgridCount - 1) * this._gridSettings.gridLinesHWidth
+        }
+        let summariesPlusFootersHeight = summariesHeight + footersHeight;
+        if (summariesHeight > 0 && footersHeight > 0) {
+            summariesPlusFootersHeight += this._gridSettings.gridLinesHWidth;
+        }
+        return {
+            summariesHeight,
+            footersHeight,
+            summariesPlusFootersHeight,
+        }
+    }
+
+    calculatePrePostMainRowcount() {
+        let count = 0;
+        for (const subgrid of this.subgrids) {
+            if (!subgrid.isMain) {
+                count += subgrid.getRowCount();
+            }
+        }
+        return count;
+    }
+
+    calculatePrePostMainHeight() {
+        let height = 0;
+        for (const subgrid of this.subgrids) {
+            if (!subgrid.isMain) {
+                height += subgrid.calculateHeight();
+            }
+        }
+        return height;
+    }
+
+    calculateFootersHeight() {
+        let height = 0;
+        for (const subgrid of this.subgrids) {
+            if (subgrid.isFooter) {
+                height += subgrid.calculateHeight();
+            }
+        }
+        return height;
     }
 
     /**
@@ -225,4 +342,15 @@ export class SubgridsManager {
 
 export namespace SubgridsManager {
     export type LoadedEventer = (this: void) => void;
+
+    export interface SummariesFootersHeights {
+        summariesHeight: number;
+        footersHeight: number;
+        summariesPlusFootersHeight: number;
+    }
+
+    export interface PostMainHeights {
+        allPostMainSubgridsHeight: number;
+        footersHeight: number;
+    }
 }

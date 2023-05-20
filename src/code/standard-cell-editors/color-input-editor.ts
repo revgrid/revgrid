@@ -1,5 +1,4 @@
-import { ViewCell } from '../components/cell/view-cell';
-import { Revgrid } from '../revgrid';
+import { Revgrid, ViewCell } from '../grid/grid-public-api';
 import { InputEditor } from './input-editor';
 
 export abstract class ColorInputEditor extends InputEditor {

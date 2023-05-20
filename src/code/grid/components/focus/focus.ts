@@ -46,6 +46,11 @@ export class Focus {
     /** Do not cache as can change whenever View Layout is recomputed (even if focus and/or editor does not change) */
     get cell() { return this._cell; }
 
+    reset() {
+        this.closeEditor(true);
+        this.clear();
+    }
+
     clear() {
         this.undefineCell();
         this._previousSubgridPoint = this.currentSubgridPoint;
@@ -83,7 +88,7 @@ export class Focus {
                 this._cellInvalidatedEventer(cell);
             }
 
-            this.closeAndCheckTryOpenEditor(cell);
+            this.closeAndCheckTryOpenEditor(false, cell);
         }
     }
 
@@ -113,7 +118,7 @@ export class Focus {
                 this._cellInvalidatedEventer(cell);
             }
 
-            this.closeAndCheckTryOpenEditor(cell);
+            this.closeAndCheckTryOpenEditor(false, cell);
         }
     }
 
@@ -142,7 +147,7 @@ export class Focus {
                 this._cellInvalidatedEventer(cell);
             }
 
-            this.closeAndCheckTryOpenEditor(cell);
+            this.closeAndCheckTryOpenEditor(false, cell);
         }
     }
 
@@ -173,7 +178,7 @@ export class Focus {
                 this._cellInvalidatedEventer(cell);
             }
 
-            this.closeAndCheckTryOpenEditor(cell);
+            this.closeAndCheckTryOpenEditor(false, cell);
         }
     }
 
@@ -235,16 +240,16 @@ export class Focus {
         return this.editor !== undefined;
     }
 
-    closeEditor() {
+    closeEditor(cancel: boolean) {
         if (this._editor !== undefined) {
             this._editor.closedEventer = undefined;
-            this._editor.close(false);
+            this._editor.close(cancel);
             this._editor = undefined;
         }
     }
 
-    closeAndCheckTryOpenEditor(cell: ViewCell | undefined) {
-        this.closeEditor();
+    closeAndCheckTryOpenEditor(cancel: boolean, cell: ViewCell | undefined) {
+        this.closeEditor(cancel);
 
         const currentSubgridPoint = this._currentSubgridPoint;
         if (currentSubgridPoint !== undefined) {

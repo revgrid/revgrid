@@ -133,7 +133,7 @@ export class FocusScrollUiBehavior extends UiBehavior {
                 case KeyboardEventKey.Escape: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantEscape');
                     if (!consumedByEditor) {
-                        this.focus.closeEditor();
+                        this.focus.closeEditor(true);
                     }
                     break;
                 }

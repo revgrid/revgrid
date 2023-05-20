@@ -955,9 +955,9 @@ export class Focus {
     // (undocumented)
     clear(): void;
     // (undocumented)
-    closeAndCheckTryOpenEditor(cell: ViewCell | undefined): void;
+    closeAndCheckTryOpenEditor(cancel: boolean, cell: ViewCell | undefined): void;
     // (undocumented)
-    closeEditor(): void;
+    closeEditor(cancel: boolean): void;
     // (undocumented)
     createStash(): Focus.Stash;
     // (undocumented)
@@ -984,6 +984,8 @@ export class Focus {
     isSubgridRowFocused(subgridRowIndex: number, subgrid: SubgridInterface): boolean;
     // (undocumented)
     get previousSubgridPoint(): Point | undefined;
+    // (undocumented)
+    reset(): void;
     // (undocumented)
     restoreStash(stash: Focus.Stash): void;
     // Warning: (ae-forgotten-export) The symbol "PartialPoint" needs to be exported by the entry point public-api.d.ts
@@ -1768,8 +1770,6 @@ export class Revgrid {
     // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
     constructor(container: string | HTMLElement | undefined, adapterSetConfig: AdapterSetConfig, options?: Revgrid.Options);
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    abortEditing(): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
@@ -1819,20 +1819,12 @@ export class Revgrid {
     calculateHeaderPlusFixedRowCount(): number;
     // (undocumented)
     calculateRowCount(): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    cancelEditing(): boolean;
     // (undocumented)
     get canvasBounds(): Rectangle;
     // (undocumented)
     canvasDiv: HTMLDivElement;
     // (undocumented)
     readonly canvasEx: CanvasEx;
-    // Warning: (ae-forgotten-export) The symbol "CellEditor_2" needs to be exported by the entry point public-api.d.ts
-    cellEditor: CellEditor_2 | undefined;
-    // Warning: (ae-forgotten-export) The symbol "CellEditorFactory" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    cellEditorFactory: CellEditorFactory;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     checkColumnAutosizing(): boolean;
     clearAllCellProperties(x?: number): void;
@@ -1848,8 +1840,6 @@ export class Revgrid {
     readonly containerHtmlElement: HTMLElement;
     // (undocumented)
     convertViewPointToDataPoint(unscrolled: Point): Point;
-    // (undocumented)
-    createCellEditor(name: string, cellEvent: ViewCell): CellEditor_2 | undefined;
     // @internal (undocumented)
     createColumns(): void;
     // (undocumented)
@@ -1924,25 +1914,9 @@ export class Revgrid {
     destroy(): void;
     // (undocumented)
     destroyed: boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    editorTakeFocus(): void;
     // (undocumented)
     endDragColumnNotification(): void;
     endSelectionChange(): void;
-    // (undocumented)
-    fireAfterCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor_2): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireBeforeCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor_2): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireRequestCellEdit(editor: CellEditor_2, cellEvent: ViewCell, value: unknown): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireSyntheticEditorDataChangeEvent(editor: CellEditor_2, oldValue: unknown, newValue: unknown): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireSyntheticEditorKeyDownEvent(inputControl: CellEditor_2, keyEvent: KeyboardEvent): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireSyntheticEditorKeyPressEvent(inputControl: CellEditor_2, keyEvent: KeyboardEvent): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    fireSyntheticEditorKeyUpEvent(inputControl: CellEditor_2, keyEvent: KeyboardEvent): boolean;
     // (undocumented)
     get fixedColumnsViewWidth(): number;
     // (undocumented)
@@ -2133,7 +2107,6 @@ export class Revgrid {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     setActiveColumnWidth(columnOrIndex: number | Column, columnWidth: number): ColumnInterface | undefined;
-    // (undocumented)
     setAttribute(attribute: string, value: string): void;
     // (undocumented)
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid): void;
@@ -2181,12 +2154,8 @@ export class Revgrid {
     showColumns(columnIndexes: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
     // (undocumented)
     showColumns(isActiveColumnIndexes: boolean, columnIndexes?: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    stopEditing(): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     swapColumns(source: number, target: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    takeFocus(): void;
     // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "Hypgrid"
     //
     // @deprecated (undocumented)
@@ -2982,6 +2951,8 @@ export class Subgrid implements SubgridInterface {
     _gridSettings: GridSettings,
     _columnsManager: ColumnsManager,
     handle: Subgrid.Handle, role: SubgridInterface.Role, schemaModel: SchemaModel, dataModel: DataModel, metaModel: MetaModel | undefined, getCellPainterEventer: SubgridDefinition.GetCellPainterEventer, selectable: boolean, defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean, rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined);
+    // (undocumented)
+    calculateHeight(): number;
     // @internal (undocumented)
     protected readonly _columnsManager: ColumnsManager;
     // (undocumented)
@@ -3017,6 +2988,8 @@ export class Subgrid implements SubgridInterface {
     readonly handle: Subgrid.Handle;
     // (undocumented)
     readonly isFilter: boolean;
+    // (undocumented)
+    readonly isFooter: boolean;
     // (undocumented)
     readonly isHeader: boolean;
     // (undocumented)
@@ -3145,6 +3118,13 @@ export interface SubgridInterface {
 export namespace SubgridInterface {
     // (undocumented)
     export type Role = keyof typeof RoleEnum;
+    // (undocumented)
+    export namespace Role {
+        const // (undocumented)
+        defaultRole = RoleEnum.main;
+        // (undocumented)
+        export function gridOrderCompare(left: Role | undefined, right: Role | undefined): number;
+    }
     // (undocumented)
     export const enum RoleEnum {
         // (undocumented)
@@ -3297,7 +3277,6 @@ export namespace WritablePoint {
 
 // Warnings were encountered during analysis:
 //
-// src/code/grid/cell-editor/cell-editor-factory.ts:14:4 - (tsdoc-undefined-tag) The TSDoc tag "@classdesc" is not defined in this configuration
 // src/code/grid/components/selection/selection.ts:20:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 // src/code/grid/components/view/view-layout.ts:26:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 

@@ -5,8 +5,6 @@ import { EventBehavior } from './behavior/component/event-behavior';
 import { FocusScrollBehavior } from './behavior/component/focus-scroll-behavior';
 import { RowPropertiesBehavior } from './behavior/component/row-properties-behavior';
 import { SelectionBehavior } from './behavior/component/selection-behavior';
-import { CellEditor } from './cell-editor/cell-editor';
-import { cellEditorFactory } from './cell-editor/cell-editor-factory';
 import { CanvasEx } from './components/canvas-ex/canvas-ex';
 import { ViewCell } from './components/cell/view-cell';
 import { Column, ColumnWidth } from './components/column/column';
@@ -30,7 +28,7 @@ import { SchemaModel } from './interfaces/schema-model';
 import { SubgridInterface } from './interfaces/subgrid-interface';
 import { CssClassName } from './lib/html-types';
 import { DateFormatter, Localization, NumberFormatter } from './lib/localization';
-import { Point, WritablePoint } from './lib/point';
+import { Point } from './lib/point';
 import { RectangleInterface } from './lib/rectangle-interface';
 import { AssertError } from './lib/revgrid-error';
 import { SelectionArea } from './lib/selection-area';
@@ -71,8 +69,6 @@ export class Revgrid {
 
     needsShapeChanged = false;
     needsStateChanged = false;
-
-    cellEditorFactory = cellEditorFactory;
 
     /** @internal */
     get columnsManager() { return this._columnsManager; }
@@ -312,13 +308,6 @@ export class Revgrid {
      */
     // isIE11: !!(globalThis.MSInputMethodContext && document.documentMode);
 
-    /**
-     * The instance of the currently active cell editor.
-     * Will be `undefined` when not editing.
-     */
-    cellEditor: CellEditor | undefined;
-
-
     setAttribute(attribute: string, value: string) {
         this.containerHtmlElement.setAttribute(attribute, value);
     }
@@ -383,8 +372,6 @@ export class Revgrid {
         if (removeAllEventListeners) {
             this.removeAllEventListeners();
         }
-
-        this.cancelEditing();
     }
 
     /** pluginSpec
@@ -761,8 +748,6 @@ export class Revgrid {
             container.style.height = ''; // revert to stylesheet value
         }
 
-        // injectStylesheetTemplate(this, true, 'grid');
-
         this.setStyles(container, options?.edgeStyleValues, Revgrid.edgeStyleKeys);
         container.removeAttribute('tabindex');
 
@@ -777,44 +762,6 @@ export class Revgrid {
             this._columnsManager.getActiveColumn(unscrolled.x).index,
             unscrolled.y
         );
-    }
-
-    // convertDataPointToViewPoint(dataPoint: Point) {
-    //     return this.behavior.convertDataPointToViewPoint(dataPoint); // not implemented
-    // }
-
-    createCellEditor(name: string, cellEvent: ViewCell) {
-        return cellEditorFactory.tryCreate(this, name, cellEvent);
-    }
-
-    /**
-     * @summary Shut down the current cell editor and save the edited value.
-     * @returns One of:
-     * * `false` - Editing BUT could not abort.
-     * * `true` - Not editing OR was editing AND abort was successful.
-     */
-    stopEditing() {
-        return !this.cellEditor || this.cellEditor.stopEditing();
-    }
-
-    /**
-     * @summary Shut down the current cell editor without saving the edited val
-     * @returns One of:
-     * * `false` - Editing BUT could not abort.
-     * * `true` - Not editing OR was editing AND abort was successful.
-     */
-    cancelEditing() {
-        return !this.cellEditor || this.cellEditor.cancelEditing();
-    }
-
-    /**
-     * @summary Give cell editor opportunity to cancel (or something) instead of stop .
-     * @returns One of:
-     * * `false` - Editing BUT could not abort.
-     * * `true` - Not editing OR was editing AND abort was successful.
-     */
-    abortEditing() {
-        return !this.cellEditor || this.cellEditor.stopEditing();
     }
 
     /**
@@ -970,26 +917,6 @@ export class Revgrid {
 
     setColumnScrollAnchor(index: number, offset: number) {
         return this.viewLayout.setColumnScrollAnchor(index, offset);
-    }
-
-    /**
-     * @desc Request input focus.
-     */
-    takeFocus() {
-        const wasCellEditor = this.cellEditor;
-        this.stopEditing();
-        if (!wasCellEditor) {
-            this.canvasEx.takeFocus();
-        }
-    }
-
-    /**
-     * @desc Request focus for our cell editor.
-     */
-    editorTakeFocus() {
-        if (this.cellEditor) {
-            return this.cellEditor.takeFocus();
-        }
     }
 
     /**
@@ -1204,11 +1131,7 @@ export class Revgrid {
      * @return column if width changed otherwise undefined
      */
     setActiveColumnWidth(columnOrIndex: number | Column, columnWidth: number) {
-        if (this.abortEditing()) {
-            return this._columnsManager.setActiveColumnWidth(columnOrIndex, columnWidth, false);
-        } else {
-            return undefined;
-        }
+        return this._columnsManager.setActiveColumnWidth(columnOrIndex, columnWidth, false);
     }
 
     setColumnWidths(columnWidths: ColumnWidth[]) {
@@ -1236,12 +1159,10 @@ export class Revgrid {
      * @param rowHeight - The width in pixels.
      */
     setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid) {
-        if (this.abortEditing()) {
-            if (subgrid === undefined) {
-                subgrid = this.behaviorManager.mainSubgrid;
-            }
-            this._rowPropertiesBehavior.setRowHeight(rowIndex, rowHeight, subgrid);
+        if (subgrid === undefined) {
+            subgrid = this.behaviorManager.mainSubgrid;
         }
+        this._rowPropertiesBehavior.setRowHeight(rowIndex, rowHeight, subgrid);
     }
 
     /**
@@ -1696,122 +1617,6 @@ export class Revgrid {
         // for descendants
     }
 
-    /**
-     * @desc Synthesize and fire a `fin-editor-keyup` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticEditorKeyUpEvent(inputControl: CellEditor, keyEvent: KeyboardEvent) {
-        // const eventDetail: CellEditor.KeyEventDetail = {
-        //     editor: inputControl,
-        //     keyEvent: keyEvent,
-        // }
-        // return this.dispatchGridEvent('rev-editor-key-up', false, eventDetail);
-        return false;
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-editor-keydown` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticEditorKeyDownEvent(inputControl: CellEditor, keyEvent: KeyboardEvent) {
-        // const eventDetail: CellEditor.KeyEventDetail = {
-        //     editor: inputControl,
-        //     keyEvent: keyEvent,
-        // }
-        // return this.dispatchGridEvent('rev-editor-key-down', false, eventDetail);
-        return false;
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-editor-keypress` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticEditorKeyPressEvent(inputControl: CellEditor, keyEvent: KeyboardEvent) {
-        // const eventDetail: CellEditor.KeyEventDetail = {
-        //     editor: inputControl,
-        //     keyEvent: keyEvent,
-        // }
-        // return this.dispatchGridEvent('rev-editor-key-press', false, eventDetail);
-        return false;
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-editor-data-change` event.
-     *
-     * This event is cancelable.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireSyntheticEditorDataChangeEvent(editor: CellEditor, oldValue: unknown, newValue: unknown) {
-        // const eventDetail: CellEditor.DataChangeEventDetail = {
-        //     editor,
-        //     oldValue,
-        //     newValue,
-        //     point: undefined,
-        // };
-
-        // return this.dispatchGridEvent('rev-editor-data-change', true, eventDetail);
-        return false;
-    }
-
-    /**
-     * @desc Synthesize and fire a fin-request-cell-edit event.
-     *
-     * This event is cancelable.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireRequestCellEdit(editor: CellEditor, cellEvent: ViewCell, value: unknown) {
-        // const eventDetail: CellEditor.RequestCellEditDetail = {
-        //     editor,
-        //     value,
-        //     cellEvent,
-        // }
-        // return this.dispatchGridEvent('rev-request-cell-edit', true, eventDetail);
-        return false;
-    }
-
-    /**
-     * @desc Synthesize and fire a fin-before-cell-edit event.
-     *
-     * This event is cancelable.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireBeforeCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor) {
-        // const eventDetail: CellEditor.DataChangeEventDetail = {
-        //     editor: control,
-        //     oldValue: oldValue,
-        //     newValue: newValue,
-        //     point,
-        // };
-        // return this.dispatchGridEvent('rev-before-cell-edit', true, eventDetail);
-        return false;
-    }
-
-    /**
-     * @param point - The x,y coordinates.
-     * @param oldValue - The old value.
-     * @param newValue - The new value.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    fireAfterCellEdit(point: WritablePoint, oldValue: unknown, newValue: unknown, control: CellEditor) {
-        // const eventDetail: CellEditor.DataChangeEventDetail = {
-        //     editor: control,
-        //     oldValue: oldValue,
-        //     newValue: newValue,
-        //     point,
-        // };
-
-        // return this.dispatchGridEvent('rev-after-cell-edit', false, eventDetail);
-        return false;
-    }
-
-    /**
-     * Additions to `Hypergrid.prototype` for modeling cell, row, and column selections.
-     *
-     * All members are documented on the {@link Revgrid} page.
-     * @mixin selection.mixin
-     */
-
-    // Start GridCellProperties Mixin
     /**
      * @summary Get the cell's own properties object.
      * @desc May be undefined because cells only have their own properties object when at lest one own property has been set.

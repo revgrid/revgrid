@@ -1,5 +1,5 @@
-import { ViewCell } from '../components/cell/view-cell';
-import { Revgrid } from '../revgrid';
+import { ViewCell } from '../grid/components/cell/view-cell';
+import { Revgrid } from '../grid/revgrid';
 import { CellEditor } from './cell-editor';
 
 export abstract class InputEditor extends CellEditor {

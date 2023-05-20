@@ -307,8 +307,9 @@ export class ComponentBehaviorManager {
      * @internal
      */
     reset() {
-        this.mouse.reset();
         this.viewLayout.reset();
+        this.focus.reset();
+        this.mouse.reset();
         this.focusScrollBehavior.reset();
 
         this.columnsManager.clearColumns();

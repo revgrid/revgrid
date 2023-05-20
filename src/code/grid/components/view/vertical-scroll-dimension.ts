@@ -85,7 +85,7 @@ export class VerticalScrollDimension extends ScrollDimension {
                 start = fixedRowCount;
                 size = mainSubgrid.getRowCount() - start;
                 const mainRowHeight = mainSubgrid.getDefaultRowHeight();
-                viewportSize = scrollableHeight / mainRowHeight;
+                viewportSize = Math.ceil(scrollableHeight / mainRowHeight);
                 overflowed = viewportSize < size;
 
                 anchorLimits = {
@@ -101,7 +101,7 @@ export class VerticalScrollDimension extends ScrollDimension {
     }
 
     private getVisibleScrollHeight() {
-        const footerHeight = this._subgridsManager.calculateFooterHeight();
+        const footerHeight = this._subgridsManager.calculateFootersHeight();
         return this._canvasEx.height - footerHeight - this.getHeaderPlusFixedRowsHeight();
     }
 

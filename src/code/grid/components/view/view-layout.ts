@@ -1929,112 +1929,132 @@ export class ViewLayout {
 
     private computeVertical(withinAnimationFrame: boolean) {
         const gridSettings = this._gridSettings;
+        const fixedRowCount = this._gridSettings.fixedRowCount;
+        const gridLinesHWidth = gridSettings.gridLinesHWidth;
 
         const gridBounds = this._canvasEx.bounds;
         const gridHeight = gridBounds.height; // horizontal pixel loop limit
 
         const rows = this._rows;
         const subgrids = this._subgridsManager.subgrids;
+        const subgridCount = subgrids.length; // subgrid loop index and limit
 
-        const headerPlusFixedRowCount = this._subgridsManager.calculateHeaderPlusFixedRowCount();
-        // get height of total number of rows in all subgrids following the data subgrid
-        const footerHeight = gridSettings.defaultRowHeight * this._subgridsManager.calculateFooterRowCount();
-        const lineWidthH = gridSettings.gridLinesHWidth;
-        const lineGapH = lineWidthH;
-        const lastFixedRowIndex = headerPlusFixedRowCount - 1;
+        const { allPostMainSubgridsHeight, footersHeight } = this._subgridsManager.calculatePostMainHeight();
 
         rows.length = 0;
         rows.gap = undefined;
 
-        let height: number;
-        let subgridRowCount: number; // rows in subgrid
         let fixedGapH: number;
         let fixedOverlapH: number;
-        let subgrid: Subgrid;
-        let subgridRowIndex: number;
-        let gridRowIndex: number;
-        let vr: ViewLayoutRow;
 
         if (gridSettings.fixedLinesHWidth === undefined) {
-            fixedGapH = lineWidthH;
+            fixedGapH = gridLinesHWidth;
             fixedOverlapH = 0;
         } else {
-            const fixedWidthH = Math.max(gridSettings.fixedLinesHWidth, lineWidthH);
+            const fixedWidthH = Math.max(gridSettings.fixedLinesHWidth, gridLinesHWidth);
             fixedGapH = fixedWidthH; // hangover from borderBox
             fixedOverlapH = fixedGapH - fixedWidthH;
         }
 
-        const rowScrollAnchorIndex = this._rowScrollAnchorIndex;
 
-        let gapTop: number | undefined;
-        let base = 0; // sum of rows for all subgrids so far
         let y = 0; // vertical pixel loop index and limit
-        const Y = gridHeight - footerHeight; // vertical pixel loop index and limit
-        const subgridCount = subgrids.length; // subgrid loop index and limit
-        let isMainSubgrid = false;
         let rowIndex = 0; // row loop index
+        let lastFixedMainSubgridRowIndex: number | undefined;
+        let gapTop: number | undefined;
+        let firstFooterEncountered = false;
+        let viewportStart: number | undefined;
         this._firstScrollableRowIndex = undefined;
         this._lastScrollableRowIndex = undefined;
-        for (let subgridIndex = 0; subgridIndex < subgridCount; subgridIndex++, base += subgridRowCount) {
-            subgrid = subgrids[subgridIndex];
-            subgridRowCount = subgrid.getRowCount();
-            isMainSubgrid = subgrid.isMain;
-            const topR = rowIndex;
+        for (let subgridIndex = 0; subgridIndex < subgridCount; subgridIndex++) {
+            const subgrid = subgrids[subgridIndex];
+            const subgridRowCount = subgrid.getRowCount();
+            const isMainSubgrid = subgrid.isMain;
+            const subgridFirstRowIndex = rowIndex;
 
-            // For each row of each subgrid...
-            const nextSubgridFirstRowIndex = rowIndex + subgridRowCount; // row loop limit
-            for (; rowIndex < nextSubgridFirstRowIndex && y < Y; rowIndex++) {
-                gridRowIndex = rowIndex;
-                if (isMainSubgrid && rowIndex >= headerPlusFixedRowCount) {
-                    gridRowIndex += rowScrollAnchorIndex;
-                    if (gridRowIndex >= nextSubgridFirstRowIndex) {
-                        break; // scrolled beyond last row
-                    }
+            let afterY: number;
+            let subgridRowIndex: number;
+            if (isMainSubgrid) {
+                afterY = gridHeight - allPostMainSubgridsHeight; // leave room for the subgrids followin main
+                subgridRowIndex = this._rowScrollAnchorIndex;
+                lastFixedMainSubgridRowIndex = subgridRowIndex + fixedRowCount - 1; // may be negative which is ok as will never match
+            } else {
+                afterY = gridHeight;
+                subgridRowIndex = 0;
 
-                    if (this._firstScrollableRowIndex === undefined) {
-                        this._firstScrollableRowIndex = rowIndex;
+                if (subgrid.isFooter) {
+                    if (!firstFooterEncountered) {
+                        const placeFooterAtBottomY = gridHeight - footersHeight;
+                        if (placeFooterAtBottomY > y) {
+                            y = placeFooterAtBottomY;
+                        }
+                        firstFooterEncountered = true;
                     }
                 }
+            }
+            // For each row of each subgrid...
+            while (subgridRowIndex < subgridRowCount && y < afterY) {
+                const height = subgrid.getRowHeight(subgridRowIndex);
 
-                subgridRowIndex = gridRowIndex - base;
-                height = subgrid.getRowHeight(subgridRowIndex);
-
-                this._rows[rowIndex] = vr = {
+                const row = {
                     index: rowIndex,
-                    subgridRowIndex: subgridRowIndex,
-                    subgrid: subgrid,
+                    subgridRowIndex,
+                    subgrid,
                     top: y,
-                    height: height,
+                    height,
                     bottom: y + height
                 };
+                this._rows[rowIndex] = row;
 
                 if (gapTop !== undefined) {
                     this._rows.gap = {
                         top: gapTop,
-                        bottom: vr.top,
+                        bottom: row.top,
                     };
                     gapTop = undefined;
                 }
 
                 y += height;
 
-                if (rowIndex === lastFixedRowIndex) {
-                    gapTop = vr.bottom + fixedOverlapH;
+                if (subgridRowIndex === lastFixedMainSubgridRowIndex) {
+                    gapTop = row.bottom + fixedOverlapH;
                     y += fixedGapH;
                 } else {
-                    y += lineGapH;
+                    y += gridLinesHWidth;
                 }
+
+                subgridRowIndex++;
+                rowIndex++;
             }
 
             if (isMainSubgrid) {
-                subgridRowCount = rowIndex - topR;
-                if (subgridRowCount > 0) {
-                    // at lease one row in main subgrid
-                    this._lastScrollableRowIndex = rowIndex - 1;
+                lastFixedMainSubgridRowIndex = undefined;
+
+                if (rowIndex > subgridFirstRowIndex) {
+                    // at least one row in main subgrid
+                    const maxAfterFixedRowIndex = subgridFirstRowIndex + fixedRowCount;
+                    let afterFixedRowIndex: number;
+                    if (rowIndex < maxAfterFixedRowIndex) {
+                        afterFixedRowIndex = rowIndex;
+                    } else {
+                        afterFixedRowIndex = maxAfterFixedRowIndex;
+                        // at least one scrollable row in main subgrid
+                        this._firstScrollableRowIndex = afterFixedRowIndex;
+                        this._lastScrollableRowIndex = rowIndex - 1;
+                        viewportStart = this.rows[afterFixedRowIndex].top;
+                    }
+
+                    if (afterFixedRowIndex > subgridFirstRowIndex) {
+                        // at least one fixed row
+                        let fixedSugridRowIndex = 0;
+                        for (let fixedRowIndex = subgridFirstRowIndex; fixedRowIndex < afterFixedRowIndex; fixedRowIndex++) {
+                            rows[fixedRowIndex].subgridRowIndex = fixedSugridRowIndex++; // make fixed rows point to top rows in subgrid
+                        }
+                    }
                 }
             }
         }
 
+        this._verticalScrollDimension.setViewportStart(viewportStart, withinAnimationFrame);
         this._rowsColumnsComputationId++;
     }
 

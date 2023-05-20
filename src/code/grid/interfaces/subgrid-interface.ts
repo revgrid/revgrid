@@ -40,12 +40,28 @@ export interface SubgridInterface {
 /** @public */
 export namespace SubgridInterface {
     export const enum RoleEnum {
-        main = 'main',
         header = 'header',
-        footer = 'footer',
         filter = 'filter',
+        main = 'main',
         summary = 'summary',
+        footer = 'footer',
     }
 
     export type Role = keyof typeof RoleEnum;
+
+    export namespace Role {
+        export const defaultRole = RoleEnum.main;
+
+        const gridOrder: Role[] = [
+            RoleEnum.header,
+            RoleEnum.filter,
+            RoleEnum.main,
+            RoleEnum.summary,
+            RoleEnum.footer,
+        ];
+
+        export function gridOrderCompare(left: Role | undefined, right: Role | undefined) {
+            return gridOrder.indexOf(left ?? defaultRole) - gridOrder.indexOf(right ?? defaultRole);
+        }
+    }
 }

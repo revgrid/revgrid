@@ -3,12 +3,11 @@
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../../tsbuildinfo/standard-cell-paint.tsbuildinfo"
+    "tsBuildInfoFile": "../../../tsbuildinfo/standard-cell-editors.tsbuildinfo"
   },
 
   "include": [
     "*.ts",
-    "*/**/*.ts",
   ],
 
   "references": [

@@ -17,6 +17,7 @@ export class Subgrid implements SubgridInterface {
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
     readonly isSummary: boolean = false;
+    readonly isFooter: boolean = false;
 
     /** @internal */
     protected _destroyed = false;
@@ -57,6 +58,7 @@ export class Subgrid implements SubgridInterface {
                 this.isHeader = true;
                 break;
             case 'footer':
+                this.isFooter = true;
                 break;
             case 'filter':
                 this.isFilter = true;
@@ -213,6 +215,26 @@ export class Subgrid implements SubgridInterface {
             return subgridDefaultRowHeight;
         } else {
             return this._gridSettings.defaultRowHeight;
+        }
+    }
+
+    calculateHeight() {
+        let height: number;
+        const rowCount = this.getRowCount();
+        if (rowCount === 0) {
+            return 0;
+        } else {
+            if (this.rowHeightsCanDiffer) {
+                height = 0;
+                for (let i = 0; i < rowCount; i++) {
+                    height += this.getRowHeight(i);
+                }
+            } else {
+                height = rowCount * this.getDefaultRowHeight();
+            }
+
+            height += rowCount + this._gridSettings.gridLinesHWidth;
+            return height;
         }
     }
 
