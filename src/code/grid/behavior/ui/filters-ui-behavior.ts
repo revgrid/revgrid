@@ -103,7 +103,7 @@ export class FiltersUiBehavior extends UiBehavior {
         const gridX = cellEvent.viewLayoutColumn.index;
 
         // Select first visible grid cell of this column
-        this.selectionBehavior.selectOnlyViewCell(gridX, this.subgridsManager.calculateHeaderRowCount(), SelectionArea.TypeSpecifier.Primary);
+        this.selectionBehavior.selectOnlyViewCell(gridX, this.subgridsManager.calculatePreMainRowCount(), SelectionArea.TypeSpecifier.Primary);
         this.canvasEx.takeFocus();
     }
 

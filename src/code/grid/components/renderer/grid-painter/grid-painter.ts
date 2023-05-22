@@ -120,7 +120,7 @@ export abstract class GridPainter {
         const viewLayoutRows = this.viewLayout.rows;
         const rowCount = viewLayoutRows.length;
 
-        if (columnCount && rowCount) {
+        if (columnCount > 0 && rowCount > 0) {
             const gridProps = this.gridSettings;
             const C1 = columnCount - 1;
             const R1 = rowCount - 1;
@@ -139,12 +139,12 @@ export abstract class GridPainter {
                 )
             ) {
                 const gridLinesVWidth = gridProps.gridLinesVWidth;
-                const headerRowCount = this.subgridsManager.calculateHeaderRowCount();
-                const lastHeaderRow = viewLayoutRows[headerRowCount - 1]; // any header rows?
-                const firstDataRow = viewLayoutRows[headerRowCount]; // any data rows?
+                const preMainRowCount = this.subgridsManager.calculatePreMainRowCount();
+                const lastPreMainRow = viewLayoutRows[preMainRowCount - 1]; // any header rows?
+                const firstDataRow = viewLayoutRows[preMainRowCount]; // any data rows?
                 const userDataAreaTop = firstDataRow && firstDataRow.top;
                 const top = gridProps.gridLinesColumnHeader ? 0 : userDataAreaTop;
-                const bottom = gridProps.gridLinesUserDataArea ? viewHeight : lastHeaderRow && lastHeaderRow.bottom;
+                const bottom = gridProps.gridLinesUserDataArea ? viewHeight : lastPreMainRow && lastPreMainRow.bottom;
 
                 if (top !== undefined && bottom !== undefined) { // either undefined means nothing to draw
                     gc.cache.fillStyle = gridLinesVColor;
@@ -297,7 +297,7 @@ export abstract class GridPainter {
                     const firstScrollableSubgridRowIndex = firstScrollableRow.subgridRowIndex;
                     const fixedColumnCount = gridProps.fixedColumnCount;
                     const fixedRowCount = gridProps.fixedRowCount;
-                    const headerRowCount = this.subgridsManager.calculateHeaderRowCount();
+                    const preMainRowCount = this.subgridsManager.calculatePreMainRowCount();
 
                     if (
                         // entire selection scrolled out of view to left of visible columns; or
@@ -315,13 +315,13 @@ export abstract class GridPainter {
                         selectionArea.topLeft.x > lastScrollableColumn.activeColumnIndex ||
 
                         // entire selection scrolled out of view above visible rows; or
-                        (vr = rows[headerRowCount]) &&
+                        (vr = rows[preMainRowCount]) &&
                         selectionArea.exclusiveBottomRight.y < vr.subgridRowIndex ||
 
                         // entire selection scrolled out of view between fixed rows and scrollable rows; or
                         fixedRowCount &&
                         firstScrollableRow !== undefined &&
-                        (vr = rows[headerRowCount + fixedRowCount - 1]) &&
+                        (vr = rows[preMainRowCount + fixedRowCount - 1]) &&
                         selectionArea.topLeft.y > vr.subgridRowIndex &&
                         selectionArea.exclusiveBottomRight.y < firstScrollableRow.subgridRowIndex ||
 

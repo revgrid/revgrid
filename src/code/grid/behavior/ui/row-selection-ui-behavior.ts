@@ -335,7 +335,7 @@ export class RowSelectionUiBehavior extends UiBehavior {
                     this.pingAutoScroll();
                 }
 
-                this.renderer.invalidateView();
+                this.renderer.invalidateViewRender();
             }
         }
     }

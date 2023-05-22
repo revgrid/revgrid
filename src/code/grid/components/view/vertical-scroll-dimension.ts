@@ -19,7 +19,7 @@ export class VerticalScrollDimension extends ScrollDimension {
 
     calculateLimitedScrollAnchor(index: number, _offset: number): ScrollDimension.Anchor {
         const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
-        if (index < this.startScrollAnchorLimitIndex) {
+        if (index < startScrollAnchorLimitIndex) {
             return {
                 index: startScrollAnchorLimitIndex,
                 offset: 0,
@@ -45,12 +45,14 @@ export class VerticalScrollDimension extends ScrollDimension {
 
         const gridSettings = this._gridSettings;
         const fixedRowCount = gridSettings.fixedRowCount;
-        const mainSubgrid = this._subgridsManager.mainSubgrid;
-        const scrollableHeight = this.getVisibleScrollHeight();
+        const preMainPlusFixedRowsHeight = this._subgridsManager.calculatePreMainPlusFixedRowsHeight();
+        const postMainHeight = this._subgridsManager.calculatePostMainHeight();
+        const scrollableHeight = this._canvasEx.height - (preMainPlusFixedRowsHeight + postMainHeight);
 
         let start: number | undefined;
         let size: number | undefined;
         let viewportSize: number | undefined;
+        let viewportSizeExact: boolean;
         let overflowed: boolean | undefined;
         let anchorLimits: ScrollDimension.ScrollAnchorLimits;
 
@@ -58,6 +60,7 @@ export class VerticalScrollDimension extends ScrollDimension {
             start = undefined;
             size = undefined;
             viewportSize = undefined;
+            viewportSizeExact = false;
             overflowed = undefined
             anchorLimits = {
                 startAnchorLimitIndex: fixedRowCount,
@@ -67,6 +70,7 @@ export class VerticalScrollDimension extends ScrollDimension {
             }
 
         } else {
+            const mainSubgrid = this._subgridsManager.mainSubgrid;
             if (mainSubgrid.rowHeightsCanDiffer) {
                 throw new AssertError('VSDC07339', 'Differing row heights in MainSubgrid not yet implemented');
                 // const lineGap = gridSettings.gridLinesHWidth;
@@ -85,56 +89,28 @@ export class VerticalScrollDimension extends ScrollDimension {
                 start = fixedRowCount;
                 size = mainSubgrid.getRowCount() - start;
                 const mainRowHeight = mainSubgrid.getDefaultRowHeight();
-                viewportSize = Math.ceil(scrollableHeight / mainRowHeight);
+                const gridLinesHWidth = this._gridSettings.gridLinesHWidth;
+                // Rearrangement of scrollableHeight = (viewportSize - 1) * (mainRowHeight + gridLinesHWidth) + mainRowHeight
+                const possiblyFractionalViewportSize = (scrollableHeight - mainRowHeight) / (mainRowHeight + gridLinesHWidth) + 1;
+                viewportSize = Math.floor(possiblyFractionalViewportSize);
+                viewportSizeExact = viewportSize === possiblyFractionalViewportSize;
                 overflowed = viewportSize < size;
+                // overflowed = (viewportSize < size) || (viewportSize === size && !viewportSizeExact);
+                // let finishAnchorLimitIndex = size - viewportSize;
+                // if (!viewportSizeExact) {
+                //     finishAnchorLimitIndex++;
+                // }
 
                 anchorLimits = {
                     startAnchorLimitIndex: fixedRowCount,
                     startAnchorLimitOffset: 0,
-                    finishAnchorLimitIndex: size - 1,
+                    finishAnchorLimitIndex: size - viewportSize,
                     finishAnchorLimitOffset: 0,
                 }
             }
         }
         // Viewport size and overflowed cannot currently be calculated.  Set to -1 and undefined
-        this.setDimensionValues(start, size, viewportSize, overflowed, anchorLimits);
+        this.setDimensionValues(start, size, viewportSize, viewportSizeExact, overflowed, anchorLimits);
     }
-
-    private getVisibleScrollHeight() {
-        const footerHeight = this._subgridsManager.calculateFootersHeight();
-        return this._canvasEx.height - footerHeight - this.getHeaderPlusFixedRowsHeight();
-    }
-
-    /**
-     * @summary The total height of the "fixed rows."
-     * @desc The total height of all (non-scrollable) rows preceding the (scrollable) data subgrid.
-     * @return The height in pixels of the fixed rows area of the hypergrid, the total height of:
-     * 1. All rows of all subgrids preceding the data subgrid.
-     * 2. The first `fixedRowCount` rows of the data subgrid.
-     */
-    private getHeaderPlusFixedRowsHeight(): number {
-        const subgrids = this._subgridsManager.subgrids;
-        const gridSettings = this._gridSettings;
-        const gridLinesHWidth = gridSettings.gridLinesHWidth;
-        let isMain = false;
-        let height = 0;
-
-        for (let i = 0; i < subgrids.length && !isMain; ++i) {
-            const subgrid = subgrids[i];
-            isMain = subgrid.isMain;
-            const headerRowCount = isMain ? gridSettings.fixedRowCount : subgrid.getRowCount();
-            for (let rowIndex = 0; rowIndex < headerRowCount; ++rowIndex) {
-                height += subgrid.getRowHeight(rowIndex);
-                height += gridLinesHWidth;
-            }
-            // add in fixed rule thickness excess
-            if (isMain && gridSettings.fixedLinesHWidth) {
-                height += gridSettings.fixedLinesHWidth - gridLinesHWidth;
-            }
-        }
-
-        return height;
-    }
-
 }
 

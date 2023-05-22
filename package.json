@@ -31,7 +31,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "lint": "eslint -c .eslintrc --ext .ts src/",
+    "lint": "eslint -c .eslintrc.json --ext .ts src/",
     "build": "tsc --build ./src/code/tsconfig.code.json",
     "force-build": "tsc --build --force ./src/code/tsconfig.code.json",
     "lib": "tsc --project ./src/code/tsconfig.code.json --emitDeclarationOnly",

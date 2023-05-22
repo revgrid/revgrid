@@ -7,9 +7,6 @@
       "parserOptions": {
         // see notes.md for script to regenerate list of tsconfig files below
         "project": [
-          "./src/code/adapter-sets/record/tsconfig.rev-record.json",
-          "./src/code/adapter-sets/simple/tsconfig.rev-simple.json",
-          "./src/code/standard-cell-paint/tsconfig.standard-cell-paint.json",
           "./src/code/grid/tsconfig.grid.json",
           "./src/code/grid/behavior/tsconfig.grid-behavior.json",
           "./src/code/grid/behavior/ui/tsconfig.grid-behavior-ui.json",

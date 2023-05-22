@@ -44,6 +44,15 @@ export class RenderActionQueue {
         }
     }
 
+    invalidateViewRender() {
+        this.beginChange();
+        try {
+            this.queuePaintAllAction();
+        } finally {
+            this.endChange();
+        }
+    }
+
     invalidateAllData() {
         this.beginChange();
         try {
@@ -93,16 +102,7 @@ export class RenderActionQueue {
         }
     }
 
-    invalidateView() {
-        this.beginChange();
-        try {
-            this.queuePaintAllAction();
-        } finally {
-            this.endChange();
-        }
-    }
-
-    invalidateViewCell(_cell: ViewCell) {
+    invalidateViewCellRender(_cell: ViewCell) {
         this.beginChange();
         try {
             this.queuePaintAllAction();

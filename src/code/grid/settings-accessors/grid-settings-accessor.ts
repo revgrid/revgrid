@@ -5,10 +5,10 @@ import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from '../li
 import { defaultSettingsProperties } from './default-grid-settings';
 
 export class GridSettingsAccessor implements LoadableGridSettings {
-    invalidateAllDataEventer: GridSettingsAccessor.InvalidateAllDataEventer;
-    invalidateViewEventer: GridSettingsAccessor.InvalidateViewEventer;
-    invalidateHorizontalViewEventer: GridSettingsAccessor.InvalidateViewEventer;
-    invalidateVerticalViewEventer: GridSettingsAccessor.InvalidateViewEventer;
+    invalidateViewRenderEventer: GridSettingsAccessor.InvalidateViewRenderEventer;
+    invalidateViewLayoutEventer: GridSettingsAccessor.InvalidateViewLayoutEventer;
+    invalidateHorizontalViewLayoutEventer: GridSettingsAccessor.InvalidateViewLayoutEventer;
+    invalidateVerticalViewLayoutEventer: GridSettingsAccessor.InvalidateViewLayoutEventer;
 
     private readonly _raw: GridSettings = {} as GridSettings;
     private readonly var = GridSettingsAccessor.Var.createDefault();
@@ -31,7 +31,7 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     set cellPadding(value: number) {
         if (value !== this._raw.cellPadding) {
             this._raw.cellPadding = value;
-            this.invalidateViewEventer(true);
+            this.invalidateViewLayoutEventer(true);
         }
     }
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
@@ -85,7 +85,7 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get gridRightAligned() { return this._raw.gridRightAligned; }
     set gridRightAligned(value: boolean) {
         this._raw.gridRightAligned = value;
-        this.invalidateHorizontalViewEventer(true);
+        this.invalidateHorizontalViewLayoutEventer(true);
     }
     get defaultRowHeight() { return this._raw.defaultRowHeight; }
     set defaultRowHeight(value: number) { this._raw.defaultRowHeight = value; }
@@ -143,48 +143,77 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     set fixedColumnCount(value: number) {
         if (value !== this._raw.fixedColumnCount) {
             this._raw.fixedColumnCount = value;
-            this.invalidateHorizontalViewEventer(true);
+            this.invalidateHorizontalViewLayoutEventer(true);
         }
     }
     get fixedLinesHColor() { return this._raw.fixedLinesHColor; }
-    set fixedLinesHColor(value: GridSettings.Color) { this._raw.fixedLinesHColor = value; }
+    set fixedLinesHColor(value: GridSettings.Color) {
+        if (value !== this._raw.fixedLinesHColor) {
+            this._raw.fixedLinesHColor = value;
+            this.invalidateViewRenderEventer();
+        }
+    }
     get fixedLinesHEdge() { return this._raw.fixedLinesHEdge; }
-    set fixedLinesHEdge(value: number | undefined) { this._raw.fixedLinesHEdge = value; }
+    set fixedLinesHEdge(value: number | undefined) {
+        if (value !== this._raw.fixedLinesHEdge) {
+            this._raw.fixedLinesHEdge = value;
+            this.invalidateVerticalViewLayoutEventer(true);
+        }
+    }
     get fixedLinesHWidth() { return this._raw.fixedLinesHWidth; }
-    set fixedLinesHWidth(value: number | undefined) { this._raw.fixedLinesHWidth = value; }
+    set fixedLinesHWidth(value: number | undefined) {
+        if (value !== this._raw.fixedLinesHWidth) {
+            this._raw.fixedLinesHWidth = value;
+            this.invalidateVerticalViewLayoutEventer(true);
+        }
+    }
     get fixedLinesVColor() { return this._raw.fixedLinesVColor; }
-    set fixedLinesVColor(value: GridSettings.Color) { this._raw.fixedLinesVColor = value; }
+    set fixedLinesVColor(value: GridSettings.Color) {
+        if (value !== this._raw.fixedLinesVColor) {
+            this._raw.fixedLinesVColor = value;
+            this.invalidateViewRenderEventer();
+        }
+    }
     get fixedLinesVEdge() { return this._raw.fixedLinesVEdge; }
-    set fixedLinesVEdge(value: number | undefined) { this._raw.fixedLinesVEdge = value; }
+    set fixedLinesVEdge(value: number | undefined) {
+        if (value !== this._raw.fixedLinesVEdge) {
+            this._raw.fixedLinesVEdge = value;
+            this.invalidateHorizontalViewLayoutEventer(true);
+        }
+    }
     get fixedLinesVWidth() { return this._raw.fixedLinesVWidth; }
-    set fixedLinesVWidth(value: number | undefined) { this._raw.fixedLinesVWidth = value; }
+    set fixedLinesVWidth(value: number | undefined) {
+        if (value !== this._raw.fixedLinesVWidth) {
+            this._raw.fixedLinesVWidth = value;
+            this.invalidateHorizontalViewLayoutEventer(true);
+        }
+    }
     get fixedRowCount() { return this._raw.fixedRowCount; }
-    set fixedRowCount(value: number) { this._raw.fixedRowCount = value; }
+    set fixedRowCount(value: number) {
+        if (value !== this._raw.fixedRowCount) {
+            this._raw.fixedRowCount = value;
+            this.invalidateVerticalViewLayoutEventer(true);
+        }
+    }
     get focusedCellBorderColor() { return this._raw.focusedCellBorderColor; }
     set focusedCellBorderColor(value: string) {
         this._raw.focusedCellBorderColor = value;
-        this.invalidateAllDataEventer();
+        this.invalidateViewRenderEventer();
     }
     get font() { return this._raw.font; }
     set font(value: string) {
         this._raw.font = value;
-        this.invalidateAllDataEventer();
+        this.invalidateViewRenderEventer();
     }
-    get foregroundSelectionColor() {
-        return this._raw.foregroundSelectionColor;
-        this.invalidateAllDataEventer();
-    }
+    get foregroundSelectionColor() { return this._raw.foregroundSelectionColor; }
     set foregroundSelectionColor(value: GridSettings.Color) {
         this._raw.foregroundSelectionColor = value;
-        this.invalidateAllDataEventer();
+        this.invalidateViewRenderEventer();
     }
-    get foregroundSelectionFont() {
-        return this._raw.foregroundSelectionFont;
-        this.invalidateAllDataEventer();
-    }
+    get foregroundSelectionFont() { return this._raw.foregroundSelectionFont; }
     set foregroundSelectionFont(value: string) {
         this._raw.foregroundSelectionFont = value;
-        this.invalidateAllDataEventer();
+        this.invalidateViewRenderEventer();
     }
     /** Name of a formatter for cell text. */
     get format() { return this._raw.format; }
@@ -209,7 +238,7 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get halign() { return this._raw.halign; }
     set halign(value: Halign) {
         this._raw.halign = value;
-        this.invalidateAllDataEventer();
+        this.invalidateViewRenderEventer();
     }
     get headerify() { return this._raw.headerify; }
     set headerify(value: string) { this._raw.headerify = value; }
@@ -257,7 +286,7 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get visibleColumnWidthAdjust() { return this._raw.visibleColumnWidthAdjust; }
     set visibleColumnWidthAdjust(value: boolean) {
         this._raw.visibleColumnWidthAdjust = value;
-        this.invalidateHorizontalViewEventer(true);
+        this.invalidateHorizontalViewLayoutEventer(true);
     }
     /** Allow multiple cell region selections. */
     get multipleSelectionAreas() { return this._raw.multipleSelectionAreas; }
@@ -305,7 +334,7 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get scrollHorizontallySmoothly() { return this._raw.scrollHorizontallySmoothly; }
     set scrollHorizontallySmoothly(value: boolean) {
         this._raw.scrollHorizontallySmoothly = value;
-        this.invalidateHorizontalViewEventer(true);
+        this.invalidateHorizontalViewLayoutEventer(true);
     }
     get scrollbarHoverOver() { return this._raw.scrollbarHoverOver; }
     set scrollbarHoverOver(value: string) { this._raw.scrollbarHoverOver = value; }
@@ -597,8 +626,8 @@ export class GridSettingsAccessor implements LoadableGridSettings {
 export namespace GridSettingsAccessor {
     export type Constructor = new() => GridSettingsAccessor;
 
-    export type InvalidateAllDataEventer = (this: void) => void;
-    export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+    export type InvalidateViewRenderEventer = (this: void) => void;
+    export type InvalidateViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
 
     export interface Var {
         features: string[];

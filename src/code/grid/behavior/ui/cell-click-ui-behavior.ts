@@ -115,7 +115,7 @@ export class CellClickUiBehavior extends UiBehavior {
         if (result) {
             const column = viewCell.viewLayoutColumn.column;
             this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', this.gridSettings.linkVisitedColor, subgrid, viewCell);
-            this.renderer.invalidateViewCell(viewCell);
+            this.renderer.invalidateViewCellRender(viewCell);
         }
 
         return result;

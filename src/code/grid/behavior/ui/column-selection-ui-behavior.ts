@@ -282,7 +282,7 @@ export class ColumnSelectionUiBehavior extends UiBehavior {
                     this.pingAutoScroll();
                 }
 
-                this.renderer.invalidateView();
+                this.renderer.invalidateViewRender();
             }
         }
     }

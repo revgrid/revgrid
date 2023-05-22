@@ -18,7 +18,7 @@ export class HorizontalScrollDimension extends ScrollDimension {
 
     override reset() {
         const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
-        this.setDimensionValues(undefined, undefined, undefined, undefined, anchorLimits);
+        this.setDimensionValues(undefined, undefined, undefined, false, undefined, anchorLimits);
 
         super.reset();
     }
@@ -111,39 +111,6 @@ export class HorizontalScrollDimension extends ScrollDimension {
         }
     }
 
-    calculateScrollStart (): number {
-        const gridSettings = this._gridSettings;
-        const fixedColumnCount = gridSettings.fixedColumnCount;
-        if (fixedColumnCount === 0) {
-            return 0;
-        } else {
-            const fixedColumnsWidth = this._columnsManager.calculateFixedColumnsWidth();
-            const fixedLinesVWidth = gridSettings.fixedLinesVWidth ?? gridSettings.gridLinesVWidth;
-            return  fixedColumnsWidth + fixedLinesVWidth;
-        }
-    }
-
-    protected override compute() {
-        // called within Animation Frame
-
-        const canvasBounds = this._canvasEx.getBounds();
-
-        const scrollStart = this.calculateScrollStart();
-        const viewportSize = canvasBounds.width - scrollStart;
-
-        if (viewportSize <= 0) {
-            const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
-            this.setDimensionValues(undefined, undefined, undefined, undefined, anchorLimits);
-        } else {
-            const contentSizeAndAnchorLimits = this.calculateScrollableSizeAndAnchorLimits(
-                scrollStart,
-                viewportSize,
-            );
-            const { scrollableSize, overflowed, anchorLimits } = contentSizeAndAnchorLimits;
-            this.setDimensionValues(scrollStart, scrollableSize, viewportSize, overflowed, anchorLimits);
-        }
-    }
-
     isScrollAnchorWithinStartLimit(index: number, offset: number) {
         const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
         if (index > startScrollAnchorLimitIndex) {
@@ -193,6 +160,39 @@ export class HorizontalScrollDimension extends ScrollDimension {
             index,
             offset
         };
+    }
+
+    protected override compute() {
+        // called within Animation Frame
+
+        const canvasBounds = this._canvasEx.getBounds();
+
+        const scrollStart = this.calculateScrollStart();
+        const viewportSize = canvasBounds.width - scrollStart;
+
+        if (viewportSize <= 0) {
+            const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
+            this.setDimensionValues(undefined, undefined, undefined, true, undefined, anchorLimits);
+        } else {
+            const contentSizeAndAnchorLimits = this.calculateScrollableSizeAndAnchorLimits(
+                scrollStart,
+                viewportSize,
+            );
+            const { scrollableSize, overflowed, anchorLimits } = contentSizeAndAnchorLimits;
+            this.setDimensionValues(scrollStart, scrollableSize, viewportSize, true, overflowed, anchorLimits);
+        }
+    }
+
+    private calculateScrollStart (): number {
+        const gridSettings = this._gridSettings;
+        const fixedColumnCount = gridSettings.fixedColumnCount;
+        if (fixedColumnCount === 0) {
+            return 0;
+        } else {
+            const fixedColumnsWidth = this._columnsManager.calculateFixedColumnsWidth();
+            const fixedLinesVWidth = gridSettings.fixedLinesVWidth ?? gridSettings.gridLinesVWidth;
+            return  fixedColumnsWidth + fixedLinesVWidth;
+        }
     }
 
     private calculateScrollableSizeAndAnchorLimits(

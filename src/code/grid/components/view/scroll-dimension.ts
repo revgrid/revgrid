@@ -11,6 +11,7 @@ export abstract class ScrollDimension {
     private _start: number | undefined;
     private _size: number | undefined;
     private _viewportSize: number | undefined;
+    private _viewportSizeExact: boolean;
     private _overflowed: boolean | undefined;
 
     private _valid = false;
@@ -80,6 +81,9 @@ export abstract class ScrollDimension {
             return viewportSize;
         }
     }
+
+    get viewportSizeExact() { return this._viewportSizeExact; }
+
     get viewportFinish() {
         this.ensureValidOutsideAnimationFrame();
         const viewportStart = this._viewportStart;
@@ -144,6 +148,7 @@ export abstract class ScrollDimension {
         start: number | undefined,
         size: number | undefined,
         viewportSize: number | undefined,
+        viewportSizeExact: boolean,
         overflowed: boolean | undefined,
         anchorLimits: ScrollDimension.ScrollAnchorLimits
     ) {
@@ -151,6 +156,7 @@ export abstract class ScrollDimension {
         this._start = start;
         this._size = size;
         this._viewportSize = viewportSize;
+        this._viewportSizeExact = viewportSizeExact;
         this._overflowed = overflowed;
 
         this._startScrollAnchorLimitIndex = anchorLimits.startAnchorLimitIndex;

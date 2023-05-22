@@ -207,6 +207,7 @@ export class ComponentBehaviorManager {
                 this.viewLayout.verticalScrollDimension,
                 false, // remove when vertical scrollbar is updated to use viewport
                 'vertical',
+                true,
                 1,
                 this.gridSettings.wheelVFactor,
                 this.gridSettings.vScrollbarClassPrefix,
@@ -220,6 +221,7 @@ export class ComponentBehaviorManager {
                 this.viewLayout.horizontalScrollDimension,
                 false,
                 'horizontal',
+                true,
                 this.gridSettings.wheelHFactor,
                 1,
                 this.gridSettings.hScrollbarClassPrefix,
@@ -227,7 +229,6 @@ export class ComponentBehaviorManager {
                 containerHtmlElement,
                 this._verticalScroller,
             );
-            this._horizontalScroller = this.createHorizontalScrollbar(containerHtmlElement, loadBuiltinFinbarStylesheet, this._verticalScroller);
             containerHtmlElement.appendChild(this._horizontalScroller.bar);
 
             // Set up model callback handling
@@ -585,12 +586,12 @@ export class ComponentBehaviorManager {
     }
 
     private processMouseEnteredCellEvent(cell: ViewCell) {
-        this.renderer.invalidateViewCell(cell)
+        this.renderer.invalidateViewCellRender(cell)
         this.eventBehavior.processMouseEnteredCellEvent(cell);
     }
 
     private processMouseExitedCellEvent(cell: ViewCell) {
-        this.renderer.invalidateViewCell(cell)
+        this.renderer.invalidateViewCellRender(cell)
         this.eventBehavior.processMouseExitedCellEvent(cell);
     }
 
@@ -602,40 +603,8 @@ export class ComponentBehaviorManager {
     }
 
     private processSelectionChangedEvent() {
-        this.renderer.invalidateView();
+        this.renderer.invalidateViewRender();
         this.eventBehavior.processSelectionChangedEvent();
-    }
-
-    private createHorizontalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean, spaceAccomodatedScroller: Scroller | undefined) {
-        const scroller = new Scroller(
-            this.viewLayout.horizontalScrollDimension,
-            false,
-            'horizontal',
-            this.gridSettings.wheelHFactor,
-            1,
-            this.gridSettings.hScrollbarClassPrefix,
-            loadBuiltinFinbarCssStylesheet,
-            containerHtmlElement,
-            spaceAccomodatedScroller,
-        );
-
-        return scroller;
-    }
-
-    private createVerticalScrollbar(containerHtmlElement: HTMLElement, loadBuiltinFinbarCssStylesheet: boolean, spaceAccomodatedScroller: Scroller | undefined) {
-        const scroller = new Scroller(
-            this.viewLayout.verticalScrollDimension,
-            true, // remove when vertical scrollbar is updated to use viewport
-            'vertical',
-            1,
-            this.gridSettings.wheelVFactor,
-            this.gridSettings.vScrollbarClassPrefix,
-            loadBuiltinFinbarCssStylesheet,
-            containerHtmlElement,
-            spaceAccomodatedScroller,
-        );
-
-        return scroller;
     }
 
     private invalidateHorizontalAll(scrollablePlaneDimensionAsWell: boolean) {
@@ -643,7 +612,7 @@ export class ComponentBehaviorManager {
     }
 
     private invalidateViewCellRender(cell: ViewCell) {
-        this.renderer.invalidateViewCell(cell);
+        this.renderer.invalidateViewCellRender(cell);
     }
 
     // End DataModel Mixin

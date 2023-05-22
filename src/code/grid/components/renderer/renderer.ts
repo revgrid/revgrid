@@ -73,7 +73,7 @@ export class Renderer {
 
         this._renderActionQueue.actionsQueuedEventer = () => this._animator.dirty = true;
 
-        this._gridSettings.invalidateAllDataEventer = () => this.invalidateAllData();
+        this._gridSettings.invalidateViewRenderEventer = () => this.invalidateViewRender();
         this._viewLayout.invalidateDataEventer = (action) => this._renderActionQueue.processViewLayoutInvalidateAction(action);
 
         document.addEventListener('visibilitychange', this._pageVisibilityChangeListener);
@@ -155,6 +155,14 @@ export class Renderer {
         this._renderActionQueue.endChange();
     }
 
+    invalidateViewRender() {
+        this._renderActionQueue.invalidateViewRender();
+    }
+
+    invalidateViewCellRender(cell: ViewCell) {
+        this._renderActionQueue.invalidateViewCellRender(cell);
+    }
+
     invalidateAllData() {
         this._renderActionQueue.invalidateAllData();
     }
@@ -230,14 +238,6 @@ export class Renderer {
                 }
             }
         }
-    }
-
-    invalidateView() {
-        this._renderActionQueue.invalidateView();
-    }
-
-    invalidateViewCell(cell: ViewCell) {
-        this._renderActionQueue.invalidateViewCell(cell);
     }
 
     getCurrentFPS() {

@@ -237,11 +237,6 @@ export class Revgrid {
 
     get canvasBounds() { return this.canvasEx.bounds; }
 
-    /** @deprecated Use {@link (Hypgrid:class).destroy} instead */
-    terminate() {
-        this.destroy();
-    }
-
     /**
      * Be a responsible citizen and call this function on instance disposal!
      * If multiple grids are used in an application (simultaneously or not), then {@link (Hypgrid:class).destroy} must be called otherwise
@@ -919,27 +914,11 @@ export class Revgrid {
         return this.viewLayout.setColumnScrollAnchor(index, offset);
     }
 
-    /**
-     * @desc Note that "viewable rows" includes any partially viewable rows.
-     * @returns {number} The number of viewable rows.
-     */
-    // getVisibleRows() {
-    //     return this.renderer.getVisibleRows(); // not implemented
-    // }
-
-    /**
-     * @desc Note that "viewable columns" includes any partially viewable columns.
-     * @returns The number of viewable columns.
-     */
-    // getVisibleColumns() {
-    //     return this.renderer.getVisibleColumns(); // not implemented
-    // }
-
     calculateActiveColumnsWidth() {
         const lineWidth = this.settings.gridLinesVWidth;
         const columnsManager = this._columnsManager;
         const activeColumnCount = columnsManager.activeColumnCount;
-        const fixedColumnCount = this.getFixedColumnCount();
+        const fixedColumnCount = this.columnsManager.getFixedColumnCount();
 
         let width = 0;
         for (let i = 0; i < activeColumnCount; i++) {
@@ -961,7 +940,7 @@ export class Revgrid {
     calculateActiveNonFixedColumnsWidth() {
         const gridLinesVWidth = this.settings.gridLinesVWidth;
         const columnCount = this.activeColumnCount;
-        const fixedColumnCount = this.getFixedColumnCount();
+        const fixedColumnCount = this.columnsManager.getFixedColumnCount();
         let result = 0;
         for (let i = fixedColumnCount; i < columnCount; i++) {
             result += this.getActiveColumnWidth(i);
@@ -1087,7 +1066,7 @@ export class Revgrid {
     }
 
     getColumnScrollableLeft(activeIndex: number) {
-        const fixedColumnCount = this.getFixedColumnCount();
+        const fixedColumnCount = this.columnsManager.getFixedColumnCount();
         if (activeIndex < fixedColumnCount) {
             throw new AssertError('HGCSL89933');
         } else {
@@ -1163,46 +1142,6 @@ export class Revgrid {
             subgrid = this.behaviorManager.mainSubgrid;
         }
         this._rowPropertiesBehavior.setRowHeight(rowIndex, rowHeight, subgrid);
-    }
-
-    /**
-     * @returns The number of fixed columns.
-     */
-    getFixedColumnCount(): number {
-        return this.columnsManager.getFixedColumnCount();
-    }
-
-    /**
-     * @desc set the number of fixed columns
-     * @param n - the integer count of how many columns to be fixed
-     */
-    setFixedColumnCount(n: number) {
-        this.settings.fixedColumnCount = n;
-    }
-
-    /**
-     * @summary The number of "fixed rows."
-     * @desc The number of (non-scrollable) rows preceding the (scrollable) data subgrid.
-     * @return The sum of:
-     * 1. All rows of all subgrids preceding the data subgrid.
-     * 2. The first `fixedRowCount` rows of the data subgrid.
-     */
-    calculateHeaderPlusFixedRowCount() {
-        return this._subgridsManager.calculateHeaderPlusFixedRowCount();
-    }
-
-    /**
-     * @desc Set the number of fixed rows, which includes (top to bottom order):
-     * 1. The header rows
-     *    1. The header labels row (optional)
-     *    2. The filter row (optional)
-     *    3. The top total rows (0 or more)
-     * 2. The non-scrolling rows (externally called "the fixed rows")
-     *
-     * @param n - The number of rows.
-     */
-    setFixedRowCount(n: number) {
-        this.settings.fixedRowCount = n;
     }
 
     /**

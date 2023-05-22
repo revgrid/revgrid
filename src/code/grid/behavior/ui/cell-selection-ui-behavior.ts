@@ -310,7 +310,7 @@ export class CellSelectionUiBehavior extends UiBehavior {
                     this.pingAutoScroll();
                 }
 
-                this.renderer.invalidateView();
+                this.renderer.invalidateViewRender();
             }
         }
     }

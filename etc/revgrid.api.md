@@ -1804,7 +1804,7 @@ export class Revgrid {
     //
     // @internal
     behaviorManager: BehaviorManager;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // (undocumented)
     calculateActiveColumnsWidth(): number;
     // (undocumented)
     calculateActiveNonFixedColumnsWidth(): number;
@@ -1813,10 +1813,6 @@ export class Revgrid {
     viewportSize: number, gridRightAligned: boolean, columnCount: number, fixedColumnCount: number): ViewLayout.ScrollContentSizeAndAnchorLimits;
     // (undocumented)
     calculateColumnScrollInactiveAnchorLimits(gridRightAligned: boolean, columnCount: number, fixedColumnCount: number): ViewLayout.ScrollAnchorLimits;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    calculateHeaderPlusFixedRowCount(): number;
     // (undocumented)
     calculateRowCount(): number;
     // (undocumented)
@@ -1968,8 +1964,6 @@ export class Revgrid {
     getColumnScrollableLeft(activeIndex: number): number;
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
     getData(): readonly DataModel.DataRow[];
-    // (undocumented)
-    getFixedColumnCount(): number;
     // (undocumented)
     getFocusedViewCell(useAllCells: boolean): ViewCell | undefined;
     // (undocumented)
@@ -2131,10 +2125,6 @@ export class Revgrid {
     setColumnWidths(columnWidths: ColumnWidth[]): boolean;
     // (undocumented)
     setColumnWidthsByName(columnNameWidths: ColumnNameWidth[]): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    setFixedColumnCount(n: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    setFixedRowCount(n: number): void;
     // (undocumented)
     setFormatter(options?: Revgrid.LocalizationOptions): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2156,10 +2146,6 @@ export class Revgrid {
     showColumns(isActiveColumnIndexes: boolean, columnIndexes?: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     swapColumns(source: number, target: number): void;
-    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "Hypgrid"
-    //
-    // @deprecated (undocumented)
-    terminate(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag

@@ -19,7 +19,10 @@
           "impliedStrict": true
         },
         "sourceType": "module", // Allows for the use of imports
-        "tsconfigRootDir": "."
+        "tsconfigRootDir": ".",
+        "project": [
+          "tsconfig.esm.json"
+        ]
       },
       "extends": [
         "eslint:recommended",

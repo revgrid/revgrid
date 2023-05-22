@@ -1,9 +1,4 @@
-import { ViewCell } from '../grid/components/cell/view-cell';
-import { Formatter } from '../grid/lib/localization';
-import { WritablePoint } from '../grid/lib/point';
-import { RectangleInterface } from '../grid/lib/rectangle-interface';
-import { numberToPixels } from '../grid/lib/utils';
-import { Revgrid } from '../grid/revgrid';
+import { Formatter, RectangleInterface, Revgrid, ViewCell, WritablePoint } from '../grid/grid-public-api';
 import { Effect, effectFactory } from './effects/effects';
 
 export abstract class CellEditor {
@@ -473,4 +468,8 @@ export namespace CellEditor {
         Enter: StopCancelFunction; // return/enter
         Escape: StopCancelFunction; // escape
     }
+}
+
+function numberToPixels(value: number) {
+    return value.toString() + 'px';
 }

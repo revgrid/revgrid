@@ -136,9 +136,9 @@ export class ViewLayout {
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
     ) {
-        this._gridSettings.invalidateViewEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
-        this._gridSettings.invalidateHorizontalViewEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
-        this._gridSettings.invalidateVerticalViewEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
+        this._gridSettings.invalidateViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
+        this._gridSettings.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
+        this._gridSettings.invalidateVerticalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
         this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvasEx, this._columnsManager);
         this._horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
         this._verticalScrollDimension = new VerticalScrollDimension(this._gridSettings, this._canvasEx, this._subgridsManager);
@@ -512,16 +512,25 @@ export class ViewLayout {
             }
         }
 
+        let action: ViewLayout.ActiveRangeDeletedInvalidateAction;
         if (affected) {
-            const action: ViewLayout.ActiveRangeDeletedInvalidateAction = {
+            action = {
                 type: ViewLayout.InvalidateAction.Type.ActiveRangeDeleted,
                 dimension: HorizontalVertical.Horizontal,
                 scrollDimensionAsWell: true,
                 index,
                 count,
             };
-            this.invalidate(action);
+        } else {
+            action = {
+                type: ViewLayout.InvalidateAction.Type.ActiveRangeDeletedButViewNotAffected,
+                dimension: HorizontalVertical.Horizontal,
+                scrollDimensionAsWell: true,
+                index,
+                count,
+            };
         }
+        this.invalidate(action);
     }
 
     invalidateAllColumnsDeleted() {
@@ -549,16 +558,25 @@ export class ViewLayout {
             (lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex) === undefined ||
             index <= lastScrollableSubgridRowIndex;
 
+        let action: ViewLayout.DataRangeInsertedInvalidateAction;
         if (affected) {
-            const action: ViewLayout.DataRangeInsertedInvalidateAction = {
+            action = {
                 type: ViewLayout.InvalidateAction.Type.DataRangeInserted,
                 dimension: HorizontalVertical.Vertical,
                 scrollDimensionAsWell: true,
                 index,
                 count,
             };
-            this.invalidate(action);
+        } else {
+            action = {
+                type: ViewLayout.InvalidateAction.Type.DataRangeInsertedButViewNotAffected,
+                dimension: HorizontalVertical.Vertical,
+                scrollDimensionAsWell: true,
+                index,
+                count,
+            };
         }
+        this.invalidate(action);
     }
 
     invalidateDataRowsDeleted(index: number, count: number) {
@@ -572,16 +590,25 @@ export class ViewLayout {
             }
         }
 
+        let action: ViewLayout.DataRangeDeletedInvalidateAction;
         if (affected) {
-            const action: ViewLayout.DataRangeDeletedInvalidateAction = {
+            action = {
                 type: ViewLayout.InvalidateAction.Type.DataRangeDeleted,
                 dimension: HorizontalVertical.Vertical,
                 scrollDimensionAsWell: true,
                 index,
                 count,
             };
-            this.invalidate(action);
+        } else {
+            action = {
+                type: ViewLayout.InvalidateAction.Type.DataRangeDeletedButViewNotAffected,
+                dimension: HorizontalVertical.Vertical,
+                scrollDimensionAsWell: true,
+                index,
+                count,
+            };
         }
+        this.invalidate(action);
     }
 
     invalidateAllDataRowsDeleted() {
@@ -812,7 +839,7 @@ export class ViewLayout {
         this.setRowScrollAnchor(viewportStart, 0);
     }
 
-    ensureRowIsInView(mainSubgridRowIndex: number, _maximally: boolean) {
+    ensureRowIsInView(mainSubgridRowIndex: number, maximally: boolean) {
         const fixedRowCount = this._gridSettings.fixedRowCount;
         // scroll only if target not in fixed rows
         if (mainSubgridRowIndex < fixedRowCount) {
@@ -831,12 +858,24 @@ export class ViewLayout {
                     if (lastScrollableSubgridRowIndex === undefined) {
                         throw new AssertError('SBSXTMV82224'); // if first then must be last
                     } else {
-                        if (mainSubgridRowIndex <= lastScrollableSubgridRowIndex) {
+                        if (mainSubgridRowIndex < lastScrollableSubgridRowIndex) {
                             return false;
                         } else {
-                            const newFirstIndex = lastScrollableSubgridRowIndex - this._verticalScrollDimension.viewportSize + 1;
-                            this.setRowScrollAnchor(newFirstIndex, 0);
-                            return true;
+                            const maximallyButLastLineIsNotMaximal = maximally && !this._verticalScrollDimension.viewportSizeExact;
+                            if (mainSubgridRowIndex === lastScrollableSubgridRowIndex) {
+                                if (!maximallyButLastLineIsNotMaximal) {
+                                    return false;
+                                } else {
+                                    const newFirstIndex = mainSubgridRowIndex - this._verticalScrollDimension.viewportSize + 1;
+                                    this.setRowScrollAnchor(newFirstIndex, 0);
+                                    return true;
+                                }
+                            } else {
+                                const lastPosition = maximallyButLastLineIsNotMaximal ? 2 : 1;
+                                const newFirstIndex = mainSubgridRowIndex - this._verticalScrollDimension.viewportSize + lastPosition;
+                                this.setRowScrollAnchor(newFirstIndex, 0);
+                                return true;
+                            }
                         }
                     }
                 }
@@ -1596,7 +1635,7 @@ export class ViewLayout {
     }
 
     private handleVerticalScrollDimensionComputedEvent(withinAnimationFrame: boolean): number {
-        const viewportStart = Math.min(this.rowScrollAnchorIndex, this._verticalScrollDimension.finish);
+        const viewportStart = Math.min(this.rowScrollAnchorIndex, this._verticalScrollDimension.finishScrollAnchorLimitIndex);
         if (withinAnimationFrame) {
             setTimeout(() => this.invalidateVerticalAll(false), 0);
         } else {
@@ -1939,7 +1978,7 @@ export class ViewLayout {
         const subgrids = this._subgridsManager.subgrids;
         const subgridCount = subgrids.length; // subgrid loop index and limit
 
-        const { allPostMainSubgridsHeight, footersHeight } = this._subgridsManager.calculatePostMainHeight();
+        const { allPostMainSubgridsHeight, footersHeight } = this._subgridsManager.calculatePostMainAndFooterHeights();
 
         rows.length = 0;
         rows.gap = undefined;
@@ -1959,7 +1998,7 @@ export class ViewLayout {
 
         let y = 0; // vertical pixel loop index and limit
         let rowIndex = 0; // row loop index
-        let lastFixedMainSubgridRowIndex: number | undefined;
+        let mainLastFixedRowIndex: number | undefined;
         let gapTop: number | undefined;
         let firstFooterEncountered = false;
         let viewportStart: number | undefined;
@@ -1975,8 +2014,11 @@ export class ViewLayout {
             let subgridRowIndex: number;
             if (isMainSubgrid) {
                 afterY = gridHeight - allPostMainSubgridsHeight; // leave room for the subgrids followin main
-                subgridRowIndex = this._rowScrollAnchorIndex;
-                lastFixedMainSubgridRowIndex = subgridRowIndex + fixedRowCount - 1; // may be negative which is ok as will never match
+                if (allPostMainSubgridsHeight > 0) {
+                    afterY -= gridLinesHWidth; // also leave room for grid line between main subgrid and post main subgrids (if there are any)
+                }
+                subgridRowIndex = this._rowScrollAnchorIndex - fixedRowCount; // include row spaces for fixed rows
+                mainLastFixedRowIndex = rowIndex + fixedRowCount - 1; // if fixedRowCount is 0, then will never match for gap
             } else {
                 afterY = gridHeight;
                 subgridRowIndex = 0;
@@ -2015,7 +2057,7 @@ export class ViewLayout {
 
                 y += height;
 
-                if (subgridRowIndex === lastFixedMainSubgridRowIndex) {
+                if (rowIndex === mainLastFixedRowIndex) {
                     gapTop = row.bottom + fixedOverlapH;
                     y += fixedGapH;
                 } else {
@@ -2027,20 +2069,21 @@ export class ViewLayout {
             }
 
             if (isMainSubgrid) {
-                lastFixedMainSubgridRowIndex = undefined;
+                mainLastFixedRowIndex = undefined;
 
                 if (rowIndex > subgridFirstRowIndex) {
                     // at least one row in main subgrid
-                    const maxAfterFixedRowIndex = subgridFirstRowIndex + fixedRowCount;
-                    let afterFixedRowIndex: number;
-                    if (rowIndex < maxAfterFixedRowIndex) {
+                    const maxAfterFixedRowIndex = subgridFirstRowIndex + fixedRowCount; // maximum possible value of RowIndex after fixed rows
+                    let afterFixedRowIndex: number; // actual RowIndex of row after fixed rows
+                    if (rowIndex <= maxAfterFixedRowIndex) {
+                        // only room in grid for fixed rows (if there are some, and maybe not all of them)
                         afterFixedRowIndex = rowIndex;
                     } else {
+                        // all fixed rows included (if any) and at least one scrollable row in main subgrid
                         afterFixedRowIndex = maxAfterFixedRowIndex;
-                        // at least one scrollable row in main subgrid
                         this._firstScrollableRowIndex = afterFixedRowIndex;
                         this._lastScrollableRowIndex = rowIndex - 1;
-                        viewportStart = rows[afterFixedRowIndex].top;
+                        viewportStart = rows[afterFixedRowIndex].subgridRowIndex;
                     }
 
                     if (afterFixedRowIndex > subgridFirstRowIndex) {
@@ -2244,8 +2287,11 @@ export namespace ViewLayout {
             All,
             Loaded,
             DataRangeInserted,
+            DataRangeInsertedButViewNotAffected,
             DataRangeDeleted,
+            DataRangeDeletedButViewNotAffected,
             ActiveRangeDeleted,
+            ActiveRangeDeletedButViewNotAffected,
             AllDeleted,
             DataRangeMoved,
             AllChanged,
@@ -2261,19 +2307,19 @@ export namespace ViewLayout {
     }
 
     export interface DataRangeInsertedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.DataRangeInserted,
+        readonly type: InvalidateAction.Type.DataRangeInserted | InvalidateAction.Type.DataRangeInsertedButViewNotAffected,
         readonly index: number;
         readonly count: number;
     }
 
     export interface DataRangeDeletedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.DataRangeDeleted,
+        readonly type: InvalidateAction.Type.DataRangeDeleted | InvalidateAction.Type.DataRangeDeletedButViewNotAffected,
         readonly index: number;
         readonly count: number;
     }
 
     export interface ActiveRangeDeletedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.ActiveRangeDeleted,
+        readonly type: InvalidateAction.Type.ActiveRangeDeleted | InvalidateAction.Type.ActiveRangeDeletedButViewNotAffected,
         readonly index: number;
         readonly count: number;
     }
