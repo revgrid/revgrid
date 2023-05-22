@@ -199,8 +199,9 @@ export class ComponentBehaviorManager {
 
             this.mouse = new Mouse(
                 this.canvasEx,
-                (cell) => this.processMouseEnteredCellEvent(cell),
-                (cell) => this.processMouseExitedCellEvent(cell),
+                this.viewLayout,
+                (cell, invalidateViewCellRender) => this.processMouseEnteredCellEvent(cell, invalidateViewCellRender),
+                (cell, invalidateViewCellRender) => this.processMouseExitedCellEvent(cell, invalidateViewCellRender),
             );
 
             this._verticalScroller = new Scroller(
@@ -585,13 +586,17 @@ export class ComponentBehaviorManager {
         this.eventBehavior.processRenderedEvent();
     }
 
-    private processMouseEnteredCellEvent(cell: ViewCell) {
-        this.renderer.invalidateViewCellRender(cell)
+    private processMouseEnteredCellEvent(cell: ViewCell, invalidateViewCellRender: boolean) {
+        if (invalidateViewCellRender) {
+            this.renderer.invalidateViewCellRender(cell)
+        }
         this.eventBehavior.processMouseEnteredCellEvent(cell);
     }
 
-    private processMouseExitedCellEvent(cell: ViewCell) {
-        this.renderer.invalidateViewCellRender(cell)
+    private processMouseExitedCellEvent(cell: ViewCell, invalidateViewCellRender: boolean) {
+        if (invalidateViewCellRender) {
+            this.renderer.invalidateViewCellRender(cell)
+        }
         this.eventBehavior.processMouseExitedCellEvent(cell);
     }
 

@@ -30,7 +30,7 @@ export class Focus {
         private readonly _cellInvalidatedEventer: Focus.CellInvalidatedEventer,
     ) {
         this.subgrid = this._mainSubgrid;
-        this._viewLayout.cellPoolComputedEventer = () => this.handelCellPoolComputedEvent();
+        this._viewLayout.cellPoolComputedEventerForFocus = () => this.handelCellPoolComputedEvent();
     }
 
     get currentSubgridX() { return this._currentSubgridPoint === undefined ? undefined : this._currentSubgridPoint.x; }

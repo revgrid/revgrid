@@ -46,7 +46,8 @@ import { VerticalScrollDimension } from './vertical-scroll-dimension';
 export class ViewLayout {
     invalidateDataEventer: ViewLayout.InvalidatedEventer;
     columnsViewWidthsChangedEventer: ViewLayout.ColumnsViewWidthsChangedEventer;
-    cellPoolComputedEventer: ViewLayout.CellPoolComputedEventer;
+    cellPoolComputedEventerForFocus: ViewLayout.CellPoolComputedEventer;
+    cellPoolComputedEventerForMouse: ViewLayout.CellPoolComputedEventer;
 
     /**
      * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
@@ -375,7 +376,7 @@ export class ViewLayout {
                 }
             }
             this._rowColumnOrderedCellPoolComputationId = this._rowsColumnsComputationId;
-            this.cellPoolComputedEventer();
+            this.notifyCellPoolComputed();
         }
 
         return pool;
@@ -400,7 +401,7 @@ export class ViewLayout {
                 }
             }
             this._columnRowOrderedCellPoolComputationId = this._rowsColumnsComputationId;
-            this.cellPoolComputedEventer();
+            this.notifyCellPoolComputed();
         }
 
         return pool;
@@ -1642,6 +1643,11 @@ export class ViewLayout {
             this.invalidateVerticalAll(false);
         }
         return viewportStart;
+    }
+
+    private notifyCellPoolComputed() {
+        this.cellPoolComputedEventerForFocus();
+        this.cellPoolComputedEventerForMouse();
     }
 
     private calculateScrollableViewLeftUsingDimensionStart() {
