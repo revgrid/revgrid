@@ -1,7 +1,7 @@
 import { GridSettings } from '../../../interfaces/grid-settings';
 import { Registry } from '../../../lib/registry';
 import { AssertError } from '../../../lib/revgrid-error';
-import { CanvasEx } from '../../canvas-ex/canvas-ex';
+import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
@@ -20,7 +20,7 @@ export class GridPainterRepository {
 
     constructor(
         private readonly _gridProperties: GridSettings,
-        private readonly _canvasEx: CanvasEx,
+        private readonly _canvasEx: CanvasManager,
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewLayout: ViewLayout,
         private readonly _focus: Focus,

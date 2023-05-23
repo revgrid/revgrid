@@ -1,9 +1,10 @@
-import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { CellEditor } from '../../components/cell/cell-editor';
 import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
 import { KeyboardEventKey } from '../../lib/html-types';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
+import { HorizontalWheelScrollingAllowed } from '../../lib/types';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -27,7 +28,7 @@ export class FocusScrollUiBehavior extends UiBehavior {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell !== null) {
-            if (this.gridSettings.editOnDoubleClick && cell.subgrid.isMain && !cell.isCellFixed) {
+            if (this.gridSettings.editOnDoubleClick && cell.subgrid.isMain && !cell.isFixed) {
                 this.focus.tryOpenEditor(cell);
             }
         }
@@ -42,35 +43,35 @@ export class FocusScrollUiBehavior extends UiBehavior {
         let consumedByEditor = false;
         if (navigateKey !== undefined) {
             switch (navigateKey) {
-                case CanvasEx.Keyboard.NavigateKey.left: {
+                case CanvasManager.Keyboard.NavigateKey.left: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantLeftArrow');
                     if (!consumedByEditor) {
                         this.focusScrollBehavior.tryMoveFocusLeft();
                     }
                     break;
                 }
-                case CanvasEx.Keyboard.NavigateKey.right: {
+                case CanvasManager.Keyboard.NavigateKey.right: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantRightArrow');
                     if (!consumedByEditor) {
                         this.focusScrollBehavior.tryMoveFocusRight();
                     }
                     break;
                 }
-                case CanvasEx.Keyboard.NavigateKey.up: {
+                case CanvasManager.Keyboard.NavigateKey.up: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantUpArrow');
                     if (!consumedByEditor) {
                         this.focusScrollBehavior.tryMoveFocusUp();
                     }
                     break;
                 }
-                case CanvasEx.Keyboard.NavigateKey.down: {
+                case CanvasManager.Keyboard.NavigateKey.down: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantDownArrow');
                     if (!consumedByEditor) {
                         this.focusScrollBehavior.tryMoveFocusDown();
                     }
                     break;
                 }
-                case CanvasEx.Keyboard.NavigateKey.pageUp: {
+                case CanvasManager.Keyboard.NavigateKey.pageUp: {
                     // If implementing focus driven paging, then use focusBehavior
                     if (eventDetail.altKey) {
                         this.focusScrollBehavior.tryPageFocusLeft();
@@ -79,7 +80,7 @@ export class FocusScrollUiBehavior extends UiBehavior {
                     }
                     break;
                 }
-                case CanvasEx.Keyboard.NavigateKey.pageDown: {
+                case CanvasManager.Keyboard.NavigateKey.pageDown: {
                     // If implementing focus driven paging, then use focusBehavior
                     if (eventDetail.altKey) {
                         this.focusScrollBehavior.tryPageFocusRight();
@@ -88,7 +89,7 @@ export class FocusScrollUiBehavior extends UiBehavior {
                     }
                     break;
                 }
-                case CanvasEx.Keyboard.NavigateKey.home: {
+                case CanvasManager.Keyboard.NavigateKey.home: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantHome');
                     if (!consumedByEditor) {
                         if (eventDetail.ctrlKey) {
@@ -99,7 +100,7 @@ export class FocusScrollUiBehavior extends UiBehavior {
                     }
                     break;
                 }
-                case CanvasEx.Keyboard.NavigateKey.end: {
+                case CanvasManager.Keyboard.NavigateKey.end: {
                     consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantEnd');
                     if (!consumedByEditor) {
                         if (eventDetail.ctrlKey) {
@@ -179,6 +180,29 @@ export class FocusScrollUiBehavior extends UiBehavior {
         // }
     }
 
+    override handleWheelMove(event: WheelEvent, cell: ViewCell | null | undefined) {
+        const gridSettings = this.gridSettings;
+        if (gridSettings.scrollingEnabled) {
+            const deltaX = event.deltaX;
+            const deltaY = event.deltaY;
+
+            if (deltaX) {
+                if (this.isHorizontalWheelScrollingAllowed(event)) {
+                    if (gridSettings.scrollHorizontallySmoothly) {
+                        this.viewLayout.scrollHorizontalViewportBy(deltaX);
+                    } else {
+                        this.viewLayout.scrollColumnsBy(Math.sign(deltaX));
+                    }
+                }
+            }
+            if (deltaY) {
+                this.viewLayout.scrollRowsBy(Math.sign(deltaY)); // Update when Vertical scrolling improved
+                // grid.scrollVBy(Math.sign(deltaY));
+            }
+        }
+        return cell;
+    }
+
     override handleHorizontalScrollerAction(action: EventDetail.ScrollerAction) {
         switch (action.type) {
             case EventDetail.ScrollerAction.Type.StepForward:
@@ -233,6 +257,16 @@ export class FocusScrollUiBehavior extends UiBehavior {
             }
             default:
                 throw new UnreachableCaseError('FUBPHSAU53009', action.type);
+        }
+    }
+
+    private isHorizontalWheelScrollingAllowed(event: WheelEvent) {
+        const gridSettings = this.gridSettings;
+        switch (gridSettings.horizontalWheelScrollingAllowed) {
+            case HorizontalWheelScrollingAllowed.Never: return false;
+            case HorizontalWheelScrollingAllowed.Always: return true;
+            case HorizontalWheelScrollingAllowed.CtrlKeyDown: return event.ctrlKey;
+            default: throw new UnreachableCaseError('TSIHWCA82007', gridSettings.horizontalWheelScrollingAllowed);
         }
     }
 

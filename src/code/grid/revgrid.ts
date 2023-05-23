@@ -3,9 +3,9 @@ import { AdapterSetConfig } from './behavior/component/adapter-set-config';
 import { CellPropertiesBehavior } from './behavior/component/cell-properties-behavior';
 import { EventBehavior } from './behavior/component/event-behavior';
 import { FocusScrollBehavior } from './behavior/component/focus-scroll-behavior';
+import { FocusSelectBehavior } from './behavior/component/focus-select-behavior';
 import { RowPropertiesBehavior } from './behavior/component/row-properties-behavior';
-import { SelectionBehavior } from './behavior/component/selection-behavior';
-import { CanvasEx } from './components/canvas-ex/canvas-ex';
+import { CanvasManager } from './components/canvas/canvas-manager';
 import { ViewCell } from './components/cell/view-cell';
 import { Column, ColumnWidth } from './components/column/column';
 import { ColumnsManager } from './components/column/columns-manager';
@@ -41,7 +41,7 @@ export class Revgrid {
     readonly selection: Selection;
     readonly focus: Focus;
     readonly settings: LoadableGridSettings;
-    readonly canvasEx: CanvasEx;
+    readonly canvasManager: CanvasManager;
     readonly viewLayout: ViewLayout;
 
     /** @internal */
@@ -54,7 +54,7 @@ export class Revgrid {
     /** @internal */
     private readonly _focusScrollBehavior: FocusScrollBehavior;
     /** @internal */
-    private readonly _selectionBehavior: SelectionBehavior;
+    private readonly _selectionBehavior: FocusSelectBehavior;
     /** @internal */
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
     /** @internal */
@@ -178,7 +178,7 @@ export class Revgrid {
         this.settings = this.behaviorManager.gridProperties;
         this.focus = this.behaviorManager.focus;
         this.selection = this.behaviorManager.selection;
-        this.canvasEx = this.behaviorManager.canvasEx;
+        this.canvasManager = this.behaviorManager.canvasManager;
         this.mouse = this.behaviorManager.mouse;
         this._columnsManager = this.behaviorManager.columnsManager;
         this._subgridsManager = this.behaviorManager.subgridsManager;
@@ -224,7 +224,7 @@ export class Revgrid {
         // // Install instance plug-ins (those that are constructors OR have an `install` method)
         // this.installPlugins(options.plugins);
 
-        this.canvasEx.start();
+        this.canvasManager.start();
         this._renderer.start();
 
         Revgrid.grids.push(this);
@@ -235,7 +235,7 @@ export class Revgrid {
         this.resetGridBorder('Left');
     }
 
-    get canvasBounds() { return this.canvasEx.bounds; }
+    get canvasBounds() { return this.canvasManager.bounds; }
 
     /**
      * Be a responsible citizen and call this function on instance disposal!
@@ -282,7 +282,7 @@ export class Revgrid {
                 styleValue = '';
                 break;
         }
-        this.canvasEx.canvasElement.style.setProperty(styleName, styleValue);
+        this.canvasManager.canvasElement.style.setProperty(styleName, styleValue);
     }
 
     /**
@@ -639,7 +639,7 @@ export class Revgrid {
      * @returns We have focus.
      */
     hasFocus() {
-        return this.canvasEx.hasFocus();
+        return this.canvasManager.hasFocus();
     }
 
     /**
@@ -1182,14 +1182,14 @@ export class Revgrid {
         } else {
             this.setAttribute('hidpi', '');
         }
-        this.canvasEx.resize();
+        this.canvasManager.resize();
     }
 
     /**
      * @returns The HiDPI ratio.
      */
     getHiDPI() {
-        return this.canvasEx.devicePixelRatio;
+        return this.canvasManager.devicePixelRatio;
     }
 
     /**
@@ -1280,7 +1280,7 @@ export class Revgrid {
      * @desc Update the size of a grid instance.
      */
     updateSize() {
-        this.canvasEx.checksize();
+        this.canvasManager.checksize();
     }
 
 
@@ -1391,8 +1391,8 @@ export class Revgrid {
      * @param eventName - The type of event we are interested in.
      * @param listener - The event handler.
      */
-    addEventListener(eventName: string, listener: CanvasEx.EventListener) {
-        this.canvasEx.addExternalEventListener(eventName, listener);
+    addEventListener(eventName: string, listener: CanvasManager.EventListener) {
+        this.canvasManager.addExternalEventListener(eventName, listener);
     }
 
     /**
@@ -1402,8 +1402,8 @@ export class Revgrid {
      * NOTE: This method cannot remove event listeners added by other means.
      */
 
-    removeEventListener(eventName: string, listener: CanvasEx.EventListener) {
-        this.canvasEx.removeExternalEventListener(eventName, listener);
+    removeEventListener(eventName: string, listener: CanvasManager.EventListener) {
+        this.canvasManager.removeExternalEventListener(eventName, listener);
     }
 
     /**
@@ -1412,7 +1412,7 @@ export class Revgrid {
      * @param includeInternal - Include internal listeners.
      */
     removeAllEventListeners() {
-        this.canvasEx.removeAllExternalEventListeners();
+        this.canvasManager.removeAllExternalEventListeners();
     }
 
     allowEvents(allow: boolean){
@@ -1485,6 +1485,34 @@ export class Revgrid {
     }
 
     protected descendantProcessWheelMove(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessDrag(_event: DragEvent, _cell: ViewCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessDragStart(_event: DragEvent, _cell: ViewCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessDragEnter(_event: DragEvent, _cell: ViewCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessDragOver(_event: DragEvent, _cell: ViewCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessDragLeave(_event: DragEvent, _cell: ViewCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessDragEnd(_event: DragEvent, _cell: ViewCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessDrop(_event: DragEvent, _cell: ViewCell | null | undefined) {
         // for descendants
     }
 
@@ -1713,21 +1741,21 @@ export class Revgrid {
      * Pair with endSelectionChange().
      */
     beginSelectionChange() {
-        this._selectionBehavior.beginSelectionChange();
+        this.selection.beginChange();
     }
 
     /** Call after multiple selection changes to consolidate SelectionChange events.
      * Pair with beginSelectionChange().
      */
     endSelectionChange() {
-        this._selectionBehavior.endSelectionChange();
+        this.selection.endChange();
     }
 
     /**
      * @desc Clear all the selections.
      */
     clearSelection() {
-        return this._selectionBehavior.clearSelection();
+        return this.selection.clear();
         // const keepRowSelections = this.properties.checkboxOnlyRowSelections;
         // this.selection.clear(keepRowSelections);
         // this._userInterfaceInputBehavior.clearMouseDown();
@@ -1742,7 +1770,7 @@ export class Revgrid {
         if (subgrid === undefined) {
             subgrid = this.behaviorManager.mainSubgrid;
         }
-        return this._selectionBehavior.isCellSelectedInAnyAreaType(x, y, subgrid);
+        return this.selection.isCellSelectedInAnyAreaType(x, y, subgrid);
     }
 
     isColumnOrRowSelected() {
@@ -1761,23 +1789,19 @@ export class Revgrid {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
-        this._selectionBehavior.selectOnlyRectangle(exclusiveX, exclusiveY, ex, ey, subgrid);
+        this._selectionBehavior.focusSelectOnlyRectangle(exclusiveX, exclusiveY, ex, ey, subgrid);
     }
 
-    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
-        this._selectionBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, areaTypeSpecifier);
+    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType = SelectionArea.Type.Rectangle) {
+        this._selectionBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, areaType);
     }
 
-    selectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaTypeSpecifier?: SelectionArea.TypeSpecifier) {
+    selectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaType = SelectionArea.Type.Rectangle) {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
 
-        if (areaTypeSpecifier === undefined) {
-            areaTypeSpecifier = SelectionArea.TypeSpecifier.Primary;
-        }
-
-        this._selectionBehavior.selectOnlyCell(x, y, subgrid, areaTypeSpecifier);
+        this._selectionBehavior.focusSelectOnlyCell(x, y, subgrid, areaType);
     }
 
     selectOnlyRow(subgridRowIndex: number, subgrid: SubgridInterface) {
@@ -1785,7 +1809,7 @@ export class Revgrid {
     }
 
     selectAllRows() {
-        this._selectionBehavior.selectAllRows();
+        this.selection.selectAllRows(this._subgridsManager.mainSubgrid);
     }
 
     // toggleSelectAllRows(forceClearRows = true) {
@@ -1986,13 +2010,6 @@ export class Revgrid {
     // Begin Scrolling Mixin
 
     /**
-     * @returns The `scrollingNow` field.
-     */
-    isScrollingNow() {
-        return this._focusScrollBehavior.isScrollingActive();
-    }
-
-    /**
      * @summary Scroll horizontally by the provided offset.
      * @param offset - Scroll in the x direction this much.
      * @returns true if scrolled
@@ -2005,8 +2022,8 @@ export class Revgrid {
         this.viewLayout.scrollHorizontalViewportBy(delta);
     }
 
-    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaTypeSpecifier = SelectionArea.TypeSpecifier.Primary) {
-        this._selectionBehavior.selectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaTypeSpecifier);
+    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionArea.Type.Rectangle) {
+        this._selectionBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
     }
 
     /**
@@ -2089,6 +2106,13 @@ export class Revgrid {
             mouseMove: (event, cell) => this.descendantProcessMouseMove(event, cell),
             mouseOut: (event, cell) => this.descendantProcessMouseOut(event, cell),
             wheelMove: (event, cell) => this.descendantProcessWheelMove(event, cell),
+            drag: (event, cell) => this.descendantProcessDrag(event, cell),
+            dragStart: (event, cell) => this.descendantProcessDragStart(event, cell),
+            dragEnter: (event, cell) => this.descendantProcessDragEnter(event, cell),
+            dragOver: (event, cell) => this.descendantProcessDragOver(event, cell),
+            dragLeave: (event, cell) => this.descendantProcessDragLeave(event, cell),
+            dragEnd: (event, cell) => this.descendantProcessDragEnd(event, cell),
+            drop: (event, cell) => this.descendantProcessDrop(event, cell),
             contextMenu: (event, cell) => this.descendantProcessContextMenu(event, cell),
             mouseDragStart: (event, cell) => this.descendantProcessMouseDragStart(event, cell),
             mouseDrag: (event, cell) => this.descendantProcessMouseDrag(event, cell),

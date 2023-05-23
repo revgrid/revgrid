@@ -21,7 +21,7 @@ export class ButtonCellPainter implements CellPainter {
     // (undocumented)
     config: ButtonCellPainter.Config;
     // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
+    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -40,7 +40,8 @@ export namespace ButtonCellPainter {
 }
 
 // @public (undocumented)
-export class CanvasRenderingContext2DEx {
+export class CachedCanvasRenderingContext2D {
+    // @internal
     constructor(canvasRenderingContext2D: CanvasRenderingContext2D);
     // (undocumented)
     alpha(cssColorSpec: string | undefined): number;
@@ -49,7 +50,7 @@ export class CanvasRenderingContext2DEx {
     // (undocumented)
     beginPath(): void;
     // (undocumented)
-    readonly cache: CanvasRenderingContext2DEx.Cache;
+    readonly cache: CachedCanvasRenderingContext2D.Cache;
     // (undocumented)
     clearFill(x: number, y: number, width: number, height: number, color: string): void;
     // (undocumented)
@@ -75,10 +76,10 @@ export class CanvasRenderingContext2DEx {
     // (undocumented)
     getImageData(sx: number, sy: number, sw: number, sh: number): ImageData;
     // (undocumented)
-    getTextHeight(font: string): CanvasRenderingContext2DEx.TextHeight;
+    getTextHeight(font: string): CachedCanvasRenderingContext2D.TextHeight;
     getTextWidth(string: string): number;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    getTextWidthTruncated(this: CanvasRenderingContext2DEx, text: string, width: number, truncateType: TextTruncateType | undefined, abort: boolean, truncateFromEnd: boolean): CanvasRenderingContext2DEx.TruncatedTextWidth;
+    getTextWidthTruncated(this: CachedCanvasRenderingContext2D, text: string, width: number, truncateType: TextTruncateType | undefined, abort: boolean, truncateFromEnd: boolean): CachedCanvasRenderingContext2D.TruncatedTextWidth;
     // (undocumented)
     lineTo(x: number, y: number): void;
     // (undocumented)
@@ -100,13 +101,14 @@ export class CanvasRenderingContext2DEx {
 }
 
 // @public (undocumented)
-export namespace CanvasRenderingContext2DEx {
+export namespace CachedCanvasRenderingContext2D {
     const // (undocumented)
     ALPHA_REGEX: RegExp;
     const // (undocumented)
     ELLIPSIS = "\u2026";
     // (undocumented)
     export class Cache implements Cache.Values {
+        // @internal
         constructor(_canvasRenderingContext2D: CanvasRenderingContext2D);
         // (undocumented)
         get fillStyle(): string | CanvasGradient;
@@ -255,7 +257,7 @@ export namespace CellEditor {
         readonly beforeCellBackground: boolean;
         readonly beforeCellBorder: boolean;
         readonly beforeCellContent: boolean;
-        paint(gc: CanvasRenderingContext2DEx, cell: ViewCell, cellSettingsAccessor: CellSettingsAccessor): number | undefined;
+        paint(gc: CachedCanvasRenderingContext2D, cell: ViewCell, cellSettingsAccessor: CellSettingsAccessor): number | undefined;
         readonly paintCellBackground: boolean;
         readonly paintCellBorder: boolean;
         readonly paintCellContent: boolean;
@@ -267,13 +269,13 @@ export namespace CellEditor {
 // @public
 export interface CellPainter {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    paint(gc: CanvasRenderingContext2DEx, prefillColor: string | undefined): number | undefined;
+    paint(gc: CachedCanvasRenderingContext2D, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
 export namespace CellPainter {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    export function roundRect(gc: CanvasRenderingContext2DEx, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean): void;
+    export function roundRect(gc: CachedCanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean): void;
 }
 
 // @public (undocumented)
@@ -371,7 +373,6 @@ export interface ColumnInterface {
     checkColumnAutosizing(force: boolean): boolean;
     // (undocumented)
     getWidth(): number;
-    // (undocumented)
     readonly index: number;
     // (undocumented)
     readonly name: string;
@@ -764,14 +765,25 @@ export namespace EventDetail {
         readonly time: number;
     }
     // (undocumented)
+    export type DragType = keyof typeof DragTypeEnum;
+    // (undocumented)
+    export const enum DragTypeEnum {
+        // (undocumented)
+        ExtendLastColumnSelectionArea = "RevgridExtendLastColumnSelectionArea",
+        // (undocumented)
+        ExtendLastRectangleSelectionArea = "RevgridExtendLastRectangleSelectionArea",
+        // (undocumented)
+        ExtendLastRowSelectionArea = "RevgridExtendLastRowSelectionArea"
+    }
+    // (undocumented)
     export interface Grid {
         // (undocumented)
         readonly time: number;
     }
-    // Warning: (ae-forgotten-export) The symbol "CanvasEx" needs to be exported by the entry point public-api.d.ts
+    // Warning: (ae-forgotten-export) The symbol "CanvasManager" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    export type Keyboard = CanvasEx.RevgridKeyboardEvent;
+    export type Keyboard = CanvasManager.RevgridKeyboardEvent;
     // (undocumented)
     export interface Mouse extends MouseEvent {
         // (undocumented)
@@ -934,18 +946,24 @@ export namespace EventName {
 // @public (undocumented)
 export class Focus {
     // Warning: (ae-forgotten-export) The symbol "ViewLayout" needs to be exported by the entry point public-api.d.ts
-    constructor(_mainSubgrid: SubgridInterface, _columnsManager: ColumnsManager, _viewLayout: ViewLayout, _cellInvalidatedEventer: Focus.CellInvalidatedEventer);
-    // (undocumented)
+    //
+    // @internal
+    constructor(
+    _mainSubgrid: SubgridInterface,
+    _columnsManager: ColumnsManager,
+    _viewLayout: ViewLayout,
+    _cellInvalidatedEventer: Focus.CellInvalidatedEventer);
+    // @internal (undocumented)
     adjustForColumnsDeleted(columnIndex: number, columnCount: number): void;
-    // (undocumented)
+    // @internal (undocumented)
     adjustForColumnsInserted(columnIndex: number, columnCount: number): void;
-    // (undocumented)
+    // @internal (undocumented)
     adjustForColumnsMoved(oldColumnIndex: number, newColumnIndex: number, count: number): void;
-    // (undocumented)
+    // @internal (undocumented)
     adjustForRowsDeleted(rowIndex: number, rowCount: number, dataModel: DataModel): void;
-    // (undocumented)
+    // @internal (undocumented)
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataModel: DataModel): void;
-    // (undocumented)
+    // @internal (undocumented)
     adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataModel: DataModel): void;
     // (undocumented)
     get canvasX(): number | undefined;
@@ -958,7 +976,7 @@ export class Focus {
     closeAndCheckTryOpenEditor(cancel: boolean, cell: ViewCell | undefined): void;
     // (undocumented)
     closeEditor(cancel: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     createStash(): Focus.Stash;
     // (undocumented)
     get currentSubgridPoint(): Point | undefined;
@@ -968,7 +986,7 @@ export class Focus {
     get currentSubgridY(): number | undefined;
     // (undocumented)
     get editor(): CellEditor | undefined;
-    // (undocumented)
+    // @internal (undocumented)
     getCellEditorEventer: Focus.GetCellEditorEventer | undefined;
     // (undocumented)
     isActiveColumnFocused(activeColumnIndex: number): boolean;
@@ -984,9 +1002,9 @@ export class Focus {
     isSubgridRowFocused(subgridRowIndex: number, subgrid: SubgridInterface): boolean;
     // (undocumented)
     get previousSubgridPoint(): Point | undefined;
-    // (undocumented)
+    // @internal (undocumented)
     reset(): void;
-    // (undocumented)
+    // @internal (undocumented)
     restoreStash(stash: Focus.Stash): void;
     // Warning: (ae-forgotten-export) The symbol "PartialPoint" needs to be exported by the entry point public-api.d.ts
     //
@@ -1007,18 +1025,18 @@ export class Focus {
 
 // @public (undocumented)
 export namespace Focus {
-    // (undocumented)
+    // @internal (undocumented)
     export type CellInvalidatedEventer = (this: void, cell: ViewCell) => void;
-    // (undocumented)
+    // @internal (undocumented)
     export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor | undefined;
-    // (undocumented)
+    // @internal (undocumented)
     export interface Stash {
         // (undocumented)
         readonly current: Stash.Point | undefined;
         // (undocumented)
         readonly previous: Stash.Point | undefined;
     }
-    // (undocumented)
+    // @internal (undocumented)
     export namespace Stash {
         // (undocumented)
         export interface Point {
@@ -1196,8 +1214,8 @@ export interface GridSettings {
     maxSortColumns: number;
     // (undocumented)
     minimumColumnWidth: number;
-    mouseCellSelection: boolean;
     mouseColumnSelection: boolean;
+    mouseRectangleSelection: boolean;
     mouseRowSelection: boolean;
     multipleSelectionAreas: boolean;
     navKeyMap: GridSettings.NavKeyMap;
@@ -1234,7 +1252,7 @@ export interface GridSettings {
     scrollingEnabled: boolean;
     secondarySelectionAreaType: SelectionArea.Type;
     // (undocumented)
-    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum;
+    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
     selectionRegionOutlineColor: GridSettings.Color;
     selectionRegionOverlayColor: GridSettings.Color;
     // (undocumented)
@@ -1282,6 +1300,10 @@ export namespace GridSettings {
     // (undocumented)
     export type FeedbackEffect = string;
     // (undocumented)
+    export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): SelectionArea.Type;
+    // (undocumented)
+    export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): SelectionArea.TypeSpecifier.Primary | SelectionArea.TypeSpecifier.Secondary;
+    // (undocumented)
     export interface HoverColors {
         backgroundColor?: string;
         enabled?: boolean;
@@ -1297,17 +1319,13 @@ export namespace GridSettings {
         }
     }
     // (undocumented)
-    export function isAddToggleSelectionAreaModifierKeyDownInKeyboardEvent(gridProperties: GridSettings, keyboardEvent: KeyboardEvent): boolean;
+    export function isAddToggleSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
-    export function isAddToggleSelectionAreaModifierKeyDownInMouseEvent(gridProperties: GridSettings, mouseEvent: MouseEvent): boolean;
+    export function isExtendLastSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
-    export function isExtendLastSelectionAreaModifierKeyDownInKeyboardEvent(gridProperties: GridSettings, keyboardEvent: KeyboardEvent): boolean;
+    export function isMouseSelectionAllowed(gridSettings: GridSettings, selectionAreaType: SelectionArea.Type): boolean;
     // (undocumented)
-    export function isExtendLastSelectionAreaModifierKeyDownInMouseEvent(gridProperties: GridSettings, mouseEvent: MouseEvent): boolean;
-    // (undocumented)
-    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInKeyboardEvent(gridProperties: GridSettings, keyboardEvent: KeyboardEvent): boolean;
-    // (undocumented)
-    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInMouseEvent(gridProperties: GridSettings, mouseEvent: MouseEvent): boolean;
+    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
     export type LinkFunction = (this: void, cellEvent: unknown) => string;
     // (undocumented)
@@ -1465,6 +1483,41 @@ export namespace MetaModel {
 
 // @public (undocumented)
 export type ModelUpdateId = number;
+
+// @public (undocumented)
+export class Mouse {
+    // @internal
+    constructor(
+    _canvasEx: CanvasManager,
+    _viewLayout: ViewLayout,
+    _cellEnteredEventer: Mouse.CellEventer,
+    _cellExitedEventer: Mouse.CellEventer);
+    // (undocumented)
+    get hoverCell(): ViewCell | undefined;
+    // @internal (undocumented)
+    reset(): void;
+    // (undocumented)
+    get scrolling(): boolean;
+    // @internal (undocumented)
+    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, hoverCell: ViewCell | undefined): void;
+    // @internal (undocumented)
+    setOperationCursor(cursorName: string | undefined): void;
+    // @internal (undocumented)
+    setScrolling(value: boolean): void;
+}
+
+// @public (undocumented)
+export namespace Mouse {
+    // @internal (undocumented)
+    export type CellEventer = (this: void, cell: ViewCell, invalidateViewCellRender: boolean) => void;
+    // @internal (undocumented)
+    export interface CursorNameAndTitleText {
+        // (undocumented)
+        readonly cursorName: string | undefined;
+        // (undocumented)
+        readonly titleText: string;
+    }
+}
 
 // @public (undocumented)
 export class OptionsError extends RevgridError {
@@ -1788,7 +1841,7 @@ export class Revgrid {
     addCellOwnPropertiesUsingCellEvent(cell: ViewCell, properties: MetaModel.CellOwnProperties): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    addEventListener(eventName: string, listener: CanvasEx.EventListener): void;
+    addEventListener(eventName: string, listener: CanvasManager.EventListener): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addSettings(settings: Partial<GridSettings>): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -1820,7 +1873,7 @@ export class Revgrid {
     // (undocumented)
     canvasDiv: HTMLDivElement;
     // (undocumented)
-    readonly canvasEx: CanvasEx;
+    readonly canvasEx: CanvasManager;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     checkColumnAutosizing(): boolean;
     clearAllCellProperties(x?: number): void;
@@ -1858,6 +1911,20 @@ export class Revgrid {
     protected descendantProcessContextMenu(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessCopy(_event: ClipboardEvent): void;
+    // (undocumented)
+    protected descendantProcessDrag(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
+    protected descendantProcessDragEnd(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
+    protected descendantProcessDragEnter(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
+    protected descendantProcessDragLeave(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
+    protected descendantProcessDragOver(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
+    protected descendantProcessDragStart(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
+    protected descendantProcessDrop(_event: DragEvent, _cell: ViewCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessHorizontalScrollerAction(_event: EventDetail.ScrollerAction): void;
     // (undocumented)
@@ -1918,7 +1985,7 @@ export class Revgrid {
     // (undocumented)
     readonly focus: Focus;
     // (undocumented)
-    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaTypeSpecifier?: SelectionArea.TypeSpecifier): void;
+    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType?: SelectionArea.Type): void;
     // (undocumented)
     formatValue(localizerName: string | undefined, value: unknown): string;
     // (undocumented)
@@ -2022,8 +2089,6 @@ export class Revgrid {
     isDataVisible(c: number, rn: number): boolean;
     // (undocumented)
     isPointSelected(x: number, y: number, subgrid?: Subgrid): boolean;
-    // (undocumented)
-    isScrollingNow(): boolean;
     isWebkit: boolean;
     // (undocumented)
     loadDefaultSettings(): void;
@@ -2033,8 +2098,6 @@ export class Revgrid {
     //
     // (undocumented)
     localization: Localization;
-    // Warning: (ae-forgotten-export) The symbol "Mouse" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     readonly mouse: Mouse;
     // (undocumented)
@@ -2067,7 +2130,7 @@ export class Revgrid {
     removeAttribute(attribute: string): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    removeEventListener(eventName: string, listener: CanvasEx.EventListener): void;
+    removeEventListener(eventName: string, listener: CanvasManager.EventListener): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
@@ -2087,13 +2150,13 @@ export class Revgrid {
     // (undocumented)
     readonly selection: Selection_2;
     // (undocumented)
-    selectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaTypeSpecifier?: SelectionArea.TypeSpecifier): void;
+    selectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaType?: SelectionArea.Type): void;
     // (undocumented)
     selectOnlyRow(subgridRowIndex: number, subgrid: SubgridInterface): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     selectRectangle(exclusiveX: number, exclusiveY: number, ex: number, ey: number, subgrid?: SubgridInterface): void;
     // (undocumented)
-    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaTypeSpecifier?: SelectionArea.TypeSpecifier): void;
+    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType?: SelectionArea.Type): void;
     // (undocumented)
     setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]): void;
     // (undocumented)
@@ -2850,7 +2913,7 @@ export class SliderCellPainter implements CellPainter {
     // (undocumented)
     config: SliderCellPainter.Config;
     // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
+    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -2875,7 +2938,7 @@ export class SparkBarCellPainter implements CellPainter {
     // (undocumented)
     config: SparkBarCellPainter.Config;
     // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
+    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -2904,7 +2967,7 @@ export class SparkLineCellPainter implements CellPainter {
     // (undocumented)
     config: SparkLineCellPainter.Config;
     // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
+    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3036,7 +3099,6 @@ export interface SubgridDefinition {
     getCellPainterEventer: SubgridDefinition.GetCellPainterEventer;
     // (undocumented)
     metaModel?: MetaModel | MetaModel.Constructor;
-    // (undocumented)
     role?: SubgridInterface.Role;
     // (undocumented)
     rowPropertiesCanSpecifyRowHeight?: boolean;
@@ -3129,7 +3191,7 @@ export namespace SubgridInterface {
 // @public (undocumented)
 export class TagCellPainter implements CellPainter {
     // (undocumented)
-    paint(_gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined;
+    paint(_gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3152,7 +3214,7 @@ export namespace TagCellPainter {
 // @public
 export class TextCellPainter implements CellPainter {
     // (undocumented)
-    paint(gc: CanvasRenderingContext2DEx, prefillColor: string | undefined): number | undefined;
+    paint(gc: CachedCanvasRenderingContext2D, prefillColor: string | undefined): number | undefined;
     // (undocumented)
     setCell(cell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined, grid: Revgrid): void;
 }
@@ -3177,7 +3239,9 @@ export class UnreachableCaseError extends RevgridError {
 
 // @public (undocumented)
 export class ViewCell {
-    constructor(_columnsManager: ColumnsManager);
+    // @internal
+    constructor(
+    _columnsManager: ColumnsManager);
     get bounds(): ViewCell.Bounds;
     // (undocumented)
     cellOwnProperties: MetaModel.CellOwnProperties | undefined;
@@ -3186,54 +3250,50 @@ export class ViewCell {
     // (undocumented)
     get columnProperties(): ColumnSettings;
     // (undocumented)
-    format: string;
-    // (undocumented)
     getRowProperties(): MetaModel.RowProperties | undefined;
     // (undocumented)
     getRowProperty(key: string): unknown;
-    // (undocumented)
-    get isCellFixed(): boolean;
     get isCellVisible(): boolean;
     // (undocumented)
     get isColumnFixed(): boolean;
     get isColumnVisible(): boolean;
-    get isDataCell(): boolean;
     // (undocumented)
-    get isFilterCell(): boolean;
+    get isFilter(): boolean;
     // (undocumented)
-    get isFilterRow(): boolean;
+    get isFixed(): boolean;
     // (undocumented)
-    get isHeaderCell(): boolean;
+    get isHeader(): boolean;
     // (undocumented)
-    get isHeaderRow(): boolean;
+    get isHeaderOrRowFixed(): boolean;
+    get isMain(): boolean;
     get isMainRow(): boolean;
     // (undocumented)
     get isRowFixed(): boolean;
     get isRowVisible(): boolean;
     // (undocumented)
-    get isSummaryCell(): boolean;
-    // (undocumented)
-    get isSummaryRow(): boolean;
-    // (undocumented)
+    get isSummary(): boolean;
+    // @internal
     paintFingerprint: ViewCell.PaintFingerprint | undefined;
-    // (undocumented)
+    // @internal
     reset(viewLayoutColumn: ViewLayoutColumn, viewLayoutRow: ViewLayoutRow): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    //
+    // @internal
     resetGridXY(vc: ViewLayoutColumn | undefined, vr: ViewLayoutRow | undefined): boolean;
     // (undocumented)
     setRowPropertyRC(key: string, value: unknown): void;
     // (undocumented)
-    subgrid: SubgridInterface;
+    get subgrid(): SubgridInterface;
     get value(): DataModel.DataValue;
     set value(value: DataModel.DataValue);
     // Warning: (ae-forgotten-export) The symbol "ViewLayoutColumn" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    viewLayoutColumn: ViewLayoutColumn;
+    get viewLayoutColumn(): ViewLayoutColumn;
     // Warning: (ae-forgotten-export) The symbol "ViewLayoutRow" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    viewLayoutRow: ViewLayoutRow;
+    get viewLayoutRow(): ViewLayoutRow;
 }
 
 // @public (undocumented)
@@ -3241,7 +3301,7 @@ export namespace ViewCell {
     // (undocumented)
     export interface Bounds extends RectangleInterface {
     }
-    // (undocumented)
+    // @internal (undocumented)
     export type PaintFingerprint = Record<string, unknown>;
     // (undocumented)
     export function sameByDataPoint(left: ViewCell, right: ViewCell): boolean;
@@ -3263,7 +3323,7 @@ export namespace WritablePoint {
 
 // Warnings were encountered during analysis:
 //
-// src/code/grid/components/selection/selection.ts:20:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/components/selection/selection.ts:19:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 // src/code/grid/components/view/view-layout.ts:26:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)

@@ -1,18 +1,18 @@
 import { GridSettings } from '../../interfaces/grid-settings';
 import { HorizontalVertical } from '../../lib/types';
-import { CanvasEx } from '../canvas-ex/canvas-ex';
+import { CanvasManager } from '../canvas/canvas-manager';
 import { ColumnsManager } from '../column/columns-manager';
 import { ScrollDimension } from './scroll-dimension';
 
 export class HorizontalScrollDimension extends ScrollDimension {
     constructor(
         private readonly _gridSettings: GridSettings,
-        canvasEx: CanvasEx,
+        canvasManager: CanvasManager,
         private readonly _columnsManager: ColumnsManager,
     ) {
         super(
             HorizontalVertical.Horizontal,
-            canvasEx,
+            canvasManager,
         );
     }
 

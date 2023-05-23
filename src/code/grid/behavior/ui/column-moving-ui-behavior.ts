@@ -83,7 +83,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                 this.gridSettings.columnsReorderable &&
                 !isSecondaryMouseButton(event) &&
                 !cell.isColumnFixed &&
-                cell.isHeaderCell
+                cell.isHeader
             ) {
                 this.sharedState.columnMovingDragArmed = true;
                 this.cursor = ColumnMovingUiBehavior.GRABBING;
@@ -131,7 +131,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             if (cell === undefined) {
                 cell = this.tryGetViewCellFromMouseEvent(event);
             }
-            if (cell !== null && !cell.isColumnFixed && cell.isHeaderCell) {
+            if (cell !== null && !cell.isColumnFixed && cell.isHeader) {
                 this.cursor = ColumnMovingUiBehavior.GRAB;
             } else {
                 this.cursor = undefined;
@@ -164,8 +164,8 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             if (cell !== null) {
                 if (!this.sharedState.columnMovingDragging) {
                     this._dragCol = cell.viewLayoutColumn;
-                    this._dragOverlay.width = this.canvasEx.width;
-                    this._dragOverlay.height = this.canvasEx.height;
+                    this._dragOverlay.width = this.canvasManager.flooredContainerWidth;
+                    this._dragOverlay.height = this.canvasManager.flooredContainerHeight;
                     this._dragOverlay.style.display = '';
                     this.sharedState.columnMovingDragging = true;
                     this.detachChain();
@@ -219,9 +219,9 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         if (dragContext === null) {
             throw new AssertError('CMR18887');
         } else {
-            this._dragOverlay.width = this.canvasEx.width;
-            this._dragOverlay.height = this.canvasEx.height;
-            dragContext.clearRect(0, 0, this.canvasEx.width, this.canvasEx.height);
+            this._dragOverlay.width = this.canvasManager.flooredContainerWidth;
+            this._dragOverlay.height = this.canvasManager.flooredContainerHeight;
+            dragContext.clearRect(0, 0, this.canvasManager.flooredContainerWidth, this.canvasManager.flooredContainerHeight);
 
             if (dragAction !== undefined) {
 
@@ -230,7 +230,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                         ? dragAction.target.left
                         : dragAction.target.rightPlus1;
                     dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
-                    dragContext.fillRect(indicatorX, 0, 2, this.canvasEx.height);
+                    dragContext.fillRect(indicatorX, 0, 2, this.canvasManager.flooredContainerHeight);
                 }
 
                 const dragCol = this.viewLayout.findColumnWithActiveIndex(this._dragCol.activeColumnIndex);
@@ -239,7 +239,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                     dragContext.fillStyle = hideAction
                         ? 'rgba(255, 50, 50, 0.2)'
                         : 'rgba(50, 50, 255, 0.2)';
-                    dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasEx.height);
+                    dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasManager.flooredContainerHeight);
                 }
             }
         }
@@ -281,7 +281,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                     source: dragCol
                 };
             } else {
-                const gridWidth = this.canvasEx.bounds.width;
+                const gridWidth = this.canvasManager.bounds.width;
                 if (offsetX >= gridWidth) {
                     return {
                         type: DragActionType.Scroll,

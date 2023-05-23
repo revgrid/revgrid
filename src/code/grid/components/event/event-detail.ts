@@ -1,6 +1,6 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
 import { ColumnInterface } from '../../interfaces/column-interface';
-import { CanvasEx } from '../canvas-ex/canvas-ex';
+import { CanvasManager } from '../canvas/canvas-manager';
 import { ViewCell } from '../cell/view-cell';
 
 /** @public */
@@ -19,7 +19,7 @@ export namespace EventDetail {
         revgridViewCell?: ViewCell;
     }
 
-    export type Keyboard = CanvasEx.RevgridKeyboardEvent;
+    export type Keyboard = CanvasManager.RevgridKeyboardEvent;
 
         // export interface EditorKeyboard extends Keyboard {
     //     readonly time: number;
@@ -79,4 +79,12 @@ export namespace EventDetail {
         readonly schemaColumnIndex: number;
         readonly columnCount: number;
     }
+
+    export const enum DragTypeEnum {
+        ExtendLastRectangleSelectionArea = 'RevgridExtendLastRectangleSelectionArea',
+        ExtendLastColumnSelectionArea = 'RevgridExtendLastColumnSelectionArea',
+        ExtendLastRowSelectionArea = 'RevgridExtendLastRowSelectionArea',
+    }
+
+    export type DragType = keyof typeof DragTypeEnum;
 }

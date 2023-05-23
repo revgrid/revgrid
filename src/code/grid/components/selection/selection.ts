@@ -9,7 +9,6 @@ import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { SelectionArea } from '../../lib/selection-area';
 import { calculateNumberArrayUniqueCount } from '../../lib/utils';
 import { ColumnsManager } from '../column/columns-manager';
-import { Focus } from '../focus/focus';
 import { LastSelectionArea } from './last-selection-area';
 import { SelectionRangeList } from './selection-range-list';
 import { SelectionRectangle } from './selection-rectangle';
@@ -21,11 +20,14 @@ import { SelectionRectangleList } from './selection-rectangle-list';
  */
 
 export class Selection {
+    changedEventerForRenderer: Selection.ChangedEventer;
+    changedEventerForEventBehavior: Selection.ChangedEventer;
+
     readonly rows = new SelectionRangeList();
     readonly columns = new SelectionRangeList();
     readonly rectangleList = new SelectionRectangleList();
 
-    private _subgrid: SubgridInterface;
+    private _subgrid: SubgridInterface | undefined;
     private _lastArea: LastSelectionArea | undefined;
     private _allRowsSelected = false;
 
@@ -36,40 +38,32 @@ export class Selection {
     private _snapshot: Selection | undefined;
 
     constructor(
-        private readonly _gridProperties: GridSettings,
+        private readonly _gridSettings: GridSettings,
         private readonly _columnsManager: ColumnsManager,
-        private readonly _focus: Focus,
-        private readonly _mainSubgrid: SubgridInterface,
-        private readonly _changedEventer: Selection.ChangedEventer,
-        ) {
-        this._subgrid = this._mainSubgrid;
+    ) {
     }
 
     get subgrid() { return this._subgrid; }
 
-    get hasRectangles() { return this.rectangleList.has; }
-
-    get allRowsSelected() { return this._allRowsSelected; }
-    set allRowsSelected(value: boolean) {
-        this.beginChange();
-        if (value !== this._allRowsSelected) {
-            this._allRowsSelected = value;
-            this._changed = true;
-        }
-        this.endChange();
-    }
-
     get areaCount(): number { return this.rectangleList.areaCount + this.rows.areaCount + this.columns.areaCount; }
     get lastArea() { return this._lastArea; }
+
+    get allRowsSelected() { return this._allRowsSelected; }
 
     destroy() {
         //
     }
 
+    /** Call before multiple selection changes to consolidate Selection Change events.
+     * Pair with endChange().
+     */
     beginChange() {
         ++this._beginChangeCount;
     }
 
+    /** Call after multiple selection changes to consolidate SelectionChange events.
+     * Pair with beginSelectionChange().
+     */
     endChange() {
         if (--this._beginChangeCount === 0) {
             if (this._changed) {
@@ -90,7 +84,8 @@ export class Selection {
                 // }
 
                 if (!silentlyChanged) {
-                    this._changedEventer();
+                    this.changedEventerForRenderer();
+                    this.changedEventerForEventBehavior();
                 }
             }
         } else {
@@ -105,6 +100,7 @@ export class Selection {
         this.rows.assign(other.rows);
         this.columns.assign(other.columns);
         this._allRowsSelected = other._allRowsSelected;
+        this._subgrid = other._subgrid;
     }
 
     createStash(): Selection.Stash {
@@ -112,6 +108,7 @@ export class Selection {
         const columnNames = this.createColumnsStash();
 
         return {
+            subgrid: this._subgrid,
             allRowsSelected: this.allRowsSelected,
             rowIds,
             columnNames,
@@ -122,7 +119,8 @@ export class Selection {
         this.beginChange();
         try {
             this.clear();
-            this.allRowsSelected = stash.allRowsSelected;
+            this._subgrid = stash.subgrid;
+            this._allRowsSelected = stash.allRowsSelected;
             this.restoreRowsStash(stash.rowIds);
             this.restoreColumnsStash(stash.columnNames);
         } finally {
@@ -132,13 +130,8 @@ export class Selection {
 
     saveSnapshot() {
         this._snapshot = new Selection(
-            this._gridProperties,
+            this._gridSettings,
             this._columnsManager,
-            this._focus,
-            this._subgrid,
-            () => {
-                throw new AssertError('SSS40912');
-            },
         );
         this._snapshot.assign(this);
     }
@@ -212,48 +205,42 @@ export class Selection {
         }
     }
 
-    selectOnlyCell(x: number, y: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+    selectOnlyCell(x: number, y: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
         this.beginChange();
         try {
             this.clear();
-            this.selectCell(x, y, subgrid, areaTypeSpecifier);
+            this.selectCell(x, y, subgrid, areaType);
         } finally {
             this.endChange();
         }
     }
 
-    selectCell(x: number, y: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+    selectCell(x: number, y: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
         this.beginChange();
         try {
             if (subgrid !== this._subgrid) {
                 this.clear();
                 this._subgrid = subgrid;
             }
-            this.selectArea(x, y, 1, 1, subgrid, areaTypeSpecifier);
+            this.selectArea(x, y, 1, 1, subgrid, areaType);
         } finally {
             this.endChange();
         }
     }
 
-    deselectCellArea(x: number, y: number) {
+    deselectCellArea(x: number, y: number, subgrid: SubgridInterface) {
         const rectangle: RectangleInterface = {
             x,
             y,
             width: 1,
             height: 1,
         }
-        this.deselectRectangle(rectangle)
+        this.deselectRectangle(rectangle, subgrid);
     }
 
-    selectArea(firstExclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaTypeSpecifier: SelectionArea.TypeSpecifier) {
+    selectArea(firstExclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
         this.beginChange();
         try {
-            if (subgrid !== this._subgrid) {
-                this.clear();
-                this._subgrid = subgrid;
-            }
-
-            const areaType = this.calculateAreaType(areaTypeSpecifier);
             let area: SelectionArea;
             switch (areaType) {
                 case SelectionArea.Type.Rectangle: {
@@ -282,30 +269,40 @@ export class Selection {
         const lastArea = this._lastArea;
         this._lastArea = undefined;
         if (lastArea !== undefined) {
-            switch (lastArea.areaType) {
-                case SelectionArea.Type.Rectangle: {
-                    this.deselectRectangle(lastArea);
-                    break;
+            const subgrid = this._subgrid;
+            if (subgrid === undefined) {
+                throw new AssertError('SDLA13690');
+            } else {
+                switch (lastArea.areaType) {
+                    case SelectionArea.Type.Rectangle: {
+                        this.deselectRectangle(lastArea, subgrid);
+                        break;
+                    }
+                    case SelectionArea.Type.Column: {
+                        this.deselectColumns(lastArea.x, lastArea.width, subgrid);
+                        break;
+                    }
+                    case SelectionArea.Type.Row: {
+                        this.deselectRows(lastArea.y, lastArea.height, subgrid);
+                        break;
+                    }
+                    default:
+                        throw new UnreachableCaseError('SDLA34499', lastArea.areaType)
                 }
-                case SelectionArea.Type.Column: {
-                    this.deselectColumns(lastArea.x, lastArea.width);
-                    break;
-                }
-                case SelectionArea.Type.Row: {
-                    this.deselectRows(lastArea.y, lastArea.height);
-                    break;
-                }
-                default:
-                    throw new UnreachableCaseError('SDLA34499', lastArea.areaType)
             }
         }
     }
 
-    /**
-     * @description Select the region described by the given coordinates.
-     *
-     * @param silent - whether to fire selection changed event
-     */
+    selectOnlyRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
+        this.beginChange();
+        try {
+            this.clear();
+            return this.selectRectangle(exclusiveX, exclusiveY, width, height, subgrid);
+        } finally {
+            this.endChange();
+        }
+    }
+
     selectRectangle(firstExclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: SubgridInterface, silent = false) {
         this.beginChange();
         try {
@@ -320,7 +317,7 @@ export class Selection {
 
             const rectangle = new SelectionRectangle(firstExclusiveX, firstExclusiveY, width, height);
 
-            if (this._gridProperties.multipleSelectionAreas) {
+            if (this._gridSettings.multipleSelectionAreas) {
                 this.rectangleList.push(rectangle);
             } else {
                 this.rectangleList.only(rectangle);
@@ -336,14 +333,61 @@ export class Selection {
         return this._lastArea;
     }
 
-    deselectRectangle(rectangle: RectangleInterface) {
-        const index = this.rectangleList.findIndex(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-        if (index >= 0) {
-            const lastArea = this._lastArea;
-            if (lastArea !== undefined && RectangleInterface.isEqual(lastArea, rectangle)) {
-                this._lastArea = undefined;
+    deselectRectangle(rectangle: RectangleInterface, subgrid: SubgridInterface) {
+        if (subgrid === this._subgrid) {
+            const index = this.rectangleList.findIndex(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            if (index >= 0) {
+                const lastArea = this._lastArea;
+                if (lastArea !== undefined && RectangleInterface.isEqual(lastArea, rectangle)) {
+                    this._lastArea = undefined;
+                }
+                this.rectangleList.removeAt(index)
             }
-            this.rectangleList.removeAt(index)
+        }
+    }
+
+    selectOnlyAllRows(subgrid: SubgridInterface) {
+        this.beginChange();
+        if (subgrid !== this._subgrid || !this._allRowsSelected) {
+            this._changed = true;
+        }
+        this.clear();
+        if (this._changed) {
+            this._subgrid = subgrid;
+            this._allRowsSelected = true;
+        }
+        this.endChange();
+    }
+
+    selectAllRows(subgrid: SubgridInterface) {
+        this.beginChange();
+        if (!this._allRowsSelected) {
+            this._changed = true;
+        }
+        if (subgrid !== this._subgrid) {
+            this.clear();
+            this._subgrid = subgrid;
+            this._changed = true;
+        }
+        this._allRowsSelected = true;
+        this.endChange();
+    }
+
+    deselectAllRows() {
+        if (this._allRowsSelected) {
+            this.beginChange();
+            this._allRowsSelected = false;
+            this._changed = true;
+            this.endChange();
+        }
+    }
+
+    setAllRowsSelected(value: boolean) {
+        if (value !== this._allRowsSelected) {
+            this.beginChange();
+            this._allRowsSelected = value;
+            this._changed = true;
+            this.endChange();
         }
     }
 
@@ -369,35 +413,37 @@ export class Selection {
         }
     }
 
-    deselectRows(y: number, count: number) {
-        const changed = this.rows.delete(y, count);
-        if (changed) {
-            const lastArea = this._lastArea;
-            if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Row) {
-                const oldFirst = lastArea.exclusiveFirst;
-                const oldLast = lastArea.exclusiveLast;
-                const oldStart = oldFirst.y;
-                const oldLength = oldLast.y - oldStart;
-                const overlapRange = this.rows.calculateOverlapRange(oldStart, oldLength);
-                if (overlapRange === undefined) {
-                    this._lastArea = undefined;
-                } else {
-                    const lastX = oldFirst.x;
-                    const lastWidth = oldLast.x - lastX;
-                    const overlapStart = overlapRange.start;
-                    const overlapLength = overlapRange.length;
-                    let lastExclusiveY: number;
-                    let lastHeight: number;
-                    // set lastY and lastHeight so that last area still specifies the same corner
-                    if (oldLength >= 0) {
-                        lastExclusiveY = overlapStart;
-                        lastHeight = overlapLength;
+    deselectRows(y: number, count: number, subgrid: SubgridInterface) {
+        if (subgrid === this._subgrid) {
+            const changed = this.rows.delete(y, count);
+            if (changed) {
+                const lastArea = this._lastArea;
+                if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Row) {
+                    const oldFirst = lastArea.exclusiveFirst;
+                    const oldLast = lastArea.exclusiveLast;
+                    const oldStart = oldFirst.y;
+                    const oldLength = oldLast.y - oldStart;
+                    const overlapRange = this.rows.calculateOverlapRange(oldStart, oldLength);
+                    if (overlapRange === undefined) {
+                        this._lastArea = undefined;
                     } else {
-                        lastExclusiveY = overlapStart + overlapLength;
-                        lastHeight = -overlapLength;
-                    }
+                        const lastX = oldFirst.x;
+                        const lastWidth = oldLast.x - lastX;
+                        const overlapStart = overlapRange.start;
+                        const overlapLength = overlapRange.length;
+                        let lastExclusiveY: number;
+                        let lastHeight: number;
+                        // set lastY and lastHeight so that last area still specifies the same corner
+                        if (oldLength >= 0) {
+                            lastExclusiveY = overlapStart;
+                            lastHeight = overlapLength;
+                        } else {
+                            lastExclusiveY = overlapStart + overlapLength;
+                            lastHeight = -overlapLength;
+                        }
 
-                    this._lastArea = new LastSelectionArea(SelectionArea.Type.Row, lastX, lastExclusiveY, lastWidth, lastHeight);
+                        this._lastArea = new LastSelectionArea(SelectionArea.Type.Row, lastX, lastExclusiveY, lastWidth, lastHeight);
+                    }
                 }
             }
         }
@@ -422,37 +468,110 @@ export class Selection {
         return lastArea;
     }
 
-    deselectColumns(x: number, count: number) {
-        const changed = this.columns.delete(x, count);
-        if (changed) {
-            const lastArea = this._lastArea;
-            if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Column) {
-                const oldFirst = lastArea.exclusiveFirst;
-                const oldLast = lastArea.exclusiveLast;
-                const oldStart = oldFirst.x;
-                const oldLength = oldLast.x - oldStart;
-                const overlapRange = this.columns.calculateOverlapRange(oldStart, oldLength);
-                if (overlapRange === undefined) {
-                    this._lastArea = undefined;
-                } else {
-                    const lastY = oldFirst.y;
-                    const lastHeight = oldLast.y - lastY;
-                    const overlapStart = overlapRange.start;
-                    const overlapLength = overlapRange.length;
-                    let lastExclusiveX: number;
-                    let lastWidth: number;
-                    // set lastX and lastWidth so that last area still specifies the same corner
-                    if (oldLength >= 0) {
-                        lastExclusiveX = overlapStart;
-                        lastWidth = overlapLength;
+    deselectColumns(x: number, count: number, subgrid: SubgridInterface) {
+        if (subgrid === this._subgrid) {
+            const changed = this.columns.delete(x, count);
+            if (changed) {
+                const lastArea = this._lastArea;
+                if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Column) {
+                    const oldFirst = lastArea.exclusiveFirst;
+                    const oldLast = lastArea.exclusiveLast;
+                    const oldStart = oldFirst.x;
+                    const oldLength = oldLast.x - oldStart;
+                    const overlapRange = this.columns.calculateOverlapRange(oldStart, oldLength);
+                    if (overlapRange === undefined) {
+                        this._lastArea = undefined;
                     } else {
-                        lastExclusiveX = overlapStart + overlapLength;
-                        lastWidth = -overlapLength;
-                    }
+                        const lastY = oldFirst.y;
+                        const lastHeight = oldLast.y - lastY;
+                        const overlapStart = overlapRange.start;
+                        const overlapLength = overlapRange.length;
+                        let lastExclusiveX: number;
+                        let lastWidth: number;
+                        // set lastX and lastWidth so that last area still specifies the same corner
+                        if (oldLength >= 0) {
+                            lastExclusiveX = overlapStart;
+                            lastWidth = overlapLength;
+                        } else {
+                            lastExclusiveX = overlapStart + overlapLength;
+                            lastWidth = -overlapLength;
+                        }
 
-                    this._lastArea = new LastSelectionArea(SelectionArea.Type.Column, lastExclusiveX, lastY, lastWidth, lastHeight);
+                        this._lastArea = new LastSelectionArea(SelectionArea.Type.Column, lastExclusiveX, lastY, lastWidth, lastHeight);
+                    }
                 }
             }
+        }
+    }
+
+    replaceLastArea(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
+        this.beginChange();
+        try {
+            this.deselectLastArea();
+            return this.selectArea(exclusiveX, exclusiveY, width, height, subgrid, areaType);
+        } finally {
+            this.endChange();
+        }
+    }
+
+    replaceLastAreaWithRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
+        this.beginChange();
+        try {
+            this.deselectLastArea();
+            return this.selectRectangle(exclusiveX, exclusiveY, width, height, subgrid);
+        } finally {
+            this.endChange();
+        }
+    }
+
+    replaceLastAreaWithColumns(exclusiveX: number, y: number, width: number, height: number, subgrid: SubgridInterface) {
+        this.beginChange();
+        try {
+            this.deselectLastArea();
+            return this.selectColumns(exclusiveX, y, width, height, subgrid);
+        } finally {
+            this.endChange();
+        }
+    }
+
+    replaceLastAreaWithRows(exclusiveX: number, y: number, width: number, height: number, subgrid: SubgridInterface) {
+        this.beginChange();
+        try {
+            this.deselectLastArea();
+            return this.selectRows(exclusiveX, y, width, height, subgrid);
+        } finally {
+            this.endChange();
+        }
+    }
+
+    selectToggleCell(originX: number, originY: number, subgrid: SubgridInterface, areaType: SelectionArea.Type): boolean {
+        const cellCoveringSelectionAreas = this.getAreasCoveringCell(originX, originY, subgrid);
+        const priorityCoveringArea = SelectionArea.getPriorityCellCoveringSelectionArea(cellCoveringSelectionAreas);
+        if (priorityCoveringArea === undefined) {
+            this.selectCell(originX, originY, subgrid, areaType);
+            return true;
+        } else {
+            this.beginChange();
+            try {
+                const priorityCoveringAreaType = priorityCoveringArea.areaType;
+                switch (priorityCoveringAreaType) {
+                    case SelectionArea.Type.Rectangle: {
+                        this.deselectRectangle(priorityCoveringArea, subgrid);
+                        break;
+                    }
+                    case SelectionArea.Type.Column: {
+                        this.deselectColumns(originX, originX, subgrid);
+                        break;
+                    }
+                    case SelectionArea.Type.Row: {
+                        this.deselectRows(originY, 1, subgrid);
+                        break;
+                    }
+                }
+            } finally {
+                this.endChange();
+            }
+            return false;
         }
     }
 
@@ -537,14 +656,13 @@ export class Selection {
         }
     }
 
-    selectAllRows() {
-        this.clear();
-        this.allRowsSelected = true;
-    }
-
     getRowCount() {
         if (this.allRowsSelected) {
-            return this._subgrid.getRowCount();
+            if (this._subgrid === undefined) {
+                throw new AssertError('SGRC66698');
+            } else {
+                return this._subgrid.getRowCount();
+            }
         } else {
             if (this.rows.isEmpty()) {
                 return this.rectangleList.getUniqueXIndices();
@@ -563,12 +681,16 @@ export class Selection {
 
     getRowIndices() {
         if (this.allRowsSelected) {
-            const rowCount = this._subgrid.getRowCount();
-            const result = new Array<number>(rowCount);
-            for (let i = 0; i < rowCount; i++) {
-                result[i] = i;
+            if (this._subgrid === undefined) {
+                throw new AssertError('SGRI66698');
+            } else {
+                const rowCount = this._subgrid.getRowCount();
+                const result = new Array<number>(rowCount);
+                for (let i = 0; i < rowCount; i++) {
+                    result[i] = i;
+                }
+                return result;
             }
-            return result;
         } else {
             return this.rows.getIndices();
         }
@@ -633,8 +755,29 @@ export class Selection {
         }
     }
 
+    calculateAreaTypeFromSpecifier(specifier: SelectionArea.TypeSpecifier): SelectionArea.Type {
+        switch (specifier) {
+            case SelectionArea.TypeSpecifier.Primary: return this._gridSettings.primarySelectionAreaType;
+            case SelectionArea.TypeSpecifier.Secondary: return this._gridSettings.secondarySelectionAreaType;
+            case SelectionArea.TypeSpecifier.Rectangle: return SelectionArea.Type.Rectangle;
+            case SelectionArea.TypeSpecifier.Row: return SelectionArea.Type.Row;
+            case SelectionArea.TypeSpecifier.Column: return SelectionArea.Type.Column;
+            case SelectionArea.TypeSpecifier.LastOrPrimary: {
+                const lastArea = this._lastArea;
+                if (lastArea === undefined) {
+                    return this.calculateAreaTypeFromSpecifier(SelectionArea.TypeSpecifier.Primary);
+                } else {
+                    return lastArea.areaType;
+                }
+            }
+            default:
+                throw new UnreachableCaseError('SCAT60711', specifier);
+        }
+    }
+
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataModel: DataModel) {
-        if (dataModel === this._subgrid.dataModel) {
+        const subgrid = this._subgrid;
+        if (subgrid !== undefined && dataModel === subgrid.dataModel) {
             this.beginChange();
             try {
                 const lastArea = this._lastArea;
@@ -662,7 +805,8 @@ export class Selection {
     }
 
     adjustForRowsDeleted(rowIndex: number, rowCount: number, dataModel: DataModel) {
-        if (dataModel === this._subgrid.dataModel) {
+        const subgrid = this._subgrid;
+        if (subgrid !== undefined && dataModel === subgrid.dataModel) {
             this.beginChange();
             try {
                 const lastArea = this._lastArea;
@@ -690,7 +834,8 @@ export class Selection {
     }
 
     adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataModel: DataModel) {
-        if (dataModel === this._subgrid.dataModel) {
+        const subgrid = this._subgrid;
+        if (subgrid !== undefined && dataModel === subgrid.dataModel) {
             this.beginChange();
             try {
                 const lastArea = this._lastArea;
@@ -808,25 +953,30 @@ export class Selection {
     }
 
     private createAreaFromAllRows(): SelectionArea | undefined {
-        const rowCount = this._subgrid.getRowCount();
-        const activeColumnCount = this._columnsManager.activeColumnCount;
-        if (rowCount === 0 || activeColumnCount === 0) {
-            return undefined;
+        const subgrid = this._subgrid;
+        if (subgrid === undefined) {
+            throw new AssertError('SCAFAR34454');
         } else {
-            const x = 0;
-            const y = 0;
-            return {
-                x,
-                y,
-                width: activeColumnCount,
-                height: rowCount,
-                areaType: SelectionArea.Type.Row,
-                topLeft: { x, y },
-                inclusiveFirst: { x, y },
-                exclusiveBottomRight: { x: activeColumnCount, y: rowCount },
-                firstCorner: Corner.TopLeft,
-                size: activeColumnCount * rowCount,
-            };
+            const rowCount = subgrid.getRowCount();
+            const activeColumnCount = this._columnsManager.activeColumnCount;
+            if (rowCount === 0 || activeColumnCount === 0) {
+                return undefined;
+            } else {
+                const x = 0;
+                const y = 0;
+                return {
+                    x,
+                    y,
+                    width: activeColumnCount,
+                    height: rowCount,
+                    areaType: SelectionArea.Type.Row,
+                    topLeft: { x, y },
+                    inclusiveFirst: { x, y },
+                    exclusiveBottomRight: { x: activeColumnCount, y: rowCount },
+                    firstCorner: Corner.TopLeft,
+                    size: activeColumnCount * rowCount,
+                };
+            }
         }
     }
 
@@ -846,26 +996,31 @@ export class Selection {
             exclusiveBottomRight: { x: activeColumnCount, y: range.after },
             firstCorner: Corner.TopLeft,
             size: activeColumnCount * height,
-    };
+        };
     }
 
     private createAreaFromColumnRange(range: ContiguousIndexRange): SelectionArea {
-        const rowCount = this._subgrid.getRowCount();
-        const x = range.start;
-        const y = 0;
-        const width = range.length;
-        return {
-            x,
-            y,
-            width,
-            height: rowCount,
-            areaType: SelectionArea.Type.Column,
-            topLeft: { x, y },
-            inclusiveFirst: { x, y },
-            exclusiveBottomRight: { x: range.after, y: rowCount },
-            firstCorner: Corner.TopLeft,
-            size: width * rowCount,
-        };
+        const subgrid = this._subgrid;
+        if (subgrid === undefined) {
+            throw new AssertError('SCAFAR34454');
+        } else {
+            const rowCount = subgrid.getRowCount();
+            const x = range.start;
+            const y = 0;
+            const width = range.length;
+            return {
+                x,
+                y,
+                width,
+                height: rowCount,
+                areaType: SelectionArea.Type.Column,
+                topLeft: { x, y },
+                inclusiveFirst: { x, y },
+                exclusiveBottomRight: { x: range.after, y: rowCount },
+                firstCorner: Corner.TopLeft,
+                size: width * rowCount,
+            };
+        }
     }
 
     /**
@@ -875,75 +1030,85 @@ export class Selection {
      * @returns Number of selected rows or `undefined` if `restoreRowSelections` is falsy.
      */
     private createRowsStash() {
-        if (!this._gridProperties.restoreRowSelections) {
+        if (!this._gridSettings.restoreRowSelections) {
             return undefined;
         } else {
-            const dataModel = this._subgrid.dataModel;
-            const getRowIdFromIndexFtn = dataModel.getRowIdFromIndex;
-            if (getRowIdFromIndexFtn === undefined) {
+            const subgrid = this._subgrid;
+            if (subgrid === undefined) {
                 return undefined;
             } else {
-                const boundGetRowIdFromIndexFtn = getRowIdFromIndexFtn.bind(dataModel);
-                const selectedRowIndices = this.getRowIndices();
-                return selectedRowIndices.map( (selectedRowIndex) => boundGetRowIdFromIndexFtn(selectedRowIndex) );
+                const dataModel = subgrid.dataModel;
+                const getRowIdFromIndexFtn = dataModel.getRowIdFromIndex;
+                if (getRowIdFromIndexFtn === undefined) {
+                    return undefined;
+                } else {
+                    const boundGetRowIdFromIndexFtn = getRowIdFromIndexFtn.bind(dataModel);
+                    const selectedRowIndices = this.getRowIndices();
+                    return selectedRowIndices.map( (selectedRowIndex) => boundGetRowIdFromIndexFtn(selectedRowIndex) );
+                }
             }
         }
     }
 
     private restoreRowsStash(rowIds: unknown[] | undefined) {
         if (rowIds !== undefined) {
-            const rowIdCount = rowIds.length;
-            if (rowIdCount > 0) {
-                const rowCount = this._subgrid.getRowCount();
-                const dataModel = this._subgrid.dataModel;
+            const subgrid = this._subgrid;
+            if (subgrid === undefined) {
+                throw new AssertError('SRRS10987');
+            } else {
+                const rowIdCount = rowIds.length;
+                if (rowIdCount > 0) {
+                    const rowCount = subgrid.getRowCount();
+                    const dataModel = subgrid.dataModel;
 
-                let rowIndexValues: number[] | undefined;
-                let rowIndexValueCount = 0;
-                if (dataModel.getRowIndexFromId !== undefined) {
-                    rowIndexValues = new Array<number>(rowIdCount);
-                    for (let i = 0; i < rowIdCount; i++) {
-                        const rowId = rowIds[i];
-                        const rowIndex = dataModel.getRowIndexFromId(rowId);
-                        if (rowIndex !== undefined) {
-                            rowIndexValues[rowIndexValueCount++] = rowIndex;
-                        }
-                    }
-                } else {
-                    if (dataModel.getRowIdFromIndex !== undefined) {
+                    let rowIndexValues: number[] | undefined;
+                    let rowIndexValueCount = 0;
+                    if (dataModel.getRowIndexFromId !== undefined) {
                         rowIndexValues = new Array<number>(rowIdCount);
-                        for (let rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
-                            const rowId = dataModel.getRowIdFromIndex(rowIndex);
-                            const rowIdIndex = rowIds.indexOf(rowId);
-                            if (rowIdIndex >= 0) {
+                        for (let i = 0; i < rowIdCount; i++) {
+                            const rowId = rowIds[i];
+                            const rowIndex = dataModel.getRowIndexFromId(rowId);
+                            if (rowIndex !== undefined) {
                                 rowIndexValues[rowIndexValueCount++] = rowIndex;
-                                rowIds.splice(rowIdIndex, 1);
-                                if (rowIds.length === 0) {
-                                    break;
+                            }
+                        }
+                    } else {
+                        if (dataModel.getRowIdFromIndex !== undefined) {
+                            rowIndexValues = new Array<number>(rowIdCount);
+                            for (let rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
+                                const rowId = dataModel.getRowIdFromIndex(rowIndex);
+                                const rowIdIndex = rowIds.indexOf(rowId);
+                                if (rowIdIndex >= 0) {
+                                    rowIndexValues[rowIndexValueCount++] = rowIndex;
+                                    rowIds.splice(rowIdIndex, 1);
+                                    if (rowIds.length === 0) {
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                if (rowIndexValues !== undefined && rowIndexValueCount > 0) {
-                    // Sort selected row indices so that sequential indices can be selected in ranges
-                    rowIndexValues.length = rowIndexValueCount;
-                    rowIndexValues.sort((left, right) => left - right);
-                    let startValue = rowIndexValues[0];
-                    let previousValue = startValue;
-                    let previousValuePlus1 = previousValue + 1;
-                    for (let i = 1; i < rowIndexValueCount; i++) {
-                        const value = rowIndexValues[i];
-                        if (value !== previousValue) {
-                            if (value !== previousValuePlus1) {
-                                this.rows.add(startValue, previousValuePlus1 - startValue);
-                                startValue = value;
+                    if (rowIndexValues !== undefined && rowIndexValueCount > 0) {
+                        // Sort selected row indices so that sequential indices can be selected in ranges
+                        rowIndexValues.length = rowIndexValueCount;
+                        rowIndexValues.sort((left, right) => left - right);
+                        let startValue = rowIndexValues[0];
+                        let previousValue = startValue;
+                        let previousValuePlus1 = previousValue + 1;
+                        for (let i = 1; i < rowIndexValueCount; i++) {
+                            const value = rowIndexValues[i];
+                            if (value !== previousValue) {
+                                if (value !== previousValuePlus1) {
+                                    this.rows.add(startValue, previousValuePlus1 - startValue);
+                                    startValue = value;
+                                }
+                                previousValue = value;
+                                previousValuePlus1 = previousValue + 1;
                             }
-                            previousValue = value;
-                            previousValuePlus1 = previousValue + 1;
                         }
+                        this.rows.add(startValue, previousValuePlus1 - startValue);
                     }
-                    this.rows.add(startValue, previousValuePlus1 - startValue);
                 }
             }
         }
@@ -956,7 +1121,7 @@ export class Selection {
      * @returns Number of selected columns or `undefined` if `restoreColumnSelections` is falsy.
      */
     private createColumnsStash() {
-        if (!this._gridProperties.restoreColumnSelections) {
+        if (!this._gridSettings.restoreColumnSelections) {
             return undefined;
         } else {
             const selectedColumns = this.getColumnIndices();
@@ -1002,26 +1167,6 @@ export class Selection {
             }
         }
     }
-
-    private calculateAreaType(specifier: SelectionArea.TypeSpecifier): SelectionArea.Type {
-        switch (specifier) {
-            case SelectionArea.TypeSpecifier.Primary: return this._gridProperties.primarySelectionAreaType;
-            case SelectionArea.TypeSpecifier.Secondary: return this._gridProperties.secondarySelectionAreaType;
-            case SelectionArea.TypeSpecifier.Rectangle: return SelectionArea.Type.Rectangle;
-            case SelectionArea.TypeSpecifier.Row: return SelectionArea.Type.Row;
-            case SelectionArea.TypeSpecifier.Column: return SelectionArea.Type.Column;
-            case SelectionArea.TypeSpecifier.LastOrPrimary: {
-                const lastArea = this._lastArea;
-                if (lastArea === undefined) {
-                    return this.calculateAreaType(SelectionArea.TypeSpecifier.Primary);
-                } else {
-                    return lastArea.areaType;
-                }
-            }
-            default:
-                throw new UnreachableCaseError('SCAT60711', specifier);
-        }
-    }
 }
 
 /** @public */
@@ -1035,6 +1180,7 @@ export namespace Selection {
     }
 
     export interface Stash {
+        readonly subgrid: SubgridInterface | undefined;
         readonly allRowsSelected: boolean,
         readonly rowIds: unknown[] | undefined,
         readonly columnNames: string[] | undefined,

@@ -1,9 +1,7 @@
 // Public API
 
-// export { BehaviorManager } from './behavior/behavior-manager';
 export { AdapterSetConfig } from './behavior/component/adapter-set-config';
-// export { DataExtractBehavior } from './behavior/component/data-extract-behavior';
-export { CanvasRenderingContext2DEx } from './components/canvas-ex/canvas-rendering-context-2d-ex';
+export { CachedCanvasRenderingContext2D } from './components/canvas/cached-canvas-rendering-context-2d';
 export { CellEditor } from './components/cell/cell-editor';
 export { CellPainter } from './components/cell/cell-painter';
 export { CellSettingsAccessor } from './components/cell/cell-settings-accessor';
@@ -13,6 +11,7 @@ export { ColumnsManager } from './components/column/columns-manager';
 export { EventDetail } from './components/event/event-detail';
 export { EventName } from './components/event/event-name';
 export { Focus } from './components/focus/focus';
+export { Mouse } from './components/mouse/mouse';
 export { MainSubgrid } from './components/subgrid/main-subgrid';
 export { Subgrid } from './components/subgrid/subgrid';
 export { SubgridDefinition } from './components/subgrid/subgrid-definition';

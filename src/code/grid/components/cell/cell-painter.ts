@@ -77,7 +77,7 @@
  * Typically a Local primitive value, values can be any type, including objects and arrays. The specified cell renderer is expected to know how to determine the value's type and render it.
  */
 
-import { CanvasRenderingContext2DEx } from '../canvas-ex/canvas-rendering-context-2d-ex';
+import { CachedCanvasRenderingContext2D } from '../canvas/cached-canvas-rendering-context-2d';
 
 /**
  * @desc Instances of `CellPainter` are used to render the 2D graphics context within the bound of a cell.
@@ -92,7 +92,7 @@ export interface CellPainter {
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
-    paint(gc: CanvasRenderingContext2DEx, prefillColor: string | undefined): number | undefined;
+    paint(gc: CachedCanvasRenderingContext2D, prefillColor: string | undefined): number | undefined;
 
 }
 
@@ -105,7 +105,7 @@ export namespace CellPainter {
      * @param width - the width I'm allowed to draw within
      * @param height - the height I'm allowed to draw within
      */
-    export function roundRect(gc: CanvasRenderingContext2DEx, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean) {
+    export function roundRect(gc: CachedCanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean) {
 
         if (!stroke) {
             stroke = true;

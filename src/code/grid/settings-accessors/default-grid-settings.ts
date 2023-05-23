@@ -431,7 +431,7 @@ export const defaultSettingsProperties: Required<GridSettings> = {
     readOnly: false,
     fixedColumnCount: 0,
     fixedRowCount: 0,
-    mouseCellSelection: true,
+    mouseRectangleSelection: true,
     mouseColumnSelection: true,
     mouseRowSelection: true,
     singleRowSelectionMode: true,
@@ -788,7 +788,7 @@ export const defaultSettingsProperties: Required<GridSettings> = {
      */
     features: [
         'focusscroll',
-        'filters',
+        // 'filters',
         'cellselection',
         // 'keypaging',
         'columnresizing',
@@ -797,11 +797,11 @@ export const defaultSettingsProperties: Required<GridSettings> = {
         'columnselection',
         'columnmoving',
         'columnsorting',
-        'cellclick',
+        // 'cellclick',
         // 'cellediting',
         'hover',
         'touchscrolling',
-        'thumbwheelscrolling',
+        // 'thumbwheelscrolling',
         'clipboard'
     ],
 

@@ -1,6 +1,6 @@
 import { AssertError } from '../../lib/revgrid-error';
 import { HorizontalVertical } from '../../lib/types';
-import { CanvasEx } from '../canvas-ex/canvas-ex';
+import { CanvasManager } from '../canvas/canvas-manager';
 
 export abstract class ScrollDimension {
     changedEventer: ScrollDimension.ChangedEventer;
@@ -25,7 +25,7 @@ export abstract class ScrollDimension {
 
     constructor(
         public readonly horizontalVertical: HorizontalVertical,
-        protected readonly _canvasEx: CanvasEx,
+        protected readonly _canvasEx: CanvasManager,
     ) {
 
     }

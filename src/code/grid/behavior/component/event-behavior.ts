@@ -1,9 +1,10 @@
-import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { EventName } from '../../components/event/event-name';
 import { Scroller } from '../../components/scroller/scroller';
+import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
 import { ColumnInterface } from '../../interfaces/column-interface';
 import { ListChangedTypeId } from '../../lib/types';
@@ -20,6 +21,13 @@ export class EventBehavior {
     uiMouseEnteredCellEventer: EventBehavior.UiMouseEventer;
     uiMouseExitedCellEventer: EventBehavior.UiMouseEventer;
     uiWheelMoveEventer: EventBehavior.UiWheelEventer;
+    uiDragEventer: EventBehavior.UiDragEventer;
+    uiDragStartEventer: EventBehavior.UiDragEventer;
+    uiDragEnterEventer: EventBehavior.UiDragEventer;
+    uiDragOverEventer: EventBehavior.UiDragEventer;
+    uiDragLeaveEventer: EventBehavior.UiDragEventer;
+    uiDragEndEventer: EventBehavior.UiDragEventer;
+    uiDropEventer: EventBehavior.UiDragEventer;
     uiContextMenuEventer: EventBehavior.UiMouseEventer;
     uiTouchStartEventer: EventBehavior.UiTouchEventer;
     uiTouchMoveEventer: EventBehavior.UiTouchEventer;
@@ -32,9 +40,10 @@ export class EventBehavior {
     private _destroyed = false;
 
     constructor(
-        private readonly _canvasEx: CanvasEx,
+        private readonly _canvasEx: CanvasManager,
         private readonly _columnsManager: ColumnsManager,
         private readonly _viewLayout: ViewLayout,
+        private readonly _selection: Selection,
         private readonly _horizontalScroller: Scroller,
         private readonly _verticalScroller: Scroller,
         private readonly _descendantEventer: EventBehavior.DescendantEventer,
@@ -59,6 +68,13 @@ export class EventBehavior {
         this._canvasEx.touchMoveEventer = (event) => this.processTouchMoveEvent(event);
         this._canvasEx.touchEndEventer = (event) => this.processTouchEndEvent(event);
         this._canvasEx.copyEventer = (event) => this.processCopyEvent(event);
+        this._canvasEx.dragEventer = (event) => this.processDragEvent(event);
+        this._canvasEx.dragStartEventer = (event) => this.processDragStartEvent(event);
+        this._canvasEx.dragEnterEventer = (event) => this.processDragEnterEvent(event);
+        this._canvasEx.dragOverEventer = (event) => this.processDragOverEvent(event);
+        this._canvasEx.dragLeaveEventer = (event) => this.processDragLeaveEvent(event);
+        this._canvasEx.dragEndEventer = (event) => this.processDragEndEvent(event);
+        this._canvasEx.dropEventer = (event) => this.processDropEvent(event);
 
         this._columnsManager.allColumnListChangedEventer = (typeId, index, count, targetIndex) => this.processAllColumnListChangedEvent(
             typeId, index, count, targetIndex
@@ -71,6 +87,8 @@ export class EventBehavior {
         this._viewLayout.columnsViewWidthsChangedEventer = () => this.processColumnsViewWidthsChangedEvent();
         this._viewLayout.horizontalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processHorizontalScrollViewportStartChangedEvent();
         this._viewLayout.verticalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processVerticalScrollViewportStartChangedEvent();
+
+        this._selection.changedEventerForEventBehavior = () => this.processSelectionChangedEvent();
 
         this._horizontalScroller.actionEventer = (action) => this.processHorizontalScrollerEvent(action);
         this._verticalScroller.actionEventer = (action) => this.processVerticalScrollerEvent(action);
@@ -85,18 +103,6 @@ export class EventBehavior {
 
         if (this._dispatchEnabled) {
             this.dispatchCustomEvent('rev-column-changed-event', false, undefined);
-        }
-    }
-
-    /**
-     * @desc Synthesize and fire a `fin-column-selection-changed` event.
-     * @returns Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
-     */
-    processSelectionChangedEvent() {
-        this._descendantEventer.selectionChanged();
-
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-selection-changed', false, undefined);
         }
     }
 
@@ -130,8 +136,8 @@ export class EventBehavior {
         if (this._dispatchEnabled) {
             const detail: EventDetail.Resize = {
                 time: Date.now(),
-                width: this._canvasEx.width,
-                height: this._canvasEx.height
+                width: this._canvasEx.flooredContainerWidth,
+                height: this._canvasEx.flooredContainerHeight
             };
 
             this.dispatchCustomEvent('rev-grid-resized', false, detail);
@@ -305,6 +311,45 @@ export class EventBehavior {
         }
     }
 
+    private processDragEvent(event: DragEvent) {
+        const cell = this.uiDragEventer(event);
+        this._descendantEventer.drag(event, cell);
+    }
+
+    private processDragStartEvent(event: DragEvent) {
+        const cell = this.uiDragStartEventer(event);
+        this._descendantEventer.dragStart(event, cell);
+        const dataTransfer = event.dataTransfer;
+        if (dataTransfer === null || dataTransfer.items.length === 0) {
+            event.preventDefault();
+        }
+    }
+
+    private processDragEnterEvent(event: DragEvent) {
+        const cell = this.uiDragEnterEventer(event);
+        this._descendantEventer.dragEnter(event, cell);
+    }
+
+    private processDragOverEvent(event: DragEvent) {
+        const cell = this.uiDragOverEventer(event);
+        this._descendantEventer.dragOver(event, cell);
+    }
+
+    private processDragLeaveEvent(event: DragEvent) {
+        const cell = this.uiDragLeaveEventer(event);
+        this._descendantEventer.dragLeave(event, cell);
+    }
+
+    private processDragEndEvent(event: DragEvent) {
+        const cell = this.uiDragEndEventer(event);
+        this._descendantEventer.dragEnd(event, cell);
+    }
+
+    private processDropEvent(event: DragEvent) {
+        const cell = this.uiDropEventer(event);
+        this._descendantEventer.drop(event, cell);
+    }
+
     private processContextMenuEvent(event: MouseEvent) {
         let cell = this.uiContextMenuEventer(event);
         if (this._dispatchEnabled) {
@@ -367,6 +412,14 @@ export class EventBehavior {
         this.uiCopyEventer(event);
 
         this._descendantEventer.copy(event);
+    }
+
+    private processSelectionChangedEvent() {
+        this._descendantEventer.selectionChanged();
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-selection-changed', false, undefined);
+        }
     }
 
     private processHorizontalScrollerEvent(action: EventDetail.ScrollerAction) {
@@ -502,6 +555,13 @@ export namespace EventBehavior {
         readonly mouseMove: DescendantEventer.Mouse;
         readonly mouseOut: DescendantEventer.Mouse;
         readonly wheelMove: DescendantEventer.Wheel;
+        readonly drag: DescendantEventer.Drag;
+        readonly dragStart: DescendantEventer.Drag;
+        readonly dragEnter: DescendantEventer.Drag;
+        readonly dragOver: DescendantEventer.Drag;
+        readonly dragLeave: DescendantEventer.Drag;
+        readonly dragEnd: DescendantEventer.Drag;
+        readonly drop: DescendantEventer.Drag;
         readonly contextMenu: DescendantEventer.Mouse;
         readonly mouseDragStart: DescendantEventer.Mouse;
         readonly mouseDrag: DescendantEventer.Mouse;
@@ -527,6 +587,7 @@ export namespace EventBehavior {
         export type Key = (this: void, event: EventDetail.Keyboard) => void;
         export type Mouse = (this: void, event: MouseEvent, cell: ViewCell | null | undefined) => void;
         export type Wheel = (this: void, event: WheelEvent, cell: ViewCell | null | undefined) => void;
+        export type Drag = (this: void, event: DragEvent, cell: ViewCell | null | undefined) => void;
         export type Touch = (this: void, event: TouchEvent) => void;
         export type Cell = (this: void, cell: ViewCell) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
@@ -536,6 +597,7 @@ export namespace EventBehavior {
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
     export type UiMouseEventer = (this: void, mouseEvent: EventDetail.Mouse) => ViewCell | null | undefined;
     export type UiWheelEventer = (this: void, wheelEvent: EventDetail.Wheel) => ViewCell | null | undefined;
+    export type UiDragEventer = (this: void, event: DragEvent) => ViewCell | null | undefined;
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;
     export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
     export type UiScrollerActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;

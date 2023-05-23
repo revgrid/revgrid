@@ -1,7 +1,6 @@
 
 import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { SelectionArea } from '../../lib/selection-area';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -55,7 +54,7 @@ export class FiltersUiBehavior extends UiBehavior {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
-        if (cell !== null && cell.isFilterCell) {
+        if (cell !== null && cell.isFilter) {
             // this.grid.onEditorActivate(cell);
             return cell;
         } else {
@@ -67,7 +66,7 @@ export class FiltersUiBehavior extends UiBehavior {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
-        if (cell !== null && cell.isFilterCell) {
+        if (cell !== null && cell.isFilter) {
             // this.grid.onEditorActivate(cell);
             return cell;
         } else {
@@ -103,8 +102,8 @@ export class FiltersUiBehavior extends UiBehavior {
         const gridX = cellEvent.viewLayoutColumn.index;
 
         // Select first visible grid cell of this column
-        this.selectionBehavior.selectOnlyViewCell(gridX, this.subgridsManager.calculatePreMainRowCount(), SelectionArea.TypeSpecifier.Primary);
-        this.canvasEx.takeFocus();
+        this.focusSelectBehavior.selectOnlyViewCell(gridX, this.subgridsManager.calculatePreMainRowCount(), this.gridSettings.primarySelectionAreaType);
+        this.canvasManager.takeFocus();
     }
 
 }

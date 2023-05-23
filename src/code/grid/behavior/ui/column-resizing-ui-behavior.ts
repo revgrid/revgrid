@@ -69,7 +69,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
             return super.handleMouseDown(event, cell);
         } else {
             const canvasOffsetX = event.offsetX;
-            if (cell.isHeaderRow && this.overAreaDivider(canvasOffsetX, cell)) {
+            if (cell.isHeader && this.overAreaDivider(canvasOffsetX, cell)) {
                 const viewLayoutColumnCount = this.viewLayout.columns.length;
                 let vc = cell.viewLayoutColumn;
                 let vcIndex = vc.index;
@@ -210,7 +210,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
             }
 
             const canvasOffsetX = event.offsetX;
-            this.cursor = cell !== null && cell.isHeaderRow && this.overAreaDivider(canvasOffsetX, cell) ? ColumnResizingUiBehavior.cursorName : undefined;
+            this.cursor = cell !== null && cell.isHeader && this.overAreaDivider(canvasOffsetX, cell) ? ColumnResizingUiBehavior.cursorName : undefined;
         }
         return cell;
     }
@@ -223,7 +223,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
             return super.handleDblClick(event, cell);
         } else {
             const canvasOffsetX = event.offsetX;
-            if (cell.isHeaderRow && this.overAreaDivider(canvasOffsetX, cell)) {
+            if (cell.isHeader && this.overAreaDivider(canvasOffsetX, cell)) {
                 const mouseClickNearLeft = canvasOffsetX - cell.viewLayoutColumn.left <= 3;
                 const column = mouseClickNearLeft
                     ? this.columnsManager.getActiveColumn(cell.viewLayoutColumn.activeColumnIndex - 1)

@@ -22,23 +22,13 @@ export type ModifierKey = keyof typeof ModifierKeyEnum;
 export namespace ModifierKey {
     export const all = [ModifierKeyEnum.Control];
 
-    export function isDownInKeyboardEvent(keyEnum: ModifierKeyEnum, keyboardEvent: KeyboardEvent) {
+    export function isDownInEvent<T extends MouseEvent | KeyboardEvent>(keyEnum: ModifierKeyEnum | undefined, event: T) {
         switch (keyEnum) {
-            case ModifierKeyEnum.Control: return keyboardEvent.ctrlKey;
-            case ModifierKeyEnum.Shift: return keyboardEvent.shiftKey;
-            case ModifierKeyEnum.Meta: return keyboardEvent.metaKey;
-            case ModifierKeyEnum.Alt: return keyboardEvent.altKey;
-            default:
-                throw new UnreachableCaseError('HTMKIKIKE40941', keyEnum);
-        }
-    }
-
-    export function isDownInMouseEvent(keyEnum: ModifierKeyEnum, mouseEvent: MouseEvent) {
-        switch (keyEnum) {
-            case ModifierKeyEnum.Control: return mouseEvent.ctrlKey;
-            case ModifierKeyEnum.Shift: return mouseEvent.shiftKey;
-            case ModifierKeyEnum.Meta: return mouseEvent.metaKey;
-            case ModifierKeyEnum.Alt: return mouseEvent.altKey;
+            case undefined: return false;
+            case ModifierKeyEnum.Control: return event.ctrlKey;
+            case ModifierKeyEnum.Shift: return event.shiftKey;
+            case ModifierKeyEnum.Meta: return event.metaKey;
+            case ModifierKeyEnum.Alt: return event.altKey;
             default:
                 throw new UnreachableCaseError('HTMKIKIKE40941', keyEnum);
         }

@@ -140,7 +140,7 @@ export class ColumnSettingsAccessor implements MergableColumnSettings {
 
     get cellPadding() { return this._cellPadding ?? this.gridSettings.cellPadding; }
     set cellPadding(value: number) { this._cellPadding = value; }
-    get mouseCellSelection() { return this._mouseCellSelection ?? this.gridSettings.mouseCellSelection; }
+    get mouseCellSelection() { return this._mouseCellSelection ?? this.gridSettings.mouseRectangleSelection; }
     set mouseCellSelection(value: boolean) { this._mouseCellSelection = value; }
     get columnAutosizingMax() { return this._columnAutosizingMax ?? this.gridSettings.columnAutosizingMax; }
     set columnAutosizingMax(value: number) { this._columnAutosizingMax = value; }

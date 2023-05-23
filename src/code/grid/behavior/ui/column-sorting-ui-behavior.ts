@@ -35,7 +35,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell !== null) {
-            if (cell.isRowFixed && cell.isHeaderCell) {
+            if (cell.isHeaderOrRowFixed) {
                 const columnProperties = this.columnsManager.getActiveColumnProperties(cell.viewLayoutColumn.activeColumnIndex);
                 if ((columnProperties !== undefined) && columnProperties.sortable) {
                     this.cursor = 'pointer';
@@ -53,7 +53,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
     private sort(event: MouseEvent, cell: ViewCell, onDoubleClick: boolean) {
         let columnProperties: ColumnSettings;
         if (
-            cell.isHeaderCell &&
+            cell.isHeader &&
             (columnProperties = cell.columnProperties).sortable &&
             !(columnProperties.sortOnDoubleClick !== onDoubleClick) // both same (true or falsy)?
         ) {

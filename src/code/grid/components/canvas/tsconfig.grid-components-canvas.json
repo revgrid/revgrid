@@ -3,7 +3,7 @@
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-canvas-ex.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-canvas.tsbuildinfo"
   },
 
   "include": [

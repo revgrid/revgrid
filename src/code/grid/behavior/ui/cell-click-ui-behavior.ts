@@ -27,7 +27,7 @@ export class CellClickUiBehavior extends UiBehavior {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
-        if (cell === null || cell.isDataCell) {
+        if (cell === null || cell.isMain) {
             return super.handleClick(event, cell);
         } else {
             if (this.openLink(cell) !== undefined) {

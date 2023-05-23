@@ -1,35 +1,50 @@
 import { Point } from '../../lib/point';
-import { CanvasEx } from '../canvas-ex/canvas-ex';
+import { CanvasManager } from '../canvas/canvas-manager';
 import { ViewCell } from '../cell/view-cell';
 import { ViewLayout } from '../view/view-layout';
 
+/** @public */
 export class Mouse {
+    /** @internal */
+    private _scrolling: boolean;
+    /** @internal */
     private _canvasOffsetPoint: Point | undefined;
+    /** @internal */
     private _hoverCell: ViewCell | undefined;
+    /** @internal */
     private _operationCursorName: string | undefined; // gets priority over hover cell cursor
 
+    /** @internal */
     constructor(
-        private readonly _canvasEx: CanvasEx,
+        /** @internal */
+        private readonly _canvasEx: CanvasManager,
+        /** @internal */
         private readonly _viewLayout: ViewLayout,
+        /** @internal */
         private readonly _cellEnteredEventer: Mouse.CellEventer,
+        /** @internal */
         private readonly _cellExitedEventer: Mouse.CellEventer,
     ) {
         this._viewLayout.cellPoolComputedEventerForMouse = () => this.processViewLayoutComputed();
     }
 
+    get scrolling() { return this._scrolling; }
     get hoverCell() { return this._hoverCell; }
 
+    /** @internal */
     reset() {
         this._canvasOffsetPoint = undefined;
         this._hoverCell = undefined;
         this._operationCursorName = undefined;
     }
 
+    /** @internal */
     setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, hoverCell: ViewCell | undefined) {
         this._canvasOffsetPoint = canvasOffsetPoint;
         this.updateHoverCell(hoverCell, true);
     }
 
+    /** @internal */
     setOperationCursor(cursorName: string | undefined) {
         this._operationCursorName = cursorName;
         let titleText: string;
@@ -47,6 +62,12 @@ export class Mouse {
         this._canvasEx.setCursorAndTitleText(cursorName, titleText);
     }
 
+    /** @internal */
+    setScrolling(value: boolean) {
+        this._scrolling = value;
+    }
+
+    /** @internal */
     private processViewLayoutComputed() {
         let newHoverCell: ViewCell | undefined;
         const canvasOffsetPoint = this._canvasOffsetPoint;
@@ -59,6 +80,7 @@ export class Mouse {
         this.updateHoverCell(newHoverCell, false);
     }
 
+    /** @internal */
     private updateHoverCell(newHoverCell: ViewCell | undefined, invalidateViewCellRender: boolean) {
         const existingHoverCell = this._hoverCell;
         if (newHoverCell === undefined) {
@@ -84,6 +106,7 @@ export class Mouse {
         }
     }
 
+    /** @internal */
     private updateCursorAndTitleText() {
         if (this._operationCursorName === undefined) {
             if (this._hoverCell === undefined) {
@@ -99,6 +122,7 @@ export class Mouse {
         }
     }
 
+    /** @internal */
     private getCellCursorNameAndTitleText(): Mouse.CursorNameAndTitleText | undefined {
         const cell = this._hoverCell;
         if (cell === undefined) {
@@ -124,9 +148,12 @@ export class Mouse {
     }
 }
 
+/** @public */
 export namespace Mouse {
+    /** @internal */
     export type CellEventer = (this: void, cell: ViewCell, invalidateViewCellRender: boolean) => void;
 
+    /** @internal */
     export interface CursorNameAndTitleText {
         readonly cursorName: string | undefined;
         readonly titleText: string;

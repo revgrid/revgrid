@@ -1,19 +1,19 @@
 import { GridSettings } from '../../interfaces/grid-settings';
 import { AssertError } from '../../lib/revgrid-error';
 import { HorizontalVertical } from '../../lib/types';
-import { CanvasEx } from '../canvas-ex/canvas-ex';
+import { CanvasManager } from '../canvas/canvas-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ScrollDimension } from './scroll-dimension';
 
 export class VerticalScrollDimension extends ScrollDimension {
     constructor(
         private readonly _gridSettings: GridSettings,
-        canvasEx: CanvasEx,
+        canvasManager: CanvasManager,
         private readonly _subgridsManager: SubgridsManager,
     ) {
         super(
             HorizontalVertical.Vertical,
-            canvasEx,
+            canvasManager,
         );
     }
 
@@ -47,7 +47,7 @@ export class VerticalScrollDimension extends ScrollDimension {
         const fixedRowCount = gridSettings.fixedRowCount;
         const preMainPlusFixedRowsHeight = this._subgridsManager.calculatePreMainPlusFixedRowsHeight();
         const postMainHeight = this._subgridsManager.calculatePostMainHeight();
-        const scrollableHeight = this._canvasEx.height - (preMainPlusFixedRowsHeight + postMainHeight);
+        const scrollableHeight = this._canvasEx.flooredContainerHeight - (preMainPlusFixedRowsHeight + postMainHeight);
 
         let start: number | undefined;
         let size: number | undefined;

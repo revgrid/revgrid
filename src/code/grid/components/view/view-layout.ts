@@ -1,4 +1,4 @@
-import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { DataModel } from '../../interfaces/data-model';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
@@ -133,7 +133,7 @@ export class ViewLayout {
 
     constructor(
         private readonly _gridSettings: GridSettingsAccessor,
-        private readonly _canvasEx: CanvasEx,
+        private readonly _canvasEx: CanvasManager,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
     ) {

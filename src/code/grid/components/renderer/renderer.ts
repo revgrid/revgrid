@@ -1,6 +1,6 @@
-import { Animation } from '../../components/canvas-ex/animation';
-import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
-import { CanvasRenderingContext2DEx } from '../../components/canvas-ex/canvas-rendering-context-2d-ex';
+import { Animation } from '../../components/canvas/animation';
+import { CachedCanvasRenderingContext2D } from '../../components/canvas/cached-canvas-rendering-context-2d';
+import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
 import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema-model';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
@@ -38,12 +38,12 @@ export class Renderer {
     constructor(
         private readonly _gridSettings: GridSettingsAccessor,
         mouse: Mouse,
-        private readonly _canvasEx: CanvasEx,
+        private readonly _canvasEx: CanvasManager,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewLayout: ViewLayout,
         focus: Focus,
-        selection: Selection,
+        private readonly _selection: Selection,
         private readonly _renderedEventer: Renderer.RenderedEventer,
     ) {
         this._gridPainterRepository = new GridPainterRepository(
@@ -52,7 +52,7 @@ export class Renderer {
             this._subgridsManager,
             this._viewLayout,
             focus,
-            selection,
+            this._selection,
             mouse,
             (gc) => this.repaintAll(gc),
         );
@@ -75,6 +75,7 @@ export class Renderer {
 
         this._gridSettings.invalidateViewRenderEventer = () => this.invalidateViewRender();
         this._viewLayout.invalidateDataEventer = (action) => this._renderActionQueue.processViewLayoutInvalidateAction(action);
+        this._selection.changedEventerForRenderer = () => this.invalidateViewRender();
 
         document.addEventListener('visibilitychange', this._pageVisibilityChangeListener);
         this.setGridPainter('by-columns-and-rows');
@@ -107,7 +108,7 @@ export class Renderer {
         }
     }
 
-    repaintAll(gc: CanvasRenderingContext2DEx) {
+    repaintAll(gc: CachedCanvasRenderingContext2D) {
         if (this._allGridPainter === undefined) {
             this._allGridPainter = this.getGridPainter(ByColumnsAndRowsGridPainter.key);
 
@@ -304,7 +305,7 @@ export class Renderer {
         }
     }
 
-    private paintAll(gc: CanvasRenderingContext2DEx) {
+    private paintAll(gc: CachedCanvasRenderingContext2D) {
         this._gridPainter.paintCells(gc);
 
 

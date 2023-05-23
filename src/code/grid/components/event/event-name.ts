@@ -23,10 +23,6 @@ export namespace EventName {
 
         // Grid
         'rev-column-sort': EventDetail.ColumnSort;
-        // 'rev-editor-key-up': CellEditor.KeyEventDetail;
-        // 'rev-editor-key-down': CellEditor.KeyEventDetail;
-        // 'rev-editor-key-press': CellEditor.KeyEventDetail;
-        // 'rev-editor-data-change': CellEditor.DataChangeEventDetail;
         'rev-selection-changed': EventDetail.Grid;
         'rev-context-menu': EventDetail.Mouse;
         'rev-mouse-up': EventDetail.Mouse;
@@ -50,9 +46,6 @@ export namespace EventName {
         'rev-vertical-scroll-viewport-changed': undefined;
         'rev-horizontal-scroller-action': EventDetail.ScrollerAction;
         'rev-vertical-scroller-action': EventDetail.ScrollerAction;
-        // 'rev-request-cell-edit': CellEditor.RequestCellEditDetail;
-        // 'rev-before-cell-edit': CellEditor.DataChangeEventDetail;
-        // 'rev-after-cell-edit': CellEditor.DataChangeEventDetail;
         'rev-column-changed-event': undefined;
         'rev-columns-created': undefined;
     }

@@ -7,7 +7,8 @@ import { ViewCell } from '../cell/view-cell';
 
 /** @public */
 export interface SubgridDefinition {
-    role?: SubgridInterface.Role; // defaults to main
+    /** defaults to main */
+    role?: SubgridInterface.Role;
     dataModel: DataModel | DataModel.Constructor;
     metaModel?: MetaModel | MetaModel.Constructor;
     getCellPainterEventer: SubgridDefinition.GetCellPainterEventer;

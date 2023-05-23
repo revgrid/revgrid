@@ -17,39 +17,47 @@ import { Point } from '../../lib/point';
 import { Rectangle } from '../../lib/rectangle';
 import { AssertError } from '../../lib/revgrid-error';
 import { Writable } from '../../lib/types';
-import { CanvasRenderingContext2DEx } from './canvas-rendering-context-2d-ex';
+import { CachedCanvasRenderingContext2D } from './cached-canvas-rendering-context-2d';
 
 /** @public */
-export class CanvasEx {
+export class CanvasManager {
     // focuser = null; // does not seem to be implemented
     // buffer = null;
     // ctx = null;
 
-    repaintEventer: CanvasEx.RepaintEventer;
+    repaintEventer: CanvasManager.RepaintEventer;
 
-    focusEventer: CanvasEx.FocusEventer;
-    blurEventer: CanvasEx.FocusEventer;
+    focusEventer: CanvasManager.FocusEventer;
+    blurEventer: CanvasManager.FocusEventer;
 
-    keyDownEventer: CanvasEx.KeyEventer;
-    keyUpEventer: CanvasEx.KeyEventer;
+    keyDownEventer: CanvasManager.KeyEventer;
+    keyUpEventer: CanvasManager.KeyEventer;
 
-    mouseClickEventer: CanvasEx.MouseEventer;
-    mouseDblClickEventer: CanvasEx.MouseEventer;
-    mouseDownEventer: CanvasEx.MouseEventer;
-    mouseUpEventer: CanvasEx.MouseEventer;
-    mouseMoveEventer: CanvasEx.MouseEventer;
-    mouseDragStartEventer: CanvasEx.MouseEventer;
-    mouseDragEventer: CanvasEx.MouseEventer;
-    mouseDragEndEventer: CanvasEx.MouseEventer;
-    mouseOutEventer: CanvasEx.MouseEventer;
-    wheelMoveEventer: CanvasEx.WheelEventer;
-    contextMenuEventer: CanvasEx.MouseEventer;
+    mouseClickEventer: CanvasManager.MouseEventer;
+    mouseDblClickEventer: CanvasManager.MouseEventer;
+    mouseDownEventer: CanvasManager.MouseEventer;
+    mouseUpEventer: CanvasManager.MouseEventer;
+    mouseMoveEventer: CanvasManager.MouseEventer;
+    mouseDragStartEventer: CanvasManager.MouseEventer;
+    mouseDragEventer: CanvasManager.MouseEventer;
+    mouseDragEndEventer: CanvasManager.MouseEventer;
+    mouseOutEventer: CanvasManager.MouseEventer;
+    wheelMoveEventer: CanvasManager.WheelEventer;
+    contextMenuEventer: CanvasManager.MouseEventer;
 
-    touchStartEventer: CanvasEx.TouchEventer;
-    touchMoveEventer: CanvasEx.TouchEventer;
-    touchEndEventer: CanvasEx.TouchEventer;
+    touchStartEventer: CanvasManager.TouchEventer;
+    touchMoveEventer: CanvasManager.TouchEventer;
+    touchEndEventer: CanvasManager.TouchEventer;
 
-    copyEventer: CanvasEx.ClipboardEventer;
+    copyEventer: CanvasManager.ClipboardEventer;
+
+    dragEventer: CanvasManager.DragEventer;
+    dragStartEventer: CanvasManager.DragEventer;
+    dragEnterEventer: CanvasManager.DragEventer;
+    dragOverEventer: CanvasManager.DragEventer;
+    dragLeaveEventer: CanvasManager.DragEventer;
+    dragEndEventer: CanvasManager.DragEventer;
+    dropEventer: CanvasManager.DragEventer;
 
     mouseLocation = Point.create(-1, -1);
     dragstart = Point.create(-1, -1);
@@ -66,9 +74,11 @@ export class CanvasEx {
 
     readonly canvasElement: HTMLCanvasElement;
     /** @internal */
-    readonly gc: CanvasRenderingContext2DEx;
-    width: number;
-    height: number;
+    readonly gc: CachedCanvasRenderingContext2D;
+    /** @internal */
+    private _flooredContainerWidth: number;
+    /** @internal */
+    private _flooredContainerHeight: number;
     // bodyZoomFactor: number;
     /** @internal */
     private _bounds = new Rectangle(0, 0, 0, 0);
@@ -80,7 +90,7 @@ export class CanvasEx {
     private _containerHeight: number;
 
     /** @internal */
-    private _eventlistenerInfos = new Map<string, CanvasEx.ListenerInfo[]>();
+    private _eventlistenerInfos = new Map<string, CanvasManager.ListenerInfo[]>();
 
     /** @internal */
     private _resizeTimeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -226,11 +236,17 @@ export class CanvasEx {
         private readonly _containerElement: HTMLElement,
         contextAttributes: CanvasRenderingContext2DSettings | undefined,
         private readonly _gridSettings: GridSettings,
-        private readonly _resizedEventer: CanvasEx.ResizedEventer,
+        private readonly _resizedEventer: CanvasManager.ResizedEventer,
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');
-        this.gc = getCachedContext(this.canvasElement, contextAttributes);
+        this.canvasElement.id = CanvasManager.getNextCanvasElementId();
+        this.canvasElement.draggable = true;
+        this.canvasElement.tabIndex = 0;
+        this.canvasElement.style.outline = 'none';
+        this.canvasElement.classList.add(CssClassName.gridElementCssClass);
+
+        this.gc = createCachedContext(this.canvasElement, contextAttributes);
 
         this._containerElement.appendChild(this.canvasElement);
 
@@ -253,16 +269,49 @@ export class CanvasEx {
         this.canvasElement.addEventListener('touchend', this.canvasTouchEndEventListener);
         this.canvasElement.addEventListener('copy', this.canvasCopyEventListener);
 
-        this.canvasElement.setAttribute('tabindex', '0');
-        this.canvasElement.style.outline = 'none';
-
-        this.canvasElement.classList.add(CssClassName.gridElementCssClass);
+        this.canvasElement.addEventListener('drag', (event) => {
+            if (this.eventsEnabled) {
+                this.dragEventer(event);
+            }
+        });
+        this.canvasElement.addEventListener('dragstart', (event) => {
+            if (this.eventsEnabled) {
+                this.dragStartEventer(event);
+            }
+        });
+        this.canvasElement.addEventListener('dragenter', (event) => {
+            if (this.eventsEnabled) {
+                this.dragEnterEventer(event);
+            }
+        });
+        this.canvasElement.addEventListener('dragover', (event) => {
+            if (this.eventsEnabled) {
+                this.dragOverEventer(event);
+            }
+        });
+        this.canvasElement.addEventListener('dragleave', (event) => {
+            if (this.eventsEnabled) {
+                this.dragLeaveEventer(event);
+            }
+        });
+        this.canvasElement.addEventListener('dragend', (event) => {
+            if (this.eventsEnabled) {
+                this.dragEndEventer(event);
+            }
+        });
+        this.canvasElement.addEventListener('drop', (event) => {
+            if (this.eventsEnabled) {
+                this.dropEventer(event);
+            }
+        });
     }
 
     get bounds() { return this._bounds; }
     get devicePixelRatio() { return this._devicePixelRatio; }
+    get flooredContainerWidth() { return this._flooredContainerWidth; }
+    get flooredContainerHeight() { return this._flooredContainerHeight; }
 
-    addExternalEventListener(eventName: string, listener: CanvasEx.EventListener) {
+    addExternalEventListener(eventName: string, listener: CanvasManager.EventListener) {
         let alreadyAttached: boolean;
         let listenerInfos = this._eventlistenerInfos.get(eventName);
         if (listenerInfos === undefined) {
@@ -274,7 +323,7 @@ export class CanvasEx {
         }
 
         if (!alreadyAttached) {
-            const info: CanvasEx.ListenerInfo = {
+            const info: CanvasManager.ListenerInfo = {
                 listener,
                 decorator: (e: Event) => {
                     if (this.eventsEnabled) {
@@ -289,7 +338,7 @@ export class CanvasEx {
         }
     }
 
-    removeExternalEventListener(eventName: string, listener: CanvasEx.EventListener) {
+    removeExternalEventListener(eventName: string, listener: CanvasManager.EventListener) {
         const listenerInfos = this._eventlistenerInfos.get(eventName);
 
         if (listenerInfos !== undefined) {
@@ -357,8 +406,8 @@ export class CanvasEx {
         const width = Math.floor(this._containerWidth);
         const height = Math.floor(this._containerHeight);
 
-        this.width = width;
-        this.height = height;
+        this._flooredContainerWidth = width;
+        this._flooredContainerHeight = height;
 
         // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
         const ratio = (this._gridSettings.useHiDPI && window.devicePixelRatio !== undefined) ? window.devicePixelRatio : 1;
@@ -479,7 +528,7 @@ export class CanvasEx {
     // }
 
     /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
      * @this CanvasType
      */
     getOffsetPoint<T extends MouseEvent|Touch>(mouseEventOrTouch: T) {
@@ -498,7 +547,7 @@ export class CanvasEx {
     }
 
     /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
      * @this CanvasType
      */
     takeFocus() {
@@ -547,7 +596,7 @@ export class CanvasEx {
     }
 
     /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
      * @this CanvasType
      */
     private beDragging() {
@@ -556,7 +605,7 @@ export class CanvasEx {
     }
 
     /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
      * @this CanvasType
      */
     private beNotDragging() {
@@ -596,8 +645,8 @@ export class CanvasEx {
         return this.canvasElement.getBoundingClientRect();
     }
 
-    private createKeyboardEventDetail(e: KeyboardEvent): CanvasEx.RevgridKeyboardEvent {
-        const keyboardDetail = e as CanvasEx.WritableEventDetailKeyboard;
+    private createKeyboardEventDetail(e: KeyboardEvent): CanvasManager.RevgridKeyboardEvent {
+        const keyboardDetail = e as CanvasManager.WritableEventDetailKeyboard;
         keyboardDetail.revgrid_nowTime = Date.now();
         keyboardDetail.revgrid_repeatCount = this.repeatKeyCount;
         keyboardDetail.revgrid_repeatStartTime = this.repeatKeyStartTime;
@@ -609,19 +658,19 @@ export class CanvasEx {
 
     private createKeyboardNavigateKey(code: string) {
         switch (code) {
-            case 'ArrowLeft': return CanvasEx.Keyboard.NavigateKey.left;
-            case 'ArrowRight': return CanvasEx.Keyboard.NavigateKey.right;
-            case 'ArrowUp': return CanvasEx.Keyboard.NavigateKey.up;
-            case 'ArrowDown': return CanvasEx.Keyboard.NavigateKey.down;
-            case 'PageUp': return CanvasEx.Keyboard.NavigateKey.pageUp;
-            case 'PageDown': return CanvasEx.Keyboard.NavigateKey.pageDown;
-            case 'Home': return CanvasEx.Keyboard.NavigateKey.home;
-            case 'End': return CanvasEx.Keyboard.NavigateKey.end;
+            case 'ArrowLeft': return CanvasManager.Keyboard.NavigateKey.left;
+            case 'ArrowRight': return CanvasManager.Keyboard.NavigateKey.right;
+            case 'ArrowUp': return CanvasManager.Keyboard.NavigateKey.up;
+            case 'ArrowDown': return CanvasManager.Keyboard.NavigateKey.down;
+            case 'PageUp': return CanvasManager.Keyboard.NavigateKey.pageUp;
+            case 'PageDown': return CanvasManager.Keyboard.NavigateKey.pageDown;
+            case 'Home': return CanvasManager.Keyboard.NavigateKey.home;
+            case 'End': return CanvasManager.Keyboard.NavigateKey.end;
             default:
                 return undefined;
         }
     }
-
+}
     // fixCurrentKeys(keyChar: string, keydown: boolean) {
     //     const index = this.currentKeys.indexOf(keyChar);
 
@@ -663,7 +712,7 @@ export class CanvasEx {
     //         this.fixCurrentKeys('ALT' + SHIFT, event.altKey);
     //     }
     // }
-}
+// }
 
 // function paintLoopFunction(now: number) {
 //     if (paintRequestAnimationFrameHandle !== undefined) {
@@ -724,7 +773,7 @@ export class CanvasEx {
 // }
 // restartResizeLoop();
 
-function getCachedContext(canvasElement: HTMLCanvasElement, contextAttributes: CanvasRenderingContext2DSettings | undefined) {
+function createCachedContext(canvasElement: HTMLCanvasElement, contextAttributes: CanvasRenderingContext2DSettings | undefined) {
     const canvasRenderingContext2D = canvasElement.getContext('2d', contextAttributes);
     // const props = {};
     // let values = {};
@@ -758,7 +807,7 @@ function getCachedContext(canvasElement: HTMLCanvasElement, contextAttributes: C
     if (canvasRenderingContext2D === null) {
         throw new AssertError('CGCC74443');
     } else {
-        const gc = new CanvasRenderingContext2DEx(canvasRenderingContext2D);
+        const gc = new CachedCanvasRenderingContext2D(canvasRenderingContext2D);
 
         // Object.getOwnPropertyNames(Canvas.graphicsContextAliases).forEach(function(alias) {
         //     gc[alias] = gc[Canvas.graphicsContextAliases[alias]];
@@ -773,7 +822,7 @@ function getCachedContext(canvasElement: HTMLCanvasElement, contextAttributes: C
 // };
 
 /** @public */
-export namespace CanvasEx {
+export namespace CanvasManager {
     export type EventListener = (this: void, event: Event) => void;
 
     export type ResizedEventer = (this: void) => void;
@@ -785,6 +834,7 @@ export namespace CanvasEx {
     export type KeyEventer = (this: void, event: RevgridKeyboardEvent) => void;
     export type TouchEventer = (this: void, event: TouchEvent) => void;
     export type ClipboardEventer = (this: void, event: ClipboardEvent) => void;
+    export type DragEventer = (this: void, event: DragEvent) => void;
 
     export type WritableEventDetailKeyboard = Writable<RevgridKeyboardEvent>;
 
@@ -820,8 +870,14 @@ export namespace CanvasEx {
     }
 
     export abstract class ListenerInfo {
-        abstract listener: CanvasEx.EventListener;
-        abstract decorator: CanvasEx.EventListener;
+        abstract listener: CanvasManager.EventListener;
+        abstract decorator: CanvasManager.EventListener;
+    }
+
+    const canvasElementIdBase = 'RevgridCanvas';
+    let lastCanvasElementIdSuffix = 0;
+    export function getNextCanvasElementId() {
+        return canvasElementIdBase + (++lastCanvasElementIdSuffix).toString();
     }
 
     export type CharShiftPair = [down: string, up: string];

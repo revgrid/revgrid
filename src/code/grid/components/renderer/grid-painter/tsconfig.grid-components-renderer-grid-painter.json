@@ -11,7 +11,7 @@
   ],
 
   "references": [
-    { "path": "../../canvas-ex/tsconfig.grid-components-canvas-ex.json" },
+    { "path": "../../canvas/tsconfig.grid-components-canvas.json" },
     { "path": "../../focus/tsconfig.grid-components-focus.json" },
     { "path": "../../mouse/tsconfig.grid-components-mouse.json" },
     { "path": "../../selection/tsconfig.grid-components-selection.json" },

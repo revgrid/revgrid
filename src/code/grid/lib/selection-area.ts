@@ -1,6 +1,7 @@
 import { Corner } from './corner';
 import { Point } from './point';
 import { RectangleInterface } from './rectangle-interface';
+import { UnreachableCaseError } from './revgrid-error';
 
 export interface SelectionArea extends RectangleInterface {
     readonly areaType: SelectionArea.Type;
@@ -41,5 +42,34 @@ export namespace SelectionArea {
             left.width === right.width &&
             left.height === right.height
         );
+    }
+
+    export function getPriorityCellCoveringSelectionArea(areas: SelectionArea[]) {
+        const areaCount = areas.length;
+        switch (areaCount) {
+            case 0: return undefined;
+            case 1: return areas[0];
+            default: {
+                let priorityArea = areas[0];
+                for (let i = 0; i < areaCount; i++) {
+                    const area = areas[i];
+                    if (isCellCoveringSelectionAreaHigherPriority(area, priorityArea)) {
+                        priorityArea = area;
+                    }
+                }
+                return priorityArea;
+            }
+        }
+    }
+
+    export function isCellCoveringSelectionAreaHigherPriority(area: SelectionArea, referenceArea: SelectionArea) {
+        const type = area.areaType;
+        switch (type) {
+            case SelectionArea.Type.Rectangle: return (referenceArea.areaType === SelectionArea.Type.Rectangle) && (referenceArea.size !== 1);
+            case SelectionArea.Type.Column: return referenceArea.areaType !== SelectionArea.Type.Row;
+            case SelectionArea.Type.Row: return true;
+            default:
+                throw new UnreachableCaseError('SFICCSAHP35500', type);
+        }
     }
 }

@@ -2,8 +2,8 @@ import { GridSettings } from '../../../interfaces/grid-settings';
 import { ViewLayoutColumn } from '../../../interfaces/view-layout-column';
 import { ViewLayoutRow } from '../../../interfaces/view-layout-row';
 import { RectangleInterface } from '../../../lib/rectangle-interface';
-import { CanvasEx } from '../../canvas-ex/canvas-ex';
-import { CanvasRenderingContext2DEx } from '../../canvas-ex/canvas-rendering-context-2d-ex';
+import { CachedCanvasRenderingContext2D } from '../../canvas/cached-canvas-rendering-context-2d';
+import { CanvasManager } from '../../canvas/canvas-manager';
 import { CellEditor } from '../../cell/cell-editor';
 import { ViewCell } from '../../cell/view-cell';
 import { Focus } from '../../focus/focus';
@@ -28,7 +28,7 @@ export abstract class GridPainter {
 
     constructor(
         protected readonly gridSettings: GridSettings,
-        protected readonly canvasEx: CanvasEx,
+        protected readonly canvasManager: CanvasManager,
         protected readonly subgridsManager: SubgridsManager,
         protected readonly viewLayout: ViewLayout,
         protected readonly focus: Focus,
@@ -68,10 +68,10 @@ export abstract class GridPainter {
         return this._rowBundlesAndPrefixColors;
     }
 
-    abstract paintCells(gc: CanvasRenderingContext2DEx): void;
+    abstract paintCells(gc: CachedCanvasRenderingContext2D): void;
 
     protected paintCell(
-        gc: CanvasRenderingContext2DEx,
+        gc: CachedCanvasRenderingContext2D,
         viewCell: ViewCell,
         prefillColor: string | undefined,
     ): number | undefined {
@@ -94,7 +94,7 @@ export abstract class GridPainter {
         return preferredWidth;
     }
 
-    paintErrorCell(err: Error, gc: CanvasRenderingContext2DEx, vc: ViewLayoutColumn, vr: ViewLayoutRow) {
+    paintErrorCell(err: Error, gc: CachedCanvasRenderingContext2D, vc: ViewLayoutColumn, vr: ViewLayoutRow) {
         const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
 
         const bounds: RectangleInterface = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
@@ -114,7 +114,7 @@ export abstract class GridPainter {
     /**
      * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
      */
-    paintGridlines(gc: CanvasRenderingContext2DEx) {
+    paintGridlines(gc: CachedCanvasRenderingContext2D) {
         const viewLayoutColumns = this.viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
         const viewLayoutRows = this.viewLayout.rows;
@@ -214,7 +214,7 @@ export abstract class GridPainter {
         }
     }
 
-    checkPaintLastSelection(gc: CanvasRenderingContext2DEx) {
+    checkPaintLastSelection(gc: CachedCanvasRenderingContext2D) {
         const lastSelectionBounds = this.calculateLastSelectionBounds();
 
         if (lastSelectionBounds !== undefined) {
@@ -448,7 +448,7 @@ export abstract class GridPainter {
         }
     }
 
-    private paintErrorMessage(gc: CanvasRenderingContext2DEx, bounds: RectangleInterface, message: string) {
+    private paintErrorMessage(gc: CachedCanvasRenderingContext2D, bounds: RectangleInterface, message: string) {
         const x = bounds.x;
         const y = bounds.y;
         // const width = config.bounds.width;
@@ -470,10 +470,10 @@ export abstract class GridPainter {
 
 export namespace GridPainter {
     export type ResetAllGridPaintersRequiredEventer = (this: void, blackList: string[]) => void;
-    export type RepaintAllRequiredEventer = (this: void, gc: CanvasRenderingContext2DEx) => void;
+    export type RepaintAllRequiredEventer = (this: void, gc: CachedCanvasRenderingContext2D) => void;
     export type Constructor = new(
         gridProperties: GridSettings,
-        canvasEx: CanvasEx,
+        canvasManager: CanvasManager,
         subgridsManager: SubgridsManager,
         viewLayout: ViewLayout,
         focus: Focus,

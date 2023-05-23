@@ -57,7 +57,7 @@ export class BehaviorManager {
         this._uiBehaviorManager = new UiBehaviorManager(
             containerHtmlElement,
             this._componentBehaviorManager.gridSettings,
-            this._componentBehaviorManager.canvasEx,
+            this._componentBehaviorManager.canvasManager,
             this._componentBehaviorManager.focus,
             this._componentBehaviorManager.selection,
             this._componentBehaviorManager.columnsManager,
@@ -78,7 +78,7 @@ export class BehaviorManager {
     get gridProperties() { return this._componentBehaviorManager.gridSettings; }
     get focus() { return this._componentBehaviorManager.focus; }
     get selection() { return this._componentBehaviorManager.selection; }
-    get canvasEx() { return this._componentBehaviorManager.canvasEx; }
+    get canvasManager() { return this._componentBehaviorManager.canvasManager; }
     get mouse() { return this._componentBehaviorManager.mouse; }
     get mainSubgrid() { return this._componentBehaviorManager.mainSubgrid; }
     get mainDataModel() { return this._componentBehaviorManager.mainDataModel; }

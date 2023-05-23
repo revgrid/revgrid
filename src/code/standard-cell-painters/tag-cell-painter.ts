@@ -1,10 +1,10 @@
 
-import { CanvasRenderingContext2DEx, CellPainter } from '../grid/grid-public-api';
+import { CachedCanvasRenderingContext2D, CellPainter } from '../grid/grid-public-api';
 
 /** @public */
 export class TagCellPainter implements CellPainter {
 
-    paint(_gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined {
+    paint(_gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined {
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {
         //     const tagband = tagbands.find((tagband) => {

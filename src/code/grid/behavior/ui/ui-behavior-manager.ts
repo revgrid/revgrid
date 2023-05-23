@@ -1,4 +1,4 @@
-import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
@@ -14,8 +14,8 @@ import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
 import { FocusScrollBehavior } from '../component/focus-scroll-behavior';
+import { FocusSelectBehavior } from '../component/focus-select-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
-import { SelectionBehavior } from '../component/selection-behavior';
 import { UiBehavior } from './ui-behavior';
 import { UiBehaviorFactory } from './ui-behavior-factory';
 import { UiBehaviorServices } from './ui-behavior-services';
@@ -33,7 +33,7 @@ export class UiBehaviorManager {
     constructor(
         containerHtmlElement: HTMLElement,
         private readonly _gridSettings: GridSettings,
-        canvasEx: CanvasEx,
+        canvasManager: CanvasManager,
         focus: Focus,
         selection: Selection,
         columnsManager: ColumnsManager,
@@ -43,7 +43,7 @@ export class UiBehaviorManager {
         reindexStashManager: ReindexStashManager,
         mouse: Mouse,
         focusScrollBehavior: FocusScrollBehavior,
-        selectionBehavior: SelectionBehavior,
+        selectionBehavior: FocusSelectBehavior,
         rowPropertiesBehavior: RowPropertiesBehavior,
         cellPropertiesBehavior: CellPropertiesBehavior,
         dataExtractBehavior: DataExtractBehavior,
@@ -55,7 +55,7 @@ export class UiBehaviorManager {
             this._sharedState,
             containerHtmlElement,
             this._gridSettings,
-            canvasEx,
+            canvasManager,
             selection,
             focus,
             columnsManager,
@@ -90,6 +90,13 @@ export class UiBehaviorManager {
         this._eventBehavior.uiTouchMoveEventer = (event) => this.handleTouchMoveEvent(event);
         this._eventBehavior.uiTouchEndEventer = (event) => this.handleTouchEndEvent(event);
         this._eventBehavior.uiCopyEventer = (event) => this.handleCopyEvent(event);
+        this._eventBehavior.uiDragEventer = (event) => this.handleDragEvent(event);
+        this._eventBehavior.uiDragStartEventer = (event) => this.handleDragStartEvent(event);
+        this._eventBehavior.uiDragEnterEventer = (event) => this.handleDragEnterEvent(event);
+        this._eventBehavior.uiDragOverEventer = (event) => this.handleDragOverEvent(event);
+        this._eventBehavior.uiDragLeaveEventer = (event) => this.handleDragLeaveEvent(event);
+        this._eventBehavior.uiDragEndEventer = (event) => this.handleDragEndEvent(event);
+        this._eventBehavior.uiDropEventer = (event) => this.handleDropEvent(event);
         this._eventBehavior.uiHorizontalScrollerActionEventer = (event) => this.handleHorizontalScrollerActionEvent(event);
         this._eventBehavior.uiVerticalScrollerActionEventer = (event) => this.handleVerticalScrollerActionEvent(event);
     }
@@ -305,6 +312,69 @@ export class UiBehaviorManager {
     private handleMouseExitedCellEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleMouseExit(event, undefined);
+            return cell;
+        } else {
+            return undefined;
+        }
+    }
+
+    private handleDragEvent(event: DragEvent): ViewCell | null | undefined {
+        if (this._enabled) {
+            const cell = this._firstUiBehavior.handleDrag(event, undefined);
+            return cell;
+        } else {
+            return undefined;
+        }
+    }
+
+    private handleDragStartEvent(event: DragEvent): ViewCell | null | undefined {
+        if (this._enabled) {
+            const cell = this._firstUiBehavior.handleDragStart(event, undefined);
+            return cell;
+        } else {
+            return undefined;
+        }
+    }
+
+    private handleDragEnterEvent(event: DragEvent): ViewCell | null | undefined {
+        if (this._enabled) {
+            const cell = this._firstUiBehavior.handleDragEnter(event, undefined);
+            return cell;
+        } else {
+            return undefined;
+        }
+    }
+
+    private handleDragOverEvent(event: DragEvent): ViewCell | null | undefined {
+        if (this._enabled) {
+            const cell = this._firstUiBehavior.handleDragOver(event, undefined);
+            return cell;
+        } else {
+            return undefined;
+        }
+    }
+
+    private handleDragLeaveEvent(event: DragEvent): ViewCell | null | undefined {
+        if (this._enabled) {
+            const cell = this._firstUiBehavior.handleDragLeave(event, undefined);
+            return cell;
+        } else {
+            return undefined;
+        }
+    }
+
+    private handleDragEndEvent(event: DragEvent): ViewCell | null | undefined {
+        if (this._enabled) {
+            const cell = this._firstUiBehavior.handleDragEnd(event, undefined);
+            return cell;
+        } else {
+            return undefined;
+        }
+    }
+
+    private handleDropEvent(event: DragEvent): ViewCell | null | undefined {
+        if (this._enabled) {
+            const cell = this._firstUiBehavior.handleDrop(event, undefined);
             return cell;
         } else {
             return undefined;

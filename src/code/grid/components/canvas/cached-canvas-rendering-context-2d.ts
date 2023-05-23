@@ -2,15 +2,19 @@ import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { TextTruncateType } from '../../lib/types';
 
 /** @public */
-export class CanvasRenderingContext2DEx {
-    private fontMetrics: Record<string, Record<string, number> | undefined> = {} // Record of characters and their width - previously was global
-    private fontData: Record<string, CanvasRenderingContext2DEx.TextHeight | undefined> = {}; // previously was global
-    private readonly conditionalsStack: CanvasRenderingContext2DEx.ConditionalsStack = [];
+export class CachedCanvasRenderingContext2D {
+    /** @internal */
+    private readonly _conditionalsStack: CachedCanvasRenderingContext2D.ConditionalsStack = [];
+    /** @internal */
+    private _fontMetrics: Record<string, Record<string, number> | undefined> = {} // Record of characters and their width - previously was global
+    /** @internal */
+    private _fontData: Record<string, CachedCanvasRenderingContext2D.TextHeight | undefined> = {}; // previously was global
 
-    readonly cache: CanvasRenderingContext2DEx.Cache;
+    readonly cache: CachedCanvasRenderingContext2D.Cache;
 
+    /** @internal */
     constructor(private readonly canvasRenderingContext2D: CanvasRenderingContext2D) {
-        this.cache = new CanvasRenderingContext2DEx.Cache(canvasRenderingContext2D);
+        this.cache = new CachedCanvasRenderingContext2D.Cache(canvasRenderingContext2D);
     }
 
     clearRect(x: number, y: number, width: number, height: number) {
@@ -122,7 +126,7 @@ export class CanvasRenderingContext2DEx {
         if (cssColorSpec === undefined) {
             // undefined so not visible; treat as transparent
             result = 0;
-        } else if ((matches = cssColorSpec.match(CanvasRenderingContext2DEx.ALPHA_REGEX)) === null) {
+        } else if ((matches = cssColorSpec.match(CachedCanvasRenderingContext2D.ALPHA_REGEX)) === null) {
             // an opaque color (a color spec with no alpha channel)
             result = 1;
         } else if (matches[4] === undefined) {
@@ -143,7 +147,7 @@ export class CanvasRenderingContext2DEx {
      * @returns Width of string in pixels.
      */
     getTextWidth(string: string) {
-        const metrics = this.fontMetrics[this.cache.font] = this.fontMetrics[this.cache.font] || {};
+        const metrics = this._fontMetrics[this.cache.font] = this._fontMetrics[this.cache.font] || {};
         string += '';
         const len = string.length
         let sum = 0;
@@ -164,20 +168,20 @@ export class CanvasRenderingContext2DEx {
      * @param abort - Abort measuring upon overflow. Returned `width` sum will reflect truncated string rather than untruncated string. Note that returned `string` is truncated in either case.
      * @param truncateFromStart - by default it will truncate the string from the position 0
      */
-    getTextWidthTruncated(this: CanvasRenderingContext2DEx,
+    getTextWidthTruncated(this: CachedCanvasRenderingContext2D,
         text: string,
         width: number,
         truncateType: TextTruncateType | undefined,
         abort: boolean,
         truncateFromEnd: boolean
-    ): CanvasRenderingContext2DEx.TruncatedTextWidth {
-        let metrics = this.fontMetrics[this.cache.font];
+    ): CachedCanvasRenderingContext2D.TruncatedTextWidth {
+        let metrics = this._fontMetrics[this.cache.font];
         const truncating = truncateType !== undefined;
         let truncString: string | undefined; //, truncWidth, truncAt;
 
         if (metrics === undefined) {
-            metrics = this.fontMetrics[this.cache.font] = {};
-            metrics[CanvasRenderingContext2DEx.ELLIPSIS] = this.measureText(CanvasRenderingContext2DEx.ELLIPSIS).width;
+            metrics = this._fontMetrics[this.cache.font] = {};
+            metrics[CachedCanvasRenderingContext2D.ELLIPSIS] = this.measureText(CachedCanvasRenderingContext2D.ELLIPSIS).width;
         }
 
         text += ''; // convert to string
@@ -192,14 +196,14 @@ export class CanvasRenderingContext2DEx {
                 if (truncating && sum > width && truncString === undefined) {
                     switch (truncateType) {
                         case TextTruncateType.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
-                            let truncWidth = sum - charWidth + metrics[CanvasRenderingContext2DEx.ELLIPSIS];
+                            let truncWidth = sum - charWidth + metrics[CachedCanvasRenderingContext2D.ELLIPSIS];
                             let truncAt = i + 1;
                             while (truncAt < textLength && truncWidth > width) {
                                 truncWidth -= metrics[text[truncAt++]];
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
-                                : truncString = CanvasRenderingContext2DEx.ELLIPSIS + text.substr(truncAt);
+                                : truncString = CachedCanvasRenderingContext2D.ELLIPSIS + text.substr(truncAt);
                             break;
                         }
                         case TextTruncateType.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
@@ -226,14 +230,14 @@ export class CanvasRenderingContext2DEx {
                 if (truncating && sum > width && truncString === undefined) {
                     switch (truncateType) {
                         case TextTruncateType.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
-                            let truncWidth = sum - charWidth + metrics[CanvasRenderingContext2DEx.ELLIPSIS];
+                            let truncWidth = sum - charWidth + metrics[CachedCanvasRenderingContext2D.ELLIPSIS];
                             let truncAt = i;
                             while (truncAt && truncWidth > width) {
                                 truncWidth -= metrics[text[--truncAt]];
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
-                                : truncString = text.substr(0, truncAt) + CanvasRenderingContext2DEx.ELLIPSIS;
+                                : truncString = text.substr(0, truncAt) + CachedCanvasRenderingContext2D.ELLIPSIS;
                             break;
                         }
                         case TextTruncateType.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
@@ -268,7 +272,7 @@ export class CanvasRenderingContext2DEx {
     }
 
     getTextHeight(font: string) {
-        let result = this.fontData[font];
+        let result = this._fontData[font];
 
         if (result === undefined) {
             const text = document.createElement('span');
@@ -315,7 +319,7 @@ export class CanvasRenderingContext2DEx {
                 document.body.removeChild(div);
             }
             if (result.height !== 0) {
-                this.fontData[font] = result;
+                this._fontData[font] = result;
             }
         }
 
@@ -323,7 +327,7 @@ export class CanvasRenderingContext2DEx {
     }
 
     clipSave(conditional: boolean, x: number, y: number, width: number, height: number) {
-        this.conditionalsStack.push(conditional);
+        this._conditionalsStack.push(conditional);
         if (conditional) {
             this.cache.save();
             this.beginPath();
@@ -333,14 +337,14 @@ export class CanvasRenderingContext2DEx {
     }
 
     clipRestore() {
-        if (this.conditionalsStack.pop()) {
+        if (this._conditionalsStack.pop()) {
             this.cache.restore(); // Remove clip region
         }
     }
 }
 
 /** @public */
-export namespace CanvasRenderingContext2DEx {
+export namespace CachedCanvasRenderingContext2D {
     export const ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d.]+)\)))$/i
     export const ELLIPSIS = '\u2026' // The "…" (dot-dot-dot) character
 
@@ -364,6 +368,7 @@ export namespace CanvasRenderingContext2DEx {
         values: Cache.Values = {} as Cache.Values;
         valuesStack = new Array<Cache.Values>();
 
+        /** @internal */
         constructor(private readonly _canvasRenderingContext2D: CanvasRenderingContext2D) {
 
         }

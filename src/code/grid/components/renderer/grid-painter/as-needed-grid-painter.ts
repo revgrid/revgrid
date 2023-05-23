@@ -1,7 +1,7 @@
 
 import { GridSettings } from '../../../interfaces/grid-settings';
-import { CanvasEx } from '../../canvas-ex/canvas-ex';
-import { CanvasRenderingContext2DEx } from '../../canvas-ex/canvas-rendering-context-2d-ex';
+import { CachedCanvasRenderingContext2D } from '../../canvas/cached-canvas-rendering-context-2d';
+import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
@@ -33,14 +33,14 @@ import { GridPainter } from './grid-painter';
  *
  * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumns|paintCellsByColumns}.
  * @this {ViewLayout}
- * @param {CanvasEx.CanvasRenderingContext2DEx} gc TODO need to remove any type
+ * @param {CanvasManager.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
 export class AsNeededGridPainter extends GridPainter {
     // private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
     constructor(
         gridProperties: GridSettings,
-        canvasEx: CanvasEx,
+        canvasManager: CanvasManager,
         subgridsManager: SubgridsManager,
         viewLayout: ViewLayout,
         focus: Focus,
@@ -50,7 +50,7 @@ export class AsNeededGridPainter extends GridPainter {
     ) {
         super(
             gridProperties,
-            canvasEx,
+            canvasManager,
             subgridsManager,
             viewLayout,
             focus,
@@ -63,7 +63,7 @@ export class AsNeededGridPainter extends GridPainter {
         );
     }
 
-    paintCells(gc: CanvasRenderingContext2DEx) {
+    paintCells(gc: CachedCanvasRenderingContext2D) {
         const viewLayout = this.viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const columnCount = viewLayoutColumns.length;

@@ -62,7 +62,7 @@ export class CellEditingUiBehavior extends UiBehavior {
     edit(cell: ViewCell | null, onDoubleClick: boolean) {
         if (
             cell !== null &&
-            cell.isDataCell &&
+            cell.isMain &&
             !(cell.columnProperties['editOnDoubleClick'] !== onDoubleClick) // both same (true or falsy)?
         ) {
             // this.grid.onEditorActivate(cell);

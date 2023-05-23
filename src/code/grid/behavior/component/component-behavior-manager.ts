@@ -1,4 +1,4 @@
-import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
@@ -23,9 +23,9 @@ import { CellPropertiesBehavior } from './cell-properties-behavior';
 import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
 import { FocusScrollBehavior } from './focus-scroll-behavior';
+import { FocusSelectBehavior } from './focus-select-behavior';
 import { ModelCallbackRouterBehavior } from './model-callback-router-behavior';
 import { RowPropertiesBehavior } from './row-properties-behavior';
-import { SelectionBehavior } from './selection-behavior';
 
 const noExportProperties = [
     'columnHeader',
@@ -57,7 +57,7 @@ const noExportProperties = [
 /** @internal */
 export class ComponentBehaviorManager {
     readonly gridSettings: GridSettingsAccessor;
-    readonly canvasEx: CanvasEx;
+    readonly canvasManager: CanvasManager;
     readonly focus: Focus;
     readonly selection: Selection;
     readonly reindexStashManager: ReindexStashManager;
@@ -68,7 +68,7 @@ export class ComponentBehaviorManager {
     readonly mouse: Mouse;
 
     readonly focusScrollBehavior: FocusScrollBehavior;
-    readonly selectionBehavior: SelectionBehavior;
+    readonly selectionBehavior: FocusSelectBehavior;
     readonly eventBehavior: EventBehavior;
     readonly rowPropertiesBehavior: RowPropertiesBehavior;
     readonly cellPropertiesBehavior: CellPropertiesBehavior;
@@ -124,7 +124,7 @@ export class ComponentBehaviorManager {
             this.gridSettings.merge(optionedGridProperties);
         }
 
-        this.canvasEx = new CanvasEx(
+        this.canvasManager = new CanvasManager(
             containerHtmlElement,
             canvasContextAttributes,
             this.gridSettings,
@@ -163,7 +163,7 @@ export class ComponentBehaviorManager {
 
             this.viewLayout = new ViewLayout(
                 this.gridSettings,
-                this.canvasEx,
+                this.canvasManager,
                 this.columnsManager,
                 this.subgridsManager,
             );
@@ -178,15 +178,12 @@ export class ComponentBehaviorManager {
             this.selection = new Selection(
                 this.gridSettings,
                 this.columnsManager,
-                this.focus,
-                this._mainSubgrid,
-                () => this.processSelectionChangedEvent(),
             );
 
             this.renderer = new Renderer(
                 this.gridSettings,
                 this.mouse,
-                this.canvasEx,
+                this.canvasManager,
                 this.columnsManager,
                 this.subgridsManager,
                 this.viewLayout,
@@ -198,7 +195,7 @@ export class ComponentBehaviorManager {
             // Set up UI controls
 
             this.mouse = new Mouse(
-                this.canvasEx,
+                this.canvasManager,
                 this.viewLayout,
                 (cell, invalidateViewCellRender) => this.processMouseEnteredCellEvent(cell, invalidateViewCellRender),
                 (cell, invalidateViewCellRender) => this.processMouseExitedCellEvent(cell, invalidateViewCellRender),
@@ -240,13 +237,14 @@ export class ComponentBehaviorManager {
             // Set up behaviors
 
             this.eventBehavior = new EventBehavior(
-                this.canvasEx,
+                this.canvasManager,
                 this.columnsManager,
                 this.viewLayout,
+                this.selection,
                 this._horizontalScroller,
                 this._verticalScroller,
                 descendantEventer,
-                (event) => this.canvasEx.dispatchEvent(event),
+                (event) => this.canvasManager.dispatchEvent(event),
             );
 
             this.focusScrollBehavior = new FocusScrollBehavior(
@@ -258,7 +256,7 @@ export class ComponentBehaviorManager {
                 this.focus,
             );
 
-            this.selectionBehavior = new SelectionBehavior(
+            this.selectionBehavior = new FocusSelectBehavior(
                 this.selection,
                 this.focus,
                 this.viewLayout,
@@ -312,7 +310,6 @@ export class ComponentBehaviorManager {
         this.viewLayout.reset();
         this.focus.reset();
         this.mouse.reset();
-        this.focusScrollBehavior.reset();
 
         this.columnsManager.clearColumns();
 
@@ -321,7 +318,7 @@ export class ComponentBehaviorManager {
         //     this.setData(options.data);
         // }
 
-        this.canvasEx.resize();
+        this.canvasManager.resize();
         // this.behaviorChanged();
 
         this.viewLayout.invalidateAll(true);
@@ -380,7 +377,7 @@ export class ComponentBehaviorManager {
     destroy() {
         this._destroyed = true;
         this.renderer.stop();
-        this.canvasEx.stop();
+        this.canvasManager.stop();
         this._modelCallbackRouter.destroy();
         this.selectionBehavior.destroy();
         this.eventBehavior.destroy();
@@ -393,7 +390,7 @@ export class ComponentBehaviorManager {
     }
 
     allowEvents(allow: boolean){
-        this.canvasEx.eventsEnabled = allow;
+        this.canvasManager.eventsEnabled = allow;
 
         if (allow){
             this._modelCallbackRouter.enable();
@@ -605,11 +602,6 @@ export class ComponentBehaviorManager {
         this._verticalScroller.resize();
         this.viewLayout.invalidateAll(true);
         this.eventBehavior.processCanvasResizedEvent();
-    }
-
-    private processSelectionChangedEvent() {
-        this.renderer.invalidateViewRender();
-        this.eventBehavior.processSelectionChangedEvent();
     }
 
     private invalidateHorizontalAll(scrollablePlaneDimensionAsWell: boolean) {

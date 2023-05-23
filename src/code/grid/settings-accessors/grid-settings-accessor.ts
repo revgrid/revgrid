@@ -35,8 +35,8 @@ export class GridSettingsAccessor implements LoadableGridSettings {
         }
     }
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
-    get mouseCellSelection() { return this._raw.mouseCellSelection; }
-    set mouseCellSelection(value: boolean) { this._raw.mouseCellSelection = value; }
+    get mouseRectangleSelection() { return this._raw.mouseRectangleSelection; }
+    set mouseRectangleSelection(value: boolean) { this._raw.mouseRectangleSelection = value; }
     get checkboxOnlyRowSelections() { return this._raw.checkboxOnlyRowSelections; }
     set checkboxOnlyRowSelections(value: boolean) { this._raw.checkboxOnlyRowSelections = value; }
     get color() { return this._raw.color; }
@@ -345,7 +345,7 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get secondarySelectionAreaType() { return this._raw.secondarySelectionAreaType; }
     set secondarySelectionAreaType(value: SelectionArea.Type) { this._raw.secondarySelectionAreaType = value; }
     get secondarySelectionAreaTypeSpecifierModifierKey() { return this._raw.secondarySelectionAreaTypeSpecifierModifierKey; }
-    set secondarySelectionAreaTypeSpecifierModifierKey(value: ModifierKeyEnum) { this._raw.secondarySelectionAreaTypeSpecifierModifierKey = value; }
+    set secondarySelectionAreaTypeSpecifierModifierKey(value: ModifierKeyEnum | undefined) { this._raw.secondarySelectionAreaTypeSpecifierModifierKey = value; }
     /** Stroke color for last selection overlay. */
     get selectionRegionOutlineColor() { return this._raw.selectionRegionOutlineColor; }
     set selectionRegionOutlineColor(value: GridSettings.Color) { this._raw.selectionRegionOutlineColor = value; }

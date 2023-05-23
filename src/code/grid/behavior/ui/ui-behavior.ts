@@ -1,5 +1,5 @@
 
-import { CanvasEx } from '../../components/canvas-ex/canvas-ex';
+import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
@@ -17,8 +17,8 @@ import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
 import { FocusScrollBehavior } from '../component/focus-scroll-behavior';
+import { FocusSelectBehavior } from '../component/focus-select-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
-import { SelectionBehavior } from '../component/selection-behavior';
 import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
@@ -33,7 +33,7 @@ export abstract class UiBehavior {
     protected readonly containerHtmlElement: HTMLElement;
 
     protected readonly gridSettings: GridSettings;
-    protected readonly canvasEx: CanvasEx;
+    protected readonly canvasManager: CanvasManager;
     protected readonly selection: Selection;
     protected readonly focus: Focus;
     protected readonly columnsManager: ColumnsManager;
@@ -45,7 +45,7 @@ export abstract class UiBehavior {
     protected readonly mouse: Mouse;
 
     protected readonly focusScrollBehavior: FocusScrollBehavior;
-    protected readonly selectionBehavior: SelectionBehavior;
+    protected readonly focusSelectBehavior: FocusSelectBehavior;
     protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
     protected readonly cellPropertiesBehavior: CellPropertiesBehavior;
     protected readonly dataExtractBehavior: DataExtractBehavior;
@@ -58,7 +58,7 @@ export abstract class UiBehavior {
         this.containerHtmlElement = services.containerHtmlElement;
 
         this.gridSettings = services.gridSettings;
-        this.canvasEx = services.canvasEx;
+        this.canvasManager = services.canvasManager;
         this.selection = services.selection;
         this.focus = services.focus;
         this.columnsManager = services.columnsManager;
@@ -70,7 +70,7 @@ export abstract class UiBehavior {
         this.mouse = services.mouse;
 
         this.focusScrollBehavior = services.focusScrollBehavior;
-        this.selectionBehavior = services.selectionBehavior;
+        this.focusSelectBehavior = services.focusSelectBehavior;
         this.rowPropertiesBehavior = services.rowPropertiesBehavior;
         this.cellPropertiesBehavior = services.cellPropertiesBehavior;
         this.dataExtractBehavior = services.dataExtractBehavior;
@@ -197,6 +197,62 @@ export abstract class UiBehavior {
     handleClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleClick(event, cell);
+        } else {
+            return cell;
+        }
+    }
+
+    handleDrag(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (this.next) {
+            return this.next.handleDrag(event, cell);
+        } else {
+            return cell;
+        }
+    }
+
+    handleDragStart(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (this.next) {
+            return this.next.handleDragStart(event, cell);
+        } else {
+            return cell;
+        }
+    }
+
+    handleDragEnter(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (this.next) {
+            return this.next.handleDragEnter(event, cell);
+        } else {
+            return cell;
+        }
+    }
+
+    handleDragOver(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (this.next) {
+            return this.next.handleDragOver(event, cell);
+        } else {
+            return cell;
+        }
+    }
+
+    handleDragLeave(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (this.next) {
+            return this.next.handleDragLeave(event, cell);
+        } else {
+            return cell;
+        }
+    }
+
+    handleDragEnd(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (this.next) {
+            return this.next.handleDragEnd(event, cell);
+        } else {
+            return cell;
+        }
+    }
+
+    handleDrop(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (this.next) {
+            return this.next.handleDrop(event, cell);
         } else {
             return cell;
         }

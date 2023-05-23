@@ -12,7 +12,7 @@ export namespace StartLength {
             };
         } else {
             return {
-                start: last - 1,
+                start: first + 1,
                 length: last - first - 1, // same as -(first - (last - 1))
             };
         }

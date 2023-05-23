@@ -1,5 +1,5 @@
 
-import { CanvasRenderingContext2DEx, CellPainter, RectangleInterface } from '../grid/grid-public-api';
+import { CachedCanvasRenderingContext2D, CellPainter, RectangleInterface } from '../grid/grid-public-api';
 
 /**
  * Renders a slider button.
@@ -9,7 +9,7 @@ import { CanvasRenderingContext2DEx, CellPainter, RectangleInterface } from '../
 export class SliderCellPainter implements CellPainter {
     config: SliderCellPainter.Config;
 
-    paint(gc: CanvasRenderingContext2DEx, _prefillColor: string | undefined): number | undefined {
+    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined {
         const config = this.config;
 
         const x = config.bounds.x;

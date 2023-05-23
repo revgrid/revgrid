@@ -21,7 +21,7 @@
     { "path": "../../components/column/tsconfig.grid-components-column.json" },
     { "path": "../../components/cell/tsconfig.grid-components-cell.json" },
     { "path": "../../components/event/tsconfig.grid-components-event.json" },
-    { "path": "../../components/canvas-ex/tsconfig.grid-components-canvas-ex.json" },
+    { "path": "../../components/canvas/tsconfig.grid-components-canvas.json" },
     { "path": "../../settings-accessors/tsconfig.grid-settings-accessors.json" },
     { "path": "../../interfaces/tsconfig.grid-interfaces.json" },
     { "path": "../../lib/tsconfig.grid-lib.json" },

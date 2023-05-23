@@ -4,7 +4,8 @@ import { SchemaModel } from './schema-model';
 /** @public */
 export interface ColumnInterface {
     readonly schemaColumn: SchemaModel.Column;
-    readonly index: number; // always the same as SchemaColumn index
+    /** Always the same as SchemaColumn index */
+    readonly index: number;
     readonly name: string;
 
     readonly settings: ColumnSettings;

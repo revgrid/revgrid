@@ -1,7 +1,7 @@
 
 import { GridSettings } from '../../../interfaces/grid-settings';
-import { CanvasEx } from '../../canvas-ex/canvas-ex';
-import { CanvasRenderingContext2DEx } from '../../canvas-ex/canvas-rendering-context-2d-ex';
+import { CachedCanvasRenderingContext2D } from '../../canvas/cached-canvas-rendering-context-2d';
+import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
@@ -28,7 +28,7 @@ import { GridPainter } from './grid-painter';
 export class ByColumnsAndRowsGridPainter extends GridPainter {
     constructor(
         gridProperties: GridSettings,
-        canvasEx: CanvasEx,
+        canvasManager: CanvasManager,
         subgridsManager: SubgridsManager,
         viewLayout: ViewLayout,
         focus: Focus,
@@ -38,7 +38,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
     ) {
         super(
             gridProperties,
-            canvasEx,
+            canvasManager,
             subgridsManager,
             viewLayout,
             focus,
@@ -51,7 +51,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
         );
     }
 
-    paintCells(gc: CanvasRenderingContext2DEx) {
+    paintCells(gc: CachedCanvasRenderingContext2D) {
         const gridProps = this.gridSettings;
         const viewLayout = this.viewLayout;
         const viewLayoutColumns = viewLayout.columns;
@@ -74,7 +74,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
             const viewWidth = lastVisibleColumnRightPlus1 - firstVisibleColumnLeft;
             const viewHeight = viewLayoutRows[rowCount - 1].bottom;
 
-            const canvasBounds = this.canvasEx.bounds;
+            const canvasBounds = this.canvasManager.bounds;
             gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
             if (!columnCount || !rowCount) { return; }

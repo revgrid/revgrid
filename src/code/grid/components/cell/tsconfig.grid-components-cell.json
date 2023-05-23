@@ -11,7 +11,7 @@
   ],
 
   "references": [
-    { "path": "../canvas-ex/tsconfig.grid-components-canvas-ex.json" },
+    { "path": "../canvas/tsconfig.grid-components-canvas.json" },
     { "path": "../column/tsconfig.grid-components-column.json" },
     { "path": "../../interfaces/tsconfig.grid-interfaces.json" },
     { "path": "../../lib/tsconfig.grid-lib.json" }

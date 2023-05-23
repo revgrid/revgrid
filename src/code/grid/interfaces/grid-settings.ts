@@ -1,4 +1,5 @@
 import { ModifierKey, ModifierKeyEnum } from '../lib/html-types';
+import { UnreachableCaseError } from '../lib/revgrid-error';
 import { SelectionArea } from '../lib/selection-area';
 import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from '../lib/types';
 import { deepExtendValue } from '../lib/utils';
@@ -174,7 +175,7 @@ export interface GridSettings {
     maximumColumnWidth: number | undefined;
     visibleColumnWidthAdjust: boolean;
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
-    mouseCellSelection: boolean;
+    mouseRectangleSelection: boolean;
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
     mouseColumnSelection: boolean;
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors. */
@@ -216,7 +217,7 @@ export interface GridSettings {
     scrollingEnabled: boolean,
     /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a Selection. */
     secondarySelectionAreaType: SelectionArea.Type;
-    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum;
+    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
     /** Stroke color for last selection overlay. */
     selectionRegionOutlineColor: GridSettings.Color;
     /** Fill color for last selection overlay. */
@@ -411,28 +412,42 @@ export namespace GridSettings {
         }
     }
 
-    export function isAddToggleSelectionAreaModifierKeyDownInKeyboardEvent(gridProperties: GridSettings, keyboardEvent: KeyboardEvent) {
-        return ModifierKey.isDownInKeyboardEvent(gridProperties.addToggleSelectionAreaModifierKey, keyboardEvent);
+    export function isAddToggleSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
+        return ModifierKey.isDownInEvent(gridSettings.addToggleSelectionAreaModifierKey, event);
     }
 
-    export function isAddToggleSelectionAreaModifierKeyDownInMouseEvent(gridProperties: GridSettings, mouseEvent: MouseEvent) {
-        return ModifierKey.isDownInMouseEvent(gridProperties.addToggleSelectionAreaModifierKey, mouseEvent);
+    export function isExtendLastSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
+        return ModifierKey.isDownInEvent(gridSettings.extendLastSelectionAreaModifierKey, event);
     }
 
-    export function isExtendLastSelectionAreaModifierKeyDownInKeyboardEvent(gridProperties: GridSettings, keyboardEvent: KeyboardEvent) {
-        return ModifierKey.isDownInKeyboardEvent(gridProperties.extendLastSelectionAreaModifierKey, keyboardEvent);
+    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
+        return ModifierKey.isDownInEvent(gridSettings.secondarySelectionAreaTypeSpecifierModifierKey, event);
     }
 
-    export function isExtendLastSelectionAreaModifierKeyDownInMouseEvent(gridProperties: GridSettings, mouseEvent: MouseEvent) {
-        return ModifierKey.isDownInMouseEvent(gridProperties.extendLastSelectionAreaModifierKey, mouseEvent);
+    export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
+        if (ModifierKey.isDownInEvent(gridSettings.secondarySelectionAreaTypeSpecifierModifierKey, event)) {
+            return gridSettings.secondarySelectionAreaType;
+        } else {
+            return gridSettings.primarySelectionAreaType;
+        }
     }
 
-    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInKeyboardEvent(gridProperties: GridSettings, keyboardEvent: KeyboardEvent) {
-        return ModifierKey.isDownInKeyboardEvent(gridProperties.secondarySelectionAreaTypeSpecifierModifierKey, keyboardEvent);
+    export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
+        if (GridSettings.isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent(gridSettings, event)) {
+            return SelectionArea.TypeSpecifier.Secondary;
+        } else {
+            return SelectionArea.TypeSpecifier.Primary;
+        }
     }
 
-    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInMouseEvent(gridProperties: GridSettings, mouseEvent: MouseEvent) {
-        return ModifierKey.isDownInMouseEvent(gridProperties.secondarySelectionAreaTypeSpecifierModifierKey, mouseEvent);
+    export function isMouseSelectionAllowed(gridSettings: GridSettings, selectionAreaType: SelectionArea.Type) {
+        switch (selectionAreaType) {
+            case SelectionArea.Type.Rectangle: return gridSettings.mouseRectangleSelection;
+            case SelectionArea.Type.Column: return gridSettings.mouseColumnSelection;
+            case SelectionArea.Type.Row: return gridSettings.mouseRowSelection;
+            default:
+                throw new UnreachableCaseError('GSIMSA67221', selectionAreaType);
+        }
     }
 }
 

@@ -2,7 +2,7 @@ import { Column, ColumnsDataValuesObject } from '../../components/column/column'
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Selection } from '../../components/selection/selection';
 import { DataModel } from '../../interfaces/data-model';
-import { UnreachableCaseError } from '../../lib/revgrid-error';
+import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { SelectionArea } from '../../lib/selection-area';
 
 /** @internal */
@@ -78,7 +78,7 @@ export class DataExtractBehavior {
     getFirstSelectionRectangleTopRowValues() {
         const rectangles = this._selection.rectangleList.rectangles;
         if (rectangles.length > 0) {
-            const dataModel = this._selection.subgrid.dataModel;
+            const dataModel = this.getDefinedSubgrid().dataModel;
             const columnsManager = this._columnsManager;
             const colCount = this._columnsManager.activeColumnCount;
             const topSelectedRow = rectangles[0].topLeft.y;
@@ -97,16 +97,20 @@ export class DataExtractBehavior {
 
     getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataModel.DataRow {
         const selectedRowIndexes = this._selection.getRowIndices();
+        const selectedRowIndexesCount = selectedRowIndexes.length;
         const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
         const result: DataModel.DataRow = {};
 
-        for (let c = 0, C = columns.length; c < C; c++) {
-            const column = columns[c];
-            const rows = result[column.name] = new Array(selectedRowIndexes.length);
-            selectedRowIndexes.forEach( (selectedRowIndex, j) => {
-                const dataRow = this._selection.subgrid.getSingletonDataRow(selectedRowIndex) as DataModel.DataRow; // should always exist
-                rows[j] = column.getValueFromDataRow(dataRow);
-            });
+        if (selectedRowIndexesCount >= 0) {
+            const subgrid = this.getDefinedSubgrid();
+            for (let c = 0, C = columns.length; c < C; c++) {
+                const column = columns[c];
+                const rows = result[column.name] = new Array(selectedRowIndexes.length);
+                selectedRowIndexes.forEach( (selectedRowIndex, j) => {
+                    const dataRow = subgrid.getSingletonDataRow(selectedRowIndex) as DataModel.DataRow; // should always exist
+                    rows[j] = column.getValueFromDataRow(dataRow);
+                });
+            }
         }
 
         return result;
@@ -114,18 +118,27 @@ export class DataExtractBehavior {
 
     getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataModel.DataValue>> {
         const selectedRowIndexes = this._selection.getRowIndices();
+        const selectedRowIndexesCount = selectedRowIndexes.length;
         const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
-        const result = new Array<Array<DataModel.DataValue>>(columns.length);
+        const columnCount = columns.length;
+        const result = new Array<Array<DataModel.DataValue>>(columnCount);
 
-        for (let c = 0, C = columns.length; c < C; c++) {
-            const column = columns[c];
-            result[c] = new Array<DataModel.DataValue>(selectedRowIndexes.length);
-            selectedRowIndexes.forEach(
-                (selectedRowIndex, r) => {
-                    const dataRow = this._selection.subgrid.getSingletonDataRow(selectedRowIndex) as DataModel.DataRow; // should always exist
-                    result[c][r] = column.getValueFromDataRow(dataRow);
-                }
-            );
+        if (selectedRowIndexesCount === 0) {
+            for (let c = 0; c < columnCount; c++) {
+                result[c] = [];
+            }
+        } else {
+            const subgrid = this.getDefinedSubgrid();
+            for (let c = 0; c < columnCount; c++) {
+                const column = columns[c];
+                result[c] = new Array<DataModel.DataValue>(selectedRowIndexes.length);
+                selectedRowIndexes.forEach(
+                    (selectedRowIndex, r) => {
+                        const dataRow = subgrid.getSingletonDataRow(selectedRowIndex) as DataModel.DataRow; // should always exist
+                        result[c][r] = column.getValueFromDataRow(dataRow);
+                    }
+                );
+            }
         }
 
         return result;
@@ -134,37 +147,46 @@ export class DataExtractBehavior {
     getColumnSelectionMatrix(): DataModel.DataValue[][] {
         const columnsManager = this._columnsManager;
         const selectedColumnIndexes = this._selection.getColumnIndices();
-        const numRows = this._selection.subgrid.getRowCount();
-        const result = new Array<Array<DataModel.DataValue>>(selectedColumnIndexes.length);
+        const selectedColumnIndexesCount = selectedColumnIndexes.length;
 
-        selectedColumnIndexes.forEach((selectedColumnIndex, c) => {
-            const column = columnsManager.getActiveColumn(selectedColumnIndex);
-            const values = result[c] = new Array<DataModel.DataValue>(numRows);
+        if (selectedColumnIndexesCount === 0) {
+            return [];
+        } else {
+            const result = new Array<Array<DataModel.DataValue>>(selectedColumnIndexesCount);
+            const subgrid = this.getDefinedSubgrid();
+            const numRows = subgrid.getRowCount();
+            selectedColumnIndexes.forEach((selectedColumnIndex, c) => {
+                const column = columnsManager.getActiveColumn(selectedColumnIndex);
+                const values = result[c] = new Array<DataModel.DataValue>(numRows);
 
-            for (let r = 0; r < numRows; r++) {
-                const dataRow = this._selection.subgrid.getSingletonDataRow(r) as DataModel.DataRow; // should always exist;
-                values[r] = column.getValueFromDataRow(dataRow);
-            }
-        });
+                for (let r = 0; r < numRows; r++) {
+                    const dataRow = subgrid.getSingletonDataRow(r) as DataModel.DataRow; // should always exist;
+                    values[r] = column.getValueFromDataRow(dataRow);
+                }
+            });
 
-        return result;
+            return result;
+        }
     }
 
     getSelectedColumnsValues() {
         const columnsManager = this._columnsManager;
         const selectedColumnIndexes = this._selection.getColumnIndices();
         const result: ColumnsDataValuesObject = {};
-        const rowCount = this._selection.subgrid.getRowCount();
+        if (selectedColumnIndexes.length > 0) {
+            const subgrid = this.getDefinedSubgrid();
+            const rowCount = subgrid.getRowCount();
 
-        selectedColumnIndexes.forEach((selectedColumnIndex) => {
-            const column = columnsManager.getActiveColumn(selectedColumnIndex);
-            const values = result[column.name] = new Array<DataModel.DataValue>(rowCount);
+            selectedColumnIndexes.forEach((selectedColumnIndex) => {
+                const column = columnsManager.getActiveColumn(selectedColumnIndex);
+                const values = result[column.name] = new Array<DataModel.DataValue>(rowCount);
 
-            for (let r = 0; r < rowCount; r++) {
-                const dataRow = this._selection.subgrid.getSingletonDataRow(r) as DataModel.DataRow; // should always exist;
-                values[r] = column.getValueFromDataRow(dataRow);
-            }
-        });
+                for (let r = 0; r < rowCount; r++) {
+                    const dataRow = subgrid.getSingletonDataRow(r) as DataModel.DataRow; // should always exist;
+                    values[r] = column.getValueFromDataRow(dataRow);
+                }
+            });
+        }
 
         return result;
     }
@@ -172,27 +194,31 @@ export class DataExtractBehavior {
     getSelectedValuesByRectangleAndColumn(): ColumnsDataValuesObject[] {
         const columnsManager = this._columnsManager;
         const selectionRectangles = this._selection.rectangleList.rectangles;
-        const rects = new Array<ColumnsDataValuesObject>(selectionRectangles.length);
+        const selectionRectangleCount = selectionRectangles.length;
+        const rects = new Array<ColumnsDataValuesObject>(selectionRectangleCount);
 
-        selectionRectangles.forEach(
-            (selectionRect, i) => {
-                const colCount = selectionRect.width;
-                const rowCount = selectionRect.height;
-                const columns: ColumnsDataValuesObject = {};
+        if (selectionRectangleCount > 0) {
+            const subgrid = this.getDefinedSubgrid();
+            selectionRectangles.forEach(
+                (selectionRect, i) => {
+                    const colCount = selectionRect.width;
+                    const rowCount = selectionRect.height;
+                    const columns: ColumnsDataValuesObject = {};
 
-                for (let c = 0, x = selectionRect.topLeft.x; c < colCount; c++, x++) {
-                    const column = columnsManager.getActiveColumn(x);
-                    const values = columns[column.name] = new Array<DataModel.DataValue>(rowCount);
+                    for (let c = 0, x = selectionRect.topLeft.x; c < colCount; c++, x++) {
+                        const column = columnsManager.getActiveColumn(x);
+                        const values = columns[column.name] = new Array<DataModel.DataValue>(rowCount);
 
-                    for (let r = 0, y = selectionRect.topLeft.y; r < rowCount; r++, y++) {
-                        const dataRow = this._selection.subgrid.getSingletonDataRow(y) as DataModel.DataRow; // should always exist;
-                        values[r] = column.getValueFromDataRow(dataRow);
+                        for (let r = 0, y = selectionRect.topLeft.y; r < rowCount; r++, y++) {
+                            const dataRow = subgrid.getSingletonDataRow(y) as DataModel.DataRow; // should always exist;
+                            values[r] = column.getValueFromDataRow(dataRow);
+                        }
                     }
-                }
 
-                rects[i] = columns;
+                    rects[i] = columns;
+                }
+            );
             }
-        );
 
         return rects;
     }
@@ -200,33 +226,47 @@ export class DataExtractBehavior {
     getSelectedValuesByRectangleColumnRowMatrix(): DataModel.DataValue[][][] {
         const columnsManager = this._columnsManager;
         const rectangles = this._selection.rectangleList.rectangles;
-        const rects = new Array<Array<Array<DataModel.DataValue>>>(rectangles.length);
+        const rectangleCount = rectangles.length;
+        const rects = new Array<Array<Array<DataModel.DataValue>>>(rectangleCount);
 
-        rectangles.forEach(
-            (rect, i) => {
-                const colCount = rect.width;
-                const rowCount = rect.height;
-                const columnArray = new Array<Array<DataModel.DataValue>>(colCount);
+        if (rectangleCount > 0) {
+            const subgrid = this.getDefinedSubgrid();
 
-                let x = rect.topLeft.x
-                for (let c = 0; c < colCount; c++) {
-                    const column = columnsManager.getActiveColumn(x);
+            rectangles.forEach(
+                (rect, i) => {
+                    const colCount = rect.width;
+                    const rowCount = rect.height;
+                    const columnArray = new Array<Array<DataModel.DataValue>>(colCount);
 
-                    const rowValues = new Array<DataModel.DataValue>(rowCount);
-                    for (let r = 0, y = rect.topLeft.y; r < rowCount; r++, y++) {
-                        const dataRow = this._selection.subgrid.getSingletonDataRow(y) as DataModel.DataRow; // should always exist;
-                        rowValues[r] = column.getValueFromDataRow(dataRow);
+                    let x = rect.topLeft.x
+                    for (let c = 0; c < colCount; c++) {
+                        const column = columnsManager.getActiveColumn(x);
+
+                        const rowValues = new Array<DataModel.DataValue>(rowCount);
+                        for (let r = 0, y = rect.topLeft.y; r < rowCount; r++, y++) {
+                            const dataRow = subgrid.getSingletonDataRow(y) as DataModel.DataRow; // should always exist;
+                            rowValues[r] = column.getValueFromDataRow(dataRow);
+                        }
+
+                        columnArray[c] = rowValues;
+                        x++;
                     }
 
-                    columnArray[c] = rowValues;
-                    x++;
+                    rects[i] = columnArray;
                 }
-
-                rects[i] = columnArray;
+            );
             }
-        );
 
         return rects;
+    }
+
+    private getDefinedSubgrid() {
+        const subgrid = this._selection.subgrid;
+        if (subgrid === undefined) {
+            throw new AssertError('DEBGS33321');
+        } else {
+            return subgrid;
+        }
     }
 
     /**

@@ -11,22 +11,34 @@ import { ViewLayout } from '../view/view-layout';
 export class Focus {
     readonly subgrid: SubgridInterface;
 
+    /** @internal */
     getCellEditorEventer: Focus.GetCellEditorEventer | undefined;
 
+    /** @internal */
     private _currentSubgridPoint: Point | undefined;
+    /** @internal */
     private _previousSubgridPoint: Point | undefined;
 
     // Optionally track position in canvas where focus is.  Used to assist with paging
+    /** @internal */
     private _canvasX: number | undefined;
+    /** @internal */
     private _canvasY: number | undefined;
 
+    /** @internal */
     private _editor: CellEditor | undefined;
+    /** @internal */
     private _cell: ViewCell | undefined;
 
+    /** @internal */
     constructor(
+        /** @internal */
         private readonly _mainSubgrid: SubgridInterface,
+        /** @internal */
         private readonly _columnsManager: ColumnsManager,
+        /** @internal */
         private readonly _viewLayout: ViewLayout,
+        /** @internal */
         private readonly _cellInvalidatedEventer: Focus.CellInvalidatedEventer,
     ) {
         this.subgrid = this._mainSubgrid;
@@ -46,12 +58,13 @@ export class Focus {
     /** Do not cache as can change whenever View Layout is recomputed (even if focus and/or editor does not change) */
     get cell() { return this._cell; }
 
+    /** @internal */
     reset() {
-        this.closeEditor(true);
         this.clear();
     }
 
     clear() {
+        this.closeEditor(true);
         this.undefineCell();
         this._previousSubgridPoint = this.currentSubgridPoint;
         this._currentSubgridPoint = undefined;
@@ -260,6 +273,7 @@ export class Focus {
         }
     }
 
+    /** @internal */
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataModel: DataModel) {
         if (dataModel === this._mainSubgrid.dataModel) {
             if (this._currentSubgridPoint !== undefined) {
@@ -273,6 +287,7 @@ export class Focus {
         }
     }
 
+    /** @internal */
     adjustForRowsDeleted(rowIndex: number, rowCount: number, dataModel: DataModel) {
         if (dataModel === this._mainSubgrid.dataModel) {
             if (this._currentSubgridPoint !== undefined) {
@@ -292,6 +307,7 @@ export class Focus {
         }
     }
 
+    /** @internal */
     adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataModel: DataModel) {
         if (dataModel === this._mainSubgrid.dataModel) {
             if (this._currentSubgridPoint !== undefined) {
@@ -305,6 +321,7 @@ export class Focus {
         }
     }
 
+    /** @internal */
     adjustForColumnsInserted(columnIndex: number, columnCount: number) {
         if (this._currentSubgridPoint !== undefined) {
             Point.adjustForXRangeInserted(this._currentSubgridPoint, columnIndex, columnCount);
@@ -316,6 +333,7 @@ export class Focus {
         this._canvasX = undefined;
     }
 
+    /** @internal */
     adjustForColumnsDeleted(columnIndex: number, columnCount: number) {
         if (this._currentSubgridPoint !== undefined) {
             const positionInDeletionRange = Point.adjustForXRangeDeleted(this._currentSubgridPoint, columnIndex, columnCount);
@@ -333,6 +351,7 @@ export class Focus {
         this._canvasX = undefined;
     }
 
+    /** @internal */
     adjustForColumnsMoved(oldColumnIndex: number, newColumnIndex: number, count: number) {
         if (this._currentSubgridPoint !== undefined) {
             Point.adjustForXRangeMoved(this._currentSubgridPoint, oldColumnIndex, newColumnIndex, count);
@@ -344,6 +363,7 @@ export class Focus {
         this._canvasX = undefined;
     }
 
+    /** @internal */
     createStash(): Focus.Stash {
         let currentStashPoint: Focus.Stash.Point | undefined;
         if (this._currentSubgridPoint !== undefined) {
@@ -360,6 +380,7 @@ export class Focus {
         }
     }
 
+    /** @internal */
     restoreStash(stash: Focus.Stash) {
         this.clear();
 
@@ -371,6 +392,7 @@ export class Focus {
         }
     }
 
+    /** @internal */
     private handleEditorClosed() {
         if (this._editor !== undefined) {
             this._editor.closedEventer = undefined;
@@ -378,6 +400,7 @@ export class Focus {
         }
     }
 
+    /** @internal */
     private handelCellPoolComputedEvent() {
         // Called within Request Animation Frame. Do not call any external code.
         const focusPoint = this._currentSubgridPoint;
@@ -411,6 +434,7 @@ export class Focus {
         }
     }
 
+    /** @internal */
     private undefineCell() {
         const cell = this._cell;
         if (cell !== undefined) {
@@ -419,6 +443,7 @@ export class Focus {
         this._cell = undefined;
     }
 
+    /** @internal */
     private createStashPoint(point: Point): Focus.Stash.Point | undefined {
         const dataModel = this._mainSubgrid.dataModel;
         if (dataModel.getRowIdFromIndex === undefined) {
@@ -431,6 +456,7 @@ export class Focus {
         }
     }
 
+    /** @internal */
     private createPointFromStash(stashPoint: Focus.Stash.Point): Point | undefined {
         const { columnName, rowId: stashedRowId } = stashPoint;
         const activeColumnIndex = this._columnsManager.getActiveColumnIndexByName(columnName);
@@ -471,14 +497,18 @@ export class Focus {
 
 /** @public */
 export namespace Focus {
+    /** @internal */
     export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor | undefined;
+    /** @internal */
     export type CellInvalidatedEventer = (this: void, cell: ViewCell) => void;
 
+    /** @internal */
     export interface Stash {
         readonly current: Stash.Point | undefined;
         readonly previous: Stash.Point | undefined;
     }
 
+    /** @internal */
     export namespace Stash {
         export interface Point {
             readonly columnName: string;

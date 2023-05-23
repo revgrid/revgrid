@@ -1,6 +1,6 @@
 
 import {
-    CanvasRenderingContext2DEx,
+    CachedCanvasRenderingContext2D,
     CellEditor,
     CellPainter,
     CellSettingsAccessor,
@@ -36,11 +36,11 @@ export class TextCellPainter implements CellPainter {
         this._grid = grid;
     }
 
-    paint(gc: CanvasRenderingContext2DEx, prefillColor: string | undefined): number | undefined {
+    paint(gc: CachedCanvasRenderingContext2D, prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
         const cell = this._cell;
 
-        this._settingsAccessor.setColumn(cell.viewLayoutColumn.column, cell.isHeaderCell, cell.isFilterCell);
+        this._settingsAccessor.setColumn(cell.viewLayoutColumn.column, cell.isHeader, cell.isFilter);
         const settings = this._settingsAccessor;
 
         const selection = grid.selection;
@@ -92,7 +92,7 @@ export class TextCellPainter implements CellPainter {
         let layerColorIndex = 0;
 
         const hoverCell = grid.mouse.hoverCell;
-        const hasMouse = grid.canvasEx.hasMouse;
+        const hasMouse = grid.canvasManager.hasMouse;
         const columnHovered =
             hasMouse &&
             (hoverCell !== undefined) &&
@@ -256,7 +256,7 @@ export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
  * @param val - The text to render in the cell.
  */
 function renderMultiLineText(
-    gc: CanvasRenderingContext2DEx,
+    gc: CachedCanvasRenderingContext2D,
     settings: CellSettingsAccessor,
     bounds: RectangleInterface,
     val: string,
@@ -320,7 +320,7 @@ function renderMultiLineText(
  * @param val - The text to render in the cell.
  */
 function renderSingleLineText(
-    gc: CanvasRenderingContext2DEx,
+    gc: CachedCanvasRenderingContext2D,
     settings: CellSettingsAccessor,
     bounds: RectangleInterface,
     val: string,
@@ -403,7 +403,7 @@ function renderSingleLineText(
     return leftPadding + minWidth + rightPadding;
 }
 
-function findLines(gc: CanvasRenderingContext2DEx, words: string[], width: number) {
+function findLines(gc: CachedCanvasRenderingContext2D, words: string[], width: number) {
 
     if (words.length <= 1) {
         return words;
@@ -439,7 +439,7 @@ function findLines(gc: CanvasRenderingContext2DEx, words: string[], width: numbe
     }
 }
 
-function strikeThrough(gc: CanvasRenderingContext2DEx, text: string, x: number, y: number, thickness: number) {
+function strikeThrough(gc: CachedCanvasRenderingContext2D, text: string, x: number, y: number, thickness: number) {
     const textWidth = gc.getTextWidth(text);
 
     switch (gc.cache.textAlign) {
@@ -458,7 +458,7 @@ function strikeThrough(gc: CanvasRenderingContext2DEx, text: string, x: number, 
     gc.lineTo(x + textWidth + 1, y);
 }
 
-function underline(gc: CanvasRenderingContext2DEx, settings: CellSettingsAccessor, text: string, x: number, y: number, thickness: number) {
+function underline(gc: CachedCanvasRenderingContext2D, settings: CellSettingsAccessor, text: string, x: number, y: number, thickness: number) {
     const textHeight = gc.getTextHeight(settings.font).height;
     const textWidth = gc.getTextWidth(text);
 
@@ -479,7 +479,7 @@ function underline(gc: CanvasRenderingContext2DEx, settings: CellSettingsAccesso
     gc.lineTo(x + textWidth, y);
 }
 
-function paintLayerColors(gc: CanvasRenderingContext2DEx, bounds: RectangleInterface, colors: string[], firstColorIsFill: boolean) {
+function paintLayerColors(gc: CachedCanvasRenderingContext2D, bounds: RectangleInterface, colors: string[], firstColorIsFill: boolean) {
     const x = bounds.x;
     const y = bounds.y;
     const width = bounds.width;
@@ -495,7 +495,7 @@ function paintLayerColors(gc: CanvasRenderingContext2DEx, bounds: RectangleInter
     }
 }
 
-function checkPaintBorder(gc: CanvasRenderingContext2DEx, bounds: RectangleInterface, borderColor: string | undefined) {
+function checkPaintBorder(gc: CachedCanvasRenderingContext2D, bounds: RectangleInterface, borderColor: string | undefined) {
     // paint border if required
     if (borderColor !== undefined) {
         gc.beginPath();

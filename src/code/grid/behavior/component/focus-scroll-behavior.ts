@@ -9,9 +9,6 @@ import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
 import { ViewLayoutRow } from '../../interfaces/view-layout-row';
 
 export class FocusScrollBehavior {
-    private _scrollingActive = false;
-    // private _resizeScrollbarsTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
-
     constructor(
         private readonly _gridSettings: GridSettings,
         private readonly _mainSubgrid: SubgridInterface,
@@ -21,27 +18,6 @@ export class FocusScrollBehavior {
         private readonly _focus: Focus,
     ) {
 
-    }
-
-    // destroy() {
-    //     this.checkClearResizeScrollbarsTimeout();
-    // }
-
-    reset() {
-        this._scrollingActive = false;
-        // this.checkClearResizeScrollbarsTimeout();
-    }
-
-    /** @internal */
-    setScrollingActive(value: boolean) {
-        this._scrollingActive = value;
-    }
-
-    /**
-     * @returns The `scrollingNow` field.
-     */
-    isScrollingActive() {
-        return this._scrollingActive;
     }
 
     tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell | undefined) {
