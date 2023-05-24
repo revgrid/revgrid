@@ -68,7 +68,7 @@ export class ComponentBehaviorManager {
     readonly mouse: Mouse;
 
     readonly focusScrollBehavior: FocusScrollBehavior;
-    readonly selectionBehavior: FocusSelectBehavior;
+    readonly focusSelectBehavior: FocusSelectBehavior;
     readonly eventBehavior: EventBehavior;
     readonly rowPropertiesBehavior: RowPropertiesBehavior;
     readonly cellPropertiesBehavior: CellPropertiesBehavior;
@@ -169,6 +169,7 @@ export class ComponentBehaviorManager {
             );
 
             this.focus = new Focus(
+                this.gridSettings,
                 this._mainSubgrid,
                 this.columnsManager,
                 this.viewLayout,
@@ -256,7 +257,8 @@ export class ComponentBehaviorManager {
                 this.focus,
             );
 
-            this.selectionBehavior = new FocusSelectBehavior(
+            this.focusSelectBehavior = new FocusSelectBehavior(
+                this.gridSettings,
                 this.selection,
                 this.focus,
                 this.viewLayout,
@@ -379,7 +381,6 @@ export class ComponentBehaviorManager {
         this.renderer.stop();
         this.canvasManager.stop();
         this._modelCallbackRouter.destroy();
-        this.selectionBehavior.destroy();
         this.eventBehavior.destroy();
         // this.focusScrollBehavior.destroy();
         this._horizontalScroller.destroy();

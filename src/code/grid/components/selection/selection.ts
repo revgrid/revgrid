@@ -238,21 +238,21 @@ export class Selection {
         this.deselectRectangle(rectangle, subgrid);
     }
 
-    selectArea(firstExclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
+    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
         this.beginChange();
         try {
             let area: SelectionArea;
             switch (areaType) {
                 case SelectionArea.Type.Rectangle: {
-                    area = this.selectRectangle(firstExclusiveX, firstExclusiveY, width, height, subgrid,);
+                    area = this.selectRectangle(firstInexclusiveX, firstExclusiveY, width, height, subgrid,);
                     break;
                 }
                 case SelectionArea.Type.Column: {
-                    area = this.selectColumns(firstExclusiveX, firstExclusiveY, width, height, subgrid);
+                    area = this.selectColumns(firstInexclusiveX, firstExclusiveY, width, height, subgrid);
                     break;
                 }
                 case SelectionArea.Type.Row: {
-                    area = this.selectRows(firstExclusiveX, firstExclusiveY, width, height, subgrid);
+                    area = this.selectRows(firstInexclusiveX, firstExclusiveY, width, height, subgrid);
                     break;
                 }
                 default:
@@ -293,17 +293,17 @@ export class Selection {
         }
     }
 
-    selectOnlyRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
+    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
         this.beginChange();
         try {
             this.clear();
-            return this.selectRectangle(exclusiveX, exclusiveY, width, height, subgrid);
+            return this.selectRectangle(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
         } finally {
             this.endChange();
         }
     }
 
-    selectRectangle(firstExclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: SubgridInterface, silent = false) {
+    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: SubgridInterface, silent = false) {
         this.beginChange();
         try {
             if (this.areaCount > 0) {
@@ -315,14 +315,14 @@ export class Selection {
                 this._subgrid = subgrid;
             }
 
-            const rectangle = new SelectionRectangle(firstExclusiveX, firstExclusiveY, width, height);
+            const rectangle = new SelectionRectangle(firstInexclusiveX, firstInexclusiveY, width, height);
 
             if (this._gridSettings.multipleSelectionAreas) {
                 this.rectangleList.push(rectangle);
             } else {
                 this.rectangleList.only(rectangle);
             }
-            this._lastArea = new LastSelectionArea(SelectionArea.Type.Rectangle, firstExclusiveX, firstExclusiveY, width, height);
+            this._lastArea = new LastSelectionArea(SelectionArea.Type.Rectangle, firstInexclusiveX, firstInexclusiveY, width, height);
 
             this.flagChanged(silent);
 
@@ -392,7 +392,7 @@ export class Selection {
     }
 
     /** Parameters specify a rectangle in Data, the rows of which will be selected */
-    selectRows(x: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
+    selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
         this.beginChange();
         try {
             if (subgrid !== this._subgrid) {
@@ -400,8 +400,8 @@ export class Selection {
                 this._subgrid = subgrid;
             }
 
-            const changed = this.rows.add(exclusiveY, height);
-            const lastArea = new LastSelectionArea(SelectionArea.Type.Row, x, exclusiveY, width, height);
+            const changed = this.rows.add(inexclusiveY, height);
+            const lastArea = new LastSelectionArea(SelectionArea.Type.Row, x, inexclusiveY, width, height);
             if (changed) {
                 this._lastArea = lastArea;
                 this.flagChanged(false);
@@ -449,7 +449,7 @@ export class Selection {
         }
     }
 
-    selectColumns(exclusiveX: number, y: number, width: number, height: number, subgrid: SubgridInterface) {
+    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: SubgridInterface) {
         this.beginChange();
 
         if (subgrid !== this._subgrid) {
@@ -457,8 +457,8 @@ export class Selection {
             this._subgrid = subgrid;
         }
 
-        const changed = this.columns.add(exclusiveX, width);
-        const lastArea = new LastSelectionArea(SelectionArea.Type.Column, exclusiveX, y, width, height);
+        const changed = this.columns.add(inexclusiveX, width);
+        const lastArea = new LastSelectionArea(SelectionArea.Type.Column, inexclusiveX, y, width, height);
         if (changed) {
             this._lastArea = lastArea;
             this.flagChanged(false);
@@ -486,59 +486,59 @@ export class Selection {
                         const lastHeight = oldLast.y - lastY;
                         const overlapStart = overlapRange.start;
                         const overlapLength = overlapRange.length;
-                        let lastExclusiveX: number;
+                        let lastInexclusiveX: number;
                         let lastWidth: number;
                         // set lastX and lastWidth so that last area still specifies the same corner
                         if (oldLength >= 0) {
-                            lastExclusiveX = overlapStart;
+                            lastInexclusiveX = overlapStart;
                             lastWidth = overlapLength;
                         } else {
-                            lastExclusiveX = overlapStart + overlapLength;
+                            lastInexclusiveX = overlapStart + overlapLength;
                             lastWidth = -overlapLength;
                         }
 
-                        this._lastArea = new LastSelectionArea(SelectionArea.Type.Column, lastExclusiveX, lastY, lastWidth, lastHeight);
+                        this._lastArea = new LastSelectionArea(SelectionArea.Type.Column, lastInexclusiveX, lastY, lastWidth, lastHeight);
                     }
                 }
             }
         }
     }
 
-    replaceLastArea(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
+    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
         this.beginChange();
         try {
             this.deselectLastArea();
-            return this.selectArea(exclusiveX, exclusiveY, width, height, subgrid, areaType);
+            return this.selectArea(inexclusiveX, inexclusiveY, width, height, subgrid, areaType);
         } finally {
             this.endChange();
         }
     }
 
-    replaceLastAreaWithRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
+    replaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
         this.beginChange();
         try {
             this.deselectLastArea();
-            return this.selectRectangle(exclusiveX, exclusiveY, width, height, subgrid);
+            return this.selectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         } finally {
             this.endChange();
         }
     }
 
-    replaceLastAreaWithColumns(exclusiveX: number, y: number, width: number, height: number, subgrid: SubgridInterface) {
+    replaceLastAreaWithColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: SubgridInterface) {
         this.beginChange();
         try {
             this.deselectLastArea();
-            return this.selectColumns(exclusiveX, y, width, height, subgrid);
+            return this.selectColumns(inexclusiveX, y, width, height, subgrid);
         } finally {
             this.endChange();
         }
     }
 
-    replaceLastAreaWithRows(exclusiveX: number, y: number, width: number, height: number, subgrid: SubgridInterface) {
+    replaceLastAreaWithRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
         this.beginChange();
         try {
             this.deselectLastArea();
-            return this.selectRows(exclusiveX, y, width, height, subgrid);
+            return this.selectRows(x, inexclusiveY, width, height, subgrid);
         } finally {
             this.endChange();
         }

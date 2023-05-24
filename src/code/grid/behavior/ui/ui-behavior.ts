@@ -258,6 +258,12 @@ export abstract class UiBehavior {
         }
     }
 
+    handleDocumentDragOver(event: DragEvent) {
+        if (this.next) {
+            this.next.handleDocumentDragOver(event);
+        }
+    }
+
     handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
             return this.next.handleMouseDrag(event, cell);

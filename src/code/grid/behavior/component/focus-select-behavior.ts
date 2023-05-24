@@ -1,20 +1,20 @@
 import { Focus } from '../../components/focus/focus';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
+import { GridSettings } from '../../interfaces/grid-settings';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
+import { AssertError } from '../../lib/revgrid-error';
 import { SelectionArea } from '../../lib/selection-area';
+import { StartLength } from '../../lib/start-length';
 
 export class FocusSelectBehavior {
     constructor(
+        private readonly _gridSettings: GridSettings,
         private readonly _selection: Selection,
         private readonly _focus: Focus,
         private readonly _viewLayout: ViewLayout,
         private readonly _checkFocusEventer: FocusSelectBehavior.CheckFocusEventer,
     ) {
-    }
-
-    destroy() {
-        //
     }
 
     selectOnlyColumn(activeColumnIndex: number) {
@@ -51,8 +51,8 @@ export class FocusSelectBehavior {
         this._selection.selectRows(columnIndex, subgridRowIndex, 1, 1, subgrid);
     }
 
-    focusSelectOnlyRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
-        const area = this._selection.selectRectangle(exclusiveX, exclusiveY, width, height, subgrid);
+    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
+        const area = this._selection.selectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
@@ -74,14 +74,14 @@ export class FocusSelectBehavior {
         }
     }
 
-    focusReplaceLastArea(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
-        const area = this._selection.replaceLastArea(exclusiveX, exclusiveY, width, height, subgrid, areaType);
+    focusReplaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
+        const area = this._selection.replaceLastArea(inexclusiveX, inexclusiveY, width, height, subgrid, areaType);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
 
-    focusReplaceLastAreaWithRectangle(exclusiveX: number, exclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
-        const area = this._selection.replaceLastAreaWithRectangle(exclusiveX, exclusiveY, width, height, subgrid);
+    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: SubgridInterface) {
+        const area = this._selection.replaceLastAreaWithRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
@@ -107,16 +107,50 @@ export class FocusSelectBehavior {
         if (focusPoint !== undefined) {
             const focusX = focusPoint.x;
             const focusY = focusPoint.y;
-            const selection = this._selection;
-            selection.beginChange();
-            try {
-                selection.clear();
-                this.focusSelectOnlyCell(focusX, focusY, this._focus.subgrid, areaType);
-            } finally {
-                selection.endChange();
+            this._selection.selectOnlyCell(focusX, focusY, this._focus.subgrid, areaType);
+        }
+    }
+
+    extendLastSelectionAreaAsCloseAsPossibleToFocus() {
+        const focusPoint = this._focus.currentSubgridPoint;
+        if (focusPoint === undefined) {
+            return false;
+        } else {
+            const lastArea = this._selection.lastArea;
+            if (lastArea === undefined) {
+                return false;
+            } else {
+                let newLastX = focusPoint.x;
+                let newLastY = focusPoint.y;
+
+                if (!this._gridSettings.scrollingEnabled) {
+                    const limitedNewX = this._viewLayout.limitActiveColumnIndexToView(newLastX);
+                    const limitedNewY = this._viewLayout.limitRowIndexToView(newLastY);
+                    if (limitedNewX === undefined || limitedNewY === undefined) {
+                        throw new AssertError('SUBMSS33398');
+                    } else {
+                        newLastX = limitedNewX;
+                        newLastY = limitedNewY;
+                    }
+                }
+
+                const firstPoint = lastArea.inclusiveFirst;
+                const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(firstPoint.x, newLastX);
+                const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(firstPoint.y, newLastY);
+                this._selection.replaceLastAreaWithRectangle(
+                    xExclusiveStartLength.start,
+                    yExclusiveStartLength.start,
+                    xExclusiveStartLength.length,
+                    yExclusiveStartLength.length,
+                    this._focus.subgrid
+                );
+
+                this._viewLayout.ensureColumnRowAreInView(newLastX, newLastY, true);
+                return true;
             }
         }
     }
+
 }
 
 export namespace FocusSelectBehavior {

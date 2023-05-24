@@ -121,11 +121,27 @@ export class FocusScrollBehavior {
     }
 
     tryPageFocusDown() {
-        const anchor = this._viewLayout.calculatePageDownRowAnchor();
-        if (anchor !== undefined) {
-            const rowIndex = anchor.index;
-            this._viewLayout.setRowScrollAnchor(anchor.index, anchor.offset);
-            this._focus.setY(rowIndex, undefined, undefined);
+        let focusY = this._focus.currentSubgridY;
+        if (focusY === undefined) {
+            focusY = this._viewLayout.lastScrollableSubgridRowIndex;
+        }
+        if (focusY === undefined) {
+            return false;
+        } else {
+            let newAnchorIndex = focusY;
+            const dimension = this._viewLayout.verticalScrollDimension;
+            const dimensionSize = dimension.size;
+            const dimensionViewportSize = dimension.viewportSize;
+            let newFocusY: number;
+            if (newAnchorIndex + dimension.viewportSize <= dimensionSize) {
+                newFocusY = focusY + dimensionViewportSize - 1;
+            } else {
+                newAnchorIndex = dimensionSize - dimensionViewportSize;
+                newFocusY = dimensionSize - 1;
+            }
+            this._viewLayout.setRowScrollAnchor(newAnchorIndex, 0);
+            this._focus.setY(newFocusY, undefined, undefined);
+            return true;
         }
     }
 
@@ -153,7 +169,7 @@ export class FocusScrollBehavior {
                     index: -1,
                     subgrid: this._subgridsManager.mainSubgrid,
                     top: -1,
-                    bottom: -1,
+                    bottomPlus1: -1,
                     height: -1,
                 };
                 const cellEvent = new ViewCell(this._columnsManager);
@@ -206,11 +222,11 @@ export class FocusScrollBehavior {
     }
 
     scrollFirstColumn() {
-        this._viewLayout.setColumnScrollAnchor(this._gridSettings.fixedColumnCount); // viewLayout will limit
+        this._viewLayout.setColumnScrollAnchor(this._gridSettings.fixedColumnCount, 0); // viewLayout will limit
     }
 
     scrollLastColumn() {
-        this._viewLayout.setColumnScrollAnchor(this._columnsManager.activeColumnCount); // viewLayout will limit
+        this._viewLayout.setColumnScrollAnchor(this._columnsManager.activeColumnCount, 0); // viewLayout will limit
     }
 
     scrollTop() {

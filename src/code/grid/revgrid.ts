@@ -54,7 +54,7 @@ export class Revgrid {
     /** @internal */
     private readonly _focusScrollBehavior: FocusScrollBehavior;
     /** @internal */
-    private readonly _selectionBehavior: FocusSelectBehavior;
+    private readonly _focusSelectBehavior: FocusSelectBehavior;
     /** @internal */
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
     /** @internal */
@@ -171,7 +171,7 @@ export class Revgrid {
             descendantEventer,
         );
         this._focusScrollBehavior = this.behaviorManager.focusScrollBehavior;
-        this._selectionBehavior = this.behaviorManager.selectionBehavior;
+        this._focusSelectBehavior = this.behaviorManager.focusSelectBehavior;
         this._rowPropertiesBehavior = this.behaviorManager.rowPropertiesBehavior;
         this._cellPropertiesBehavior = this.behaviorManager.cellPropertiesBehavior;
 
@@ -1444,6 +1444,10 @@ export class Revgrid {
         // for descendants
     }
 
+    protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell) {
+        // for descendants
+    }
+
     protected descendantEventerFocus() {
         // for descendants
     }
@@ -1561,10 +1565,6 @@ export class Revgrid {
     }
 
     protected descendantProcessResized() {
-        // for descendants
-    }
-
-    protected descendantProcessColumnSort(_event: EventDetail.ColumnSort) {
         // for descendants
     }
 
@@ -1777,23 +1777,15 @@ export class Revgrid {
         return this.selection.isColumnOrRowSelected();
     }
 
-    /**
-     * @summary Select given region.
-     * @param exclusiveX - origin x
-     * @param exclusiveY - origin y
-     * @param ex - extent x
-     * @param ex - extent y
-     */
-
-    selectRectangle(exclusiveX: number, exclusiveY: number, ex: number, ey: number, subgrid?: SubgridInterface) {
+    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: SubgridInterface) {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
-        this._selectionBehavior.focusSelectOnlyRectangle(exclusiveX, exclusiveY, ex, ey, subgrid);
+        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
     }
 
     selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType = SelectionArea.Type.Rectangle) {
-        this._selectionBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, areaType);
+        this._focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, areaType);
     }
 
     selectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaType = SelectionArea.Type.Rectangle) {
@@ -1801,11 +1793,11 @@ export class Revgrid {
             subgrid = this.focus.subgrid;
         }
 
-        this._selectionBehavior.focusSelectOnlyCell(x, y, subgrid, areaType);
+        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid, areaType);
     }
 
     selectOnlyRow(subgridRowIndex: number, subgrid: SubgridInterface) {
-        this._selectionBehavior.selectOnlyRow(subgridRowIndex, subgrid);
+        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid);
     }
 
     selectAllRows() {
@@ -2023,7 +2015,7 @@ export class Revgrid {
     }
 
     focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionArea.Type.Rectangle) {
-        this._selectionBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
+        this._focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
     }
 
     /**
@@ -2054,14 +2046,6 @@ export class Revgrid {
         this._focusScrollBehavior.tryPageFocusRight();
     }
     // End Scrolling mixin
-
-    generateNavKey(keyboardEvent: KeyboardEvent) {
-        let navKey = this.settings.navKeyMap[keyboardEvent.key];
-        if (keyboardEvent.shiftKey) {
-            navKey += 'SHIFT';
-        }
-        return navKey;
-    }
 
     /** @internal */
     private findOrCreateContainer(boundingRect: Revgrid.BoundingRectStyleValues | undefined) {
@@ -2094,6 +2078,7 @@ export class Revgrid {
             columnsChanged: () => this.descendantProcessColumnsChanged(),
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
             columnsViewWidthsChanged: () => this.descendantProcessColumnsViewWidthsChanged(),
+            columnSort: (event, cell) => this.descendantProcessColumnSort(event, cell),
             selectionChanged: () => this.descendantProcessSelectionChanged(),
             focus: () => this.descendantEventerFocus(),
             blur: () => this.descendantEventerBlur(),
@@ -2125,7 +2110,6 @@ export class Revgrid {
             touchEnd: (event) => this.descendantProcessTouchEnd(event),
             copy: (event) => this.descendantProcessCopy(event),
             resized: () => this.descendantProcessResized(),
-            columnSort: (event) => this.descendantProcessColumnSort(event),
             horizontalScrollViewportStartChanged: () => this.descendantProcessHorizontalScrollViewportStartChanged(),
             verticalScrollViewportStartChanged: () => this.descendantProcessVerticalScrollViewportStartChanged(),
             horizontalScrollerAction: (action) => this.descendantProcessHorizontalScrollerAction(action),

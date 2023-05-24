@@ -59,6 +59,8 @@ export class CanvasManager {
     dragEndEventer: CanvasManager.DragEventer;
     dropEventer: CanvasManager.DragEventer;
 
+    documentDragOverEventer: CanvasManager.DragEventer;
+
     mouseLocation = Point.create(-1, -1);
     dragstart = Point.create(-1, -1);
     // origin = null;
@@ -88,6 +90,11 @@ export class CanvasManager {
     private _containerWidth: number;
     /** @internal */
     private _containerHeight: number;
+
+    /** @internal
+     * Used in dragging when no drag image is wanted
+     */
+    private _emptyImage: HTMLImageElement;
 
     /** @internal */
     private _eventlistenerInfos = new Map<string, CanvasManager.ListenerInfo[]>();
@@ -250,11 +257,19 @@ export class CanvasManager {
 
         this._containerElement.appendChild(this.canvasElement);
 
+        this._emptyImage = document.createElement('img');
+        this._emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
         document.addEventListener('mousemove', this.documentMouseMoveEventListener);
         document.addEventListener('mouseup', this.documentMouseUpEventListener);
         document.addEventListener('wheel', this.documentWheelEventListener);
         document.addEventListener('keydown', this.documentKeyDownEventListener);
         document.addEventListener('keyup', this.documentKeyUpEventListener);
+        document.addEventListener('dragover', (event) => {
+            if (this.eventsEnabled) {
+                this.documentDragOverEventer(event);
+            }
+        });
 
         this.canvasElement.addEventListener('focus', this.canvasFocusEventListener);
         this.canvasElement.addEventListener('blur', this.canvasBlurEventListener);
@@ -310,6 +325,7 @@ export class CanvasManager {
     get devicePixelRatio() { return this._devicePixelRatio; }
     get flooredContainerWidth() { return this._flooredContainerWidth; }
     get flooredContainerHeight() { return this._flooredContainerHeight; }
+    get emptyImage() { return this._emptyImage; }
 
     addExternalEventListener(eventName: string, listener: CanvasManager.EventListener) {
         let alreadyAttached: boolean;
@@ -614,7 +630,9 @@ export class CanvasManager {
     }
 
     private isDragging() {
-        return this.dragging;
+        // disable for now - remove in future
+        return false;
+        // return this.dragging;
     }
 
     private disableDocumentElementSelection() {

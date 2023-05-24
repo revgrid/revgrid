@@ -28,6 +28,7 @@ export class EventBehavior {
     uiDragLeaveEventer: EventBehavior.UiDragEventer;
     uiDragEndEventer: EventBehavior.UiDragEventer;
     uiDropEventer: EventBehavior.UiDragEventer;
+    uiDocumentDragOverEventer: (this: void, event: DragEvent) => void;
     uiContextMenuEventer: EventBehavior.UiMouseEventer;
     uiTouchStartEventer: EventBehavior.UiTouchEventer;
     uiTouchMoveEventer: EventBehavior.UiTouchEventer;
@@ -75,6 +76,7 @@ export class EventBehavior {
         this._canvasEx.dragLeaveEventer = (event) => this.processDragLeaveEvent(event);
         this._canvasEx.dragEndEventer = (event) => this.processDragEndEvent(event);
         this._canvasEx.dropEventer = (event) => this.processDropEvent(event);
+        this._canvasEx.documentDragOverEventer = (event) => this.processDocumentDragOverEvent(event);
 
         this._columnsManager.allColumnListChangedEventer = (typeId, index, count, targetIndex) => this.processAllColumnListChangedEvent(
             typeId, index, count, targetIndex
@@ -103,6 +105,14 @@ export class EventBehavior {
 
         if (this._dispatchEnabled) {
             this.dispatchCustomEvent('rev-column-changed-event', false, undefined);
+        }
+    }
+
+    processColumnSortEvent(event: MouseEvent, cell: ViewCell) {
+        this._descendantEventer.columnSort(event, cell);
+
+        if (this._dispatchEnabled) {
+            this.dispatchMouseEvent('rev-column-sort', event, cell);
         }
     }
 
@@ -141,14 +151,6 @@ export class EventBehavior {
             };
 
             this.dispatchCustomEvent('rev-grid-resized', false, detail);
-        }
-    }
-
-    processColumnSortEvent(event: EventDetail.ColumnSort) {
-        this._descendantEventer.columnSort(event);
-
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-column-sort', false, event);
         }
     }
 
@@ -350,6 +352,10 @@ export class EventBehavior {
         this._descendantEventer.drop(event, cell);
     }
 
+    private processDocumentDragOverEvent(event: DragEvent) {
+        this.uiDocumentDragOverEventer(event);
+    }
+
     private processContextMenuEvent(event: MouseEvent) {
         let cell = this.uiContextMenuEventer(event);
         if (this._dispatchEnabled) {
@@ -543,6 +549,7 @@ export namespace EventBehavior {
         readonly columnsChanged: DescendantEventer.Signal;
         readonly columnsWidthChanged: (this: void, columns: ColumnInterface[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: DescendantEventer.Signal;
+        readonly columnSort: (this: void, event: MouseEvent, cell: ViewCell) => void;
         readonly selectionChanged: DescendantEventer.Signal;
         readonly focus: DescendantEventer.Focus;
         readonly blur: DescendantEventer.Focus;
@@ -574,7 +581,6 @@ export namespace EventBehavior {
         readonly touchEnd: DescendantEventer.Touch;
         readonly copy: DescendantEventer.Clipboard;
         readonly resized: DescendantEventer.Signal;
-        readonly columnSort: (this: void, eventDetail: EventDetail.ColumnSort) => void;
         readonly horizontalScrollViewportStartChanged: DescendantEventer.Signal;
         readonly verticalScrollViewportStartChanged: DescendantEventer.Signal;
         readonly horizontalScrollerAction: DescendantEventer.ScrollerAction;

@@ -693,14 +693,14 @@ export class ViewLayout {
      * @param index - Index of active column that should be anchor
      * @return true if changed
      */
-    setColumnScrollAnchor(index: number, offset = 0): boolean {
+    setColumnScrollAnchor(index: number, offset: number): boolean {
         this.ensureHorizontalValidOutsideAnimationFrame();
 
-        ({ index, offset } = this.horizontalScrollDimension.calculateLimitedScrollAnchor(index, offset));
+        const { index: limitedIndex, offset: limitedOffset } = this.horizontalScrollDimension.calculateLimitedScrollAnchor(index, offset);
 
-        if (this._columnScrollAnchorIndex !== index || this._columnScrollAnchorOffset !== offset) {
-            this._columnScrollAnchorIndex = index;
-            this._columnScrollAnchorOffset = offset;
+        if (this._columnScrollAnchorIndex !== limitedIndex || this._columnScrollAnchorOffset !== limitedOffset) {
+            this._columnScrollAnchorIndex = limitedIndex;
+            this._columnScrollAnchorOffset = limitedOffset;
 
             this.invalidateHorizontalAll(false);
             return true;
@@ -783,7 +783,7 @@ export class ViewLayout {
                     );
                     anchorUpdated = this.setColumnScrollAnchor(index, offset);
                 } else {
-                    anchorUpdated = this.setColumnScrollAnchor(activeColumnIndex);
+                    anchorUpdated = this.setColumnScrollAnchor(activeColumnIndex, 0);
                 }
             } else {
                 const lastViewportScrollableActiveColumnIndex = this.lastScrollableActiveColumnIndex;
@@ -798,7 +798,7 @@ export class ViewLayout {
                     if (columnIsToRight) {
                         // target is to right of scrollable columns
                         if (gridRightAligned) {
-                            anchorUpdated = this.setColumnScrollAnchor(activeColumnIndex);
+                            anchorUpdated = this.setColumnScrollAnchor(activeColumnIndex, 0);
                         } else {
                             const {index, offset} = this.horizontalScrollDimension.calculateColumnScrollAnchorToScrollIntoView(
                                 activeColumnIndex, gridRightAligned
@@ -814,11 +814,13 @@ export class ViewLayout {
     }
 
     setRowScrollAnchor(index: number, offset: number) {
-        ({ index, offset } = this.verticalScrollDimension.calculateLimitedScrollAnchor(index, offset));
+        this.ensureVerticalValidOutsideAnimationFrame();
 
-        if (this._rowScrollAnchorIndex !== index || this._rowScrollAnchorOffset !== offset) {
-            this._rowScrollAnchorIndex = index;
-            this._rowScrollAnchorOffset = offset;
+        const { index: limitedIndex, offset: limitedOffset } = this.verticalScrollDimension.calculateLimitedScrollAnchor(index, offset);
+
+        if (this._rowScrollAnchorIndex !== limitedIndex || this._rowScrollAnchorOffset !== limitedOffset) {
+            this._rowScrollAnchorIndex = limitedIndex;
+            this._rowScrollAnchorOffset = limitedOffset;
 
             this.invalidateVerticalAll(false);
             return true;
@@ -976,12 +978,12 @@ export class ViewLayout {
      * @returns Cell coordinates
      */
     findLeftGridLineInclusiveCellFromCanvasOffset(x: number, y: number): ViewCell | undefined {
-        const columnIndex = this.findIndexOfLeftGridLineInclusiveColumnFromCanvasOffset(x);
-        if (columnIndex === undefined) {
+        const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(x);
+        if (columnIndex < 0) {
             return undefined;
         } else {
             const rows = this._rows;
-            const row = rows.find((aVr) => y < aVr.bottom);
+            const row = rows.find((aVr) => y < aVr.bottomPlus1);
             if (row === undefined) {
                 return undefined;
             } else {
@@ -997,11 +999,11 @@ export class ViewLayout {
 
     findScrollableCellClosestToCanvasOffset(canvasOffsetX: number, canvasOffsetY: number) {
         const columnIndex = this.findIndexOfScrollableColumnClosestToCanvasOffset(canvasOffsetX);
-        if (columnIndex === undefined) {
+        if (columnIndex < 0) {
             return undefined;
         } else {
             const rowIndex = this.findIndexOfScrollableRowClosestToOffset(canvasOffsetY);
-            if (rowIndex === undefined) {
+            if (rowIndex < 0) {
                 return undefined;
             } else {
                 return this.findCellAtViewpointIndex(columnIndex, rowIndex);
@@ -1009,20 +1011,20 @@ export class ViewLayout {
         }
     }
 
-    findLeftGridLineInclusiveColumnFromCanvasOffset(canvasOffsetX: number) {
-        const index = this.findIndexOfLeftGridLineInclusiveColumnFromCanvasOffset(canvasOffsetX);
-        if (index === undefined) {
+    findLeftGridLineInclusiveColumnOfCanvasOffset(canvasOffsetX: number) {
+        const index = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasOffsetX);
+        if (index < 0) {
             return undefined;
         } else {
             return this._columns[index];
         }
     }
 
-    findIndexOfLeftGridLineInclusiveColumnFromCanvasOffset(canvasOffsetX: number) {
+    findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasOffsetX: number) {
         const columns = this._columns;
         const columnCount = columns.length;
         if (canvasOffsetX < 0 || columnCount === 0) {
-            return undefined;
+            return -1;
         } else {
             for (let i = 0; i < columnCount; i++) {
                 const column = columns[i];
@@ -1030,7 +1032,7 @@ export class ViewLayout {
                     return i;
                 }
             }
-            return undefined;
+            return -1;
         }
     }
 
@@ -1054,30 +1056,10 @@ export class ViewLayout {
         }
     }
 
-    findRowIndexOfCanvasOffset(canvasOffsetY: number) {
-        const rows = this._rows;
-        const rowCount = rows.length;
-        if (canvasOffsetY < 0 || rowCount === 0) {
-            return -1;
-        } else {
-            for (let i = 0; i < rowCount; i++) {
-                const row = rows[i];
-                if (canvasOffsetY < row.bottom) {
-                    if (canvasOffsetY >= row.top) {
-                        return i;
-                    } else {
-                        return -1;
-                    }
-                }
-            }
-            return -1;
-        }
-    }
-
     findIndexOfScrollableColumnClosestToCanvasOffset(canvasOffsetX: number) {
         const firstScrollableColumnViewLeft = this.scrollableCanvasLeft;
         if (firstScrollableColumnViewLeft === undefined) {
-            return undefined;
+            return -1;
         } else {
             if (canvasOffsetX < firstScrollableColumnViewLeft) {
                 const firstScrollableColumnIndex = this._firstScrollableColumnIndex;
@@ -1096,7 +1078,7 @@ export class ViewLayout {
                         return lastScrollableColumnIndex;
                     }
                 } else {
-                    const columnIndex = this.findColumnIndexOfCanvasOffset(canvasOffsetX);
+                    const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasOffsetX);
                     if (columnIndex < 0) {
                         throw new AssertError('VFIOSCCTOL33390')
                     } else {
@@ -1107,10 +1089,55 @@ export class ViewLayout {
         }
     }
 
+    findTopGridLineInclusiveRowOfCanvasOffset(canvasOffsetY: number) {
+        const index = this.findTopGridLineInclusiveRowIndexOfCanvasOffset(canvasOffsetY);
+        if (index < 0) {
+            return undefined;
+        } else {
+            return this._rows[index];
+        }
+    }
+
+    findTopGridLineInclusiveRowIndexOfCanvasOffset(canvasOffsetY: number) {
+        const rows = this._rows;
+        const rowCount = rows.length;
+        if (canvasOffsetY < 0 || rowCount === 0) {
+            return -1;
+        } else {
+            for (let i = 0; i < rowCount; i++) {
+                const row = rows[i];
+                if (canvasOffsetY < row.bottomPlus1) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+    }
+
+    findRowIndexOfCanvasOffset(canvasOffsetY: number) {
+        const rows = this._rows;
+        const rowCount = rows.length;
+        if (canvasOffsetY < 0 || rowCount === 0) {
+            return -1;
+        } else {
+            for (let i = 0; i < rowCount; i++) {
+                const row = rows[i];
+                if (canvasOffsetY < row.bottomPlus1) {
+                    if (canvasOffsetY >= row.top) {
+                        return i;
+                    } else {
+                        return -1;
+                    }
+                }
+            }
+            return -1;
+        }
+    }
+
     findIndexOfScrollableRowClosestToOffset(y: number) {
         const firstScrollableRowViewTop = this.firstScrollableRowViewTop;
         if (firstScrollableRowViewTop === undefined) {
-            return undefined;
+            return -1;
         } else {
             if (y < firstScrollableRowViewTop) {
                 const firstScrollableRowIndex = this._firstScrollableRowIndex;
@@ -1126,10 +1153,10 @@ export class ViewLayout {
                 } else {
                     const rows = this._rows;
                     const lastScrollableRow = rows[lastScrollableRowIndex];
-                    if (y >= lastScrollableRow.bottom) {
+                    if (y >= lastScrollableRow.bottomPlus1) {
                         return lastScrollableRowIndex;
                     } else {
-                        const rowIndex = this.findRowIndexOfCanvasOffset(y);
+                        const rowIndex = this.findTopGridLineInclusiveRowIndexOfCanvasOffset(y);
                         if (rowIndex < 0) {
                             throw new AssertError('VFIOSRCTOL33391')
                         } else {
@@ -1464,7 +1491,7 @@ export class ViewLayout {
 
         if (index >= rows.length) {
             const last = rows[rows.length - 1];
-            result = last.bottom;
+            result = last.bottomPlus1;
         } else {
             result = rows[index].top;
         }
@@ -1585,7 +1612,7 @@ export class ViewLayout {
             return undefined;
         } else {
             const rows = this._rows;
-            const row = rows.find((aVr) => y < aVr.bottom);
+            const row = rows.find((aVr) => y < aVr.bottomPlus1);
             if (row === undefined) {
                 return undefined;
             } else {
@@ -2043,13 +2070,13 @@ export class ViewLayout {
             while (subgridRowIndex < subgridRowCount && y < afterY) {
                 const height = subgrid.getRowHeight(subgridRowIndex);
 
-                const row = {
+                const row: ViewLayoutRow = {
                     index: rowIndex,
                     subgridRowIndex,
                     subgrid,
                     top: y,
                     height,
-                    bottom: y + height
+                    bottomPlus1: y + height
                 };
                 this._rows[rowIndex] = row;
 
@@ -2064,7 +2091,7 @@ export class ViewLayout {
                 y += height;
 
                 if (rowIndex === mainLastFixedRowIndex) {
-                    gapTop = row.bottom + fixedOverlapH;
+                    gapTop = row.bottomPlus1 + fixedOverlapH;
                     y += fixedGapH;
                 } else {
                     y += gridLinesHWidth;

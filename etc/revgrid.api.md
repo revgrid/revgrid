@@ -748,32 +748,20 @@ export namespace EventDetail {
         readonly time: number;
     }
     // (undocumented)
-    export interface ColumnSort {
+    export interface ColumnSort extends MouseEvent {
         // (undocumented)
-        readonly activeColumnIndex: number;
-        // (undocumented)
-        readonly altKey: boolean;
-        // (undocumented)
-        readonly column: ColumnInterface;
-        // (undocumented)
-        readonly ctrlKey: boolean;
-        // (undocumented)
-        readonly metaKey: boolean;
-        // (undocumented)
-        readonly shiftKey: boolean;
-        // (undocumented)
-        readonly time: number;
+        revgridViewCell?: ViewCell;
     }
     // (undocumented)
     export type DragType = keyof typeof DragTypeEnum;
     // (undocumented)
     export const enum DragTypeEnum {
         // (undocumented)
-        ExtendLastColumnSelectionArea = "RevgridExtendLastColumnSelectionArea",
+        ExtendLastColumnSelectionArea = "revgridextendlastcolumnselectionarea",
         // (undocumented)
-        ExtendLastRectangleSelectionArea = "RevgridExtendLastRectangleSelectionArea",
+        ExtendLastRectangleSelectionArea = "revgridextendlastrectangleselectionarea",
         // (undocumented)
-        ExtendLastRowSelectionArea = "RevgridExtendLastRowSelectionArea"
+        ExtendLastRowSelectionArea = "revgridextendlastrowselectionarea"
     }
     // (undocumented)
     export interface Grid {
@@ -940,7 +928,7 @@ export namespace EventName {
         'rev-wheel-move': EventDetail.Wheel;
     }
     // (undocumented)
-    export type Mouse = 'rev-click' | 'rev-dbl-click' | 'rev-mouse-down' | 'rev-mouse-up' | 'rev-mouse-move' | 'rev-wheel-move' | 'rev-context-menu';
+    export type Mouse = 'rev-click' | 'rev-dbl-click' | 'rev-mouse-down' | 'rev-mouse-up' | 'rev-mouse-move' | 'rev-wheel-move' | 'rev-context-menu' | 'rev-column-sort';
 }
 
 // @public (undocumented)
@@ -949,6 +937,7 @@ export class Focus {
     //
     // @internal
     constructor(
+    _gridSettings: GridSettings,
     _mainSubgrid: SubgridInterface,
     _columnsManager: ColumnsManager,
     _viewLayout: ViewLayout,
@@ -1218,8 +1207,6 @@ export interface GridSettings {
     mouseRectangleSelection: boolean;
     mouseRowSelection: boolean;
     multipleSelectionAreas: boolean;
-    navKeyMap: GridSettings.NavKeyMap;
-    // (undocumented)
     noDataMessage: string;
     // Warning: (ae-forgotten-export) The symbol "SelectionArea" needs to be exported by the entry point public-api.d.ts
     primarySelectionAreaType: SelectionArea.Type;
@@ -1288,7 +1275,7 @@ export interface GridSettings {
 
 // @public (undocumented)
 export namespace GridSettings {
-    // @internal (undocumented)
+    // (undocumented)
     export function assign(source: Partial<GridSettings>, target: GridSettings): boolean;
     // (undocumented)
     export type Color = string;
@@ -1330,19 +1317,6 @@ export namespace GridSettings {
     export type LinkFunction = (this: void, cellEvent: unknown) => string;
     // (undocumented)
     export type LinkProp = [url: string, target: string];
-    // (undocumented)
-    export type NavKeyMap = Record<string, NavType>;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "CellSelection"
-    export type NavType = 'LEFT' | 'RIGHT' | 'UP' | 'DOWN' | 'PAGELEFT' | 'PAGERIGHT' | 'PAGEUP' | 'PAGEDOWN';
     // (undocumented)
     export const enum propClassEnum {
         // (undocumented)
@@ -1493,17 +1467,17 @@ export class Mouse {
     _cellEnteredEventer: Mouse.CellEventer,
     _cellExitedEventer: Mouse.CellEventer);
     // (undocumented)
+    get activeDragType(): EventDetail.DragTypeEnum | undefined;
+    // (undocumented)
     get hoverCell(): ViewCell | undefined;
     // @internal (undocumented)
     reset(): void;
-    // (undocumented)
-    get scrolling(): boolean;
+    // @internal (undocumented)
+    setActiveDragType(value: EventDetail.DragTypeEnum | undefined): void;
     // @internal (undocumented)
     setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, hoverCell: ViewCell | undefined): void;
     // @internal (undocumented)
     setOperationCursor(cursorName: string | undefined): void;
-    // @internal (undocumented)
-    setScrolling(value: boolean): void;
 }
 
 // @public (undocumented)
@@ -1580,7 +1554,7 @@ export namespace Point {
 export class Rectangle implements RectangleInterface {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    constructor(exclusiveX: number, exclusiveY: number, width: number, height: number);
+    constructor(inexclusiveX: number, inexclusiveY: number, width: number, height: number);
     adjustForXRangeDeleted(deletionLeft: number, deletionCount: number): boolean | null;
     adjustForXRangeInserted(index: number, count: number): boolean;
     // (undocumented)
@@ -1873,7 +1847,7 @@ export class Revgrid {
     // (undocumented)
     canvasDiv: HTMLDivElement;
     // (undocumented)
-    readonly canvasEx: CanvasManager;
+    readonly canvasManager: CanvasManager;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     checkColumnAutosizing(): boolean;
     clearAllCellProperties(x?: number): void;
@@ -1902,7 +1876,7 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessColumnsChanged(): void;
     // (undocumented)
-    protected descendantProcessColumnSort(_event: EventDetail.ColumnSort): void;
+    protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell): void;
     // (undocumented)
     protected descendantProcessColumnsViewWidthsChanged(): void;
     // (undocumented)
@@ -1988,8 +1962,6 @@ export class Revgrid {
     focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType?: SelectionArea.Type): void;
     // (undocumented)
     formatValue(localizerName: string | undefined, value: unknown): string;
-    // (undocumented)
-    generateNavKey(keyboardEvent: KeyboardEvent): string;
     // (undocumented)
     getActiveColumn(activeIndex: number): Column;
     // (undocumented)
@@ -2153,8 +2125,8 @@ export class Revgrid {
     selectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaType?: SelectionArea.Type): void;
     // (undocumented)
     selectOnlyRow(subgridRowIndex: number, subgrid: SubgridInterface): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    selectRectangle(exclusiveX: number, exclusiveY: number, ex: number, ey: number, subgrid?: SubgridInterface): void;
+    // (undocumented)
+    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: SubgridInterface): void;
     // (undocumented)
     selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType?: SelectionArea.Type): void;
     // (undocumented)

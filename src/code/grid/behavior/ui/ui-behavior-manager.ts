@@ -97,6 +97,7 @@ export class UiBehaviorManager {
         this._eventBehavior.uiDragLeaveEventer = (event) => this.handleDragLeaveEvent(event);
         this._eventBehavior.uiDragEndEventer = (event) => this.handleDragEndEvent(event);
         this._eventBehavior.uiDropEventer = (event) => this.handleDropEvent(event);
+        this._eventBehavior.uiDocumentDragOverEventer = (event) => this.handleDocumentDragOverEvent(event);
         this._eventBehavior.uiHorizontalScrollerActionEventer = (event) => this.handleHorizontalScrollerActionEvent(event);
         this._eventBehavior.uiVerticalScrollerActionEventer = (event) => this.handleVerticalScrollerActionEvent(event);
     }
@@ -378,6 +379,12 @@ export class UiBehaviorManager {
             return cell;
         } else {
             return undefined;
+        }
+    }
+
+    private handleDocumentDragOverEvent(event: DragEvent) {
+        if (this._enabled) {
+            this._firstUiBehavior.handleDocumentDragOver(event);
         }
     }
 

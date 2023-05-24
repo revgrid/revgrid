@@ -1,5 +1,4 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
-import { ColumnInterface } from '../../interfaces/column-interface';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { ViewCell } from '../cell/view-cell';
 
@@ -16,6 +15,10 @@ export namespace EventDetail {
     }
 
     export interface Wheel extends WheelEvent {
+        revgridViewCell?: ViewCell;
+    }
+
+    export interface ColumnSort extends MouseEvent {
         revgridViewCell?: ViewCell;
     }
 
@@ -45,16 +48,6 @@ export namespace EventDetail {
         }
     }
 
-    export interface ColumnSort {
-        readonly time: number;
-        readonly column: ColumnInterface;
-        readonly activeColumnIndex: number;
-        readonly altKey: boolean;
-        readonly metaKey: boolean;
-        readonly ctrlKey: boolean;
-        readonly shiftKey: boolean;
-    }
-
     export interface RowsDataInvalidated {
         readonly time: number;
         readonly rowIndex: number;
@@ -81,9 +74,9 @@ export namespace EventDetail {
     }
 
     export const enum DragTypeEnum {
-        ExtendLastRectangleSelectionArea = 'RevgridExtendLastRectangleSelectionArea',
-        ExtendLastColumnSelectionArea = 'RevgridExtendLastColumnSelectionArea',
-        ExtendLastRowSelectionArea = 'RevgridExtendLastRowSelectionArea',
+        ExtendLastRectangleSelectionArea = 'revgridextendlastrectangleselectionarea',
+        ExtendLastColumnSelectionArea = 'revgridextendlastcolumnselectionarea',
+        ExtendLastRowSelectionArea = 'revgridextendlastrowselectionarea',
     }
 
     export type DragType = keyof typeof DragTypeEnum;

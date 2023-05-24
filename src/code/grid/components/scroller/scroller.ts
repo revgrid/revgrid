@@ -33,19 +33,6 @@ export class Scroller {
     visibilityChangedEventer: Scroller.VisibilityChangedEventer;
 
     /**
-     * @name paging
-     * @summary Enable page up/dn clicks.
-     * @desc Set by the constructor. See the similarly named property in the {@link finbarOptions} object.
-     *
-     * If truthy, listen for clicks in page-up and page-down regions of scrollbar.
-     *
-     * If an object, call `.paging.up()` on page-up clicks and `.paging.down()` will be called on page-down clicks.
-     *
-     * Changing the truthiness of this value after instantiation currently has no effect.
-     */
-    paging: boolean | Scroller.Paging;
-
-    /**
      * @summary The generated scrollbar thumb element.
      * @desc The thumb element's parent element is always the {@link Scroller#bar|bar} element.
      *
@@ -191,15 +178,15 @@ export class Scroller {
         thumb.style.position = 'absolute';
         thumb.onclick = bound.shortStop;
         thumb.onmouseover = bound.onmouseover;
-        thumb.onmouseout = this._bound.onmouseout;
+        thumb.onmouseout = bound.onmouseout;
 
         this.bar = document.createElement('div');
         const bar = this.bar;
         bar.style.position = 'absolute';
-        bar.onmousedown = this._bound.onmousedown;
-        if (this.paging) { bar.onclick = bound.onclick; }
+        bar.onmousedown = bound.onmousedown;
+        bar.onclick = bound.onclick;
         bar.appendChild(thumb);
-        bar.addEventListener('wheel', this._bound.onwheel);
+        bar.addEventListener('wheel', bound.onwheel);
 
         // presets
         this.orientation = orientation;
@@ -212,7 +199,6 @@ export class Scroller {
         bar.classList.add(`${this._classPrefix}-${orientation}`);
         this._deltaProp = this._orientationHash.delta;
         this.increment = 1;
-        this.paging = true;
         this.barStyles = null;
         this._deltaProp = (this.orientation === 'vertical' ? Scroller.DeltaPropEnum.deltaY : Scroller.DeltaPropEnum.deltaX);
         this.deltaXFactor = deltaXFactor;
@@ -594,17 +580,30 @@ export class Scroller {
     private onclick(evt: MouseEvent) {
         const index = this.index;
         if (index !== undefined) {
-            const thumbBox = this._thumb.getBoundingClientRect(),
-                goingUp = evt[this._orientationHash.coordinate] < thumbBox[this._orientationHash.leading];
+            const thumbBox = this._thumb.getBoundingClientRect();
+            const goingUp = evt[this._orientationHash.coordinate] < thumbBox[this._orientationHash.leading];
 
-            if (typeof this.paging === 'object') {
-                const newIndex = this.paging[goingUp ? 'up' : 'down'](Math.round(index));
-                if (newIndex !== undefined) {
-                    this.index = newIndex;
+
+            let actionType: EventDetail.ScrollerAction.Type;
+            if (goingUp) {
+                if (evt.altKey) {
+                    actionType = EventDetail.ScrollerAction.Type.StepBack;
+                } else {
+                    actionType = EventDetail.ScrollerAction.Type.PageBack;
                 }
             } else {
-                this.index = index + (goingUp ? -this.increment : this.increment);
+                if (evt.altKey) {
+                    actionType = EventDetail.ScrollerAction.Type.StepForward;
+                } else {
+                    actionType = EventDetail.ScrollerAction.Type.PageForward;
+                }
             }
+            const action: EventDetail.ScrollerAction = {
+                type: actionType,
+                viewportStart: undefined,
+            };
+
+            this.actionEventer(action);
 
             // make the thumb glow momentarily
             this._thumb.classList.add('hover');

@@ -82,7 +82,7 @@ export class AsNeededGridPainter extends GridPainter {
             //     firstVisibleColumnLeft = this.visibleColumns[0].left;
             //     lastVisibleColumnRight = this.visibleColumns[cLast].right;
             // }
-            const viewHeight = viewLayoutRows[rowCount - 1].bottom;
+            const viewHeight = viewLayoutRows[rowCount - 1].bottomPlus1;
 
 
             // if (this.reset) {

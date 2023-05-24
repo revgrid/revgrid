@@ -1,12 +1,13 @@
 import { Point } from '../../lib/point';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { ViewCell } from '../cell/view-cell';
+import { EventDetail } from '../event/event-detail';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
 export class Mouse {
     /** @internal */
-    private _scrolling: boolean;
+    private _activeDragType: EventDetail.DragTypeEnum | undefined;
     /** @internal */
     private _canvasOffsetPoint: Point | undefined;
     /** @internal */
@@ -28,7 +29,7 @@ export class Mouse {
         this._viewLayout.cellPoolComputedEventerForMouse = () => this.processViewLayoutComputed();
     }
 
-    get scrolling() { return this._scrolling; }
+    get activeDragType() { return this._activeDragType; }
     get hoverCell() { return this._hoverCell; }
 
     /** @internal */
@@ -63,8 +64,8 @@ export class Mouse {
     }
 
     /** @internal */
-    setScrolling(value: boolean) {
-        this._scrolling = value;
+    setActiveDragType(value: EventDetail.DragTypeEnum | undefined) {
+        this._activeDragType = value;
     }
 
     /** @internal */

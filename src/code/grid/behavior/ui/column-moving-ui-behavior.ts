@@ -290,7 +290,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                         source: dragCol
                     };
                 } else {
-                    let overCol = this.viewLayout.findLeftGridLineInclusiveColumnFromCanvasOffset(offsetX);
+                    let overCol = this.viewLayout.findLeftGridLineInclusiveColumnOfCanvasOffset(offsetX);
                     if (overCol === undefined) {
                         // must be in unused space
                         overCol = this.viewLayout.createUnusedSpaceColumn();

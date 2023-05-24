@@ -5,8 +5,8 @@ import { SelectionArea } from '../../lib/selection-area';
 export class SelectionRectangle extends FirstCornerRectangle implements SelectionArea {
     readonly areaType = SelectionArea.Type.Rectangle;
 
-    constructor(firstExclusiveX: number, firstExclusiveY: number, width: number, height: number) {
-        super(firstExclusiveX, firstExclusiveY, width, height);
+    constructor(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number) {
+        super(firstInexclusiveX, firstInexclusiveY, width, height);
     }
 
     override createCopy() {

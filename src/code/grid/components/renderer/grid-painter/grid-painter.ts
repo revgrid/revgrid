@@ -127,7 +127,7 @@ export abstract class GridPainter {
             const firstVisibleColumnLeft = viewLayoutColumns[0].left;
             const lastVisibleColumnRight = viewLayoutColumns[C1].rightPlus1;
             const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
-            const viewHeight = viewLayoutRows[R1].bottom;
+            const viewHeight = viewLayoutRows[R1].bottomPlus1;
             const gridLinesVColor = gridProps.gridLinesVColor;
             const gridLinesHColor = gridProps.gridLinesHColor;
             // const borderBox = gridProps.boxSizing === 'border-box';
@@ -144,7 +144,7 @@ export abstract class GridPainter {
                 const firstDataRow = viewLayoutRows[preMainRowCount]; // any data rows?
                 const userDataAreaTop = firstDataRow && firstDataRow.top;
                 const top = gridProps.gridLinesColumnHeader ? 0 : userDataAreaTop;
-                const bottom = gridProps.gridLinesUserDataArea ? viewHeight : lastPreMainRow && lastPreMainRow.bottom;
+                const bottom = gridProps.gridLinesUserDataArea ? viewHeight : lastPreMainRow && lastPreMainRow.bottomPlus1;
 
                 if (top !== undefined && bottom !== undefined) { // either undefined means nothing to draw
                     gc.cache.fillStyle = gridLinesVColor;
@@ -176,7 +176,7 @@ export abstract class GridPainter {
 
                 viewLayoutRows.forEach(function(vr, r) {
                     if (r < R1) { // don't draw rule below last row
-                        const y = vr.bottom;
+                        const y = vr.bottomPlus1;
                         gc.fillRect(firstVisibleColumnLeft, y, width, gridLinesHWidth);
                     }
                 });
@@ -345,7 +345,7 @@ export abstract class GridPainter {
                                 x: vcOrigin.left,
                                 y: vrOrigin.top,
                                 width: vcCorner.rightPlus1 - vcOrigin.left,
-                                height: vrCorner.bottom - vrOrigin.top
+                                height: vrCorner.bottomPlus1 - vrOrigin.top
                             };
 
                             return bounds;
@@ -423,7 +423,7 @@ export abstract class GridPainter {
                 }
                 prefillColors[rowIndex] = backgroundColor;
                 if (bundle !== undefined && bundle.backgroundColor === backgroundColor) {
-                    bundle.bottom = vr.bottom;
+                    bundle.bottom = vr.bottomPlus1;
                 } else {
                     if (backgroundColor === gridPrefillColor) {
                         bundle = undefined; // this looks wrong
@@ -431,7 +431,7 @@ export abstract class GridPainter {
                         bundle = {
                             backgroundColor: backgroundColor,
                             top: vr.top,
-                            bottom: vr.bottom
+                            bottom: vr.bottomPlus1
                         };
                         bundles[bundleCount++] = bundle;
                     }

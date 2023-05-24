@@ -1,5 +1,4 @@
 
-import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
 import { GridSettings } from '../../interfaces/grid-settings';
@@ -103,7 +102,11 @@ export class SelectionUiBehavior extends UiBehavior {
                         if (dragType === undefined) {
                             return super.handleDragStart(event, cell);
                         } else {
-                            dataTransfer.setData(EventDetail.DragTypeEnum.ExtendLastColumnSelectionArea, '');
+                            this.mouse.setActiveDragType(dragType);
+
+                            dataTransfer.setDragImage(this.canvasManager.emptyImage, 0, 0);
+                            dataTransfer.effectAllowed = 'move';
+                            dataTransfer.setData(dragType, '');
                             return cell;
                         }
                     }
@@ -112,9 +115,18 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handleDrag(event: DragEvent, cell: ViewCell | null | undefined) {
+    override handleDocumentDragOver(event: DragEvent) {
         const dataTransfer = event.dataTransfer;
-        if (dataTransfer === null || this.dragTypesArrayContainsExtendLastSelectionAreaDragType(dataTransfer.types as readonly EventDetail.DragTypeEnum[])) {
+        if (dataTransfer === null || !this.dragTypesArrayContainsExtendLastSelectionAreaDragType(dataTransfer.types as readonly EventDetail.DragTypeEnum[])) {
+            return super.handleDocumentDragOver(event);
+        } else {
+            event.preventDefault();
+        }
+    }
+
+    override handleDrag(event: DragEvent, cell: ViewCell | null | undefined) {
+        const activeDragType = this.mouse.activeDragType;
+        if (activeDragType === undefined || !this.dragTypeIsExtendLastSelectionArea(activeDragType)) {
             return super.handleMouseDrag(event, cell);
         } else {
             this.cancelScheduledStepScrollDrag();
@@ -127,6 +139,7 @@ export class SelectionUiBehavior extends UiBehavior {
                 }
                 if (cell !== null) {
                     this.tryUpdateLastSelectionArea(cell);
+                    event.preventDefault();
                 }
                 return cell;
             }
@@ -134,63 +147,29 @@ export class SelectionUiBehavior extends UiBehavior {
     }
 
     override handleDragEnd(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
-        const dataTransfer = event.dataTransfer;
-        if (dataTransfer === null) {
+        const activeDragType = this.mouse.activeDragType;
+        if (activeDragType === undefined || !this.dragTypeIsExtendLastSelectionArea(activeDragType)) {
             return super.handleDragEnd(event, cell);
         } else {
-            if (this.dragTypesArrayContainsExtendLastSelectionAreaDragType(dataTransfer.types as (readonly EventDetail.DragTypeEnum[]))) {
-                this.cancelScheduledStepScrollDrag();
-                return cell;
-            } else {
-                return super.handleDragEnd(event, cell);
-            }
+            this.cancelScheduledStepScrollDrag();
+            this.mouse.setActiveDragType(undefined);
+            return cell;
         }
     }
 
-    /**
-     * @param eventDetail - the event details
-     */
     override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        const navKey = eventDetail.revgrid_navigateKey;// grid.generateNavKey(eventDetail)
-        if (navKey === undefined) {
-            super.handleKeyDown(eventDetail);
-        } else {
-            switch (navKey) {
-                case CanvasManager.Keyboard.NavigateKey.left:
-                case CanvasManager.Keyboard.NavigateKey.right:
-                case CanvasManager.Keyboard.NavigateKey.up:
-                case CanvasManager.Keyboard.NavigateKey.down: {
-                    // STEP 1: Move the selection
-                    if (eventDetail.shiftKey) {
-                        this.moveShiftSelect();
-                    } else {
-                        const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionArea.TypeSpecifier.Primary);
-                        this.focusSelectBehavior.selectOnlyFocusedCell(areaType);
-                    }
-
-                    // const grid = this.grid;
-                    // // STEP 2: Open the cell editor at the new position if `editable` AND edited cell had `editOnNextCell`
-                    // let cell = this.focusBehavior.getFocusedViewCell(true);
-                    // if (cell !== undefined) {
-                    //     if (cell.columnProperties.editOnNextCell) {
-                    //         this.viewLayout.compute(false); // moving selection may have auto-scrolled
-                    //         cell = this.focusBehavior.getFocusedViewCell(false); // new cell
-                    //         if (cell !== undefined) {
-                    //             grid.editAt(cell); // succeeds only if `editable`
-                    //         }
-                    //     }
-                    // }
-
-                    // // STEP 3: If editor not opened on new cell, take focus
-                    // if (!grid.cellEditor) {
-                    //     grid.takeFocus();
-                    // }
-                    break;
+        const navKey = eventDetail.revgrid_navigateKey;
+        if (navKey !== undefined) {
+            if (GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, eventDetail)) {
+                if (this.focusSelectBehavior.extendLastSelectionAreaAsCloseAsPossibleToFocus()) {
+                    this.pingAutoScroll();
                 }
-                default:
-                    super.handleKeyDown(eventDetail);
+            } else {
+                const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionArea.TypeSpecifier.Primary);
+                this.focusSelectBehavior.selectOnlyFocusedCell(areaType);
             }
         }
+        super.handleKeyDown(eventDetail);
     }
 
     private trySelectFromMouseDownInScrollableMain(event: MouseEvent, cell: ViewCell) {
@@ -395,39 +374,6 @@ export class SelectionUiBehavior extends UiBehavior {
         return Date.now() - this._sbAutoStart;
     }
 
-    /**
-     * @desc Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
-     * @param offsetX - x coordinate to start at
-     * @param offsetY - y coordinate to start at
-     */
-    private moveShiftSelect() {
-        const focusPoint = this.focus.currentSubgridPoint;
-        if (focusPoint === undefined) {
-            throw new AssertError('CSFMSS34440');
-        } else {
-            const activeColumnIndex = focusPoint.x;
-            const subgridRowIndex = focusPoint.y;
-
-            let newX: number | undefined = focusPoint.x;
-            let newY: number | undefined = focusPoint.y;
-
-            if (!this.gridSettings.scrollingEnabled) {
-                newX = this.viewLayout.limitActiveColumnIndexToView(newX);
-                newY = this.viewLayout.limitRowIndexToView(newY);
-            }
-
-            if (newX !== undefined && newY !== undefined) {
-                this.selection.replaceLastAreaWithRectangle(activeColumnIndex, subgridRowIndex, newX, newY, this.focus.subgrid);
-
-                if (this.viewLayout.ensureColumnRowAreInView(newX, newY, true)) {
-                    this.pingAutoScroll();
-                }
-
-                this.renderer.invalidateViewRender();
-            }
-        }
-    }
-
     private scheduleStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
         this._stepScrollDragTimeoutHandle = setTimeout(() => this.checkStepScrollDrag(canvasOffsetX, canvasOffsetY), 25);
     }
@@ -478,15 +424,19 @@ export class SelectionUiBehavior extends UiBehavior {
 
     private dragTypesArrayContainsExtendLastSelectionAreaDragType(types: readonly EventDetail.DragTypeEnum[]) {
         for (const type of types) {
-            if (
-                type === EventDetail.DragTypeEnum.ExtendLastRectangleSelectionArea ||
-                type === EventDetail.DragTypeEnum.ExtendLastColumnSelectionArea ||
-                type === EventDetail.DragTypeEnum.ExtendLastRowSelectionArea
-            ) {
+            if (this.dragTypeIsExtendLastSelectionArea(type)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private dragTypeIsExtendLastSelectionArea(type: EventDetail.DragTypeEnum) {
+        return (
+            type === EventDetail.DragTypeEnum.ExtendLastRectangleSelectionArea ||
+            type === EventDetail.DragTypeEnum.ExtendLastColumnSelectionArea ||
+            type === EventDetail.DragTypeEnum.ExtendLastRowSelectionArea
+        );
     }
 }
 

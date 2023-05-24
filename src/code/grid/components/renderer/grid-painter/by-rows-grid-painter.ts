@@ -74,7 +74,7 @@ export class ByRowsGridPainter extends GridPainter {
             lastVisibleColumnRight = viewLayoutColumns[lastColumnIndex].rightPlus1;
         }
         const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
-        const viewHeight = rowCount ? viewLayoutRows[rowCount - 1].bottom : 0;
+        const viewHeight = rowCount ? viewLayoutRows[rowCount - 1].bottomPlus1 : 0;
         const drawLines = gridProps.gridLinesH;
         const lineWidth = gridProps.gridLinesHWidth;
         const lineColor = gridProps.gridLinesHColor;
@@ -113,7 +113,7 @@ export class ByRowsGridPainter extends GridPainter {
 
             if (drawLines) {
                 gc.cache.fillStyle = lineColor;
-                gc.fillRect(firstVisibleColumnLeft, vr.bottom, viewWidth, lineWidth);
+                gc.fillRect(firstVisibleColumnLeft, vr.bottomPlus1, viewWidth, lineWidth);
             }
 
             // For each column (of each row)... (make sure correct pool is used)

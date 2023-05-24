@@ -10,7 +10,7 @@ export interface ViewLayoutRow {
     /** Pixel coordinate of the top edge of this row, rounded to nearest integer. */
     top: number;
     /** Pixel coordinate of the bottom edge of this row, rounded to nearest integer. */
-    bottom: number;
+    bottomPlus1: number;
     /** Height of this row in pixels, rounded to nearest integer. */
     height: number;
 }

@@ -72,7 +72,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                 lastVisibleColumnRightPlus1 = viewLayoutColumns[lastColumnIndex].rightPlus1;
             }
             const viewWidth = lastVisibleColumnRightPlus1 - firstVisibleColumnLeft;
-            const viewHeight = viewLayoutRows[rowCount - 1].bottom;
+            const viewHeight = viewLayoutRows[rowCount - 1].bottomPlus1;
 
             const canvasBounds = this.canvasManager.bounds;
             gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);

@@ -292,8 +292,6 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get multipleSelectionAreas() { return this._raw.multipleSelectionAreas; }
     set multipleSelectionAreas(value: boolean) { this._raw.multipleSelectionAreas = value; }
     /** Mappings for cell navigation keys. */
-    get navKeyMap() { return this._raw.navKeyMap; }
-    set navKeyMap(value: GridSettings.NavKeyMap) { this._raw.navKeyMap = value; }
     get noDataMessage() { return this._raw.noDataMessage; }
     set noDataMessage(value: string) { this._raw.noDataMessage = value; }
     get primarySelectionAreaType() { return this._raw.primarySelectionAreaType; }
@@ -652,4 +650,3 @@ export namespace GridSettingsAccessor {
         }
     }
 }
-

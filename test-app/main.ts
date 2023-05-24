@@ -177,7 +177,13 @@ export class Main {
         this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.settings.visibleColumnWidthAdjust;
         this._deleteRowIndexTextboxElement.value = '0';
 
-        this._grid.addEventListener('rev-column-sort', (event) => this._mainDataAdapter.sort((event as CustomEvent<EventDetail.ColumnSort>).detail.column) )
+        this._grid.addEventListener('rev-column-sort', (event) => {
+                const cell = (event as CustomEvent<EventDetail.ColumnSort>).detail.revgridViewCell;
+                if (cell !== undefined) {
+                    this._mainDataAdapter.sort(cell.viewLayoutColumn.column);
+                }
+            }
+        );
 
         this._grid.allowEvents(true);
 

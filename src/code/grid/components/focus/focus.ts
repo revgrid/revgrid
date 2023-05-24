@@ -1,4 +1,5 @@
 import { DataModel } from '../../interfaces/data-model';
+import { GridSettings } from '../../interfaces/grid-settings';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
 import { PartialPoint, Point } from '../../lib/point';
 import { AssertError } from '../../lib/revgrid-error';
@@ -32,6 +33,8 @@ export class Focus {
 
     /** @internal */
     constructor(
+        /** @internal */
+        private readonly _gridSettings: GridSettings,
         /** @internal */
         private readonly _mainSubgrid: SubgridInterface,
         /** @internal */
@@ -111,7 +114,7 @@ export class Focus {
         if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex) {
             this.undefineCell();
             this._previousSubgridPoint = currentSubgridPoint;
-            const y = currentFocusDefined ? currentSubgridPoint.y : 0;
+            const y = currentFocusDefined ? currentSubgridPoint.y : this._gridSettings.fixedRowCount;
 
             this._currentSubgridPoint = {
                 x: activeColumnIndex,
@@ -141,7 +144,7 @@ export class Focus {
         if (!currentFocusDefined || currentSubgridPoint.y !== subgridRowIndex) {
             this.undefineCell();
             this._previousSubgridPoint = currentSubgridPoint;
-            const x = currentFocusDefined ? currentSubgridPoint.x : 0;
+            const x = currentFocusDefined ? currentSubgridPoint.x : this._gridSettings.fixedColumnCount;
             this._currentSubgridPoint = {
                 x,
                 y: subgridRowIndex,

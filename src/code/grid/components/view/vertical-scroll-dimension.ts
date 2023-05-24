@@ -86,8 +86,9 @@ export class VerticalScrollDimension extends ScrollDimension {
 
                 // const finish = Math.max(0, mainSubgridRowCount - gridSettings.fixedRowCount - lastPageRowCount);
             } else {
+                const subgridRowCount = mainSubgrid.getRowCount();
                 start = fixedRowCount;
-                size = mainSubgrid.getRowCount() - start;
+                size = subgridRowCount - start;
                 const mainRowHeight = mainSubgrid.getDefaultRowHeight();
                 const gridLinesHWidth = this._gridSettings.gridLinesHWidth;
                 // Rearrangement of scrollableHeight = (viewportSize - 1) * (mainRowHeight + gridLinesHWidth) + mainRowHeight
@@ -100,11 +101,17 @@ export class VerticalScrollDimension extends ScrollDimension {
                 // if (!viewportSizeExact) {
                 //     finishAnchorLimitIndex++;
                 // }
+                let finishAnchorLimitIndex: number;
+                if (overflowed) {
+                    finishAnchorLimitIndex = size - viewportSize;
+                } else {
+                    finishAnchorLimitIndex = subgridRowCount - 1;
+                }
 
                 anchorLimits = {
                     startAnchorLimitIndex: fixedRowCount,
                     startAnchorLimitOffset: 0,
-                    finishAnchorLimitIndex: size - viewportSize,
+                    finishAnchorLimitIndex,
                     finishAnchorLimitOffset: 0,
                 }
             }

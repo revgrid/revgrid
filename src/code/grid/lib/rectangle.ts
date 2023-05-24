@@ -47,29 +47,33 @@ export class Rectangle implements RectangleInterface {
      *
      * Note: This object should be instantiated with the `new` keyword.
      *
-     * @param exclusiveX - Horizontal coordinate of some corner of the rect.
-     * @param exclusiveY - Vertical coordinate of some corner of the rect.
+     * @param inexclusiveX - Horizontal coordinate of some corner of the rect.
+     * @param inexclusiveY - Vertical coordinate of some corner of the rect.
      * @param width - Width of the new rect. May be negative (see above).
      * @param height - Height of the new rect. May be negative (see above).
      */
-    constructor(exclusiveX: number, exclusiveY: number, width: number, height: number) {
+    constructor(inexclusiveX: number, inexclusiveY: number, width: number, height: number) {
+        let x: number;
         if (width >= 0) {
-            this._x = exclusiveX;
+            x = inexclusiveX;
         } else {
-            this._x = exclusiveX + width;
+            x = inexclusiveX + width;
             width = -width;
         }
+        this._x = x;
 
+        let y: number;
         if (height >= 0) {
-            this._y = exclusiveY;
+            y = inexclusiveY;
         } else {
-            this._y = exclusiveY + height;
+            y = inexclusiveY + height;
             height = -height;
         }
+        this._y = y;
 
-        this._topLeft = Point.create(exclusiveX, exclusiveY);
+        this._topLeft = Point.create(x, y);
         this._extent = Point.create(width, height);
-        this._exclusiveBottomRight = Point.create(exclusiveX + width, exclusiveY + height);
+        this._exclusiveBottomRight = Point.create(x + width, y + height);
     }
 
     get x() { return this._x; }

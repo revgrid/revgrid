@@ -183,7 +183,6 @@ export interface GridSettings {
     /** Allow multiple cell region selections. */
     multipleSelectionAreas: boolean;
     /** Mappings for cell navigation keys. */
-    navKeyMap: GridSettings.NavKeyMap;
     noDataMessage: string;
     /** The area type that is added to a selection by default in a UI operation. Can also be specified in API calls which add an area to a Selection. */
     primarySelectionAreaType: SelectionArea.Type;
@@ -285,117 +284,6 @@ export namespace GridSettings {
         backgroundColor?: string;
     }
 
-    /**
-     * @summary Mappings for cell navigation keys.
-     * @desc Cell navigation is handled in the {@link CellSelection} "feature".
-     * This property gives you control over which key presses the built-in mechanism will respond to.
-     *
-     * (If this built-in cell selection logic is insufficient for your needs, you can also listen for
-     * the various "fin-key" events and carry out more complex operations in your listeners.)
-     *
-     * The key press names used here are defined in Canvas.js.
-     * Note that all key presses actually have two names, a normal name and a shifted name.
-     * The latter name is used when **shift** is depressed.
-     *
-     * The built-in nav key presses are as follows:
-     * * **`UP`** _(up-arrow key)_ - Replace all selections with a single cell, one row up from the last selection.
-     * * **`DOWN`** _(down-arrow key)_ - Replace all selections with a single cell, one row down from the last selection.
-     * * **`LEFT`** _(left-arrow key)_ - Replace all selections with a single cell, one column to the left of the last selection.
-     * * **`RIGHT`** _(right-arrow key)_ - Replace all selections with a single cell, one column to the right of the last selection.
-     * * **`UPSHIFT`** _(shift + up-arrow)_ - Extend the last selection up one row.
-     * * **`DOWNSHIFT`** _(shift + down-arrow)_ - Extend the last selection down one row.
-     * * **`LEFTSHIFT`** _(shift + left-arrow)_ - Extend the last selection left one column.
-     * * **`RIGHTSHIFT`** _(shift + right-arrow)_ - Extend the last selection right one column.
-     *
-     * To alter these or add other mappings see the examples below.
-     *
-     * A note regarding the other meta keys (**ctrl**, **option**, and **command**):
-     * Although these meta keys can be detected, they do not modify the key names as **shift** does.
-     * This is because they are more for system use and generally (with the possibly exception fo **ctrl**) should not
-     * be depended upon, as system functions will take priority and your app will never see these key presses.
-     *
-     * A special accommodation has been made to the {@link module:defaults.editOnKeydown|editOnKeydown} property:
-     * * If `editOnKeydown` truthy AND mapped character is an actual (non-white-space) character, as opposed to (say)
-     * **tab** or **return**, then navigation requires the **ctrl** key to distinguish between nav and data.
-     * * If `editOnKeydown` falsy, the **ctrl** key is ignored.
-     *
-     * So if (say) `a` is mapped to `LEFT` as in the last example below, if `editOnKeydown` is ON, then `a` (without
-     * **ctrl**) would start editing the cell but **ctrl** + `a` would move the selection one column to the left.
-     *
-     * @example
-     * // To void the above build-ins:
-     * navKeyMap: {
-     *     UP: undefined,
-     *     UPSHIFT: undefined,
-     *     DOWN: undefined,
-     *     ...
-     * }
-     *
-     * @example
-     * // To map alternative nav key presses to RETURN and TAB (default mapping):
-     * navKeyMap: {
-     *     RETURN: 'DOWN',
-     *     RETURNSHIFT: 'UP',
-     *     TAB: 'RIGHT',
-     *     TABSHIFT: 'LEFT'
-     * }
-     *
-     * @example
-     * // To map alternative nav key presses to a/w/d/s and extend select to A/W/D/S:
-     * navKeyMap: {
-     *     a: 'LEFT', A: 'LEFTSHIFT',
-     *     w: 'UP', W: 'UPSHIFT',
-     *     s: 'DOWN', S: 'DOWNSHIFT',
-     *     d: 'RIGHT', D: 'RIGHTSHIFT'
-     * }
-     */
-
-    export type NavType = 'LEFT' | 'RIGHT' | 'UP' | 'DOWN' | 'PAGELEFT' | 'PAGERIGHT' | 'PAGEUP' | 'PAGEDOWN';
-    export type NavKeyMap = Record<string, NavType>;
-
-    /**
-     * Returns any value of `keyChar` that passes the following logic test:
-     * 1. If a non-printable, white-space character, then nav key.
-     * 2. If not (i.e., a normal character), can still be a nav key if not editing on key down.
-     * 3. If not, can still be a nav key if CTRL key is down.
-     *
-     * Note: Callers are typcially only interested in the following values of `keyChar` and will ignore all others:
-     * * `'LEFT'` and `'LEFTSHIFT'`
-     * * `'RIGHT'` and `'RIGHTSHIFT'`
-     * * `'UP'` and `'UPSHIFT'`
-     * * `'DOWN'` and `'DOWNSHIFT'`
-     *
-     * @param keyChar - A value from Canvas's `charMap`.
-     * @param ctrlKey - The CTRL key was down.
-     * @returns `undefined` means not a nav key; otherwise returns `keyChar`.
-     */
-    // export function navKey(properties: GridProperties, keyChar: string, ctrlKey = false): undefined|string {
-    //     if (keyChar.length > 1 || !properties.editOnKeydown || ctrlKey) {
-    //         return keyChar; // return the mapped value
-    //     } else {
-    //         return undefined;
-    //     }
-    // }
-
-    /**
-     * Returns only values of `keyChar` that, when run through {@link module:defaults.navKeyMap|navKeyMap}, pass the {@link module:defaults.navKey|navKey} logic test.
-     *
-     * @param keyChar - A value from Canvas's `charMap`, to be remapped through {@link module:defaults.navKeyMap|navKeyMap}.
-     * @param ctrlKey - The CTRL key was down.
-     * @returns `undefined` means not a nav key; otherwise returns `keyChar`.
-     */
-    /** @internal */
-    // export function mappedNavKey(properties: GridProperties, keyChar: string, shiftKey?: boolean, ctrlKey?: boolean): undefined | string {
-    //     let navKey = properties.navKeyMap[keyChar];
-    //     if (shiftKey) {
-    //         navKey += 'SHIFT';
-    //     }
-    //     return navKey;
-    // }
-
-    /** @internal
-     * @returns true if any properties changed - otherwise false
-     */
     export function assign(source: Partial<GridSettings>, target: GridSettings): boolean {
         const sourceKeys = Object.keys(source) as (keyof GridSettings)[];
         if (sourceKeys.length === 0) {

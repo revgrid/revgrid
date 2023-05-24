@@ -1,5 +1,4 @@
 import { ViewCell } from '../../components/cell/view-cell';
-import { EventDetail } from '../../components/event/event-detail';
 import { ColumnSettings } from '../../interfaces/column-settings';
 import { UiBehavior } from './ui-behavior';
 
@@ -57,16 +56,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
             (columnProperties = cell.columnProperties).sortable &&
             !(columnProperties.sortOnDoubleClick !== onDoubleClick) // both same (true or falsy)?
         ) {
-            const eventDetail: EventDetail.ColumnSort = {
-                time: Date.now(),
-                column: cell.viewLayoutColumn.column,
-                activeColumnIndex: cell.viewLayoutColumn.activeColumnIndex,
-                altKey: event.altKey,
-                ctrlKey: event.ctrlKey,
-                metaKey: event.metaKey,
-                shiftKey: event.shiftKey,
-            }
-            this.eventBehavior.processColumnSortEvent(eventDetail);
+            this.eventBehavior.processColumnSortEvent(event, cell);
         }
     }
 }

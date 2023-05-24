@@ -388,17 +388,6 @@ export const defaultSettingsProperties: Required<GridSettings> = {
 
     // emitModelEvents: false,
 
-    navKeyMap: {
-        // RETURN: 'DOWN',
-        // RETURNSHIFT: 'UP',
-        // TAB: 'RIGHT',
-        // TABSHIFT: 'LEFT'
-        'ArrowUp': 'UP',
-        'ArrowDown': 'DOWN',
-        'ArrowLeft': 'LEFT',
-        'ArrowRight': 'RIGHT',
-    },
-
     /** @summary Validation failure feedback.
      * @desc Validation occurs on {@link CellEditor#stopEditing|stopEditing}, normally called on commit (`TAB`, `ENTER`, or any other keys listed in `navKeyMap`).
      *
@@ -788,13 +777,14 @@ export const defaultSettingsProperties: Required<GridSettings> = {
      */
     features: [
         'focusscroll',
+        'selection',
         // 'filters',
-        'cellselection',
+        // 'cellselection',
         // 'keypaging',
         'columnresizing',
         // 'rowresizing',
-        'rowselection',
-        'columnselection',
+        // 'rowselection',
+        // 'columnselection',
         'columnmoving',
         'columnsorting',
         // 'cellclick',
