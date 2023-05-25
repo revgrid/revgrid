@@ -1462,7 +1462,7 @@ export type ModelUpdateId = number;
 export class Mouse {
     // @internal
     constructor(
-    _canvasEx: CanvasManager,
+    _canvasManager: CanvasManager,
     _viewLayout: ViewLayout,
     _cellEnteredEventer: Mouse.CellEventer,
     _cellExitedEventer: Mouse.CellEventer);
@@ -2095,9 +2095,6 @@ export class Revgrid {
     // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
     // Warning: (ae-forgotten-export) The symbol "GridPainter" needs to be exported by the entry point public-api.d.ts
     registerGridPainter(key: string, constructor: GridPainter.Constructor): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    removeAllEventListeners(): void;
     // (undocumented)
     removeAttribute(attribute: string): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -2106,7 +2103,7 @@ export class Revgrid {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
-    reset(nonDefaultProperties: Partial<GridSettings> | undefined, removeAllEventListeners?: boolean): void;
+    reset(nonDefaultProperties: Partial<GridSettings> | undefined): void;
     // (undocumented)
     resetGridBorder(edge?: string): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration

@@ -391,8 +391,6 @@ export class ComponentBehaviorManager {
     }
 
     allowEvents(allow: boolean){
-        this.canvasManager.eventsEnabled = allow;
-
         if (allow){
             this._modelCallbackRouter.enable();
         } else {

@@ -18,7 +18,7 @@ export class Mouse {
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _canvasEx: CanvasManager,
+        private readonly _canvasManager: CanvasManager,
         /** @internal */
         private readonly _viewLayout: ViewLayout,
         /** @internal */
@@ -60,7 +60,7 @@ export class Mouse {
                 titleText = cursorNameAndTitleText.titleText;
             }
         }
-        this._canvasEx.setCursorAndTitleText(cursorName, titleText);
+        this._canvasManager.setCursorAndTitleText(cursorName, titleText);
     }
 
     /** @internal */
@@ -111,13 +111,13 @@ export class Mouse {
     private updateCursorAndTitleText() {
         if (this._operationCursorName === undefined) {
             if (this._hoverCell === undefined) {
-                this._canvasEx.setCursorAndTitleText(undefined, '');
+                this._canvasManager.setCursorAndTitleText(undefined, '');
             } else {
                 const cursorNameAndTitleText = this.getCellCursorNameAndTitleText();
                 if (cursorNameAndTitleText === undefined) {
-                    this._canvasEx.setCursorAndTitleText(undefined, '');
+                    this._canvasManager.setCursorAndTitleText(undefined, '');
                 } else {
-                    this._canvasEx.setCursorAndTitleText(cursorNameAndTitleText.cursorName, cursorNameAndTitleText.titleText);
+                    this._canvasManager.setCursorAndTitleText(cursorNameAndTitleText.cursorName, cursorNameAndTitleText.titleText);
                 }
             }
         }

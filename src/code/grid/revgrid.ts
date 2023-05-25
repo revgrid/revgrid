@@ -243,7 +243,6 @@ export class Revgrid {
      * canvase paint loop will continue to run
      */
     destroy() {
-        this.removeAllEventListeners();
         this.behaviorManager.destroy();
 
         const containerHtmlElement = this.containerHtmlElement;
@@ -353,19 +352,12 @@ export class Revgrid {
      * @param options.subgrids - Consumed by {@link BehaviorManager#reset}.
      * If omitted, previously established subgrids list is reused.
      */
-    reset(
-        nonDefaultProperties: Partial<GridSettings> | undefined,
-        removeAllEventListeners = false
-    ) {
+    reset(nonDefaultProperties: Partial<GridSettings> | undefined) {
         this.behaviorManager.reset();
 
         if (nonDefaultProperties !== undefined) {
             this.settings.loadDefaults();
             this.settings.merge(nonDefaultProperties);
-        }
-
-        if (removeAllEventListeners) {
-            this.removeAllEventListeners();
         }
     }
 
@@ -1404,15 +1396,6 @@ export class Revgrid {
 
     removeEventListener(eventName: string, listener: CanvasManager.EventListener) {
         this.canvasManager.removeExternalEventListener(eventName, listener);
-    }
-
-    /**
-     * @summary Remove all event listeners.
-     * @desc Removes all event listeners added with {@link Revgrid#addEventListener|grid.addEventListener} except those added as "internal."
-     * @param includeInternal - Include internal listeners.
-     */
-    removeAllEventListeners() {
-        this.canvasManager.removeAllExternalEventListeners();
     }
 
     allowEvents(allow: boolean){

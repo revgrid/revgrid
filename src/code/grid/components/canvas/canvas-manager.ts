@@ -72,8 +72,6 @@ export class CanvasManager {
     hasMouse = false;
     dragEndtime = Date.now();
 
-    eventsEnabled = true;
-
     readonly canvasElement: HTMLCanvasElement;
     /** @internal */
     readonly gc: CachedCanvasRenderingContext2D;
@@ -97,9 +95,6 @@ export class CanvasManager {
     private _emptyImage: HTMLImageElement;
 
     /** @internal */
-    private _eventlistenerInfos = new Map<string, CanvasManager.ListenerInfo[]>();
-
-    /** @internal */
     private _resizeTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
     /** @internal */
@@ -108,7 +103,7 @@ export class CanvasManager {
     })
 
     private documentMouseMoveEventListener = (e: MouseEvent) => {
-        if ((this.hasMouse || this.isDragging()) && this.eventsEnabled) {
+        if (this.hasMouse || this.isDragging()) {
             if (!this.isDragging() && this.mousedown) {
                 this.beDragging();
                 this.mouseDragStartEventer(e);
@@ -124,7 +119,7 @@ export class CanvasManager {
         }
     }
     private documentMouseUpEventListener = (e: MouseEvent) => {
-        if (this.mousedown  && this.eventsEnabled) {
+        if (this.mousedown) {
             // ignore document:mouseup unless preceded by a canvas:mousedown
             if (this.isDragging()) {
                 this.mouseDragEndEventer(e);
@@ -136,13 +131,13 @@ export class CanvasManager {
         }
     };
     private documentWheelEventListener = (e: WheelEvent) => {
-        if (!this.isDragging() && this.hasMouse && this.eventsEnabled) {
+        if (!this.isDragging() && this.hasMouse) {
             this.wheelMoveEventer(e);
         }
     };
 
     private documentKeyDownEventListener = (e: KeyboardEvent) => {
-        if (this.hasFocus() && this.eventsEnabled) {
+        if (this.hasFocus()) {
             this.checkPreventDefault(e);
 
             const key = e.key;
@@ -165,7 +160,7 @@ export class CanvasManager {
         }
     }
     private documentKeyUpEventListener = (e: KeyboardEvent) => {
-        if (this.hasFocus() && this.eventsEnabled) {
+        if (this.hasFocus()) {
             this.checkPreventDefault(e);
 
             this.repeatKeyCount = 0;
@@ -178,63 +173,43 @@ export class CanvasManager {
     }
 
     private canvasFocusEventListener = (e: FocusEvent) => {
-        if (this.eventsEnabled) {
-            this.focusEventer(e);
-        }
+        this.focusEventer(e);
     }
     private canvasBlurEventListener = (e: FocusEvent) => {
-        if (this.eventsEnabled) {
-            this.blurEventer(e);
-        }
+        this.blurEventer(e);
     }
 
     private canvasMouseOverEventListener = () => { this.hasMouse = true; }
     private canvasMouseDownEventListener = (e: MouseEvent) => {
         this.mousedown = true;
-        if (this.eventsEnabled) {
-            this.mouseDownEventer(e);
-        }
+        this.mouseDownEventer(e);
     }
     private canvasMouseOutEventListener = (e: MouseEvent) => {
         this.hasMouse = false;
-        if (this.eventsEnabled) {
-            this.mouseOutEventer(e);
-        }
+        this.mouseOutEventer(e);
     }
     private canvasClickEventListener = (e: MouseEvent) => {
-        if (this.eventsEnabled) {
-            this.mouseClickEventer(e);
-        }
+        this.mouseClickEventer(e);
     };
     private canvasDblClickEventListener = (e: MouseEvent) => {
-        if (this.eventsEnabled) {
-            this.mouseDblClickEventer(e);
-        }
+        this.mouseDblClickEventer(e);
     };
     private canvasContextMenuEventListener = (e: MouseEvent) => {
-        if (this.eventsEnabled) {
-            this.contextMenuEventer(e);
-        }
+        this.contextMenuEventer(e);
     };
 
     private canvasTouchStartEventListener = (e: TouchEvent) => {
-        if (this.eventsEnabled) {
-            this.touchStartEventer(e);
-        }
+        this.touchStartEventer(e);
     }
     private canvasTouchMoveEventListener = (e: TouchEvent) => {
-        if (this.eventsEnabled) {
-            this.touchMoveEventer(e);
-        }
+        this.touchMoveEventer(e);
     }
     private canvasTouchEndEventListener = (e: TouchEvent) => {
-        if (this.eventsEnabled) {
-            this.touchEndEventer(e);
-        }
+        this.touchEndEventer(e);
     }
 
     private canvasCopyEventListener = (e: ClipboardEvent) => {
-        if (this.hasFocus() && this.eventsEnabled) {
+        if (this.hasFocus()) {
             this.copyEventer(e);
         }
     }
@@ -266,9 +241,7 @@ export class CanvasManager {
         document.addEventListener('keydown', this.documentKeyDownEventListener);
         document.addEventListener('keyup', this.documentKeyUpEventListener);
         document.addEventListener('dragover', (event) => {
-            if (this.eventsEnabled) {
-                this.documentDragOverEventer(event);
-            }
+            this.documentDragOverEventer(event);
         });
 
         this.canvasElement.addEventListener('focus', this.canvasFocusEventListener);
@@ -285,39 +258,25 @@ export class CanvasManager {
         this.canvasElement.addEventListener('copy', this.canvasCopyEventListener);
 
         this.canvasElement.addEventListener('drag', (event) => {
-            if (this.eventsEnabled) {
-                this.dragEventer(event);
-            }
+            this.dragEventer(event);
         });
         this.canvasElement.addEventListener('dragstart', (event) => {
-            if (this.eventsEnabled) {
-                this.dragStartEventer(event);
-            }
+            this.dragStartEventer(event);
         });
         this.canvasElement.addEventListener('dragenter', (event) => {
-            if (this.eventsEnabled) {
-                this.dragEnterEventer(event);
-            }
+            this.dragEnterEventer(event);
         });
         this.canvasElement.addEventListener('dragover', (event) => {
-            if (this.eventsEnabled) {
-                this.dragOverEventer(event);
-            }
+            this.dragOverEventer(event);
         });
         this.canvasElement.addEventListener('dragleave', (event) => {
-            if (this.eventsEnabled) {
-                this.dragLeaveEventer(event);
-            }
+            this.dragLeaveEventer(event);
         });
         this.canvasElement.addEventListener('dragend', (event) => {
-            if (this.eventsEnabled) {
-                this.dragEndEventer(event);
-            }
+            this.dragEndEventer(event);
         });
         this.canvasElement.addEventListener('drop', (event) => {
-            if (this.eventsEnabled) {
-                this.dropEventer(event);
-            }
+            this.dropEventer(event);
         });
     }
 
@@ -328,63 +287,11 @@ export class CanvasManager {
     get emptyImage() { return this._emptyImage; }
 
     addExternalEventListener(eventName: string, listener: CanvasManager.EventListener) {
-        let alreadyAttached: boolean;
-        let listenerInfos = this._eventlistenerInfos.get(eventName);
-        if (listenerInfos === undefined) {
-            listenerInfos = [];
-            alreadyAttached = false;
-        } else {
-            const listenerInfo = listenerInfos.find((info) => info.listener === listener);
-            alreadyAttached = listenerInfo !== undefined;
-        }
-
-        if (!alreadyAttached) {
-            const info: CanvasManager.ListenerInfo = {
-                listener,
-                decorator: (e: Event) => {
-                    if (this.eventsEnabled) {
-                        listener(e);
-                    }
-                }
-            };
-            listenerInfos.push(info);
-            this._eventlistenerInfos.set(eventName, listenerInfos);
-
-            this.canvasElement.addEventListener(eventName, listener as EventListener);
-        }
+        this.canvasElement.addEventListener(eventName, listener as EventListener);
     }
 
     removeExternalEventListener(eventName: string, listener: CanvasManager.EventListener) {
-        const listenerInfos = this._eventlistenerInfos.get(eventName);
-
-        if (listenerInfos !== undefined) {
-            listenerInfos.find(
-                (info, index) => {
-                    if (info.listener === listener) {
-                        if (listenerInfos.length === 1) {
-                            this._eventlistenerInfos.delete(eventName);
-                        } else {
-                            listenerInfos.splice(index, 1); // remove it from the list
-                        }
-                        this.canvasElement.removeEventListener(eventName, info.decorator as EventListener);
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            )
-        }
-    }
-
-    removeAllExternalEventListeners() {
-        for (const [key, value] of this._eventlistenerInfos) {
-            value.forEach(
-                (info) => {
-                    const eventName = key;
-                    this.removeExternalEventListener(eventName, info.listener); // use base class so declare type as never
-                }
-            )
-        }
+        this.canvasElement.removeEventListener(eventName, listener);
     }
 
     start() {
@@ -885,11 +792,6 @@ export namespace CanvasManager {
         height: number;
         x: number;
         y: number;
-    }
-
-    export abstract class ListenerInfo {
-        abstract listener: CanvasManager.EventListener;
-        abstract decorator: CanvasManager.EventListener;
     }
 
     const canvasElementIdBase = 'RevgridCanvas';
