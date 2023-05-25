@@ -9,7 +9,7 @@ export class CellClickUiBehavior extends UiBehavior {
 
     readonly typeName = CellClickUiBehavior.typeName;
 
-    override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
@@ -20,7 +20,7 @@ export class CellClickUiBehavior extends UiBehavior {
             this.cursor = isActionableLink ? 'pointer' : undefined;
         }
 
-        return super.handleMouseMove(event, cell);
+        return super.handlePointerMove(event, cell);
     }
 
     override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {

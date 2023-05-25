@@ -15,7 +15,7 @@ import { GridSettings } from '../../interfaces/grid-settings';
 import { CssClassName } from '../../lib/html-types';
 import { Point } from '../../lib/point';
 import { Rectangle } from '../../lib/rectangle';
-import { AssertError } from '../../lib/revgrid-error';
+import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { Writable } from '../../lib/types';
 import { CachedCanvasRenderingContext2D } from './cached-canvas-rendering-context-2d';
 
@@ -33,16 +33,17 @@ export class CanvasManager {
     keyDownEventer: CanvasManager.KeyEventer;
     keyUpEventer: CanvasManager.KeyEventer;
 
-    mouseClickEventer: CanvasManager.MouseEventer;
-    mouseDblClickEventer: CanvasManager.MouseEventer;
-    mouseDownEventer: CanvasManager.MouseEventer;
-    mouseUpEventer: CanvasManager.MouseEventer;
-    mouseMoveEventer: CanvasManager.MouseEventer;
-    mouseDragStartEventer: CanvasManager.MouseEventer;
-    mouseDragEventer: CanvasManager.MouseEventer;
-    mouseDragEndEventer: CanvasManager.MouseEventer;
-    mouseOutEventer: CanvasManager.MouseEventer;
+    pointerEnterEventer: CanvasManager.PointerEventer;
+    pointerDownEventer: CanvasManager.PointerEventer;
+    pointerMoveEventer: CanvasManager.PointerEventer;
+    pointerUpCancelEventer: CanvasManager.PointerEventer;
+    pointerLeaveOutEventer: CanvasManager.PointerEventer;
+    pointerDragStartEventer: CanvasManager.PointerDragStartEventer;
+    pointerDragEventer: CanvasManager.PointerDragEventer;
+    pointerDragEndEventer: CanvasManager.PointerDragEventer;
     wheelMoveEventer: CanvasManager.WheelEventer;
+    clickEventer: CanvasManager.MouseEventer;
+    dblClickEventer: CanvasManager.MouseEventer;
     contextMenuEventer: CanvasManager.MouseEventer;
 
     touchStartEventer: CanvasManager.TouchEventer;
@@ -61,16 +62,15 @@ export class CanvasManager {
 
     documentDragOverEventer: CanvasManager.DragEventer;
 
-    mouseLocation = Point.create(-1, -1);
-    dragstart = Point.create(-1, -1);
+    private _mouseLocation = Point.create(-1, -1);
     // origin = null;
-    mousedown = false;
-    dragging = false;
-    repeatKeyCount = 0;
-    repeatKey: string | undefined;
-    repeatKeyStartTime = 0;
-    hasMouse = false;
-    dragEndtime = Date.now();
+    private _pointerEntered = false;
+    private _pointerDownState: CanvasManager.PointerDownState = CanvasManager.PointerDownState.NotDown;
+    private _pointerDragInternal: boolean;
+
+    private _repeatKeyCount = 0;
+    private _repeatKey: string | undefined;
+    private _repeatKeyStartTime = 0;
 
     readonly canvasElement: HTMLCanvasElement;
     /** @internal */
@@ -102,113 +102,101 @@ export class CanvasManager {
         setTimeout(() => this.resize(), 0); // do not process within observer callback
     })
 
-    private documentMouseMoveEventListener = (e: MouseEvent) => {
-        if (this.hasMouse || this.isDragging()) {
-            if (!this.isDragging() && this.mousedown) {
-                this.beDragging();
-                this.mouseDragStartEventer(e);
-                this.dragstart = Point.create(this.mouseLocation.x, this.mouseLocation.y);
-            }
-            this.mouseLocation = this.getOffsetPoint(e);
-            if (this.isDragging()) {
-                this.mouseDragEventer(e);
-            }
-            if (this._bounds.containsPoint(this.mouseLocation)) {
-                this.mouseMoveEventer(e);
-            }
+    private pointerUpCancelEventListener = (event: PointerEvent) => {
+        // event.preventDefault(); // no mouse event
+
+        switch (this._pointerDownState) {
+            case CanvasManager.PointerDownState.NotDown:
+                break;
+            case CanvasManager.PointerDownState.NotDragging:
+                this.setPointerDownState(CanvasManager.PointerDownState.NotDown, event);
+                break;
+            case CanvasManager.PointerDownState.DragStarting:
+                this.pointerUpCancelEventer(event);
+                this.setPointerDownState(CanvasManager.PointerDownState.NotDown, event);
+                break;
+            case CanvasManager.PointerDownState.Dragging:
+                this.pointerDragEndEventer(event, this._pointerDragInternal);
+                this.pointerUpCancelEventer(event);
+                this.setPointerDownState(CanvasManager.PointerDownState.NotDown, event);
+                break;
+            default:
+                throw new UnreachableCaseError('CMPUCEL34440', this._pointerDownState);
+        }
+    };
+    private pointerLeaveOutListener = (event: PointerEvent) => {
+        // event.preventDefault(); // no mouse event
+
+        if (this._pointerEntered) {
+            this.pointerLeaveOutEventer(event);
+            this._pointerEntered = false;
         }
     }
-    private documentMouseUpEventListener = (e: MouseEvent) => {
-        if (this.mousedown) {
-            // ignore document:mouseup unless preceded by a canvas:mousedown
-            if (this.isDragging()) {
-                this.mouseDragEndEventer(e);
-                this.beNotDragging();
-                this.dragEndtime = Date.now();
-            }
-            this.mousedown = false;
-            this.mouseUpEventer(e);
-        }
-    };
-    private documentWheelEventListener = (e: WheelEvent) => {
-        if (!this.isDragging() && this.hasMouse) {
-            this.wheelMoveEventer(e);
-        }
-    };
 
-    private documentKeyDownEventListener = (e: KeyboardEvent) => {
+    private keyDownEventListener = (e: KeyboardEvent) => {
         if (this.hasFocus()) {
             this.checkPreventDefault(e);
 
             const key = e.key;
 
             if (e.repeat) {
-                if (this.repeatKey === key) {
-                    this.repeatKeyCount++;
+                if (this._repeatKey === key) {
+                    this._repeatKeyCount++;
                 } else {
-                    this.repeatKey = key;
-                    this.repeatKeyStartTime = Date.now();
+                    this._repeatKey = key;
+                    this._repeatKeyStartTime = Date.now();
                 }
             } else {
-                this.repeatKey = undefined;
-                this.repeatKeyCount = 0;
-                this.repeatKeyStartTime = 0;
+                this._repeatKey = undefined;
+                this._repeatKeyCount = 0;
+                this._repeatKeyStartTime = 0;
             }
 
             const eventDetail = this.createKeyboardEventDetail(e);
             this.keyDownEventer(eventDetail);
         }
     }
-    private documentKeyUpEventListener = (e: KeyboardEvent) => {
+    private keyUpEventListener = (e: KeyboardEvent) => {
         if (this.hasFocus()) {
             this.checkPreventDefault(e);
 
-            this.repeatKeyCount = 0;
-            this.repeatKey = undefined;
-            this.repeatKeyStartTime = 0;
+            this._repeatKeyCount = 0;
+            this._repeatKey = undefined;
+            this._repeatKeyStartTime = 0;
 
             const eventDetail = this.createKeyboardEventDetail(e);
             this.keyUpEventer(eventDetail);
         }
     }
 
-    private canvasFocusEventListener = (e: FocusEvent) => {
+    private focusEventListener = (e: FocusEvent) => {
         this.focusEventer(e);
     }
-    private canvasBlurEventListener = (e: FocusEvent) => {
+    private blurEventListener = (e: FocusEvent) => {
         this.blurEventer(e);
     }
 
-    private canvasMouseOverEventListener = () => { this.hasMouse = true; }
-    private canvasMouseDownEventListener = (e: MouseEvent) => {
-        this.mousedown = true;
-        this.mouseDownEventer(e);
-    }
-    private canvasMouseOutEventListener = (e: MouseEvent) => {
-        this.hasMouse = false;
-        this.mouseOutEventer(e);
-    }
-    private canvasClickEventListener = (e: MouseEvent) => {
-        this.mouseClickEventer(e);
+    private clickEventListener = (e: MouseEvent) => {
+        this.clickEventer(e);
     };
-    private canvasDblClickEventListener = (e: MouseEvent) => {
-        this.mouseDblClickEventer(e);
+    private dblClickEventListener = (e: MouseEvent) => {
+        this.dblClickEventer(e);
     };
-    private canvasContextMenuEventListener = (e: MouseEvent) => {
+    private contextMenuEventListener = (e: MouseEvent) => {
         this.contextMenuEventer(e);
     };
 
-    private canvasTouchStartEventListener = (e: TouchEvent) => {
+    private touchStartEventListener = (e: TouchEvent) => {
         this.touchStartEventer(e);
     }
-    private canvasTouchMoveEventListener = (e: TouchEvent) => {
+    private touchMoveEventListener = (e: TouchEvent) => {
         this.touchMoveEventer(e);
     }
-    private canvasTouchEndEventListener = (e: TouchEvent) => {
+    private touchEndEventListener = (e: TouchEvent) => {
         this.touchEndEventer(e);
     }
 
-    private canvasCopyEventListener = (e: ClipboardEvent) => {
+    private copyEventListener = (e: ClipboardEvent) => {
         if (this.hasFocus()) {
             this.copyEventer(e);
         }
@@ -235,33 +223,104 @@ export class CanvasManager {
         this._emptyImage = document.createElement('img');
         this._emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
-        document.addEventListener('mousemove', this.documentMouseMoveEventListener);
-        document.addEventListener('mouseup', this.documentMouseUpEventListener);
-        document.addEventListener('wheel', this.documentWheelEventListener);
-        document.addEventListener('keydown', this.documentKeyDownEventListener);
-        document.addEventListener('keyup', this.documentKeyUpEventListener);
-        document.addEventListener('dragover', (event) => {
-            this.documentDragOverEventer(event);
-        });
+        this.canvasElement.addEventListener('pointerdown', (event) => {
+            // event.preventDefault(); // no mouse event
 
-        this.canvasElement.addEventListener('focus', this.canvasFocusEventListener);
-        this.canvasElement.addEventListener('blur', this.canvasBlurEventListener);
-        this.canvasElement.addEventListener('mouseover', this.canvasMouseOverEventListener);
-        this.canvasElement.addEventListener('mousedown', this.canvasMouseDownEventListener);
-        this.canvasElement.addEventListener('mouseout', this.canvasMouseOutEventListener);
-        this.canvasElement.addEventListener('click', this.canvasClickEventListener);
-        this.canvasElement.addEventListener('dblclick', this.canvasDblClickEventListener);
-        this.canvasElement.addEventListener('contextmenu', this.canvasContextMenuEventListener);
-        this.canvasElement.addEventListener('touchstart', this.canvasTouchStartEventListener);
-        this.canvasElement.addEventListener('touchmove', this.canvasTouchMoveEventListener);
-        this.canvasElement.addEventListener('touchend', this.canvasTouchEndEventListener);
-        this.canvasElement.addEventListener('copy', this.canvasCopyEventListener);
+            switch (this._pointerDownState) {
+                case CanvasManager.PointerDownState.NotDown:
+                    this.setPointerDownState(CanvasManager.PointerDownState.NotDragging, event);
+                    this.pointerDownEventer(event);
+                    break;
+                case CanvasManager.PointerDownState.NotDragging:
+                case CanvasManager.PointerDownState.DragStarting:
+                case CanvasManager.PointerDownState.Dragging:
+                    throw new AssertError('CMCAELPDP34440', this._pointerDownState.toString());
+
+                default:
+                    throw new UnreachableCaseError('CMCAELPDU34440', this._pointerDownState);
+            }
+        });
+        this.canvasElement.addEventListener('pointermove', (event) => {
+            // event.preventDefault(); // no mouse event
+
+            switch (this._pointerDownState) {
+                case CanvasManager.PointerDownState.NotDown:
+                case CanvasManager.PointerDownState.NotDragging:
+                    this.pointerMoveEventer(event);
+                    break;
+                case CanvasManager.PointerDownState.DragStarting: {
+                    this.pointerMoveEventer(event);
+                    this.setPointerDownState(CanvasManager.PointerDownState.Dragging, event);
+                    this.pointerDragEventer(event, this._pointerDragInternal);
+                    break;
+                }
+                case CanvasManager.PointerDownState.Dragging:
+                    this.pointerMoveEventer(event);
+                    this.pointerDragEventer(event, this._pointerDragInternal);
+                    break;
+                default:
+                    throw new UnreachableCaseError('CMCAELPMU34440', this._pointerDownState);
+            }
+
+        });
+        this.canvasElement.addEventListener('pointerenter', (event) => {
+            // event.preventDefault(); // no mouse event
+
+            this._pointerEntered = true;
+            this.pointerEnterEventer(event);
+        });
+        this.canvasElement.addEventListener('pointerleave', (event) => {
+            if (this._pointerEntered) {
+                this.pointerLeaveOutEventer(event);
+                this._pointerEntered = false;
+            }
+        });
+        this.canvasElement.addEventListener('pointerout', (event) => {
+            if (this._pointerEntered) {
+                this.pointerLeaveOutEventer(event);
+                this._pointerEntered = false;
+            }
+        });
+        this.canvasElement.addEventListener('pointerup', this.pointerUpCancelEventListener);
+        this.canvasElement.addEventListener('pointercancel', this.pointerUpCancelEventListener);
+        this.canvasElement.addEventListener('wheel', (event) => {
+            const pointerDownState = this._pointerDownState;
+            if (pointerDownState !== CanvasManager.PointerDownState.Dragging) {
+                this.wheelMoveEventer(event);
+            }
+        });
+        this.canvasElement.addEventListener('keydown', this.keyDownEventListener);
+        this.canvasElement.addEventListener('keyup', this.keyUpEventListener);
+        this.canvasElement.addEventListener('focus', this.focusEventListener);
+        this.canvasElement.addEventListener('blur', this.blurEventListener);
+        this.canvasElement.addEventListener('click', this.clickEventListener);
+        this.canvasElement.addEventListener('dblclick', this.dblClickEventListener);
+        this.canvasElement.addEventListener('contextmenu', this.contextMenuEventListener);
+        this.canvasElement.addEventListener('touchstart', this.touchStartEventListener);
+        this.canvasElement.addEventListener('touchmove', this.touchMoveEventListener);
+        this.canvasElement.addEventListener('touchend', this.touchEndEventListener);
+        this.canvasElement.addEventListener('copy', this.copyEventListener);
 
         this.canvasElement.addEventListener('drag', (event) => {
             this.dragEventer(event);
         });
         this.canvasElement.addEventListener('dragstart', (event) => {
             this.dragStartEventer(event);
+            const dataTransfer = event.dataTransfer;
+            if (dataTransfer === null || dataTransfer.items.length === 0) {
+                event.preventDefault();
+
+                // if no behavior or descendant wanted drag event, then arm pointer for dragging
+                if (this._pointerDownState !== CanvasManager.PointerDownState.NotDragging) {
+                    throw new AssertError('CMCAELDS1220');
+                } else {
+                    const pointerDragInternal = this.pointerDragStartEventer(event);
+                    if (pointerDragInternal !== undefined) {
+                        this._pointerDragInternal = pointerDragInternal;
+                        this.setPointerDownState(CanvasManager.PointerDownState.DragStarting, undefined);
+                    }
+                }
+            }
         });
         this.canvasElement.addEventListener('dragenter', (event) => {
             this.dragEnterEventer(event);
@@ -518,38 +577,33 @@ export class CanvasManager {
         }
     }
 
-    /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
-     * @this CanvasType
-     */
-    private beDragging() {
-        this.dragging = true;
-        this.disableDocumentElementSelection();
-    }
+    private setPointerDownState(state: CanvasManager.PointerDownState, event: PointerEvent | undefined) {
+        this._pointerDownState = state;
 
-    /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
-     * @this CanvasType
-     */
-    private beNotDragging() {
-        this.dragging = false;
-        this.enableDocumentElementSelection();
-    }
-
-    private isDragging() {
-        // disable for now - remove in future
-        return false;
-        // return this.dragging;
-    }
-
-    private disableDocumentElementSelection() {
-        const style = document.body.style;
-        style.cssText = style.cssText + ' user-select: none';
-    }
-
-    private enableDocumentElementSelection() {
-        const style = document.body.style;
-        style.cssText = style.cssText.replace(' user-select: none', '');
+        switch (state) {
+            case CanvasManager.PointerDownState.NotDown:
+            case CanvasManager.PointerDownState.NotDragging:
+                document.body.style.userSelect = '';
+                if (event === undefined) {
+                    throw new AssertError('CMSPDSN68201');
+                } else {
+                    this.canvasElement.releasePointerCapture(event.pointerId);
+                }
+                break;
+            case CanvasManager.PointerDownState.DragStarting:
+                document.body.style.userSelect = 'none';
+                break;
+            case CanvasManager.PointerDownState.Dragging:
+                document.body.style.userSelect = 'none';
+                if (event === undefined) {
+                    throw new AssertError('CMSPDSR68201');
+                } else {
+                    this.canvasElement.setPointerCapture(event.pointerId)
+                }
+                break;
+            default:
+                throw new UnreachableCaseError('CMSPDS87732', state);
+        }
     }
 
     private checkPreventDefault(e: KeyboardEvent) {
@@ -573,8 +627,8 @@ export class CanvasManager {
     private createKeyboardEventDetail(e: KeyboardEvent): CanvasManager.RevgridKeyboardEvent {
         const keyboardDetail = e as CanvasManager.WritableEventDetailKeyboard;
         keyboardDetail.revgrid_nowTime = Date.now();
-        keyboardDetail.revgrid_repeatCount = this.repeatKeyCount;
-        keyboardDetail.revgrid_repeatStartTime = this.repeatKeyStartTime;
+        keyboardDetail.revgrid_repeatCount = this._repeatKeyCount;
+        keyboardDetail.revgrid_repeatStartTime = this._repeatKeyStartTime;
 
         keyboardDetail.revgrid_navigateKey = this.createKeyboardNavigateKey(e.key);
 
@@ -755,12 +809,21 @@ export namespace CanvasManager {
 
     export type FocusEventer = (this: void, event: FocusEvent) => void;
     export type MouseEventer = (this: void, event: MouseEvent) => void;
+    export type PointerEventer = (this: void, event: PointerEvent) => void;
+    export type PointerDragStartEventer = (this: void, event: DragEvent) => boolean | undefined; // internal (true), external (false), not started (undefined)
+    export type PointerDragEventer = (this: void, event: PointerEvent, internal: boolean) => void;
     export type WheelEventer = (this: void, event: WheelEvent) => void;
     export type KeyEventer = (this: void, event: RevgridKeyboardEvent) => void;
     export type TouchEventer = (this: void, event: TouchEvent) => void;
     export type ClipboardEventer = (this: void, event: ClipboardEvent) => void;
     export type DragEventer = (this: void, event: DragEvent) => void;
 
+    export const enum PointerDownState {
+        NotDown,
+        NotDragging,
+        DragStarting,
+        Dragging,
+    }
     export type WritableEventDetailKeyboard = Writable<RevgridKeyboardEvent>;
 
     export interface RevgridKeyboardEvent extends KeyboardEvent {

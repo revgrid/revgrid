@@ -24,7 +24,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
     private _inPlaceAdjacentStartWidth: number;
     private _inPlaceAdjacentColumn: ColumnInterface | undefined;
 
-    override handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (this._dragColumn !== undefined) {
             const mouseValue = event.offsetX;
             let delta: number;
@@ -56,17 +56,17 @@ export class ColumnResizingUiBehavior extends UiBehavior {
             }
             return cell;
         } else {
-            return super.handleMouseDrag(event, cell);
+            return super.handlePointerDrag(event, cell);
         }
     }
 
-    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
 
         if (cell === null) {
-            return super.handleMouseDown(event, cell);
+            return super.handlePointerDown(event, cell);
         } else {
             const canvasOffsetX = event.offsetX;
             if (cell.isHeader && this.overAreaDivider(canvasOffsetX, cell)) {
@@ -179,12 +179,12 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                 this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
                 return cell;
             } else {
-                return super.handleMouseDown(event, cell);
+                return super.handlePointerDown(event, cell);
             }
         }
     }
 
-    override handleMouseUp(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerUpCancel(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (this._dragColumn !== undefined) {
             this.cursor = undefined;
             this._dragColumn = undefined;
@@ -195,15 +195,15 @@ export class ColumnResizingUiBehavior extends UiBehavior {
             this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
             return cell;
         } else {
-            return super.handleMouseUp(event, cell);
+            return super.handlePointerUpCancel(event, cell);
         }
     }
 
-    override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (this._dragColumn === undefined) {
             this.cursor = undefined;
 
-            cell = super.handleMouseMove(event, cell);
+            cell = super.handlePointerMove(event, cell);
 
             if (cell === undefined) {
                 cell = this.tryGetViewCellFromMouseEvent(event);

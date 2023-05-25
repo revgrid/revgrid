@@ -26,18 +26,18 @@ export class SelectionUiBehavior extends UiBehavior {
     private _sbAutoStart = 0;
     private _stepScrollDragTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
-    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell === null) {
-            return super.handleMouseDown(event, cell);
+            return super.handlePointerDown(event, cell);
         } else {
             const subgrid = cell.subgrid;
             const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
 
             if (!isSelectable || isSecondaryMouseButton(event)) {
-                return super.handleMouseDown(event, cell);
+                return super.handlePointerDown(event, cell);
             } else {
                 let selectSucceeded: boolean;
                 if (cell.isHeaderOrRowFixed) {
@@ -57,77 +57,62 @@ export class SelectionUiBehavior extends UiBehavior {
                 if (selectSucceeded) {
                     return cell;
                 } else {
-                    return super.handleMouseDown(event, cell);
+                    return super.handlePointerDown(event, cell);
                 }
             }
         }
     }
 
-    override handleDragStart(event: DragEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell === null) {
-            return super.handleMouseDown(event, cell);
+            return super.handlePointerDragStart(event, cell);
         } else {
             const subgrid = cell.subgrid;
             const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
 
             if (!isSelectable) {
-                return super.handleDragStart(event, cell);
+                return super.handlePointerDragStart(event, cell);
             } else {
-                const dataTransfer = event.dataTransfer;
-                if (dataTransfer === null) {
-                    return super.handleDragStart(event, cell);
+                let selectSucceeded: boolean;
+                if (cell.isHeaderOrRowFixed) {
+                    selectSucceeded = this.trySelectFromMouseDownInHeaderOrFixedRow(event, cell);
                 } else {
-                    let selectSucceeded: boolean;
-                    if (cell.isHeaderOrRowFixed) {
-                        selectSucceeded = this.trySelectFromMouseDownInHeaderOrFixedRow(event, cell);
+                    if (cell.isColumnFixed) {
+                        selectSucceeded = this.trySelectFromMouseDownInFixedColumn(event, cell);
                     } else {
-                        if (cell.isColumnFixed) {
-                            selectSucceeded = this.trySelectFromMouseDownInFixedColumn(event, cell);
+                        if (cell.isMain) {
+                            selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, cell)
                         } else {
-                            if (cell.isMain) {
-                                selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, cell)
-                            } else {
-                                selectSucceeded = false;
-                            }
+                            selectSucceeded = false;
                         }
                     }
+                }
 
-                    if (!selectSucceeded) {
-                        return super.handleDragStart(event, cell);
+                if (!selectSucceeded) {
+                    return super.handlePointerDragStart(event, cell);
+                } else {
+                    const dragType = this.getDragTypeFromSelectionLastArea();
+                    if (dragType === undefined) {
+                        return super.handlePointerDragStart(event, cell);
                     } else {
-                        const dragType = this.getDragTypeFromSelectionLastArea();
-                        if (dragType === undefined) {
-                            return super.handleDragStart(event, cell);
-                        } else {
-                            this.mouse.setActiveDragType(dragType);
-
-                            dataTransfer.setDragImage(this.canvasManager.emptyImage, 0, 0);
-                            dataTransfer.effectAllowed = 'move';
-                            dataTransfer.setData(dragType, '');
-                            return cell;
-                        }
+                        this.mouse.setActiveDragType(dragType);
+                        return {
+                            started: true,
+                            cell,
+                        };
                     }
                 }
             }
         }
     }
 
-    override handleDocumentDragOver(event: DragEvent) {
-        const dataTransfer = event.dataTransfer;
-        if (dataTransfer === null || !this.dragTypesArrayContainsExtendLastSelectionAreaDragType(dataTransfer.types as readonly EventDetail.DragTypeEnum[])) {
-            return super.handleDocumentDragOver(event);
-        } else {
-            event.preventDefault();
-        }
-    }
-
-    override handleDrag(event: DragEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: ViewCell | null | undefined) {
         const activeDragType = this.mouse.activeDragType;
         if (activeDragType === undefined || !this.dragTypeIsExtendLastSelectionArea(activeDragType)) {
-            return super.handleMouseDrag(event, cell);
+            return super.handlePointerDrag(event, cell);
         } else {
             this.cancelScheduledStepScrollDrag();
             const stepScrolled = this.checkStepScrollDrag(event.offsetX, event.offsetY);
@@ -139,17 +124,16 @@ export class SelectionUiBehavior extends UiBehavior {
                 }
                 if (cell !== null) {
                     this.tryUpdateLastSelectionArea(cell);
-                    event.preventDefault();
                 }
                 return cell;
             }
         }
     }
 
-    override handleDragEnd(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    override handlePointerDragEnd(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         const activeDragType = this.mouse.activeDragType;
         if (activeDragType === undefined || !this.dragTypeIsExtendLastSelectionArea(activeDragType)) {
-            return super.handleDragEnd(event, cell);
+            return super.handlePointerDragEnd(event, cell);
         } else {
             this.cancelScheduledStepScrollDrag();
             this.mouse.setActiveDragType(undefined);

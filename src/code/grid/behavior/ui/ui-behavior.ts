@@ -138,41 +138,41 @@ export abstract class UiBehavior {
         }
     }
 
-    handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
-            return this.next.handleMouseMove(event, cell);
+            return this.next.handlePointerMove(event, cell);
         } else {
             return cell;
         }
     }
 
-    handleMouseExit(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerLeaveOut(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
-            return this.next.handleMouseExit(event, cell);
+            return this.next.handlePointerLeaveOut(event, cell);
         } else {
             return cell;
         }
     }
 
-    handleMouseEnter(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerEnter(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
-            return this.next.handleMouseEnter(event, cell);
+            return this.next.handlePointerEnter(event, cell);
         } else {
             return cell;
         }
     }
 
-    handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
-            return this.next.handleMouseDown(event, cell);
+            return this.next.handlePointerDown(event, cell);
         } else {
             return cell;
         }
     }
 
-    handleMouseUp(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerUpCancel(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
         if (this.next) {
-            return this.next.handleMouseUp(event, cell);
+            return this.next.handlePointerUpCancel(event, cell);
         } else {
             return cell;
         }
@@ -264,9 +264,28 @@ export abstract class UiBehavior {
         }
     }
 
-    handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerDragStart(event: DragEvent, cell: ViewCell | null | undefined): EventBehavior.UiPointerDragStartResult {
         if (this.next) {
-            return this.next.handleMouseDrag(event, cell);
+            return this.next.handlePointerDragStart(event, cell);
+        } else {
+            return {
+                started: false,
+                cell,
+            };
+        }
+    }
+
+    handlePointerDrag(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (this.next) {
+            return this.next.handlePointerDrag(event, cell);
+        } else {
+            return cell;
+        }
+    }
+
+    handlePointerDragEnd(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (this.next) {
+            return this.next.handlePointerDragEnd(event, cell);
         } else {
             return cell;
         }

@@ -1447,27 +1447,31 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessMouseClick(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+    protected descendantProcessClick(_event: MouseEvent, _cell: ViewCell | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessMouseDblClick(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+    protected descendantProcessDblClick(_event: MouseEvent, _cell: ViewCell | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessMouseDown(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: ViewCell | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessMouseUp(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+    protected descendantProcessPointerDown(_event: MouseEvent, _cell: ViewCell | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessMouseMove(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: ViewCell | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessMouseOut(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+    protected descendantProcessPointerMove(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: ViewCell | null | undefined) {
         // for descendants
     }
 
@@ -1479,7 +1483,7 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessDragStart(_event: DragEvent, _cell: ViewCell | null | undefined) {
+    protected descendantProcessDragStart(_event: DragEvent) {
         // for descendants
     }
 
@@ -1507,15 +1511,19 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessMouseDragStart(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+    /**
+     * Uses DragEvent as this has original Mouse location.  Do not change DragEvent or call any of its methods
+     * Return true if drag operation is to be started.
+     */
+    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: ViewCell | null | undefined): boolean {
+        return false;
+    }
+
+    protected descendantProcessPointerDrag(_event: PointerEvent) {
         // for descendants
     }
 
-    protected descendantProcessMouseDrag(_event: MouseEvent, _cell: ViewCell | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessMouseDragEnd(_event: MouseEvent, _cell: ViewCell | null | undefined) {
+    protected descendantProcessPointerDragEnd(_event: PointerEvent) {
         // for descendants
     }
 
@@ -2067,24 +2075,25 @@ export class Revgrid {
             blur: () => this.descendantEventerBlur(),
             keyDown: (event) => this.descendantProcessKeyDown(event),
             keyUp: (event) => this.descendantProcessKeyUp(event),
-            mouseClick: (event, cell) => this.descendantProcessMouseClick(event, cell),
-            mouseDblClick: (event, cell) => this.descendantProcessMouseDblClick(event, cell),
-            mouseDown: (event, cell) => this.descendantProcessMouseDown(event, cell),
-            mouseUp: (event, cell) => this.descendantProcessMouseUp(event, cell),
-            mouseMove: (event, cell) => this.descendantProcessMouseMove(event, cell),
-            mouseOut: (event, cell) => this.descendantProcessMouseOut(event, cell),
+            click: (event, cell) => this.descendantProcessClick(event, cell),
+            dblClick: (event, cell) => this.descendantProcessDblClick(event, cell),
+            pointerEnter: (event, cell) => this.descendantProcessPointerEnter(event, cell),
+            pointerDown: (event, cell) => this.descendantProcessPointerDown(event, cell),
+            pointerUpCancel: (event, cell) => this.descendantProcessPointerUpCancel(event, cell),
+            pointerMove: (event, cell) => this.descendantProcessPointerMove(event, cell),
+            pointerLeaveOut: (event, cell) => this.descendantProcessPointerLeaveOut(event, cell),
             wheelMove: (event, cell) => this.descendantProcessWheelMove(event, cell),
             drag: (event, cell) => this.descendantProcessDrag(event, cell),
-            dragStart: (event, cell) => this.descendantProcessDragStart(event, cell),
+            dragStart: (event) => this.descendantProcessDragStart(event),
             dragEnter: (event, cell) => this.descendantProcessDragEnter(event, cell),
             dragOver: (event, cell) => this.descendantProcessDragOver(event, cell),
             dragLeave: (event, cell) => this.descendantProcessDragLeave(event, cell),
             dragEnd: (event, cell) => this.descendantProcessDragEnd(event, cell),
             drop: (event, cell) => this.descendantProcessDrop(event, cell),
             contextMenu: (event, cell) => this.descendantProcessContextMenu(event, cell),
-            mouseDragStart: (event, cell) => this.descendantProcessMouseDragStart(event, cell),
-            mouseDrag: (event, cell) => this.descendantProcessMouseDrag(event, cell),
-            mouseDragEnd: (event, cell) => this.descendantProcessMouseDragEnd(event, cell),
+            pointerDragStart: (event, cell) => this.descendantProcessPointerDragStart(event, cell),
+            pointerDrag: (event) => this.descendantProcessPointerDrag(event),
+            pointerDragEnd: (event) => this.descendantProcessPointerDragEnd(event),
             rendered: () => this.descendantProcessRendered(),
             mouseEnteredCell: (cell) => this.descendantProcessMouseEnteredCell(cell),
             mouseExitedCell: (cell) => this.descendantProcessMouseExitedCell(cell),

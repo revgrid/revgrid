@@ -92,13 +92,10 @@ export class TextCellPainter implements CellPainter {
         let layerColorIndex = 0;
 
         const hoverCell = grid.mouse.hoverCell;
-        const hasMouse = grid.canvasManager.hasMouse;
         const columnHovered =
-            hasMouse &&
             (hoverCell !== undefined) &&
             (hoverCell.viewLayoutColumn.activeColumnIndex === activeColumnIndex);
         const rowHovered =
-            hasMouse &&
             isMainSubgrid &&
             (hoverCell !== undefined) &&
             (hoverCell.viewLayoutRow.index === cell.viewLayoutRow.index);

@@ -12,14 +12,16 @@ import { ListChangedTypeId } from '../../lib/types';
 export class EventBehavior {
     uiKeyDownEventer: EventBehavior.UiKeyEventer;
     uiKeyUpEventer: EventBehavior.UiKeyEventer;
-    uiMouseClickEventer: EventBehavior.UiMouseEventer;
-    uiMouseDblClickEventer: EventBehavior.UiMouseEventer;
-    uiMouseDownEventer: EventBehavior.UiMouseEventer;
-    uiMouseUpEventer: EventBehavior.UiMouseEventer;
-    uiMouseMoveEventer: EventBehavior.UiMouseEventer;
-    uiMouseDragEventer: EventBehavior.UiMouseEventer;
-    uiMouseEnteredCellEventer: EventBehavior.UiMouseEventer;
-    uiMouseExitedCellEventer: EventBehavior.UiMouseEventer;
+    uiClickEventer: EventBehavior.UiMouseEventer;
+    uiDblClickEventer: EventBehavior.UiMouseEventer;
+    uiPointerDownEventer: EventBehavior.UiPointerEventer;
+    uiPointerUpCancelEventer: EventBehavior.UiPointerEventer;
+    uiPointerMoveEventer: EventBehavior.UiPointerEventer;
+    uiPointerEnterEventer: EventBehavior.UiPointerEventer;
+    uiPointerLeaveOutEventer: EventBehavior.UiPointerEventer;
+    uiPointerDragStartEventer: EventBehavior.UiPointerDragStartEventer;
+    uiPointerDragEventer: EventBehavior.UiPointerDragEventer;
+    uiPointerDragEndEventer: EventBehavior.UiPointerDragEventer;
     uiWheelMoveEventer: EventBehavior.UiWheelEventer;
     uiDragEventer: EventBehavior.UiDragEventer;
     uiDragStartEventer: EventBehavior.UiDragEventer;
@@ -54,15 +56,16 @@ export class EventBehavior {
         this._canvasEx.blurEventer = (event) => this.processBlurEvent(event);
         this._canvasEx.keyDownEventer = (event) => this.processKeyDownEvent(event);
         this._canvasEx.keyUpEventer = (event) => this.processKeyUpEvent(event);
-        this._canvasEx.mouseClickEventer = (event) => this.processMouseClickEvent(event);
-        this._canvasEx.mouseDblClickEventer = (event) => this.processMouseDblClickEvent(event);
-        this._canvasEx.mouseDownEventer = (event) => this.processMouseDownEvent(event);
-        this._canvasEx.mouseUpEventer = (event) => this.processMouseUpEvent(event);
-        this._canvasEx.mouseMoveEventer = (event) => this.processMouseMoveEvent(event);
-        this._canvasEx.mouseDragStartEventer = (event) => this.processMouseDragStartEvent(event);
-        this._canvasEx.mouseDragEventer = (event) => this.processMouseDragEvent(event);
-        this._canvasEx.mouseDragEndEventer = (event) => this.processMouseDragEndEvent(event);
-        this._canvasEx.mouseOutEventer = (event) => this.processMouseOutEvent(event);
+        this._canvasEx.clickEventer = (event) => this.processClickEvent(event);
+        this._canvasEx.dblClickEventer = (event) => this.processDblClickEvent(event);
+        this._canvasEx.pointerEnterEventer = (event) => this.processPointerEnterEvent(event);
+        this._canvasEx.pointerDownEventer = (event) => this.processPointerDownEvent(event);
+        this._canvasEx.pointerUpCancelEventer = (event) => this.processPointerUpCancelEvent(event);
+        this._canvasEx.pointerMoveEventer = (event) => this.processPointerMoveEvent(event);
+        this._canvasEx.pointerLeaveOutEventer = (event) => this.processPointerLeaveOutEvent(event);
+        this._canvasEx.pointerDragStartEventer = (event) => this.processPointerDragStartEvent(event);
+        this._canvasEx.pointerDragEventer = (event, internal) => this.processPointerDragEvent(event, internal);
+        this._canvasEx.pointerDragEndEventer = (event, internal) => this.processPointerDragEndEvent(event, internal);
         this._canvasEx.wheelMoveEventer = (event) => this.processWheelMoveEvent(event);
         this._canvasEx.contextMenuEventer = (event) => this.processContextMenuEvent(event);
         this._canvasEx.touchStartEventer = (event) => this.processTouchStartEvent(event);
@@ -221,89 +224,117 @@ export class EventBehavior {
         }
     }
 
-    private processMouseClickEvent(event: MouseEvent) {
-        let cell = this.uiMouseClickEventer(event);
+    private processClickEvent(event: MouseEvent) {
+        let cell = this.uiClickEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            if (cell === undefined) {
+                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            }
         }
 
-        this._descendantEventer.mouseClick(event, cell);
+        this._descendantEventer.click(event, cell);
 
         if (this._dispatchEnabled) {
             this.dispatchMouseEvent('rev-click', event, cell);
         }
     }
 
-    private processMouseDblClickEvent(event: MouseEvent) {
-        let cell = this.uiMouseDblClickEventer(event);
+    private processDblClickEvent(event: MouseEvent) {
+        let cell = this.uiDblClickEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            if (cell === undefined) {
+                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            }
         }
 
-
-        this._descendantEventer.mouseDblClick(event, cell);
+        this._descendantEventer.dblClick(event, cell);
 
         if (this._dispatchEnabled) {
             this.dispatchMouseEvent('rev-dbl-click', event, cell);
         }
     }
 
-    private processMouseDownEvent(event: MouseEvent) {
-        let cell = this.uiMouseDownEventer(event);
+    private processPointerEnterEvent(event: PointerEvent) {
+        let cell = this.uiPointerEnterEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            if (cell === undefined) {
+                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            }
         }
 
-        this._descendantEventer.mouseDown(event, cell);
+        this._descendantEventer.pointerEnter(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-mouse-down', event, cell);
-        }
-    }
-
-    private processMouseUpEvent(event: MouseEvent) {
-        let cell = this.uiMouseUpEventer(event);
-        if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
-        }
-
-        this._descendantEventer.mouseUp(event, cell);
-
-        if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-mouse-up', event, cell);
+            this.dispatchMouseEvent('rev-pointer-enter', event, cell);
         }
     }
 
-    private processMouseMoveEvent(event: MouseEvent) {
-        let cell = this.uiMouseMoveEventer(event);
+    private processPointerDownEvent(event: PointerEvent) {
+        let cell = this.uiPointerDownEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            if (cell === undefined) {
+                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            }
         }
 
-        this._descendantEventer.mouseMove(event, cell);
+        this._descendantEventer.pointerDown(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-mouse-move', event, cell);
+            this.dispatchMouseEvent('rev-pointer-down', event, cell);
         }
     }
 
-    private processMouseOutEvent(event: MouseEvent) {
-        const cell = this.uiMouseExitedCellEventer(event);
-        // if (this._dispatchEnabled) {
-        //     cell = this._viewLayout.findLeftGridLineInclusiveCellFromOffset(event.offsetX, event.offsetY);
-        // }
+    private processPointerUpCancelEvent(event: PointerEvent) {
+        let cell = this.uiPointerUpCancelEventer(event);
+        if (this._dispatchEnabled) {
+            if (cell === undefined) {
+                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            }
+        }
 
-        this._descendantEventer.mouseOut(event, cell);
+        this._descendantEventer.pointerUpCancel(event, cell);
 
-        // if (this._dispatchEnabled) {
-        //     this.dispatchMouseGridEvent('rev-mouse-out', event, cell);
-        // }
+        if (this._dispatchEnabled) {
+            this.dispatchMouseEvent('rev-pointer-up-cancel', event, cell);
+        }
+    }
+
+    private processPointerMoveEvent(event: PointerEvent) {
+        let cell = this.uiPointerMoveEventer(event);
+        if (this._dispatchEnabled) {
+            if (cell === undefined) {
+                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            }
+        }
+
+        this._descendantEventer.pointerMove(event, cell);
+
+        if (this._dispatchEnabled) {
+            this.dispatchMouseEvent('rev-pointer-move', event, cell);
+        }
+    }
+
+    private processPointerLeaveOutEvent(event: PointerEvent) {
+        let cell = this.uiPointerLeaveOutEventer(event);
+        if (this._dispatchEnabled) {
+            if (cell === undefined) {
+                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            }
+        }
+
+        this._descendantEventer.pointerLeaveOut(event, cell);
+
+        if (this._dispatchEnabled) {
+            this.dispatchMouseEvent('rev-pointer-leave-out', event, cell);
+        }
     }
 
     private processWheelMoveEvent(event: WheelEvent) {
         let cell = this.uiWheelMoveEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            if (cell === undefined) {
+                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            }
         }
 
         this._descendantEventer.wheelMove(event, cell);
@@ -319,12 +350,7 @@ export class EventBehavior {
     }
 
     private processDragStartEvent(event: DragEvent) {
-        const cell = this.uiDragStartEventer(event);
-        this._descendantEventer.dragStart(event, cell);
-        const dataTransfer = event.dataTransfer;
-        if (dataTransfer === null || dataTransfer.items.length === 0) {
-            event.preventDefault();
-        }
+        this._descendantEventer.dragStart(event); // give descendant a chance to claim drag start
     }
 
     private processDragEnterEvent(event: DragEvent) {
@@ -359,7 +385,9 @@ export class EventBehavior {
     private processContextMenuEvent(event: MouseEvent) {
         let cell = this.uiContextMenuEventer(event);
         if (this._dispatchEnabled) {
-            cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            if (cell === undefined) {
+                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+            }
         }
 
         this._descendantEventer.contextMenu(event, cell);
@@ -369,19 +397,31 @@ export class EventBehavior {
         }
     }
 
-    private processMouseDragStartEvent(event: MouseEvent) {
-        // const cell = this.uiMouseDragStartEventer(event);
-        this._descendantEventer.mouseDragStart(event, undefined);
+    private processPointerDragStartEvent(event: DragEvent) {
+        const result = this.uiPointerDragStartEventer(event);
+        if (result.started) {
+            return true; // internally started
+        } else {
+            // const cell = this.uiMouseDragStartEventer(event);
+            const started = this._descendantEventer.pointerDragStart(event, result.cell);
+            return started ? false : undefined;
+        }
     }
 
-    private processMouseDragEvent(event: MouseEvent) {
-        const cell = this.uiMouseDragEventer(event);
-        this._descendantEventer.mouseDrag(event, cell);
+    private processPointerDragEvent(event: PointerEvent, internal: boolean) {
+        if (internal) {
+            this.uiPointerDragEventer(event);
+        } else {
+            this._descendantEventer.pointerDrag(event);
+        }
     }
 
-    private processMouseDragEndEvent(event: MouseEvent) {
-        // const cell = this.uiMouseDragEndEventer(event);
-        this._descendantEventer.mouseDragEnd(event, undefined);
+    private processPointerDragEndEvent(event: PointerEvent, internal: boolean) {
+        if (internal) {
+            this.uiPointerDragEndEventer(event);
+        } else {
+            this._descendantEventer.pointerDragEnd(event);
+        }
     }
 
     private processTouchStartEvent(event: TouchEvent) {
@@ -456,65 +496,6 @@ export class EventBehavior {
         if (this._destroyed) {
             return false;
         } else {
-
-            // let eventInitDictOrDetail: DispatchGridEvent.EventInitDictOrDetail;
-            // if (eventDetail === undefined) {
-            //     eventInitDictOrDetail = {};
-            // } else {
-            //     if (eventDetail instanceof CustomEvent) {
-            //         eventInitDictOrDetail = Object({});
-            //         throw new Error('dispatchGridEvent should not be passed CustomEvents anymore [1]');
-            //     } else {
-            //         eventInitDictOrDetail = eventDetail;
-            //     }
-            // }
-
-            // if (!("type" in eventInitDictOrDetail)) {
-            //     (eventInitDictOrDetail as DispatchGridEvent.ExtraDetail).type = eventName;
-            // }
-
-            // let eventInitDict: CustomEventInit<DispatchGridEvent.ExtraDetail>;
-
-            // if (!("detail" in eventInitDictOrDetail)) {
-            //     eventInitDict = {
-            //         detail: eventInitDictOrDetail as DispatchGridEvent.ExtraDetail,
-            //     };
-            // } else {
-            //     eventInitDict = eventInitDictOrDetail as CustomEventInit<DispatchGridEvent.ExtraDetail>;
-            //     throw new Error('dispatchGridEvent should not be passed CustomEvents anymore [2]');
-            // }
-
-            // const detail = eventInitDict.detail;
-
-            // if (!detail.grid) {
-            //     // CellEvent objects already have a (read-only) `grid` prop
-            //     detail.grid = grid;
-            // }
-
-            // detail.time = Date.now();
-
-            // if (primitiveEvent !== undefined) {
-            //     if (!detail.primitiveEvent) {
-            //         detail.primitiveEvent = primitiveEvent;
-            //     }
-            //     wantedDetailFields.forEach((key) => {
-            //         if (key in primitiveEvent && !(key in detail)) {
-            //             detail[key] = primitiveEvent[key] as unknown;
-            //         }
-            //     });
-            //     if ("dataRow" in primitiveEvent) {
-            //         // reference (without invoking) cellEvent's `dataRow` getter when available
-            //         Object.defineProperty(detail, "row", {
-            //             get: function () {
-            //                 return primitiveEvent.dataRow;
-            //             },
-            //         });
-            //     }
-            // }
-
-            // eventInitDict.cancelable = cancelable;
-
-            // const event = newEvent(eventName, eventDetail, cancelable);
             const eventInit: CustomEventInit<EventName.DetailMap[T]> = {
                 detail: eventDetail,
                 cancelable,
@@ -543,6 +524,11 @@ export class EventBehavior {
 export namespace EventBehavior {
     export type DispatchEventEventer = (this: void, event: Event) => boolean;
 
+    export interface UiPointerDragStartResult {
+        readonly started: boolean;
+        readonly cell: ViewCell | null | undefined;
+    }
+
     export interface DescendantEventer {
         readonly allColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
@@ -555,24 +541,25 @@ export namespace EventBehavior {
         readonly blur: DescendantEventer.Focus;
         readonly keyDown: DescendantEventer.Key;
         readonly keyUp: DescendantEventer.Key;
-        readonly mouseClick: DescendantEventer.Mouse;
-        readonly mouseDblClick: DescendantEventer.Mouse;
-        readonly mouseDown: DescendantEventer.Mouse;
-        readonly mouseUp: DescendantEventer.Mouse;
-        readonly mouseMove: DescendantEventer.Mouse;
-        readonly mouseOut: DescendantEventer.Mouse;
+        readonly click: DescendantEventer.Mouse;
+        readonly dblClick: DescendantEventer.Mouse;
+        readonly pointerEnter: DescendantEventer.Pointer;
+        readonly pointerDown: DescendantEventer.Pointer;
+        readonly pointerUpCancel: DescendantEventer.Pointer;
+        readonly pointerMove: DescendantEventer.Pointer;
+        readonly pointerLeaveOut: DescendantEventer.Pointer;
         readonly wheelMove: DescendantEventer.Wheel;
-        readonly drag: DescendantEventer.Drag;
+        readonly drag: DescendantEventer.DragCell;
         readonly dragStart: DescendantEventer.Drag;
-        readonly dragEnter: DescendantEventer.Drag;
-        readonly dragOver: DescendantEventer.Drag;
-        readonly dragLeave: DescendantEventer.Drag;
-        readonly dragEnd: DescendantEventer.Drag;
-        readonly drop: DescendantEventer.Drag;
+        readonly dragEnter: DescendantEventer.DragCell;
+        readonly dragOver: DescendantEventer.DragCell;
+        readonly dragLeave: DescendantEventer.DragCell;
+        readonly dragEnd: DescendantEventer.DragCell;
+        readonly drop: DescendantEventer.DragCell;
         readonly contextMenu: DescendantEventer.Mouse;
-        readonly mouseDragStart: DescendantEventer.Mouse;
-        readonly mouseDrag: DescendantEventer.Mouse;
-        readonly mouseDragEnd: DescendantEventer.Mouse;
+        readonly pointerDragStart: DescendantEventer.PointerDragStart;
+        readonly pointerDrag: DescendantEventer.PointerDrag;
+        readonly pointerDragEnd: DescendantEventer.PointerDrag;
         readonly rendered: DescendantEventer.Signal;
         readonly mouseEnteredCell: DescendantEventer.Cell;
         readonly mouseExitedCell: DescendantEventer.Cell;
@@ -592,8 +579,12 @@ export namespace EventBehavior {
         export type Focus = (this: void, event: FocusEvent) => void;
         export type Key = (this: void, event: EventDetail.Keyboard) => void;
         export type Mouse = (this: void, event: MouseEvent, cell: ViewCell | null | undefined) => void;
+        export type Pointer = (this: void, event: PointerEvent, cell: ViewCell | null | undefined) => void;
+        export type PointerDrag = (this: void, event: PointerEvent) => void;
+        export type PointerDragStart = (this: void, event: DragEvent, cell: ViewCell | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
         export type Wheel = (this: void, event: WheelEvent, cell: ViewCell | null | undefined) => void;
-        export type Drag = (this: void, event: DragEvent, cell: ViewCell | null | undefined) => void;
+        export type DragCell = (this: void, event: DragEvent, cell: ViewCell | null | undefined) => void;
+        export type Drag = (this: void, event: DragEvent) => void;
         export type Touch = (this: void, event: TouchEvent) => void;
         export type Cell = (this: void, cell: ViewCell) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
@@ -601,7 +592,10 @@ export namespace EventBehavior {
     }
 
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
-    export type UiMouseEventer = (this: void, mouseEvent: EventDetail.Mouse) => ViewCell | null | undefined;
+    export type UiMouseEventer = (this: void, pointerEvent: EventDetail.Mouse) => ViewCell | null | undefined;
+    export type UiPointerEventer = (this: void, pointerEvent: EventDetail.Pointer) => ViewCell | null | undefined;
+    export type UiPointerDragEventer = (this: void, pointerEvent: EventDetail.Pointer) => void;
+    export type UiPointerDragStartEventer = (this: void, dragEvent: DragEvent) => UiPointerDragStartResult;
     export type UiWheelEventer = (this: void, wheelEvent: EventDetail.Wheel) => ViewCell | null | undefined;
     export type UiDragEventer = (this: void, event: DragEvent) => ViewCell | null | undefined;
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;

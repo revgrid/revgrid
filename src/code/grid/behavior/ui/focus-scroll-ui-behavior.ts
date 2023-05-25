@@ -11,7 +11,7 @@ import { UiBehavior } from './ui-behavior';
 export class FocusScrollUiBehavior extends UiBehavior {
     readonly typeName = FocusScrollUiBehavior.typeName;
 
-    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
@@ -20,7 +20,7 @@ export class FocusScrollUiBehavior extends UiBehavior {
                 this.focusScrollBehavior.tryFocusXYAndEnsureInView(cell.viewLayoutColumn.activeColumnIndex, cell.viewLayoutRow.subgridRowIndex, cell);
             }
         }
-        return super.handleMouseDown(event, cell);
+        return super.handlePointerDown(event, cell);
     }
 
     override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {

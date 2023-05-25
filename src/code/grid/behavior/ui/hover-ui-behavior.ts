@@ -8,7 +8,7 @@ export class HoverUiBehavior extends UiBehavior {
 
     readonly typeName = HoverUiBehavior.typeName;
 
-    override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
@@ -18,10 +18,10 @@ export class HoverUiBehavior extends UiBehavior {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
         this.mouse.setMouseCanvasOffset(canvasOffsetPoint, cell === null ? undefined : cell);
-        return super.handleMouseMove(event, cell);
+        return super.handlePointerMove(event, cell);
     }
 
-    override handleMouseEnter(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerEnter(event: PointerEvent, cell: ViewCell | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
@@ -31,12 +31,12 @@ export class HoverUiBehavior extends UiBehavior {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
         this.mouse.setMouseCanvasOffset(canvasOffsetPoint, cell === null ? undefined : cell);
-        return super.handleMouseEnter(event, cell);
+        return super.handlePointerEnter(event, cell);
     }
 
-    override handleMouseExit(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerLeaveOut(event: PointerEvent, cell: ViewCell | null | undefined) {
         this.mouse.setMouseCanvasOffset(undefined, undefined);
-        return super.handleMouseExit(event, cell);
+        return super.handlePointerLeaveOut(event, cell);
     }
 }
 

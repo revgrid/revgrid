@@ -76,14 +76,16 @@ export class UiBehaviorManager {
 
         this._eventBehavior.uiKeyDownEventer = (event) => this.handleKeyDownEvent(event);
         this._eventBehavior.uiKeyUpEventer = (event) => this.handleKeyUpEvent(event);
-        this._eventBehavior.uiMouseClickEventer = (event) => this.handleClickEvent(event);
-        this._eventBehavior.uiMouseDblClickEventer = (event) => this.handleDoubleClickEvent(event);
-        this._eventBehavior.uiMouseDownEventer = (event) => this.handleMouseDownEvent(event);
-        this._eventBehavior.uiMouseUpEventer = (event) => this.handleMouseUpEvent(event);
-        this._eventBehavior.uiMouseMoveEventer = (event) => this.handleMouseMoveEvent(event);
-        this._eventBehavior.uiMouseDragEventer = (event) => this.handleMouseDragEvent(event);
-        this._eventBehavior.uiMouseEnteredCellEventer = (event) => this.handleMouseEnteredCellEvent(event);
-        this._eventBehavior.uiMouseExitedCellEventer = (event) => this.handleMouseExitedCellEvent(event);
+        this._eventBehavior.uiClickEventer = (event) => this.handleClickEvent(event);
+        this._eventBehavior.uiDblClickEventer = (event) => this.handleDblClickEvent(event);
+        this._eventBehavior.uiPointerDownEventer = (event) => this.handlePointerDownEvent(event);
+        this._eventBehavior.uiPointerUpCancelEventer = (event) => this.handlePointerUpCancelEvent(event);
+        this._eventBehavior.uiPointerMoveEventer = (event) => this.handlePointerMoveEvent(event);
+        this._eventBehavior.uiPointerEnterEventer = (event) => this.handlePointerEnterEvent(event);
+        this._eventBehavior.uiPointerLeaveOutEventer = (event) => this.handlePointerLeaveOutEvent(event);
+        this._eventBehavior.uiPointerDragStartEventer = (event) => this.handlePointerDragStartEvent(event);
+        this._eventBehavior.uiPointerDragEventer = (event) => this.handlePointerDragEvent(event);
+        this._eventBehavior.uiPointerDragEndEventer = (event) => this.handlePointerDragEndEvent(event);
         this._eventBehavior.uiWheelMoveEventer = (event) => this.handleWheelMovedEvent(event);
         this._eventBehavior.uiContextMenuEventer = (event) => this.handleContextMenuEvent(event);
         this._eventBehavior.uiTouchStartEventer = (event) => this.handleTouchStartEvent(event);
@@ -189,9 +191,9 @@ export class UiBehaviorManager {
      * @param event - the event details
      * @internal
      */
-    private handleMouseMoveEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handlePointerMoveEvent(event: PointerEvent): ViewCell | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiBehavior.handleMouseMove(event, undefined);
+            const cell = this._firstUiBehavior.handlePointerMove(event, undefined);
             return cell;
         } else {
             return undefined;
@@ -244,22 +246,38 @@ export class UiBehaviorManager {
      * @param event - the event details
      * @internal
      */
-    private handleMouseUpEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handlePointerUpCancelEvent(event: PointerEvent): ViewCell | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiBehavior.handleMouseUp(event, undefined);
+            const cell = this._firstUiBehavior.handlePointerUpCancel(event, undefined);
             return cell;
         } else {
             return undefined;
         }
     }
 
-    /**
-     * @desc delegate handling mouse drag to the feature chain of responsibility
-     * @internal
-     */
-    private handleMouseDragEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handlePointerDragStartEvent(event: DragEvent): EventBehavior.UiPointerDragStartResult {
         if (this._enabled) {
-            const cell = this._firstUiBehavior.handleMouseDrag(event, undefined);
+            return this._firstUiBehavior.handlePointerDragStart(event, undefined);
+        } else {
+            return {
+                started: false,
+                cell: undefined,
+            };
+        }
+    }
+
+    private handlePointerDragEvent(event: PointerEvent): ViewCell | null | undefined {
+        if (this._enabled) {
+            const cell = this._firstUiBehavior.handlePointerDrag(event, undefined);
+            return cell;
+        } else {
+            return undefined;
+        }
+    }
+
+    private handlePointerDragEndEvent(event: PointerEvent): ViewCell | null | undefined {
+        if (this._enabled) {
+            const cell = this._firstUiBehavior.handlePointerDragEnd(event, undefined);
             return cell;
         } else {
             return undefined;
@@ -271,7 +289,7 @@ export class UiBehaviorManager {
      * @param event - the event details
      * @internal
      */
-    private handleDoubleClickEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handleDblClickEvent(event: MouseEvent): ViewCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDblClick(event, undefined);
             return cell;
@@ -284,9 +302,9 @@ export class UiBehaviorManager {
      * @param event - the event details
      * @internal
      */
-    private handleMouseDownEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handlePointerDownEvent(event: PointerEvent): ViewCell | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiBehavior.handleMouseDown(event, undefined);
+            const cell = this._firstUiBehavior.handlePointerDown(event, undefined);
             return cell;
         } else {
             return undefined;
@@ -297,9 +315,9 @@ export class UiBehaviorManager {
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handleMouseEnteredCellEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handlePointerEnterEvent(event: PointerEvent): ViewCell | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiBehavior.handleMouseEnter(event, undefined);
+            const cell = this._firstUiBehavior.handlePointerEnter(event, undefined);
             return cell;
         } else {
             return undefined;
@@ -310,9 +328,9 @@ export class UiBehaviorManager {
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handleMouseExitedCellEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handlePointerLeaveOutEvent(event: PointerEvent): ViewCell | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiBehavior.handleMouseExit(event, undefined);
+            const cell = this._firstUiBehavior.handlePointerLeaveOut(event, undefined);
             return cell;
         } else {
             return undefined;

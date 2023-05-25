@@ -69,13 +69,13 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         super.initializeOn();
     }
 
-    override handleMouseDown(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
 
         if (cell === null) {
-            return super.handleMouseDown(event, cell);
+            return super.handlePointerDown(event, cell);
         } else {
             const ctrlKeyDown = event.ctrlKey;
             if (
@@ -90,11 +90,11 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                 this.reindexStashManager.stash();
                 this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
             }
-            return super.handleMouseDown(event, cell);
+            return super.handlePointerDown(event, cell);
         }
     }
 
-    override handleMouseUp(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerUpCancel(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (this.sharedState.columnMovingDragging) {
             const dragAction = this.getDragAction(event);
 
@@ -109,7 +109,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                 //  can update the hovered column
                 const next = this.next;
                 if (next !== undefined) {
-                    next.handleMouseMove(event, undefined);
+                    next.handlePointerMove(event, undefined);
                 }
             }, 50);
             this.sharedState.columnMovingDragging = false;
@@ -118,10 +118,10 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         this.sharedState.columnMovingDragArmed = false;
         this._dragOverlay.style.display = 'none';
         requestAnimationFrame(() => this.render(undefined));
-        return super.handleMouseUp(event, cell);
+        return super.handlePointerUpCancel(event, cell);
     }
 
-    override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (
             event !== undefined &&
             event.ctrlKey &&
@@ -144,11 +144,11 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             this.cursor = ColumnMovingUiBehavior.GRABBING;
             return cell;
         } else {
-            return super.handleMouseMove(event, cell);
+            return super.handlePointerMove(event, cell);
         }
     }
 
-    override handleMouseDrag(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: ViewCell | null | undefined) {
 
         // if (event.isColumnFixed) {
         //     super.handleMouseDrag(grid, event);
@@ -156,7 +156,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         // }
 
         if (!this.sharedState.columnMovingDragArmed) {
-            return super.handleMouseDrag(event, cell);
+            return super.handlePointerDrag(event, cell);
         } else {
             if (cell === undefined) {
                 cell = this.tryGetViewCellFromMouseEvent(event);

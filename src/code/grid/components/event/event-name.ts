@@ -24,18 +24,20 @@ export namespace EventName {
         // Grid
         'rev-column-sort': EventDetail.ColumnSort;
         'rev-selection-changed': EventDetail.Grid;
-        'rev-context-menu': EventDetail.Mouse;
-        'rev-mouse-up': EventDetail.Mouse;
-        'rev-mouse-down': EventDetail.Mouse;
-        'rev-mouse-move': EventDetail.Mouse;
+        'rev-context-menu': EventDetail.Pointer;
+        'rev-pointer-down': EventDetail.Pointer;
+        'rev-pointer-up-cancel': EventDetail.Pointer;
+        'rev-pointer-move': EventDetail.Pointer;
+        'rev-pointer-enter': EventDetail.Pointer;
+        'rev-pointer-leave-out': EventDetail.Pointer;
         'rev-wheel-move': EventDetail.Wheel;
         'rev-key-down': EventDetail.Keyboard;
         'rev-key-up': EventDetail.Keyboard;
         'rev-filter-applied': undefined;
         'rev-cell-enter': ViewCell;
         'rev-cell-exit': ViewCell;
-        'rev-click': EventDetail.Mouse;
-        'rev-dbl-click': EventDetail.Mouse;
+        'rev-click': EventDetail.Pointer;
+        'rev-dbl-click': EventDetail.Pointer;
         'rev-columns-view-widths-changed': undefined;
         'rev-grid-rendered': EventDetail.Grid;
         'rev-grid-resized': EventDetail.Resize;
@@ -50,5 +52,15 @@ export namespace EventName {
         'rev-columns-created': undefined;
     }
 
-    export type Mouse = 'rev-click' | 'rev-dbl-click' | 'rev-mouse-down' | 'rev-mouse-up' | 'rev-mouse-move' | 'rev-wheel-move' | 'rev-context-menu' | 'rev-column-sort';
+    export type Mouse =
+        'rev-click' |
+        'rev-dbl-click' |
+        'rev-pointer-up-cancel' |
+        'rev-pointer-down' |
+        'rev-pointer-move' |
+        'rev-pointer-enter' |
+        'rev-pointer-leave-out' |
+        'rev-wheel-move' |
+        'rev-context-menu' |
+        'rev-column-sort';
 }

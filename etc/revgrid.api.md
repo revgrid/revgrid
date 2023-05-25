@@ -778,6 +778,11 @@ export namespace EventDetail {
         revgridViewCell?: ViewCell;
     }
     // (undocumented)
+    export interface Pointer extends PointerEvent, Mouse {
+        // (undocumented)
+        revgridViewCell?: ViewCell;
+    }
+    // (undocumented)
     export interface Resize {
         // (undocumented)
         readonly height: number;
@@ -857,7 +862,7 @@ export namespace EventName {
         // (undocumented)
         'rev-cell-exit': ViewCell;
         // (undocumented)
-        'rev-click': EventDetail.Mouse;
+        'rev-click': EventDetail.Pointer;
         // (undocumented)
         'rev-column-changed-event': undefined;
         // (undocumented)
@@ -867,7 +872,7 @@ export namespace EventName {
         // (undocumented)
         'rev-columns-view-widths-changed': undefined;
         // (undocumented)
-        'rev-context-menu': EventDetail.Mouse;
+        'rev-context-menu': EventDetail.Pointer;
         // (undocumented)
         'rev-data-all-invalidated': undefined;
         // (undocumented)
@@ -889,7 +894,7 @@ export namespace EventName {
         // (undocumented)
         'rev-data-rows-moved': undefined;
         // (undocumented)
-        'rev-dbl-click': EventDetail.Mouse;
+        'rev-dbl-click': EventDetail.Pointer;
         // (undocumented)
         'rev-filter-applied': undefined;
         // (undocumented)
@@ -905,11 +910,15 @@ export namespace EventName {
         // (undocumented)
         'rev-key-up': EventDetail.Keyboard;
         // (undocumented)
-        'rev-mouse-down': EventDetail.Mouse;
+        'rev-pointer-down': EventDetail.Pointer;
         // (undocumented)
-        'rev-mouse-move': EventDetail.Mouse;
+        'rev-pointer-enter': EventDetail.Pointer;
         // (undocumented)
-        'rev-mouse-up': EventDetail.Mouse;
+        'rev-pointer-leave-out': EventDetail.Pointer;
+        // (undocumented)
+        'rev-pointer-move': EventDetail.Pointer;
+        // (undocumented)
+        'rev-pointer-up-cancel': EventDetail.Pointer;
         // (undocumented)
         'rev-schema-loaded': undefined;
         // (undocumented)
@@ -928,7 +937,7 @@ export namespace EventName {
         'rev-wheel-move': EventDetail.Wheel;
     }
     // (undocumented)
-    export type Mouse = 'rev-click' | 'rev-dbl-click' | 'rev-mouse-down' | 'rev-mouse-up' | 'rev-mouse-move' | 'rev-wheel-move' | 'rev-context-menu' | 'rev-column-sort';
+    export type Mouse = 'rev-click' | 'rev-dbl-click' | 'rev-pointer-up-cancel' | 'rev-pointer-down' | 'rev-pointer-move' | 'rev-pointer-enter' | 'rev-pointer-leave-out' | 'rev-wheel-move' | 'rev-context-menu' | 'rev-column-sort';
 }
 
 // @public (undocumented)
@@ -1874,6 +1883,8 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined): void;
     // (undocumented)
+    protected descendantProcessClick(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
     protected descendantProcessColumnsChanged(): void;
     // (undocumented)
     protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell): void;
@@ -1886,6 +1897,8 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessCopy(_event: ClipboardEvent): void;
     // (undocumented)
+    protected descendantProcessDblClick(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
     protected descendantProcessDrag(_event: DragEvent, _cell: ViewCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessDragEnd(_event: DragEvent, _cell: ViewCell | null | undefined): void;
@@ -1896,7 +1909,7 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessDragOver(_event: DragEvent, _cell: ViewCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessDragStart(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessDragStart(_event: DragEvent): void;
     // (undocumented)
     protected descendantProcessDrop(_event: DragEvent, _cell: ViewCell | null | undefined): void;
     // (undocumented)
@@ -1908,27 +1921,24 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessKeyUp(_event: EventDetail.Keyboard): void;
     // (undocumented)
-    protected descendantProcessMouseClick(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessMouseDblClick(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessMouseDown(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessMouseDrag(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessMouseDragEnd(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessMouseDragStart(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
-    // (undocumented)
     protected descendantProcessMouseEnteredCell(_cell: ViewCell): void;
     // (undocumented)
     protected descendantProcessMouseExitedCell(_cell: ViewCell): void;
     // (undocumented)
-    protected descendantProcessMouseMove(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessPointerDown(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessMouseOut(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessPointerDrag(_event: PointerEvent): void;
     // (undocumented)
-    protected descendantProcessMouseUp(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessPointerDragEnd(_event: PointerEvent): void;
+    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: ViewCell | null | undefined): boolean;
+    // (undocumented)
+    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
+    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
+    protected descendantProcessPointerMove(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    // (undocumented)
+    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessRendered(): void;
     // (undocumented)

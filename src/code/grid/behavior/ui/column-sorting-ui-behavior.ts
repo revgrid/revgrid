@@ -29,7 +29,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         return super.handleClick(event, cell);
     }
 
-    override handleMouseMove(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
@@ -46,7 +46,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
             }
         }
 
-        return super.handleMouseMove(event, cell);
+        return super.handlePointerMove(event, cell);
     }
 
     private sort(event: MouseEvent, cell: ViewCell, onDoubleClick: boolean) {

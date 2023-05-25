@@ -14,6 +14,10 @@ export namespace EventDetail {
         revgridViewCell?: ViewCell;
     }
 
+    export interface Pointer extends PointerEvent, Mouse {
+        revgridViewCell?: ViewCell;
+    }
+
     export interface Wheel extends WheelEvent {
         revgridViewCell?: ViewCell;
     }
