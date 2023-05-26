@@ -19,7 +19,7 @@ export class FocusSelectBehavior {
 
     selectOnlyColumn(activeColumnIndex: number) {
         const selection = this._selection;
-        const rowIndex = this._focus.currentSubgridX ?? 0;
+        const rowIndex = this._focus.currentSubgridY ?? this._gridSettings.fixedRowCount;
         selection.beginChange();
         try {
             selection.clear();
@@ -29,14 +29,19 @@ export class FocusSelectBehavior {
         }
     }
 
+    selectToggleColumn(activeColumnIndex: number) {
+        const rowIndex = this._focus.currentSubgridY ?? this._gridSettings.fixedRowCount;
+        this._selection.selectToggleColumn(activeColumnIndex, rowIndex, this._focus.subgrid);
+    }
+
     selectAddColumn(activeColumnIndex: number) {
-        const rowIndex = this._focus.currentSubgridX ?? 0;
+        const rowIndex = this._focus.currentSubgridY ?? this._gridSettings.fixedRowCount;
         this._selection.selectColumns(activeColumnIndex, rowIndex, 1, 1, this._focus.subgrid);
     }
 
     selectOnlyRow(subgridRowIndex: number, subgrid: SubgridInterface) {
         const selection = this._selection;
-        const columnIndex = this._focus.currentSubgridX ?? 0;
+        const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
         selection.beginChange();
         try {
             selection.clear();
@@ -46,8 +51,13 @@ export class FocusSelectBehavior {
         }
     }
 
+    selectToggleRow(subgridRowIndex: number, subgrid: SubgridInterface) {
+        const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
+        this._selection.selectToggleRow(columnIndex, subgridRowIndex, subgrid);
+    }
+
     selectAddRow(subgridRowIndex: number, subgrid: SubgridInterface) {
-        const columnIndex = this._focus.currentSubgridX ?? 0;
+        const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectRows(columnIndex, subgridRowIndex, 1, 1, subgrid);
     }
 

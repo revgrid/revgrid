@@ -2262,7 +2262,7 @@ export namespace Revgrid {
         // (undocumented)
         edgeStyleValues?: EdgeStyleValues;
         // (undocumented)
-        gridProperties?: Partial<GridSettings>;
+        gridSettings?: Partial<GridSettings>;
         loadBuiltinFinbarStylesheet?: boolean;
         // (undocumented)
         localization?: LocalizationOptions;

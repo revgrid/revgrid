@@ -264,7 +264,11 @@ export class SelectionUiBehavior extends UiBehavior {
                 }
             } else {
                 if (addToggleModifier && !extendModifier) {
-                    focusSelectionBehavior.selectAddColumn(activeColumnIndex);
+                    if (this.gridSettings.addToggleSelectionAreaModifierKeyDoesToggle) {
+                        focusSelectionBehavior.selectToggleColumn(activeColumnIndex);
+                    } else {
+                        focusSelectionBehavior.selectAddColumn(activeColumnIndex);
+                    }
                 } else {
                     focusSelectionBehavior.selectOnlyColumn(activeColumnIndex);
                 }
@@ -304,7 +308,11 @@ export class SelectionUiBehavior extends UiBehavior {
                 }
             } else {
                 if (addToggleModifier && !extendModifier) {
-                    focusSelectionBehavior.selectAddRow(subgridRowIndex, subgrid);
+                    if (this.gridSettings.addToggleSelectionAreaModifierKeyDoesToggle) {
+                        focusSelectionBehavior.selectToggleRow(subgridRowIndex, subgrid);
+                    } else {
+                        focusSelectionBehavior.selectAddRow(subgridRowIndex, subgrid);
+                    }
                 } else {
                     focusSelectionBehavior.selectOnlyRow(subgridRowIndex, subgrid);
                 }

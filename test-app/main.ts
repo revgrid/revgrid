@@ -152,9 +152,10 @@ export class Main {
 
         const gridOptions: Revgrid.Options = {
             container: this._gridHostElement,
-            gridProperties: {
+            gridSettings: {
                 editable: true,
                 singleRowSelectionMode: false,
+                multipleSelectionAreas: true,
                 autoSelectRows: false,
                 restoreColumnSelections: false,
                 sortOnDoubleClick: false,

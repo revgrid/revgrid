@@ -24,76 +24,109 @@ export class ContiguousIndexRangeList {
     }
 
     add(exclusiveStart: number, length: number) {
+        let start: number;
         let after: number;
         if (length >= 0) {
-            after = exclusiveStart + length;
+            start = exclusiveStart;
+            after = start + length;
         } else {
             after = exclusiveStart;
-            exclusiveStart += length;
+            start = after + length; // length is negative
             length = -length;
         }
         const ranges = this.ranges;
         const oldCount = ranges.length;
 
         let firstAffectedExistingRangeIndex: number | undefined;
+        let lastAffectedExistingRangeIndex: number | undefined;
         for (let i = 0; i < oldCount; i++) {
             const range = ranges[i];
             const rangeAfter = range.after;
-            if (rangeAfter >= exclusiveStart) {
-                // found first affected range
+            if (rangeAfter >= start) {
+                // end of existing range either abuts start of added range or is within it or after it
+                if (firstAffectedExistingRangeIndex === undefined) {
+                    // found first affected range
+                    firstAffectedExistingRangeIndex = i;
+                }
+
                 if (rangeAfter >= after) {
+                    // last existing range affected by added range
                     const rangeStart = range.start;
-                    // nothing else to do as only this range affected
-                    if (rangeStart <= exclusiveStart) {
-                        return false; // existing range contained added range so no change
+                    if (rangeStart <= start) {
+                        // existing range contains added range
+                        return false; // no change
                     } else {
-                        if (after >= rangeStart) {
-                            range.setStart(exclusiveStart); // adjust this range to contain added range
+                        if (rangeStart <= after) {
+                            // existing range either overlaps or abuts end of added range
+                            lastAffectedExistingRangeIndex = i;
+                            break;
+
                         } else {
-                            xxx
+                            // existing range is after added range (with no overlap)
+                            const newRange = new ContiguousIndexRange(start, length);
+                            ranges.splice(i, 0, newRange); // insert added range before this existing one
                         }
                         return true;
                     }
-                } else {
-                    range.setStart(exclusiveStart); // start of new range (either this or combination)
-                    firstAffectedExistingRangeIndex = i;
-                    break;
                 }
             }
         }
 
         if (firstAffectedExistingRangeIndex === undefined) {
-            // No overlap with existing ranges - just add at end
-            const range = new ContiguousIndexRange(exclusiveStart, length);
+            // No existing range affected.  Must be beyond all of them.  Add at end
+            const range = new ContiguousIndexRange(start, length);
             ranges.push(range);
-            return true;
         } else {
+            // Overlap between added range and existing ranges.
             const firstAffectedExistingRange = ranges[firstAffectedExistingRangeIndex];
-
-            let lastAffectedExistingRangeIndex: number | undefined;
-            for (let i = firstAffectedExistingRangeIndex + 1; i < oldCount; i++) {
-                const range = ranges[i];
-                const rangeAfter = range.after;
-
-                if (rangeAfter >= after) {
-                    lastAffectedExistingRangeIndex = i;
-                    break;
-                }
+            if (firstAffectedExistingRange.start > start) {
+                firstAffectedExistingRange.setStart(start); // extend start of existing range back to cover added range
             }
 
             if (lastAffectedExistingRangeIndex === undefined) {
-                // added range extends beyond all existing ranges
-                firstAffectedExistingRange.setAfter(after);
-                ranges.splice(firstAffectedExistingRangeIndex + 1);
-                return true;
+                // all existing ranges after first affected, are within added range.
+                ranges.splice(firstAffectedExistingRangeIndex + 1); // remove all subsequent existing ranges
             } else {
-                // extend first affected range to cover all subsequent affected ranges and then delete all subsequent affected ranges
-                const lastAffectedExistingRange = ranges[lastAffectedExistingRangeIndex];
-                firstAffectedExistingRange.setAfter(lastAffectedExistingRange.after);
-                ranges.splice(firstAffectedExistingRangeIndex + 1, lastAffectedExistingRangeIndex - firstAffectedExistingRangeIndex);
-                return true;
+                // Ranges between firstAffectedExistingRangeIndex and lastAffectedExistingRangeIndex are affected.
+                if (lastAffectedExistingRangeIndex > firstAffectedExistingRangeIndex) {
+                    // merge affected existing ranges after first into first
+                    const lastAffectedExistingRange = ranges[lastAffectedExistingRangeIndex];
+                    firstAffectedExistingRange.setAfter(lastAffectedExistingRange.after);
+                    // then delete affected existing affected ranges after first
+                    const deleteCount = lastAffectedExistingRangeIndex - firstAffectedExistingRangeIndex;
+                    ranges.splice(firstAffectedExistingRangeIndex + 1, deleteCount);
+                }
             }
+
+            if (firstAffectedExistingRange.after < after) {
+                firstAffectedExistingRange.setAfter(after); // extend end of first affected range to cover added range
+            }
+
+            // let lastAffectedExistingRangeIndex: number | undefined;
+            // for (let i = firstAffectedExistingRangeIndex + 1; i < oldCount; i++) {
+            //     const range = ranges[i];
+            //     const rangeAfter = range.after;
+
+            //     if (rangeAfter >= after) {
+            //         lastAffectedExistingRangeIndex = i;
+            //         break;
+            //     }
+            // }
+
+            // if (lastAffectedExistingRangeIndex === undefined) {
+            //     // added range extends beyond all existing ranges
+            //     firstAffectedExistingRange.setAfter(after);
+            //     ranges.splice(firstAffectedExistingRangeIndex + 1);
+            //     return true;
+            // } else {
+            //     // extend first affected range to cover all subsequent affected ranges and then delete all subsequent affected ranges
+            //     const lastAffectedExistingRange = ranges[lastAffectedExistingRangeIndex];
+            //     firstAffectedExistingRange.setAfter(lastAffectedExistingRange.after);
+            //     ranges.splice(firstAffectedExistingRangeIndex + 1, lastAffectedExistingRangeIndex - firstAffectedExistingRangeIndex);
+            //     return true;
+            // }
         }
+        return true;
     }
 
     delete(start: number, length: number) {

@@ -315,13 +315,12 @@ export class Selection {
                 this._subgrid = subgrid;
             }
 
-            const rectangle = new SelectionRectangle(firstInexclusiveX, firstInexclusiveY, width, height);
-
-            if (this._gridSettings.multipleSelectionAreas) {
-                this.rectangleList.push(rectangle);
-            } else {
-                this.rectangleList.only(rectangle);
+            if (!this._gridSettings.multipleSelectionAreas) {
+                this.clear();
             }
+
+            const rectangle = new SelectionRectangle(firstInexclusiveX, firstInexclusiveY, width, height);
+            this.rectangleList.push(rectangle);
             this._lastArea = new LastSelectionArea(SelectionArea.Type.Rectangle, firstInexclusiveX, firstInexclusiveY, width, height);
 
             this.flagChanged(silent);
@@ -400,6 +399,10 @@ export class Selection {
                 this._subgrid = subgrid;
             }
 
+            if (!this._gridSettings.multipleSelectionAreas) {
+                this.clear();
+            }
+
             const changed = this.rows.add(inexclusiveY, height);
             const lastArea = new LastSelectionArea(SelectionArea.Type.Row, x, inexclusiveY, width, height);
             if (changed) {
@@ -449,12 +452,20 @@ export class Selection {
         }
     }
 
+    selectToggleRow(x: number, inexclusiveY: number, subgrid: SubgridInterface) {
+        this.selectRows(x, inexclusiveY, 1, 1, subgrid); // implement properly in future
+    }
+
     selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: SubgridInterface) {
         this.beginChange();
 
         if (subgrid !== this._subgrid) {
             this.clear();
             this._subgrid = subgrid;
+        }
+
+        if (!this._gridSettings.multipleSelectionAreas) {
+            this.clear();
         }
 
         const changed = this.columns.add(inexclusiveX, width);
@@ -502,6 +513,10 @@ export class Selection {
                 }
             }
         }
+    }
+
+    selectToggleColumn(inexclusiveX: number, y: number, subgrid: SubgridInterface) {
+        this.selectColumns(inexclusiveX, y, 1, 1, subgrid); // implement properly in future
     }
 
     replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {

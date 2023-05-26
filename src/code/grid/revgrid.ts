@@ -165,7 +165,7 @@ export class Revgrid {
         this.behaviorManager = new BehaviorManager(
             this.containerHtmlElement,
             options.canvasContextAttributes,
-            options.gridProperties,
+            options.gridSettings,
             adapterSetConfig,
             options.loadBuiltinFinbarStylesheet ?? true,
             descendantEventer,
@@ -2191,7 +2191,7 @@ export class Revgrid {
 export namespace Revgrid {
 	export interface Options {
 		// api?: object | string[];
-        gridProperties?: Partial<GridSettings>;
+        gridSettings?: Partial<GridSettings>;
 		boundingRect?: BoundingRectStyleValues;
 		canvasContextAttributes?: CanvasRenderingContext2DSettings;
 		container?: string | HTMLElement;

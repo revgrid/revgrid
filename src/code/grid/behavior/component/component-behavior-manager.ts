@@ -87,15 +87,15 @@ export class ComponentBehaviorManager {
     constructor(
         containerHtmlElement: HTMLElement,
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
-        optionedGridProperties: Partial<GridSettings> | undefined,
+        optionedGridSettings: Partial<GridSettings> | undefined,
         adapterSetConfig: AdapterSetConfig,
         loadBuiltinFinbarStylesheet: boolean,
         descendantEventer: EventBehavior.DescendantEventer,
     ) {
         this.gridSettings = new GridSettingsAccessor();
         this.gridSettings.loadDefaults();
-        if (optionedGridProperties !== undefined) {
-            this.gridSettings.merge(optionedGridProperties);
+        if (optionedGridSettings !== undefined) {
+            this.gridSettings.merge(optionedGridSettings);
         }
 
         this.canvasManager = new CanvasManager(

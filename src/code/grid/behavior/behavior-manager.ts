@@ -40,7 +40,7 @@ export class BehaviorManager {
     constructor(
         containerHtmlElement: HTMLElement,
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
-        optionedGridProperties: Partial<GridSettings> | undefined,
+        optionedGridSettings: Partial<GridSettings> | undefined,
         adapterSetConfig: AdapterSetConfig,
         loadBuiltinFinbarStylesheet: boolean,
         descendantEventer: EventBehavior.DescendantEventer,
@@ -48,7 +48,7 @@ export class BehaviorManager {
         this._componentBehaviorManager = new ComponentBehaviorManager(
             containerHtmlElement,
             canvasContextAttributes,
-            optionedGridProperties,
+            optionedGridSettings,
             adapterSetConfig,
             loadBuiltinFinbarStylesheet,
             descendantEventer,
