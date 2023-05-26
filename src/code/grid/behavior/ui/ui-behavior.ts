@@ -75,6 +75,8 @@ export abstract class UiBehavior {
         this.cellPropertiesBehavior = services.cellPropertiesBehavior;
         this.dataExtractBehavior = services.dataExtractBehavior;
         this.eventBehavior = services.eventBehavior;
+
+        this.mainSubgrid = this.subgridsManager.mainSubgrid;
     }
 
     /**

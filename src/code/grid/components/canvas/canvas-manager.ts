@@ -11,12 +11,12 @@
 //     window.CustomEvent.prototype = window.Event.prototype;
 // }
 
-import { GridSettings } from '../../interfaces/grid-settings';
 import { CssClassName } from '../../lib/html-types';
 import { Point } from '../../lib/point';
 import { Rectangle } from '../../lib/rectangle';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { Writable } from '../../lib/types';
+import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
 import { CachedCanvasRenderingContext2D } from './cached-canvas-rendering-context-2d';
 
 /** @public */
@@ -72,9 +72,12 @@ export class CanvasManager {
     private _repeatKey: string | undefined;
     private _repeatKeyStartTime = 0;
 
+    readonly instanceId = getNextInstanceId();
     readonly canvasElement: HTMLCanvasElement;
     /** @internal */
     readonly gc: CachedCanvasRenderingContext2D;
+    /** @internal */
+    private _started = false;
     /** @internal */
     private _flooredContainerWidth: number;
     /** @internal */
@@ -99,7 +102,7 @@ export class CanvasManager {
 
     /** @internal */
     private _resizeObserver = new ResizeObserver(() => {
-        setTimeout(() => this.resize(), 0); // do not process within observer callback
+        setTimeout(() => this.resize(true), 0); // do not process within observer callback
     })
 
     private pointerUpCancelEventListener = (event: PointerEvent) => {
@@ -205,12 +208,12 @@ export class CanvasManager {
     constructor(
         private readonly _containerElement: HTMLElement,
         contextAttributes: CanvasRenderingContext2DSettings | undefined,
-        private readonly _gridSettings: GridSettings,
+        private readonly _gridSettings: GridSettingsAccessor,
         private readonly _resizedEventer: CanvasManager.ResizedEventer,
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');
-        this.canvasElement.id = CanvasManager.getNextCanvasElementId();
+        this.canvasElement.id = CanvasManager.canvasElementIdBase + this.instanceId.toString();
         this.canvasElement.draggable = true;
         this.canvasElement.tabIndex = 0;
         this.canvasElement.style.outline = 'none';
@@ -232,9 +235,15 @@ export class CanvasManager {
                     this.pointerDownEventer(event);
                     break;
                 case CanvasManager.PointerDownState.NotDragging:
+                    // must have lost a pointer up event
+                    this.pointerDownEventer(event);
+                    break;
                 case CanvasManager.PointerDownState.DragStarting:
                 case CanvasManager.PointerDownState.Dragging:
-                    throw new AssertError('CMCAELPDP34440', this._pointerDownState.toString());
+                    // Should normally never occur but debugger can trigger this transition
+                    this.pointerUpCancelEventListener(event); // pretend pointer went up
+                    this.pointerDownEventer(event);
+                    break;
 
                 default:
                     throw new UnreachableCaseError('CMCAELPDU34440', this._pointerDownState);
@@ -310,8 +319,10 @@ export class CanvasManager {
             if (dataTransfer === null || dataTransfer.items.length === 0) {
                 event.preventDefault();
 
-                // if no behavior or descendant wanted drag event, then arm pointer for dragging
-                if (this._pointerDownState !== CanvasManager.PointerDownState.NotDragging) {
+                if (
+                    this._pointerDownState !== CanvasManager.PointerDownState.NotDragging &&
+                    this._pointerDownState !== CanvasManager.PointerDownState.NotDown // Debugger can cause this unexpected state
+                ) {
                     throw new AssertError('CMCAELDS1220');
                 } else {
                     const pointerDragInternal = this.pointerDragStartEventer(event);
@@ -354,23 +365,26 @@ export class CanvasManager {
     }
 
     start() {
-        this.resize();
+        this._gridSettings.resizeEventer = () => this.resize(false);
         this._resizeObserver.observe(this._containerElement);
+        this._started = true;
     }
 
     stop() {
         this._resizeObserver.disconnect();
+        this._gridSettings.resizeEventer = undefined;
         this.checkClearResizeTimeout();
+        this._started = true;
     }
 
     checksize() {
         const containerRect = this.getContainerBoundingClientRect();
         if (containerRect.width !== this._containerWidth || containerRect.height !== this._containerHeight) {
-            this.resize(containerRect);
+            this.resize(true, containerRect);
         }
     }
 
-    resize(containerRect?: DOMRect) {
+    resize(debounceEvent: boolean, containerRect?: DOMRect) {
         if (containerRect === undefined) {
             containerRect = this.getContainerBoundingClientRect();
         }
@@ -410,7 +424,10 @@ export class CanvasManager {
         this.gc.scale(ratio, ratio);
 
         this._bounds = new Rectangle(0, 0, width, height);
-        this.processResizedEventerWithDebounce();
+
+        if (this._started) {
+            this.fireResizedEvent(debounceEvent);
+        }
     }
 
     /**
@@ -554,19 +571,24 @@ export class CanvasManager {
         this.canvasElement.title = titleText;
     }
 
-    private processResizedEventerWithDebounce(): void {
-        if (this._gridSettings.resizedEventDebounceExtendedWhenPossible) {
+    private fireResizedEvent(debounce: boolean): void {
+        if (!debounce) {
             this.checkClearResizeTimeout();
-        }
+            this._resizedEventer();
+        } else {
+            if (this._gridSettings.resizedEventDebounceExtendedWhenPossible) {
+                this.checkClearResizeTimeout();
+            }
 
-        if (this._resizeTimeoutId === undefined) {
-            this._resizeTimeoutId = setTimeout(
-                () => {
-                    this._resizeTimeoutId = undefined;
-                    this._resizedEventer();
-                },
-                this._gridSettings.resizedEventDebounceInterval,
-            );
+            if (this._resizeTimeoutId === undefined) {
+                this._resizeTimeoutId = setTimeout(
+                    () => {
+                        this._resizeTimeoutId = undefined;
+                        this._resizedEventer();
+                    },
+                    this._gridSettings.resizedEventDebounceInterval,
+                );
+            }
         }
     }
 
@@ -857,108 +879,11 @@ export namespace CanvasManager {
         y: number;
     }
 
-    const canvasElementIdBase = 'RevgridCanvas';
-    let lastCanvasElementIdSuffix = 0;
-    export function getNextCanvasElementId() {
-        return canvasElementIdBase + (++lastCanvasElementIdSuffix).toString();
-    }
+    export const canvasElementIdBase = 'revgrid-canvas-';
+}
 
-    export type CharShiftPair = [down: string, up: string];
-    export const charMap: CharShiftPair[] = makeCharMap();
+let instanceId = 0;
 
-    function makeCharMap() {
-        const map = Array<CharShiftPair>();
-
-        const empty: CharShiftPair = ['', ''];
-
-        for (let i = 0; i < 256; i++) {
-            map[i] = empty;
-        }
-
-        map[27] = ['ESC', 'ESCSHIFT'];
-        map[192] = ['`', '~'];
-        map[49] = ['1', '!'];
-        map[50] = ['2', '@'];
-        map[51] = ['3', '#'];
-        map[52] = ['4', '$'];
-        map[53] = ['5', '%'];
-        map[54] = ['6', '^'];
-        map[55] = ['7', '&'];
-        map[56] = ['8', '*'];
-        map[57] = ['9', '('];
-        map[48] = ['0', ')'];
-        map[189] = ['-', '_'];
-        map[187] = ['=', '+'];
-        map[8] = ['BACKSPACE', 'BACKSPACESHIFT'];
-        map[46] = ['DELETE', 'DELETESHIFT'];
-        map[9] = ['TAB', 'TABSHIFT'];
-        map[81] = ['q', 'Q'];
-        map[87] = ['w', 'W'];
-        map[69] = ['e', 'E'];
-        map[82] = ['r', 'R'];
-        map[84] = ['t', 'T'];
-        map[89] = ['y', 'Y'];
-        map[85] = ['u', 'U'];
-        map[73] = ['i', 'I'];
-        map[79] = ['o', 'O'];
-        map[80] = ['p', 'P'];
-        map[219] = ['[', '{'];
-        map[221] = [']', '}'];
-        map[220] = ['\\', '|'];
-        map[220] = ['CAPSLOCK', 'CAPSLOCKSHIFT'];
-        map[65] = ['a', 'A'];
-        map[83] = ['s', 'S'];
-        map[68] = ['d', 'D'];
-        map[70] = ['f', 'F'];
-        map[71] = ['g', 'G'];
-        map[72] = ['h', 'H'];
-        map[74] = ['j', 'J'];
-        map[75] = ['k', 'K'];
-        map[76] = ['l', 'L'];
-        map[186] = [';', ':'];
-        map[222] = ['\'', '|'];
-        map[13] = ['RETURN', 'RETURNSHIFT'];
-        map[16] = ['SHIFT', 'SHIFT'];
-        map[90] = ['z', 'Z'];
-        map[88] = ['x', 'X'];
-        map[67] = ['c', 'C'];
-        map[86] = ['v', 'V'];
-        map[66] = ['b', 'B'];
-        map[78] = ['n', 'N'];
-        map[77] = ['m', 'M'];
-        map[188] = [',', '<'];
-        map[190] = ['.', '>'];
-        map[191] = ['/', '?'];
-        map[16] = ['SHIFT', 'SHIFT'];
-        map[17] = ['CTRL', 'CTRLSHIFT'];
-        map[18] = ['ALT', 'ALTSHIFT'];
-        map[91] = ['COMMANDLEFT', 'COMMANDLEFTSHIFT'];
-        map[32] = ['SPACE', 'SPACESHIFT'];
-        map[93] = ['COMMANDRIGHT', 'COMMANDRIGHTSHIFT'];
-        map[18] = ['ALT', 'ALTSHIFT'];
-        map[38] = ['UP', 'UPSHIFT'];
-        map[37] = ['LEFT', 'LEFTSHIFT'];
-        map[40] = ['DOWN', 'DOWNSHIFT'];
-        map[39] = ['RIGHT', 'RIGHTSHIFT'];
-
-        map[33] = ['PAGEUP', 'PAGEUPSHIFT'];
-        map[34] = ['PAGEDOWN', 'PAGEDOWNSHIFT'];
-        map[35] = ['PAGERIGHT', 'PAGERIGHTSHIFT']; // END
-        map[36] = ['PAGELEFT', 'PAGELEFTSHIFT']; // HOME
-
-        map[112] = ['F1', 'F1SHIFT'];
-        map[113] = ['F2', 'F2SHIFT'];
-        map[114] = ['F3', 'F3SHIFT'];
-        map[115] = ['F4', 'F4SHIFT'];
-        map[116] = ['F5', 'F5SHIFT'];
-        map[117] = ['F6', 'F6SHIFT'];
-        map[118] = ['F7', 'F7SHIFT'];
-        map[119] = ['F8', 'F8SHIFT'];
-        map[120] = ['F9', 'F9SHIFT'];
-        map[121] = ['F10', 'F10SHIFT'];
-        map[122] = ['F11', 'F11SHIFT'];
-        map[123] = ['F12', 'F12SHIFT'];
-
-        return map;
-    }
+function getNextInstanceId() {
+    return ++instanceId;
 }

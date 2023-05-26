@@ -84,32 +84,6 @@ export class ComponentBehaviorManager {
     private _mainSubgrid: Subgrid;
     private _mainDataModel: DataModel;
 
-    // Start RowProperties Mixin
-    /** @internal */
-    // private _height: number;
-    // defaultRowHeight: number;
-    // End RowProperties Mixin
-
-    // Start DataModel Mixin
-    // allColumns: Behavior.ColumnArray;
-    // End DataModel Mixin
-
-    // Start RowProperties Mixin
-    // get height() {
-    //     return this._height || this.defaultRowHeight;
-    // }
-    // set height(height: number) {
-    //     height = Math.max(5, Math.ceil(height));
-    //     if (isNaN(height)) {
-    //         height = undefined;
-    //     }
-    //     if (height !== this._height) {
-    //         this._height = height; // previously set as not enumerable
-    //         this.grid.behaviorStateChanged();
-    //     }
-    // }
-    // End RowProperties Mixin
-
     constructor(
         containerHtmlElement: HTMLElement,
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
@@ -204,7 +178,8 @@ export class ComponentBehaviorManager {
 
             this._verticalScroller = new Scroller(
                 this.viewLayout.verticalScrollDimension,
-                false, // remove when vertical scrollbar is updated to use viewport
+                this.canvasManager.instanceId,
+                false,
                 'vertical',
                 true,
                 1,
@@ -218,6 +193,7 @@ export class ComponentBehaviorManager {
 
             this._horizontalScroller = new Scroller(
                 this.viewLayout.horizontalScrollDimension,
+                this.canvasManager.instanceId,
                 false,
                 'horizontal',
                 true,
@@ -294,8 +270,6 @@ export class ComponentBehaviorManager {
                 this.selection,
                 this.columnsManager
             );
-
-            this.viewLayout.invalidateAll(true);
         }
     }
 
@@ -320,7 +294,7 @@ export class ComponentBehaviorManager {
         //     this.setData(options.data);
         // }
 
-        this.canvasManager.resize();
+        this.canvasManager.resize(false);
         // this.behaviorChanged();
 
         this.viewLayout.invalidateAll(true);

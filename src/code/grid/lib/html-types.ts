@@ -40,3 +40,7 @@ export namespace KeyboardEventKey {
     export const Escape = 'Escape';
     export const Return = 'Return';
 }
+
+export namespace CursorNames {
+    export const cell = 'cell';
+}

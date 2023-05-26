@@ -160,6 +160,7 @@ export class Scroller {
      */
     constructor(
         private readonly _scrollDimension: ScrollDimension,
+        instanceId: number,
         private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
         private readonly orientation: Scroller.Orientation,
         private _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
@@ -174,6 +175,7 @@ export class Scroller {
         const bound = this._bound;
         this._thumb = document.createElement('div');
         const thumb = this._thumb;
+        thumb.id = orientation + Scroller.thumbElementIdBase + instanceId.toString();
         thumb.classList.add('thumb');
         thumb.style.position = 'absolute';
         thumb.onclick = bound.shortStop;
@@ -182,6 +184,7 @@ export class Scroller {
 
         this.bar = document.createElement('div');
         const bar = this.bar;
+        bar.id = orientation + Scroller.barElementIdBase + instanceId.toString();
         bar.style.position = 'absolute';
         bar.onmousedown = bound.onmousedown;
         bar.onclick = bound.onclick;
@@ -754,6 +757,8 @@ export class Scroller {
 
 export namespace Scroller {
     export const defaultClassPrefix = 'finbar';
+    export const barElementIdBase = '-revgrid-scroller-bar-';
+    export const thumbElementIdBase = '-revgrid-scroller-thumb-';
 
     export interface Options {
         indexMode?: boolean;

@@ -165,6 +165,14 @@ export class ViewCell {
         return subgrid.isHeader || subgrid.isRowFixed(this._viewLayoutRow.subgridRowIndex);
     }
 
+    get isScrollable() {
+        return (
+            !this._subgrid.isRowFixed(this._viewLayoutRow.subgridRowIndex) &&
+            !this._columnsManager.isColumnFixed(this._viewLayoutColumn.activeColumnIndex) &&
+            this.isMainRow
+        )
+    }
+
     get isFilter() {
         return this._subgrid.isFilter;
     }

@@ -42,11 +42,16 @@ export class ContiguousIndexRangeList {
             if (rangeAfter >= exclusiveStart) {
                 // found first affected range
                 if (rangeAfter >= after) {
+                    const rangeStart = range.start;
                     // nothing else to do as only this range affected
-                    if (range.start <= exclusiveStart) {
+                    if (rangeStart <= exclusiveStart) {
                         return false; // existing range contained added range so no change
                     } else {
-                        range.setStart(exclusiveStart); // adjust this range to contain added range
+                        if (after >= rangeStart) {
+                            range.setStart(exclusiveStart); // adjust this range to contain added range
+                        } else {
+                            xxx
+                        }
                         return true;
                     }
                 } else {

@@ -329,7 +329,7 @@ export class ViewLayout {
                 return undefined;
             } else {
                 const width = this._horizontalScrollDimension.viewportSize;
-                const height = this._canvasEx.bounds.y - y; // this does not handle situation where rows do not fill the view
+                const height = this._canvasEx.bounds.height - y; // this does not handle situation where rows do not fill the view
                 return new Rectangle(x, y, width, height);
             }
         }
@@ -1740,263 +1740,263 @@ export class ViewLayout {
      */
     private computeHorizontal(withinAnimationFrame: boolean) {
         const columns = this._columns;
+        columns.length = 0;
+        columns.gap = undefined;
 
-        const gridSettings = this._gridSettings;
-        const gridRightAligned = gridSettings.gridRightAligned;
-        const visibleColumnWidthAdjust = gridSettings.visibleColumnWidthAdjust;
-        const gridLinesVWidth = gridSettings.gridLinesVWidth;
+        this._firstScrollableColumnIndex = undefined;
+        this._lastScrollableColumnIndex = undefined;
+        this._unanchoredColumnOverflow = undefined;
 
         const columnsManager = this._columnsManager;
         const activeColumnCount = this._columnsManager.activeColumnCount;
 
-        const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
-        const columnScrollAnchorOffset = this._columnScrollAnchorOffset;
-        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
-        const lastFixedColumnIndex = fixedColumnCount - 1;
+        if (activeColumnCount > 0) {
+            const gridSettings = this._gridSettings;
+            const gridRightAligned = gridSettings.gridRightAligned;
+            const visibleColumnWidthAdjust = gridSettings.visibleColumnWidthAdjust;
+            const gridLinesVWidth = gridSettings.gridLinesVWidth;
 
-        if (columnScrollAnchorIndex < fixedColumnCount || columnScrollAnchorIndex >= activeColumnCount) {
-            throw new AssertError('VLCH60009');
-        } else {
-            let fixedWidthV: number;
-            let vc: ViewLayoutColumn;
+            const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
+            const columnScrollAnchorOffset = this._columnScrollAnchorOffset;
+            const fixedColumnCount = this._columnsManager.getFixedColumnCount();
+            const lastFixedColumnIndex = fixedColumnCount - 1;
 
-            if (gridSettings.fixedLinesVWidth === undefined) {
-                fixedWidthV = gridLinesVWidth;
+            if (columnScrollAnchorIndex < fixedColumnCount || columnScrollAnchorIndex >= activeColumnCount) {
+                throw new AssertError('VLCH60009');
             } else {
-                fixedWidthV = gridSettings.fixedLinesVWidth;
-            }
+                let fixedWidthV: number;
+                let vc: ViewLayoutColumn;
 
-            columns.length = 0;
-            columns.gap = undefined;
+                if (gridSettings.fixedLinesVWidth === undefined) {
+                    fixedWidthV = gridLinesVWidth;
+                } else {
+                    fixedWidthV = gridSettings.fixedLinesVWidth;
+                }
 
-            const gridBounds = this._canvasEx.bounds;
-            const gridWidth = gridBounds.width; // horizontal pixel loop limit
+                const gridBounds = this._canvasEx.bounds;
+                const gridWidth = gridBounds.width; // horizontal pixel loop limit
 
-            let viewportStart: number | undefined;
-            let startX: number; // horizontal pixel loop index
-            let startActiveColumnIndex: number; // first visible index
-            if (!gridRightAligned) {
-                startX = 0;
-                startActiveColumnIndex = 0;
-            } else {
-                // We want to right align the grid in the canvas.  The last column (after scrolling) is always visible.  Work backwards to see which
-                // column is the first visible and what its x position is.
+                let viewportStart: number | undefined;
+                let startX: number; // horizontal pixel loop index
+                let startActiveColumnIndex: number; // first visible index
+                if (!gridRightAligned) {
+                    startX = 0;
+                    startActiveColumnIndex = 0;
+                } else {
+                    // We want to right align the grid in the canvas.  The last column (after scrolling) is always visible.  Work backwards to see which
+                    // column is the first visible and what its x position is.
 
-                startActiveColumnIndex = activeColumnCount;
-                viewportStart = this._horizontalScrollDimension.start + this._horizontalScrollDimension.size;
-                startX = gridWidth;
-                let first = true;
+                    startActiveColumnIndex = activeColumnCount;
+                    viewportStart = this._horizontalScrollDimension.start + this._horizontalScrollDimension.size;
+                    startX = gridWidth;
+                    let first = true;
 
-                do {
-                    startActiveColumnIndex--;
-                    const columnWidth = columnsManager.getActiveColumnRoundedWidth(startActiveColumnIndex);
-                    if (startActiveColumnIndex > columnScrollAnchorIndex) {
-                        // not shown in grid so does not affect startX
-                        viewportStart -= columnWidth;
-                        if (!first) {
-                            viewportStart -= gridLinesVWidth;
-                        }
-                    } else {
-                        if (startActiveColumnIndex ===  columnScrollAnchorIndex) {
+                    do {
+                        startActiveColumnIndex--;
+                        const columnWidth = columnsManager.getActiveColumnRoundedWidth(startActiveColumnIndex);
+                        if (startActiveColumnIndex > columnScrollAnchorIndex) {
+                            // not shown in grid so does not affect startX
+                            viewportStart -= columnWidth;
                             if (!first) {
-                                startX -= gridLinesVWidth;
                                 viewportStart -= gridLinesVWidth;
                             }
-                            startX -= columnWidth - columnScrollAnchorOffset;
-                            viewportStart -= (columnScrollAnchorOffset + this._horizontalScrollDimension.viewportSize);
                         } else {
-                            // cannot be first as must have columnScrollAnchorIndex
-                            if (startActiveColumnIndex === lastFixedColumnIndex) {
-                                startX -= (columnWidth + fixedWidthV);
+                            if (startActiveColumnIndex ===  columnScrollAnchorIndex) {
+                                if (!first) {
+                                    startX -= gridLinesVWidth;
+                                    viewportStart -= gridLinesVWidth;
+                                }
+                                startX -= columnWidth - columnScrollAnchorOffset;
+                                viewportStart -= (columnScrollAnchorOffset + this._horizontalScrollDimension.viewportSize);
                             } else {
-                                startX -= (columnWidth + gridLinesVWidth);
+                                // cannot be first as must have columnScrollAnchorIndex
+                                if (startActiveColumnIndex === lastFixedColumnIndex) {
+                                    startX -= (columnWidth + fixedWidthV);
+                                } else {
+                                    startX -= (columnWidth + gridLinesVWidth);
+                                }
                             }
                         }
-                    }
 
-                    first = false;
-                } while (startActiveColumnIndex > 0 && startX > 0);
-            }
+                        first = false;
+                    } while (startActiveColumnIndex > 0 && startX > 0);
+                }
 
-            // Now that start has been calculated, can calculate visible column values
-            columns.length = activeColumnCount - startActiveColumnIndex; // maximum length
-            let x = startX;
-            let nonFixedStartX = startX < 0 ? 0 : startX;
-            let scrollX = nonFixedStartX;
-            let visibleColumnCount = 0;
-            let isFirstNonFixedColumn = startActiveColumnIndex >= fixedColumnCount;
-            this._firstScrollableColumnIndex = undefined;
-            this._unanchoredColumnOverflow = undefined;
-            let fixedColumnsViewWidth = 0;
-            let scrollableColumnsViewWidth = 0;
-            let fixedNonFixedBorderWidth = 0;
-            let gapLeft: number | undefined;
-            for (let activeColumnIndex = startActiveColumnIndex; activeColumnIndex < activeColumnCount; activeColumnIndex++) {
-                if (x >= gridWidth) {
-                    break; // no space left
-                } else {
-                    const activeColumnWidth = columnsManager.getActiveColumnRoundedWidth(activeColumnIndex);
-                    const isNonFixedColumn = activeColumnIndex >= fixedColumnCount;
+                // Now that start has been calculated, can calculate visible column values
+                columns.length = activeColumnCount - startActiveColumnIndex; // maximum length
+                let x = startX;
+                let nonFixedStartX = startX < 0 ? 0 : startX;
+                let scrollX = nonFixedStartX;
+                let visibleColumnCount = 0;
+                let isFirstNonFixedColumn = startActiveColumnIndex >= fixedColumnCount;
+                let fixedColumnsViewWidth = 0;
+                let scrollableColumnsViewWidth = 0;
+                let fixedNonFixedBorderWidth = 0;
+                let gapLeft: number | undefined;
+                for (let activeColumnIndex = startActiveColumnIndex; activeColumnIndex < activeColumnCount; activeColumnIndex++) {
+                    if (x >= gridWidth) {
+                        break; // no space left
+                    } else {
+                        const activeColumnWidth = columnsManager.getActiveColumnRoundedWidth(activeColumnIndex);
+                        const isNonFixedColumn = activeColumnIndex >= fixedColumnCount;
 
-                    if (activeColumnIndex === fixedColumnCount) {
-                        isFirstNonFixedColumn = true;
-                    }
+                        if (activeColumnIndex === fixedColumnCount) {
+                            isFirstNonFixedColumn = true;
+                        }
 
-                    if (gridRightAligned || activeColumnIndex < fixedColumnCount || activeColumnIndex >= columnScrollAnchorIndex) {
-                        let left: number;
-                        let activeColumnOrAnchoredWidth = activeColumnWidth;
-                        if (activeColumnIndex === columnScrollAnchorIndex) {
-                            activeColumnOrAnchoredWidth = activeColumnWidth - columnScrollAnchorOffset;
-                            if (gridRightAligned) {
+                        if (gridRightAligned || activeColumnIndex < fixedColumnCount || activeColumnIndex >= columnScrollAnchorIndex) {
+                            let left: number;
+                            let activeColumnOrAnchoredWidth = activeColumnWidth;
+                            if (activeColumnIndex === columnScrollAnchorIndex) {
+                                activeColumnOrAnchoredWidth = activeColumnWidth - columnScrollAnchorOffset;
+                                if (gridRightAligned) {
+                                    left = x;
+                                } else {
+                                    left = x - columnScrollAnchorOffset;
+                                }
+                            } else {
+                                activeColumnOrAnchoredWidth = activeColumnWidth;
                                 left = x;
-                            } else {
-                                left = x - columnScrollAnchorOffset;
                             }
-                        } else {
-                            activeColumnOrAnchoredWidth = activeColumnWidth;
-                            left = x;
-                        }
 
-                        let visibleWidth: number;
-                        if (!isFirstNonFixedColumn) {
-                            visibleWidth = activeColumnWidth;
-                        } else {
-                            this._firstScrollableColumnIndex = visibleColumnCount;
-                            if (gridRightAligned) {
-                                // if nonFixedStartX is defined, then first non fixed column is
-                                if (left < nonFixedStartX) {
-                                    const overflow = nonFixedStartX - left;
-                                    this._unanchoredColumnOverflow = overflow;
-                                    if (visibleColumnWidthAdjust) {
-                                        visibleWidth = activeColumnWidth - overflow;
-                                        left = nonFixedStartX;
+                            let visibleWidth: number;
+                            if (!isFirstNonFixedColumn) {
+                                visibleWidth = activeColumnWidth;
+                            } else {
+                                this._firstScrollableColumnIndex = visibleColumnCount;
+                                if (gridRightAligned) {
+                                    // if nonFixedStartX is defined, then first non fixed column is
+                                    if (left < nonFixedStartX) {
+                                        const overflow = nonFixedStartX - left;
+                                        this._unanchoredColumnOverflow = overflow;
+                                        if (visibleColumnWidthAdjust) {
+                                            visibleWidth = activeColumnWidth - overflow;
+                                            left = nonFixedStartX;
+                                        } else {
+                                            visibleWidth = activeColumnWidth;
+                                        }
                                     } else {
+                                        this._unanchoredColumnOverflow = 0;
                                         visibleWidth = activeColumnWidth;
                                     }
                                 } else {
-                                    this._unanchoredColumnOverflow = 0;
-                                    visibleWidth = activeColumnWidth;
-                                }
-                            } else {
-                                if (left < x) {
-                                    const offset = x - left;
-                                    if (visibleColumnWidthAdjust) {
-                                        left = x;
-                                        visibleWidth = activeColumnWidth - offset;
-                                        viewportStart = scrollX + offset;
+                                    if (left < x) {
+                                        const offset = x - left;
+                                        if (visibleColumnWidthAdjust) {
+                                            left = x;
+                                            visibleWidth = activeColumnWidth - offset;
+                                            viewportStart = scrollX + offset;
+                                        } else {
+                                            visibleWidth = activeColumnWidth;
+                                            viewportStart = scrollX;
+                                        }
                                     } else {
                                         visibleWidth = activeColumnWidth;
                                         viewportStart = scrollX;
                                     }
-                                } else {
-                                    visibleWidth = activeColumnWidth;
-                                    viewportStart = scrollX;
                                 }
                             }
-                        }
-                        // if (visibleColumnWidthAdjust) {
-                        //     if (gridRightAligned) {
-                        //         if (isFirstNonFixedColumn && left < 0) {
-                        //             visibleWidth += left;
-                        //             left = 0;
-                        //         }
-                        //     } else {
-                        //         if (isFirstNonFixedColumn && left < firstNonFixedColumnLeft) {
-                        //             visibleWidth -= (firstNonFixedColumnLeft - left);
-                        //             left = firstNonFixedColumnLeft;
-                        //         }
-                        //     }
-                        //     if (left + visibleWidth > gridWidth) {
-                        //         visibleWidth = gridWidth - left;
-                        //     }
-                        // }
-                        visibleWidth = Math.floor(visibleWidth);
+                            // if (visibleColumnWidthAdjust) {
+                            //     if (gridRightAligned) {
+                            //         if (isFirstNonFixedColumn && left < 0) {
+                            //             visibleWidth += left;
+                            //             left = 0;
+                            //         }
+                            //     } else {
+                            //         if (isFirstNonFixedColumn && left < firstNonFixedColumnLeft) {
+                            //             visibleWidth -= (firstNonFixedColumnLeft - left);
+                            //             left = firstNonFixedColumnLeft;
+                            //         }
+                            //     }
+                            //     if (left + visibleWidth > gridWidth) {
+                            //         visibleWidth = gridWidth - left;
+                            //     }
+                            // }
+                            visibleWidth = Math.floor(visibleWidth);
 
-                        const rightPlus1 = left + visibleWidth;
+                            const rightPlus1 = left + visibleWidth;
 
-                        vc = {
-                            index: visibleColumnCount,
-                            activeColumnIndex,
-                            column: columnsManager.getActiveColumn(activeColumnIndex),
-                            left,
-                            width: visibleWidth,
-                            rightPlus1
-                        };
-                        columns[visibleColumnCount++] = vc;
+                            vc = {
+                                index: visibleColumnCount,
+                                activeColumnIndex,
+                                column: columnsManager.getActiveColumn(activeColumnIndex),
+                                left,
+                                width: visibleWidth,
+                                rightPlus1
+                            };
+                            columns[visibleColumnCount++] = vc;
 
-                        if (isNonFixedColumn) {
-                            if (gapLeft !== undefined) {
-                                // first non fixed column after fixed column
-                                columns.gap = {
-                                    left: gapLeft, // from previous loop
-                                    rightPlus1: vc.left
-                                };
-                                gapLeft = undefined;
-                                fixedNonFixedBorderWidth = fixedWidthV;
+                            if (isNonFixedColumn) {
+                                if (gapLeft !== undefined) {
+                                    // first non fixed column after fixed column
+                                    columns.gap = {
+                                        left: gapLeft, // from previous loop
+                                        rightPlus1: vc.left
+                                    };
+                                    gapLeft = undefined;
+                                    fixedNonFixedBorderWidth = fixedWidthV;
+                                }
+
+                                if (isFirstNonFixedColumn) {
+                                    isFirstNonFixedColumn = false;
+                                }
                             }
 
-                            if (isFirstNonFixedColumn) {
-                                isFirstNonFixedColumn = false;
+                            x = x + activeColumnOrAnchoredWidth;
+                            if (activeColumnIndex === lastFixedColumnIndex) {
+                                fixedColumnsViewWidth = x - startX;
+                                gapLeft = x; // for next loop
+                                x = x + fixedWidthV;
+                                nonFixedStartX = x;
+                                scrollX = x;
+                            } else {
+                                x = x + gridLinesVWidth;
                             }
                         }
 
-                        x = x + activeColumnOrAnchoredWidth;
-                        if (activeColumnIndex === lastFixedColumnIndex) {
-                            fixedColumnsViewWidth = x - startX;
-                            gapLeft = x; // for next loop
-                            x = x + fixedWidthV;
-                            nonFixedStartX = x;
-                            scrollX = x;
-                        } else {
-                            x = x + gridLinesVWidth;
+                        if (isNonFixedColumn && viewportStart === undefined) {
+                            // only required to calculate viewportStart (when grid right aligned)
+                            scrollX += (activeColumnWidth + gridLinesVWidth);
                         }
-                    }
-
-                    if (isNonFixedColumn && viewportStart === undefined) {
-                        // only required to calculate viewportStart (when grid right aligned)
-                        scrollX += (activeColumnWidth + gridLinesVWidth);
                     }
                 }
-            }
-            columns.length = visibleColumnCount;
-            if (visibleColumnCount > 0) {
-                const lastVisibleColumnIndex = visibleColumnCount - 1;
-                const lastVisibleColumn = columns[lastVisibleColumnIndex];
-                const lastVisibleColumnLeft = lastVisibleColumn.left;
-                const lastVisibleColumnOriginalAfterLeft = lastVisibleColumnLeft + lastVisibleColumn.width;
-                if (lastVisibleColumnOriginalAfterLeft > gridWidth) {
-                    const overflow = lastVisibleColumnOriginalAfterLeft - gridWidth;
-                    if (visibleColumnWidthAdjust) {
-                        lastVisibleColumn.width -= overflow;
-                    }
+                columns.length = visibleColumnCount;
+                if (visibleColumnCount > 0) {
+                    const lastVisibleColumnIndex = visibleColumnCount - 1;
+                    const lastVisibleColumn = columns[lastVisibleColumnIndex];
+                    const lastVisibleColumnLeft = lastVisibleColumn.left;
+                    const lastVisibleColumnOriginalAfterLeft = lastVisibleColumnLeft + lastVisibleColumn.width;
+                    if (lastVisibleColumnOriginalAfterLeft > gridWidth) {
+                        const overflow = lastVisibleColumnOriginalAfterLeft - gridWidth;
+                        if (visibleColumnWidthAdjust) {
+                            lastVisibleColumn.width -= overflow;
+                        }
 
-                    if (!gridRightAligned) {
-                        this._unanchoredColumnOverflow = overflow;
-                    }
-
-                    scrollableColumnsViewWidth = lastVisibleColumnLeft + lastVisibleColumn.width - nonFixedStartX;
-                } else {
-                    if (lastVisibleColumnOriginalAfterLeft === gridWidth) {
                         if (!gridRightAligned) {
-                            this._unanchoredColumnOverflow = 0;
+                            this._unanchoredColumnOverflow = overflow;
                         }
+
+                        scrollableColumnsViewWidth = lastVisibleColumnLeft + lastVisibleColumn.width - nonFixedStartX;
+                    } else {
+                        if (lastVisibleColumnOriginalAfterLeft === gridWidth) {
+                            if (!gridRightAligned) {
+                                this._unanchoredColumnOverflow = 0;
+                            }
+                        }
+                        scrollableColumnsViewWidth = lastVisibleColumnOriginalAfterLeft - nonFixedStartX;
                     }
-                    scrollableColumnsViewWidth = lastVisibleColumnOriginalAfterLeft - nonFixedStartX;
-                }
-                if (lastVisibleColumn.activeColumnIndex >= fixedColumnCount) {
-                    this._lastScrollableColumnIndex = lastVisibleColumnIndex;
+                    if (lastVisibleColumn.activeColumnIndex >= fixedColumnCount) {
+                        this._lastScrollableColumnIndex = lastVisibleColumnIndex;
+                    }
                 } else {
-                    this._lastScrollableColumnIndex = undefined;
+                    scrollableColumnsViewWidth = gridWidth - nonFixedStartX; // may include last grid line
                 }
-            } else {
-                scrollableColumnsViewWidth = gridWidth - nonFixedStartX; // may include last grid line
+
+                this._horizontalScrollDimension.setViewportStart(viewportStart, withinAnimationFrame);
+                this.updateColumnsViewWidths(fixedColumnsViewWidth, scrollableColumnsViewWidth, fixedNonFixedBorderWidth, withinAnimationFrame);
             }
-
-            this._horizontalScrollDimension.setViewportStart(viewportStart, withinAnimationFrame);
-            this.updateColumnsViewWidths(fixedColumnsViewWidth, scrollableColumnsViewWidth, fixedNonFixedBorderWidth, withinAnimationFrame);
-
-            this._rowsColumnsComputationId++;
         }
+        this._rowsColumnsComputationId++;
     }
 
     private computeVertical(withinAnimationFrame: boolean) {

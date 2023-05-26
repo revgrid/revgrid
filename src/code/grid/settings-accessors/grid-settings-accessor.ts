@@ -9,6 +9,7 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     invalidateViewLayoutEventer: GridSettingsAccessor.InvalidateViewLayoutEventer;
     invalidateHorizontalViewLayoutEventer: GridSettingsAccessor.InvalidateViewLayoutEventer;
     invalidateVerticalViewLayoutEventer: GridSettingsAccessor.InvalidateViewLayoutEventer;
+    resizeEventer: GridSettingsAccessor.ResizeEventer | undefined;
 
     private readonly _raw: GridSettings = {} as GridSettings;
     private readonly var = GridSettingsAccessor.Var.createDefault();
@@ -375,7 +376,12 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get useBitBlit() { return this._raw.useBitBlit; }
     set useBitBlit(value: boolean) { this._raw.useBitBlit = value; }
     get useHiDPI() { return this._raw.useHiDPI; }
-    set useHiDPI(value: boolean) { this._raw.useHiDPI = value; }
+    set useHiDPI(value: boolean) {
+        this._raw.useHiDPI = value;
+        if (this.resizeEventer !== undefined) {
+            this.resizeEventer();
+        }
+    }
     get voffset() { return this._raw.voffset; }
     set voffset(value: number) { this._raw.voffset = value; }
     get vScrollbarClassPrefix() { return this._raw.vScrollbarClassPrefix; }
@@ -626,6 +632,7 @@ export namespace GridSettingsAccessor {
 
     export type InvalidateViewRenderEventer = (this: void) => void;
     export type InvalidateViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+    export type ResizeEventer = (this: void) => void;
 
     export interface Var {
         features: string[];

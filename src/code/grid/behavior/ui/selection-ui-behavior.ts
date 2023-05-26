@@ -3,7 +3,7 @@ import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
 import { GridSettings } from '../../interfaces/grid-settings';
 import { SubgridInterface } from '../../interfaces/subgrid-interface';
-import { isSecondaryMouseButton } from '../../lib/html-types';
+import { CursorNames, isSecondaryMouseButton } from '../../lib/html-types';
 import { Point } from '../../lib/point';
 import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
 import { SelectionArea } from '../../lib/selection-area';
@@ -27,37 +27,66 @@ export class SelectionUiBehavior extends UiBehavior {
     private _stepScrollDragTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
     override handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
-        }
-        if (cell === null) {
+        if (isSecondaryMouseButton(event)) {
             return super.handlePointerDown(event, cell);
         } else {
-            const subgrid = cell.subgrid;
-            const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
-
-            if (!isSelectable || isSecondaryMouseButton(event)) {
+            if (cell === undefined) {
+                cell = this.tryGetViewCellFromMouseEvent(event);
+            }
+            if (cell === null) {
                 return super.handlePointerDown(event, cell);
             } else {
-                let selectSucceeded: boolean;
-                if (cell.isHeaderOrRowFixed) {
-                    selectSucceeded = this.trySelectFromMouseDownInHeaderOrFixedRow(event, cell);
+                const subgrid = cell.subgrid;
+                const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
+
+                if (!isSelectable) {
+                    return super.handlePointerDown(event, cell);
                 } else {
-                    if (cell.isColumnFixed) {
-                        selectSucceeded = this.trySelectFromMouseDownInFixedColumn(event, cell);
+                    let selectSucceeded: boolean;
+                    if (!cell.isScrollable) {
+                        return super.handlePointerDown(event, cell);
                     } else {
-                        if (cell.isMain) {
-                            selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, cell);
+                        selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, cell);
+                        if (!selectSucceeded) {
+                            return super.handlePointerDown(event, cell);
                         } else {
-                            selectSucceeded = false;
+                            return cell;
                         }
                     }
                 }
+            }
+        }
+    }
 
-                if (selectSucceeded) {
-                    return cell;
+    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+        if (!event.altKey || isSecondaryMouseButton(event)) {
+            return super.handleClick(event, cell);
+        } else {
+            if (cell === undefined) {
+                cell = this.tryGetViewCellFromMouseEvent(event);
+            }
+            if (cell === null) {
+                return super.handleClick(event, cell);
+            } else {
+                let selectSucceeded: boolean;
+                if (cell.isColumnFixed) {
+                    if (!cell.subgrid.selectable) {
+                        selectSucceeded = false;
+                    } else {
+                        selectSucceeded = this.trySelectFromMouseDownInFixedColumn(event, cell);
+                    }
                 } else {
-                    return super.handlePointerDown(event, cell);
+                    if (!cell.isHeaderOrRowFixed || !this.mainSubgrid.selectable) {
+                        selectSucceeded = false;
+                    } else {
+                        selectSucceeded = this.trySelectFromMouseDownInHeaderOrFixedRow(event, cell);
+                    }
+                }
+
+                if (!selectSucceeded) {
+                    return super.handleClick(event, cell);
+                } else {
+                    return cell;
                 }
             }
         }
@@ -99,6 +128,7 @@ export class SelectionUiBehavior extends UiBehavior {
                         return super.handlePointerDragStart(event, cell);
                     } else {
                         this.mouse.setActiveDragType(dragType);
+                        this.mouse.setOperationCursor(CursorNames.cell);
                         return {
                             started: true,
                             cell,
@@ -137,6 +167,7 @@ export class SelectionUiBehavior extends UiBehavior {
         } else {
             this.cancelScheduledStepScrollDrag();
             this.mouse.setActiveDragType(undefined);
+            this.mouse.setOperationCursor(undefined);
             return cell;
         }
     }
@@ -171,18 +202,22 @@ export class SelectionUiBehavior extends UiBehavior {
             const extendModifier = GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
             const lastArea = this.selection.lastArea;
 
-            if (extendModifier && !addToggleModifier && lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Rectangle) {
-                const origin = lastArea.inclusiveFirst;
-                const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
-                const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
-                selection.replaceLastArea(
-                    startLengthX.start,
-                    startLengthY.start,
-                    startLengthX.length,
-                    startLengthY.length,
-                    subgrid,
-                    areaType
-                );
+            if (extendModifier && !addToggleModifier) {
+                if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Rectangle) {
+                    const origin = lastArea.inclusiveFirst;
+                    const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
+                    const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
+                    selection.replaceLastArea(
+                        startLengthX.start,
+                        startLengthY.start,
+                        startLengthX.length,
+                        startLengthY.length,
+                        subgrid,
+                        areaType
+                    );
+                } else {
+                    selection.selectCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
+                }
             } else {
                 if (addToggleModifier && !extendModifier) {
                     if (this.gridSettings.addToggleSelectionAreaModifierKeyDoesToggle) {
@@ -211,19 +246,23 @@ export class SelectionUiBehavior extends UiBehavior {
             const extendModifier = GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
             const lastArea = this.selection.lastArea;
 
-            if (extendModifier && !addToggleModifier && lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Column) {
-                const origin = lastArea.inclusiveFirst;
-                const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
-                const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
-                this.selection.replaceLastAreaWithColumns(
-                    startLengthX.start,
-                    startLengthY.start,
-                    startLengthX.length,
-                    startLengthY.length,
-                    subgrid
-                );
+            const focusSelectionBehavior = this.focusSelectBehavior;
+            if (extendModifier && !addToggleModifier) {
+                if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Column) {
+                    const origin = lastArea.inclusiveFirst;
+                    const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
+                    const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
+                    this.selection.replaceLastAreaWithColumns(
+                        startLengthX.start,
+                        startLengthY.start,
+                        startLengthX.length,
+                        startLengthY.length,
+                        subgrid
+                    );
+                } else {
+                    focusSelectionBehavior.selectAddColumn(activeColumnIndex);
+                }
             } else {
-                const focusSelectionBehavior = this.focusSelectBehavior;
                 if (addToggleModifier && !extendModifier) {
                     focusSelectionBehavior.selectAddColumn(activeColumnIndex);
                 } else {
@@ -246,19 +285,24 @@ export class SelectionUiBehavior extends UiBehavior {
             const addToggleModifier = GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
             const extendModifier = GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
             const lastArea = this.selection.lastArea;
-            if (extendModifier && !addToggleModifier && lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Row) {
-                const origin = lastArea.inclusiveFirst;
-                const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, cellActiveColumnIndex);
-                const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
-                this.selection.replaceLastAreaWithRows(
-                    startLengthX.start,
-                    startLengthY.start,
-                    startLengthX.length,
-                    startLengthY.length,
-                    subgrid
-                );
+
+            const focusSelectionBehavior = this.focusSelectBehavior;
+            if (extendModifier && !addToggleModifier) {
+                if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Row) {
+                    const origin = lastArea.inclusiveFirst;
+                    const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, cellActiveColumnIndex);
+                    const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
+                    this.selection.replaceLastAreaWithRows(
+                        startLengthX.start,
+                        startLengthY.start,
+                        startLengthX.length,
+                        startLengthY.length,
+                        subgrid
+                    );
+                } else {
+                    focusSelectionBehavior.selectAddRow(subgridRowIndex, subgrid);
+                }
             } else {
-                const focusSelectionBehavior = this.focusSelectBehavior;
                 if (addToggleModifier && !extendModifier) {
                     focusSelectionBehavior.selectAddRow(subgridRowIndex, subgrid);
                 } else {
@@ -302,7 +346,7 @@ export class SelectionUiBehavior extends UiBehavior {
      */
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
         const scrollableBounds = this.viewLayout.scrollableCanvasBounds;
-        if (this.gridSettings.scrollingEnabled && scrollableBounds !== undefined && scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY)) {
+        if (scrollableBounds === undefined || scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY) || !this.gridSettings.scrollingEnabled) {
             this.cancelScheduledStepScrollDrag();
             return false;
         } else {

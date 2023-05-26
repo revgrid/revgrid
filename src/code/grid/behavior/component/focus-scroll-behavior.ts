@@ -440,9 +440,8 @@ export class FocusScrollBehavior {
             return false;
         } else {
             if (directionCanvasOffsetY < scrollableBounds.topLeft.y) {
-                const preMainPlusFixedRowCount = this._subgridsManager.calculatePreMainPlusFixedRowCount();
-                const firstVisibleScrollableRowIndex = viewLayout.firstScrollableRowIndex;
-                if (firstVisibleScrollableRowIndex !== undefined && firstVisibleScrollableRowIndex > preMainPlusFixedRowCount) {
+                const limitSubgridRowIndex = viewLayout.firstScrollableSubgridRowIndex;
+                if (limitSubgridRowIndex !== undefined && limitSubgridRowIndex > this._gridSettings.fixedRowCount) {
                     this._viewLayout.scrollVerticalViewportBy(-1);
                     return true;
                 } else {
@@ -450,14 +449,16 @@ export class FocusScrollBehavior {
                 }
             } else {
                 if (directionCanvasOffsetY >= scrollableBounds.exclusiveBottom) {
-                    const lastViewScrollableRowIndex = viewLayout.lastScrollableRowIndex;
-                    if (lastViewScrollableRowIndex === undefined) {
+                    const viewLastScrollableSubgridRowIndex = viewLayout.lastScrollableSubgridRowIndex;
+                    if (viewLastScrollableSubgridRowIndex === undefined) {
                         return false;
                     } else {
                         const subgridsManager = this._subgridsManager;
-                        const preMainRowCount = subgridsManager.calculatePreMainRowCount();
-                        const lastScrollableRowIndex = preMainRowCount + subgridsManager.mainSubgrid.getRowCount() - 1;
-                        if (lastViewScrollableRowIndex < lastScrollableRowIndex) {
+                        let limitSubgridRowIndex = subgridsManager.mainSubgrid.getRowCount() - 1;
+                        if (!this._viewLayout.verticalScrollDimension.viewportSizeExact) {
+                            limitSubgridRowIndex++;
+                        }
+                        if (viewLastScrollableSubgridRowIndex < limitSubgridRowIndex) {
                             this._viewLayout.scrollVerticalViewportBy(+1);
                             return true;
                         } else {

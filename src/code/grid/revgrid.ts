@@ -227,12 +227,12 @@ export class Revgrid {
         this.canvasManager.start();
         this._renderer.start();
 
-        Revgrid.grids.push(this);
-
         this.resetGridBorder('Top');
         this.resetGridBorder('Right');
         this.resetGridBorder('Bottom');
         this.resetGridBorder('Left');
+
+        this.canvasManager.resize(false); // Will invalidate all and cause a repaint
     }
 
     get canvasBounds() { return this.canvasManager.bounds; }
@@ -251,8 +251,6 @@ export class Revgrid {
             containerHtmlElement.removeChild(firstChild);
             firstChild = containerHtmlElement.firstChild;
         }
-
-        Revgrid.grids.splice(Revgrid.grids.indexOf(this), 1);
 
         this.destroyed = true;
 
@@ -1162,20 +1160,6 @@ export class Revgrid {
     // columnHeaderClicked(mouse) {
     //     this.behavior.columnHeaderClicked(this, mouse); // not implemented
     // }
-
-    /**
-     * @summary Toggle HiDPI support.
-     * @desc HiDPI support is now *on* by default.
-     * > There used to be a bug in Chrome that caused severe slow down on bit blit of large images, so this HiDPI needed to be optional.
-     */
-    toggleHiDPI() {
-        if (this.settings.useHiDPI) {
-            this.removeAttribute('hidpi');
-        } else {
-            this.setAttribute('hidpi', '');
-        }
-        this.canvasManager.resize();
-    }
 
     /**
      * @returns The HiDPI ratio.
@@ -2266,8 +2250,6 @@ export namespace Revgrid {
 	}
 
     export const boundingRectStyleKeys: Array<keyof BoundingRectStyleValues> = [ ...edgeStyleKeys, 'width', 'height', 'position'];
-
-    export const grids = Array<Revgrid>();
 }
 
 // Begin Selection functions

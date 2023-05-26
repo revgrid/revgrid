@@ -2188,10 +2188,6 @@ export class Revgrid {
     showColumns(isActiveColumnIndexes: boolean, columnIndexes?: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     swapColumns(source: number, target: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    toggleHiDPI(): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     updateSize(): void;
     // (undocumented)
@@ -2275,8 +2271,6 @@ export namespace Revgrid {
     }
     const // (undocumented)
     boundingRectStyleKeys: Array<keyof BoundingRectStyleValues>;
-    const // (undocumented)
-    grids: Revgrid[];
 }
 
 // @public (undocumented)
@@ -3249,6 +3243,8 @@ export class ViewCell {
     // (undocumented)
     get isRowFixed(): boolean;
     get isRowVisible(): boolean;
+    // (undocumented)
+    get isScrollable(): boolean;
     // (undocumented)
     get isSummary(): boolean;
     // @internal
