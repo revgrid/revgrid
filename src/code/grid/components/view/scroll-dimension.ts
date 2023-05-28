@@ -1,5 +1,5 @@
-import { AssertError } from '../../lib/revgrid-error';
-import { HorizontalVertical } from '../../lib/types';
+import { AssertError } from '../../types-utils/revgrid-error';
+import { HorizontalVertical } from '../../types-utils/types';
 import { CanvasManager } from '../canvas/canvas-manager';
 
 export abstract class ScrollDimension {

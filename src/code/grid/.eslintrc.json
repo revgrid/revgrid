@@ -17,7 +17,6 @@
           "./src/code/grid/components/column/tsconfig.grid-components-column.json",
           "./src/code/grid/components/focus/tsconfig.grid-components-focus.json",
           "./src/code/grid/components/event/tsconfig.grid-components-event.json",
-          "./src/code/grid/components/model-callback-router/tsconfig.grid-components-model-callback-router.json",
           "./src/code/grid/components/mouse/tsconfig.grid-components-mouse.json",
           "./src/code/grid/components/renderer/tsconfig.grid-components-renderer.json",
           "./src/code/grid/components/renderer/grid-painter/tsconfig.grid-components-renderer-grid-painter.json",
@@ -26,8 +25,10 @@
           "./src/code/grid/components/selection/tsconfig.grid-components-selection.json",
           "./src/code/grid/components/scroller/tsconfig.grid-components-scroller.json",
           "./src/code/grid/settings-accessors/tsconfig.grid-settings-accessors.json",
-          "./src/code/grid/interfaces/tsconfig.grid-interfaces.json",
-          "./src/code/grid/lib/tsconfig.grid-lib.json",
+          "./src/code/grid/interfaces/server/tsconfig.grid-interfaces-server.json",
+          "./src/code/grid/interfaces/serverless/tsconfig.grid-interfaces-serverless.json",
+          "./src/code/grid/interfaces/settings/tsconfig.grid-interfaces-settings.json",
+          "./src/code/grid/types-utils/tsconfig.grid-types-utils.json",
           "./src/code/grid/renderer/tsconfig.grid-renderer.json" // to be removed
         ]
       },

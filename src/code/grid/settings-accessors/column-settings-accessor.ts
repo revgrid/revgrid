@@ -1,9 +1,8 @@
-import { ColumnSettings, MergableColumnSettings } from '../interfaces/column-settings';
-import { GridSettings } from '../interfaces/grid-settings';
-import { Halign } from '../lib/types';
-import { deepExtendValue } from '../lib/utils';
+import { ColumnSettings } from '../interfaces/settings/column-settings';
+import { GridSettings } from '../interfaces/settings/grid-settings';
+import { Halign } from '../types-utils/types';
 
-export class ColumnSettingsAccessor implements MergableColumnSettings {
+export class ColumnSettingsAccessor implements ColumnSettings {
     // not overridable properties
     private _preferredWidth?: number;
 
@@ -208,14 +207,6 @@ export class ColumnSettingsAccessor implements MergableColumnSettings {
     //         // calculator: this.calculator
     //     }, this);
     // }
-
-    merge(properties: Partial<ColumnSettings>) {
-        Object.keys(properties).forEach((key) => {
-            const typedValue = properties[key as keyof ColumnSettings];
-            const value = deepExtendValue({}, typedValue);
-            (this[key as keyof ColumnSettingsAccessor] as unknown) = value;
-        });
-    }
 }
 
 export namespace ColumnSettingsAccessor {

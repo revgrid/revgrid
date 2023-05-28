@@ -1,11 +1,11 @@
-import { CellProperties } from '../interfaces/cell-properties';
-import { ColumnSettings } from '../interfaces/column-settings';
-import { MetaModel } from '../interfaces/meta-model';
+import { CellProperties } from '../interfaces/server/cell-properties';
+import { MetaModel } from '../interfaces/server/meta-model';
+import { ColumnSettings } from '../interfaces/settings/column-settings';
 
 export class CellPropertiesAccessor implements CellProperties {
     constructor(
         private readonly _cellOwnProperties: MetaModel.CellOwnProperties | undefined,
-        private readonly _columnProperties: ColumnSettings
+        private readonly _columnSettings: ColumnSettings
     ) {
 
     }
@@ -18,7 +18,7 @@ export class CellPropertiesAccessor implements CellProperties {
             result = this._cellOwnProperties[key as string | number];
         }
         if (result === undefined) {
-            result = this._columnProperties[key as T];
+            result = this._columnSettings[key as T];
         }
         return result;
     }

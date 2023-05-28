@@ -1,5 +1,5 @@
 
-import { CachedCanvasRenderingContext2D, CellPainter, RectangleInterface } from '../grid/grid-public-api';
+import { CachedCanvasRenderingContext2D, CellPainter, Rectangle } from '../grid/grid-public-api';
 
 /**
  * Renders a bar chart sparkline, hence the name.
@@ -46,7 +46,7 @@ export namespace SparkBarCellPainter {
 
     export interface Config {
         value: number[];
-        bounds: RectangleInterface;
+        bounds: Rectangle;
         backgroundColor: string;
         isSelected: boolean;
         foregroundSelectionColor: string;

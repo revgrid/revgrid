@@ -2,30 +2,30 @@ import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
-import { ModelCallbackRouter } from '../../components/model-callback-router/model-callback-router';
-import { ReindexStashManager } from '../../components/model-callback-router/reindex-stash-manager';
 import { Mouse } from '../../components/mouse/mouse';
 import { Renderer } from '../../components/renderer/renderer';
 import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
-import { Subgrid } from '../../components/subgrid/subgrid';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { DataModel } from '../../interfaces/data-model';
-import { GridSettings } from '../../interfaces/grid-settings';
-import { MetaModel } from '../../interfaces/meta-model';
-import { SchemaModel } from '../../interfaces/schema-model';
-import { AssertError } from '../../lib/revgrid-error';
-import { assignOrDelete } from '../../lib/utils';
+import { DataServer } from '../../interfaces/server/data-server';
+import { MainSubgrid } from '../../interfaces/server/main-subgrid';
+import { MetaModel } from '../../interfaces/server/meta-model';
+import { SchemaServer } from '../../interfaces/server/schema-server';
+import { Subgrid } from '../../interfaces/server/subgrid';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
+import { AssertError } from '../../types-utils/revgrid-error';
+import { assignOrDelete } from '../../types-utils/utils';
 import { AdapterSetConfig } from './adapter-set-config';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
 import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
 import { FocusScrollBehavior } from './focus-scroll-behavior';
 import { FocusSelectBehavior } from './focus-select-behavior';
-import { ModelCallbackRouterBehavior } from './model-callback-router-behavior';
+import { ReindexBehavior } from './reindex-behavior';
 import { RowPropertiesBehavior } from './row-properties-behavior';
+import { ServerNotificationBehavior } from './server-notification-behavior';
 
 const noExportProperties = [
     'columnHeader',
@@ -45,7 +45,7 @@ const noExportProperties = [
  * > This constructor (actually `initialize`) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
  * @param {Revgrid} grid
  * @param {object} [options] - _(Passed to {@link Behavior#reset reset})._
- * @param {DataModel} [options.dataModel] - _Per {@link BehaviorManager#reset reset}._
+ * @param {DataServer} [options.dataModel] - _Per {@link BehaviorManager#reset reset}._
  * @param {object} [options.metadata] - _Per {@link BehaviorManager#reset reset}._
  * @param {function} [options.DataModel=require('datasaur-local')] - _Per {@link BehaviorManager#reset reset}._
  * @param {function|object[]} [options.data] - _Per {@link BehaviorManager#setData setData}._
@@ -60,12 +60,18 @@ export class ComponentBehaviorManager {
     readonly canvasManager: CanvasManager;
     readonly focus: Focus;
     readonly selection: Selection;
-    readonly reindexStashManager: ReindexStashManager;
+    readonly reindexBehavior: ReindexBehavior;
     readonly columnsManager: ColumnsManager;
     readonly subgridsManager: SubgridsManager;
     readonly viewLayout: ViewLayout;
     readonly renderer: Renderer;
     readonly mouse: Mouse;
+
+    readonly mainSubgrid: MainSubgrid;
+    readonly mainDataServer: DataServer;
+
+    readonly horizontalScroller: Scroller;
+    readonly verticalScroller: Scroller;
 
     readonly focusScrollBehavior: FocusScrollBehavior;
     readonly focusSelectBehavior: FocusSelectBehavior;
@@ -74,15 +80,7 @@ export class ComponentBehaviorManager {
     readonly cellPropertiesBehavior: CellPropertiesBehavior;
     readonly dataExtractBehavior: DataExtractBehavior;
 
-    private readonly _horizontalScroller: Scroller;
-    private readonly _verticalScroller: Scroller;
-    private readonly _modelCallbackRouter: ModelCallbackRouter;
-
-    private readonly _modelCallbackRouterBehavior: ModelCallbackRouterBehavior;
-
-    private _destroyed = false;
-    private _mainSubgrid: Subgrid;
-    private _mainDataModel: DataModel;
+    private readonly _serverNotificationBehavior: ServerNotificationBehavior;
 
     constructor(
         containerHtmlElement: HTMLElement,
@@ -105,13 +103,13 @@ export class ComponentBehaviorManager {
             () => this.processCanvasResizedEvent(),
         );
 
-        let schemaModel = adapterSetConfig.schemaModel;
-        if (typeof schemaModel === 'function') {
-            schemaModel = new schemaModel();
+        let schemaServer = adapterSetConfig.schemaServer;
+        if (typeof schemaServer === 'function') {
+            schemaServer = new schemaServer();
         }
 
         this.columnsManager = new ColumnsManager(
-            schemaModel,
+            schemaServer,
             this.gridSettings,
             () => this.invalidateHorizontalAll(true),
         );
@@ -132,8 +130,8 @@ export class ComponentBehaviorManager {
                 defaultRowPropertiesPrototype,
             );
 
-            this._mainSubgrid = this.subgridsManager.mainSubgrid;
-            this._mainDataModel = this._mainSubgrid.dataModel;
+            this.mainSubgrid = this.subgridsManager.mainSubgrid;
+            this.mainDataServer = this.mainSubgrid.dataServer;
 
             this.viewLayout = new ViewLayout(
                 this.gridSettings,
@@ -144,7 +142,7 @@ export class ComponentBehaviorManager {
 
             this.focus = new Focus(
                 this.gridSettings,
-                this._mainSubgrid,
+                this.mainSubgrid,
                 this.columnsManager,
                 this.viewLayout,
                 (cell) => this.invalidateViewCellRender(cell),
@@ -176,7 +174,7 @@ export class ComponentBehaviorManager {
                 (cell, invalidateViewCellRender) => this.processMouseExitedCellEvent(cell, invalidateViewCellRender),
             );
 
-            this._verticalScroller = new Scroller(
+            this.verticalScroller = new Scroller(
                 this.viewLayout.verticalScrollDimension,
                 this.canvasManager.instanceId,
                 false,
@@ -189,9 +187,9 @@ export class ComponentBehaviorManager {
                 containerHtmlElement,
                 undefined,
             );
-            containerHtmlElement.appendChild(this._verticalScroller.bar);
+            containerHtmlElement.appendChild(this.verticalScroller.bar);
 
-            this._horizontalScroller = new Scroller(
+            this.horizontalScroller = new Scroller(
                 this.viewLayout.horizontalScrollDimension,
                 this.canvasManager.instanceId,
                 false,
@@ -202,14 +200,11 @@ export class ComponentBehaviorManager {
                 this.gridSettings.hScrollbarClassPrefix,
                 loadBuiltinFinbarStylesheet,
                 containerHtmlElement,
-                this._verticalScroller,
+                this.verticalScroller,
             );
-            containerHtmlElement.appendChild(this._horizontalScroller.bar);
+            containerHtmlElement.appendChild(this.horizontalScroller.bar);
 
             // Set up model callback handling
-
-            this._modelCallbackRouter = new ModelCallbackRouter(this.columnsManager.schemaModel);
-            this.reindexStashManager = new ReindexStashManager(this.focus, this.selection);
 
             // Set up behaviors
 
@@ -218,10 +213,25 @@ export class ComponentBehaviorManager {
                 this.columnsManager,
                 this.viewLayout,
                 this.selection,
-                this._horizontalScroller,
-                this._verticalScroller,
+                this.horizontalScroller,
+                this.verticalScroller,
                 descendantEventer,
                 (event) => this.canvasManager.dispatchEvent(event),
+            );
+
+            this.reindexBehavior = new ReindexBehavior(
+                this.focus,
+                this.selection
+            );
+
+            this._serverNotificationBehavior = new ServerNotificationBehavior(
+                this.columnsManager,
+                this.subgridsManager,
+                this.viewLayout,
+                this.focus,
+                this.selection,
+                this.renderer,
+                this.reindexBehavior,
             );
 
             this.focusScrollBehavior = new FocusScrollBehavior(
@@ -255,26 +265,12 @@ export class ComponentBehaviorManager {
                 this.viewLayout,
             );
 
-            this._modelCallbackRouterBehavior = new ModelCallbackRouterBehavior(
-                this.columnsManager,
-                this.subgridsManager,
-                this.viewLayout,
-                this.renderer,
-                this.focus,
-                this.selection,
-                this._modelCallbackRouter,
-                this.reindexStashManager,
-            );
-
             this.dataExtractBehavior = new DataExtractBehavior(
                 this.selection,
                 this.columnsManager
             );
         }
     }
-
-    get mainSubgrid() { return this._mainSubgrid; }
-    get mainDataModel() { return this._mainDataModel; }
 
     /**
      * Reset the behavior.
@@ -351,14 +347,13 @@ export class ComponentBehaviorManager {
     // }
 
     destroy() {
-        this._destroyed = true;
         this.renderer.stop();
         this.canvasManager.stop();
-        this._modelCallbackRouter.destroy();
+        this._serverNotificationBehavior.destroy();
         this.eventBehavior.destroy();
         // this.focusScrollBehavior.destroy();
-        this._horizontalScroller.destroy();
-        this._verticalScroller.destroy();
+        this.horizontalScroller.destroy();
+        this.verticalScroller.destroy();
         this.renderer.destroy();
         this.selection.destroy();
         this.subgridsManager.destroy();
@@ -366,9 +361,9 @@ export class ComponentBehaviorManager {
 
     allowEvents(allow: boolean){
         if (allow){
-            this._modelCallbackRouter.enable();
+            this._serverNotificationBehavior.enableNotifications();
         } else {
-            this._modelCallbackRouter.disable();
+            this._serverNotificationBehavior.disableNotifications();
         }
 
         this.viewLayout.invalidateAll(true);
@@ -496,27 +491,11 @@ export class ComponentBehaviorManager {
         return isColumnHovered && isRowHovered;
     }
 
-    // getSelectionMatrixFunction(selectedRows) {
-    //     return function() {
-    //         return null;
-    //     };
-    // }
-
-
-    // Start DataModel Mixin
-    // getSchema() {
-    //     return this.schemaModel;
-    // }
-
-    // setSchema(newSchema) {
-    //     this.mainDataModel.setSchema(newSchema);
-    // }
-
     getValue(x: number, y: number, subgrid: Subgrid | undefined) {
         const column = this.columnsManager.getActiveColumn(x);
         const schemaColumn = column.schemaColumn;
-        const dataModel = subgrid === undefined ? this._mainDataModel : subgrid.dataModel;
-        return dataModel.getValue(schemaColumn, y);
+        const dataServer = subgrid === undefined ? this.mainDataServer : subgrid.dataServer;
+        return dataServer.getValue(schemaColumn, y);
     }
 
     /**
@@ -529,12 +508,12 @@ export class ComponentBehaviorManager {
      * @param value - New cell data.
      * @param subgrid - `x` and `y` are _data cell coordinates_ in the given subgrid data model. If If omitted, `x` and `y` are _grid cell coordinates._
      */
-    setValue(schemaColumn: SchemaModel.Column, x: number, y: number, value: unknown, subgrid?: Subgrid) {
-        const dataModel = subgrid === undefined ? this._mainDataModel : subgrid.dataModel;
-        if (dataModel.setValue === undefined) {
+    setValue(schemaColumn: SchemaServer.Column, x: number, y: number, value: unknown, subgrid?: Subgrid) {
+        const dataServer = subgrid === undefined ? this.mainDataServer : subgrid.dataServer;
+        if (dataServer.setValue === undefined) {
             throw new AssertError('BSV32220');
         } else {
-            dataModel.setValue(schemaColumn, y, value);
+            dataServer.setValue(schemaColumn, y, value);
         }
     }
 
@@ -571,8 +550,8 @@ export class ComponentBehaviorManager {
     }
 
     private processCanvasResizedEvent() {
-        this._horizontalScroller.resize();
-        this._verticalScroller.resize();
+        this.horizontalScroller.resize();
+        this.verticalScroller.resize();
         this.viewLayout.invalidateAll(true);
         this.eventBehavior.processCanvasResizedEvent();
     }
@@ -584,142 +563,7 @@ export class ComponentBehaviorManager {
     private invalidateViewCellRender(cell: ViewCell) {
         this.renderer.invalidateViewCellRender(cell);
     }
-
-    // End DataModel Mixin
-
-    // Begin Local
-
-    // protected abstract readonly schema: ColumnSchema[];
-    // protected abstract createDataRowProxy(): void;
-    // protected abstract resetMainDataModel(options?: Hypergrid.Options): boolean;
-    // abstract charMap: DataModel.DrillDownCharMap;
-    // abstract cellClicked(event: CellEvent): boolean | undefined;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // hasTreeColumn(columnIndex?: number) {
-    //     return false;
-    // }
-    // abstract createLocalDataModel(subgridRole: Subgrid.Role): DataModel;
-    // boundDispatchEvent: DataModel.EventListener;
-
-    /**
-     * @summary Attach a data model object to the grid.
-     * @desc Installs data model events, fallbacks, and hooks.
-     *
-     * Called from {@link Behavior#reset}.
-     * @param options
-     * @param options.dataModel - A fully instantiated data model object.
-     * @param options.dataModelConstructorOrArray - Data model will be instantiated from this constructor unless `options.dataModel` was given.
-     * @param options.metadata - Passed to {@link DataModel#setMetadataStore setMetadataStore}.
-     * @returns `true` if the data model has changed.
-     */
-    // private resetMainDataModel(options?: Hypergrid.Options) {
-    //     const newDataModel = this.getNewMainDataModel(options);
-    //     const changed = newDataModel !== undefined && newDataModel !== this.mainDataModel;
-
-    //     if (changed) {
-    //         this.mainDataModel = newDataModel;
-    //         this.mainSubgrid = this.createSubgrid(newDataModel, Subgrid.RoleEnum.main);
-    //         // decorators.addDeprecationWarnings.call(this);
-    //         // decorators.addFriendlierDrillDownMapKeys.call(this);
-    //         this.checkLoadDataModelMetadata(newDataModel, options?.metadata);
-    //     }
-
-    //     return changed;
-    // }
-
-    // private checkLoadDataModelMetadata(options: Hypergrid.Options | undefined) {
-    //     const metadata = options?.metadata
-    //     if (metadata !== undefined) {
-    //         if (this.mainDataModel.setMetadataStore) {
-    //             this.mainDataModel.setMetadataStore(metadata);
-    //         } else {
-    //             throw new HypergridError('Metadata specified in options but no DataModel does not support setMetadataStore');
-    //         }
-    //     }
-    // }
-
-    /**
-     * Create a new data model
-     * @param options.dataModel - A fully instantiated data model object.
-     */
-    // private getNewMainDataModel(options?: Hypergrid.Options) {
-    //     let dataModel: DataModel;
-
-    //     options = options ?? {};
-
-    //     if (options.dataModel !== undefined) {
-    //         dataModel = options.dataModel;
-    //     } else {
-    //         const dataModelConstructorOrArray = options.dataModelConstructorOrArray;
-    //         if (dataModelConstructorOrArray !== undefined) {
-    //             dataModel = this.createLocalDataModel(Subgrid.RoleEnum.main);
-    //             this.checkLoadDataModelMetadata(dataModel);
-    //         } else {
-    //             if (!Array.isArray(dataModelConstructorOrArray)) {
-    //                 dataModel = new dataModelConstructorOrArray();
-    //             } else {
-    //                 if (dataModelConstructorOrArray.length === 0) {
-    //                     dataModel = new LocalMainDataModel();
-    //                 } else {
-    //                     dataModelConstructorOrArray.forEach((constructor) => {
-    //                         dataModel = new constructor(dataModel);
-    //                     });
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     return dataModel;
-    // }
-
-    // End Local
 }
-
-
-// function warnBehaviorFeaturesDeprecation() {
-//     var featureNames = [], unregisteredFeatures = [], n = 0;
-
-//     this.features.forEach(function(FeatureConstructor) {
-//         var className = FeatureConstructor.prototype.$$CLASS_NAME || FeatureConstructor.name,
-//             featureName = className || 'feature' + n++;
-
-//         // build list of feature names
-//         featureNames.push(featureName);
-
-//         // build list of unregistered features
-//         if (!this.featureRegistry.get(featureName, true)) {
-//             var constructorName = FeatureConstructor.name || FeatureConstructor.prototype.$$CLASS_NAME || 'FeatureConstructor' + n,
-//                 params = [];
-//             if (!className) {
-//                 params.push('\'' + featureName + '\'');
-//             }
-//             params.push(constructorName);
-//             unregisteredFeatures.push(params.join(', '));
-//         }
-//     }, this);
-
-//     if (featureNames.length) {
-//         var sampleCode = 'Hypergrid.defaults.features = [\n' + join('\t\'', featureNames, '\',\n') + '];';
-
-//         if (unregisteredFeatures.length) {
-//             sampleCode += '\n\nThe following custom features are unregistered and will need to be registered prior to behavior instantiation:\n\n' +
-//                 join('Features.add(', unregisteredFeatures, ');\n');
-//         }
-
-//         if (n) {
-//             sampleCode += '\n\n(You should provide meaningful names for your custom features rather than the generated names above.)';
-//         }
-
-//         console.warn('`grid.behavior.features` (array of feature constructors) has been deprecated as of version 2.1.0 in favor of `grid.properties.features` (array of feature names). Remove `features` array from your behavior and add `features` property to your grid state object (or Hypergrid.defaults), e.g.:\n\n' + sampleCode);
-//     }
-
-
-// }
-
-// function join(prefix, array, suffix) {
-//     return prefix + array.join(suffix + prefix) + suffix;
-// }
-
 
 export namespace ComponentBehaviorManager {
     export class DefaultRowProperties implements MetaModel.HeightRowProperties {

@@ -1,7 +1,7 @@
 import { ViewCell } from '../../components/cell/view-cell';
-import { DataModel } from '../../interfaces/data-model';
-import { GridSettings } from '../../interfaces/grid-settings';
-import { AssertError } from '../../lib/revgrid-error';
+import { DataServer } from '../../interfaces/server/data-server';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -14,7 +14,7 @@ export class CellClickUiBehavior extends UiBehavior {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
         if (cell !== null) {
-            const link = cell.columnProperties.link;
+            const link = cell.columnSettings.link;
             const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
             this.cursor = isActionableLink ? 'pointer' : undefined;
@@ -66,9 +66,9 @@ export class CellClickUiBehavior extends UiBehavior {
         const rowIndex = viewCell.viewLayoutRow.subgridRowIndex;
         const subgrid = viewCell.subgrid;
         const dataRow = subgrid.getSingletonDataRow(rowIndex);
-        const config = Object.create(viewCell.columnProperties, { dataRow: { value: dataRow } });
+        const config = Object.create(viewCell.columnSettings, { dataRow: { value: dataRow } });
         const value = subgrid.getValue(viewCell.viewLayoutColumn.column, rowIndex);
-        const linkProp = viewCell.columnProperties.link;
+        const linkProp = viewCell.columnSettings.link;
 
         let linkPropTuple: GridSettings.LinkProp | undefined;
         let link: boolean | string | GridSettings.LinkFunction;
@@ -88,7 +88,7 @@ export class CellClickUiBehavior extends UiBehavior {
                     if (Array.isArray(dataRow)) {
                         throw new AssertError('CCFOL45455');
                     } else {
-                        unknownUrl = dataRow[link as keyof DataModel.ObjectDataRow];
+                        unknownUrl = dataRow[link as keyof DataServer.ObjectDataRow];
                     }
                 }
                 break;

@@ -6,7 +6,7 @@ import {
     CellSettingsAccessor,
     GridSettings,
     IndexSignatureHack,
-    RectangleInterface,
+    Rectangle,
     Revgrid,
     ViewCell,
 } from '../grid/grid-public-api';
@@ -255,7 +255,7 @@ export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
 function renderMultiLineText(
     gc: CachedCanvasRenderingContext2D,
     settings: CellSettingsAccessor,
-    bounds: RectangleInterface,
+    bounds: Rectangle,
     val: string,
     leftPadding: number,
     rightPadding: number,
@@ -319,7 +319,7 @@ function renderMultiLineText(
 function renderSingleLineText(
     gc: CachedCanvasRenderingContext2D,
     settings: CellSettingsAccessor,
-    bounds: RectangleInterface,
+    bounds: Rectangle,
     val: string,
     leftPadding: number,
     rightPadding: number,
@@ -476,7 +476,7 @@ function underline(gc: CachedCanvasRenderingContext2D, settings: CellSettingsAcc
     gc.lineTo(x + textWidth, y);
 }
 
-function paintLayerColors(gc: CachedCanvasRenderingContext2D, bounds: RectangleInterface, colors: string[], firstColorIsFill: boolean) {
+function paintLayerColors(gc: CachedCanvasRenderingContext2D, bounds: Rectangle, colors: string[], firstColorIsFill: boolean) {
     const x = bounds.x;
     const y = bounds.y;
     const width = bounds.width;
@@ -492,7 +492,7 @@ function paintLayerColors(gc: CachedCanvasRenderingContext2D, bounds: RectangleI
     }
 }
 
-function checkPaintBorder(gc: CachedCanvasRenderingContext2D, bounds: RectangleInterface, borderColor: string | undefined) {
+function checkPaintBorder(gc: CachedCanvasRenderingContext2D, bounds: Rectangle, borderColor: string | undefined) {
     // paint border if required
     if (borderColor !== undefined) {
         gc.beginPath();

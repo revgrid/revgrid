@@ -1,16 +1,16 @@
-import { DataModel } from '../../grid/grid-public-api';
+import { DataServer } from '../../grid/grid-public-api';
 import { RevRecordField } from './rev-record-field';
 
 /** @public */
-export class RevRecordHeaderAdapter implements DataModel {
+export class RevRecordHeaderAdapter implements DataServer {
 
-    private _dataCallbackListener: DataModel.CallbackListener;
+    private _dataCallbackListener: DataServer.NotificationsClient;
 
     constructor(private _rowCount = 1) {
 
     }
 
-    addDataCallbackListener(value: DataModel.CallbackListener): void {
+    subscribeDataNotifications(value: DataServer.NotificationsClient): void {
         this._dataCallbackListener = value;
     }
 

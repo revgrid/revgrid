@@ -1,17 +1,17 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
-import { DataModel } from '../../interfaces/data-model';
-import { SubgridInterface } from '../../interfaces/subgrid-interface';
-import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
-import { ViewLayoutRow } from '../../interfaces/view-layout-row';
-import { Rectangle } from '../../lib/rectangle';
-import { RectangleInterface } from '../../lib/rectangle-interface';
-import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
-import { HorizontalVertical } from '../../lib/types';
+import { DataServer } from '../../interfaces/server/data-server';
+import { MainSubgrid } from '../../interfaces/server/main-subgrid';
+import { Subgrid } from '../../interfaces/server/subgrid';
+import { ViewLayoutColumn } from '../../interfaces/server/view-layout-column';
+import { ViewLayoutRow } from '../../interfaces/server/view-layout-row';
 import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
+import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
+import { Rectangle } from '../../types-utils/rectangle';
+import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { HorizontalVertical } from '../../types-utils/types';
 import { ViewCell } from '../cell/view-cell';
-import { Column } from '../column/column';
+import { ColumnImplementation } from '../column/column-implementation';
 import { ColumnsManager } from '../column/columns-manager';
-import { Subgrid } from '../subgrid/subgrid';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { HorizontalScrollDimension } from './horizontal-scroll-dimension';
 import { VerticalScrollDimension } from './vertical-scroll-dimension';
@@ -49,6 +49,8 @@ export class ViewLayout {
     cellPoolComputedEventerForFocus: ViewLayout.CellPoolComputedEventer;
     cellPoolComputedEventerForMouse: ViewLayout.CellPoolComputedEventer;
 
+    private readonly _mainSubgrid: MainSubgrid;
+
     /**
      * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
      *
@@ -79,7 +81,7 @@ export class ViewLayout {
     private readonly _horizontalScrollDimension: HorizontalScrollDimension;
     private readonly _verticalScrollDimension: VerticalScrollDimension;
 
-    private readonly _dummyUnusedColumn: Column;
+    private readonly _dummyUnusedColumn: ColumnImplementation;
 
     private readonly _rowColumnOrderedCellPool = new Array<ViewCell>();
     private readonly _columnRowOrderedCellPool = new Array<ViewCell>();
@@ -90,8 +92,6 @@ export class ViewLayout {
     private _rowsColumnsComputationId = 0;
     private _rowColumnOrderedCellPoolComputationId = -1;
     private _columnRowOrderedCellPoolComputationId = -1;
-
-    private _mainSubgrid: Subgrid;
 
     // Specifies the index of the column anchored to the bounds edge
     // Will be first non-fixed visible column or last visible column depending on the gridRightAligned property
@@ -319,7 +319,7 @@ export class ViewLayout {
         }
     }
 
-    get scrollableCanvasBounds(): Rectangle | undefined {
+    get scrollableCanvasBounds(): InexclusiveRectangle | undefined {
         if (!this._horizontalScrollDimension.exists) {
             return undefined;
         } else {
@@ -330,7 +330,7 @@ export class ViewLayout {
             } else {
                 const width = this._horizontalScrollDimension.viewportSize;
                 const height = this._canvasEx.bounds.height - y; // this does not handle situation where rows do not fill the view
-                return new Rectangle(x, y, width, height);
+                return new InexclusiveRectangle(x, y, width, height);
             }
         }
     }
@@ -918,7 +918,7 @@ export class ViewLayout {
      * @param y - Grid row coordinate.
      * @returns Bounding rect of cell with the given coordinates.
      */
-    getBoundsOfCell(x: number, y: number): RectangleInterface {
+    getBoundsOfCell(x: number, y: number): Rectangle {
         const vc = this._columns[x];
         const vr = this._rows[y];
 
@@ -1215,9 +1215,9 @@ export class ViewLayout {
      * Matrix of unformatted values of visible cells.
      */
     getVisibleCellMatrix(): Array<Array<unknown>> {
-        const rows = Array<DataModel.DataValue[]>(this._rows.length);
+        const rows = Array<DataServer.DataValue[]>(this._rows.length);
         for (let y = 0; y < rows.length; ++y) {
-            rows[y] = Array<DataModel.DataValue>(this._columns.length);
+            rows[y] = Array<DataServer.DataValue>(this._columns.length);
         }
 
         const pool = this.getAPool();
@@ -1287,7 +1287,7 @@ export class ViewLayout {
         return undefined;
     }
 
-    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: SubgridInterface) {
+    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: Subgrid) {
         const rows = this._rows;
         const rowCount = rows.length;
         for (let i = 0; i < rowCount; i++) {
@@ -1406,7 +1406,7 @@ export class ViewLayout {
      * @param rowIndex - The data row index within the given subgrid.
      * @returns The given row if visible or `undefined` if not.
      */
-    getVisibleDataRow(rowIndex: number, subgrid: SubgridInterface) {
+    getVisibleDataRow(rowIndex: number, subgrid: Subgrid) {
         for (const vr of this._rows) {
             if (vr.subgridRowIndex === rowIndex && vr.subgrid === subgrid) {
                 return vr;
@@ -1550,7 +1550,7 @@ export class ViewLayout {
         }
     }
 
-    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface) {
+    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid) {
         const column = this.findColumnWithActiveIndex(activeColumnIndex);
         if (column === undefined) {
             return undefined;
@@ -1564,7 +1564,7 @@ export class ViewLayout {
         }
     }
 
-    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface) {
+    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid) {
         const column = this.findColumnWithAllIndex(allColumnIndex);
         if (column === undefined) {
             return undefined;

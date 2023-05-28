@@ -15,6 +15,7 @@
     { "path": "ui/tsconfig.grid-behavior-ui.json" },
     { "path": "../components/subgrid/tsconfig.grid-components-subgrid.json" },
     { "path": "../components/cell/tsconfig.grid-components-cell.json" },
-    { "path": "../interfaces/tsconfig.grid-interfaces.json" },
+    { "path": "../interfaces/server/tsconfig.grid-interfaces-server.json" },
+    { "path": "../interfaces/settings/tsconfig.grid-interfaces-settings.json" },
   ]
 }

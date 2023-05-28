@@ -77,7 +77,7 @@
  * Typically a Local primitive value, values can be any type, including objects and arrays. The specified cell renderer is expected to know how to determine the value's type and render it.
  */
 
-import { CachedCanvasRenderingContext2D } from '../canvas/cached-canvas-rendering-context-2d';
+import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 
 /**
  * @desc Instances of `CellPainter` are used to render the 2D graphics context within the bound of a cell.

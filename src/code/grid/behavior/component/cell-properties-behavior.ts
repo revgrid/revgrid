@@ -2,11 +2,11 @@ import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { CellProperties } from '../../interfaces/cell-properties';
-import { ColumnInterface } from '../../interfaces/column-interface';
-import { ColumnSettings } from '../../interfaces/column-settings';
-import { MetaModel } from '../../interfaces/meta-model';
-import { SubgridInterface } from '../../interfaces/subgrid-interface';
+import { CellProperties } from '../../interfaces/server/cell-properties';
+import { Column } from '../../interfaces/server/column';
+import { MetaModel } from '../../interfaces/server/meta-model';
+import { Subgrid } from '../../interfaces/server/subgrid';
+import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { CellPropertiesAccessor } from '../../settings-accessors/cell-properties-accessor';
 
 export class CellPropertiesBehavior {
@@ -25,7 +25,7 @@ export class CellPropertiesBehavior {
      * @return The properties of the cell at x,y in the grid.
      */
     /** @internal */
-    getCellPropertiesAccessor(column: ColumnInterface, rowIndex: number, subgrid: SubgridInterface): CellProperties {
+    getCellPropertiesAccessor(column: Column, rowIndex: number, subgrid: Subgrid): CellProperties {
         const cellOwnProperties = this.getCellOwnProperties(column, rowIndex, subgrid);
         return new CellPropertiesAccessor((cellOwnProperties ? cellOwnProperties : undefined), column.settings);
     }
@@ -36,7 +36,7 @@ export class CellPropertiesBehavior {
      * @returns New cell properties object, based on column properties object, with `properties` copied to it.
      */
     /** @internal */
-    setCellOwnProperties(column: ColumnInterface, rowIndex: number, properties: MetaModel.CellOwnProperties | undefined, subgrid: SubgridInterface) {
+    setCellOwnProperties(column: Column, rowIndex: number, properties: MetaModel.CellOwnProperties | undefined, subgrid: Subgrid) {
         let metadata = subgrid.getRowMetadata(rowIndex);
         if (properties === undefined) {
             if (metadata !== undefined) {
@@ -60,7 +60,7 @@ export class CellPropertiesBehavior {
      * @returns Cell's own properties object, which will be created by this call if it did not already exist.
      */
     /** @internal */
-    addCellOwnProperties(column: ColumnInterface, rowIndex: number, properties: MetaModel.CellOwnProperties, subgrid: SubgridInterface) {
+    addCellOwnProperties(column: Column, rowIndex: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
         const columnKey = column.name as keyof MetaModel.RowMetadata;
         let metadata = subgrid.getRowMetadata(rowIndex);
         let existingProperties: MetaModel.CellOwnProperties | undefined;
@@ -102,7 +102,7 @@ export class CellPropertiesBehavior {
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `null`.
      */
     /** @internal */
-    getCellOwnProperties(column: ColumnInterface, rowIndex: number, subgrid: SubgridInterface) {
+    getCellOwnProperties(column: Column, rowIndex: number, subgrid: Subgrid) {
         const metadata = subgrid.getRowMetadata(rowIndex);
         if (metadata === undefined) {
             return undefined;
@@ -117,7 +117,7 @@ export class CellPropertiesBehavior {
      * @param rowIndex - Data row coordinate.
      */
     /** @internal */
-    deleteCellOwnProperties(column: ColumnInterface, rowIndex: number, subgrid: SubgridInterface) {
+    deleteCellOwnProperties(column: Column, rowIndex: number, subgrid: Subgrid) {
         this.setCellOwnProperties(column, rowIndex, undefined, subgrid);
     }
 
@@ -128,13 +128,13 @@ export class CellPropertiesBehavior {
      * @return The specified property for the cell at x,y in the grid.
      */
     /** @internal */
-    getCellProperty(column: ColumnInterface, rowIndex: number, key: string | number, subgrid: SubgridInterface): MetaModel.CellOwnProperty;
-    getCellProperty<T extends keyof ColumnSettings>(column: ColumnInterface, rowIndex: number, key: T, subgrid: SubgridInterface): ColumnSettings[T];
+    getCellProperty(column: Column, rowIndex: number, key: string | number, subgrid: Subgrid): MetaModel.CellOwnProperty;
+    getCellProperty<T extends keyof ColumnSettings>(column: Column, rowIndex: number, key: T, subgrid: Subgrid): ColumnSettings[T];
     getCellProperty<T extends keyof ColumnSettings>(
-        column: ColumnInterface,
+        column: Column,
         rowIndex: number,
         key: string | number | T,
-        subgrid: SubgridInterface
+        subgrid: Subgrid
     ): MetaModel.CellOwnProperty | ColumnSettings[T] {
         const cellProperties = this.getCellPropertiesAccessor(column, rowIndex, subgrid);
         return cellProperties.get(key);
@@ -146,11 +146,11 @@ export class CellPropertiesBehavior {
      */
     /** @internal */
     setCellProperty(
-        column: ColumnInterface,
+        column: Column,
         rowIndex: number,
         key: string,
         value: unknown | undefined,
-        subgrid: SubgridInterface,
+        subgrid: Subgrid,
         optionalCell: ViewCell | undefined,
     ) {
         let metadata = subgrid.getRowMetadata(rowIndex);
@@ -195,7 +195,7 @@ export class CellPropertiesBehavior {
      * @param rowIndex - Data row coordinate.
      */
     /** @internal */
-    deleteCellProperty(column: ColumnInterface, rowIndex: number, key: string, subgrid: SubgridInterface) {
+    deleteCellProperty(column: Column, rowIndex: number, key: string, subgrid: Subgrid) {
         this.setCellProperty(column, rowIndex, key, undefined, subgrid, undefined);
     }
 
@@ -203,7 +203,7 @@ export class CellPropertiesBehavior {
      * Clear all cell properties from all cells in this column.
      */
     /** @internal */
-    clearAllCellProperties(column: ColumnInterface | undefined) {
+    clearAllCellProperties(column: Column | undefined) {
         const subgrids = this._subgridsManger.subgrids;
         subgrids.forEach((subgrid) => {
             const rowCount = subgrid.getRowCount();
@@ -253,7 +253,7 @@ export class CellPropertiesBehavior {
 }
 
 export namespace CellPropertiesBehavior {
-    export type GetRowMetadataEventer = (this: void, rowIndex: number, subgrid: SubgridInterface) => MetaModel.RowMetadata | undefined;
-    export type SetRowMetadataEventer = (this: void, rowIndex: number, subgrid: SubgridInterface) => void;
+    export type GetRowMetadataEventer = (this: void, rowIndex: number, subgrid: Subgrid) => MetaModel.RowMetadata | undefined;
+    export type SetRowMetadataEventer = (this: void, rowIndex: number, subgrid: Subgrid) => void;
 
 }

@@ -14,6 +14,6 @@
     { "path": "../cell/tsconfig.grid-components-cell.json" },
     { "path": "../column/tsconfig.grid-components-column.json" },
     { "path": "../canvas/tsconfig.grid-components-canvas.json" },
-    { "path": "../../lib/tsconfig.grid-lib.json" }
+    { "path": "../../types-utils/tsconfig.grid-types-utils.json" }
   ]
 }

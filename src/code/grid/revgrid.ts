@@ -7,7 +7,6 @@ import { FocusSelectBehavior } from './behavior/component/focus-select-behavior'
 import { RowPropertiesBehavior } from './behavior/component/row-properties-behavior';
 import { CanvasManager } from './components/canvas/canvas-manager';
 import { ViewCell } from './components/cell/view-cell';
-import { Column, ColumnWidth } from './components/column/column';
 import { ColumnsManager } from './components/column/columns-manager';
 import { EventDetail } from './components/event/event-detail';
 import { Focus } from './components/focus/focus';
@@ -15,25 +14,23 @@ import { Mouse } from './components/mouse/mouse';
 import { GridPainter } from './components/renderer/grid-painter/grid-painter';
 import { Renderer } from './components/renderer/renderer';
 import { Selection } from './components/selection/selection';
-import { Subgrid } from './components/subgrid/subgrid';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
-import { CellProperties } from './interfaces/cell-properties';
-import { ColumnInterface } from './interfaces/column-interface';
-import { ColumnSettings } from './interfaces/column-settings';
-import { DataModel } from './interfaces/data-model';
-import { GridSettings, LoadableGridSettings } from './interfaces/grid-settings';
-import { MetaModel } from './interfaces/meta-model';
-import { SchemaModel } from './interfaces/schema-model';
-import { SubgridInterface } from './interfaces/subgrid-interface';
-import { CssClassName } from './lib/html-types';
-import { DateFormatter, Localization, NumberFormatter } from './lib/localization';
-import { Point } from './lib/point';
-import { RectangleInterface } from './lib/rectangle-interface';
-import { AssertError } from './lib/revgrid-error';
-import { SelectionArea } from './lib/selection-area';
-import { ColumnNameWidth, ListChangedTypeId } from './lib/types';
+import { CellProperties } from './interfaces/server/cell-properties';
+import { Column, ColumnWidth } from './interfaces/server/column';
+import { DataServer } from './interfaces/server/data-server';
+import { MetaModel } from './interfaces/server/meta-model';
+import { SchemaServer } from './interfaces/server/schema-server';
+import { Subgrid } from './interfaces/server/subgrid';
+import { ColumnSettings } from './interfaces/settings/column-settings';
+import { GridSettings, LoadableGridSettings } from './interfaces/settings/grid-settings';
 import { defaultSettingsProperties } from './settings-accessors/default-grid-settings';
+import { CssClassName } from './types-utils/html-types';
+import { DateFormatter, Localization, NumberFormatter } from './types-utils/localization';
+import { Point } from './types-utils/point';
+import { Rectangle } from './types-utils/rectangle';
+import { AssertError } from './types-utils/revgrid-error';
+import { ColumnNameWidth, ListChangedTypeId, SelectionAreaType } from './types-utils/types';
 
 /** @public */
 export class Revgrid {
@@ -672,7 +669,7 @@ export class Revgrid {
      * @return The data row object at y index.
      * @param y - the row index of interest
      */
-    getSingletonDataRow(y: number, subgrid?: Subgrid): DataModel.DataRow {
+    getSingletonDataRow(y: number, subgrid?: Subgrid): DataServer.DataRow {
         if (subgrid === undefined) {
             return this.behaviorManager.mainSubgrid.getSingletonDataRow(y);
         } else {
@@ -684,12 +681,12 @@ export class Revgrid {
      * Retrieve all data rows from the data model.
      * > Use with caution!
      */
-    getData(): readonly DataModel.DataRow[] {
-        const mainDataModel = this.behaviorManager.mainDataModel;
-        if (mainDataModel.getData === undefined) {
+    getData(): readonly DataServer.DataRow[] {
+        const mainDataServer = this.behaviorManager.mainDataServer;
+        if (mainDataServer.getData === undefined) {
             return [];
         } else {
-            return mainDataModel.getData();
+            return mainDataServer.getData();
         }
     }
 
@@ -793,11 +790,11 @@ export class Revgrid {
      * @param gridCell - The pixel location of the mouse in physical grid coordinates.
      * @returns The pixel based bounds rectangle given a data cell point.
      */
-    getBoundsOfCell(gridCell: Point): RectangleInterface {
+    getBoundsOfCell(gridCell: Point): Rectangle {
         return this.viewLayout.getBoundsOfCell(gridCell.x, gridCell.y);
     }
 
-    getSchema(): readonly SchemaModel.Column[] {
+    getSchema(): readonly SchemaServer.Column[] {
         return this._columnsManager.getSchema();
     }
 
@@ -1403,7 +1400,7 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessColumnsWidthChanged(_columns: ColumnInterface[], _ui: boolean) {
+    protected descendantProcessColumnsWidthChanged(_columns: Column[], _ui: boolean) {
         // for descendants
     }
 
@@ -1567,7 +1564,7 @@ export class Revgrid {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      */
-    getCellOwnProperties(allXOrRenderedCell: number | ViewCell, y?: number, subgrid?: SubgridInterface) {
+    getCellOwnProperties(allXOrRenderedCell: number | ViewCell, y?: number, subgrid?: Subgrid) {
         if (typeof allXOrRenderedCell === 'object') {
             // xOrCellEvent is cellEvent
             const column = allXOrRenderedCell.viewLayoutColumn.column;
@@ -1685,7 +1682,7 @@ export class Revgrid {
         subgrid?: Subgrid
     ): MetaModel.CellOwnProperties | undefined {
         let optionalCell: ViewCell | undefined;
-        let column: ColumnInterface;
+        let column: Column;
         let dataY: number;
         let key: string;
         if (typeof allXOrCell === 'object') {
@@ -1752,27 +1749,27 @@ export class Revgrid {
         return this.selection.isColumnOrRowSelected();
     }
 
-    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: SubgridInterface) {
+    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid) {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
-        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
+        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid);
     }
 
-    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType = SelectionArea.Type.Rectangle) {
+    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType = SelectionAreaType.Rectangle) {
         this._focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, areaType);
     }
 
-    selectOnlyCell(x: number, y: number, subgrid?: SubgridInterface, areaType = SelectionArea.Type.Rectangle) {
+    selectOnlyCell(x: number, y: number, subgrid?: Subgrid, areaType = SelectionAreaType.Rectangle) {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
 
-        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid, areaType);
+        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid, areaType);
     }
 
-    selectOnlyRow(subgridRowIndex: number, subgrid: SubgridInterface) {
-        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid);
+    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid) {
+        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid);
     }
 
     selectAllRows() {
@@ -1989,7 +1986,7 @@ export class Revgrid {
         this.viewLayout.scrollHorizontalViewportBy(delta);
     }
 
-    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionArea.Type.Rectangle) {
+    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionAreaType.Rectangle) {
         this._focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
     }
 
@@ -2206,7 +2203,7 @@ export namespace Revgrid {
         // data?: LocalDataRowObject[] | (() => LocalDataRowObject[]);
         /** Use in conjunction with data. Set to true to reindex data when first loaded */
         apply?: boolean;
-		// metadata?: DataModel.RowMetadata[];
+		// metadata?: DataServer.RowMetadata[];
         /** Specifies whether to load builtin FinBar stylesheet. Default: true */
         loadBuiltinFinbarStylesheet?: boolean;
 	}

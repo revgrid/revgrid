@@ -1,10 +1,10 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
-import { CellEditor } from '../../components/cell/cell-editor';
 import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { KeyboardEventKey } from '../../lib/html-types';
-import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
-import { HorizontalWheelScrollingAllowed } from '../../lib/types';
+import { CellEditor } from '../../interfaces/serverless/cell-editor';
+import { KeyboardEventKey } from '../../types-utils/html-types';
+import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */

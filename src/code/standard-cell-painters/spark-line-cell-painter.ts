@@ -1,5 +1,5 @@
 
-import { CachedCanvasRenderingContext2D, CellPainter, RectangleInterface } from '../grid/grid-public-api';
+import { CachedCanvasRenderingContext2D, CellPainter, Rectangle } from '../grid/grid-public-api';
 
 /**
  * Renders a sparkline.
@@ -57,7 +57,7 @@ export namespace SparkLineCellPainter {
 
     export interface Config {
         value: number[];
-        bounds: RectangleInterface;
+        bounds: Rectangle;
         backgroundColor: string;
         isSelected: boolean;
         backgroundSelectionColor: string;

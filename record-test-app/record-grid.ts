@@ -59,7 +59,7 @@ export class RecordGrid extends Revgrid {
         gridElement: HTMLElement,
         recordStore: RevRecordStore,
         mainCellPainter: CellPainter,
-        gridProperties: Partial<GridProperties>,
+        gridSettings: Partial<GridProperties>,
     ) {
         const fieldAdapter = new RevRecordFieldAdapter();
         const mainRecordAdapter = new RevRecordMainAdapter(fieldAdapter, recordStore);
@@ -68,23 +68,23 @@ export class RecordGrid extends Revgrid {
         const recordCellAdapter = new RevRecordCellAdapter(mainRecordAdapter, mainCellPainter);
 
         const adapterSetConfig: AdapterSetConfig = {
-            schemaModel: fieldAdapter,
+            schemaServer: fieldAdapter,
             subgrids: [
                 {
                     role: SubgridInterface.RoleEnum.header,
-                    dataModel: headerRecordAdapter,
+                    dataServer: headerRecordAdapter,
                     cellModel: header
                 },
                 {
                     role: SubgridInterface.RoleEnum.main,
-                    dataModel: mainRecordAdapter,
+                    dataServer: mainRecordAdapter,
                     cellModel: recordCellAdapter,
                 }
             ],
         };
 
         const options: Revgrid.Options = {
-            gridProperties,
+            gridSettings,
             loadBuiltinFinbarStylesheet: false,
         };
 

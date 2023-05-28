@@ -16,7 +16,9 @@
     { "path": "../column/tsconfig.grid-components-column.json" },
     { "path": "../cell/tsconfig.grid-components-cell.json" },
     { "path": "../event/tsconfig.grid-components-event.json" },
-    { "path": "../../interfaces/tsconfig.grid-interfaces.json" },
-    { "path": "../../lib/tsconfig.grid-lib.json" }
+    { "path": "../../interfaces/server/tsconfig.grid-interfaces-server.json" },
+    { "path": "../../interfaces/serverless/tsconfig.grid-interfaces-serverless.json" },
+    { "path": "../../interfaces/settings/tsconfig.grid-interfaces-settings.json" },
+    { "path": "../../types-utils/tsconfig.grid-types-utils.json" }
   ]
 }

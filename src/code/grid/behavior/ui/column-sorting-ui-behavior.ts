@@ -1,5 +1,5 @@
 import { ViewCell } from '../../components/cell/view-cell';
-import { ColumnSettings } from '../../interfaces/column-settings';
+import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -53,7 +53,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         let columnProperties: ColumnSettings;
         if (
             cell.isHeader &&
-            (columnProperties = cell.columnProperties).sortable &&
+            (columnProperties = cell.columnSettings).sortable &&
             !(columnProperties.sortOnDoubleClick !== onDoubleClick) // both same (true or falsy)?
         ) {
             this.eventBehavior.processColumnSortEvent(event, cell);

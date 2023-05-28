@@ -6,8 +6,8 @@ import { EventName } from '../../components/event/event-name';
 import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
-import { ColumnInterface } from '../../interfaces/column-interface';
-import { ListChangedTypeId } from '../../lib/types';
+import { Column } from '../../interfaces/server/column';
+import { ListChangedTypeId } from '../../types-utils/types';
 
 export class EventBehavior {
     uiKeyDownEventer: EventBehavior.UiKeyEventer;
@@ -168,7 +168,7 @@ export class EventBehavior {
         this._descendantEventer.activeColumnListChanged(typeId, index, count, targetIndex, ui);
     }
 
-    private processColumnsWidthChangedEvent(columns: ColumnInterface[], ui: boolean) {
+    private processColumnsWidthChangedEvent(columns: Column[], ui: boolean) {
         this._descendantEventer.columnsWidthChanged(columns, ui);
     }
 
@@ -533,7 +533,7 @@ export namespace EventBehavior {
         readonly allColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
         readonly columnsChanged: DescendantEventer.Signal;
-        readonly columnsWidthChanged: (this: void, columns: ColumnInterface[], ui: boolean) => void;
+        readonly columnsWidthChanged: (this: void, columns: Column[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: DescendantEventer.Signal;
         readonly columnSort: (this: void, event: MouseEvent, cell: ViewCell) => void;
         readonly selectionChanged: DescendantEventer.Signal;

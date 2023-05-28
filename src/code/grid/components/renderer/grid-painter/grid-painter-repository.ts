@@ -1,6 +1,6 @@
-import { GridSettings } from '../../../interfaces/grid-settings';
-import { Registry } from '../../../lib/registry';
-import { AssertError } from '../../../lib/revgrid-error';
+import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { Registry } from '../../../types-utils/registry';
+import { AssertError } from '../../../types-utils/revgrid-error';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';

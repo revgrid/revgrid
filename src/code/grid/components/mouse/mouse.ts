@@ -1,4 +1,4 @@
-import { Point } from '../../lib/point';
+import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { ViewCell } from '../cell/view-cell';
 import { EventDetail } from '../event/event-detail';
@@ -129,16 +129,16 @@ export class Mouse {
         if (cell === undefined) {
             return undefined;
         } else {
-            const dataModel = cell.subgrid.dataModel;
+            const dataServer = cell.subgrid.dataServer;
             let cursorName: string | undefined;
-            if (dataModel.getCursorName !== undefined) {
-                cursorName = dataModel.getCursorName(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
+            if (dataServer.getCursorName !== undefined) {
+                cursorName = dataServer.getCursorName(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
             }
             let titleText: string;
-            if (dataModel.getTitleText === undefined) {
+            if (dataServer.getTitleText === undefined) {
                 titleText = '';
             } else {
-                titleText = dataModel.getTitleText(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
+                titleText = dataServer.getTitleText(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
             }
 
             return {

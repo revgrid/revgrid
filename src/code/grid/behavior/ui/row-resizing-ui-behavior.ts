@@ -1,6 +1,6 @@
 
-import { Subgrid } from '../../components/subgrid/subgrid';
-import { Point } from '../../lib/point';
+import { Subgrid } from '../../interfaces/server/subgrid';
+import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */

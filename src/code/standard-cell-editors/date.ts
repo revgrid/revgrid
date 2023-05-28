@@ -1,6 +1,6 @@
 import { ViewCell } from '../components/cell/view-cell';
-import { DateFormatter } from '../lib/localization';
 import { Revgrid } from '../revgrid';
+import { DateFormatter } from '../types-utils/localization';
 import { DateInputEditor } from './date-input-editor';
 
 const isChromium: boolean | undefined = undefined; // window.chrome;

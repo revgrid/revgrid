@@ -1,4 +1,4 @@
-import { DataModel } from '../../grid/grid-public-api';
+import { DataServer } from '../../grid/grid-public-api';
 import { RevRecordRow } from './rev-record-row';
 
 /** @public */
@@ -49,5 +49,5 @@ export namespace RevRecord {
 
 /** @public */
 export interface RevRecordData extends RevRecord {
-    data: DataModel.DataRow;
+    data: DataServer.DataRow;
 }

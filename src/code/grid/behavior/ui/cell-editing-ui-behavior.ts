@@ -31,7 +31,7 @@ export class CellEditingUiBehavior extends UiBehavior {
         } else {
             // const keyboardEvent = eventDetail.primitiveEvent;
             const keyboardEvent = eventDetail;
-            if (cellEvent.columnProperties.editOnKeydown /*&& !grid.cellEditor*/) {
+            if (cellEvent.columnSettings.editOnKeydown /*&& !grid.cellEditor*/) {
                 const char = keyboardEvent.key;
                 const isVisibleChar = char.length === 1 && !(keyboardEvent.metaKey || keyboardEvent.ctrlKey);
                 const isDeleteChar = char === 'DELETE' || char === 'BACKSPACE';
@@ -63,7 +63,7 @@ export class CellEditingUiBehavior extends UiBehavior {
         if (
             cell !== null &&
             cell.isMain &&
-            !(cell.columnProperties['editOnDoubleClick'] !== onDoubleClick) // both same (true or falsy)?
+            !(cell.columnSettings['editOnDoubleClick'] !== onDoubleClick) // both same (true or falsy)?
         ) {
             // this.grid.onEditorActivate(cell);
         }

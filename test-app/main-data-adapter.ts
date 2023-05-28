@@ -1,13 +1,13 @@
-import { ColumnInterface, DataModel, SchemaModel } from '..';
+import { ColumnInterface, DataServer, SchemaServer } from '..';
 import { MainRecord } from './main-record';
 import { SchemaAdapter } from './schema-adapter';
 
-export class MainDataAdapter implements DataModel {
+export class MainDataAdapter implements DataServer {
     readonly mainDataModel = true;
 
     private readonly _data: MainRecord[] = [];
     private _fishCreateCount = 0;
-    private _callbackListener: DataModel.CallbackListener;
+    private _callbackListener: DataServer.NotificationsClient;
 
     constructor() {
         const initialDataCount = MainDataAdapter.initialData.length;
@@ -19,7 +19,7 @@ export class MainDataAdapter implements DataModel {
         }
     }
 
-    addDataCallbackListener(listener: DataModel.CallbackListener) {
+    addDataCallbackListener(listener: DataServer.NotificationsClient) {
         this._callbackListener = listener;
 
         const existingRecordCount = this._data.length;
@@ -32,7 +32,7 @@ export class MainDataAdapter implements DataModel {
         return this._data.length;
     }
 
-    getValue(columnSchema: SchemaModel.Column, rowIndex: number) {
+    getValue(columnSchema: SchemaServer.Column, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = (columnSchema as SchemaAdapter.Column).name;
         return record[fieldName];
@@ -42,7 +42,7 @@ export class MainDataAdapter implements DataModel {
         return this._data[rowIndex].id;
     }
 
-    getTitleText(columnSchema: SchemaModel.Column, rowIndex: number) {
+    getTitleText(columnSchema: SchemaServer.Column, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = (columnSchema as SchemaAdapter.Column).name;
         const prefix = fieldName + ': '

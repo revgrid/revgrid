@@ -1,4 +1,4 @@
-import { AssertError } from '../../lib/revgrid-error';
+import { AssertError } from '../../types-utils/revgrid-error';
 
 /** Controls initiation of painting of all grids with one animation frame */
 export namespace Animation {

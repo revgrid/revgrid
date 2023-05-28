@@ -18,7 +18,8 @@
     { "path": "./components/tsconfig.grid-components.json" },
     { "path": "./behavior/component/tsconfig.grid-behavior-component.json" },
     { "path": "./behavior/tsconfig.grid-behavior.json" },
-    { "path": "./interfaces/tsconfig.grid-interfaces.json" },
-    { "path": "./lib/tsconfig.grid-lib.json" }
+    { "path": "./interfaces/server/tsconfig.grid-interfaces-server.json" },
+    { "path": "./interfaces/settings/tsconfig.grid-interfaces-settings.json" },
+    { "path": "./types-utils/tsconfig.grid-types-utils.json" }
   ]
 }

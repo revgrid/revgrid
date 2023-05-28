@@ -1,4 +1,4 @@
-import { DataModel, ListChangedTypeId, UnreachableCaseError } from '../../grid/grid-public-api';
+import { DataServer, ListChangedTypeId, UnreachableCaseError } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 import { RevRecordArrayUtil } from './rev-record-array-utils';
 import { RevRecordAssertError } from './rev-record-error';
@@ -11,7 +11,7 @@ import { RevRecordStore } from './rev-record-store';
 import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
 /** @public */
-export class RevRecordMainAdapter implements DataModel, RevRecordStore.RecordsEventers {
+export class RevRecordMainAdapter implements DataServer, RevRecordStore.RecordsEventers {
     readonly mainDataModel = true;
 
     private readonly _recordRowBindingKey = Symbol();
@@ -33,7 +33,7 @@ export class RevRecordMainAdapter implements DataModel, RevRecordStore.RecordsEv
 
     private readonly _recentChanges: RevRecordRecentChanges;
 
-    private _callbackListener: DataModel.CallbackListener;
+    private _callbackListener: DataServer.NotificationsClient;
     private _recordStoreEventersSet = false;
 
     get recentChanges() { return this._recentChanges; }
@@ -94,7 +94,7 @@ export class RevRecordMainAdapter implements DataModel, RevRecordStore.RecordsEv
         this._recentChanges.destroy();
     }
 
-    addDataCallbackListener(value: DataModel.CallbackListener): void {
+    subscribeDataNotifications(value: DataServer.NotificationsClient): void {
         this._callbackListener = value;
         if (!this._recordStoreEventersSet) {
             this._recordStore.setRecordEventers(this);
@@ -140,7 +140,7 @@ export class RevRecordMainAdapter implements DataModel, RevRecordStore.RecordsEv
         }
     }
 
-    getValue(schemaColumn: RevRecordField.SchemaColumn, rowIndex: number): DataModel.DataValue {
+    getValue(schemaColumn: RevRecordField.SchemaColumn, rowIndex: number): DataServer.DataValue {
         if (this._rowOrderReversed) {
             rowIndex = this.reverseRowIndex(rowIndex);
         }

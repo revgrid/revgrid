@@ -1,15 +1,15 @@
-import { DataModel } from '../../interfaces/data-model';
-import { MetaModel } from '../../interfaces/meta-model';
-import { SubgridInterface } from '../../interfaces/subgrid-interface';
-import { CellEditor } from '../cell/cell-editor';
+import { DataServer } from '../../interfaces/server/data-server';
+import { MetaModel } from '../../interfaces/server/meta-model';
+import { Subgrid } from '../../interfaces/server/subgrid';
+import { CellEditor } from '../../interfaces/serverless/cell-editor';
 import { CellPainter } from '../cell/cell-painter';
 import { ViewCell } from '../cell/view-cell';
 
 /** @public */
 export interface SubgridDefinition {
     /** defaults to main */
-    role?: SubgridInterface.Role;
-    dataModel: DataModel | DataModel.Constructor;
+    role?: Subgrid.Role;
+    dataServer: DataServer | DataServer.Constructor;
     metaModel?: MetaModel | MetaModel.Constructor;
     getCellPainterEventer: SubgridDefinition.GetCellPainterEventer;
     selectable?: boolean;

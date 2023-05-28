@@ -1,7 +1,7 @@
 import { ViewCell } from '../../components/cell/view-cell';
-import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
-import { isSecondaryMouseButton } from '../../lib/html-types';
-import { AssertError } from '../../lib/revgrid-error';
+import { ViewLayoutColumn } from '../../interfaces/server/view-layout-column';
+import { isSecondaryMouseButton } from '../../types-utils/html-types';
+import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -87,7 +87,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             ) {
                 this.sharedState.columnMovingDragArmed = true;
                 this.cursor = ColumnMovingUiBehavior.GRABBING;
-                this.reindexStashManager.stash();
+                this.reindexBehavior.stash();
                 this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
             }
             return super.handlePointerDown(event, cell);
@@ -100,7 +100,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
 
             this.endGridScrolling();
             this.endDragColumn(dragAction);
-            this.reindexStashManager.unstash();
+            this.reindexBehavior.unstash();
             this.cursor = undefined;
             // End Column Drag
             setTimeout(() => {

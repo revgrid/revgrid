@@ -135,16 +135,16 @@ export class Main {
         this._cellPainter = new TextCellPainter();
 
         const adapterSet: AdapterSetConfig = {
-            schemaModel: new SchemaAdapter(),
+            schemaServer: new SchemaAdapter(),
             subgrids: [
                 {
                     role: 'header',
-                    dataModel: new HeaderDataAdapter(),
+                    dataServer: new HeaderDataAdapter(),
                     getCellPainterEventer: (viewCell, prefillColor) => this.getCellPainter(viewCell, prefillColor),
                 },
                 {
                     role: 'main',
-                    dataModel: this._mainDataAdapter,
+                    dataServer: this._mainDataAdapter,
                     getCellPainterEventer: (viewCell, prefillColor) => this.getCellPainter(viewCell, prefillColor),
                 }
             ],

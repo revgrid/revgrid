@@ -1,10 +1,10 @@
-import { ColumnSettings } from '../../interfaces/column-settings';
-import { DataModel } from '../../interfaces/data-model';
-import { MetaModel } from '../../interfaces/meta-model';
-import { SubgridInterface } from '../../interfaces/subgrid-interface';
-import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
-import { ViewLayoutRow } from '../../interfaces/view-layout-row';
-import { RectangleInterface } from '../../lib/rectangle-interface';
+import { DataServer } from '../../interfaces/server/data-server';
+import { MetaModel } from '../../interfaces/server/meta-model';
+import { Subgrid } from '../../interfaces/server/subgrid';
+import { ViewLayoutColumn } from '../../interfaces/server/view-layout-column';
+import { ViewLayoutRow } from '../../interfaces/server/view-layout-row';
+import { ColumnSettings } from '../../interfaces/settings/column-settings';
+import { Rectangle } from '../../types-utils/rectangle';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @public */
@@ -18,7 +18,7 @@ export class ViewCell {
     cellOwnProperties: MetaModel.CellOwnProperties | undefined; // only get via CellPropertiesBehavior
 
     /** @internal */
-    private _subgrid: SubgridInterface;
+    private _subgrid: Subgrid;
     /** @internal */
     private _viewLayoutColumn: ViewLayoutColumn;
     /** @internal */
@@ -26,7 +26,7 @@ export class ViewCell {
 
     // caches
     /** @internal */
-    private _bounds: ViewCell.Bounds | undefined;
+    private _bounds: Rectangle | undefined;
     /** @internal */
     private _columnProperties: ColumnSettings | undefined;
 
@@ -46,14 +46,14 @@ export class ViewCell {
     get value() {
         return this._subgrid.getValue(this._viewLayoutColumn.column, this._viewLayoutRow.subgridRowIndex);
     }
-    set value(value: DataModel.DataValue) {
+    set value(value: DataServer.DataValue) {
         this._subgrid.setValue(this._viewLayoutColumn.column, this._viewLayoutRow.subgridRowIndex, value);
     }
 
     /**
      * The bounds of the cell.
      */
-    get bounds(): ViewCell.Bounds {
+    get bounds(): Rectangle {
         if (this._bounds === undefined) {
             this._bounds = {
                 x: this._viewLayoutColumn.left,
@@ -67,7 +67,7 @@ export class ViewCell {
         }
     }
 
-    get columnProperties() {
+    get columnSettings() {
         let cp = this._columnProperties;
         if (!cp) {
             cp = this._viewLayoutColumn.column.settings;
@@ -271,9 +271,6 @@ export class ViewCell {
 export namespace ViewCell {
     /** @internal */
     export type PaintFingerprint = Record<string, unknown>;
-
-    export interface Bounds extends RectangleInterface {
-    }
 
     export function sameByDataPoint(left: ViewCell, right: ViewCell) {
         return (

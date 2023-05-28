@@ -3,15 +3,15 @@ import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { GridSettings } from '../../interfaces/grid-settings';
-import { SubgridInterface } from '../../interfaces/subgrid-interface';
-import { ViewLayoutColumn } from '../../interfaces/view-layout-column';
-import { ViewLayoutRow } from '../../interfaces/view-layout-row';
+import { MainSubgrid } from '../../interfaces/server/main-subgrid';
+import { ViewLayoutColumn } from '../../interfaces/server/view-layout-column';
+import { ViewLayoutRow } from '../../interfaces/server/view-layout-row';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 
 export class FocusScrollBehavior {
     constructor(
         private readonly _gridSettings: GridSettings,
-        private readonly _mainSubgrid: SubgridInterface,
+        private readonly _mainSubgrid: MainSubgrid,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewLayout: ViewLayout,

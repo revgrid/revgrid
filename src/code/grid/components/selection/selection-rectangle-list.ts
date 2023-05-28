@@ -1,12 +1,12 @@
-import { Rectangle } from '../../lib/rectangle';
-import { calculateNumberArrayUniqueCount } from '../../lib/utils';
+import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
+import { calculateNumberArrayUniqueCount } from '../../types-utils/utils';
 import { SelectionAreaList } from './selection-area-list';
 import { SelectionRectangle } from './selection-rectangle';
 
 export class SelectionRectangleList implements SelectionAreaList {
     readonly rectangles: SelectionRectangle[] = [];
-    private readonly _flattenedX = new Array<Rectangle>();
-    private readonly _flattenedY = new Array<Rectangle>();
+    private readonly _flattenedX = new Array<InexclusiveRectangle>();
+    private readonly _flattenedY = new Array<InexclusiveRectangle>();
 
     get has() { return this.rectangles.length !== 0; }
     get areaCount() { return this.rectangles.length; }
@@ -52,7 +52,7 @@ export class SelectionRectangleList implements SelectionAreaList {
     }
     push(rectangle: SelectionRectangle) {
         this.rectangles.push(rectangle);
-        // Following can be cast as Rectangle constructor used which uses unchanged extent
+        // Following can be cast as InexclusiveRectangle constructor used which uses unchanged extent
         this._flattenedX.push(rectangle.newXFlattened(0));
         this._flattenedY.push(rectangle.newYFlattened(0));
     }
@@ -93,15 +93,15 @@ export class SelectionRectangleList implements SelectionAreaList {
     }
 
     anyFlattenedContainY(y: number): boolean {
-        return Rectangle.arrayContainsPoint(this._flattenedX, 0, y);
+        return InexclusiveRectangle.arrayContainsPoint(this._flattenedX, 0, y);
     }
 
     anyFlattenedContainX(x: number): boolean {
-        return Rectangle.arrayContainsPoint(this._flattenedY, x, 0);
+        return InexclusiveRectangle.arrayContainsPoint(this._flattenedY, x, 0);
     }
 
     anyContainPoint(x: number, y: number) {
-        return Rectangle.arrayContainsPoint(this.rectangles, x, y);
+        return InexclusiveRectangle.arrayContainsPoint(this.rectangles, x, y);
     }
 
     getUniqueXIndices() {

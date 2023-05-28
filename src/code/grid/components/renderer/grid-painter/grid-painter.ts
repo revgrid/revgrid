@@ -1,15 +1,15 @@
-import { GridSettings } from '../../../interfaces/grid-settings';
-import { ViewLayoutColumn } from '../../../interfaces/view-layout-column';
-import { ViewLayoutRow } from '../../../interfaces/view-layout-row';
-import { RectangleInterface } from '../../../lib/rectangle-interface';
-import { CachedCanvasRenderingContext2D } from '../../canvas/cached-canvas-rendering-context-2d';
+import { ViewLayoutColumn } from '../../../interfaces/server/view-layout-column';
+import { ViewLayoutRow } from '../../../interfaces/server/view-layout-row';
+import { CellEditor } from '../../../interfaces/serverless/cell-editor';
+import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
+import { Rectangle } from '../../../types-utils/rectangle';
 import { CanvasManager } from '../../canvas/canvas-manager';
-import { CellEditor } from '../../cell/cell-editor';
 import { ViewCell } from '../../cell/view-cell';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
-import { Subgrid } from '../../subgrid/subgrid';
+import { SubgridImplementation } from '../../subgrid/subgrid-implementation';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
@@ -86,8 +86,8 @@ export abstract class GridPainter {
             }
         }
 
-        const subgrid = viewCell.subgrid as Subgrid;
-        const cellPainter = (subgrid as Subgrid).getCellPainter(viewCell, cellEditorPainter);
+        const subgrid = viewCell.subgrid as SubgridImplementation;
+        const cellPainter = subgrid.getCellPainter(viewCell, cellEditorPainter);
 
         const preferredWidth = cellPainter.paint(gc, prefillColor);
 
@@ -97,7 +97,7 @@ export abstract class GridPainter {
     paintErrorCell(err: Error, gc: CachedCanvasRenderingContext2D, vc: ViewLayoutColumn, vr: ViewLayoutRow) {
         const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
 
-        const bounds: RectangleInterface = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
+        const bounds: Rectangle = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
 
         console.error(message);
 
@@ -257,7 +257,7 @@ export abstract class GridPainter {
         }
     }
 
-    calculateLastSelectionBounds(): ViewCell.Bounds | undefined {
+    calculateLastSelectionBounds(): Rectangle | undefined {
         const columns = this.viewLayout.columns;
         const rows = this.viewLayout.rows;
         const columnCount = columns.length;
@@ -341,7 +341,7 @@ export abstract class GridPainter {
                         if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
                             return undefined;
                         } else {
-                            const bounds: ViewCell.Bounds = {
+                            const bounds: Rectangle = {
                                 x: vcOrigin.left,
                                 y: vrOrigin.top,
                                 width: vcCorner.rightPlus1 - vcOrigin.left,
@@ -448,7 +448,7 @@ export abstract class GridPainter {
         }
     }
 
-    private paintErrorMessage(gc: CachedCanvasRenderingContext2D, bounds: RectangleInterface, message: string) {
+    private paintErrorMessage(gc: CachedCanvasRenderingContext2D, bounds: Rectangle, message: string) {
         const x = bounds.x;
         const y = bounds.y;
         // const width = config.bounds.width;
@@ -507,6 +507,6 @@ export namespace GridPainter {
     }
 
     export namespace PaintableCellEditorInfo {
-        export type BoundSetBoundsFunction = (bounds: RectangleInterface) => void;
+        export type BoundSetBoundsFunction = (bounds: Rectangle) => void;
     }
 }

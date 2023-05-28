@@ -87,7 +87,7 @@ export class FiltersUiBehavior extends UiBehavior {
             (gridX = (gridX + deltaX + C) % C) !== originX &&
             moveDownCellEvent.resetGridXY(this.viewLayout.columns[gridX], this.viewLayout.getVisibleRow(gridY))
         ) {
-            if (moveDownCellEvent.columnProperties.filterable) {
+            if (moveDownCellEvent.columnSettings.filterable) {
                 // Select previous or next filterable column's filter cell
                 // grid.editAt(moveDownCellEvent);
                 return;

@@ -1,7 +1,6 @@
-import { GridSettings, LoadableGridSettings } from '../interfaces/grid-settings';
-import { ModifierKeyEnum } from '../lib/html-types';
-import { SelectionArea } from '../lib/selection-area';
-import { Halign, HorizontalWheelScrollingAllowed, TextTruncateType } from '../lib/types';
+import { GridSettings, LoadableGridSettings } from '../interfaces/settings/grid-settings';
+import { ModifierKeyEnum } from '../types-utils/html-types';
+import { Halign, HorizontalWheelScrollingAllowed, SelectionAreaType, TextTruncateType } from '../types-utils/types';
 import { defaultSettingsProperties } from './default-grid-settings';
 
 export class GridSettingsAccessor implements LoadableGridSettings {
@@ -296,7 +295,7 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get noDataMessage() { return this._raw.noDataMessage; }
     set noDataMessage(value: string) { this._raw.noDataMessage = value; }
     get primarySelectionAreaType() { return this._raw.primarySelectionAreaType; }
-    set primarySelectionAreaType(value: SelectionArea.Type) { this._raw.primarySelectionAreaType = value; }
+    set primarySelectionAreaType(value: SelectionAreaType) { this._raw.primarySelectionAreaType = value; }
     propClassLayers: GridSettings.propClassEnum;
     get readOnly() { return this._raw.readOnly; }
     set readOnly(value: boolean) { this._raw.readOnly = value; }
@@ -342,7 +341,7 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     get scrollingEnabled() { return this._raw.scrollingEnabled; }
     set scrollingEnabled(value: boolean) { this._raw.scrollingEnabled = value; }
     get secondarySelectionAreaType() { return this._raw.secondarySelectionAreaType; }
-    set secondarySelectionAreaType(value: SelectionArea.Type) { this._raw.secondarySelectionAreaType = value; }
+    set secondarySelectionAreaType(value: SelectionAreaType) { this._raw.secondarySelectionAreaType = value; }
     get secondarySelectionAreaTypeSpecifierModifierKey() { return this._raw.secondarySelectionAreaTypeSpecifierModifierKey; }
     set secondarySelectionAreaTypeSpecifierModifierKey(value: ModifierKeyEnum | undefined) { this._raw.secondarySelectionAreaTypeSpecifierModifierKey = value; }
     /** Stroke color for last selection overlay. */
@@ -414,162 +413,6 @@ export class GridSettingsAccessor implements LoadableGridSettings {
     set columnIndexes(schemaColumnIndexes: number[]) {
         this._raw.columnIndexes = schemaColumnIndexes;
     }
-
-    /**
-     * @memberOf module:dynamicProperties
-     */
-    // get rows()  { // to be called with grid.properties as context
-    //     const subgrids = {};
-    //     const behavior = this.grid.behavior;
-    //     const defaultRowHeight = this.grid.properties.defaultRowHeight;
-    //     behavior.subgrids.forEach((dataModel) => {
-    //         const key = dataModel.name || dataModel.type;
-    //         for (let rowIndex = 0, rowCount = dataModel.getRowCount(); rowIndex < rowCount; ++rowIndex) {
-    //             let rowProps = behavior.getRowProperties(rowIndex, undefined, dataModel);
-    //             if (rowProps) {
-    //                 // create height mixin by invoking `height` getter
-    //                 const height = { height: rowProps.height };
-    //                 if (height.height === defaultRowHeight) {
-    //                     height = undefined;
-    //                 }
-
-    //                 // clone it and mix in height
-    //                 rowProps = Object.assign({}, rowProps, height);
-
-    //                 // only include if at least one defined prop
-    //                 if (Object.getOwnPropertyNames(rowProps).find(definedProp)) {
-    //                     var subgrid = subgrids[key] || (subgrids[key] = {});
-    //                     subgrid[rowIndex] = rowProps;
-    //                 }
-    //             }
-    //         }
-    //         function definedProp(key) { return rowProps[key] !== undefined; }
-    //     });
-    //     return subgrids;
-    // }
-    // set rows(rowsHash) {
-    //     if (rowsHash) {
-    //         // setRowPropertiesBySubgridAndRowIndex
-    //         // to be called with grid.properties as context
-
-    //         var behavior = this.grid.behavior,
-    //         methodName = this.settingState ? 'setRowProperties' : 'addRowProperties';
-
-    //         Object.keys(rowsHash).forEach(function(subgridName) {
-    //             var subgrid = behavior.subgrids.lookup[subgridName];
-    //             if (subgrid) {
-    //                 var subgridHash = rowsHash[subgridName];
-    //                 Object.keys(subgridHash).forEach(function(rowIndex) {
-    //                     var properties = subgridHash[rowIndex];
-    //                     behavior[methodName](rowIndex, properties, subgrid);
-    //                 });
-    //             }
-    //         });
-
-    //         this.grid.behavior.changed();
-    //     }
-    // }
-
-    /**
-     * @memberOf module:dynamicProperties
-     */
-    // get columns() { // to be called with grid.properties as context
-    //     // getColumnPropertiesByColumnIndexOrName
-    //     const columns = this.grid.behavior.getColumns();
-    //     const headerify = this.grid.headerify;
-    //     return columns.reduce(function(obj, column) {
-    //         var properties = Object.keys(column.properties).reduce(function(properties, key) {
-    //             switch (key) {
-    //                 case 'preferredWidth': // not a public property
-    //                     break;
-    //                 case 'header':
-    //                     if (headerify && column.properties.header === headerify(column.properties.name)) {
-    //                         break;
-    //                     }
-    //                     // fallthrough
-    //                 default:
-    //                     properties[key] = column.properties[key];
-    //             }
-    //             return properties;
-    //         }, {});
-    //         if (Object.keys(properties).length) {
-    //             obj[column.name] = properties;
-    //         }
-    //         return obj;
-    //     }, {});
-    // }
-    // set columns(columnsHash) {
-    //     if (columnsHash) {
-    //         // to be called with grid.properties as context
-    //         // setColumnPropertiesByColumnIndexOrName
-    //         this.grid.behavior.addAllColumnProperties(columnsHash, settingState);
-    //         this.grid.behavior.changed();
-    //     }
-    // }
-
-    // get columnProperties() { return this.columns; }
-    // set columnProperties(value) { this.columns = value; }
-
-    /**
-     * @memberOf module:dynamicProperties
-     */
-    // get cells() {
-    //     // getCellPropertiesByColumnNameAndRowIndex
-    //     var behavior = this.grid.behavior,
-    //         columns = behavior.getColumns(),
-    //         subgrids = {};
-
-    //     behavior.subgrids.forEach(function(dataModel) {
-    //         const key = dataModel.name || dataModel.type;
-
-    //         for (var rowIndex = 0, rowCount = dataModel.getRowCount(); rowIndex < rowCount; ++rowIndex) {
-    //             columns.forEach(copyCellOwnProperties);
-    //         }
-
-    //         function copyCellOwnProperties(column) {
-    //             var properties = behavior.getCellOwnProperties(column.index, rowIndex, dataModel);
-    //             if (properties) {
-    //                 var subgrid = subgrids[key] = subgrids[key] || {},
-    //                     row = subgrid[rowIndex] = subgrid[rowIndex] = {};
-    //                 row[column.name] = Object.assign({}, properties);
-    //             }
-    //         }
-    //     });
-
-    //     return subgrids;
-    // }
-    // set cells(cellsHash) {
-    //     if (cellsHash) {
-    //         // setCellPropertiesByColumnNameAndRowIndex
-    //         // to be called with grid.properties as context
-    //         const subgrids = this.grid.behavior.subgrids;
-    //         const columns = this.grid.behavior.getColumns();
-    //         const methodName = this.settingState ? 'setCellProperties' : 'addCellProperties';
-
-    //         Object.keys(cellsHash).forEach(function(subgridName) {
-    //             var subgrid = subgrids.lookup[subgridName];
-    //             if (subgrid) {
-    //                 var subgridHash = cellsHash[subgridName];
-    //                 Object.keys(subgridHash).forEach(function(rowIndex) {
-    //                     var columnProps = subgridHash[rowIndex];
-    //                     Object.keys(columnProps).forEach(function(columnName) {
-    //                         var properties = columnProps[columnName];
-    //                         if (properties) {
-    //                             var column = columns.find(function(column) {
-    //                                 return column.name === columnName;
-    //                             });
-    //                             if (column) {
-    //                                 column[methodName](rowIndex, properties, subgrid);
-    //                             }
-    //                         }
-    //                     });
-    //                 });
-    //             }
-    //         });
-
-    //         this.grid.behavior.changed();
-    //     }
-    // }
 
     /** @summary Grid line color.
      * @desc This is a Legacy property. It is now implemented as a dynamic property accessor:

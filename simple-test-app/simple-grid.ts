@@ -31,7 +31,7 @@ export class SimpleGrid extends Revgrid {
         const adapterSet = new RevSimpleAdapterSet();
 
         const adapterSetConfig: AdapterSetConfig = {
-            schemaModel: adapterSet.schemaAdapter,
+            schemaServer: adapterSet.schemaAdapter,
             subgrids: [
                 {
                     role: SubgridInterface.RoleEnum.header,

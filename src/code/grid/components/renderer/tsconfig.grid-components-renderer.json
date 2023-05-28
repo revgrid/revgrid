@@ -12,6 +12,6 @@
 
   "references": [
     { "path": "grid-painter/tsconfig.grid-components-renderer-grid-painter.json" },
-    { "path": "../../lib/tsconfig.grid-lib.json" }
+    { "path": "../../types-utils/tsconfig.grid-types-utils.json" }
   ]
 }

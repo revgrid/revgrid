@@ -1,16 +1,16 @@
-import { DataModel, SchemaModel } from '..';
+import { DataServer, SchemaServer } from '..';
 import { SchemaAdapter } from './schema-adapter';
 
-export class HeaderDataAdapter implements DataModel {
+export class HeaderDataAdapter implements DataServer {
     getRowCount() {
         return 1;
     }
 
-    getValue(schemaColumn: SchemaModel.Column) {
+    getValue(schemaColumn: SchemaServer.Column) {
         return (schemaColumn as SchemaAdapter.Column).header;
     }
 
-    addDataCallbackListener() {
+    subscribeNotifications() {
         // not used
     }
 }

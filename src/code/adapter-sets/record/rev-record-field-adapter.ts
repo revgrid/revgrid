@@ -1,11 +1,11 @@
-import { ListChangedEventHandler, ListChangedTypeId, SchemaModel } from '../../grid/grid-public-api';
+import { ListChangedEventHandler, ListChangedTypeId, SchemaServer } from '../../grid/grid-public-api';
 import { RevRecordSchemaError, RevRecordUnexpectedUndefinedError } from './rev-record-error';
 import { RevRecordField } from './rev-record-field';
 import { RevRecordStore } from './rev-record-store';
 import { RevRecordFieldIndex } from './rev-record-types';
 
 /** @public */
-export class RevRecordFieldAdapter implements SchemaModel {
+export class RevRecordFieldAdapter implements SchemaServer {
     /** @internal */
     fieldListChangedEventer: ListChangedEventHandler | undefined;
 
@@ -16,7 +16,7 @@ export class RevRecordFieldAdapter implements SchemaModel {
     private readonly _fieldValueDependsOnRecordIndexFieldIndexes: RevRecordFieldIndex[] = [];
     private readonly _fieldValueDependsOnRowIndexFieldIndexes: RevRecordFieldIndex[] = [];
 
-    private _callbackListener: SchemaModel.CallbackListener;
+    private _callbackListener: SchemaServer.NotificationsClient;
     /** @deprecated removed when RecordStore is removed from this class */
     private _recordStoreEventersSet = false;
 
@@ -29,7 +29,7 @@ export class RevRecordFieldAdapter implements SchemaModel {
         private readonly _recordStore?: RevRecordStore) {
     }
 
-    addSchemaCallbackListener(value: SchemaModel.CallbackListener): void {
+    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient): void {
         this._callbackListener = value;
     }
 
@@ -175,7 +175,7 @@ export class RevRecordFieldAdapter implements SchemaModel {
         return this._fieldValueDependsOnRecordIndexFieldIndexes;
     }
 
-    getSchema(): readonly SchemaModel.Column[] {
+    getSchema(): readonly SchemaServer.Column[] {
         return this._schema;
     }
 

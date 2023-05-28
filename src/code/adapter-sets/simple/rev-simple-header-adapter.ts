@@ -1,18 +1,18 @@
 
-import { AssertError, DataModel } from '../../grid/grid-public-api';
+import { AssertError, DataServer } from '../../grid/grid-public-api';
 import { RevSimpleSchemaAdapter } from './rev-simple-schema-adapter';
 
 /** @public */
-export class RevSimpleHeaderAdapter implements DataModel {
+export class RevSimpleHeaderAdapter implements DataServer {
 
     private _rowCount = 0;
-    private _callbackListeners: DataModel.CallbackListener[] = [];
+    private _callbackListeners: DataServer.NotificationsClient[] = [];
 
-    addDataCallbackListener(listener: DataModel.CallbackListener) {
+    subscribeDataNotifications(listener: DataServer.NotificationsClient) {
         this._callbackListeners.push(listener)
     }
 
-    removeDataCallbackListener(listener: DataModel.CallbackListener) {
+    unsubscribeDataNotifications(listener: DataServer.NotificationsClient) {
         const idx = this._callbackListeners.findIndex((element) => element === listener);
         if (idx < 0) {
             throw new AssertError('HSARDCL65539', 'HeaderStaticAdapter: CallbackListener not found');

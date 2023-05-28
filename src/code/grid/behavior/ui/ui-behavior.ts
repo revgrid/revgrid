@@ -4,20 +4,20 @@ import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { Focus } from '../../components/focus/focus';
-import { ReindexStashManager } from '../../components/model-callback-router/reindex-stash-manager';
 import { Mouse } from '../../components/mouse/mouse';
 import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
-import { Subgrid } from '../../components/subgrid/subgrid';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { GridSettings } from '../../interfaces/grid-settings';
-import { Point } from '../../lib/point';
+import { MainSubgrid } from '../../interfaces/server/main-subgrid';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { Point } from '../../types-utils/point';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
 import { FocusScrollBehavior } from '../component/focus-scroll-behavior';
 import { FocusSelectBehavior } from '../component/focus-select-behavior';
+import { ReindexBehavior } from '../component/reindex-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
 import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
@@ -40,7 +40,7 @@ export abstract class UiBehavior {
     protected readonly subgridsManager: SubgridsManager;
     protected readonly viewLayout: ViewLayout;
     protected readonly renderer: Renderer;
-    protected readonly reindexStashManager: ReindexStashManager;
+    protected readonly reindexBehavior: ReindexBehavior;
 
     protected readonly mouse: Mouse;
 
@@ -51,7 +51,7 @@ export abstract class UiBehavior {
     protected readonly dataExtractBehavior: DataExtractBehavior;
     protected readonly eventBehavior: EventBehavior;
 
-    protected readonly mainSubgrid: Subgrid;
+    protected readonly mainSubgrid: MainSubgrid;
 
     constructor(services: UiBehaviorServices) {
         this.sharedState = services.sharedState;
@@ -65,7 +65,7 @@ export abstract class UiBehavior {
         this.subgridsManager = services.subgridsManager;
         this.viewLayout = services.viewLayout;
         this.renderer = services.renderer;
-        this.reindexStashManager = services.reindexStashManager;
+        this.reindexBehavior = services.reindexBehavior;
 
         this.mouse = services.mouse;
 

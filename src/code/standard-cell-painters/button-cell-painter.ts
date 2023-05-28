@@ -1,5 +1,5 @@
 
-import { CachedCanvasRenderingContext2D, CellPainter, RectangleInterface } from '../grid/grid-public-api';
+import { CachedCanvasRenderingContext2D, CellPainter, Rectangle } from '../grid/grid-public-api';
 
 /**
  * The default cell rendering function for a button cell.
@@ -56,7 +56,7 @@ export namespace ButtonCellPainter {
 
     export interface Config {
         value: string;
-        bounds: RectangleInterface;
+        bounds: Rectangle;
         backgroundColor: string;
     }
 }

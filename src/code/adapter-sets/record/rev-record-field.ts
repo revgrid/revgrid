@@ -1,4 +1,4 @@
-import { DataModel, SchemaModel } from '../../grid/grid-public-api';
+import { DataServer, SchemaServer } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 
 /** Provides access to a field
@@ -10,7 +10,7 @@ export interface RevRecordField {
      * Retrieves the value of a field for display purposes
      * @param record - The record to compare to
      */
-    getValue(record: RevRecord): DataModel.DataValue;
+    getValue(record: RevRecord): DataServer.DataValue;
 
     /**
      * Compares two records based on this field for sorting in ascending order
@@ -35,7 +35,7 @@ export interface RevRecordField {
 
 /** @public */
 export namespace RevRecordField {
-    export interface SchemaColumn extends SchemaModel.Column {
+    export interface SchemaColumn extends SchemaServer.Column {
         field: RevRecordField;
     }
 

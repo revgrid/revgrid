@@ -1,7 +1,6 @@
 
 import { ViewCell } from '../../components/cell/view-cell';
-import { ColumnWidth } from '../../components/column/column';
-import { ColumnInterface } from '../../interfaces/column-interface';
+import { Column, ColumnWidth } from '../../interfaces/server/column';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -9,7 +8,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
 
     readonly typeName = ColumnResizingUiBehavior.typeName;
 
-    private _dragColumn: ColumnInterface | undefined;
+    private _dragColumn: Column | undefined;
 
     /**
      * the pixel location of the where the drag was initiated
@@ -22,7 +21,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
     private _dragStartWidth = -1;
 
     private _inPlaceAdjacentStartWidth: number;
-    private _inPlaceAdjacentColumn: ColumnInterface | undefined;
+    private _inPlaceAdjacentColumn: Column | undefined;
 
     override handlePointerDrag(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (this._dragColumn !== undefined) {
@@ -151,7 +150,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                 this._dragStart = canvasOffsetX;
 
                 if (this._dragColumn.settings.resizeColumnInPlace) {
-                    let column: ColumnInterface | undefined;
+                    let column: Column | undefined;
 
                     if (!gridRightBottomAligned) {
                         vcIndex++;

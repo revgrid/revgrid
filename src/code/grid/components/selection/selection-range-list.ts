@@ -1,4 +1,4 @@
-import { ContiguousIndexRangeList } from '../../lib/contiguous-index-range-list';
+import { ContiguousIndexRangeList } from './contiguous-index-range-list';
 import { SelectionAreaList } from './selection-area-list';
 
 /**

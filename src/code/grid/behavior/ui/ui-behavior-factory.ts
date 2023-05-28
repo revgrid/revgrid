@@ -1,5 +1,5 @@
 
-import { Registry } from '../../lib/registry';
+import { Registry } from '../../types-utils/registry';
 import { CellClickUiBehavior } from './cell-click-ui-behavior';
 import { ClipboardUiBehavior } from './clipboard-ui-action';
 import { ColumnMovingUiBehavior } from './column-moving-ui-behavior';

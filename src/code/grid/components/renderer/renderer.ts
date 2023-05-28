@@ -1,10 +1,10 @@
 import { Animation } from '../../components/canvas/animation';
-import { CachedCanvasRenderingContext2D } from '../../components/canvas/cached-canvas-rendering-context-2d';
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
-import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema-model';
-import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
+import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/server/schema-server';
 import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
+import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
+import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';

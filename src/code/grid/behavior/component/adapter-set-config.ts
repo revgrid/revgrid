@@ -1,9 +1,9 @@
 import { SubgridDefinition } from '../../components/subgrid/subgrid-definition';
-import { SchemaModel } from '../../interfaces/schema-model';
+import { SchemaServer } from '../../interfaces/server/schema-server';
 
 /** @public */
 export interface AdapterSetConfig {
-    schemaModel: (SchemaModel | SchemaModel.Constructor),
+    schemaServer: (SchemaServer | SchemaServer.Constructor),
     /** Pass in DataModel via subgrids. Recommend supply DataModel for main subgrid however ok to use LocalHeaderDataModel for header */
     subgrids: SubgridDefinition[],
 }

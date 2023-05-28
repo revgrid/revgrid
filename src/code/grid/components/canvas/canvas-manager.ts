@@ -11,13 +11,13 @@
 //     window.CustomEvent.prototype = window.Event.prototype;
 // }
 
-import { CssClassName } from '../../lib/html-types';
-import { Point } from '../../lib/point';
-import { Rectangle } from '../../lib/rectangle';
-import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
-import { Writable } from '../../lib/types';
 import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
-import { CachedCanvasRenderingContext2D } from './cached-canvas-rendering-context-2d';
+import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
+import { CssClassName } from '../../types-utils/html-types';
+import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
+import { Point } from '../../types-utils/point';
+import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { Writable } from '../../types-utils/types';
 
 /** @public */
 export class CanvasManager {
@@ -84,7 +84,7 @@ export class CanvasManager {
     private _flooredContainerHeight: number;
     // bodyZoomFactor: number;
     /** @internal */
-    private _bounds = new Rectangle(0, 0, 0, 0);
+    private _bounds = new InexclusiveRectangle(0, 0, 0, 0);
     /** @internal */
     private _devicePixelRatio = 1;
     /** @internal */
@@ -423,7 +423,7 @@ export class CanvasManager {
 
         this.gc.scale(ratio, ratio);
 
-        this._bounds = new Rectangle(0, 0, width, height);
+        this._bounds = new InexclusiveRectangle(0, 0, width, height);
 
         if (this._started) {
             this.fireResizedEvent(debounceEvent);

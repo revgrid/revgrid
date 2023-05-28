@@ -1,4 +1,4 @@
-import { Formatter, RectangleInterface, Revgrid, ViewCell, WritablePoint } from '../grid/grid-public-api';
+import { Formatter, Rectangle, Revgrid, ViewCell, WritablePoint } from '../grid/grid-public-api';
 import { Effect, effectFactory } from './effects/effects';
 
 export abstract class CellEditor {
@@ -407,7 +407,7 @@ export abstract class CellEditor {
      * @desc set the bounds of my input control
      * @param rectangle - the bounds to move to
      */
-    setBounds(cellBounds: RectangleInterface) {
+    setBounds(cellBounds: Rectangle) {
         const style = this.el.style;
 
         style.left = numberToPixels(cellBounds.x);

@@ -3,18 +3,18 @@ import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { Focus } from '../../components/focus/focus';
-import { ReindexStashManager } from '../../components/model-callback-router/reindex-stash-manager';
 import { Mouse } from '../../components/mouse/mouse';
 import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { GridSettings } from '../../interfaces/grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
 import { FocusScrollBehavior } from '../component/focus-scroll-behavior';
 import { FocusSelectBehavior } from '../component/focus-select-behavior';
+import { ReindexBehavior } from '../component/reindex-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
 import { UiBehavior } from './ui-behavior';
 import { UiBehaviorFactory } from './ui-behavior-factory';
@@ -40,7 +40,7 @@ export class UiBehaviorManager {
         subgridsManager: SubgridsManager,
         viewLayout: ViewLayout,
         renderer: Renderer,
-        reindexStashManager: ReindexStashManager,
+        reindexBehavior: ReindexBehavior,
         mouse: Mouse,
         focusScrollBehavior: FocusScrollBehavior,
         selectionBehavior: FocusSelectBehavior,
@@ -62,8 +62,8 @@ export class UiBehaviorManager {
             subgridsManager,
             viewLayout,
             renderer,
-            reindexStashManager,
             mouse,
+            reindexBehavior,
             focusScrollBehavior,
             selectionBehavior,
             rowPropertiesBehavior,

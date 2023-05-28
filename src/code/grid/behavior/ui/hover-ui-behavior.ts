@@ -1,6 +1,6 @@
 
 import { ViewCell } from '../../components/cell/view-cell';
-import { Point } from '../../lib/point';
+import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */

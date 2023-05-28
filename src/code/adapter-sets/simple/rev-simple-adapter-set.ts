@@ -1,4 +1,4 @@
-import { AssertError, DataModel } from '../../grid/grid-public-api';
+import { AssertError, DataServer } from '../../grid/grid-public-api';
 import { RevSimpleHeaderAdapter } from './rev-simple-header-adapter';
 import { RevSimpleMainAdapter } from './rev-simple-main-adapter';
 import { RevSimpleSchemaAdapter } from './rev-simple-schema-adapter';
@@ -145,7 +145,7 @@ export class RevSimpleAdapterSet {
 /** @public */
 export namespace RevSimpleAdapterSet {
     export interface DataRow extends RevSimpleMainAdapter.DataRow {
-        [columnName: string]: DataModel.DataValue | string; // can also have header
+        [columnName: string]: DataServer.DataValue | string; // can also have header
     }
 }
 

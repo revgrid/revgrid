@@ -1,15 +1,15 @@
-import { AssertError, SchemaModel } from '../../grid/grid-public-api';
+import { AssertError, SchemaServer } from '../../grid/grid-public-api';
 
 /** @public */
-export class RevSimpleSchemaAdapter implements SchemaModel {
-    private _schemaCallbackListeners: SchemaModel.CallbackListener[] = [];
+export class RevSimpleSchemaAdapter implements SchemaServer {
+    private _schemaCallbackListeners: SchemaServer.NotificationsClient[] = [];
     private _columns = new Array<RevSimpleSchemaAdapter.Column>();
 
-    addSchemaCallbackListener(listener: SchemaModel.CallbackListener) {
+    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient) {
         this._schemaCallbackListeners.push(listener)
     }
 
-    removeSchemaCallbackListener(listener: SchemaModel.CallbackListener) {
+    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient) {
         const idx = this._schemaCallbackListeners.findIndex((element) => element === listener);
         if (idx < 0) {
             throw new AssertError('LMDMRSCL91364', 'LocalMainSchemaModel: SchemaCallbackListener not found');
@@ -40,7 +40,7 @@ export class RevSimpleSchemaAdapter implements SchemaModel {
 
 /** @public */
 export namespace RevSimpleSchemaAdapter {
-    export interface Column extends SchemaModel.Column {
+    export interface Column extends SchemaServer.Column {
         headers: string[];
     }
 }

@@ -12,7 +12,6 @@
 
   "references": [
     { "path": "../../components/scroller/tsconfig.grid-components-scroller.json" },
-    { "path": "../../components/model-callback-router/tsconfig.grid-components-model-callback-router.json" },
     { "path": "../../components/renderer/tsconfig.grid-components-renderer.json" },
     { "path": "../../components/selection/tsconfig.grid-components-selection.json" },
     { "path": "../../components/focus/tsconfig.grid-components-focus.json" },
@@ -23,7 +22,8 @@
     { "path": "../../components/event/tsconfig.grid-components-event.json" },
     { "path": "../../components/canvas/tsconfig.grid-components-canvas.json" },
     { "path": "../../settings-accessors/tsconfig.grid-settings-accessors.json" },
-    { "path": "../../interfaces/tsconfig.grid-interfaces.json" },
-    { "path": "../../lib/tsconfig.grid-lib.json" },
+    { "path": "../../interfaces/server/tsconfig.grid-interfaces-server.json" },
+    { "path": "../../interfaces/settings/tsconfig.grid-interfaces-settings.json" },
+    { "path": "../../types-utils/tsconfig.grid-types-utils.json" },
   ]
 }

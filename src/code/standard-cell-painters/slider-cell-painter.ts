@@ -1,5 +1,5 @@
 
-import { CachedCanvasRenderingContext2D, CellPainter, RectangleInterface } from '../grid/grid-public-api';
+import { CachedCanvasRenderingContext2D, CellPainter, Rectangle } from '../grid/grid-public-api';
 
 /**
  * Renders a slider button.
@@ -48,7 +48,7 @@ export namespace SliderCellPainter {
 
     export interface Config {
         value: number;
-        bounds: RectangleInterface;
+        bounds: Rectangle;
         backgroundColor: string;
         isSelected: boolean;
     }

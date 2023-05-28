@@ -1,5 +1,5 @@
-import { GridSettings } from '../../../interfaces/grid-settings';
-import { CachedCanvasRenderingContext2D } from '../../canvas/cached-canvas-rendering-context-2d';
+import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';

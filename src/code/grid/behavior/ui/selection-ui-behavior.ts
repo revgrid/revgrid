@@ -1,13 +1,13 @@
 
 import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { GridSettings } from '../../interfaces/grid-settings';
-import { SubgridInterface } from '../../interfaces/subgrid-interface';
-import { CursorNames, isSecondaryMouseButton } from '../../lib/html-types';
-import { Point } from '../../lib/point';
-import { AssertError, UnreachableCaseError } from '../../lib/revgrid-error';
-import { SelectionArea } from '../../lib/selection-area';
-import { StartLength } from '../../lib/start-length';
+import { Subgrid } from '../../interfaces/server/subgrid';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { CursorNames, isSecondaryMouseButton } from '../../types-utils/html-types';
+import { Point } from '../../types-utils/point';
+import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { StartLength } from '../../types-utils/start-length';
+import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils/types';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -180,7 +180,7 @@ export class SelectionUiBehavior extends UiBehavior {
                     this.pingAutoScroll();
                 }
             } else {
-                const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionArea.TypeSpecifier.Primary);
+                const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
                 this.focusSelectBehavior.selectOnlyFocusedCell(areaType);
             }
         }
@@ -194,7 +194,7 @@ export class SelectionUiBehavior extends UiBehavior {
         if (!GridSettings.isMouseSelectionAllowed(this.gridSettings, areaType)) {
             return false;
         } else {
-            const subgrid = cell.subgrid;
+            const subgrid = cell.subgrid as Subgrid;
             const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
             const selection = this.selection;
@@ -203,7 +203,7 @@ export class SelectionUiBehavior extends UiBehavior {
             const lastArea = this.selection.lastArea;
 
             if (extendModifier && !addToggleModifier) {
-                if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Rectangle) {
+                if (lastArea !== undefined && lastArea.areaType === SelectionAreaType.Rectangle) {
                     const origin = lastArea.inclusiveFirst;
                     const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
                     const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
@@ -248,7 +248,7 @@ export class SelectionUiBehavior extends UiBehavior {
 
             const focusSelectionBehavior = this.focusSelectBehavior;
             if (extendModifier && !addToggleModifier) {
-                if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Column) {
+                if (lastArea !== undefined && lastArea.areaType === SelectionAreaType.Column) {
                     const origin = lastArea.inclusiveFirst;
                     const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
                     const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
@@ -292,7 +292,7 @@ export class SelectionUiBehavior extends UiBehavior {
 
             const focusSelectionBehavior = this.focusSelectBehavior;
             if (extendModifier && !addToggleModifier) {
-                if (lastArea !== undefined && lastArea.areaType === SelectionArea.Type.Row) {
+                if (lastArea !== undefined && lastArea.areaType === SelectionAreaType.Row) {
                     const origin = lastArea.inclusiveFirst;
                     const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, cellActiveColumnIndex);
                     const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
@@ -332,8 +332,8 @@ export class SelectionUiBehavior extends UiBehavior {
         if (lastArea === undefined) {
             throw new AssertError('SUBULSA54455');
         } else {
-            const subgrid = cell.subgrid;
-            if (lastArea.areaType === SelectionArea.Type.Column || subgrid === selection.subgrid) {
+            const subgrid = cell.subgrid as Subgrid;
+            if (lastArea.areaType === SelectionAreaType.Column || subgrid === selection.subgrid) {
                 const origin = lastArea.inclusiveFirst;
                 const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.x, cell.viewLayoutColumn.activeColumnIndex);
                 const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.y, cell.viewLayoutRow.subgridRowIndex);
@@ -421,7 +421,7 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    private selectOnlyCell(originX: number, originY: number, subgrid: SubgridInterface, areaType: SelectionArea.Type) {
+    private selectOnlyCell(originX: number, originY: number, subgrid: Subgrid, areaType: SelectionAreaType) {
         let lastActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
 
@@ -449,9 +449,9 @@ export class SelectionUiBehavior extends UiBehavior {
             return undefined;
         } else {
             switch (lastArea.areaType) {
-                case SelectionArea.Type.Rectangle: return EventDetail.DragTypeEnum.ExtendLastRectangleSelectionArea;
-                case SelectionArea.Type.Column: return EventDetail.DragTypeEnum.ExtendLastColumnSelectionArea;
-                case SelectionArea.Type.Row: return EventDetail.DragTypeEnum.ExtendLastRowSelectionArea;
+                case SelectionAreaType.Rectangle: return EventDetail.DragTypeEnum.ExtendLastRectangleSelectionArea;
+                case SelectionAreaType.Column: return EventDetail.DragTypeEnum.ExtendLastColumnSelectionArea;
+                case SelectionAreaType.Row: return EventDetail.DragTypeEnum.ExtendLastRowSelectionArea;
                 default:
                     throw new UnreachableCaseError('SUBGDTFSLA59598', lastArea.areaType);
             }
@@ -481,8 +481,8 @@ export namespace SelectionUiBehavior {
     export const typeName = 'selection';
 
     export interface ExtendSelectOrigin {
-        readonly areaType: SelectionArea.Type,
-        readonly subgrid: SubgridInterface;
+        readonly areaType: SelectionAreaType,
+        readonly subgrid: Subgrid;
         readonly point: Point;
     }
 

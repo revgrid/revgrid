@@ -1,4 +1,4 @@
-import { AssertError } from '../../lib/revgrid-error';
+import { AssertError } from '../../types-utils/revgrid-error';
 import { ViewCell } from '../cell/view-cell';
 import { ViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';

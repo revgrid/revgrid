@@ -1,6 +1,7 @@
 
 import { ViewCell } from '../../components/cell/view-cell';
 import { ScrollDimension } from '../../components/view/scroll-dimension';
+import { Rectangle } from '../../types-utils/rectangle';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -178,7 +179,7 @@ export namespace TouchScrollingUiBehavior {
     export const MAX_TOUCHES = 70;
     export const DEC_STEP_SIZE = 5;
 
-    export interface TouchedBounds extends ViewCell.Bounds {
+    export interface TouchedBounds extends Rectangle {
         timestamp: number;
     }
 }

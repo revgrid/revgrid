@@ -1,10 +1,10 @@
-import { ColumnInterface } from '../../interfaces/column-interface';
-import { ColumnSettings } from '../../interfaces/column-settings';
-import { GridSettings } from '../../interfaces/grid-settings';
-import { SchemaModel } from '../../interfaces/schema-model';
-import { AssertError } from '../../lib/revgrid-error';
-import { ColumnNameWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../lib/types';
-import { Column, ColumnWidth } from './column';
+import { Column, ColumnWidth } from '../../interfaces/server/column';
+import { SchemaServer } from '../../interfaces/server/schema-server';
+import { ColumnSettings } from '../../interfaces/settings/column-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { AssertError } from '../../types-utils/revgrid-error';
+import { ColumnNameWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
+import { ColumnImplementation } from './column-implementation';
 
 /** @public */
 export class ColumnsManager {
@@ -33,7 +33,7 @@ export class ColumnsManager {
 
     /** @internal */
     constructor(
-        readonly schemaModel: SchemaModel,
+        readonly schemaServer: SchemaServer,
         private readonly _gridSettings: GridSettings,
         private readonly _invalidateScrollDimensionRequiredEventer: ColumnsManager.InvalidateScrollDimensionRequiredEventer,
     ) {
@@ -59,7 +59,7 @@ export class ColumnsManager {
 
     /** @internal */
     getSchema() {
-        return this.schemaModel.getSchema();
+        return this.schemaServer.getSchema();
     }
 
     /** @internal */
@@ -173,15 +173,15 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    newColumn(schemaColumn: SchemaModel.Column) {
-        return new Column(this._gridSettings, schemaColumn);
+    newColumn(schemaColumn: SchemaServer.Column) {
+        return new ColumnImplementation(this._gridSettings, schemaColumn);
     }
 
     /** @internal */
     createColumns() {
         this._beforeCreateColumnsListeners.forEach((listener) => listener());
 
-        const schema = this.schemaModel.getSchema();
+        const schema = this.schemaServer.getSchema();
         // fields.decorateSchema(schema);
         // fields.decorateColumnSchema(schema, this.grid.properties.headerify);
 
@@ -212,12 +212,12 @@ export class ColumnsManager {
 
     /** @internal */
     createDummyColumn() {
-        const schemaColumn: SchemaModel.Column = {
+        const schemaColumn: SchemaServer.Column = {
             index: -1,
             name: '',
             initialSettings: undefined,
         }
-        return new Column(this._gridSettings, schemaColumn);
+        return new ColumnImplementation(this._gridSettings, schemaColumn);
     }
 
     /** @internal */
@@ -263,8 +263,8 @@ export class ColumnsManager {
      * @param columnOrIndex - The column or active column index.
      * @internal
      */
-    setActiveColumnWidth(columnOrIndex: ColumnInterface | number, width: number | undefined, ui: boolean) {
-        let column: ColumnInterface
+    setActiveColumnWidth(columnOrIndex: Column | number, width: number | undefined, ui: boolean) {
+        let column: Column
         if (typeof columnOrIndex === 'number') {
             if (columnOrIndex >= 0) {
                 column = this.getActiveColumn(columnOrIndex);
@@ -286,7 +286,7 @@ export class ColumnsManager {
 
     /** @internal */
     setColumnWidths(columnWidths: ColumnWidth[], ui: boolean) {
-        const changedColumns = new Array<ColumnInterface>(columnWidths.length);
+        const changedColumns = new Array<Column>(columnWidths.length);
         let changedColumnsCount = 0;
         for (const columnWidth of columnWidths) {
             const { column, width } = columnWidth;
@@ -666,7 +666,7 @@ export class ColumnsManager {
 export namespace ColumnsManager {
     export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
     export type InvalidateScrollDimensionRequiredEventer = (this: void) => void;
-    export type ColumnsWidthChangedEventer = (this: void, columns: ColumnInterface[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventer = (this: void, columns: Column[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

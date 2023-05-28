@@ -1,7 +1,7 @@
 import { ViewCell } from '../components/cell/view-cell';
-import { Subgrid } from '../components/subgrid/subgrid';
-import { GridSettings } from '../interfaces/grid-settings';
-import { SchemaModel } from '../interfaces/schema-model';
+import { SchemaServer } from '../interfaces/server/schema-server';
+import { Subgrid } from '../interfaces/server/subgrid';
+import { GridSettings } from '../interfaces/settings/grid-settings';
 import { AdapterSetConfig } from './component/adapter-set-config';
 import { ComponentBehaviorManager } from './component/component-behavior-manager';
 import { EventBehavior } from './component/event-behavior';
@@ -64,7 +64,7 @@ export class BehaviorManager {
             this._componentBehaviorManager.subgridsManager,
             this._componentBehaviorManager.viewLayout,
             this._componentBehaviorManager.renderer,
-            this._componentBehaviorManager.reindexStashManager,
+            this._componentBehaviorManager.reindexBehavior,
             this._componentBehaviorManager.mouse,
             this._componentBehaviorManager.focusScrollBehavior,
             this._componentBehaviorManager.focusSelectBehavior,
@@ -81,7 +81,7 @@ export class BehaviorManager {
     get canvasManager() { return this._componentBehaviorManager.canvasManager; }
     get mouse() { return this._componentBehaviorManager.mouse; }
     get mainSubgrid() { return this._componentBehaviorManager.mainSubgrid; }
-    get mainDataModel() { return this._componentBehaviorManager.mainDataModel; }
+    get mainDataServer() { return this._componentBehaviorManager.mainDataServer; }
     get columnsManager() { return this._componentBehaviorManager.columnsManager; }
     get subgridsManager() { return this._componentBehaviorManager.subgridsManager; }
     get viewLayout() { return this._componentBehaviorManager.viewLayout; }
@@ -147,7 +147,7 @@ export class BehaviorManager {
         return this._componentBehaviorManager.getValue(x, y, subgrid);
     }
 
-    setValue(schemaColumn: SchemaModel.Column, x: number, y: number, value: unknown, subgrid?: Subgrid) {
+    setValue(schemaColumn: SchemaServer.Column, x: number, y: number, value: unknown, subgrid?: Subgrid) {
         this._componentBehaviorManager.setValue(schemaColumn, x, y, value, subgrid);
     }
 

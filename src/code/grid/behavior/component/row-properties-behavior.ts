@@ -1,8 +1,7 @@
 import { ViewCell } from '../../components/cell/view-cell';
-import { Subgrid } from '../../components/subgrid/subgrid';
 import { ViewLayout } from '../../components/view/view-layout';
-import { MetaModel } from '../../interfaces/meta-model';
-import { SubgridInterface } from '../../interfaces/subgrid-interface';
+import { MetaModel } from '../../interfaces/server/meta-model';
+import { Subgrid } from '../../interfaces/server/subgrid';
 
 export class RowPropertiesBehavior {
     constructor(private readonly _viewLayout: ViewLayout) {
@@ -30,7 +29,7 @@ export class RowPropertiesBehavior {
         this.setRowProperties(cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid)
     }
 
-    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined, subgrid: SubgridInterface): void {
+    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined, subgrid: Subgrid): void {
         const setSucceeded = subgrid.setRowProperties(rowIndex, properties);
         if (setSucceeded) {
             this._viewLayout.invalidateHorizontalAll(false);
@@ -49,7 +48,7 @@ export class RowPropertiesBehavior {
         this.setRowProperty(cell.viewLayoutRow.subgridRowIndex, key, value, cell.subgrid);
     }
 
-    setRowProperty(y: number, key: string, value: unknown, subgrid: SubgridInterface) {
+    setRowProperty(y: number, key: string, value: unknown, subgrid: Subgrid) {
         const isHeight = (key === 'height');
         const setSucceeded = subgrid.setRowProperty(y, key, isHeight, value);
         if (setSucceeded) {

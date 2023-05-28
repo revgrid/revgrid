@@ -12,7 +12,6 @@
 
   "references": [
     { "path": "../../settings-accessors/tsconfig.grid-settings-accessors.json" },
-    { "path": "../../interfaces/tsconfig.grid-interfaces.json" },
-    { "path": "../../lib/tsconfig.grid-lib.json" }
+    { "path": "../../types-utils/tsconfig.grid-types-utils.json" }
   ]
 }

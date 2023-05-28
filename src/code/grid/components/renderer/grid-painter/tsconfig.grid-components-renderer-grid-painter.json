@@ -17,6 +17,6 @@
     { "path": "../../selection/tsconfig.grid-components-selection.json" },
     { "path": "../../subgrid/tsconfig.grid-components-subgrid.json" },
     { "path": "../../view/tsconfig.grid-components-view.json" },
-    { "path": "../../../lib/tsconfig.grid-lib.json" }
+    { "path": "../../../types-utils/tsconfig.grid-types-utils.json" }
   ]
 }

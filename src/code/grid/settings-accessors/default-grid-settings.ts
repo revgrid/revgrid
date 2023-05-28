@@ -1,9 +1,8 @@
 
-import { GridSettings } from '../interfaces/grid-settings';
-import { ModifierKeyEnum } from '../lib/html-types';
-import { AssertError } from '../lib/revgrid-error';
-import { SelectionArea } from '../lib/selection-area';
-import { HorizontalWheelScrollingAllowed, TextTruncateType } from '../lib/types';
+import { GridSettings } from '../interfaces/settings/grid-settings';
+import { ModifierKeyEnum } from '../types-utils/html-types';
+import { AssertError } from '../types-utils/revgrid-error';
+import { HorizontalWheelScrollingAllowed, SelectionAreaType, TextTruncateType } from '../types-utils/types';
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -424,8 +423,8 @@ export const defaultSettingsProperties: Required<GridSettings> = {
     mouseColumnSelection: true,
     mouseRowSelection: true,
     singleRowSelectionMode: true,
-    primarySelectionAreaType: SelectionArea.Type.Rectangle,
-    secondarySelectionAreaType: SelectionArea.Type.Row,
+    primarySelectionAreaType: SelectionAreaType.Rectangle,
+    secondarySelectionAreaType: SelectionAreaType.Row,
     secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum.Alt,
     extendLastSelectionAreaModifierKey: ModifierKeyEnum.Shift,
     addToggleSelectionAreaModifierKey: ModifierKeyEnum.Control,

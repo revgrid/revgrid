@@ -1,4 +1,4 @@
-import { AssertError } from '../../lib/revgrid-error';
+import { AssertError } from '../../types-utils/revgrid-error';
 import { EventDetail } from '../event/event-detail';
 import { ScrollDimension } from '../view/scroll-dimension';
 import { cssInjector } from './css-injector';

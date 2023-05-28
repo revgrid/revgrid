@@ -1,14 +1,14 @@
 import { MainRecord } from 'main-record';
-import { ColumnSettings, SchemaModel } from '..';
+import { ColumnSettings, SchemaServer } from '..';
 
-export class SchemaAdapter implements SchemaModel {
-    private _callbackListener: SchemaModel.CallbackListener;
+export class SchemaAdapter implements SchemaServer {
+    private _callbackListener: SchemaServer.NotificationsClient;
 
     getSchema() {
         return SchemaAdapter.schema;
     }
 
-    addSchemaCallbackListener(listener: SchemaModel.CallbackListener) {
+    subscribeNotifications(listener: SchemaServer.NotificationsClient) {
         this._callbackListener = listener;
 
         this._callbackListener.schemaChanged();
@@ -16,7 +16,7 @@ export class SchemaAdapter implements SchemaModel {
 }
 
 export namespace SchemaAdapter {
-    export interface Column extends SchemaModel.Column {
+    export interface Column extends SchemaServer.Column {
         name: keyof MainRecord;
         index: number;
         header: string;

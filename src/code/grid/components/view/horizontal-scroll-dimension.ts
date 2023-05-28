@@ -1,5 +1,5 @@
-import { GridSettings } from '../../interfaces/grid-settings';
-import { HorizontalVertical } from '../../lib/types';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { HorizontalVertical } from '../../types-utils/types';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { ColumnsManager } from '../column/columns-manager';
 import { ScrollDimension } from './scroll-dimension';

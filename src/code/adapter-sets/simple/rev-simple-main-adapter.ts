@@ -1,17 +1,17 @@
-import { AssertError, DataModel, MetaModel, SchemaModel } from '../../grid/grid-public-api';
+import { AssertError, DataServer, MetaModel, SchemaServer } from '../../grid/grid-public-api';
 
 /** @public */
-export class RevSimpleMainAdapter implements DataModel {
-    public readonly mainDataModel = true;
+export class RevSimpleMainAdapter implements DataServer {
+    public readonly mainDataServer = true;
 
     private _data: RevSimpleMainAdapter.DataRow[] = [];
-    private _callbackListeners: DataModel.CallbackListener[] = [];
+    private _callbackListeners: DataServer.NotificationsClient[] = [];
 
-    addDataCallbackListener(listener: DataModel.CallbackListener) {
+    subscribeDataNotifications(listener: DataServer.NotificationsClient) {
         this._callbackListeners.push(listener)
     }
 
-    removeDataCallbackListener(listener: DataModel.CallbackListener) {
+    unsubscribeDataNotifications(listener: DataServer.NotificationsClient) {
         const idx = this._callbackListeners.findIndex((element) => element === listener);
         if (idx < 0) {
             throw new AssertError('MSARDCL65539', 'MainStaticAdapter: CallbackListener not found');
@@ -123,7 +123,7 @@ export class RevSimpleMainAdapter implements DataModel {
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
      */
-    getValue(schemaColumn: SchemaModel.Column, y: number) {
+    getValue(schemaColumn: SchemaServer.Column, y: number) {
         const row = this._data[y];
         if (!row) {
             return null;
@@ -134,7 +134,7 @@ export class RevSimpleMainAdapter implements DataModel {
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
      */
-    setValue(schemaColumn: SchemaModel.Column, y: number, value: unknown) {
+    setValue(schemaColumn: SchemaServer.Column, y: number, value: unknown) {
         this._data[y][schemaColumn.name] = value;
         this._callbackListeners.forEach((listener) => listener.invalidateCell(schemaColumn.index, y));
     }
@@ -157,8 +157,8 @@ export class RevSimpleMainAdapter implements DataModel {
 
 /** @public */
 export namespace RevSimpleMainAdapter {
-    export interface DataRow extends DataModel.ObjectDataRow {
-        [columnName: string]: DataModel.DataValue;
+    export interface DataRow extends DataServer.ObjectDataRow {
+        [columnName: string]: DataServer.DataValue;
         __META?: MetaModel.RowMetadata;
     }
 }

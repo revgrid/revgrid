@@ -1,17 +1,17 @@
-import { DataModel } from '../../interfaces/data-model';
-import { GridSettings } from '../../interfaces/grid-settings';
-import { MetaModel } from '../../interfaces/meta-model';
-import { SubgridInterface } from '../../interfaces/subgrid-interface';
-import { AssertError } from '../../lib/revgrid-error';
+import { DataServer } from '../../interfaces/server/data-server';
+import { MetaModel } from '../../interfaces/server/meta-model';
+import { Subgrid } from '../../interfaces/server/subgrid';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
-import { MainSubgrid } from './main-subgrid';
-import { Subgrid } from './subgrid';
+import { MainSubgridImplementation } from './main-subgrid-implementation';
 import { SubgridDefinition } from './subgrid-definition';
+import { SubgridImplementation } from './subgrid-implementation';
 
 export class SubgridsManager {
-    readonly mainSubgrid: MainSubgrid;
-    readonly subgrids = new Array<Subgrid>();
-    readonly _handledSubgrids = new Array<Subgrid | undefined>();
+    readonly mainSubgrid: MainSubgridImplementation;
+    readonly subgrids = new Array<SubgridImplementation>();
+    readonly _handledSubgrids = new Array<SubgridImplementation | undefined>();
 
 
     constructor(
@@ -20,17 +20,17 @@ export class SubgridsManager {
         definitions: SubgridDefinition[],
         defaultRowPropertiesPrototype: MetaModel.RowPropertiesPrototype,
     ) {
-        let mainSubgrid: MainSubgrid | undefined;
+        let mainSubgrid: MainSubgridImplementation | undefined;
         const subgrids = this.subgrids;
-        definitions.sort((left, right) => SubgridInterface.Role.gridOrderCompare(left.role, right.role));
+        definitions.sort((left, right) => Subgrid.Role.gridOrderCompare(left.role, right.role));
         for (const definition of definitions) {
             if (definition !== undefined) {
                 const subgridHandle = this._handledSubgrids.length;
                 const subgrid = this.createSubgridFromDefinition(subgridHandle, definition, defaultRowPropertiesPrototype);
                 subgrids.push(subgrid);
                 this._handledSubgrids.push(subgrid);
-                if (subgrid.role === SubgridInterface.RoleEnum.main) {
-                    mainSubgrid = subgrid as MainSubgrid;
+                if (subgrid.role === Subgrid.RoleEnum.main) {
+                    mainSubgrid = subgrid as MainSubgridImplementation;
                 }
             }
         }
@@ -46,7 +46,7 @@ export class SubgridsManager {
         this.destroySubgrids();
     }
 
-    getSubgridByHandle(handle: Subgrid.Handle) { return this._handledSubgrids[handle]; }
+    getSubgridByHandle(handle: SubgridImplementation.Handle) { return this._handledSubgrids[handle]; }
 
     /**
      * @summary Resolves a `subgridSpec` to a Subgrid (and its DataModel).
@@ -54,16 +54,16 @@ export class SubgridsManager {
      * @returns either Subgrid or MainSubgrid depending on role specified in Spec
      */
     private createSubgridFromDefinition(
-        subgridHandle: Subgrid.Handle,
+        subgridHandle: SubgridImplementation.Handle,
         definition: SubgridDefinition,
         defaultRowPropertiesPrototype: MetaModel.RowPropertiesPrototype,
     ) {
-        const role = definition.role ?? SubgridInterface.Role.defaultRole;
-        const isMainRole = role === SubgridInterface.RoleEnum.main;
+        const role = definition.role ?? Subgrid.Role.defaultRole;
+        const isMainRole = role === Subgrid.RoleEnum.main;
 
-        let dataModel = definition.dataModel;
-        if (typeof dataModel === 'function') {
-            dataModel = new dataModel();
+        let dataServer = definition.dataServer;
+        if (typeof dataServer === 'function') {
+            dataServer = new dataServer();
         }
         let metaModel = definition.metaModel;
         if (typeof metaModel === 'function') {
@@ -82,7 +82,7 @@ export class SubgridsManager {
         return this.createSubgrid(
             subgridHandle,
             role,
-            dataModel,
+            dataServer,
             metaModel,
             definition.getCellPainterEventer,
             selectable,
@@ -94,22 +94,22 @@ export class SubgridsManager {
 
     /** @returns either Subgrid or MainSubgrid depending on role */
     private createSubgrid(
-        subgridHandle: Subgrid.Handle,
-        role: SubgridInterface.Role, dataModel: DataModel, metaModel: MetaModel | undefined,
+        subgridHandle: SubgridImplementation.Handle,
+        role: Subgrid.Role, dataServer: DataServer, metaModel: MetaModel | undefined,
         getCellPainterEventer: SubgridDefinition.GetCellPainterEventer,
         selectable: boolean,
         defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
     ) {
-        let subgrid: Subgrid;
-        if (role === SubgridInterface.RoleEnum.main) {
-            subgrid = new MainSubgrid(
+        let subgrid: SubgridImplementation;
+        if (role === Subgrid.RoleEnum.main) {
+            subgrid = new MainSubgridImplementation(
                 this._gridSettings,
                 this._columnsManager,
                 subgridHandle,
                 role,
-                this._columnsManager.schemaModel,
-                dataModel,
+                this._columnsManager.schemaServer,
+                dataServer,
                 metaModel,
                 getCellPainterEventer,
                 selectable,
@@ -118,13 +118,13 @@ export class SubgridsManager {
                 rowPropertiesPrototype,
             );
         } else {
-            subgrid = new Subgrid(
+            subgrid = new SubgridImplementation(
                 this._gridSettings,
                 this._columnsManager,
                 subgridHandle,
                 role,
-                this._columnsManager.schemaModel,
-                dataModel,
+                this._columnsManager.schemaServer,
+                dataServer,
                 metaModel,
                 getCellPainterEventer,
                 selectable,

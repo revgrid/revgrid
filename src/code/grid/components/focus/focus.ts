@@ -1,19 +1,18 @@
-import { DataModel } from '../../interfaces/data-model';
-import { GridSettings } from '../../interfaces/grid-settings';
-import { SubgridInterface } from '../../interfaces/subgrid-interface';
-import { PartialPoint, Point } from '../../lib/point';
-import { AssertError } from '../../lib/revgrid-error';
-import { CellEditor } from '../cell/cell-editor';
+import { DataServer } from '../../interfaces/server/data-server';
+import { MainSubgrid } from '../../interfaces/server/main-subgrid';
+import { Subgrid } from '../../interfaces/server/subgrid';
+import { CellEditor } from '../../interfaces/serverless/cell-editor';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { PartialPoint, Point } from '../../types-utils/point';
+import { AssertError } from '../../types-utils/revgrid-error';
 import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
 export class Focus {
-    readonly subgrid: SubgridInterface;
-
-    /** @internal */
-    getCellEditorEventer: Focus.GetCellEditorEventer | undefined;
+    readonly subgrid: Subgrid;
+    readonly dataServer: DataServer;
 
     /** @internal */
     private _currentSubgridPoint: Point | undefined;
@@ -36,7 +35,7 @@ export class Focus {
         /** @internal */
         private readonly _gridSettings: GridSettings,
         /** @internal */
-        private readonly _mainSubgrid: SubgridInterface,
+        private readonly _mainSubgrid: MainSubgrid,
         /** @internal */
         private readonly _columnsManager: ColumnsManager,
         /** @internal */
@@ -45,6 +44,7 @@ export class Focus {
         private readonly _cellInvalidatedEventer: Focus.CellInvalidatedEventer,
     ) {
         this.subgrid = this._mainSubgrid;
+        this.dataServer = this.subgrid.dataServer;
         this._viewLayout.cellPoolComputedEventerForFocus = () => this.handelCellPoolComputedEvent();
     }
 
@@ -202,7 +202,7 @@ export class Focus {
         return this._currentSubgridPoint !== undefined && activeColumnIndex === this._currentSubgridPoint.x;
     }
 
-    isSubgridRowFocused(subgridRowIndex: number, subgrid: SubgridInterface) {
+    isSubgridRowFocused(subgridRowIndex: number, subgrid: Subgrid) {
         return subgrid === this._mainSubgrid && this.isMainSubgridRowFocused(subgridRowIndex);
     }
 
@@ -214,7 +214,7 @@ export class Focus {
         return cell === this._cell;
     }
 
-    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: SubgridInterface) {
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid) {
         return subgrid === this._mainSubgrid && this.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
     }
 
@@ -227,7 +227,7 @@ export class Focus {
     }
 
     tryOpenEditor(cell: ViewCell | undefined) {
-        if (this._editor === undefined && this.getCellEditorEventer !== undefined) {
+        if (this._editor === undefined && this.dataServer.getCellEditor !== undefined) {
             const currentSubgridPoint = this._currentSubgridPoint;
             if (currentSubgridPoint !== undefined) {
                 const x = currentSubgridPoint.x;
@@ -240,7 +240,7 @@ export class Focus {
                     }
                 }
                 if (cell !== undefined) {
-                    const editor = this.getCellEditorEventer(cell);
+                    const editor = this.dataServer.getCellEditor(cell);
                     if (editor !== undefined) {
                         editor.closedEventer = () => this.handleEditorClosed();
                         this._editor = editor;
@@ -277,8 +277,8 @@ export class Focus {
     }
 
     /** @internal */
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataModel: DataModel) {
-        if (dataModel === this._mainSubgrid.dataModel) {
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer) {
+        if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 Point.adjustForYRangeInserted(this._currentSubgridPoint, rowIndex, rowCount);
             }
@@ -291,8 +291,8 @@ export class Focus {
     }
 
     /** @internal */
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataModel: DataModel) {
-        if (dataModel === this._mainSubgrid.dataModel) {
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer) {
+        if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 const positionInDeletionRange = Point.adjustForYRangeDeleted(this._currentSubgridPoint, rowIndex, rowCount);
                 if (positionInDeletionRange !== undefined) {
@@ -311,8 +311,8 @@ export class Focus {
     }
 
     /** @internal */
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataModel: DataModel) {
-        if (dataModel === this._mainSubgrid.dataModel) {
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer) {
+        if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 Point.adjustForYRangeMoved(this._currentSubgridPoint, oldRowIndex, newRowIndex, count);
             }
@@ -448,13 +448,13 @@ export class Focus {
 
     /** @internal */
     private createStashPoint(point: Point): Focus.Stash.Point | undefined {
-        const dataModel = this._mainSubgrid.dataModel;
-        if (dataModel.getRowIdFromIndex === undefined) {
+        const dataServer = this._mainSubgrid.dataServer;
+        if (dataServer.getRowIdFromIndex === undefined) {
             return undefined;
         } else {
             return {
                 columnName: this._columnsManager.getActiveColumn(point.x).name,
-                rowId: dataModel.getRowIdFromIndex(point.y),
+                rowId: dataServer.getRowIdFromIndex(point.y),
             };
         }
     }
@@ -466,9 +466,9 @@ export class Focus {
         if (activeColumnIndex < 0) {
             return undefined;
         } else {
-            const dataModel = this._mainSubgrid.dataModel;
-            if (dataModel.getRowIndexFromId !== undefined) {
-                const rowIndex = dataModel.getRowIndexFromId(stashedRowId);
+            const dataServer = this._mainSubgrid.dataServer;
+            if (dataServer.getRowIndexFromId !== undefined) {
+                const rowIndex = dataServer.getRowIndexFromId(stashedRowId);
                 if (rowIndex === undefined) {
                     throw new AssertError('FCPFSI50884'); // reindex should not lose row
                 } else {
@@ -478,10 +478,10 @@ export class Focus {
                     };
                 }
             } else {
-                if (dataModel.getRowIdFromIndex !== undefined) {
+                if (dataServer.getRowIdFromIndex !== undefined) {
                     const rowCount = this._mainSubgrid.getRowCount();
                     for (let rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
-                        const rowId = dataModel.getRowIdFromIndex(rowIndex);
+                        const rowId = dataServer.getRowIdFromIndex(rowIndex);
                         if (rowId === stashedRowId) {
                             return {
                                 x: activeColumnIndex,
@@ -500,8 +500,6 @@ export class Focus {
 
 /** @public */
 export namespace Focus {
-    /** @internal */
-    export type GetCellEditorEventer = (this: void, cell: ViewCell) => CellEditor | undefined;
     /** @internal */
     export type CellInvalidatedEventer = (this: void, cell: ViewCell) => void;
 

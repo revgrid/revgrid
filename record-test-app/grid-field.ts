@@ -1,11 +1,11 @@
 import {
-    DataModel, RevRecordField, RevRecordValueRecentChangeTypeId
+    RevRecordField, RevRecordValueRecentChangeTypeId
 } from '..';
 import { RecordStore } from './record-store';
 
 export abstract class GridField implements RevRecordField {
     constructor(readonly name: string, public heading: string) {}
-    abstract getValue(record: RecordStore.Record): DataModel.DataValue;
+    abstract getValue(record: RecordStore.Record): DataServer.DataValue;
     abstract modifyValue(record: RecordStore.Record): RevRecordValueRecentChangeTypeId | undefined;
 }
 
@@ -14,7 +14,7 @@ export class RecordIndexGridField extends GridField {
         super('RecIndex', 'Index');
     }
 
-    getValue(record: RecordStore.Record): DataModel.DataValue {
+    getValue(record: RecordStore.Record): DataServer.DataValue {
         return record.index;
     }
 
@@ -28,7 +28,7 @@ export class IntValGridField extends GridField {
         super('IntVal', 'Int');
     }
 
-    getValue(record: RecordStore.Record): DataModel.DataValue {
+    getValue(record: RecordStore.Record): DataServer.DataValue {
         return record.data[RecordStore.Record.Data.intValIndex];
     }
 
@@ -58,7 +58,7 @@ export class StrValGridField extends GridField {
         super('fiStrVal', 'Str');
     }
 
-    getValue(record: RecordStore.Record): DataModel.DataValue {
+    getValue(record: RecordStore.Record): DataServer.DataValue {
         return record.data[RecordStore.Record.Data.strValIndex];
     }
 
@@ -87,7 +87,7 @@ export class NumberValGridField extends GridField {
         super('fiDblVal', 'Number');
     }
 
-    getValue(record: RecordStore.Record): DataModel.DataValue {
+    getValue(record: RecordStore.Record): DataServer.DataValue {
         return record.data[RecordStore.Record.Data.numberValIndex];
     }
 
@@ -117,7 +117,7 @@ export class DateValGridField extends GridField {
         super('fiDateVal', 'Date');
     }
 
-    getValue(record: RecordStore.Record): DataModel.DataValue {
+    getValue(record: RecordStore.Record): DataServer.DataValue {
         return record.data[RecordStore.Record.Data.dateValIndex];
     }
 
@@ -147,7 +147,7 @@ export class StatusIdValGridField extends GridField {
         super('fiStatusIdVal', 'StatusId');
     }
 
-    getValue(record: RecordStore.Record): DataModel.DataValue {
+    getValue(record: RecordStore.Record): DataServer.DataValue {
         return record.data[RecordStore.Record.Data.statusIdIndex];
     }
 
@@ -176,7 +176,7 @@ export class HiddenStrValGridField extends GridField {
         super('fiHidden', 'Hidden');
     }
 
-    getValue(record: RecordStore.Record): DataModel.DataValue {
+    getValue(record: RecordStore.Record): DataServer.DataValue {
         return record.data[RecordStore.Record.Data.strValIndex];
     }
 
