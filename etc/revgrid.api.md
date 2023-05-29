@@ -5,13 +5,6 @@
 ```ts
 
 // @public (undocumented)
-export interface AdapterSetConfig {
-    // (undocumented)
-    schemaServer: (SchemaServer | SchemaServer.Constructor);
-    subgrids: SubgridDefinition[];
-}
-
-// @public (undocumented)
 export class AssertError extends RevgridError {
     constructor(code: string, message?: string);
 }
@@ -227,16 +220,15 @@ export namespace CachedCanvasRenderingContext2D {
 
 // @public (undocumented)
 export interface CellEditor {
-    // Warning: (ae-forgotten-export) The symbol "ServerlessViewCell" needs to be exported by the entry point public-api.d.ts
-    click?(event: MouseEvent, cell: ServerlessViewCell | undefined): void;
+    click?(event: MouseEvent, cell: DatalessViewCell | undefined): void;
     close(cancel: boolean): void;
     closedEventer?: ((this: void) => void) | undefined;
-    dblClick?(event: MouseEvent, cell: ServerlessViewCell | undefined): void;
+    dblClick?(event: MouseEvent, cell: DatalessViewCell | undefined): void;
     hide?(): void;
     keyDown?(event: KeyboardEvent): void;
     keyUp?(event: KeyboardEvent): void;
-    mouseDown?(event: MouseEvent, cell: ServerlessViewCell | undefined): void;
-    mouseUp?(event: MouseEvent, cell: ServerlessViewCell | undefined): void;
+    mouseDown?(event: MouseEvent, cell: DatalessViewCell | undefined): void;
+    mouseUp?(event: MouseEvent, cell: DatalessViewCell | undefined): void;
     readonly painter?: CellEditor.Painter;
     setBounds?(bounds: Rectangle): void;
     readonly wantDownArrow?: boolean;
@@ -248,7 +240,7 @@ export interface CellEditor {
     readonly wantRightArrow?: boolean;
     readonly wantTab?: boolean;
     readonly wantUpArrow?: boolean;
-    wheelMove?(event: WheelEvent, cell: ServerlessViewCell | undefined): void;
+    wheelMove?(event: WheelEvent, cell: DatalessViewCell | undefined): void;
 }
 
 // @public (undocumented)
@@ -258,8 +250,7 @@ export namespace CellEditor {
         readonly beforeCellBackground: boolean;
         readonly beforeCellBorder: boolean;
         readonly beforeCellContent: boolean;
-        // Warning: (ae-forgotten-export) The symbol "CellSettings" needs to be exported by the entry point public-api.d.ts
-        paint(gc: CachedCanvasRenderingContext2D, cell: ServerlessViewCell, cellSettingsAccessor: CellSettings): number | undefined;
+        paint(gc: CachedCanvasRenderingContext2D, cell: DatalessViewCell, cellSettingsAccessor: CellSettings): number | undefined;
         readonly paintCellBackground: boolean;
         readonly paintCellBorder: boolean;
         readonly paintCellContent: boolean;
@@ -280,10 +271,66 @@ export namespace CellPainter {
     export function roundRect(gc: CachedCanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean): void;
 }
 
-// Warning: (ae-internal-missing-underscore) The name "CellSettingsAccessor" should be prefixed with an underscore because the declaration is marked as @internal
+// @public (undocumented)
+export interface CellSettings {
+    // (undocumented)
+    readonly backgroundColor: string;
+    // (undocumented)
+    readonly backgroundSelectionColor: string;
+    // (undocumented)
+    readonly cellPadding: number;
+    // (undocumented)
+    readonly cellPainter: string;
+    // (undocumented)
+    readonly color: string;
+    // (undocumented)
+    readonly columnAutosizing: boolean;
+    // (undocumented)
+    readonly columnName: string;
+    // (undocumented)
+    readonly focusedCellBorderColor: string;
+    // (undocumented)
+    readonly font: string;
+    // (undocumented)
+    readonly foregroundSelectionColor: string;
+    // (undocumented)
+    readonly foregroundSelectionFont: string;
+    // (undocumented)
+    readonly format: string | undefined;
+    // (undocumented)
+    readonly gridLinesHWidth: number;
+    // (undocumented)
+    readonly gridLinesVWidth: number;
+    // (undocumented)
+    readonly halign: Halign;
+    // (undocumented)
+    readonly headerTextWrapping: boolean;
+    // (undocumented)
+    readonly hoverCellHighlight: GridSettings.HoverColors;
+    // (undocumented)
+    readonly hoverColumnHighlight: GridSettings.HoverColors;
+    // (undocumented)
+    readonly hoverRowHighlight: GridSettings.HoverColors;
+    // (undocumented)
+    readonly link: false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
+    // (undocumented)
+    readonly linkColor: string;
+    // (undocumented)
+    readonly linkColorOnHover: boolean;
+    // (undocumented)
+    readonly linkOnHover: boolean;
+    // (undocumented)
+    readonly strikeThrough: boolean;
+    // (undocumented)
+    readonly textTruncateType: TextTruncateType | undefined;
+    // (undocumented)
+    readonly voffset: number;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "CellSettingsImplementation" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export class CellSettingsAccessor implements CellSettings {
+export class CellSettingsImplementation implements CellSettings {
     // (undocumented)
     get backgroundColor(): string;
     // (undocumented)
@@ -340,12 +387,27 @@ export class CellSettingsAccessor implements CellSettings {
     get voffset(): number;
 }
 
-// Warning: (ae-forgotten-export) The symbol "ServerlessColumn" needs to be exported by the entry point public-api.d.ts
-//
 // @public (undocumented)
-export interface Column extends ServerlessColumn {
+export interface Column {
+    // (undocumented)
+    addProperties(properties: Partial<ColumnSettings>): void;
+    // (undocumented)
+    checkColumnAutosizing(force: boolean): boolean;
+    // (undocumented)
+    getWidth(): number;
+    readonly index: number;
+    // (undocumented)
+    readonly name: string;
     // (undocumented)
     readonly schemaColumn: SchemaServer.Column;
+    // Warning: (ae-forgotten-export) The symbol "MergableColumnSettings" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    readonly settings: MergableColumnSettings;
+    // (undocumented)
+    setWidth(width: number | undefined): boolean;
+    // (undocumented)
+    setWidthToAutoSizing(): boolean;
 }
 
 // @public (undocumented)
@@ -468,13 +530,15 @@ export namespace ColumnSettings {
 // @public (undocumented)
 export class ColumnsManager {
     // @internal
-    constructor(schemaServer: SchemaServer, _gridSettings: GridSettings, _invalidateScrollDimensionRequiredEventer: ColumnsManager.InvalidateScrollDimensionRequiredEventer);
+    constructor(schemaServer: SchemaServer, _gridSettings: GridSettings);
     // (undocumented)
     get activeColumnCount(): number;
     // @internal (undocumented)
     activeColumnListChangedEventer: UiableListChangedEventHandler;
     // @internal (undocumented)
     get activeColumns(): readonly Column[];
+    // @internal (undocumented)
+    activeColumnWidthOrOrderChangedEventer: ColumnsManager.ActiveColumnWidthOrOrderChangedEventer;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     //
@@ -500,8 +564,6 @@ export class ColumnsManager {
     checkColumnAutosizing(force: boolean, withinAnimationFrame?: boolean): boolean;
     // @internal (undocumented)
     clearColumns(): void;
-    // @internal (undocumented)
-    columnsCreated: boolean;
     // @internal (undocumented)
     columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer;
     // @internal (undocumented)
@@ -595,13 +657,122 @@ export class ColumnsManager {
 // @public (undocumented)
 export namespace ColumnsManager {
     // (undocumented)
+    export type ActiveColumnWidthOrOrderChangedEventer = (this: void) => void;
+    // (undocumented)
     export type BeforeCreateColumnsListener = (this: void) => void;
     // (undocumented)
     export type ColumnsWidthChangedEventer = (this: void, columns: Column[], ui: boolean) => void;
     // (undocumented)
-    export type InvalidateScrollDimensionRequiredEventer = (this: void) => void;
-    // (undocumented)
     export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+}
+
+// @public (undocumented)
+export interface DatalessSubgrid {
+    // (undocumented)
+    readonly fixedRowCount: number;
+    // (undocumented)
+    readonly isFilter: boolean;
+    // (undocumented)
+    readonly isHeader: boolean;
+    // (undocumented)
+    readonly isMain: boolean;
+    // (undocumented)
+    isRowFixed(rowIndex: number): boolean;
+    // (undocumented)
+    readonly isSummary: boolean;
+    // (undocumented)
+    readonly role: DatalessSubgrid.Role;
+    // (undocumented)
+    readonly selectable: boolean;
+}
+
+// @public (undocumented)
+export namespace DatalessSubgrid {
+    // (undocumented)
+    export type Role = keyof typeof RoleEnum;
+    // (undocumented)
+    export namespace Role {
+        const // (undocumented)
+        defaultRole = RoleEnum.main;
+        // (undocumented)
+        export function gridOrderCompare(left: Role | undefined, right: Role | undefined): number;
+    }
+    // (undocumented)
+    export const enum RoleEnum {
+        // (undocumented)
+        filter = "filter",
+        // (undocumented)
+        footer = "footer",
+        // (undocumented)
+        header = "header",
+        // (undocumented)
+        main = "main",
+        // (undocumented)
+        summary = "summary"
+    }
+}
+
+// @public (undocumented)
+export interface DatalessViewCell {
+    // (undocumented)
+    readonly bounds: Rectangle;
+    // (undocumented)
+    readonly columnSettings: ColumnSettings;
+    // (undocumented)
+    readonly isCellVisible: boolean;
+    // (undocumented)
+    readonly isColumnFixed: boolean;
+    // (undocumented)
+    readonly isColumnVisible: boolean;
+    // (undocumented)
+    readonly isFilter: boolean;
+    // (undocumented)
+    readonly isFixed: boolean;
+    // (undocumented)
+    readonly isHeader: boolean;
+    // (undocumented)
+    readonly isHeaderOrRowFixed: boolean;
+    // (undocumented)
+    readonly isMain: boolean;
+    // (undocumented)
+    readonly isMainRow: boolean;
+    // (undocumented)
+    readonly isRowFixed: boolean;
+    // (undocumented)
+    readonly isRowVisible: boolean;
+    // (undocumented)
+    readonly isScrollable: boolean;
+    // (undocumented)
+    readonly isSummary: boolean;
+    // (undocumented)
+    paintFingerprint: DatalessViewCell.PaintFingerprint | undefined;
+    // (undocumented)
+    readonly subgrid: DatalessSubgrid;
+    // Warning: (ae-forgotten-export) The symbol "ViewLayoutColumn" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    readonly viewLayoutColumn: ViewLayoutColumn;
+    // (undocumented)
+    readonly viewLayoutRow: DatalessViewLayoutRow;
+}
+
+// @public (undocumented)
+export namespace DatalessViewCell {
+    // (undocumented)
+    export type PaintFingerprint = Record<string, unknown>;
+    // (undocumented)
+    export function sameByDataPoint(left: DatalessViewCell, right: DatalessViewCell): boolean;
+}
+
+// @public (undocumented)
+export interface DatalessViewLayoutRow {
+    bottomPlus1: number;
+    height: number;
+    index: number;
+    // (undocumented)
+    subgrid: DatalessSubgrid;
+    subgridRowIndex: number;
+    top: number;
 }
 
 // @public (undocumented)
@@ -611,7 +782,9 @@ export interface DataServer {
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     fetchData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
     // (undocumented)
-    getCellEditor?(cell: ServerlessViewCell): CellEditor | undefined;
+    getCellEditor?(cell: DatalessViewCell): CellEditor | undefined;
+    // (undocumented)
+    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
     getCursorName?(schema: SchemaServer.Column, rowIndex: number): string;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getData?(metadataFieldName?: string): readonly DataServer.DataRow[];
@@ -700,7 +873,7 @@ export namespace DataServer {
 }
 
 // @public (undocumented)
-export const defaultGridProperties: Required<GridSettings>;
+export const defaultGridSettings: Required<GridSettings>;
 
 // @public (undocumented)
 export namespace EventDetail {
@@ -712,6 +885,13 @@ export namespace EventDetail {
         readonly schemaColumnIndex: number;
         // (undocumented)
         readonly time: number;
+    }
+    // (undocumented)
+    export interface CellFocusChanged {
+        // (undocumented)
+        readonly newPoint: Point | undefined;
+        // (undocumented)
+        readonly oldPoint: Point | undefined;
     }
     // (undocumented)
     export interface ColumnSort extends MouseEvent {
@@ -828,6 +1008,8 @@ export namespace EventName {
         // (undocumented)
         'rev-cell-exit': ViewCell;
         // (undocumented)
+        'rev-cell-focus-changed': EventDetail.CellFocusChanged;
+        // (undocumented)
         'rev-click': EventDetail.Pointer;
         // (undocumented)
         'rev-column-changed-event': undefined;
@@ -915,8 +1097,7 @@ export class Focus {
     _gridSettings: GridSettings,
     _mainSubgrid: MainSubgrid,
     _columnsManager: ColumnsManager,
-    _viewLayout: ViewLayout,
-    _cellInvalidatedEventer: Focus.CellInvalidatedEventer);
+    _viewLayout: ViewLayout);
     // @internal (undocumented)
     adjustForColumnsDeleted(columnIndex: number, columnCount: number): void;
     // @internal (undocumented)
@@ -934,6 +1115,8 @@ export class Focus {
     // (undocumented)
     get canvasY(): number | undefined;
     get cell(): ViewCell | undefined;
+    // @internal (undocumented)
+    changedEventer: Focus.ChangedEventer;
     // (undocumented)
     clear(): void;
     // (undocumented)
@@ -985,12 +1168,14 @@ export class Focus {
     // (undocumented)
     tryOpenEditor(cell: ViewCell | undefined): void;
     tryOpenEditorWithKey(_key: string): boolean;
+    // @internal (undocumented)
+    viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer;
 }
 
 // @public (undocumented)
 export namespace Focus {
     // @internal (undocumented)
-    export type CellInvalidatedEventer = (this: void, cell: ViewCell) => void;
+    export type ChangedEventer = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
     // @internal (undocumented)
     export interface Stash {
         // (undocumented)
@@ -1008,6 +1193,16 @@ export namespace Focus {
             readonly rowId: unknown;
         }
     }
+    // @internal (undocumented)
+    export type ViewCellRenderInvalidatedEventer = (this: void, cell: ViewCell) => void;
+}
+
+// @public (undocumented)
+export interface GridDefinition {
+    // (undocumented)
+    schemaServer: (SchemaServer | SchemaServer.Constructor);
+    // (undocumented)
+    subgrids: Subgrid.Definition[];
 }
 
 // @public (undocumented)
@@ -1071,6 +1266,7 @@ export interface GridSettings {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     enableContinuousRepaint: boolean;
+    eventDispatchEnabled: boolean;
     extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     // (undocumented)
     features: string[];
@@ -1492,6 +1688,20 @@ export namespace MetaModel {
     // (undocumented)
     export type Constructor = new () => MetaModel;
     // (undocumented)
+    export class DefaultRowProperties implements MetaModel.RowPropertiesPrototype {
+        constructor(_heightChangedEventer: DefaultRowProperties.HeightChangedEventer);
+        // (undocumented)
+        [key: string]: unknown;
+        // (undocumented)
+        get height(): number | undefined;
+        set height(height: number | undefined);
+    }
+    // (undocumented)
+    export namespace DefaultRowProperties {
+        // (undocumented)
+        export type HeightChangedEventer = (this: void) => void;
+    }
+    // (undocumented)
     export interface HeightRowProperties {
         // (undocumented)
         height?: number;
@@ -1506,7 +1716,7 @@ export namespace MetaModel {
         [key: string]: unknown;
     }
     // (undocumented)
-    export type RowPropertiesPrototype = object;
+    export type RowPropertiesPrototype = RowProperties;
     // (undocumented)
     export interface RowPropertiesRowMetadata {
         // (undocumented)
@@ -1522,11 +1732,13 @@ export class Mouse {
     // @internal
     constructor(
     _canvasManager: CanvasManager,
-    _viewLayout: ViewLayout,
-    _cellEnteredEventer: Mouse.CellEventer,
-    _cellExitedEventer: Mouse.CellEventer);
+    _viewLayout: ViewLayout);
     // (undocumented)
     get activeDragType(): EventDetail.DragTypeEnum | undefined;
+    // @internal (undocumented)
+    cellEnteredEventer: Mouse.CellEnteredExitedEventer;
+    // @internal (undocumented)
+    cellExitedEventer: Mouse.CellEnteredExitedEventer;
     // (undocumented)
     get hoverCell(): ViewCell | undefined;
     // @internal (undocumented)
@@ -1534,15 +1746,19 @@ export class Mouse {
     // @internal (undocumented)
     setActiveDragType(value: EventDetail.DragTypeEnum | undefined): void;
     // @internal (undocumented)
+    setLocationCursor(cursorName: string | undefined): void;
+    // @internal (undocumented)
     setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, hoverCell: ViewCell | undefined): void;
     // @internal (undocumented)
     setOperationCursor(cursorName: string | undefined): void;
+    // @internal (undocumented)
+    viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer;
 }
 
 // @public (undocumented)
 export namespace Mouse {
     // @internal (undocumented)
-    export type CellEventer = (this: void, cell: ViewCell, invalidateViewCellRender: boolean) => void;
+    export type CellEnteredExitedEventer = (this: void, cell: ViewCell) => void;
     // @internal (undocumented)
     export interface CursorNameAndTitleText {
         // (undocumented)
@@ -1550,6 +1766,8 @@ export namespace Mouse {
         // (undocumented)
         readonly titleText: string;
     }
+    // (undocumented)
+    export type ViewCellRenderInvalidatedEventer = (this: void, cell: ViewCell) => void;
 }
 
 // @public (undocumented)
@@ -1763,7 +1981,7 @@ export class Revgrid {
     // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
     // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-    constructor(container: string | HTMLElement | undefined, adapterSetConfig: AdapterSetConfig, options?: Revgrid.Options);
+    constructor(container: string | HTMLElement | undefined, definition: Revgrid.Definition, options?: Revgrid.Options);
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
@@ -1786,8 +2004,6 @@ export class Revgrid {
     addEventListener(eventName: string, listener: CanvasManager.EventListener): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addSettings(settings: Partial<GridSettings>): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    addState(state: Record<string, unknown>, fromDefault?: boolean): void;
     // (undocumented)
     get allColumns(): readonly Column[];
     // (undocumented)
@@ -1795,10 +2011,6 @@ export class Revgrid {
     // (undocumented)
     autosizeAllColumns(): void;
     beginSelectionChange(): void;
-    // Warning: (ae-forgotten-export) The symbol "BehaviorManager" needs to be exported by the entry point public-api.d.ts
-    //
-    // @internal
-    behaviorManager: BehaviorManager;
     // (undocumented)
     calculateActiveColumnsWidth(): number;
     // (undocumented)
@@ -1841,6 +2053,8 @@ export class Revgrid {
     protected descendantProcessActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean): void;
     // (undocumented)
     protected descendantProcessAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined): void;
+    // (undocumented)
+    protected descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined): void;
     // (undocumented)
     protected descendantProcessClick(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
     // (undocumented)
@@ -1920,8 +2134,6 @@ export class Revgrid {
     destroy(): void;
     // (undocumented)
     destroyed: boolean;
-    // (undocumented)
-    endDragColumnNotification(): void;
     endSelectionChange(): void;
     // (undocumented)
     get fixedColumnsViewWidth(): number;
@@ -1954,10 +2166,10 @@ export class Revgrid {
     getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell): MetaModel.CellOwnProperties | false | null | undefined;
     // (undocumented)
     getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell, key: string): MetaModel.CellOwnProperty | undefined;
-    // Warning: (ae-forgotten-export) The symbol "CellProperties" needs to be exported by the entry point public-api.d.ts
+    // Warning: (ae-forgotten-export) The symbol "CellMetaSettings" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    getCellProperties(allX: number, y: number, subgrid: Subgrid): CellProperties;
+    getCellProperties(allX: number, y: number, subgrid: Subgrid): CellMetaSettings;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
@@ -2004,8 +2216,6 @@ export class Revgrid {
     getSelectedRowIndices(): number[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     getSingletonDataRow(y: number, subgrid?: Subgrid): DataServer.DataRow;
-    // (undocumented)
-    getState(): any;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     getSubgridRowCount(subgrid: Subgrid): number;
     // (undocumented)
@@ -2033,12 +2243,14 @@ export class Revgrid {
     isWebkit: boolean;
     // (undocumented)
     loadDefaultSettings(): void;
-    // (undocumented)
-    loadState(state: Record<string, unknown>): void;
     // Warning: (ae-forgotten-export) The symbol "Localization" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
     localization: Localization;
+    // (undocumented)
+    readonly mainDataServer: DataServer;
+    // (undocumented)
+    readonly mainSubgrid: MainSubgrid;
     // (undocumented)
     readonly mouse: Mouse;
     // (undocumented)
@@ -2130,12 +2342,10 @@ export class Revgrid {
     setFormatter(options?: Revgrid.LocalizationOptions): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    setState(state: GridSettings): void;
-    // Warning: (ae-forgotten-export) The symbol "LoadableGridSettings" needs to be exported by the entry point public-api.d.ts
+    // Warning: (ae-forgotten-export) The symbol "MergableGridSettings" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    readonly settings: LoadableGridSettings;
+    readonly settings: MergableGridSettings;
     // (undocumented)
     setValue(x: number, y: number, value: number, subgrid?: Subgrid): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -2165,8 +2375,6 @@ export namespace Revgrid {
         // (undocumented)
         width?: string;
     }
-    const // (undocumented)
-    defaultProperties: Required<GridSettings>;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@name" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2182,6 +2390,15 @@ export namespace Revgrid {
         numberOptions: NumberFormatter.Options;
         const // (undocumented)
         dateOptions: DateFormatter.Options;
+    }
+    const // (undocumented)
+    defaultProperties: Required<GridSettings>;
+    // (undocumented)
+    export interface Definition {
+        // (undocumented)
+        schemaServer: (SchemaServer | SchemaServer.Constructor);
+        // (undocumented)
+        subgrids: Subgrid.Definition[];
     }
     // (undocumented)
     export interface EdgeStyleValues {
@@ -2225,8 +2442,6 @@ export namespace Revgrid {
         loadBuiltinFinbarStylesheet?: boolean;
         // (undocumented)
         localization?: LocalizationOptions;
-        // (undocumented)
-        state?: Record<string, unknown>;
     }
     const // (undocumented)
     boundingRectStyleKeys: Array<keyof BoundingRectStyleValues>;
@@ -2329,56 +2544,6 @@ export namespace RevRecordField {
     }
 }
 
-// @public (undocumented)
-export class RevRecordFieldAdapter implements SchemaServer {
-    constructor(
-    _recordStore?: RevRecordStore | undefined);
-    // (undocumented)
-    addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
-    // (undocumented)
-    addFields(addFields: readonly RevRecordField[]): RevRecordFieldIndex;
-    // (undocumented)
-    beginChange(): void;
-    // (undocumented)
-    endChange(): void;
-    // (undocumented)
-    get fieldCount(): number;
-    // @internal (undocumented)
-    fieldListChangedEventer: ListChangedEventHandler | undefined;
-    // (undocumented)
-    get fields(): readonly RevRecordField[];
-    // (undocumented)
-    getActiveSchemaColumns(): readonly RevRecordField.SchemaColumn[];
-    // (undocumented)
-    getColumnCount(): number;
-    // (undocumented)
-    getField(fieldIndex: RevRecordFieldIndex): RevRecordField;
-    // (undocumented)
-    getFieldByName(fieldName: string): RevRecordField;
-    // (undocumented)
-    getFieldIndex(field: RevRecordField): RevRecordFieldIndex;
-    // (undocumented)
-    getFieldIndexByName(fieldName: string): RevRecordFieldIndex;
-    // (undocumented)
-    getFieldNames(): string[];
-    // (undocumented)
-    getFieldValueDependsOnRecordIndexFieldIndexes(): readonly RevRecordFieldIndex[];
-    // (undocumented)
-    getFilteredFields(filterCallback: (field: RevRecordField) => boolean): RevRecordField[];
-    // (undocumented)
-    getSchema(): readonly SchemaServer.Column[];
-    // (undocumented)
-    hasField(name: string): boolean;
-    // (undocumented)
-    reset(): void;
-    // (undocumented)
-    get schema(): readonly RevRecordField.SchemaColumn[];
-    // (undocumented)
-    setFields(fields: readonly RevRecordField[]): void;
-    // (undocumented)
-    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient): void;
-}
-
 // @public
 export type RevRecordFieldIndex = number;
 
@@ -2396,8 +2561,12 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
 }
 
 // @public (undocumented)
-export class RevRecordHeaderAdapter implements DataServer {
+export class RevRecordHeaderDataServer implements DataServer {
     constructor(_rowCount?: number);
+    // (undocumented)
+    readonly cellPainter: TextCellPainter;
+    // (undocumented)
+    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
@@ -2424,8 +2593,8 @@ export interface RevRecordInvalidatedValue {
 }
 
 // @public (undocumented)
-export class RevRecordMainAdapter implements DataServer, RevRecordStore.RecordsEventers {
-    constructor(_fieldAdapter: RevRecordFieldAdapter, _recordStore: RevRecordStore);
+export class RevRecordMainDataServer implements DataServer, RevRecordStore.RecordsEventers {
+    constructor(_fieldAdapter: RevRecordSchemaServer, _recordStore: RevRecordStore, _mainCellPainter: CellPainter);
     // (undocumented)
     get allChangedRecentDuration(): number;
     set allChangedRecentDuration(value: number);
@@ -2445,8 +2614,10 @@ export class RevRecordMainAdapter implements DataServer, RevRecordStore.RecordsE
     // (undocumented)
     endChange(): void;
     // (undocumented)
-    get filterCallback(): RevRecordMainAdapter.RecordFilterCallback | undefined;
-    set filterCallback(value: RevRecordMainAdapter.RecordFilterCallback | undefined);
+    get filterCallback(): RevRecordMainDataServer.RecordFilterCallback | undefined;
+    set filterCallback(value: RevRecordMainDataServer.RecordFilterCallback | undefined);
+    // (undocumented)
+    getCellPainter(_viewCell: DatalessViewCell, _cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
     // (undocumented)
     getFieldSortAscending(field: RevRecordFieldIndex | RevRecordField): boolean | undefined;
     // (undocumented)
@@ -2462,7 +2633,7 @@ export class RevRecordMainAdapter implements DataServer, RevRecordStore.RecordsE
     // (undocumented)
     getRowIndexFromRecordIndex(recordIndex: RevRecordIndex): number | undefined;
     // (undocumented)
-    getSortSpecifier(index: number): RevRecordMainAdapter.SortFieldSpecifier;
+    getSortSpecifier(index: number): RevRecordMainDataServer.SortFieldSpecifier;
     // (undocumented)
     getValue(schemaColumn: RevRecordField.SchemaColumn, rowIndex: number): DataServer.DataValue;
     // (undocumented)
@@ -2533,13 +2704,13 @@ export class RevRecordMainAdapter implements DataServer, RevRecordStore.RecordsE
     // (undocumented)
     sortBy(fieldIndex?: number, isAscending?: boolean): boolean;
     // (undocumented)
-    sortByMany(specifiers: readonly RevRecordMainAdapter.SortFieldSpecifier[]): boolean;
+    sortByMany(specifiers: readonly RevRecordMainDataServer.SortFieldSpecifier[]): boolean;
     // (undocumented)
     get sortColumnCount(): number;
     // (undocumented)
     get sortFieldSpecifierCount(): number;
     // (undocumented)
-    get sortFieldSpecifiers(): readonly RevRecordMainAdapter.SortFieldSpecifier[];
+    get sortFieldSpecifiers(): readonly RevRecordMainDataServer.SortFieldSpecifier[];
     // (undocumented)
     subscribeDataNotifications(value: DataServer.NotificationsClient): void;
     // (undocumented)
@@ -2548,7 +2719,7 @@ export class RevRecordMainAdapter implements DataServer, RevRecordStore.RecordsE
 }
 
 // @public (undocumented)
-export namespace RevRecordMainAdapter {
+export namespace RevRecordMainDataServer {
     // (undocumented)
     export type RecordFilterCallback = (this: void, record: RevRecord) => boolean;
     // (undocumented)
@@ -2560,13 +2731,6 @@ export namespace RevRecordMainAdapter {
     }
     // (undocumented)
     export type SpecifierComparer = (this: void, left: RevRecordRow, right: RevRecordRow) => number;
-}
-
-// @public (undocumented)
-export class RevRecordMainCellAdapter {
-    constructor(_mainAdapter: RevRecordMainAdapter, _mainCellPainter: CellPainter);
-    // (undocumented)
-    getCellPainter(): CellPainter;
 }
 
 // @public
@@ -2592,6 +2756,56 @@ export class RevRecordRowError extends RevRecordExternalError {
 // @public (undocumented)
 export class RevRecordSchemaError extends RevRecordExternalError {
     constructor(code: string, message: string);
+}
+
+// @public (undocumented)
+export class RevRecordSchemaServer implements SchemaServer {
+    constructor(
+    _recordStore?: RevRecordStore | undefined);
+    // (undocumented)
+    addField(field: RevRecordField, header: string): RevRecordField.SchemaColumn;
+    // (undocumented)
+    addFields(addFields: readonly RevRecordField[]): RevRecordFieldIndex;
+    // (undocumented)
+    beginChange(): void;
+    // (undocumented)
+    endChange(): void;
+    // (undocumented)
+    get fieldCount(): number;
+    // @internal (undocumented)
+    fieldListChangedEventer: ListChangedEventHandler | undefined;
+    // (undocumented)
+    get fields(): readonly RevRecordField[];
+    // (undocumented)
+    getActiveSchemaColumns(): readonly RevRecordField.SchemaColumn[];
+    // (undocumented)
+    getColumnCount(): number;
+    // (undocumented)
+    getField(fieldIndex: RevRecordFieldIndex): RevRecordField;
+    // (undocumented)
+    getFieldByName(fieldName: string): RevRecordField;
+    // (undocumented)
+    getFieldIndex(field: RevRecordField): RevRecordFieldIndex;
+    // (undocumented)
+    getFieldIndexByName(fieldName: string): RevRecordFieldIndex;
+    // (undocumented)
+    getFieldNames(): string[];
+    // (undocumented)
+    getFieldValueDependsOnRecordIndexFieldIndexes(): readonly RevRecordFieldIndex[];
+    // (undocumented)
+    getFilteredFields(filterCallback: (field: RevRecordField) => boolean): RevRecordField[];
+    // (undocumented)
+    getSchema(): readonly SchemaServer.Column[];
+    // (undocumented)
+    hasField(name: string): boolean;
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    get schema(): readonly RevRecordField.SchemaColumn[];
+    // (undocumented)
+    setFields(fields: readonly RevRecordField[]): void;
+    // (undocumented)
+    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient): void;
 }
 
 // @public
@@ -2689,55 +2903,42 @@ export const enum RevRecordValueRecentChangeTypeId {
 }
 
 // @public (undocumented)
-export class RevSimpleAdapterSet {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (ae-forgotten-export) The symbol "GetInitialDefinedRowsResult" needs to be exported by the entry point public-api.d.ts
-    getInitialDefinedRows(sourceRows: readonly RevSimpleAdapterSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult;
+export class RevSimpleHeaderDataServer implements DataServer {
+    constructor();
     // (undocumented)
-    get headerAdapter(): RevSimpleHeaderAdapter;
+    readonly cellPainter: TextCellPainter;
     // (undocumented)
-    get mainAdapter(): RevSimpleMainAdapter;
-    // (undocumented)
-    get schemaAdapter(): RevSimpleSchemaAdapter;
-    setData(data: RevSimpleAdapterSet.DataRow[] | (() => RevSimpleAdapterSet.DataRow[]), headerRowCount?: number): void;
-}
-
-// @public (undocumented)
-export namespace RevSimpleAdapterSet {
-    // (undocumented)
-    export interface DataRow extends RevSimpleMainAdapter.DataRow {
-        // (undocumented)
-        [columnName: string]: DataServer.DataValue | string;
-    }
-}
-
-// @public (undocumented)
-export class RevSimpleHeaderAdapter implements DataServer {
+    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
-    getValue(schemaColumn: RevSimpleSchemaAdapter.Column, rowIndex: number): string;
+    getValue(schemaColumn: RevSimpleSchemaServer.Column, rowIndex: number): string;
     // (undocumented)
     reset(rowCount: number): void;
     // (undocumented)
     subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
     // (undocumented)
-    unsubscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
 }
 
 // @public (undocumented)
-export class RevSimpleMainAdapter implements DataServer {
+export class RevSimpleMainDataServer implements DataServer {
+    constructor();
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    addRow(dataRow: RevSimpleMainAdapter.DataRow): void;
+    addRow(dataRow: RevSimpleMainDataServer.DataRow): void;
     // (undocumented)
-    addRow(index: number, dataRow: RevSimpleMainAdapter.DataRow): void;
+    addRow(index: number, dataRow: RevSimpleMainDataServer.DataRow): void;
     // (undocumented)
     beginDataChange(): void;
-    delRow(index: number, count?: number): RevSimpleMainAdapter.DataRow[];
+    // (undocumented)
+    readonly cellPainter: TextCellPainter;
+    delRow(index: number, count?: number): RevSimpleMainDataServer.DataRow[];
     // (undocumented)
     endDataChange(): void;
     // (undocumented)
-    getRow(index: number): RevSimpleMainAdapter.DataRow;
+    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
+    // (undocumented)
+    getRow(index: number): RevSimpleMainDataServer.DataRow;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
@@ -2747,10 +2948,8 @@ export class RevSimpleMainAdapter implements DataServer {
     // (undocumented)
     invalidateAll(): void;
     // (undocumented)
-    readonly mainDataServer = true;
-    // (undocumented)
-    reset(data?: RevSimpleMainAdapter.DataRow[]): void;
-    setRow(index: number, dataRow: RevSimpleMainAdapter.DataRow): void;
+    reset(data?: RevSimpleMainDataServer.DataRow[]): void;
+    setRow(index: number, dataRow: RevSimpleMainDataServer.DataRow): void;
     // (undocumented)
     setRowMetadata(index: number, metadata: MetaModel.RowMetadata): boolean;
     // (undocumented)
@@ -2762,7 +2961,7 @@ export class RevSimpleMainAdapter implements DataServer {
 }
 
 // @public (undocumented)
-export namespace RevSimpleMainAdapter {
+export namespace RevSimpleMainDataServer {
     // (undocumented)
     export interface DataRow extends DataServer.ObjectDataRow {
         // (undocumented)
@@ -2773,13 +2972,13 @@ export namespace RevSimpleMainAdapter {
 }
 
 // @public (undocumented)
-export class RevSimpleSchemaAdapter implements SchemaServer {
+export class RevSimpleSchemaServer implements SchemaServer {
     // (undocumented)
-    getSchema(): readonly RevSimpleSchemaAdapter.Column[];
+    getSchema(): readonly RevSimpleSchemaServer.Column[];
     // (undocumented)
-    reset(schema?: RevSimpleSchemaAdapter.Column[]): void;
+    reset(schema?: RevSimpleSchemaServer.Column[]): void;
     // (undocumented)
-    setSchema(schema: RevSimpleSchemaAdapter.Column[]): void;
+    setSchema(schema: RevSimpleSchemaServer.Column[]): void;
     // (undocumented)
     subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient): void;
     // (undocumented)
@@ -2787,12 +2986,27 @@ export class RevSimpleSchemaAdapter implements SchemaServer {
 }
 
 // @public (undocumented)
-export namespace RevSimpleSchemaAdapter {
+export namespace RevSimpleSchemaServer {
     // (undocumented)
     export interface Column extends SchemaServer.Column {
         // (undocumented)
         headers: string[];
     }
+}
+
+// @public (undocumented)
+export class RevSimpleServerSet {
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (ae-forgotten-export) The symbol "GetInitialDefinedRowsResult" needs to be exported by the entry point public-api.d.ts
+    getInitialDefinedRows(sourceRows: readonly RevSimpleAdapterSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult;
+    // (undocumented)
+    get headerDataServer(): RevSimpleHeaderDataServer;
+    // (undocumented)
+    get mainDataServer(): RevSimpleMainDataServer;
+    // (undocumented)
+    get schemaServer(): RevSimpleSchemaServer;
+    // Warning: (ae-forgotten-export) The symbol "RevSimpleAdapterSet" needs to be exported by the entry point public-api.d.ts
+    setData(data: RevSimpleAdapterSet.DataRow[] | (() => RevSimpleAdapterSet.DataRow[]), headerRowCount?: number): void;
 }
 
 // @public (undocumented)
@@ -2951,10 +3165,8 @@ export namespace SparkLineCellPainter {
     }
 }
 
-// Warning: (ae-forgotten-export) The symbol "ServerlessSubgrid" needs to be exported by the entry point public-api.d.ts
-//
 // @public (undocumented)
-export interface Subgrid extends ServerlessSubgrid {
+export interface Subgrid extends DatalessSubgrid {
     // (undocumented)
     readonly dataServer: DataServer;
     // (undocumented)
@@ -2989,33 +3201,24 @@ export interface Subgrid extends ServerlessSubgrid {
 
 // @public (undocumented)
 export namespace Subgrid {
-    import RoleEnum = ServerlessSubgrid.RoleEnum;
-    import Role = ServerlessSubgrid.Role;
-}
-
-// @public (undocumented)
-export interface SubgridDefinition {
+    import RoleEnum = DatalessSubgrid.RoleEnum;
+    import Role = DatalessSubgrid.Role;
     // (undocumented)
-    dataServer: DataServer | DataServer.Constructor;
-    // (undocumented)
-    defaultRowHeight?: number;
-    // (undocumented)
-    getCellPainterEventer: SubgridDefinition.GetCellPainterEventer;
-    // (undocumented)
-    metaModel?: MetaModel | MetaModel.Constructor;
-    role?: Subgrid.Role;
-    // (undocumented)
-    rowPropertiesCanSpecifyRowHeight?: boolean;
-    // (undocumented)
-    rowPropertiesPrototype?: MetaModel.RowPropertiesPrototype;
-    // (undocumented)
-    selectable?: boolean;
-}
-
-// @public (undocumented)
-export namespace SubgridDefinition {
-    // (undocumented)
-    export type GetCellPainterEventer = (this: void, viewCell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined) => CellPainter;
+    export interface Definition {
+        // (undocumented)
+        dataServer: DataServer | DataServer.Constructor;
+        // (undocumented)
+        defaultRowHeight?: number;
+        // (undocumented)
+        metaModel?: MetaModel | MetaModel.Constructor;
+        role?: Subgrid.Role;
+        // (undocumented)
+        rowPropertiesCanSpecifyRowHeight?: boolean;
+        // (undocumented)
+        rowPropertiesPrototype?: MetaModel.RowPropertiesPrototype;
+        // (undocumented)
+        selectable?: boolean;
+    }
 }
 
 // @public (undocumented)
@@ -3043,10 +3246,13 @@ export namespace TagCellPainter {
 //
 // @public
 export class TextCellPainter implements CellPainter {
+    constructor(_dataServer: DataServer);
     // (undocumented)
     paint(gc: CachedCanvasRenderingContext2D, prefillColor: string | undefined): number | undefined;
     // (undocumented)
-    setCell(cell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined, grid: Revgrid): void;
+    setCell(cell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): void;
+    // (undocumented)
+    setGrid(value: Revgrid): void;
 }
 
 // @public (undocumented)
@@ -3068,72 +3274,20 @@ export class UnreachableCaseError extends RevgridError {
 }
 
 // @public (undocumented)
-export class ViewCell {
-    // @internal
-    constructor(
-    _columnsManager: ColumnsManager);
-    get bounds(): Rectangle;
+export interface ViewCell extends DatalessViewCell {
     // (undocumented)
-    cellOwnProperties: MetaModel.CellOwnProperties | undefined;
+    readonly subgrid: Subgrid;
     // (undocumented)
-    clearCellOwnProperties(): void;
-    // (undocumented)
-    get columnSettings(): ColumnSettings;
-    // (undocumented)
-    getRowProperties(): MetaModel.RowProperties | undefined;
-    // (undocumented)
-    getRowProperty(key: string): unknown;
-    get isCellVisible(): boolean;
-    // (undocumented)
-    get isColumnFixed(): boolean;
-    get isColumnVisible(): boolean;
-    // (undocumented)
-    get isFilter(): boolean;
-    // (undocumented)
-    get isFixed(): boolean;
-    // (undocumented)
-    get isHeader(): boolean;
-    // (undocumented)
-    get isHeaderOrRowFixed(): boolean;
-    get isMain(): boolean;
-    get isMainRow(): boolean;
-    // (undocumented)
-    get isRowFixed(): boolean;
-    get isRowVisible(): boolean;
-    // (undocumented)
-    get isScrollable(): boolean;
-    // (undocumented)
-    get isSummary(): boolean;
-    // @internal
-    paintFingerprint: ViewCell.PaintFingerprint | undefined;
-    // @internal
-    reset(viewLayoutColumn: ViewLayoutColumn, viewLayoutRow: ViewLayoutRow): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
-    // @internal
-    resetGridXY(vc: ViewLayoutColumn | undefined, vr: ViewLayoutRow | undefined): boolean;
-    // (undocumented)
-    setRowPropertyRC(key: string, value: unknown): void;
-    // (undocumented)
-    get subgrid(): Subgrid;
-    get value(): DataServer.DataValue;
-    set value(value: DataServer.DataValue);
-    // Warning: (ae-forgotten-export) The symbol "ViewLayoutColumn" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    get viewLayoutColumn(): ViewLayoutColumn;
+    readonly viewLayoutColumn: ViewLayoutColumn;
     // Warning: (ae-forgotten-export) The symbol "ViewLayoutRow" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    get viewLayoutRow(): ViewLayoutRow;
+    readonly viewLayoutRow: ViewLayoutRow;
 }
 
 // @public (undocumented)
 export namespace ViewCell {
-    // @internal (undocumented)
-    export type PaintFingerprint = Record<string, unknown>;
-    // (undocumented)
-    export function sameByDataPoint(left: ViewCell, right: ViewCell): boolean;
+    import sameByDataPoint = DatalessViewCell.sameByDataPoint;
 }
 
 // @public (undocumented)
@@ -3152,8 +3306,8 @@ export namespace WritablePoint {
 
 // Warnings were encountered during analysis:
 //
-// src/code/grid/components/selection/selection.ts:20:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/components/view/view-layout.ts:26:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/components/selection/selection.ts:21:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/components/view/view-layout.ts:27:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

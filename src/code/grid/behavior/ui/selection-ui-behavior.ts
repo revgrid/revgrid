@@ -1,7 +1,7 @@
 
-import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { Subgrid } from '../../interfaces/server/subgrid';
+import { Subgrid } from '../../interfaces/data/subgrid';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { CursorNames, isSecondaryMouseButton } from '../../types-utils/html-types';
 import { Point } from '../../types-utils/point';

@@ -1,7 +1,7 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
-import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
-import { CellEditor } from '../../interfaces/serverless/cell-editor';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { CellEditor } from '../../interfaces/dataless/cell-editor';
 import { KeyboardEventKey } from '../../types-utils/html-types';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';

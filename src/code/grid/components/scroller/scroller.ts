@@ -217,6 +217,8 @@ export class Scroller {
         }
 
         this._scrollDimension.changedEventer = () => {
+            this.resize();
+
             if (this._indexMode) {
                 const index = this.index;
                 this.index = index; // re-clamp
@@ -402,6 +404,31 @@ export class Scroller {
     // }
 
     /**
+     * @summary Remove the scrollbar.
+     * @desc Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
+     */
+    destroy() {
+        this.bar.onmousedown = null;
+        this.removeEventListener('mousemove');
+        this.removeEventListener('mouseup');
+
+        const parentElement = this.bar.parentElement;
+        if (parentElement === null) {
+            throw new AssertError('F11122');
+        } else {
+            parentElement.removeEventListener('wheel', this._bound.onwheel);
+
+            this.bar.onclick = null;
+            this._thumb.onclick = null;
+            this._thumb.onmouseover = null;
+            this._thumb.ontransitionend = null;
+            this._thumb.onmouseout = null;
+
+            this.bar.remove();
+        }
+    }
+
+    /**
      * @summary Recalculate thumb position.
      *
      * @desc This method recalculates the thumb size and position. Call it once after inserting your scrollbar into the DOM, and repeatedly while resizing the scrollbar (which typically happens when the scrollbar's parent is resized by user.
@@ -418,7 +445,7 @@ export class Scroller {
      *
      * @returns Self for chaining.
      */
-    resize() {
+    private resize() {
         // const bar = this.bar;
 
         // if (!bar.parentNode) {
@@ -469,31 +496,6 @@ export class Scroller {
         this.setThumbSize();
         if (this._indexMode) {
             this.index = index;
-        }
-    }
-
-    /**
-     * @summary Remove the scrollbar.
-     * @desc Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
-     */
-    destroy() {
-        this.bar.onmousedown = null;
-        this.removeEventListener('mousemove');
-        this.removeEventListener('mouseup');
-
-        const parentElement = this.bar.parentElement;
-        if (parentElement === null) {
-            throw new AssertError('F11122');
-        } else {
-            parentElement.removeEventListener('wheel', this._bound.onwheel);
-
-            this.bar.onclick = null;
-            this._thumb.onclick = null;
-            this._thumb.onmouseover = null;
-            this._thumb.ontransitionend = null;
-            this._thumb.onmouseout = null;
-
-            this.bar.remove();
         }
     }
 

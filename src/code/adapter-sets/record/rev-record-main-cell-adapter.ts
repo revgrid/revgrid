@@ -1,10 +1,10 @@
 import { CellPainter } from '../../grid/grid-public-api';
-import { RevRecordMainAdapter } from './rev-record-main-adapter';
+import { RevRecordMainDataServer } from './rev-record-main-data-server';
 
 /** @public */
 export class RevRecordMainCellAdapter {
     constructor(
-        private readonly _mainAdapter: RevRecordMainAdapter,
+        private readonly _mainAdapter: RevRecordMainDataServer,
         private readonly _mainCellPainter: CellPainter) {
     }
 

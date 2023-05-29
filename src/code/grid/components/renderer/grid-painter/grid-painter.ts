@@ -1,15 +1,14 @@
-import { ViewLayoutColumn } from '../../../interfaces/server/view-layout-column';
-import { ViewLayoutRow } from '../../../interfaces/server/view-layout-row';
-import { CellEditor } from '../../../interfaces/serverless/cell-editor';
+import { ViewCell } from '../../../interfaces/data/view-cell';
+import { ViewLayoutRow } from '../../../interfaces/data/view-layout-row';
+import { CellEditor } from '../../../interfaces/dataless/cell-editor';
+import { ViewLayoutColumn } from '../../../interfaces/schema/view-layout-column';
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { Rectangle } from '../../../types-utils/rectangle';
 import { CanvasManager } from '../../canvas/canvas-manager';
-import { ViewCell } from '../../cell/view-cell';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
-import { SubgridImplementation } from '../../subgrid/subgrid-implementation';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
@@ -86,8 +85,7 @@ export abstract class GridPainter {
             }
         }
 
-        const subgrid = viewCell.subgrid as SubgridImplementation;
-        const cellPainter = subgrid.getCellPainter(viewCell, cellEditorPainter);
+        const cellPainter = viewCell.subgrid.dataServer.getCellPainter(viewCell, cellEditorPainter);
 
         const preferredWidth = cellPainter.paint(gc, prefillColor);
 

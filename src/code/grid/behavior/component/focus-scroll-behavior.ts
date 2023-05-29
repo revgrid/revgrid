@@ -1,23 +1,25 @@
-import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
+import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
 import { ViewLayout } from '../../components/view/view-layout';
-import { MainSubgrid } from '../../interfaces/server/main-subgrid';
-import { ViewLayoutColumn } from '../../interfaces/server/view-layout-column';
-import { ViewLayoutRow } from '../../interfaces/server/view-layout-row';
+import { MainSubgrid } from '../../interfaces/data/main-subgrid';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
+import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 
 export class FocusScrollBehavior {
+    private readonly _mainSubgrid: MainSubgrid;
+
     constructor(
         private readonly _gridSettings: GridSettings,
-        private readonly _mainSubgrid: MainSubgrid,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewLayout: ViewLayout,
         private readonly _focus: Focus,
     ) {
-
+        this._mainSubgrid = this._subgridsManager.mainSubgrid;
     }
 
     tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell | undefined) {
@@ -145,7 +147,8 @@ export class FocusScrollBehavior {
         }
     }
 
-    getFocusedViewCell(useAllCells: boolean) {
+    // probably can get rid of this with a bit more cleanup
+    getFocusedViewCell(useAllCells: boolean): ViewCell | undefined {
         const focusedPoint = this._focus.currentSubgridPoint;
         if (focusedPoint === undefined) {
             return undefined;
@@ -172,7 +175,7 @@ export class FocusScrollBehavior {
                     bottomPlus1: -1,
                     height: -1,
                 };
-                const cellEvent = new ViewCell(this._columnsManager);
+                const cellEvent = new ViewCellImplementation(this._columnsManager);
                 cellEvent.reset(vc, vr);
                 return cellEvent;
             } else {
@@ -184,7 +187,7 @@ export class FocusScrollBehavior {
                     if (vr === undefined) {
                         return undefined;
                     } else {
-                        const cellEvent = new ViewCell(this._columnsManager);
+                        const cellEvent = new ViewCellImplementation(this._columnsManager);
                         cellEvent.reset(vc, vr);
                         return cellEvent;
                     }

@@ -8,12 +8,10 @@
         // see notes.md for script to regenerate list of tsconfig files below
         "project": [
           "./src/code/grid/tsconfig.grid.json",
-          "./src/code/grid/behavior/tsconfig.grid-behavior.json",
           "./src/code/grid/behavior/ui/tsconfig.grid-behavior-ui.json",
           "./src/code/grid/behavior/component/tsconfig.grid-behavior-component.json",
           "./src/code/grid/components/tsconfig.grid-components.json",
           "./src/code/grid/components/canvas/tsconfig.grid-components-canvas.json",
-          "./src/code/grid/components/cell/tsconfig.grid-components-cell.json",
           "./src/code/grid/components/column/tsconfig.grid-components-column.json",
           "./src/code/grid/components/focus/tsconfig.grid-components-focus.json",
           "./src/code/grid/components/event/tsconfig.grid-components-event.json",
@@ -24,9 +22,10 @@
           "./src/code/grid/components/view/tsconfig.grid-components-view.json",
           "./src/code/grid/components/selection/tsconfig.grid-components-selection.json",
           "./src/code/grid/components/scroller/tsconfig.grid-components-scroller.json",
-          "./src/code/grid/settings-accessors/tsconfig.grid-settings-accessors.json",
-          "./src/code/grid/interfaces/server/tsconfig.grid-interfaces-server.json",
-          "./src/code/grid/interfaces/serverless/tsconfig.grid-interfaces-serverless.json",
+          "./src/code/grid/settings/tsconfig.grid-settings.json",
+          "./src/code/grid/interfaces/data/tsconfig.grid-interfaces-data.json",
+          "./src/code/grid/interfaces/dataless/tsconfig.grid-interfaces-dataless.json",
+          "./src/code/grid/interfaces/schema/tsconfig.grid-interfaces-schema.json",
           "./src/code/grid/interfaces/settings/tsconfig.grid-interfaces-settings.json",
           "./src/code/grid/types-utils/tsconfig.grid-types-utils.json",
           "./src/code/grid/renderer/tsconfig.grid-renderer.json" // to be removed

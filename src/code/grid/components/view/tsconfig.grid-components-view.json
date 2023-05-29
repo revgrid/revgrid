@@ -11,11 +11,9 @@
   ],
 
   "references": [
-    { "path": "../cell/tsconfig.grid-components-cell.json" },
     { "path": "../column/tsconfig.grid-components-column.json" },
     { "path": "../subgrid/tsconfig.grid-components-subgrid.json" },
-    { "path": "../../settings-accessors/tsconfig.grid-settings-accessors.json" },
-    { "path": "../../interfaces/server/tsconfig.grid-interfaces-server.json" },
+    { "path": "../../interfaces/data/tsconfig.grid-interfaces-data.json" },
     { "path": "../../interfaces/settings/tsconfig.grid-interfaces-settings.json" },
     { "path": "../../types-utils/tsconfig.grid-types-utils.json" }
   ]

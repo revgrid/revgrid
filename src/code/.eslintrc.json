@@ -8,7 +8,7 @@
         // see notes.md for script to regenerate list of tsconfig files below
         "project": [
           "./src/code/adapter-sets/record/tsconfig.rev-record.json",
-          "./src/code/adapter-sets/simple/tsconfig.rev-simple.json",
+          "./src/code/adapter-sets/simple/tsconfig.rev-server-set-simple.json",
           "./src/code/standard-cell-painters/tsconfig.standard-cell-painters.json",
           "./src/code/standard-cell-editors/tsconfig.standard-cell-editors.json"
         ]

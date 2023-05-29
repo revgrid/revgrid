@@ -1,7 +1,7 @@
 import { Focus } from '../../components/focus/focus';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
-import { Subgrid } from '../../interfaces/server/subgrid';
+import { Subgrid } from '../../interfaces/data/subgrid';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';

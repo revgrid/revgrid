@@ -1,11 +1,11 @@
-// import { Column } from '../../interfaces/server/column';
-import { Column } from '../../interfaces/server/column';
-import { DataServer } from '../../interfaces/server/data-server';
-import { SchemaServer } from '../../interfaces/server/schema-server';
+// import { Column } from '../../interfaces/data/column';
+import { DataServer } from '../../interfaces/data/data-server';
+import { Column } from '../../interfaces/schema/column';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableColumnSettingsAccessor } from '../../settings-accessors/mergable-column-settings-implementation';
+import { MergableColumnSettingsImplementation } from '../../settings/mergable-column-settings-implementation';
 
 /** @internal */
 export class ColumnImplementation implements Column {
@@ -30,7 +30,7 @@ export class ColumnImplementation implements Column {
         this.name = schemaColumn.name
 
         // this.properties = columnSchema; // see {@link Column#properties properties} setter
-        this._settings = new MergableColumnSettingsAccessor(this._gridSettings, schemaColumn.initialSettings); // see {@link Column#properties properties} setter
+        this._settings = new MergableColumnSettingsImplementation(this._gridSettings, schemaColumn.initialSettings); // see {@link Column#properties properties} setter
         this.schemaColumn = schemaColumn;
     }
 

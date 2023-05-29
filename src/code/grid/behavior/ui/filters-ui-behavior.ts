@@ -1,6 +1,7 @@
 
-import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
+import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -81,7 +82,7 @@ export class FiltersUiBehavior extends UiBehavior {
         const originX = gridX;
         const C = this.viewLayout.columns.length;
 
-        const moveDownCellEvent = new ViewCell(this.columnsManager); // redefine so we don't reset the original below
+        const moveDownCellEvent = new ViewCellImplementation(this.columnsManager); // redefine so we don't reset the original below
 
         while (
             (gridX = (gridX + deltaX + C) % C) !== originX &&

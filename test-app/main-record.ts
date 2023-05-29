@@ -20,9 +20,10 @@ export namespace MainRecord {
             case 'receiveDate': return compareDate(left.receiveDate, right.receiveDate);
             case 'favoriteFood': return compareString(left.favoriteFood, right.favoriteFood);
             case 'restrictMovement': return compareBoolean(left.restrictMovement, right.restrictMovement);
-            default:
+            default: {
                 const unsupportField: never = key;
                 throw new Error(`MainRecord: unsupport compare field: ${unsupportField}`);
+            }
         }
     }
 

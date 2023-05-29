@@ -1,11 +1,10 @@
-import { DataServer } from '../../interfaces/server/data-server';
-import { MetaModel } from '../../interfaces/server/meta-model';
-import { Subgrid } from '../../interfaces/server/subgrid';
+import { DataServer } from '../../interfaces/data/data-server';
+import { MetaModel } from '../../interfaces/data/meta-model';
+import { Subgrid } from '../../interfaces/data/subgrid';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { MainSubgridImplementation } from './main-subgrid-implementation';
-import { SubgridDefinition } from './subgrid-definition';
 import { SubgridImplementation } from './subgrid-implementation';
 
 export class SubgridsManager {
@@ -13,12 +12,10 @@ export class SubgridsManager {
     readonly subgrids = new Array<SubgridImplementation>();
     readonly _handledSubgrids = new Array<SubgridImplementation | undefined>();
 
-
     constructor(
         private readonly _gridSettings: GridSettings,
         private readonly _columnsManager: ColumnsManager,
-        definitions: SubgridDefinition[],
-        defaultRowPropertiesPrototype: MetaModel.RowPropertiesPrototype,
+        definitions: Subgrid.Definition[],
     ) {
         let mainSubgrid: MainSubgridImplementation | undefined;
         const subgrids = this.subgrids;
@@ -26,7 +23,7 @@ export class SubgridsManager {
         for (const definition of definitions) {
             if (definition !== undefined) {
                 const subgridHandle = this._handledSubgrids.length;
-                const subgrid = this.createSubgridFromDefinition(subgridHandle, definition, defaultRowPropertiesPrototype);
+                const subgrid = this.createSubgridFromDefinition(subgridHandle, definition);
                 subgrids.push(subgrid);
                 this._handledSubgrids.push(subgrid);
                 if (subgrid.role === Subgrid.RoleEnum.main) {
@@ -55,8 +52,7 @@ export class SubgridsManager {
      */
     private createSubgridFromDefinition(
         subgridHandle: SubgridImplementation.Handle,
-        definition: SubgridDefinition,
-        defaultRowPropertiesPrototype: MetaModel.RowPropertiesPrototype,
+        definition: Subgrid.Definition,
     ) {
         const role = definition.role ?? Subgrid.Role.defaultRole;
         const isMainRole = role === Subgrid.RoleEnum.main;
@@ -71,10 +67,6 @@ export class SubgridsManager {
         }
 
         const rowHeightsCanDiffer = definition.rowPropertiesCanSpecifyRowHeight === true;
-        let rowPropertiesBehavior = definition.rowPropertiesPrototype;
-        if (metaModel !== undefined && rowPropertiesBehavior === undefined) {
-            rowPropertiesBehavior = defaultRowPropertiesPrototype;
-        }
         let selectable = definition.selectable;
         if (selectable === undefined) {
             selectable = isMainRole;
@@ -84,11 +76,10 @@ export class SubgridsManager {
             role,
             dataServer,
             metaModel,
-            definition.getCellPainterEventer,
             selectable,
             definition.defaultRowHeight,
             rowHeightsCanDiffer,
-            rowPropertiesBehavior,
+            definition.rowPropertiesPrototype,
         );
     }
 
@@ -96,7 +87,6 @@ export class SubgridsManager {
     private createSubgrid(
         subgridHandle: SubgridImplementation.Handle,
         role: Subgrid.Role, dataServer: DataServer, metaModel: MetaModel | undefined,
-        getCellPainterEventer: SubgridDefinition.GetCellPainterEventer,
         selectable: boolean,
         defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
@@ -111,7 +101,6 @@ export class SubgridsManager {
                 this._columnsManager.schemaServer,
                 dataServer,
                 metaModel,
-                getCellPainterEventer,
                 selectable,
                 defaultRowHeight,
                 rowHeightsCanDiffer,
@@ -126,7 +115,6 @@ export class SubgridsManager {
                 this._columnsManager.schemaServer,
                 dataServer,
                 metaModel,
-                getCellPainterEventer,
                 selectable,
                 defaultRowHeight,
                 rowHeightsCanDiffer,

@@ -1,13 +1,13 @@
 import { ViewCell } from '../../grid/grid-public-api';
 import { RevRecordCellPaintConfig } from './rev-record-cell-paint-config';
-import { RevRecordMainAdapter } from './rev-record-main-adapter';
+import { RevRecordMainDataServer } from './rev-record-main-data-server';
 import { RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
 export class RevRecordCellPaintConfigAccessor implements RevRecordCellPaintConfig {
     readonly valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId;
     readonly recordRecentChangeTypeId?: RevRecordRecentChangeTypeId;
 
-    constructor(cell: ViewCell, mainAdapter: RevRecordMainAdapter) {
+    constructor(cell: ViewCell, mainAdapter: RevRecordMainDataServer) {
         let rowIndex = cell.viewLayoutRow.subgridRowIndex;
 
         if (mainAdapter.rowOrderReversed) {

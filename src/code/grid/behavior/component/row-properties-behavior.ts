@@ -1,7 +1,7 @@
-import { ViewCell } from '../../components/cell/view-cell';
 import { ViewLayout } from '../../components/view/view-layout';
-import { MetaModel } from '../../interfaces/server/meta-model';
-import { Subgrid } from '../../interfaces/server/subgrid';
+import { MetaModel } from '../../interfaces/data/meta-model';
+import { Subgrid } from '../../interfaces/data/subgrid';
+import { ViewCell } from '../../interfaces/data/view-cell';
 
 export class RowPropertiesBehavior {
     constructor(private readonly _viewLayout: ViewLayout) {

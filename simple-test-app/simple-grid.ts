@@ -1,14 +1,10 @@
 import {
-    AdapterSetConfig,
-    CellEvent,
-    GridProperties,
+    GridSettings,
+    RevSimpleHeaderDataServer,
+    RevSimpleSchemaServer,
+    RevSimpleServerSet,
     Revgrid,
-    RevSimpleAdapterSet,
-    RevSimpleHeaderAdapter,
-    RevSimpleMainAdapter,
-    RevSimpleSchemaAdapter,
-    SelectionDetail,
-    SubgridInterface
+    ViewCell
 } from "..";
 
 export class SimpleGrid extends Revgrid {
@@ -18,83 +14,68 @@ export class SimpleGrid extends Revgrid {
     private _rowFocusClickEventer: SimpleGrid.RowFocusClickEventer | undefined;
     private _rowFocusDblClickEventer: SimpleGrid.RowFocusDblClickEventer | undefined;
 
-    private readonly _adapterSet: RevSimpleAdapterSet;
+    private readonly _serverSet: RevSimpleServerSet;
 
     private readonly _selectionChangedListener: (event: CustomEvent<SelectionDetail>) => void;
-    private readonly _clickListener: (event: CustomEvent<CellEvent>) => void;
-    private readonly _dblClickListener: (event: CustomEvent<CellEvent>) => void;
+    private readonly _clickListener: (event: CustomEvent<ViewCell>) => void;
+    private readonly _dblClickListener: (event: CustomEvent<ViewCell>) => void;
 
     constructor(
         gridElement: HTMLElement,
-        gridProperties: Partial<GridProperties>,
+        gridSettings: Partial<GridSettings>,
     ) {
-        const adapterSet = new RevSimpleAdapterSet();
+        const adapterSet = new RevSimpleServerSet();
 
-        const adapterSetConfig: AdapterSetConfig = {
-            schemaServer: adapterSet.schemaAdapter,
+        const headerDataServer = adapterSet.headerDataServer;
+        const mainDataServer = adapterSet.mainDataServer;
+
+        const adapterSetConfig: Revgrid.Definition = {
+            schemaServer: adapterSet.schemaServer,
             subgrids: [
                 {
-                    role: SubgridInterface.RoleEnum.header,
-                    dataModel: adapterSet.headerAdapter,
+                    role: Subgrid.RoleEnum.header,
+                    dataServer: adapterSet.headerDataServer,
                 },
                 {
-                    role: SubgridInterface.RoleEnum.main,
-                    dataModel: adapterSet.mainAdapter,
+                    role: Subgrid.RoleEnum.main,
+                    dataServer: adapterSet.mainDataServer,
                 }
             ],
         };
 
         const options: Revgrid.Options = {
-            gridProperties,
+            gridSettings,
             loadBuiltinFinbarStylesheet: false,
         };
 
         super(gridElement, adapterSetConfig, options);
 
-        this._adapterSet = adapterSet;
+        this._serverSet = adapterSet;
+
+        headerDataServer.cellPainter.setGrid(this);
+        mainDataServer.cellPainter.setGrid(this);
 
         this._selectionChangedListener = (event: CustomEvent<SelectionDetail>) => this.handleHypegridSelectionChanged(event);
-        this._clickListener = (event: CustomEvent<CellEvent>) => this.handleGridClickEvent(event);
-        this._dblClickListener = (event: CustomEvent<CellEvent>) => this.handleGridDblClickEvent(event);
+        this._clickListener = (event: CustomEvent<ViewCell>) => this.handleGridClickEvent(event);
+        this._dblClickListener = (event: CustomEvent<ViewCell>) => this.handleGridDblClickEvent(event);
 
         this.allowEvents(true);
     }
 
-    get schemaAdapter(): RevSimpleSchemaAdapter { return this._adapterSet.schemaAdapter; }
-    get mainAdapter(): RevSimpleMainAdapter { return this._adapterSet.mainAdapter; }
-    get headerAdapter(): RevSimpleHeaderAdapter { return this._adapterSet.headerAdapter; }
+    get schemaServer(): RevSimpleSchemaServer { return this._serverSet.schemaServer; }
+    get headerAdapter(): RevSimpleHeaderDataServer { return this._serverSet.headerDataServer; }
 
-    get fieldCount(): number { return this.schemaAdapter.getSchema().length; }
+    get fieldCount(): number { return this.schemaServer.getSchema().length; }
 
     get columnCount(): number { return this.activeColumnCount; }
-
-    get focusedRowIndex(): number | undefined {
-        const rectangles = this.getSelectedRectangles();
-
-        if (rectangles.length === 0) {
-            return undefined;
-        } else {
-            const rowIndex = rectangles[0].firstSelectedCell.y;
-            return rowIndex
-        }
-    }
-
-    set focusedRowIndex(rowIndex: number | undefined) {
-        if (rowIndex === undefined) {
-            this.clearSelection();
-        } else {
-            if (rowIndex === undefined) {
-                this.clearSelection();
-            } else {
-                this.selectRows(rowIndex, rowIndex);
-            }
-        }
-    }
 
     get headerRowCount(): number {
         return this.headerAdapter.getRowCount();
     }
 
+    protected descendantProcessFocusChanged() {
+
+    }
     get rowFocusEventer(): SimpleGrid.RowFocusEventer | undefined { return this._rowFocusEventer; }
     set rowFocusEventer(value: SimpleGrid.RowFocusEventer | undefined) {
         if (this._rowFocusEventer !== undefined) {
@@ -131,11 +112,11 @@ export class SimpleGrid extends Revgrid {
         }
     }
 
-    setData(data: RevSimpleAdapterSet.DataRow[], headerRowCount = -1): void {
-        this._adapterSet.setData(data, headerRowCount)
+    setData(data: RevSimpleServerSet.DataRow[], headerRowCount = -1): void {
+        this._serverSet.setData(data, headerRowCount)
     }
 
-    private handleGridClickEvent(event: CustomEvent<CellEvent>): void {
+    private handleGridClickEvent(event: CustomEvent<ViewCell>): void {
         const gridY = event.detail.gridCell.y;
         if (gridY !== 0) { // Skip clicks to the column headers
             if (this._rowFocusClickEventer !== undefined) {
@@ -150,7 +131,7 @@ export class SimpleGrid extends Revgrid {
         }
     }
 
-    private handleGridDblClickEvent(event: CustomEvent<CellEvent>): void {
+    private handleGridDblClickEvent(event: CustomEvent<ViewCell>): void {
         if (event.detail.gridCell.y !== 0) { // Skip clicks to the column headers
             if (this._rowFocusClickEventer !== undefined) {
                 const rowIndex = event.detail.dataCell.y;

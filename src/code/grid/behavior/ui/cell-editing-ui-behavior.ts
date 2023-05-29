@@ -1,7 +1,7 @@
 
 // import { CellEditor } from '../../cell-editor/cell-editor';
-import { ViewCell } from '../../components/cell/view-cell';
 import { EventDetail } from '../../components/event/event-detail';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { UiBehavior } from './ui-behavior';
 
 export class CellEditingUiBehavior extends UiBehavior {

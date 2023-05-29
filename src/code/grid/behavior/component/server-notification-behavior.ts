@@ -6,8 +6,8 @@ import { Selection } from '../../components/selection/selection';
 import { SubgridImplementation } from '../../components/subgrid/subgrid-implementation';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { DataServer } from '../../interfaces/server/data-server';
-import { SchemaServer } from '../../interfaces/server/schema-server';
+import { DataServer } from '../../interfaces/data/data-server';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { ReindexBehavior } from './reindex-behavior';
 
 export class ServerNotificationBehavior {

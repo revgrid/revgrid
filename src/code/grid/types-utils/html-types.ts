@@ -43,4 +43,6 @@ export namespace KeyboardEventKey {
 
 export namespace CursorNames {
     export const cell = 'cell';
+    export const colResize = 'col-resize';
+    export const ewResize = 'ew-resize';
 }

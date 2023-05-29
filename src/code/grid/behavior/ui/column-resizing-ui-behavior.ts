@@ -1,6 +1,8 @@
 
-import { ViewCell } from '../../components/cell/view-cell';
-import { Column, ColumnWidth } from '../../interfaces/server/column';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { Column, ColumnWidth } from '../../interfaces/schema/column';
+import { CursorNames } from '../../types-utils/html-types';
+import { EventBehavior } from '../component/event-behavior';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -59,13 +61,13 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, cell: ViewCell | null | undefined): EventBehavior.UiPointerDragStartResult {
         if (cell === undefined) {
             cell = this.tryGetViewCellFromMouseEvent(event);
         }
 
         if (cell === null) {
-            return super.handlePointerDown(event, cell);
+            return super.handlePointerDragStart(event, cell);
         } else {
             const canvasOffsetX = event.offsetX;
             if (cell.isHeader && this.overAreaDivider(canvasOffsetX, cell)) {
@@ -79,7 +81,8 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                     if (cellOffsetX <= 3) {
                         vcIndex--;
                         if (vcIndex < 0) {
-                            return; // can't drag left-most column boundary
+                            // can't drag left-most column boundary
+                            return super.handlePointerDragStart(event, cell);
                         } else {
                             vc = this.viewLayout.columns[vcIndex];
                             this._dragColumn = vc.column;
@@ -93,7 +96,8 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                     if (canvasOffsetX >= cell.bounds.x + cell.bounds.width - 3) {
                         vcIndex++;
                         if (vcIndex >= viewLayoutColumnCount) {
-                            return; // can't drag right-most column boundary
+                            // can't drag right-most column boundary
+                            return super.handlePointerDragStart(event, cell);
                         } else {
                             vc = this.viewLayout.columns[vcIndex];
                             this._dragColumn = vc.column;
@@ -176,16 +180,20 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                     this._inPlaceAdjacentColumn = undefined; // in case resizeColumnInPlace was previously on but is now off
                 }
                 this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
-                return cell;
+                this.mouse.setOperationCursor(ColumnResizingUiBehavior.resizingCursorName);
+                return {
+                    started: true,
+                    cell,
+                }
             } else {
-                return super.handlePointerDown(event, cell);
+                return super.handlePointerDragStart(event, cell);
             }
         }
     }
 
-    override handlePointerUpCancel(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDragEnd(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (this._dragColumn !== undefined) {
-            this.cursor = undefined;
+            this.mouse.setOperationCursor(undefined);
             this._dragColumn = undefined;
 
             event.stopPropagation();
@@ -200,8 +208,6 @@ export class ColumnResizingUiBehavior extends UiBehavior {
 
     override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
         if (this._dragColumn === undefined) {
-            this.cursor = undefined;
-
             cell = super.handlePointerMove(event, cell);
 
             if (cell === undefined) {
@@ -209,7 +215,9 @@ export class ColumnResizingUiBehavior extends UiBehavior {
             }
 
             const canvasOffsetX = event.offsetX;
-            this.cursor = cell !== null && cell.isHeader && this.overAreaDivider(canvasOffsetX, cell) ? ColumnResizingUiBehavior.cursorName : undefined;
+            if (cell !== null && cell.isHeader && this.overAreaDivider(canvasOffsetX, cell)) {
+                this.sharedState.locationCursorName = ColumnResizingUiBehavior.canResizeCursorName;
+            }
         }
         return cell;
     }
@@ -257,5 +265,6 @@ export class ColumnResizingUiBehavior extends UiBehavior {
 export namespace ColumnResizingUiBehavior {
     export const typeName = 'columnresizing';
 
-    export const cursorName = 'col-resize';
+    export const canResizeCursorName = CursorNames.colResize;
+    export const resizingCursorName = CursorNames.ewResize;
 }

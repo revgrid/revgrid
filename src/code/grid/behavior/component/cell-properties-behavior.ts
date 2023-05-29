@@ -1,13 +1,14 @@
-import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
+import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
 import { ViewLayout } from '../../components/view/view-layout';
-import { CellProperties } from '../../interfaces/server/cell-properties';
-import { Column } from '../../interfaces/server/column';
-import { MetaModel } from '../../interfaces/server/meta-model';
-import { Subgrid } from '../../interfaces/server/subgrid';
+import { CellMetaSettings } from '../../interfaces/data/cell-meta-settings';
+import { MetaModel } from '../../interfaces/data/meta-model';
+import { Subgrid } from '../../interfaces/data/subgrid';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { Column } from '../../interfaces/schema/column';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
-import { CellPropertiesAccessor } from '../../settings-accessors/cell-properties-accessor';
+import { CellMetaSettingsImplementation } from '../../settings/cell-meta-settings-implementation';
 
 export class CellPropertiesBehavior {
     constructor(
@@ -25,9 +26,9 @@ export class CellPropertiesBehavior {
      * @return The properties of the cell at x,y in the grid.
      */
     /** @internal */
-    getCellPropertiesAccessor(column: Column, rowIndex: number, subgrid: Subgrid): CellProperties {
+    getCellPropertiesAccessor(column: Column, rowIndex: number, subgrid: Subgrid): CellMetaSettings {
         const cellOwnProperties = this.getCellOwnProperties(column, rowIndex, subgrid);
-        return new CellPropertiesAccessor((cellOwnProperties ? cellOwnProperties : undefined), column.settings);
+        return new CellMetaSettingsImplementation((cellOwnProperties ? cellOwnProperties : undefined), column.settings);
     }
 
     /**
@@ -183,7 +184,7 @@ export class CellPropertiesBehavior {
             optionalCell = this._viewLayout.findCellAtDataPoint(column.index, rowIndex, subgrid);
         }
         if (optionalCell !== undefined) {
-            optionalCell.clearCellOwnProperties();
+            (optionalCell as ViewCellImplementation).clearCellOwnProperties();
         }
 
         return properties;
@@ -233,10 +234,11 @@ export class CellPropertiesBehavior {
      */
     getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell): MetaModel.CellOwnProperties | false | null | undefined{
         // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
-        let cellOwnProperties = renderedCell.cellOwnProperties;
+        const viewCellImplementation = renderedCell as ViewCellImplementation;
+        let cellOwnProperties = viewCellImplementation.cellOwnProperties;
         if (cellOwnProperties === undefined) {
             cellOwnProperties = this.getCellOwnProperties(renderedCell.viewLayoutColumn.column, renderedCell.viewLayoutRow.subgridRowIndex, renderedCell.subgrid);
-            renderedCell.cellOwnProperties = cellOwnProperties;
+            viewCellImplementation.cellOwnProperties = cellOwnProperties;
         }
         return cellOwnProperties;
     }

@@ -2,6 +2,11 @@ export interface UiBehaviorSharedState {
     mouseDownUpClickUsedForMoveOrResize: boolean;
     columnMovingDragArmed: boolean;
     columnMovingDragging: boolean;
+
+    /**
+     * the cursor I want to be displayed
+     */
+    locationCursorName: string | undefined;
 }
 
 export namespace UiBehaviorSharedState {

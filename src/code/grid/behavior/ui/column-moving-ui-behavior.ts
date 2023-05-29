@@ -1,5 +1,5 @@
-import { ViewCell } from '../../components/cell/view-cell';
-import { ViewLayoutColumn } from '../../interfaces/server/view-layout-column';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
 import { isSecondaryMouseButton } from '../../types-utils/html-types';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
@@ -86,7 +86,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                 cell.isHeader
             ) {
                 this.sharedState.columnMovingDragArmed = true;
-                this.cursor = ColumnMovingUiBehavior.GRABBING;
+                this.sharedState.locationCursorName = ColumnMovingUiBehavior.GRABBING;
                 this.reindexBehavior.stash();
                 this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
             }
@@ -101,7 +101,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             this.endGridScrolling();
             this.endDragColumn(dragAction);
             this.reindexBehavior.unstash();
-            this.cursor = undefined;
+            this.sharedState.locationCursorName = undefined;
             // End Column Drag
             setTimeout(() => {
                 this.attachChain();
@@ -132,16 +132,16 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                 cell = this.tryGetViewCellFromMouseEvent(event);
             }
             if (cell !== null && !cell.isColumnFixed && cell.isHeader) {
-                this.cursor = ColumnMovingUiBehavior.GRAB;
+                this.sharedState.locationCursorName = ColumnMovingUiBehavior.GRAB;
             } else {
-                this.cursor = undefined;
+                this.sharedState.locationCursorName = undefined;
             }
         } else {
-            this.cursor = undefined;
+            this.sharedState.locationCursorName = undefined;
         }
 
         if (this.sharedState.columnMovingDragging) {
-            this.cursor = ColumnMovingUiBehavior.GRABBING;
+            this.sharedState.locationCursorName = ColumnMovingUiBehavior.GRABBING;
             return cell;
         } else {
             return super.handlePointerMove(event, cell);

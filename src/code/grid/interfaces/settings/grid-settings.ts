@@ -67,6 +67,8 @@ export interface GridSettings {
     enableContinuousRepaint: boolean;
     /** Modifier key that indicates a UI action should extend the selection area */
     extendLastSelectionAreaModifierKey: ModifierKeyEnum;
+    /** Whether grid events are dispatched as DOM events */
+    eventDispatchEnabled: boolean;
     features: string[];
     /** Validation failure feedback. */
     feedbackCount: number;
@@ -336,9 +338,4 @@ export namespace GridSettings {
                 throw new UnreachableCaseError('GSIMSA67221', selectionAreaType);
         }
     }
-}
-
-export interface LoadableGridSettings extends GridSettings {
-    loadDefaults(): void;
-    merge(properties: Partial<GridSettings>): boolean;
 }

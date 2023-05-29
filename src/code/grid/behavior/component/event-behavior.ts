@@ -1,12 +1,16 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
-import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { EventName } from '../../components/event/event-name';
+import { Focus } from '../../components/focus/focus';
+import { Mouse } from '../../components/mouse/mouse';
+import { Renderer } from '../../components/renderer/renderer';
 import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
-import { Column } from '../../interfaces/server/column';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { Column } from '../../interfaces/schema/column';
+import { Point } from '../../types-utils/point';
 import { ListChangedTypeId } from '../../types-utils/types';
 
 export class EventBehavior {
@@ -39,47 +43,55 @@ export class EventBehavior {
     uiHorizontalScrollerActionEventer: EventBehavior.UiScrollerActionEventer;
     uiVerticalScrollerActionEventer: EventBehavior.UiScrollerActionEventer;
 
-    private _dispatchEnabled = false;
+    private readonly _dispatchEnabled: boolean;
     private _destroyed = false;
 
     constructor(
-        private readonly _canvasEx: CanvasManager,
+        dispatchEnabled: boolean,
+        private readonly _canvasManager: CanvasManager,
         private readonly _columnsManager: ColumnsManager,
         private readonly _viewLayout: ViewLayout,
+        private readonly _focus: Focus,
         private readonly _selection: Selection,
+        private readonly _mouse: Mouse,
+        private readonly _renderer: Renderer,
         private readonly _horizontalScroller: Scroller,
         private readonly _verticalScroller: Scroller,
         private readonly _descendantEventer: EventBehavior.DescendantEventer,
         private readonly _dispatchEventEventer: EventBehavior.DispatchEventEventer,
     ) {
-        this._canvasEx.focusEventer = (event) => this.processFocusEvent(event);
-        this._canvasEx.blurEventer = (event) => this.processBlurEvent(event);
-        this._canvasEx.keyDownEventer = (event) => this.processKeyDownEvent(event);
-        this._canvasEx.keyUpEventer = (event) => this.processKeyUpEvent(event);
-        this._canvasEx.clickEventer = (event) => this.processClickEvent(event);
-        this._canvasEx.dblClickEventer = (event) => this.processDblClickEvent(event);
-        this._canvasEx.pointerEnterEventer = (event) => this.processPointerEnterEvent(event);
-        this._canvasEx.pointerDownEventer = (event) => this.processPointerDownEvent(event);
-        this._canvasEx.pointerUpCancelEventer = (event) => this.processPointerUpCancelEvent(event);
-        this._canvasEx.pointerMoveEventer = (event) => this.processPointerMoveEvent(event);
-        this._canvasEx.pointerLeaveOutEventer = (event) => this.processPointerLeaveOutEvent(event);
-        this._canvasEx.pointerDragStartEventer = (event) => this.processPointerDragStartEvent(event);
-        this._canvasEx.pointerDragEventer = (event, internal) => this.processPointerDragEvent(event, internal);
-        this._canvasEx.pointerDragEndEventer = (event, internal) => this.processPointerDragEndEvent(event, internal);
-        this._canvasEx.wheelMoveEventer = (event) => this.processWheelMoveEvent(event);
-        this._canvasEx.contextMenuEventer = (event) => this.processContextMenuEvent(event);
-        this._canvasEx.touchStartEventer = (event) => this.processTouchStartEvent(event);
-        this._canvasEx.touchMoveEventer = (event) => this.processTouchMoveEvent(event);
-        this._canvasEx.touchEndEventer = (event) => this.processTouchEndEvent(event);
-        this._canvasEx.copyEventer = (event) => this.processCopyEvent(event);
-        this._canvasEx.dragEventer = (event) => this.processDragEvent(event);
-        this._canvasEx.dragStartEventer = (event) => this.processDragStartEvent(event);
-        this._canvasEx.dragEnterEventer = (event) => this.processDragEnterEvent(event);
-        this._canvasEx.dragOverEventer = (event) => this.processDragOverEvent(event);
-        this._canvasEx.dragLeaveEventer = (event) => this.processDragLeaveEvent(event);
-        this._canvasEx.dragEndEventer = (event) => this.processDragEndEvent(event);
-        this._canvasEx.dropEventer = (event) => this.processDropEvent(event);
-        this._canvasEx.documentDragOverEventer = (event) => this.processDocumentDragOverEvent(event);
+        this._dispatchEnabled = dispatchEnabled;
+
+        this._canvasManager.resizedEventerForEventBehavior = () => this.processCanvasResizedEvent();
+
+        this._canvasManager.focusEventer = (event) => this.processFocusEvent(event);
+        this._canvasManager.blurEventer = (event) => this.processBlurEvent(event);
+        this._canvasManager.keyDownEventer = (event) => this.processKeyDownEvent(event);
+        this._canvasManager.keyUpEventer = (event) => this.processKeyUpEvent(event);
+        this._canvasManager.clickEventer = (event) => this.processClickEvent(event);
+        this._canvasManager.dblClickEventer = (event) => this.processDblClickEvent(event);
+        this._canvasManager.pointerEnterEventer = (event) => this.processPointerEnterEvent(event);
+        this._canvasManager.pointerDownEventer = (event) => this.processPointerDownEvent(event);
+        this._canvasManager.pointerUpCancelEventer = (event) => this.processPointerUpCancelEvent(event);
+        this._canvasManager.pointerMoveEventer = (event) => this.processPointerMoveEvent(event);
+        this._canvasManager.pointerLeaveOutEventer = (event) => this.processPointerLeaveOutEvent(event);
+        this._canvasManager.pointerDragStartEventer = (event) => this.processPointerDragStartEvent(event);
+        this._canvasManager.pointerDragEventer = (event, internal) => this.processPointerDragEvent(event, internal);
+        this._canvasManager.pointerDragEndEventer = (event, internal) => this.processPointerDragEndEvent(event, internal);
+        this._canvasManager.wheelMoveEventer = (event) => this.processWheelMoveEvent(event);
+        this._canvasManager.contextMenuEventer = (event) => this.processContextMenuEvent(event);
+        this._canvasManager.touchStartEventer = (event) => this.processTouchStartEvent(event);
+        this._canvasManager.touchMoveEventer = (event) => this.processTouchMoveEvent(event);
+        this._canvasManager.touchEndEventer = (event) => this.processTouchEndEvent(event);
+        this._canvasManager.copyEventer = (event) => this.processCopyEvent(event);
+        this._canvasManager.dragEventer = (event) => this.processDragEvent(event);
+        this._canvasManager.dragStartEventer = (event) => this.processDragStartEvent(event);
+        this._canvasManager.dragEnterEventer = (event) => this.processDragEnterEvent(event);
+        this._canvasManager.dragOverEventer = (event) => this.processDragOverEvent(event);
+        this._canvasManager.dragLeaveEventer = (event) => this.processDragLeaveEvent(event);
+        this._canvasManager.dragEndEventer = (event) => this.processDragEndEvent(event);
+        this._canvasManager.dropEventer = (event) => this.processDropEvent(event);
+        this._canvasManager.documentDragOverEventer = (event) => this.processDocumentDragOverEvent(event);
 
         this._columnsManager.allColumnListChangedEventer = (typeId, index, count, targetIndex) => this.processAllColumnListChangedEvent(
             typeId, index, count, targetIndex
@@ -93,7 +105,13 @@ export class EventBehavior {
         this._viewLayout.horizontalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processHorizontalScrollViewportStartChangedEvent();
         this._viewLayout.verticalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processVerticalScrollViewportStartChangedEvent();
 
+        this._focus.changedEventer = (oldPoint, newPoint) => this.processCellFocusChangedEvent(oldPoint, newPoint);
         this._selection.changedEventerForEventBehavior = () => this.processSelectionChangedEvent();
+
+        this._mouse.cellEnteredEventer = (cell) => this.processMouseEnteredCellEvent(cell);
+        this._mouse.cellExitedEventer = (cell) => this.processMouseExitedCellEvent(cell);
+
+        this._renderer.renderedEventer = () => this.processRenderedEvent();
 
         this._horizontalScroller.actionEventer = (action) => this.processHorizontalScrollerEvent(action);
         this._verticalScroller.actionEventer = (action) => this.processVerticalScrollerEvent(action);
@@ -119,38 +137,14 @@ export class EventBehavior {
         }
     }
 
-    processRenderedEvent() {
-        this._descendantEventer.rendered();
-
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-grid-rendered', false, undefined);
-        }
-    }
-
-    processMouseEnteredCellEvent(cell: ViewCell) {
-        this._descendantEventer.mouseEnteredCell(cell);
-
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-cell-enter', false, cell);
-        }
-    }
-
-    processMouseExitedCellEvent(cell: ViewCell) {
-        this._descendantEventer.mouseExitedCell(cell);
-
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-cell-exit', false, cell);
-        }
-    }
-
-    processCanvasResizedEvent() {
+    private processCanvasResizedEvent() {
         this._descendantEventer.resized();
 
         if (this._dispatchEnabled) {
             const detail: EventDetail.Resize = {
                 time: Date.now(),
-                width: this._canvasEx.flooredContainerWidth,
-                height: this._canvasEx.flooredContainerHeight
+                width: this._canvasManager.flooredContainerWidth,
+                height: this._canvasManager.flooredContainerHeight
             };
 
             this.dispatchCustomEvent('rev-grid-resized', false, detail);
@@ -460,6 +454,19 @@ export class EventBehavior {
         this._descendantEventer.copy(event);
     }
 
+    private processCellFocusChangedEvent(oldPoint: Point | undefined, newPoint: Point | undefined) {
+        this._descendantEventer.cellFocusChanged(oldPoint, newPoint);
+
+        if (this._dispatchEnabled) {
+            const detail: EventDetail.CellFocusChanged = {
+                oldPoint,
+                newPoint,
+            };
+
+            this.dispatchCustomEvent('rev-cell-focus-changed', false, detail);
+        }
+    }
+
     private processSelectionChangedEvent() {
         this._descendantEventer.selectionChanged();
 
@@ -485,6 +492,30 @@ export class EventBehavior {
 
         if (this._dispatchEnabled) {
             this.dispatchCustomEvent('rev-vertical-scroller-action', false, action);
+        }
+    }
+
+    private processMouseEnteredCellEvent(cell: ViewCell) {
+        this._descendantEventer.mouseEnteredCell(cell);
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-cell-enter', false, cell);
+        }
+    }
+
+    private processMouseExitedCellEvent(cell: ViewCell) {
+        this._descendantEventer.mouseExitedCell(cell);
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-cell-exit', false, cell);
+        }
+    }
+
+    private processRenderedEvent() {
+        this._descendantEventer.rendered();
+
+        if (this._dispatchEnabled) {
+            this.dispatchCustomEvent('rev-grid-rendered', false, undefined);
         }
     }
 
@@ -536,6 +567,7 @@ export namespace EventBehavior {
         readonly columnsWidthChanged: (this: void, columns: Column[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: DescendantEventer.Signal;
         readonly columnSort: (this: void, event: MouseEvent, cell: ViewCell) => void;
+        readonly cellFocusChanged: DescendantEventer.CellFocusChanged;
         readonly selectionChanged: DescendantEventer.Signal;
         readonly focus: DescendantEventer.Focus;
         readonly blur: DescendantEventer.Focus;
@@ -589,6 +621,7 @@ export namespace EventBehavior {
         export type Cell = (this: void, cell: ViewCell) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
         export type ScrollerAction = (this: void, event: EventDetail.ScrollerAction) => void;
+        export type CellFocusChanged = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
     }
 
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;

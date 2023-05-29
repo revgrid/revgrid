@@ -1,30 +1,35 @@
-import { BehaviorManager } from './behavior/behavior-manager';
-import { AdapterSetConfig } from './behavior/component/adapter-set-config';
 import { CellPropertiesBehavior } from './behavior/component/cell-properties-behavior';
+import { ComponentBehaviorManager } from './behavior/component/component-behavior-manager';
+import { DataExtractBehavior } from './behavior/component/data-extract-behavior';
 import { EventBehavior } from './behavior/component/event-behavior';
 import { FocusScrollBehavior } from './behavior/component/focus-scroll-behavior';
 import { FocusSelectBehavior } from './behavior/component/focus-select-behavior';
 import { RowPropertiesBehavior } from './behavior/component/row-properties-behavior';
+import { UiBehaviorManager } from './behavior/ui/ui-behavior-manager';
 import { CanvasManager } from './components/canvas/canvas-manager';
-import { ViewCell } from './components/cell/view-cell';
 import { ColumnsManager } from './components/column/columns-manager';
+import { ComponentsManager } from './components/components-manager';
 import { EventDetail } from './components/event/event-detail';
 import { Focus } from './components/focus/focus';
 import { Mouse } from './components/mouse/mouse';
 import { GridPainter } from './components/renderer/grid-painter/grid-painter';
 import { Renderer } from './components/renderer/renderer';
+import { Scroller } from './components/scroller/scroller';
 import { Selection } from './components/selection/selection';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
-import { CellProperties } from './interfaces/server/cell-properties';
-import { Column, ColumnWidth } from './interfaces/server/column';
-import { DataServer } from './interfaces/server/data-server';
-import { MetaModel } from './interfaces/server/meta-model';
-import { SchemaServer } from './interfaces/server/schema-server';
-import { Subgrid } from './interfaces/server/subgrid';
+import { CellMetaSettings } from './interfaces/data/cell-meta-settings';
+import { DataServer } from './interfaces/data/data-server';
+import { MainSubgrid } from './interfaces/data/main-subgrid';
+import { MetaModel } from './interfaces/data/meta-model';
+import { Subgrid } from './interfaces/data/subgrid';
+import { ViewCell } from './interfaces/data/view-cell';
+import { Column, ColumnWidth } from './interfaces/schema/column';
+import { SchemaServer } from './interfaces/schema/schema-server';
 import { ColumnSettings } from './interfaces/settings/column-settings';
-import { GridSettings, LoadableGridSettings } from './interfaces/settings/grid-settings';
-import { defaultSettingsProperties } from './settings-accessors/default-grid-settings';
+import { GridSettings } from './interfaces/settings/grid-settings';
+import { MergableGridSettings } from './interfaces/settings/mergable-grid-settings';
+import { defaultGridSettings } from './settings/default-grid-settings';
 import { CssClassName } from './types-utils/html-types';
 import { DateFormatter, Localization, NumberFormatter } from './types-utils/localization';
 import { Point } from './types-utils/point';
@@ -37,9 +42,19 @@ export class Revgrid {
     readonly mouse: Mouse;
     readonly selection: Selection;
     readonly focus: Focus;
-    readonly settings: LoadableGridSettings;
+    readonly settings: MergableGridSettings;
     readonly canvasManager: CanvasManager;
     readonly viewLayout: ViewLayout;
+
+    readonly mainSubgrid: MainSubgrid;
+    readonly mainDataServer: DataServer;
+
+    /** @internal */
+    private readonly _componentsManager: ComponentsManager;
+    /** @internal */
+    private readonly _componentBehaviorManager: ComponentBehaviorManager;
+    /** @internal */
+    private readonly _uiBehaviorManager: UiBehaviorManager;
 
     /** @internal */
     private readonly _columnsManager: ColumnsManager;
@@ -47,6 +62,10 @@ export class Revgrid {
     private readonly _subgridsManager: SubgridsManager;
     /** @internal */
     private readonly _renderer: Renderer;
+    /** @internal */
+    private readonly _horizontalScroller: Scroller;
+    /** @internal */
+    private readonly _verticalScroller: Scroller;
 
     /** @internal */
     private readonly _focusScrollBehavior: FocusScrollBehavior;
@@ -56,6 +75,8 @@ export class Revgrid {
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
     /** @internal */
     private readonly _cellPropertiesBehavior: CellPropertiesBehavior;
+    /** @internal */
+    private readonly _dataExtractBehavior: DataExtractBehavior;
 
     destroyed = false;
 
@@ -151,36 +172,85 @@ export class Revgrid {
  * @param {string} [options.boundingRect.position='relative']
  *
  */
-    constructor(container: string | HTMLElement | undefined, adapterSetConfig: AdapterSetConfig, options?: Revgrid.Options) {
+    constructor(container: string | HTMLElement | undefined, definition: Revgrid.Definition, options?: Revgrid.Options) {
         options = options ?? {};
 
         //Set up the container for a grid instance
         const resolvedContainer = container ?? options.container ?? this.findOrCreateContainer(options.boundingRect);
         this.containerHtmlElement = this.initContainer(resolvedContainer, options);
 
-        const descendantEventer = this.createDescendantEventer();
-        this.behaviorManager = new BehaviorManager(
+        let schemaServer = definition.schemaServer;
+        if (typeof schemaServer === 'function') {
+            schemaServer = new schemaServer();
+        }
+
+        this._componentsManager = new ComponentsManager(
             this.containerHtmlElement,
+            schemaServer,
+            definition.subgrids,
             options.canvasContextAttributes,
             options.gridSettings,
-            adapterSetConfig,
             options.loadBuiltinFinbarStylesheet ?? true,
+        );
+
+        this.settings = this._componentsManager.gridSettings;
+        this.focus = this._componentsManager.focus;
+        this.selection = this._componentsManager.selection;
+        this.canvasManager = this._componentsManager.canvasManager;
+        this.mouse = this._componentsManager.mouse;
+        this._columnsManager = this._componentsManager.columnsManager;
+        this._subgridsManager = this._componentsManager.subgridsManager;
+        this.viewLayout = this._componentsManager.viewLayout;
+        this._renderer = this._componentsManager.renderer;
+        this._horizontalScroller = this._componentsManager.horizontalScroller;
+        this._verticalScroller = this._componentsManager.verticalScroller;
+
+        this.mainSubgrid = this._subgridsManager.mainSubgrid;
+        this.mainDataServer = this.mainSubgrid.dataServer;
+
+        const descendantEventer = this.createDescendantEventer();
+
+        this._componentBehaviorManager = new ComponentBehaviorManager(
+            this.settings,
+            this.canvasManager,
+            this.columnsManager,
+            this._subgridsManager,
+            this.viewLayout,
+            this.focus,
+            this.selection,
+            this.mouse,
+            this._renderer,
+            this._horizontalScroller,
+            this._verticalScroller,
             descendantEventer,
         );
-        this._focusScrollBehavior = this.behaviorManager.focusScrollBehavior;
-        this._focusSelectBehavior = this.behaviorManager.focusSelectBehavior;
-        this._rowPropertiesBehavior = this.behaviorManager.rowPropertiesBehavior;
-        this._cellPropertiesBehavior = this.behaviorManager.cellPropertiesBehavior;
 
-        this.settings = this.behaviorManager.gridProperties;
-        this.focus = this.behaviorManager.focus;
-        this.selection = this.behaviorManager.selection;
-        this.canvasManager = this.behaviorManager.canvasManager;
-        this.mouse = this.behaviorManager.mouse;
-        this._columnsManager = this.behaviorManager.columnsManager;
-        this._subgridsManager = this.behaviorManager.subgridsManager;
-        this.viewLayout = this.behaviorManager.viewLayout;
-        this._renderer = this.behaviorManager.renderer;
+        this._focusScrollBehavior = this._componentBehaviorManager.focusScrollBehavior;
+        this._focusSelectBehavior = this._componentBehaviorManager.focusSelectBehavior;
+        this._rowPropertiesBehavior = this._componentBehaviorManager.rowPropertiesBehavior;
+        this._cellPropertiesBehavior = this._componentBehaviorManager.cellPropertiesBehavior;
+        this._dataExtractBehavior = this._componentBehaviorManager.dataExtractBehavior;
+
+        this._uiBehaviorManager = new UiBehaviorManager(
+            this.containerHtmlElement,
+            this.settings,
+            this.canvasManager,
+            this.focus,
+            this.selection,
+            this.columnsManager,
+            this._subgridsManager,
+            this.viewLayout,
+            this._renderer,
+            this.mouse,
+            this._focusScrollBehavior,
+            this._focusSelectBehavior,
+            this._rowPropertiesBehavior,
+            this._cellPropertiesBehavior,
+            this._dataExtractBehavior,
+            this._componentBehaviorManager.reindexBehavior,
+            this._componentBehaviorManager.eventBehavior,
+        );
+
 
         // Install shared plug-ins (those with a `preinstall` method)
         // Hypergrid.prototype.installPlugins(options.plugins);
@@ -197,10 +267,6 @@ export class Revgrid {
         // }
 
         // this.resizeScrollbars();
-
-        if (options.state) {
-            this.loadState(options.state);
-        }
 
         // this._scrollBehavior.synchronizeScrollingBoundaries();
 
@@ -240,7 +306,7 @@ export class Revgrid {
      * canvase paint loop will continue to run
      */
     destroy() {
-        this.behaviorManager.destroy();
+        this._componentBehaviorManager.destroy();
 
         const containerHtmlElement = this.containerHtmlElement;
         let firstChild = containerHtmlElement.firstChild;
@@ -264,7 +330,7 @@ export class Revgrid {
         const propName = 'gridBorder' + edge;
         const styleName = 'border' + edge;
         const props = this.settings;
-        const border = props[propName as keyof LoadableGridSettings];
+        const border = props[propName as keyof MergableGridSettings];
 
         let styleValue: string;
 
@@ -278,12 +344,6 @@ export class Revgrid {
         }
         this.canvasManager.canvasElement.style.setProperty(styleName, styleValue);
     }
-
-    /**
-     * A null object behavior serves as a place holder.
-     * @internal
-     */
-    behaviorManager: BehaviorManager;
 
     /**
      * Cached result of webkit test.
@@ -348,12 +408,14 @@ export class Revgrid {
      * If omitted, previously established subgrids list is reused.
      */
     reset(nonDefaultProperties: Partial<GridSettings> | undefined) {
-        this.behaviorManager.reset();
+        this._componentsManager.reset();
 
         if (nonDefaultProperties !== undefined) {
             this.settings.loadDefaults();
             this.settings.merge(nonDefaultProperties);
         }
+
+        this.canvasManager.resize(false); // Will invalidate all and cause a repaint
     }
 
     /** pluginSpec
@@ -524,96 +586,8 @@ export class Revgrid {
      * @param properties - A simple properties hash.
      */
     addSettings(settings: Partial<GridSettings>) {
-        return this.behaviorManager.addSettings(settings);
+        return this.settings.merge(settings)
     }
-
-    /**
-     * @desc Set the state object to return to the given user configuration; then re-render the grid.
-     * @param state - A grid state object.
-     * {@link http://en.wikipedia.org/wiki/Memento_pattern|Memento pattern}
-     */
-    setState(state: GridSettings) {
-        this.addState(state, true);
-    }
-
-    /**
-     * @desc Add to the state object; then re-render the grid.
-     * @param state - A grid state object.
-     * @param fromDefault - Clear state first (_i.e.,_ perform a set state operation).
-     */
-    addState(state: Record<string, unknown>, fromDefault = false) {
-        this.behaviorManager.addState(state, fromDefault);
-        // this.behavior.defaultRowHeight = null;
-        // this._columnsManager.autosizeAllColumns();
-        // this.behaviorChanged();
-    }
-
-    getState() {
-        return this.behaviorManager.getState();
-    }
-
-    loadState(state: Record<string, unknown>) {
-        this.behaviorManager.setState(state);
-    }
-
-    // /**
-    //  * @todo Only output values when they differ from defaults (deep compare needed).
-    //  * @param {object} [options]
-    //  * @param {string[]} [options.blacklist] - List of grid properties to exclude. Pertains to grid own properties only.
-    //  * @param {boolean} [options.compact] - Run garbage collection first. The only property this current affects is `properties.calculators` (removes unused calculators).
-    //  * @param {number|string} [options.space='\t'] - For no space, give `0`. (See {@link https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Local/stringify|JSON.stringify}'s `space` param other options.)
-    //  * @param {function} [options.headerify] - If your headers were generated by a function (taking column name as a parameter), give a reference to that function here to avoid persisting headers that match the generated string.
-    //  * @this {Hypergrid}
-    //  */
-    // saveState(options: Hypergrid.Options) {
-    //     options = options || {};
-
-    //     const space = options.space === undefined ? '\t' : options.space;
-    //     const properties = this.properties;
-    //     const calculators = properties.calculators;
-    //     const blacklist = options.blacklist = options.blacklist || [];
-
-    //     blacklist.push('columnProperties'); // Never output this synonym of 'columns'
-
-    //     if (calculators) {
-    //         if (options.compact) {
-    //             var columns = this.behavior.getColumns();
-    //             Object.keys(calculators).forEach(function(key) {
-    //                 if (!columns.find(function(column) {
-    //                         return column.properties.calculator === calculators[key];
-    //                     })) {
-    //                     delete calculators[key];
-    //                 }
-    //             });
-    //         }
-    //         calculators.toJSON = stringifyFunctions;
-    //     }
-
-    //     // Temporarily copy the given headerify function for access by columns getter
-    //     this.headerify = options.headerify;
-
-    //     var json = JSON.stringify(properties, function(key, value) {
-    //         if (this === properties && options.blacklist.indexOf(key) >= 0) {
-    //             value = undefined; // JSON.stringify ignores undefined props
-    //         } else if (key === 'calculator') {
-    //             if (calculators) {
-    //                 // convert function reference to registry key
-    //                 value = Object.keys(calculators).find(function(key) {
-    //                     return calculators[key] === value;
-    //                 });
-    //             } else {
-    //                 // registry may not exist if Column.calculator setter was used directly so just save as is
-    //                 value = value.toString();
-    //             }
-    //         }
-    //         return value;
-    //     }, space);
-
-    //     // Remove the temporary copy
-    //     delete this.headerify;
-
-    //     return json;
-    // }
 
     /**
      * @desc The grid has just been rendered, make sure the column widths are optimal.
@@ -671,7 +645,7 @@ export class Revgrid {
      */
     getSingletonDataRow(y: number, subgrid?: Subgrid): DataServer.DataRow {
         if (subgrid === undefined) {
-            return this.behaviorManager.mainSubgrid.getSingletonDataRow(y);
+            return this.mainSubgrid.getSingletonDataRow(y);
         } else {
             return subgrid.getSingletonDataRow(y);
         }
@@ -682,7 +656,7 @@ export class Revgrid {
      * > Use with caution!
      */
     getData(): readonly DataServer.DataRow[] {
-        const mainDataServer = this.behaviorManager.mainDataServer;
+        const mainDataServer = this.mainDataServer;
         if (mainDataServer.getData === undefined) {
             return [];
         } else {
@@ -691,12 +665,17 @@ export class Revgrid {
     }
 
     getValue(x: number, y: number, subgrid?: Subgrid) {
-        return this.behaviorManager.getValue(x, y, subgrid);
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        return this._componentsManager.getValue(x, y, subgrid);
     }
 
     setValue(x: number, y: number, value: number, subgrid?: Subgrid) {
-        const column = this._columnsManager.getActiveColumn(x);
-        this.behaviorManager.setValue(column.schemaColumn, x, y, value, subgrid);
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this._componentsManager.setValue(x, y, value, subgrid);
     }
 
     /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update */
@@ -763,7 +742,7 @@ export class Revgrid {
      */
     isDataRowVisible(r: number, subgrid?: Subgrid) {
         if (subgrid === undefined) {
-            subgrid = this.behaviorManager.mainSubgrid;
+            subgrid = this.mainSubgrid;
         }
 
         return this.viewLayout.isDataRowVisible(r, subgrid);
@@ -1114,7 +1093,7 @@ export class Revgrid {
      */
     getRowHeight(rowIndex: number, subgrid?: Subgrid) {
         if (subgrid === undefined) {
-            subgrid = this.behaviorManager.mainSubgrid;
+            subgrid = this.mainSubgrid;
         }
         return subgrid.getRowHeight(rowIndex);
     }
@@ -1126,7 +1105,7 @@ export class Revgrid {
      */
     setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid) {
         if (subgrid === undefined) {
-            subgrid = this.behaviorManager.mainSubgrid;
+            subgrid = this.mainSubgrid;
         }
         this._rowPropertiesBehavior.setRowHeight(rowIndex, rowHeight, subgrid);
     }
@@ -1291,10 +1270,6 @@ export class Revgrid {
         this._columnsManager.swapColumns(source, target);
     }
 
-    endDragColumnNotification() {
-        this.behaviorManager.endDragColumnNotification();
-    }
-
     /**
      * @param activeColumnIndex - Data x coordinate.
      * @return The properties for a specific column.
@@ -1380,9 +1355,18 @@ export class Revgrid {
     }
 
     allowEvents(allow: boolean){
-        this.behaviorManager.allowEvents(allow);
+        this._componentBehaviorManager.allowEvents(allow);
+        if (allow){
+            this._uiBehaviorManager.enable();
+        } else {
+            this._uiBehaviorManager.disable();
+        }
+        this.viewLayout.invalidateAll(true);
     }
 
+    protected descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined) {
+        // for descendants
+    }
 
     protected descendantProcessSelectionChanged() {
         // for descendants
@@ -1596,7 +1580,7 @@ export class Revgrid {
         return this._cellPropertiesBehavior.getCellOwnPropertiesFromRenderedCell(renderedCell);
     }
 
-    getCellProperties(allX: number, y: number, subgrid: Subgrid): CellProperties {
+    getCellProperties(allX: number, y: number, subgrid: Subgrid): CellMetaSettings {
         const column = this._columnsManager.getAllColumn(allX);
         return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
     }
@@ -1699,7 +1683,7 @@ export class Revgrid {
         }
 
         if (subgrid === undefined) {
-            subgrid = this.behaviorManager.mainSubgrid;
+            subgrid = this.mainSubgrid;
         }
 
         return this._cellPropertiesBehavior.setCellProperty(column, dataY, key, value, subgrid, optionalCell);
@@ -1740,7 +1724,7 @@ export class Revgrid {
      */
     isPointSelected(x: number, y: number, subgrid?: Subgrid): boolean {
         if (subgrid === undefined) {
-            subgrid = this.behaviorManager.mainSubgrid;
+            subgrid = this.mainSubgrid;
         }
         return this.selection.isCellSelectedInAnyAreaType(x, y, subgrid);
     }
@@ -1773,7 +1757,7 @@ export class Revgrid {
     }
 
     selectAllRows() {
-        this.selection.selectAllRows(this._subgridsManager.mainSubgrid);
+        this.selection.selectAllRows(this.mainSubgrid);
     }
 
     // toggleSelectAllRows(forceClearRows = true) {
@@ -2051,6 +2035,7 @@ export class Revgrid {
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
             columnsViewWidthsChanged: () => this.descendantProcessColumnsViewWidthsChanged(),
             columnSort: (event, cell) => this.descendantProcessColumnSort(event, cell),
+            cellFocusChanged: (oldPoint, newPoint) => this.descendantProcessCellFocusChanged(oldPoint, newPoint),
             selectionChanged: () => this.descendantProcessSelectionChanged(),
             focus: () => this.descendantEventerFocus(),
             blur: () => this.descendantEventerBlur(),
@@ -2186,7 +2171,12 @@ export class Revgrid {
 
 /** @public */
 export namespace Revgrid {
-	export interface Options {
+    export interface Definition {
+        schemaServer: (SchemaServer | SchemaServer.Constructor),
+        subgrids: Subgrid.Definition[],
+    }
+
+    export interface Options {
 		// api?: object | string[];
         gridSettings?: Partial<GridSettings>;
 		boundingRect?: BoundingRectStyleValues;
@@ -2198,7 +2188,6 @@ export namespace Revgrid {
 		// inject?: boolean;
 		localization?: LocalizationOptions;
 		edgeStyleValues?: EdgeStyleValues;
-		state?: Record<string, unknown>;
         // /** Use to put data in LocalMainDataModel. Only good for quick prototypes - not recommended - use subgrids and their datamodels */
         // data?: LocalDataRowObject[] | (() => LocalDataRowObject[]);
         /** Use in conjunction with data. Set to true to reindex data when first loaded */
@@ -2208,7 +2197,7 @@ export namespace Revgrid {
         loadBuiltinFinbarStylesheet?: boolean;
 	}
 
-    export const defaultProperties = defaultSettingsProperties;
+    export const defaultProperties = defaultGridSettings;
 
     export interface LocalizationOptions {
         locale?: string;

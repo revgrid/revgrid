@@ -1,17 +1,13 @@
-import { Column } from '../../interfaces/server/column';
-import { DataServer } from '../../interfaces/server/data-server';
-import { MetaModel } from '../../interfaces/server/meta-model';
-import { SchemaServer } from '../../interfaces/server/schema-server';
-import { Subgrid } from '../../interfaces/server/subgrid';
-import { CellEditor } from '../../interfaces/serverless/cell-editor';
+import { DataServer } from '../../interfaces/data/data-server';
+import { MetaModel } from '../../interfaces/data/meta-model';
+import { Subgrid } from '../../interfaces/data/subgrid';
+import { Column } from '../../interfaces/schema/column';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
-import { CellPainter } from '../cell/cell-painter';
-import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
-import { SubgridDefinition } from './subgrid-definition';
 
-/** @public */
+/** @internal */
 export class SubgridImplementation implements Subgrid {
     readonly isMain: boolean = false;
     readonly isHeader: boolean = false;
@@ -23,7 +19,6 @@ export class SubgridImplementation implements Subgrid {
     protected _destroyed = false;
 
     /** @internal */
-    private readonly _getCellPainterEventer: SubgridDefinition.GetCellPainterEventer;
     /** @internal */
     private rowProxy: SubgridImplementation.DataRowProxy; // used if DataServer.getRowProperties not implemented
     /** @internal */
@@ -46,7 +41,6 @@ export class SubgridImplementation implements Subgrid {
         public readonly schemaServer: SchemaServer,
         public readonly dataServer: DataServer,
         public readonly metaModel: MetaModel | undefined,
-        getCellPainterEventer: SubgridDefinition.GetCellPainterEventer,
         public readonly selectable: boolean,
         public readonly defaultRowHeight: number | undefined,
         public readonly rowHeightsCanDiffer: boolean,
@@ -73,8 +67,6 @@ export class SubgridImplementation implements Subgrid {
                 const never: never = role
             }
         }
-
-        this._getCellPainterEventer = getCellPainterEventer;
 
         this.rowProxy = new SubgridImplementation.DataRowProxy(this.schemaServer, this.dataServer);
 
@@ -291,11 +283,6 @@ export class SubgridImplementation implements Subgrid {
         }
 
         return this.setRowMetadataRowProperties(y, metadata, properties);
-    }
-
-    /** @internal */
-    getCellPainter(viewCell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter {
-        return this._getCellPainterEventer(viewCell, cellEditorPainter);
     }
 
     private setRowMetadataRowProperties(y: number, existingMetadata: MetaModel.RowMetadata | undefined, properties: MetaModel.RowProperties | undefined) {
@@ -527,7 +514,7 @@ export class SubgridImplementation implements Subgrid {
 
 }
 
-/** @public */
+/** @internal */
 export namespace SubgridImplementation {
     export type Handle = number;
 

@@ -1,20 +1,21 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
-import { DataServer } from '../../interfaces/server/data-server';
-import { MainSubgrid } from '../../interfaces/server/main-subgrid';
-import { Subgrid } from '../../interfaces/server/subgrid';
-import { ViewLayoutColumn } from '../../interfaces/server/view-layout-column';
-import { ViewLayoutRow } from '../../interfaces/server/view-layout-row';
-import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
+import { DataServer } from '../../interfaces/data/data-server';
+import { MainSubgrid } from '../../interfaces/data/main-subgrid';
+import { Subgrid } from '../../interfaces/data/subgrid';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
+import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
+import { MergableGridSettingsImplementation } from '../../settings/mergable-grid-settings-implementation';
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { HorizontalVertical } from '../../types-utils/types';
-import { ViewCell } from '../cell/view-cell';
 import { ColumnImplementation } from '../column/column-implementation';
 import { ColumnsManager } from '../column/columns-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { HorizontalScrollDimension } from './horizontal-scroll-dimension';
 import { VerticalScrollDimension } from './vertical-scroll-dimension';
+import { ViewCellImplementation } from './view-cell-implementation';
 
 
 /** CanvasRenderingContext2D
@@ -44,9 +45,13 @@ import { VerticalScrollDimension } from './vertical-scroll-dimension';
  *
  */
 export class ViewLayout {
+    /** @internal */
     invalidateDataEventer: ViewLayout.InvalidatedEventer;
+    /** @internal */
     columnsViewWidthsChangedEventer: ViewLayout.ColumnsViewWidthsChangedEventer;
+    /** @internal */
     cellPoolComputedEventerForFocus: ViewLayout.CellPoolComputedEventer;
+    /** @internal */
     cellPoolComputedEventerForMouse: ViewLayout.CellPoolComputedEventer;
 
     private readonly _mainSubgrid: MainSubgrid;
@@ -83,8 +88,8 @@ export class ViewLayout {
 
     private readonly _dummyUnusedColumn: ColumnImplementation;
 
-    private readonly _rowColumnOrderedCellPool = new Array<ViewCell>();
-    private readonly _columnRowOrderedCellPool = new Array<ViewCell>();
+    private readonly _rowColumnOrderedCellPool = new Array<ViewCellImplementation>();
+    private readonly _columnRowOrderedCellPool = new Array<ViewCellImplementation>();
 
     private _columnsValid = false;
     private _rowsValid = false;
@@ -132,17 +137,19 @@ export class ViewLayout {
     }
 
     constructor(
-        private readonly _gridSettings: GridSettingsAccessor,
-        private readonly _canvasEx: CanvasManager,
+        private readonly _gridSettings: MergableGridSettingsImplementation,
+        private readonly _canvasManager: CanvasManager,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
     ) {
         this._gridSettings.invalidateViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
         this._gridSettings.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
         this._gridSettings.invalidateVerticalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
-        this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvasEx, this._columnsManager);
+        this._canvasManager.resizedEventerForViewLayout = () => this.invalidateAll(true);
+        this._columnsManager.activeColumnWidthOrOrderChangedEventer = () => this.invalidateHorizontalAll(true)
+        this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvasManager, this._columnsManager);
         this._horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
-        this._verticalScrollDimension = new VerticalScrollDimension(this._gridSettings, this._canvasEx, this._subgridsManager);
+        this._verticalScrollDimension = new VerticalScrollDimension(this._gridSettings, this._canvasManager, this._subgridsManager);
         this._verticalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleVerticalScrollDimensionComputedEvent(withinAnimationFrame);
 
         this._dummyUnusedColumn = this._columnsManager.createDummyColumn();
@@ -329,7 +336,7 @@ export class ViewLayout {
                 return undefined;
             } else {
                 const width = this._horizontalScrollDimension.viewportSize;
-                const height = this._canvasEx.bounds.height - y; // this does not handle situation where rows do not fill the view
+                const height = this._canvasManager.bounds.height - y; // this does not handle situation where rows do not fill the view
                 return new InexclusiveRectangle(x, y, width, height);
             }
         }
@@ -1193,7 +1200,7 @@ export class ViewLayout {
             } else {
                 const lastColumn = columns[columnCount - 1];
                 const lastColumnRightPlus1 = lastColumn.rightPlus1;
-                const gridRightPlus1 = this._canvasEx.bounds.width;
+                const gridRightPlus1 = this._canvasManager.bounds.width;
                 if (lastColumnRightPlus1 >= gridRightPlus1) {
                     return undefined;
                 } else {
@@ -1773,7 +1780,7 @@ export class ViewLayout {
                     fixedWidthV = gridSettings.fixedLinesVWidth;
                 }
 
-                const gridBounds = this._canvasEx.bounds;
+                const gridBounds = this._canvasManager.bounds;
                 const gridWidth = gridBounds.width; // horizontal pixel loop limit
 
                 let viewportStart: number | undefined;
@@ -2004,7 +2011,7 @@ export class ViewLayout {
         const fixedRowCount = this._gridSettings.fixedRowCount;
         const gridLinesHWidth = gridSettings.gridLinesHWidth;
 
-        const gridBounds = this._canvasEx.bounds;
+        const gridBounds = this._canvasManager.bounds;
         const gridHeight = gridBounds.height; // horizontal pixel loop limit
 
         const rows = this._rows;
@@ -2207,7 +2214,7 @@ export class ViewLayout {
 
         if (requiredSize > previousLength) {
             for (let i = previousLength; i < requiredSize; i++) {
-                pool[i] = new ViewCell(this._columnsManager);
+                pool[i] = new ViewCellImplementation(this._columnsManager);
             }
         }
     }
@@ -2233,7 +2240,7 @@ export class ViewLayout {
 
     }
 
-    private resetPoolAllCellPropertiesCaches(pool: ViewCell[]) {
+    private resetPoolAllCellPropertiesCaches(pool: ViewCellImplementation[]) {
         const cellCount = pool.length;
         for (let i = 0; i < cellCount; i++) {
             const cell = pool[i];

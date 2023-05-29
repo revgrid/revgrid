@@ -1,4 +1,4 @@
-import { MainSubgrid } from '../../interfaces/server/main-subgrid';
+import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { SubgridImplementation } from './subgrid-implementation';
 
 /** @internal */

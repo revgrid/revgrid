@@ -1,5 +1,5 @@
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { AssertError } from '../../types-utils/revgrid-error';
-import { ViewCell } from '../cell/view-cell';
 import { ViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 

@@ -1,6 +1,6 @@
 
-import { ViewCell } from '../../components/cell/view-cell';
 import { ScrollDimension } from '../../components/view/scroll-dimension';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { Rectangle } from '../../types-utils/rectangle';
 import { UiBehavior } from './ui-behavior';
 

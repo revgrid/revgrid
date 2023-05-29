@@ -1,5 +1,5 @@
-import { Column, ColumnWidth } from '../../interfaces/server/column';
-import { SchemaServer } from '../../interfaces/server/schema-server';
+import { Column, ColumnWidth } from '../../interfaces/schema/column';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
@@ -9,7 +9,8 @@ import { ColumnImplementation } from './column-implementation';
 /** @public */
 export class ColumnsManager {
     /** @internal */
-    columnsCreated = false;
+    activeColumnWidthOrOrderChangedEventer: ColumnsManager.ActiveColumnWidthOrOrderChangedEventer;
+
     /** @internal */
     invalidateViewEventer: ColumnsManager.InvalidateViewEventer;
     /** @internal */
@@ -35,7 +36,6 @@ export class ColumnsManager {
     constructor(
         readonly schemaServer: SchemaServer,
         private readonly _gridSettings: GridSettings,
-        private readonly _invalidateScrollDimensionRequiredEventer: ColumnsManager.InvalidateScrollDimensionRequiredEventer,
     ) {
     }
 
@@ -133,7 +133,6 @@ export class ColumnsManager {
         // Need to find other way of getting non default name and header to tree and row number columns
         //
         // const schema = this.mainDataModel.getSchema();
-        this.columnsCreated = false;
 
         this._activeColumns.length = 0;
         this._allColumns.length = 0;
@@ -202,8 +201,6 @@ export class ColumnsManager {
                 this._allColumns[allIndex] = column;
             }
         }
-
-        this.columnsCreated = true;
 
         this.invalidateViewEventer(true);
         this.activeColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined, false);
@@ -475,7 +472,7 @@ export class ColumnsManager {
     /** @internal */
     hideActiveColumn(columnIndex: number) {
         this._activeColumns.splice(columnIndex, 1);
-        this._invalidateScrollDimensionRequiredEventer();
+        this.activeColumnWidthOrOrderChangedEventer();
     }
 
     /** @internal */
@@ -581,7 +578,7 @@ export class ColumnsManager {
         }
         this.moveActive(columns, sourceIndex, targetIndex, ui);
 
-        this._invalidateScrollDimensionRequiredEventer();
+        this.activeColumnWidthOrOrderChangedEventer();
     }
 
     /** @internal */
@@ -597,7 +594,7 @@ export class ColumnsManager {
         }
         this.moveActive(columns, sourceIndex, targetIndex + 1, ui);
 
-        this._invalidateScrollDimensionRequiredEventer();
+        this.activeColumnWidthOrOrderChangedEventer();
     }
 
     /** @internal */
@@ -665,7 +662,7 @@ export class ColumnsManager {
 /** @public */
 export namespace ColumnsManager {
     export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
-    export type InvalidateScrollDimensionRequiredEventer = (this: void) => void;
+    export type ActiveColumnWidthOrOrderChangedEventer = (this: void) => void;
     export type ColumnsWidthChangedEventer = (this: void, columns: Column[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;

@@ -1,21 +1,21 @@
 import { MainRecord } from 'main-record';
 import { ColumnSettings, SchemaServer } from '..';
 
-export class SchemaAdapter implements SchemaServer {
-    private _callbackListener: SchemaServer.NotificationsClient;
+export class SchemaServerImplementation implements SchemaServer {
+    private notificationsClient: SchemaServer.NotificationsClient;
 
     getSchema() {
-        return SchemaAdapter.schema;
+        return SchemaServerImplementation.schema;
     }
 
-    subscribeNotifications(listener: SchemaServer.NotificationsClient) {
-        this._callbackListener = listener;
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient) {
+        this.notificationsClient = client;
 
-        this._callbackListener.schemaChanged();
+        this.notificationsClient.schemaChanged();
     }
 }
 
-export namespace SchemaAdapter {
+export namespace SchemaServerImplementation {
     export interface Column extends SchemaServer.Column {
         name: keyof MainRecord;
         index: number;

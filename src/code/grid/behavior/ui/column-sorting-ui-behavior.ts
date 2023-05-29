@@ -1,4 +1,4 @@
-import { ViewCell } from '../../components/cell/view-cell';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { UiBehavior } from './ui-behavior';
 
@@ -37,12 +37,12 @@ export class ColumnSortingUiBehavior extends UiBehavior {
             if (cell.isHeaderOrRowFixed) {
                 const columnProperties = this.columnsManager.getActiveColumnProperties(cell.viewLayoutColumn.activeColumnIndex);
                 if ((columnProperties !== undefined) && columnProperties.sortable) {
-                    this.cursor = 'pointer';
+                    this.sharedState.locationCursorName = 'pointer';
                 } else {
-                    this.cursor = undefined;
+                    this.sharedState.locationCursorName = undefined;
                 }
             } else {
-                this.cursor = undefined;
+                this.sharedState.locationCursorName = undefined;
             }
         }
 

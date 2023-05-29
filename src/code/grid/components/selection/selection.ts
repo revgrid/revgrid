@@ -1,6 +1,7 @@
 
-import { DataServer } from '../../interfaces/server/data-server';
-import { Subgrid } from '../../interfaces/server/subgrid';
+import { DataServer } from '../../interfaces/data/data-server';
+import { Subgrid } from '../../interfaces/data/subgrid';
+import { DatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
@@ -643,12 +644,12 @@ export class Selection {
      * @summary Selection query function.
      * @returns The given cell is selected (part of an active selection).
      */
-    isCellSelectedInAnyAreaType(x: number, y: number, subgrid: Subgrid): boolean {
+    isCellSelectedInAnyAreaType(x: number, y: number, subgrid: DatalessSubgrid): boolean {
         const { rowSelected, columnSelected, cellSelected } = this.getCellSelectedAreaTypes(x, y, subgrid);
         return (rowSelected || columnSelected || cellSelected);
     }
 
-    getCellSelectedAreaTypes(x: number, y: number, subgrid: Subgrid): Selection.CellSelectedAreaTypes {
+    getCellSelectedAreaTypes(x: number, y: number, subgrid: DatalessSubgrid): Selection.CellSelectedAreaTypes {
         if (subgrid === this._subgrid) {
             return {
                 rowSelected: this._allRowsSelected || this.rows.includesIndex(y),

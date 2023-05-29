@@ -13,7 +13,7 @@
   "references": [
     { "path": "grid/tsconfig.grid.json" },
     { "path": "adapter-sets/record/tsconfig.rev-record.json" },
-    { "path": "adapter-sets/simple/tsconfig.rev-simple.json" },
+    { "path": "adapter-sets/simple/tsconfig.rev-server-set-simple.json" },
     { "path": "standard-cell-painters/tsconfig.standard-cell-painters.json" },
     // { "path": "standard-cell-editors/tsconfig.standard-cell-editors.json" }
   ]

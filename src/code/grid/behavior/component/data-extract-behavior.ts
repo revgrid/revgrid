@@ -1,7 +1,7 @@
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Selection } from '../../components/selection/selection';
-import { Column } from '../../interfaces/server/column';
-import { DataServer } from '../../interfaces/server/data-server';
+import { DataServer } from '../../interfaces/data/data-server';
+import { Column } from '../../interfaces/schema/column';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType } from '../../types-utils/types';
 
@@ -170,7 +170,7 @@ export class DataExtractBehavior {
     getSelectedColumnsValues() {
         const columnsManager = this._columnsManager;
         const selectedColumnIndexes = this._selection.getColumnIndices();
-        const result: DataExtractBehavior.ColumnsDataValuesObject = {};
+        const result: DataServer.ObjectDataRow = {};
         if (selectedColumnIndexes.length > 0) {
             const subgrid = this.getDefinedSubgrid();
             const rowCount = subgrid.getRowCount();
@@ -189,11 +189,11 @@ export class DataExtractBehavior {
         return result;
     }
 
-    getSelectedValuesByRectangleAndColumn(): DataExtractBehavior.ColumnsDataValuesObject[] {
+    getSelectedValuesByRectangleAndColumn(): DataServer.ObjectDataRow[] {
         const columnsManager = this._columnsManager;
         const selectionRectangles = this._selection.rectangleList.rectangles;
         const selectionRectangleCount = selectionRectangles.length;
-        const rects = new Array<DataExtractBehavior.ColumnsDataValuesObject>(selectionRectangleCount);
+        const rects = new Array<DataServer.ObjectDataRow>(selectionRectangleCount);
 
         if (selectionRectangleCount > 0) {
             const subgrid = this.getDefinedSubgrid();
@@ -201,7 +201,7 @@ export class DataExtractBehavior {
                 (selectionRect, i) => {
                     const colCount = selectionRect.width;
                     const rowCount = selectionRect.height;
-                    const columns: DataExtractBehavior.ColumnsDataValuesObject = {};
+                    const columns: DataServer.ObjectDataRow = {};
 
                     for (let c = 0, x = selectionRect.topLeft.x; c < colCount; c++, x++) {
                         const column = columnsManager.getActiveColumn(x);
@@ -300,13 +300,5 @@ export class DataExtractBehavior {
                 return hiddenColumns ? allColumns : activeColumns;
             }
         }
-    }
-}
-
-/** @internal */
-export namespace DataExtractBehavior {
-    /** @public */
-    export interface ColumnsDataValuesObject {
-        [columnName: string]: DataServer.DataValue[];
     }
 }

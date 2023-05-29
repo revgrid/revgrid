@@ -1,5 +1,5 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
-import { ViewCell } from '../cell/view-cell';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { EventDetail } from './event-detail';
 
 /** @public */
@@ -23,6 +23,7 @@ export namespace EventName {
 
         // Grid
         'rev-column-sort': EventDetail.ColumnSort;
+        'rev-cell-focus-changed': EventDetail.CellFocusChanged;
         'rev-selection-changed': EventDetail.Grid;
         'rev-context-menu': EventDetail.Pointer;
         'rev-pointer-down': EventDetail.Pointer;

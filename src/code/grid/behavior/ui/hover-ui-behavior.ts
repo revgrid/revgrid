@@ -1,5 +1,5 @@
 
-import { ViewCell } from '../../components/cell/view-cell';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 

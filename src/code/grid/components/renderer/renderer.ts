@@ -1,11 +1,11 @@
 import { Animation } from '../../components/canvas/animation';
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
-import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/server/schema-server';
-import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema/schema-server';
+import { MergableGridSettingsImplementation } from '../../settings/mergable-grid-settings-implementation';
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
-import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
 import { Mouse } from '../mouse/mouse';
@@ -17,7 +17,10 @@ import { GridPainterRepository } from './grid-painter/grid-painter-repository';
 import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
+/** @internal */
 export class Renderer {
+    renderedEventer: Renderer.RenderedEventer;
+
     private readonly _gridPainterRepository: GridPainterRepository;
     private readonly _animator: Animation.Animator;
     private readonly _renderActionQueue = new RenderActionQueue()
@@ -36,24 +39,23 @@ export class Renderer {
     private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
 
     constructor(
-        private readonly _gridSettings: GridSettingsAccessor,
-        mouse: Mouse,
+        private readonly _gridSettings: MergableGridSettingsImplementation,
         private readonly _canvasEx: CanvasManager,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
         private readonly _viewLayout: ViewLayout,
-        focus: Focus,
+        private readonly _focus: Focus,
         private readonly _selection: Selection,
-        private readonly _renderedEventer: Renderer.RenderedEventer,
+        private readonly _mouse: Mouse,
     ) {
         this._gridPainterRepository = new GridPainterRepository(
             this._gridSettings,
             this._canvasEx,
             this._subgridsManager,
             this._viewLayout,
-            focus,
+            this._focus,
             this._selection,
-            mouse,
+            this._mouse,
             (gc) => this.repaintAll(gc),
         );
 
@@ -73,9 +75,11 @@ export class Renderer {
 
         this._renderActionQueue.actionsQueuedEventer = () => this._animator.dirty = true;
 
-        this._gridSettings.invalidateViewRenderEventer = () => this.invalidateViewRender();
+        this._gridSettings.viewRenderInvalidatedEventer = () => this.invalidateViewRender();
         this._viewLayout.invalidateDataEventer = (action) => this._renderActionQueue.processViewLayoutInvalidateAction(action);
+        this._focus.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCellRender(cell)
         this._selection.changedEventerForRenderer = () => this.invalidateViewRender();
+        this._mouse.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCellRender(cell);
 
         document.addEventListener('visibilitychange', this._pageVisibilityChangeListener);
         this.setGridPainter('by-columns-and-rows');
@@ -285,7 +289,7 @@ export class Renderer {
                             }
                         }
 
-                        setTimeout(() => this._renderedEventer(), 0); // process outside frame animation
+                        setTimeout(() => this.renderedEventer(), 0); // process outside frame animation
 
                         const lastModelUpdateId = this._lastModelUpdateId;
                         if (this._lastRenderedModelUpdateId !== lastModelUpdateId) {
@@ -329,6 +333,7 @@ export class Renderer {
     }
 }
 
+/** @internal */
 export namespace Renderer {
     export type WaitModelRenderedResolve = (this: void, id: ModelUpdateId) => void;
     export type RenderedEventer = (this: void) => void;

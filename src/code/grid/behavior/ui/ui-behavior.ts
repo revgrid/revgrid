@@ -1,6 +1,5 @@
 
 import { CanvasManager } from '../../components/canvas/canvas-manager';
-import { ViewCell } from '../../components/cell/view-cell';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { Focus } from '../../components/focus/focus';
@@ -9,9 +8,9 @@ import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { MainSubgrid } from '../../interfaces/server/main-subgrid';
+import { MainSubgrid } from '../../interfaces/data/main-subgrid';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { Point } from '../../types-utils/point';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
@@ -88,16 +87,6 @@ export abstract class UiBehavior {
      * a temporary holding field for my next feature when I'm in a disconnected state
      */
     detached: UiBehavior | undefined;
-
-    /**
-     * the cursor I want to be displayed
-     */
-    cursor: string | undefined;
-
-    /**
-     * the cell location where the cursor is currently
-     */
-    currentHoverCell: Point | undefined;
 
     /**
      * @desc set my next field, or if it's populated delegate to the feature in my next field

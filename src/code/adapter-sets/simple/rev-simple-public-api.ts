@@ -1,5 +1,5 @@
-export { RevSimpleAdapterSet } from './rev-simple-adapter-set';
-export { RevSimpleHeaderAdapter } from './rev-simple-header-adapter';
-export { RevSimpleMainAdapter } from './rev-simple-main-adapter';
-export { RevSimpleSchemaAdapter } from './rev-simple-schema-adapter';
+export { RevSimpleHeaderDataServer } from './rev-simple-header-data-server';
+export { RevSimpleMainDataServer } from './rev-simple-main-data-server';
+export { RevSimpleSchemaServer } from './rev-simple-schema-server';
+export { RevSimpleServerSet } from './rev-simple-server-set';
 

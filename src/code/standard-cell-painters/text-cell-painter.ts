@@ -3,12 +3,13 @@ import {
     CachedCanvasRenderingContext2D,
     CellEditor,
     CellPainter,
-    CellSettingsAccessor,
+    CellSettingsImplementation,
+    DataServer,
+    DatalessViewCell,
     GridSettings,
     IndexSignatureHack,
     Rectangle,
-    Revgrid,
-    ViewCell,
+    Revgrid
 } from '../grid/grid-public-api';
 
 const WHITESPACE = /\s\s+/g;
@@ -24,16 +25,25 @@ const WHITESPACE = /\s\s+/g;
  * @public
  */
 export class TextCellPainter implements CellPainter {
-    private readonly _settingsAccessor = new CellSettingsAccessor();
+    private readonly _settingsAccessor = new CellSettingsImplementation();
 
-    private _cell: ViewCell;
+    private _cell: DatalessViewCell;
     private _cellEditorPainter: CellEditor.Painter | undefined;
     private _grid: Revgrid;
 
-    setCell(cell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined, grid: Revgrid) {
+    constructor(
+        private readonly _dataServer: DataServer
+    ) {
+
+    }
+
+    setGrid(value: Revgrid) {
+        this._grid = value;
+    }
+
+    setCell(cell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined) {
         this._cell = cell;
         this._cellEditorPainter = cellEditorPainter;
-        this._grid = grid;
     }
 
     paint(gc: CachedCanvasRenderingContext2D, prefillColor: string | undefined): number | undefined {
@@ -66,7 +76,7 @@ export class TextCellPainter implements CellPainter {
             ? settings.foregroundSelectionColor
             : settings.color;
 
-        const value = subgrid.getValue(cell.viewLayoutColumn.column, subgridRowIndex);
+        const value = this._dataServer.getValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
         const valText = value as string;
 
         const fingerprint = cell.paintFingerprint as PaintFingerprint | undefined;
@@ -254,7 +264,7 @@ export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
  */
 function renderMultiLineText(
     gc: CachedCanvasRenderingContext2D,
-    settings: CellSettingsAccessor,
+    settings: CellSettingsImplementation,
     bounds: Rectangle,
     val: string,
     leftPadding: number,
@@ -318,7 +328,7 @@ function renderMultiLineText(
  */
 function renderSingleLineText(
     gc: CachedCanvasRenderingContext2D,
-    settings: CellSettingsAccessor,
+    settings: CellSettingsImplementation,
     bounds: Rectangle,
     val: string,
     leftPadding: number,
@@ -455,7 +465,7 @@ function strikeThrough(gc: CachedCanvasRenderingContext2D, text: string, x: numb
     gc.lineTo(x + textWidth + 1, y);
 }
 
-function underline(gc: CachedCanvasRenderingContext2D, settings: CellSettingsAccessor, text: string, x: number, y: number, thickness: number) {
+function underline(gc: CachedCanvasRenderingContext2D, settings: CellSettingsImplementation, text: string, x: number, y: number, thickness: number) {
     const textHeight = gc.getTextHeight(settings.font).height;
     const textWidth = gc.getTextWidth(text);
 

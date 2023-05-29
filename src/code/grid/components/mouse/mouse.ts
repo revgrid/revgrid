@@ -1,11 +1,17 @@
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
-import { ViewCell } from '../cell/view-cell';
 import { EventDetail } from '../event/event-detail';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
 export class Mouse {
+    /** @internal */
+    cellEnteredEventer: Mouse.CellEnteredExitedEventer;
+    /** @internal */
+    cellExitedEventer: Mouse.CellEnteredExitedEventer;
+    /** @internal */
+    viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer;
     /** @internal */
     private _activeDragType: EventDetail.DragTypeEnum | undefined;
     /** @internal */
@@ -13,7 +19,9 @@ export class Mouse {
     /** @internal */
     private _hoverCell: ViewCell | undefined;
     /** @internal */
-    private _operationCursorName: string | undefined; // gets priority over hover cell cursor
+    private _operationCursorName: string | undefined; // gets priority over hover cell and location cursor
+    /** @internal */
+    private _locationCursorName: string | undefined; // gets priority over hover cell cursor
 
     /** @internal */
     constructor(
@@ -21,10 +29,6 @@ export class Mouse {
         private readonly _canvasManager: CanvasManager,
         /** @internal */
         private readonly _viewLayout: ViewLayout,
-        /** @internal */
-        private readonly _cellEnteredEventer: Mouse.CellEventer,
-        /** @internal */
-        private readonly _cellExitedEventer: Mouse.CellEventer,
     ) {
         this._viewLayout.cellPoolComputedEventerForMouse = () => this.processViewLayoutComputed();
     }
@@ -37,6 +41,7 @@ export class Mouse {
         this._canvasOffsetPoint = undefined;
         this._hoverCell = undefined;
         this._operationCursorName = undefined;
+        this._locationCursorName = undefined;
     }
 
     /** @internal */
@@ -47,20 +52,18 @@ export class Mouse {
 
     /** @internal */
     setOperationCursor(cursorName: string | undefined) {
-        this._operationCursorName = cursorName;
-        let titleText: string;
-        if (cursorName !== undefined) {
-            titleText = '';
-        } else {
-            const cursorNameAndTitleText = this.getCellCursorNameAndTitleText();
-            if (cursorNameAndTitleText === undefined) {
-                titleText = '';
-            } else {
-                cursorName = cursorNameAndTitleText.cursorName;
-                titleText = cursorNameAndTitleText.titleText;
-            }
+        if (cursorName !== this._operationCursorName) {
+            this._operationCursorName = cursorName;
+            this.updateOperationLocationCursor();
         }
-        this._canvasManager.setCursorAndTitleText(cursorName, titleText);
+    }
+
+    /** @internal */
+    setLocationCursor(cursorName: string | undefined) {
+        if (cursorName !== this._locationCursorName) {
+            this._locationCursorName = cursorName;
+            this.updateOperationLocationCursor();
+        }
     }
 
     /** @internal */
@@ -87,29 +90,79 @@ export class Mouse {
         if (newHoverCell === undefined) {
             if (existingHoverCell !== undefined) {
                 this._hoverCell = undefined;
-                this.updateCursorAndTitleText();
-                this._cellExitedEventer(existingHoverCell, invalidateViewCellRender);
+                this.updateHoverCursorAndTitleText();
+                this.cellExitedEventer(existingHoverCell);
+                if (invalidateViewCellRender) {
+                    this.viewCellRenderInvalidatedEventer(existingHoverCell);
+                }
             }
         } else {
             if (existingHoverCell === undefined) {
                 this._hoverCell = newHoverCell;
-                this._cellEnteredEventer(newHoverCell, invalidateViewCellRender);
-                this.updateCursorAndTitleText();
+                this.cellEnteredEventer(newHoverCell);
+                this.updateHoverCursorAndTitleText();
+                if (invalidateViewCellRender) {
+                    this.viewCellRenderInvalidatedEventer(newHoverCell);
+                }
             } else {
                 if (!ViewCell.sameByDataPoint(existingHoverCell, newHoverCell)) {
                     this._hoverCell = undefined;
-                    this._cellExitedEventer(existingHoverCell, invalidateViewCellRender);
+                    this.cellExitedEventer(existingHoverCell);
+                    if (invalidateViewCellRender) {
+                        this.viewCellRenderInvalidatedEventer(existingHoverCell);
+                    }
                     this._hoverCell = newHoverCell;
-                    this._cellEnteredEventer(newHoverCell, invalidateViewCellRender);
-                    this.updateCursorAndTitleText();
+                    this.cellEnteredEventer(newHoverCell);
+                    if (invalidateViewCellRender) {
+                        this.viewCellRenderInvalidatedEventer(newHoverCell);
+                    }
+                    this.updateHoverCursorAndTitleText();
                 }
             }
         }
     }
 
     /** @internal */
-    private updateCursorAndTitleText() {
-        if (this._operationCursorName === undefined) {
+    private updateHoverCursorAndTitleText() {
+        if (this._operationCursorName === undefined && this._locationCursorName === undefined) {
+            if (this._hoverCell === undefined) {
+                this._canvasManager.setCursorAndTitleText(undefined, '');
+            } else {
+                const cursorNameAndTitleText = this.getCellCursorNameAndTitleText();
+                if (cursorNameAndTitleText === undefined) {
+                    this._canvasManager.setCursorAndTitleText(undefined, '');
+                } else {
+                    this._canvasManager.setCursorAndTitleText(cursorNameAndTitleText.cursorName, cursorNameAndTitleText.titleText);
+                }
+            }
+        }
+    }
+
+    /** @internal */
+    private updateOperationLocationCursor() {
+        let titleText: string;
+        let cursorName: string | undefined;
+        if (this._operationCursorName !== undefined) {
+            titleText = '';
+            cursorName = this._operationCursorName;
+        } else {
+            if (this._locationCursorName !== undefined) {
+                titleText = '';
+                cursorName = this._locationCursorName;
+            } else {
+                const cursorNameAndTitleText = this.getCellCursorNameAndTitleText();
+                if (cursorNameAndTitleText === undefined) {
+                    titleText = '';
+                } else {
+                    cursorName = cursorNameAndTitleText.cursorName;
+                    titleText = cursorNameAndTitleText.titleText;
+                }
+            }
+        }
+        this._canvasManager.setCursorAndTitleText(cursorName, titleText);
+
+
+        if (this._operationCursorName === undefined && this._locationCursorName === undefined) {
             if (this._hoverCell === undefined) {
                 this._canvasManager.setCursorAndTitleText(undefined, '');
             } else {
@@ -152,7 +205,8 @@ export class Mouse {
 /** @public */
 export namespace Mouse {
     /** @internal */
-    export type CellEventer = (this: void, cell: ViewCell, invalidateViewCellRender: boolean) => void;
+    export type CellEnteredExitedEventer = (this: void, cell: ViewCell) => void;
+    export type ViewCellRenderInvalidatedEventer = (this: void, cell: ViewCell) => void;
 
     /** @internal */
     export interface CursorNameAndTitleText {

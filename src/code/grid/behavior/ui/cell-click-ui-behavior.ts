@@ -1,5 +1,5 @@
-import { ViewCell } from '../../components/cell/view-cell';
-import { DataServer } from '../../interfaces/server/data-server';
+import { DataServer } from '../../interfaces/data/data-server';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
@@ -17,7 +17,7 @@ export class CellClickUiBehavior extends UiBehavior {
             const link = cell.columnSettings.link;
             const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
-            this.cursor = isActionableLink ? 'pointer' : undefined;
+            this.sharedState.locationCursorName = isActionableLink ? 'pointer' : undefined;
         }
 
         return super.handlePointerMove(event, cell);

@@ -1,7 +1,7 @@
-import { AdapterSetConfig, CellEditor, EventDetail, HalignEnum, Revgrid, TextCellPainter, ViewCell, defaultGridProperties } from '..';
-import { HeaderDataAdapter } from './header-data-adapter';
-import { MainDataAdapter } from './main-data-adapter';
-import { SchemaAdapter } from './schema-adapter';
+import { EventDetail, HalignEnum, Revgrid, TextCellPainter, defaultGridSettings } from '..';
+import { HeaderDataServer } from './header-data-server';
+import { MainDataServer } from './main-data-server';
+import { SchemaServerImplementation } from './schema-adapter';
 
 export class Main {
     private readonly _controlsElement: HTMLElement;
@@ -17,7 +17,7 @@ export class Main {
     private readonly _addFishButtonElement: HTMLButtonElement;
     private readonly _gridHostElement: HTMLElement;
 
-    private _mainDataAdapter: MainDataAdapter;
+    private _mainDataServer: MainDataServer;
     private _cellPainter: TextCellPainter;
     private _grid: Revgrid;
 
@@ -108,7 +108,7 @@ export class Main {
         } else {
             this._deleteRowButtonElement.onclick = () => {
                 const deleteRowIndex = parseInt(this._deleteRowIndexTextboxElement.value);
-                this._mainDataAdapter.deleteRow(deleteRowIndex);
+                this._mainDataServer.deleteRow(deleteRowIndex);
             };
         }
 
@@ -117,7 +117,7 @@ export class Main {
             throw new Error('addFishButtonElement not found');
         } else {
             this._addFishButtonElement.onclick = () => {
-                this._mainDataAdapter.addFish();
+                this._mainDataServer.addFish();
             };
         }
     }
@@ -131,21 +131,20 @@ export class Main {
             this._grid.destroy();
         }
 
-        this._mainDataAdapter = new MainDataAdapter();
-        this._cellPainter = new TextCellPainter();
+        const schemaServer = new SchemaServerImplementation()
+        this._mainDataServer = new MainDataServer();
+        const headerDataServer = new HeaderDataServer();
 
-        const adapterSet: AdapterSetConfig = {
-            schemaServer: new SchemaAdapter(),
+        const adapterSet: Revgrid.Definition = {
+            schemaServer,
             subgrids: [
                 {
                     role: 'header',
-                    dataServer: new HeaderDataAdapter(),
-                    getCellPainterEventer: (viewCell, prefillColor) => this.getCellPainter(viewCell, prefillColor),
+                    dataServer: headerDataServer,
                 },
                 {
                     role: 'main',
-                    dataServer: this._mainDataAdapter,
-                    getCellPainterEventer: (viewCell, prefillColor) => this.getCellPainter(viewCell, prefillColor),
+                    dataServer: this._mainDataServer,
                 }
             ],
         };
@@ -165,10 +164,14 @@ export class Main {
                 gridRightAligned: defaultGridRightAligned,
                 scrollHorizontallySmoothly: defaultScrollHorizontallySmoothly,
                 visibleColumnWidthAdjust: defaultVisibleColumnWidthAdjust,
+                eventDispatchEnabled: true,
             }
         };
 
         this._grid = new Revgrid(this._gridHostElement, adapterSet, gridOptions);
+
+        this._mainDataServer.cellPainter.setGrid(this._grid);
+        headerDataServer.cellPainter.setGrid(this._grid);
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();
         this._cellPaddingTextboxElement.value = this._grid.settings.cellPadding.toString();
@@ -181,7 +184,7 @@ export class Main {
         this._grid.addEventListener('rev-column-sort', (event) => {
                 const cell = (event as CustomEvent<EventDetail.ColumnSort>).detail.revgridViewCell;
                 if (cell !== undefined) {
-                    this._mainDataAdapter.sort(cell.viewLayoutColumn.column);
+                    this._mainDataServer.sort(cell.viewLayoutColumn.column);
                 }
             }
         );
@@ -215,17 +218,11 @@ export class Main {
             }
         }
     }
-
-    getCellPainter(viewCell: ViewCell, cellEditorPainter: CellEditor.Painter | undefined) {
-        const painter = this._cellPainter;
-        painter.setCell(viewCell, cellEditorPainter, this._grid);
-        return painter;
-    }
 }
 
-const defaultGridRightAligned = defaultGridProperties.gridRightAligned;
-const defaultScrollHorizontallySmoothly = defaultGridProperties.scrollHorizontallySmoothly;
-const defaultVisibleColumnWidthAdjust = defaultGridProperties.visibleColumnWidthAdjust;
-const defaultCellPadding = defaultGridProperties.cellPadding;
-const defaultFixedColumnCount: typeof defaultGridProperties.fixedColumnCount = 2;
-const defaultHalign: typeof defaultGridProperties.halign = 'left';
+const defaultGridRightAligned = defaultGridSettings.gridRightAligned;
+const defaultScrollHorizontallySmoothly = defaultGridSettings.scrollHorizontallySmoothly;
+const defaultVisibleColumnWidthAdjust = defaultGridSettings.visibleColumnWidthAdjust;
+const defaultCellPadding = defaultGridSettings.cellPadding;
+const defaultFixedColumnCount: typeof defaultGridSettings.fixedColumnCount = 2;
+const defaultHalign: typeof defaultGridSettings.halign = 'left';

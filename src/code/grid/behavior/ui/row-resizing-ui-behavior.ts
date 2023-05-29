@@ -1,5 +1,5 @@
 
-import { Subgrid } from '../../interfaces/server/subgrid';
+import { Subgrid } from '../../interfaces/data/subgrid';
 import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 

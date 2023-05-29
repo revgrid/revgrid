@@ -11,7 +11,7 @@
 //     window.CustomEvent.prototype = window.Event.prototype;
 // }
 
-import { GridSettingsAccessor } from '../../settings-accessors/grid-settings-accessor';
+import { MergableGridSettingsImplementation } from '../../settings/mergable-grid-settings-implementation';
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 import { CssClassName } from '../../types-utils/html-types';
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
@@ -21,9 +21,8 @@ import { Writable } from '../../types-utils/types';
 
 /** @public */
 export class CanvasManager {
-    // focuser = null; // does not seem to be implemented
-    // buffer = null;
-    // ctx = null;
+    resizedEventerForViewLayout: CanvasManager.ResizedEventer;
+    resizedEventerForEventBehavior: CanvasManager.ResizedEventer;
 
     repaintEventer: CanvasManager.RepaintEventer;
 
@@ -208,8 +207,7 @@ export class CanvasManager {
     constructor(
         private readonly _containerElement: HTMLElement,
         contextAttributes: CanvasRenderingContext2DSettings | undefined,
-        private readonly _gridSettings: GridSettingsAccessor,
-        private readonly _resizedEventer: CanvasManager.ResizedEventer,
+        private readonly _gridSettings: MergableGridSettingsImplementation,
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');
@@ -426,7 +424,7 @@ export class CanvasManager {
         this._bounds = new InexclusiveRectangle(0, 0, width, height);
 
         if (this._started) {
-            this.fireResizedEvent(debounceEvent);
+            this.checkFireResizedEvents(debounceEvent);
         }
     }
 
@@ -571,10 +569,10 @@ export class CanvasManager {
         this.canvasElement.title = titleText;
     }
 
-    private fireResizedEvent(debounce: boolean): void {
+    private checkFireResizedEvents(debounce: boolean): void {
         if (!debounce) {
             this.checkClearResizeTimeout();
-            this._resizedEventer();
+            this.fireResizedEvents();
         } else {
             if (this._gridSettings.resizedEventDebounceExtendedWhenPossible) {
                 this.checkClearResizeTimeout();
@@ -584,12 +582,17 @@ export class CanvasManager {
                 this._resizeTimeoutId = setTimeout(
                     () => {
                         this._resizeTimeoutId = undefined;
-                        this._resizedEventer();
+                        this.fireResizedEvents();
                     },
                     this._gridSettings.resizedEventDebounceInterval,
                 );
             }
         }
+    }
+
+    private fireResizedEvents() {
+        this.resizedEventerForViewLayout();
+        this.resizedEventerForEventBehavior();
     }
 
     private checkClearResizeTimeout() {

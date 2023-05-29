@@ -1,16 +1,21 @@
-import { DataServer } from '../../interfaces/server/data-server';
-import { MainSubgrid } from '../../interfaces/server/main-subgrid';
-import { Subgrid } from '../../interfaces/server/subgrid';
-import { CellEditor } from '../../interfaces/serverless/cell-editor';
+import { DataServer } from '../../interfaces/data/data-server';
+import { MainSubgrid } from '../../interfaces/data/main-subgrid';
+import { Subgrid } from '../../interfaces/data/subgrid';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { CellEditor } from '../../interfaces/dataless/cell-editor';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
 import { AssertError } from '../../types-utils/revgrid-error';
-import { ViewCell } from '../cell/view-cell';
 import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
 export class Focus {
+    /** @internal */
+    changedEventer: Focus.ChangedEventer;
+    /** @internal */
+    viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer;
+
     readonly subgrid: Subgrid;
     readonly dataServer: DataServer;
 
@@ -40,8 +45,6 @@ export class Focus {
         private readonly _columnsManager: ColumnsManager,
         /** @internal */
         private readonly _viewLayout: ViewLayout,
-        /** @internal */
-        private readonly _cellInvalidatedEventer: Focus.CellInvalidatedEventer,
     ) {
         this.subgrid = this._mainSubgrid;
         this.dataServer = this.subgrid.dataServer;
@@ -101,10 +104,12 @@ export class Focus {
 
             if (cell !== undefined) {
                 this._cell = cell;
-                this._cellInvalidatedEventer(cell);
+                this.viewCellRenderInvalidatedEventer(cell);
             }
 
             this.closeAndCheckTryOpenEditor(false, cell);
+
+            this.fireFocusChanged();
         }
     }
 
@@ -131,10 +136,12 @@ export class Focus {
 
             if (cell !== undefined) {
                 this._cell = cell;
-                this._cellInvalidatedEventer(cell);
+                this.viewCellRenderInvalidatedEventer(cell);
             }
 
             this.closeAndCheckTryOpenEditor(false, cell);
+
+            this.fireFocusChanged();
         }
     }
 
@@ -160,10 +167,12 @@ export class Focus {
 
             if (cell !== undefined) {
                 this._cell = cell;
-                this._cellInvalidatedEventer(cell);
+                this.viewCellRenderInvalidatedEventer(cell);
             }
 
             this.closeAndCheckTryOpenEditor(false, cell);
+
+            this.fireFocusChanged();
         }
     }
 
@@ -191,10 +200,12 @@ export class Focus {
 
             if (cell !== undefined) {
                 this._cell = cell;
-                this._cellInvalidatedEventer(cell);
+                this.viewCellRenderInvalidatedEventer(cell);
             }
 
             this.closeAndCheckTryOpenEditor(false, cell);
+
+            this.fireFocusChanged();
         }
     }
 
@@ -438,10 +449,15 @@ export class Focus {
     }
 
     /** @internal */
+    private fireFocusChanged() {
+        this.changedEventer(this._previousSubgridPoint, this._currentSubgridPoint);
+    }
+
+    /** @internal */
     private undefineCell() {
         const cell = this._cell;
         if (cell !== undefined) {
-            this._cellInvalidatedEventer(cell);
+            this.viewCellRenderInvalidatedEventer(cell);
         }
         this._cell = undefined;
     }
@@ -501,7 +517,9 @@ export class Focus {
 /** @public */
 export namespace Focus {
     /** @internal */
-    export type CellInvalidatedEventer = (this: void, cell: ViewCell) => void;
+    export type ChangedEventer = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
+    /** @internal */
+    export type ViewCellRenderInvalidatedEventer = (this: void, cell: ViewCell) => void;
 
     /** @internal */
     export interface Stash {

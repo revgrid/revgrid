@@ -1,6 +1,6 @@
-// import { CellEditor } from '../../cell-editor/cell-editor';
+import { ViewCell } from '../../interfaces/data/view-cell';
+import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
-import { ViewCell } from '../cell/view-cell';
 
 /** @public */
 export namespace EventDetail {
@@ -8,6 +8,11 @@ export namespace EventDetail {
         readonly time: number;
         readonly width: number,
         readonly height: number,
+    }
+
+    export interface CellFocusChanged {
+        readonly oldPoint: Point | undefined;
+        readonly newPoint: Point | undefined;
     }
 
     export interface Mouse extends MouseEvent {
