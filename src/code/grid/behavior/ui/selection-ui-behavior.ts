@@ -1,9 +1,10 @@
 
 import { EventDetail } from '../../components/event/event-detail';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { CursorNames, isSecondaryMouseButton } from '../../types-utils/html-types';
+import { isSecondaryMouseButton } from '../../types-utils/html-types';
 import { Point } from '../../types-utils/point';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
@@ -26,14 +27,14 @@ export class SelectionUiBehavior extends UiBehavior {
     private _sbAutoStart = 0;
     private _stepScrollDragTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
-    override handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDown(event: PointerEvent, cell: HoverCell | null | undefined) {
         if (isSecondaryMouseButton(event)) {
             return super.handlePointerDown(event, cell);
         } else {
             if (cell === undefined) {
-                cell = this.tryGetViewCellFromMouseEvent(event);
+                cell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (cell === null) {
+            if (cell === null || cell.isMouseOverLine()) {
                 return super.handlePointerDown(event, cell);
             } else {
                 const subgrid = cell.subgrid;
@@ -58,14 +59,14 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (!event.altKey || isSecondaryMouseButton(event)) {
             return super.handleClick(event, cell);
         } else {
             if (cell === undefined) {
-                cell = this.tryGetViewCellFromMouseEvent(event);
+                cell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (cell === null) {
+            if (cell === null || cell.isMouseOverLine()) {
                 return super.handleClick(event, cell);
             } else {
                 let selectSucceeded: boolean;
@@ -92,11 +93,11 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDragStart(event: DragEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, cell: HoverCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell === null) {
+        if (cell === null || cell.isMouseOverLine()) {
             return super.handlePointerDragStart(event, cell);
         } else {
             const subgrid = cell.subgrid;
@@ -128,7 +129,7 @@ export class SelectionUiBehavior extends UiBehavior {
                         return super.handlePointerDragStart(event, cell);
                     } else {
                         this.mouse.setActiveDragType(dragType);
-                        this.mouse.setOperationCursor(CursorNames.cell);
+                        this.mouse.setOperationCursor(this.gridSettings.selectionExtendDragActiveCursorName);
                         return {
                             started: true,
                             cell,
@@ -139,7 +140,7 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDrag(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: HoverCell | null | undefined) {
         const activeDragType = this.mouse.activeDragType;
         if (activeDragType === undefined || !this.dragTypeIsExtendLastSelectionArea(activeDragType)) {
             return super.handlePointerDrag(event, cell);
@@ -150,7 +151,7 @@ export class SelectionUiBehavior extends UiBehavior {
                 return cell;
             } else {
                 if (cell === undefined) {
-                    cell = this.tryGetViewCellFromMouseEvent(event);
+                    cell = this.tryGetHoverCellFromMouseEvent(event);
                 }
                 if (cell !== null) {
                     this.tryUpdateLastSelectionArea(cell);
@@ -160,7 +161,7 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         const activeDragType = this.mouse.activeDragType;
         if (activeDragType === undefined || !this.dragTypeIsExtendLastSelectionArea(activeDragType)) {
             return super.handlePointerDragEnd(event, cell);

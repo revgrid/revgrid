@@ -8,6 +8,7 @@ import { Renderer } from '../../components/renderer/renderer';
 import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column } from '../../interfaces/schema/column';
 import { Point } from '../../types-utils/point';
@@ -222,7 +223,7 @@ export class EventBehavior {
         let cell = this.uiClickEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
             }
         }
 
@@ -237,7 +238,7 @@ export class EventBehavior {
         let cell = this.uiDblClickEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
             }
         }
 
@@ -252,7 +253,7 @@ export class EventBehavior {
         let cell = this.uiPointerEnterEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
             }
         }
 
@@ -267,7 +268,7 @@ export class EventBehavior {
         let cell = this.uiPointerDownEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
             }
         }
 
@@ -282,7 +283,7 @@ export class EventBehavior {
         let cell = this.uiPointerUpCancelEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
             }
         }
 
@@ -297,7 +298,7 @@ export class EventBehavior {
         let cell = this.uiPointerMoveEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
             }
         }
 
@@ -312,7 +313,7 @@ export class EventBehavior {
         let cell = this.uiPointerLeaveOutEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
             }
         }
 
@@ -327,7 +328,7 @@ export class EventBehavior {
         let cell = this.uiWheelMoveEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
             }
         }
 
@@ -380,7 +381,7 @@ export class EventBehavior {
         let cell = this.uiContextMenuEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
             }
         }
 
@@ -543,11 +544,11 @@ export class EventBehavior {
             cell = undefined;
         } else {
             if (cell !== undefined) {
-                cell = Object.create(cell) as ViewCell; // clone cell
+                cell = Object.create(cell) as HoverCell; // clone cell
             }
         }
         const detail = event as EventName.DetailMap[T];
-        detail.revgridViewCell = cell;
+        detail.revgridCell = cell;
         return this.dispatchCustomEvent(eventName, false, detail);
     }
 }
@@ -557,7 +558,7 @@ export namespace EventBehavior {
 
     export interface UiPointerDragStartResult {
         readonly started: boolean;
-        readonly cell: ViewCell | null | undefined;
+        readonly cell: HoverCell | null | undefined;
     }
 
     export interface DescendantEventer {
@@ -593,8 +594,8 @@ export namespace EventBehavior {
         readonly pointerDrag: DescendantEventer.PointerDrag;
         readonly pointerDragEnd: DescendantEventer.PointerDrag;
         readonly rendered: DescendantEventer.Signal;
-        readonly mouseEnteredCell: DescendantEventer.Cell;
-        readonly mouseExitedCell: DescendantEventer.Cell;
+        readonly mouseEnteredCell: DescendantEventer.ViewCellOnly;
+        readonly mouseExitedCell: DescendantEventer.ViewCellOnly;
         readonly touchStart: DescendantEventer.Touch;
         readonly touchMove: DescendantEventer.Touch;
         readonly touchEnd: DescendantEventer.Touch;
@@ -610,27 +611,27 @@ export namespace EventBehavior {
         export type Signal = (this: void) => void;
         export type Focus = (this: void, event: FocusEvent) => void;
         export type Key = (this: void, event: EventDetail.Keyboard) => void;
-        export type Mouse = (this: void, event: MouseEvent, cell: ViewCell | null | undefined) => void;
-        export type Pointer = (this: void, event: PointerEvent, cell: ViewCell | null | undefined) => void;
+        export type Mouse = (this: void, event: MouseEvent, cell: HoverCell | null | undefined) => void;
+        export type Pointer = (this: void, event: PointerEvent, cell: HoverCell | null | undefined) => void;
         export type PointerDrag = (this: void, event: PointerEvent) => void;
-        export type PointerDragStart = (this: void, event: DragEvent, cell: ViewCell | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
-        export type Wheel = (this: void, event: WheelEvent, cell: ViewCell | null | undefined) => void;
-        export type DragCell = (this: void, event: DragEvent, cell: ViewCell | null | undefined) => void;
+        export type PointerDragStart = (this: void, event: DragEvent, cell: HoverCell | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
+        export type Wheel = (this: void, event: WheelEvent, cell: HoverCell | null | undefined) => void;
+        export type DragCell = (this: void, event: DragEvent, cell: HoverCell | null | undefined) => void;
         export type Drag = (this: void, event: DragEvent) => void;
         export type Touch = (this: void, event: TouchEvent) => void;
-        export type Cell = (this: void, cell: ViewCell) => void;
+        export type ViewCellOnly = (this: void, cell: ViewCell) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
         export type ScrollerAction = (this: void, event: EventDetail.ScrollerAction) => void;
         export type CellFocusChanged = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
     }
 
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
-    export type UiMouseEventer = (this: void, pointerEvent: EventDetail.Mouse) => ViewCell | null | undefined;
-    export type UiPointerEventer = (this: void, pointerEvent: EventDetail.Pointer) => ViewCell | null | undefined;
+    export type UiMouseEventer = (this: void, pointerEvent: EventDetail.Mouse) => HoverCell | null | undefined;
+    export type UiPointerEventer = (this: void, pointerEvent: EventDetail.Pointer) => HoverCell | null | undefined;
     export type UiPointerDragEventer = (this: void, pointerEvent: EventDetail.Pointer) => void;
     export type UiPointerDragStartEventer = (this: void, dragEvent: DragEvent) => UiPointerDragStartResult;
-    export type UiWheelEventer = (this: void, wheelEvent: EventDetail.Wheel) => ViewCell | null | undefined;
-    export type UiDragEventer = (this: void, event: DragEvent) => ViewCell | null | undefined;
+    export type UiWheelEventer = (this: void, wheelEvent: EventDetail.Wheel) => HoverCell | null | undefined;
+    export type UiDragEventer = (this: void, event: DragEvent) => HoverCell | null | undefined;
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;
     export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
     export type UiScrollerActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;

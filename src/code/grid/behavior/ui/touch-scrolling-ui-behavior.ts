@@ -1,6 +1,6 @@
 
 import { ScrollDimension } from '../../components/view/scroll-dimension';
-import { ViewCell } from '../../interfaces/data/view-cell';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { Rectangle } from '../../types-utils/rectangle';
 import { UiBehavior } from './ui-behavior';
 
@@ -22,11 +22,11 @@ export class TouchScrollingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined) {
         return cell;
     }
 
-    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined) {
         return cell;
     }
 
@@ -71,7 +71,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
     private getTouchedBounds(eventDetail: TouchEvent) {
         const firstTouch = eventDetail.touches[0];
         const canvasFirstTouchOffsetPoint = this.canvasManager.getOffsetPoint(firstTouch);
-        const cell = this.viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
+        const cell = this.viewLayout.findHoverCell(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
         if (cell === undefined) {
             return undefined;
         } else {

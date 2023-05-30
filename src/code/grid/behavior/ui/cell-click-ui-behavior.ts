@@ -1,4 +1,5 @@
 import { DataServer } from '../../interfaces/data/data-server';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
@@ -9,9 +10,9 @@ export class CellClickUiBehavior extends UiBehavior {
 
     readonly typeName = CellClickUiBehavior.typeName;
 
-    override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
         if (cell !== null) {
             const link = cell.columnSettings.link;
@@ -23,9 +24,9 @@ export class CellClickUiBehavior extends UiBehavior {
         return super.handlePointerMove(event, cell);
     }
 
-    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
         if (cell === null || cell.isMain) {
             return super.handleClick(event, cell);

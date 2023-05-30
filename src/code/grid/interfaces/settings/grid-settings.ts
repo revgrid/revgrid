@@ -37,9 +37,13 @@ export interface GridSettings {
     columnHeaderForegroundSelectionFont: string;
     columnHeaderFormat: string;
     columnHeaderHalign: Halign;
-    columnHeaderCellPainter: string;
     /** Active column indices */
     columnIndexes: number[];
+    columnMovePossibleCursorName: string | undefined;
+    columnMoveActiveCursorName: string | undefined;
+    columnResizeDragPossibleCursorName: string | undefined;
+    columnResizeDragActiveCursorName: string | undefined;
+    columnSortPossibleCursorName: string | undefined;
     /** Allow user to move columns. */
     columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
@@ -218,6 +222,8 @@ export interface GridSettings {
     /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a Selection. */
     secondarySelectionAreaType: SelectionAreaType;
     secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
+    /** Cursor to appear when extending a selection with a mouse drag */
+    selectionExtendDragActiveCursorName: string | undefined;
     /** Stroke color for last selection overlay. */
     selectionRegionOutlineColor: GridSettings.Color;
     /** Fill color for last selection overlay. */

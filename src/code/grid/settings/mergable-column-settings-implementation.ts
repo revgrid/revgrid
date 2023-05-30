@@ -240,8 +240,6 @@ export namespace MergableColumnSettingsImplementation {
         set halign(value: Halign) { this._gridProperties.columnHeaderHalign = value; }
         get format() { return this._gridProperties.columnHeaderFormat }
         set format(value: string) { this._gridProperties.columnHeaderFormat = value; }
-        get cellPainter() { return this._gridProperties.columnHeaderCellPainter }
-        set cellPainter(value: string) { this._gridProperties.columnHeaderCellPainter = value; }
         // get autosizing() { return this._gridProperties.columnAutosizing }
         // set autosizing(value: boolean | undefined) { this._gridProperties.columnAutosizing = value; }
         // get autosizingMax() { return this._gridProperties.columnAutosizingMax }

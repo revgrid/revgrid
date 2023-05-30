@@ -1,3 +1,4 @@
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
@@ -16,19 +17,19 @@ export namespace EventDetail {
     }
 
     export interface Mouse extends MouseEvent {
-        revgridViewCell?: ViewCell;
+        revgridCell?: HoverCell;
     }
 
     export interface Pointer extends PointerEvent, Mouse {
-        revgridViewCell?: ViewCell;
+        revgridCell?: HoverCell;
     }
 
     export interface Wheel extends WheelEvent {
-        revgridViewCell?: ViewCell;
+        revgridCell?: HoverCell;
     }
 
     export interface ColumnSort extends MouseEvent {
-        revgridViewCell?: ViewCell;
+        revgridCell?: ViewCell;
     }
 
     export type Keyboard = CanvasManager.RevgridKeyboardEvent;

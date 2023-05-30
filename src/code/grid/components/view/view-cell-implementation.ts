@@ -1,6 +1,7 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
@@ -9,7 +10,7 @@ import { Rectangle } from '../../types-utils/rectangle';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class ViewCellImplementation {
+export abstract class ViewCellImplementation implements ViewCell{
     /** Set by some Grid Painters to record out cell was painted. If fingerprint is same on successive repaints of cell, then
      * cell does not need to be repainted
      * @internal
@@ -29,7 +30,7 @@ export class ViewCellImplementation {
     /** @internal */
     private _bounds: Rectangle | undefined;
     /** @internal */
-    private _columnProperties: ColumnSettings | undefined;
+    private _columnSettings: ColumnSettings | undefined;
 
     /** @internal */
     constructor(
@@ -69,22 +70,12 @@ export class ViewCellImplementation {
     }
 
     get columnSettings() {
-        let cp = this._columnProperties;
-        if (!cp) {
-            cp = this._viewLayoutColumn.column.settings;
-            // Next 5 lines were commented out in TypeScript conversion
-            // if (this.isHeaderRow || this.isSummaryRow) {
-            //     cp = cp.columnHeader;
-            // } else if (this.isFilterRow) {
-            //     cp = cp.filterProperties;
-            // }
-
-            // isDataColumn: cp already set to cp.rowHeader or cp.treeHeader
-            // isDataRow: cp already set to basic props
-
-            this._columnProperties = cp;
+        let columnSettings = this._columnSettings;
+        if (columnSettings === undefined) {
+            columnSettings = this._viewLayoutColumn.column.settings;
+            this._columnSettings = columnSettings;
         }
-        return cp;
+        return columnSettings;
     }
 
     /**
@@ -231,7 +222,7 @@ export class ViewCellImplementation {
      * @internal */
     reset(viewLayoutColumn: ViewLayoutColumn, viewLayoutRow: ViewLayoutRow) {
         // getter caches
-        this._columnProperties = undefined;
+        this._columnSettings = undefined;
         this.cellOwnProperties = undefined;
         this._bounds = undefined;
 

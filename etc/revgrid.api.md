@@ -280,8 +280,6 @@ export interface CellSettings {
     // (undocumented)
     readonly cellPadding: number;
     // (undocumented)
-    readonly cellPainter: string;
-    // (undocumented)
     readonly color: string;
     // (undocumented)
     readonly columnAutosizing: boolean;
@@ -337,8 +335,6 @@ export class CellSettingsImplementation implements CellSettings {
     get backgroundSelectionColor(): string;
     // (undocumented)
     get cellPadding(): number;
-    // (undocumented)
-    get cellPainter(): string;
     // (undocumented)
     get color(): string;
     // (undocumented)
@@ -514,8 +510,6 @@ export namespace ColumnSettings {
         backgroundColor: string;
         // (undocumented)
         backgroundSelectionColor: string;
-        // (undocumented)
-        cellPainter: string;
         // (undocumented)
         color: string;
         // (undocumented)
@@ -896,7 +890,7 @@ export namespace EventDetail {
     // (undocumented)
     export interface ColumnSort extends MouseEvent {
         // (undocumented)
-        revgridViewCell?: ViewCell;
+        revgridCell?: ViewCell;
     }
     // (undocumented)
     export type DragType = keyof typeof DragTypeEnum;
@@ -921,12 +915,12 @@ export namespace EventDetail {
     // (undocumented)
     export interface Mouse extends MouseEvent {
         // (undocumented)
-        revgridViewCell?: ViewCell;
+        revgridCell?: HoverCell;
     }
     // (undocumented)
     export interface Pointer extends PointerEvent, Mouse {
         // (undocumented)
-        revgridViewCell?: ViewCell;
+        revgridCell?: HoverCell;
     }
     // (undocumented)
     export interface Resize {
@@ -992,7 +986,7 @@ export namespace EventDetail {
     // (undocumented)
     export interface Wheel extends WheelEvent {
         // (undocumented)
-        revgridViewCell?: ViewCell;
+        revgridCell?: HoverCell;
     }
 }
 
@@ -1235,8 +1229,6 @@ export interface GridSettings {
     // (undocumented)
     columnHeaderBackgroundSelectionColor: GridSettings.Color;
     // (undocumented)
-    columnHeaderCellPainter: string;
-    // (undocumented)
     columnHeaderColor: GridSettings.Color;
     // (undocumented)
     columnHeaderFont: string;
@@ -1249,6 +1241,16 @@ export interface GridSettings {
     // (undocumented)
     columnHeaderHalign: Halign;
     columnIndexes: number[];
+    // (undocumented)
+    columnMoveActiveCursorName: string | undefined;
+    // (undocumented)
+    columnMovePossibleCursorName: string | undefined;
+    // (undocumented)
+    columnResizeDragActiveCursorName: string | undefined;
+    // (undocumented)
+    columnResizeDragPossibleCursorName: string | undefined;
+    // (undocumented)
+    columnSortPossibleCursorName: string | undefined;
     columnsReorderable: boolean;
     columnsReorderableHideable: boolean;
     // (undocumented)
@@ -1408,6 +1410,7 @@ export interface GridSettings {
     secondarySelectionAreaType: SelectionAreaType;
     // (undocumented)
     secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
+    selectionExtendDragActiveCursorName: string | undefined;
     selectionRegionOutlineColor: GridSettings.Color;
     selectionRegionOverlayColor: GridSettings.Color;
     // (undocumented)
@@ -1536,6 +1539,16 @@ export const enum HorizontalWheelScrollingAllowed {
     CtrlKeyDown = 2,
     // (undocumented)
     Never = 0
+}
+
+// @public (undocumented)
+export interface HoverCell extends ViewCell {
+    // (undocumented)
+    isMouseOverLine(): boolean;
+    // (undocumented)
+    mouseOverLeftLine: boolean;
+    // (undocumented)
+    mouseOverTopLine: boolean;
 }
 
 // @public (undocumented)
@@ -1748,7 +1761,7 @@ export class Mouse {
     // @internal (undocumented)
     setLocationCursor(cursorName: string | undefined): void;
     // @internal (undocumented)
-    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, hoverCell: ViewCell | undefined): void;
+    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell | undefined): void;
     // @internal (undocumented)
     setOperationCursor(cursorName: string | undefined): void;
     // @internal (undocumented)
@@ -2056,7 +2069,7 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined): void;
     // (undocumented)
-    protected descendantProcessClick(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessClick(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessColumnsChanged(): void;
     // (undocumented)
@@ -2066,25 +2079,25 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessColumnsWidthChanged(_columns: Column[], _ui: boolean): void;
     // (undocumented)
-    protected descendantProcessContextMenu(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessContextMenu(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessCopy(_event: ClipboardEvent): void;
     // (undocumented)
-    protected descendantProcessDblClick(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessDblClick(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessDrag(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessDrag(_event: DragEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessDragEnd(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessDragEnd(_event: DragEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessDragEnter(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessDragEnter(_event: DragEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessDragLeave(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessDragLeave(_event: DragEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessDragOver(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessDragOver(_event: DragEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessDragStart(_event: DragEvent): void;
     // (undocumented)
-    protected descendantProcessDrop(_event: DragEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessDrop(_event: DragEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessHorizontalScrollerAction(_event: EventDetail.ScrollerAction): void;
     // (undocumented)
@@ -2098,20 +2111,20 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessMouseExitedCell(_cell: ViewCell): void;
     // (undocumented)
-    protected descendantProcessPointerDown(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessPointerDown(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessPointerDrag(_event: PointerEvent): void;
     // (undocumented)
     protected descendantProcessPointerDragEnd(_event: PointerEvent): void;
-    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: ViewCell | null | undefined): boolean;
+    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: HoverCell | null | undefined): boolean;
     // (undocumented)
-    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessPointerMove(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessPointerMove(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessRendered(): void;
     // (undocumented)
@@ -2129,7 +2142,7 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessVerticalScrollViewportStartChanged(): void;
     // (undocumented)
-    protected descendantProcessWheelMove(_event: MouseEvent, _cell: ViewCell | null | undefined): void;
+    protected descendantProcessWheelMove(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "Hypgrid"
     destroy(): void;
     // (undocumented)
@@ -2189,7 +2202,7 @@ export class Revgrid {
     // (undocumented)
     getFormatter(localizerName: string | undefined): (value: unknown) => string;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    getGridCellFromMousePoint(mouse: Point): ViewCell | undefined;
+    getGridCellFromMousePoint(mouse: Point): HoverCell | undefined;
     // (undocumented)
     getHiddenColumns(): Column[];
     // (undocumented)
@@ -3307,7 +3320,7 @@ export namespace WritablePoint {
 // Warnings were encountered during analysis:
 //
 // src/code/grid/components/selection/selection.ts:21:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/components/view/view-layout.ts:27:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/components/view/view-layout.ts:29:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

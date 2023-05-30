@@ -1,3 +1,4 @@
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
@@ -45,9 +46,9 @@ export class Mouse {
     }
 
     /** @internal */
-    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, hoverCell: ViewCell | undefined) {
+    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell | undefined) {
         this._canvasOffsetPoint = canvasOffsetPoint;
-        this.updateHoverCell(hoverCell, true);
+        this.updateHoverCell(cell, true);
     }
 
     /** @internal */
@@ -73,21 +74,21 @@ export class Mouse {
 
     /** @internal */
     private processViewLayoutComputed() {
-        let newHoverCell: ViewCell | undefined;
+        let newHoverCell: HoverCell | undefined;
         const canvasOffsetPoint = this._canvasOffsetPoint;
         if (canvasOffsetPoint === undefined) {
             newHoverCell = undefined;
         } else {
-            newHoverCell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(canvasOffsetPoint.x, canvasOffsetPoint.y);
+            newHoverCell = this._viewLayout.findHoverCell(canvasOffsetPoint.x, canvasOffsetPoint.y);
         }
 
         this.updateHoverCell(newHoverCell, false);
     }
 
     /** @internal */
-    private updateHoverCell(newHoverCell: ViewCell | undefined, invalidateViewCellRender: boolean) {
+    private updateHoverCell(cell: ViewCell | undefined, invalidateViewCellRender: boolean) {
         const existingHoverCell = this._hoverCell;
-        if (newHoverCell === undefined) {
+        if (cell === undefined) {
             if (existingHoverCell !== undefined) {
                 this._hoverCell = undefined;
                 this.updateHoverCursorAndTitleText();
@@ -98,23 +99,23 @@ export class Mouse {
             }
         } else {
             if (existingHoverCell === undefined) {
-                this._hoverCell = newHoverCell;
-                this.cellEnteredEventer(newHoverCell);
+                this._hoverCell = cell;
+                this.cellEnteredEventer(cell);
                 this.updateHoverCursorAndTitleText();
                 if (invalidateViewCellRender) {
-                    this.viewCellRenderInvalidatedEventer(newHoverCell);
+                    this.viewCellRenderInvalidatedEventer(cell);
                 }
             } else {
-                if (!ViewCell.sameByDataPoint(existingHoverCell, newHoverCell)) {
+                if (!ViewCell.sameByDataPoint(existingHoverCell, cell)) {
                     this._hoverCell = undefined;
                     this.cellExitedEventer(existingHoverCell);
                     if (invalidateViewCellRender) {
                         this.viewCellRenderInvalidatedEventer(existingHoverCell);
                     }
-                    this._hoverCell = newHoverCell;
-                    this.cellEnteredEventer(newHoverCell);
+                    this._hoverCell = cell;
+                    this.cellEnteredEventer(cell);
                     if (invalidateViewCellRender) {
-                        this.viewCellRenderInvalidatedEventer(newHoverCell);
+                        this.viewCellRenderInvalidatedEventer(cell);
                     }
                     this.updateHoverCursorAndTitleText();
                 }

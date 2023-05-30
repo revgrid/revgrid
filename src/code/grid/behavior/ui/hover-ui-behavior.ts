@@ -1,4 +1,5 @@
 
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
@@ -8,35 +9,49 @@ export class HoverUiBehavior extends UiBehavior {
 
     readonly typeName = HoverUiBehavior.typeName;
 
-    override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: HoverCell | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
         };
 
-        if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        this.mouse.setMouseCanvasOffset(canvasOffsetPoint, cell === null ? undefined : cell);
-        return super.handlePointerMove(event, cell);
+        const viewCell = this.getViewCellFromHoverCell(hoverCell);
+        this.mouse.setMouseCanvasOffset(canvasOffsetPoint, viewCell);
+        return super.handlePointerMove(event, hoverCell);
     }
 
-    override handlePointerEnter(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerEnter(event: PointerEvent, hoverCell: HoverCell | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
         };
 
-        if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        this.mouse.setMouseCanvasOffset(canvasOffsetPoint, cell === null ? undefined : cell);
-        return super.handlePointerEnter(event, cell);
+        const viewCell = this.getViewCellFromHoverCell(hoverCell);
+        this.mouse.setMouseCanvasOffset(canvasOffsetPoint, viewCell);
+        return super.handlePointerEnter(event, hoverCell);
     }
 
-    override handlePointerLeaveOut(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerLeaveOut(event: PointerEvent, cell: HoverCell | null | undefined) {
         this.mouse.setMouseCanvasOffset(undefined, undefined);
         return super.handlePointerLeaveOut(event, cell);
+    }
+
+    private getViewCellFromHoverCell(cell: HoverCell | null): ViewCell | undefined {
+        if (cell === null) {
+            return undefined;
+        } else {
+            if (cell.isMouseOverLine()) {
+                return undefined;
+            } else {
+                return cell;
+            }
+        }
     }
 }
 

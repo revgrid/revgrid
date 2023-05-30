@@ -244,7 +244,7 @@ export class Focus {
                 const x = currentSubgridPoint.x;
                 const y = currentSubgridPoint.y;
                 if (cell === undefined) {
-                    cell = this._viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(x, y);
+                    cell = this._viewLayout.findHoverCell(x, y);
                 } else {
                     if (x !== cell.viewLayoutColumn.activeColumnIndex || y !== cell.viewLayoutRow.subgridRowIndex) {
                         throw new AssertError('FE55598', 'Cell is not focused');

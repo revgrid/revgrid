@@ -55,7 +55,6 @@ export namespace ColumnSettings {
     export interface HeaderFilter {
         backgroundColor: /* CanvasGradient | CanvasPattern | */ string;
         backgroundSelectionColor: /* CanvasGradient | CanvasPattern | */ string;
-        cellPainter: string;
         color: /* CanvasGradient | CanvasPattern | */ string;
         font: string;
         foregroundSelectionColor: /* CanvasGradient | CanvasPattern | */ string;

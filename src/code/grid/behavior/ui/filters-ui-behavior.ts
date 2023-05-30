@@ -1,6 +1,7 @@
 
 import { EventDetail } from '../../components/event/event-detail';
-import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
+import { HoverCellImplementation } from '../../components/view/hover-cell-implementation';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { UiBehavior } from './ui-behavior';
 
@@ -51,9 +52,9 @@ export class FiltersUiBehavior extends UiBehavior {
     handleUP = this.moveDown;
     handleDOWN = this.moveDown;
 
-    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
         if (cell !== null && cell.isFilter) {
             // this.grid.onEditorActivate(cell);
@@ -63,9 +64,9 @@ export class FiltersUiBehavior extends UiBehavior {
         }
     }
 
-    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
         if (cell !== null && cell.isFilter) {
             // this.grid.onEditorActivate(cell);
@@ -82,7 +83,7 @@ export class FiltersUiBehavior extends UiBehavior {
         const originX = gridX;
         const C = this.viewLayout.columns.length;
 
-        const moveDownCellEvent = new ViewCellImplementation(this.columnsManager); // redefine so we don't reset the original below
+        const moveDownCellEvent = new HoverCellImplementation(this.columnsManager); // redefine so we don't reset the original below
 
         while (
             (gridX = (gridX + deltaX + C) % C) !== originX &&

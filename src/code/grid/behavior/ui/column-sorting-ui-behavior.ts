@@ -1,5 +1,4 @@
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { ColumnSettings } from '../../interfaces/settings/column-settings';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -7,57 +6,62 @@ export class ColumnSortingUiBehavior extends UiBehavior {
 
     readonly typeName = ColumnSortingUiBehavior.typeName;
 
-    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
-        if (!this.sharedState.mouseDownUpClickUsedForMoveOrResize) {
-            if (cell === undefined) {
-                cell = this.tryGetViewCellFromMouseEvent(event);
-            }
-            if (cell !== null) {
-                this.sort(event, cell, false);
-            }
-        }
-        return super.handleClick(event, cell);
-    }
-
-    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell !== null) {
-            this.sort(event, cell, true);
-        }
-        return super.handleClick(event, cell);
-    }
-
-    override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
-        }
-        if (cell !== null) {
-            if (cell.isHeaderOrRowFixed) {
-                const columnProperties = this.columnsManager.getActiveColumnProperties(cell.viewLayoutColumn.activeColumnIndex);
-                if ((columnProperties !== undefined) && columnProperties.sortable) {
-                    this.sharedState.locationCursorName = 'pointer';
-                } else {
-                    this.sharedState.locationCursorName = undefined;
-                }
+        if (cell === null) {
+            return super.handleClick(event, cell);
+        } else {
+            if (this.checkSort(event, cell, false)) {
+                return cell;
             } else {
-                this.sharedState.locationCursorName = undefined;
+                return super.handleClick(event, cell);
             }
+        }
+    }
+
+    override handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined) {
+        if (cell === undefined) {
+            cell = this.tryGetHoverCellFromMouseEvent(event);
+        }
+        if (cell === null) {
+            return super.handleClick(event, cell);
+        } else {
+            if (this.checkSort(event, cell, true)) {
+                return cell;
+            } else {
+                return super.handleClick(event, cell);
+            }
+        }
+    }
+
+    override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
+        if (cell === undefined) {
+            cell = this.tryGetHoverCellFromMouseEvent(event);
+        }
+        if (cell !== null && this.canSortWithCell(cell)) {
+            this.sharedState.locationCursorName = this.gridSettings.columnSortPossibleCursorName;
         }
 
         return super.handlePointerMove(event, cell);
     }
 
-    private sort(event: MouseEvent, cell: ViewCell, onDoubleClick: boolean) {
-        let columnProperties: ColumnSettings;
-        if (
-            cell.isHeader &&
-            (columnProperties = cell.columnSettings).sortable &&
-            !(columnProperties.sortOnDoubleClick !== onDoubleClick) // both same (true or falsy)?
-        ) {
+    private checkSort(event: MouseEvent, cell: HoverCell, dblClick: boolean) {
+        if (this.canSortWithCell(cell) && cell.columnSettings.sortOnDoubleClick === dblClick) {
             this.eventBehavior.processColumnSortEvent(event, cell);
+            return true;
+        } else {
+            return false;
         }
+    }
+
+    private canSortWithCell(cell: HoverCell): boolean {
+        return (
+            cell.isHeaderOrRowFixed &&
+            !cell.isMouseOverLine() &&
+            cell.columnSettings.sortable
+        );
     }
 }
 

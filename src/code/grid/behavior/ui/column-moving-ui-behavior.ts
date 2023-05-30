@@ -1,6 +1,5 @@
-import { ViewCell } from '../../interfaces/data/view-cell';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
-import { isSecondaryMouseButton } from '../../types-utils/html-types';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
@@ -40,147 +39,115 @@ type ColumnDragAction = MoveAction | ScrollAction | NoAction
 
 /** @internal */
 export class ColumnMovingUiBehavior extends UiBehavior {
-
     readonly typeName = ColumnMovingUiBehavior.typeName;
 
-    // static GRABBING = ['grabbing', '-moz-grabbing', '-webkit-grabbing']
-    static GRABBING = 'grabbing';
-    // static GRAB = ['grab', '-moz-grab', '-webkit-grab']
-    static GRAB = 'grab';
-
-    private _dragOverlay: HTMLCanvasElement;
-    private _dragCol: ViewLayoutColumn;
+    private _dragOverlay: HTMLCanvasElement | undefined;
+    private _dragColumn: ViewLayoutColumn | undefined;
     private _scrolling = false;
     private _scrollVelocity = 0;
 
     override initializeOn() {
-        this.sharedState.columnMovingDragArmed = false;
-        this.sharedState.columnMovingDragging = false;
-
-        this._dragOverlay = document.createElement('canvas');
-        this._dragOverlay.style.position = 'absolute';
-        this._dragOverlay.style.pointerEvents = 'none';
-        this._dragOverlay.style.top = '0px';
-        this._dragOverlay.style.left = '0px';
-        this._dragOverlay.style.display = 'none';
-
-        this.containerHtmlElement.appendChild(this._dragOverlay);
-
         super.initializeOn();
     }
 
-    override handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
-        }
-
-        if (cell === null) {
-            return super.handlePointerDown(event, cell);
+    override handlePointerDragStart(event: DragEvent, cell: HoverCell | null | undefined) {
+        if (!this.gridSettings.columnsReorderable) {
+            return super.handlePointerDragStart(event, cell);
         } else {
-            const ctrlKeyDown = event.ctrlKey;
-            if (
-                ctrlKeyDown &&
-                this.gridSettings.columnsReorderable &&
-                !isSecondaryMouseButton(event) &&
-                !cell.isColumnFixed &&
-                cell.isHeader
-            ) {
-                this.sharedState.columnMovingDragArmed = true;
-                this.sharedState.locationCursorName = ColumnMovingUiBehavior.GRABBING;
-                this.reindexBehavior.stash();
-                this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
-            }
-            return super.handlePointerDown(event, cell);
-        }
-    }
-
-    override handlePointerUpCancel(event: PointerEvent, cell: ViewCell | null | undefined) {
-        if (this.sharedState.columnMovingDragging) {
-            const dragAction = this.getDragAction(event);
-
-            this.endGridScrolling();
-            this.endDragColumn(dragAction);
-            this.reindexBehavior.unstash();
-            this.sharedState.locationCursorName = undefined;
-            // End Column Drag
-            setTimeout(() => {
-                this.attachChain();
-                // This is fired so the hover feature
-                //  can update the hovered column
-                const next = this.next;
-                if (next !== undefined) {
-                    next.handlePointerMove(event, undefined);
-                }
-            }, 50);
-            this.sharedState.columnMovingDragging = false;
-            this.sharedState.mouseDownUpClickUsedForMoveOrResize = true;
-        }
-        this.sharedState.columnMovingDragArmed = false;
-        this._dragOverlay.style.display = 'none';
-        requestAnimationFrame(() => this.render(undefined));
-        return super.handlePointerUpCancel(event, cell);
-    }
-
-    override handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined) {
-        if (
-            event !== undefined &&
-            event.ctrlKey &&
-            this.gridSettings.columnsReorderable &&
-            !this.sharedState.columnMovingDragging
-        ) {
             if (cell === undefined) {
-                cell = this.tryGetViewCellFromMouseEvent(event);
+                cell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (cell !== null && !cell.isColumnFixed && cell.isHeader) {
-                this.sharedState.locationCursorName = ColumnMovingUiBehavior.GRAB;
-            } else {
-                this.sharedState.locationCursorName = undefined;
-            }
-        } else {
-            this.sharedState.locationCursorName = undefined;
-        }
 
-        if (this.sharedState.columnMovingDragging) {
-            this.sharedState.locationCursorName = ColumnMovingUiBehavior.GRABBING;
-            return cell;
-        } else {
-            return super.handlePointerMove(event, cell);
+            if (
+                cell === null ||
+                cell.isColumnFixed ||
+                !cell.isHeaderOrRowFixed
+            ) {
+                return super.handlePointerDragStart(event, cell);
+            } else {
+                this.mouse.setOperationCursor(this.gridSettings.columnResizeDragActiveCursorName);
+                this.reindexBehavior.stash();
+
+                this._dragOverlay = document.createElement('canvas');
+                this._dragOverlay.style.position = 'absolute';
+                this._dragOverlay.style.pointerEvents = 'none';
+                this._dragOverlay.style.top = '0px';
+                this._dragOverlay.style.left = '0px';
+                this._dragOverlay.style.display = 'none';
+
+                this.containerHtmlElement.appendChild(this._dragOverlay);
+
+                this._dragColumn = cell.viewLayoutColumn;
+                this._dragOverlay.width = this.canvasManager.flooredContainerWidth;
+                this._dragOverlay.height = this.canvasManager.flooredContainerHeight;
+                this._dragOverlay.style.display = '';
+
+                return {
+                    started: true,
+                    cell,
+                }
+            }
         }
     }
 
-    override handlePointerDrag(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell | null | undefined) {
+        const dragColumn = this._dragColumn;
+        if (dragColumn === undefined) {
+            return super.handlePointerDragEnd(event, cell);
+        } else {
+            const dragOverlay = this._dragOverlay;
+            if (dragOverlay === undefined) {
+                throw new AssertError('CMUBHPDE13166');
+            } else {
+                const dragAction = this.getDragAction(event, dragColumn);
+
+                this.endGridScrolling();
+                this.endDragColumn(dragAction);
+                this.reindexBehavior.unstash();
+                this.containerHtmlElement.removeChild(dragOverlay);
+                // requestAnimationFrame(() => this.render(undefined));
+                this.mouse.setOperationCursor(undefined);
+            }
+            return cell;
+        }
+    }
+
+    override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
+        if (this.gridSettings.columnsReorderable) {
+            if (cell === undefined) {
+                cell = this.tryGetHoverCellFromMouseEvent(event);
+            }
+            if (cell !== null &&
+                !cell.isColumnFixed &&
+                cell.isHeaderOrRowFixed &&
+                !cell.isMouseOverLine()
+            ) {
+                this.sharedState.locationCursorName = this.gridSettings.columnMovePossibleCursorName;
+            }
+        }
+
+        return super.handlePointerMove(event, cell);
+    }
+
+    override handlePointerDrag(event: PointerEvent, cell: HoverCell | null | undefined) {
 
         // if (event.isColumnFixed) {
         //     super.handleMouseDrag(grid, event);
         //     return;
         // }
 
-        if (!this.sharedState.columnMovingDragArmed) {
+        if (this._dragColumn === undefined) {
             return super.handlePointerDrag(event, cell);
         } else {
-            if (cell === undefined) {
-                cell = this.tryGetViewCellFromMouseEvent(event);
-            }
-            if (cell !== null) {
-                if (!this.sharedState.columnMovingDragging) {
-                    this._dragCol = cell.viewLayoutColumn;
-                    this._dragOverlay.width = this.canvasManager.flooredContainerWidth;
-                    this._dragOverlay.height = this.canvasManager.flooredContainerHeight;
-                    this._dragOverlay.style.display = '';
-                    this.sharedState.columnMovingDragging = true;
-                    this.detachChain();
-                } else {
-                    const dragAction = this.getDragAction(event);
+            const dragAction = this.getDragAction(event, this._dragColumn);
 
-                    if (dragAction.type === DragActionType.Scroll) {
-                        this.scroll(dragAction);
-                    } else {
-                        this.endGridScrolling();
-                    }
-
-                    requestAnimationFrame(() => this.render(dragAction));
-                }
+            if (dragAction.type === DragActionType.Scroll) {
+                this.scroll(dragAction);
+            } else {
+                this.endGridScrolling();
             }
+
+            requestAnimationFrame(() => this.render(dragAction));
             return cell;
         }
     }
@@ -215,31 +182,39 @@ export class ColumnMovingUiBehavior extends UiBehavior {
     }
 
     private render(dragAction: ColumnDragAction | undefined) {
-        const dragContext = this._dragOverlay.getContext('2d', { alpha: true });
-        if (dragContext === null) {
-            throw new AssertError('CMR18887');
-        } else {
-            this._dragOverlay.width = this.canvasManager.flooredContainerWidth;
-            this._dragOverlay.height = this.canvasManager.flooredContainerHeight;
-            dragContext.clearRect(0, 0, this.canvasManager.flooredContainerWidth, this.canvasManager.flooredContainerHeight);
+        const dragColumn = this._dragColumn;
+        if (dragColumn !== undefined) {
+            const dragOverlay = this._dragOverlay;
+            if (dragOverlay === undefined) {
+                throw new AssertError('CMUBR44409');
+            } else {
+                const dragContext = dragOverlay.getContext('2d', { alpha: true });
+                if (dragContext === null) {
+                    throw new AssertError('CMR18887');
+                } else {
+                    dragOverlay.width = this.canvasManager.flooredContainerWidth;
+                    dragOverlay.height = this.canvasManager.flooredContainerHeight;
+                    dragContext.clearRect(0, 0, this.canvasManager.flooredContainerWidth, this.canvasManager.flooredContainerHeight);
 
-            if (dragAction !== undefined) {
+                    if (dragAction !== undefined) {
 
-                if (dragAction.type == DragActionType.Move) {
-                    const indicatorX = dragAction.location === MoveLocation.Before
-                        ? dragAction.target.left
-                        : dragAction.target.rightPlus1;
-                    dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
-                    dragContext.fillRect(indicatorX, 0, 2, this.canvasManager.flooredContainerHeight);
-                }
+                        if (dragAction.type == DragActionType.Move) {
+                            const indicatorX = dragAction.location === MoveLocation.Before
+                                ? dragAction.target.left
+                                : dragAction.target.rightPlus1;
+                            dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
+                            dragContext.fillRect(indicatorX, 0, 2, this.canvasManager.flooredContainerHeight);
+                        }
 
-                const dragCol = this.viewLayout.findColumnWithActiveIndex(this._dragCol.activeColumnIndex);
-                if (dragCol) {
-                    const hideAction = dragAction.type === DragActionType.Scroll && this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid;
-                    dragContext.fillStyle = hideAction
-                        ? 'rgba(255, 50, 50, 0.2)'
-                        : 'rgba(50, 50, 255, 0.2)';
-                    dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasManager.flooredContainerHeight);
+                        const dragCol = this.viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex);
+                        if (dragCol) {
+                            const hideAction = dragAction.type === DragActionType.Scroll && this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid;
+                            dragContext.fillStyle = hideAction
+                                ? 'rgba(255, 50, 50, 0.2)'
+                                : 'rgba(50, 50, 255, 0.2)';
+                            dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasManager.flooredContainerHeight);
+                        }
+                    }
                 }
             }
         }
@@ -263,22 +238,22 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         this.eventBehavior.processColumnsChangedEvent();
     }
 
-    private getDragAction(event: MouseEvent): ColumnDragAction {
+    private getDragAction(event: MouseEvent, dragColumn: ViewLayoutColumn): ColumnDragAction {
         const firstScrollableColumnViewLeft = this.viewLayout.scrollableCanvasLeft;
         if (firstScrollableColumnViewLeft === undefined) {
             return {
                 type: DragActionType.None
             };
         } else {
-            const updatedDragCol = this.viewLayout.findColumnWithActiveIndex(this._dragCol.activeColumnIndex)
-            const dragCol = updatedDragCol ? updatedDragCol : this._dragCol;
+            const updatedDragColumn = this.viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex)
+            const sourceDragColumn = updatedDragColumn !== undefined ? updatedDragColumn : dragColumn;
             const offsetX = event.offsetX;
             if (offsetX < firstScrollableColumnViewLeft) {
                 return {
                     type: DragActionType.Scroll,
                     toRight: false,
                     mouseOffGrid: offsetX < 0,
-                    source: dragCol
+                    source: sourceDragColumn
                 };
             } else {
                 const gridWidth = this.canvasManager.bounds.width;
@@ -287,7 +262,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                         type: DragActionType.Scroll,
                         toRight: true,
                         mouseOffGrid: true,
-                        source: dragCol
+                        source: sourceDragColumn
                     };
                 } else {
                     let overCol = this.viewLayout.findLeftGridLineInclusiveColumnOfCanvasOffset(offsetX);
@@ -298,9 +273,9 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                             throw new AssertError('CMFGDA31311');
                         }
                     }
-                    const lower = dragCol.left - overCol.width / 2;
-                    const upper = dragCol.rightPlus1 + overCol.width / 2;
-                    const inMoveRange = updatedDragCol === undefined || offsetX < lower || offsetX > upper;
+                    const lower = sourceDragColumn.left - overCol.width / 2;
+                    const upper = sourceDragColumn.rightPlus1 + overCol.width / 2;
+                    const inMoveRange = updatedDragColumn === undefined || offsetX < lower || offsetX > upper;
                     if (!inMoveRange || overCol.index < 0) {
                         return { type: DragActionType.None }
                     }
@@ -312,10 +287,9 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                     return {
                         type: DragActionType.Move,
                         location,
-                        source: dragCol,
+                        source: sourceDragColumn,
                         target: overCol
                     };
-
                 }
             }
         }

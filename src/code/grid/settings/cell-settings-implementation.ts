@@ -75,7 +75,6 @@ export class CellSettingsImplementation implements CellSettings {
     get linkOnHover() { return this._gridSettings.linkOnHover; }
     get linkColor() { return this._gridSettings.linkColor; }
     get linkColorOnHover() { return this._gridSettings.linkColorOnHover; }
-    get cellPainter() { return this._dataOrHeaderOrFilterSettings.cellPainter; }
     get strikeThrough() { return this._gridSettings.strikeThrough; }
     get textTruncateType() { return this._gridSettings.textTruncateType; }
     get voffset() { return this._gridSettings.voffset; }

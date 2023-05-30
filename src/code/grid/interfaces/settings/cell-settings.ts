@@ -17,7 +17,6 @@ export interface CellSettings {
     readonly linkOnHover: boolean;
     readonly linkColor: string;
     readonly linkColorOnHover: boolean;
-    readonly cellPainter: string;
     readonly strikeThrough: boolean;
     readonly textTruncateType: TextTruncateType | undefined;
     readonly voffset: number;

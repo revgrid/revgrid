@@ -143,9 +143,13 @@ export const defaultGridSettings: Required<GridSettings> = {
     columnHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
     columnHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
     columnHeaderHalign: 'center',
-    columnHeaderCellPainter: 'SimpleCell',
     /** There is no standard format called "header"; unless defined, defaults to "string" (pass-thru formatter). */
     columnHeaderFormat: 'header',
+    columnMovePossibleCursorName: undefined,
+    columnMoveActiveCursorName: 'ew-resize',
+    columnResizeDragPossibleCursorName: 'col-resize',
+    columnResizeDragActiveCursorName: 'col-resize',
+    columnSortPossibleCursorName: undefined,
     backgroundColor2: 'rgb(201, 201, 201)',
     filterFont: '12px Tahoma, Geneva, sans-serif',
     filterColor: 'rgb(25, 25, 25)',
@@ -431,6 +435,7 @@ export const defaultGridSettings: Required<GridSettings> = {
     extendLastSelectionAreaModifierKey: ModifierKeyEnum.Shift,
     addToggleSelectionAreaModifierKey: ModifierKeyEnum.Control,
     addToggleSelectionAreaModifierKeyDoesToggle: true,
+    selectionExtendDragActiveCursorName: 'cell',
 
     /**
      * @summary Fill color for last selection overlay.

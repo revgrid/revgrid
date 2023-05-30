@@ -8,8 +8,8 @@ import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
-import { ViewCell } from '../../interfaces/data/view-cell';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
@@ -129,7 +129,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerMove(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handlePointerMove(event, cell);
         } else {
@@ -137,7 +137,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerLeaveOut(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerLeaveOut(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handlePointerLeaveOut(event, cell);
         } else {
@@ -145,7 +145,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerEnter(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerEnter(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handlePointerEnter(event, cell);
         } else {
@@ -153,7 +153,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerDown(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handlePointerDown(event, cell);
         } else {
@@ -161,7 +161,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerUpCancel(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerUpCancel(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handlePointerUpCancel(event, cell);
         } else {
@@ -169,7 +169,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleWheelMove(event: WheelEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleWheelMove(event: WheelEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleWheelMove(event, cell);
         } else {
@@ -177,7 +177,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleDblClick(event, cell);
         } else {
@@ -185,7 +185,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleClick(event: MouseEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleClick(event, cell);
         } else {
@@ -193,7 +193,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDrag(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleDrag(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleDrag(event, cell);
         } else {
@@ -201,7 +201,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDragStart(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleDragStart(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleDragStart(event, cell);
         } else {
@@ -209,7 +209,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDragEnter(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleDragEnter(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleDragEnter(event, cell);
         } else {
@@ -217,7 +217,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDragOver(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleDragOver(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleDragOver(event, cell);
         } else {
@@ -225,7 +225,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDragLeave(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleDragLeave(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleDragLeave(event, cell);
         } else {
@@ -233,7 +233,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDragEnd(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleDragEnd(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleDragEnd(event, cell);
         } else {
@@ -241,7 +241,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDrop(event: DragEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleDrop(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleDrop(event, cell);
         } else {
@@ -255,7 +255,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerDragStart(event: DragEvent, cell: ViewCell | null | undefined): EventBehavior.UiPointerDragStartResult {
+    handlePointerDragStart(event: DragEvent, cell: HoverCell | null | undefined): EventBehavior.UiPointerDragStartResult {
         if (this.next) {
             return this.next.handlePointerDragStart(event, cell);
         } else {
@@ -266,7 +266,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerDrag(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerDrag(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handlePointerDrag(event, cell);
         } else {
@@ -274,7 +274,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerDragEnd(event: PointerEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handlePointerDragEnd(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handlePointerDragEnd(event, cell);
         } else {
@@ -282,7 +282,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleContextMenu(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    handleContextMenu(event: MouseEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (this.next) {
             return this.next.handleContextMenu(event, cell);
         } else {
@@ -332,8 +332,8 @@ export abstract class UiBehavior {
         }
     }
 
-    protected tryGetViewCellFromMouseEvent(event: MouseEvent): ViewCell | null {
-        const cell = this.viewLayout.findLeftGridLineInclusiveCellFromCanvasOffset(event.offsetX, event.offsetY);
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): HoverCell | null {
+        const cell = this.viewLayout.findHoverCell(event.offsetX, event.offsetY);
         if (cell === undefined) {
             return null;
         } else {

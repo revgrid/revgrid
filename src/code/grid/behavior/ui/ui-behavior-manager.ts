@@ -7,7 +7,7 @@ import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { ViewCell } from '../../interfaces/data/view-cell';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
@@ -191,7 +191,7 @@ export class UiBehaviorManager {
      * @param event - the event details
      * @internal
      */
-    private handlePointerMoveEvent(event: PointerEvent): ViewCell | null | undefined {
+    private handlePointerMoveEvent(event: PointerEvent): HoverCell | null | undefined {
         if (this._enabled) {
             this._sharedState.locationCursorName = undefined;
             const cell = this._firstUiBehavior.handlePointerMove(event, undefined);
@@ -207,10 +207,9 @@ export class UiBehaviorManager {
      * @param event - the event details
      * @internal
      */
-    private handleClickEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handleClickEvent(event: MouseEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleClick(event, undefined);
-            this._sharedState.mouseDownUpClickUsedForMoveOrResize = false;
             return cell;
         } else {
             return undefined;
@@ -221,7 +220,7 @@ export class UiBehaviorManager {
      * @desc delegate handling tap to the feature chain of responsibility
      * @internal
      */
-    private handleContextMenuEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handleContextMenuEvent(event: MouseEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleContextMenu(event, undefined);
             return cell;
@@ -234,7 +233,7 @@ export class UiBehaviorManager {
      * @desc delegate handling wheel moved to the feature chain of responsibility
      * @internal
      */
-    private handleWheelMovedEvent(event: WheelEvent): ViewCell | null | undefined {
+    private handleWheelMovedEvent(event: WheelEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleWheelMove(event, undefined);
             return cell;
@@ -248,7 +247,7 @@ export class UiBehaviorManager {
      * @param event - the event details
      * @internal
      */
-    private handlePointerUpCancelEvent(event: PointerEvent): ViewCell | null | undefined {
+    private handlePointerUpCancelEvent(event: PointerEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerUpCancel(event, undefined);
             return cell;
@@ -268,7 +267,7 @@ export class UiBehaviorManager {
         }
     }
 
-    private handlePointerDragEvent(event: PointerEvent): ViewCell | null | undefined {
+    private handlePointerDragEvent(event: PointerEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerDrag(event, undefined);
             return cell;
@@ -277,7 +276,7 @@ export class UiBehaviorManager {
         }
     }
 
-    private handlePointerDragEndEvent(event: PointerEvent): ViewCell | null | undefined {
+    private handlePointerDragEndEvent(event: PointerEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerDragEnd(event, undefined);
             return cell;
@@ -291,7 +290,7 @@ export class UiBehaviorManager {
      * @param event - the event details
      * @internal
      */
-    private handleDblClickEvent(event: MouseEvent): ViewCell | null | undefined {
+    private handleDblClickEvent(event: MouseEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDblClick(event, undefined);
             return cell;
@@ -304,7 +303,7 @@ export class UiBehaviorManager {
      * @param event - the event details
      * @internal
      */
-    private handlePointerDownEvent(event: PointerEvent): ViewCell | null | undefined {
+    private handlePointerDownEvent(event: PointerEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerDown(event, undefined);
             return cell;
@@ -317,7 +316,7 @@ export class UiBehaviorManager {
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handlePointerEnterEvent(event: PointerEvent): ViewCell | null | undefined {
+    private handlePointerEnterEvent(event: PointerEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerEnter(event, undefined);
             return cell;
@@ -330,7 +329,7 @@ export class UiBehaviorManager {
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handlePointerLeaveOutEvent(event: PointerEvent): ViewCell | null | undefined {
+    private handlePointerLeaveOutEvent(event: PointerEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerLeaveOut(event, undefined);
             return cell;
@@ -339,7 +338,7 @@ export class UiBehaviorManager {
         }
     }
 
-    private handleDragEvent(event: DragEvent): ViewCell | null | undefined {
+    private handleDragEvent(event: DragEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDrag(event, undefined);
             return cell;
@@ -348,7 +347,7 @@ export class UiBehaviorManager {
         }
     }
 
-    private handleDragStartEvent(event: DragEvent): ViewCell | null | undefined {
+    private handleDragStartEvent(event: DragEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDragStart(event, undefined);
             return cell;
@@ -357,7 +356,7 @@ export class UiBehaviorManager {
         }
     }
 
-    private handleDragEnterEvent(event: DragEvent): ViewCell | null | undefined {
+    private handleDragEnterEvent(event: DragEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDragEnter(event, undefined);
             return cell;
@@ -366,7 +365,7 @@ export class UiBehaviorManager {
         }
     }
 
-    private handleDragOverEvent(event: DragEvent): ViewCell | null | undefined {
+    private handleDragOverEvent(event: DragEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDragOver(event, undefined);
             return cell;
@@ -375,7 +374,7 @@ export class UiBehaviorManager {
         }
     }
 
-    private handleDragLeaveEvent(event: DragEvent): ViewCell | null | undefined {
+    private handleDragLeaveEvent(event: DragEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDragLeave(event, undefined);
             return cell;
@@ -384,7 +383,7 @@ export class UiBehaviorManager {
         }
     }
 
-    private handleDragEndEvent(event: DragEvent): ViewCell | null | undefined {
+    private handleDragEndEvent(event: DragEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDragEnd(event, undefined);
             return cell;
@@ -393,7 +392,7 @@ export class UiBehaviorManager {
         }
     }
 
-    private handleDropEvent(event: DragEvent): ViewCell | null | undefined {
+    private handleDropEvent(event: DragEvent): HoverCell | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDrop(event, undefined);
             return cell;

@@ -73,21 +73,21 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set columnHeaderFormat(value: string) { this._raw.columnHeaderFormat = value; }
     get columnHeaderHalign() { return this._raw.columnHeaderHalign; }
     set columnHeaderHalign(value: Halign) { this._raw.columnHeaderHalign = value; }
-    get columnHeaderCellPainter() { return this._raw.columnHeaderCellPainter; }
-    set columnHeaderCellPainter(value: string) { this._raw.columnHeaderCellPainter = value; }
-    /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
-    get mouseColumnSelection() { return this._raw.mouseColumnSelection; }
-    set mouseColumnSelection(value: boolean) { this._raw.mouseColumnSelection = value; }
+    get columnMovePossibleCursorName() { return this._raw.columnMovePossibleCursorName; }
+    set columnMovePossibleCursorName(value: string | undefined) {this._raw.columnMovePossibleCursorName = value; }
+    get columnMoveActiveCursorName() { return this._raw.columnMoveActiveCursorName; }
+    set columnMoveActiveCursorName(value: string | undefined) { this._raw.columnMoveActiveCursorName = value; }
+    get columnResizeDragPossibleCursorName() { return this._raw.columnResizeDragPossibleCursorName; }
+    set columnResizeDragPossibleCursorName(value: string | undefined) {this._raw.columnResizeDragPossibleCursorName = value; }
+    get columnResizeDragActiveCursorName() { return this._raw.columnResizeDragActiveCursorName; }
+    set columnResizeDragActiveCursorName(value: string | undefined) { this._raw.columnResizeDragActiveCursorName = value; }
+    get columnSortPossibleCursorName() { return this._raw.columnSortPossibleCursorName; }
+    set columnSortPossibleCursorName(value: string | undefined) { this._raw.columnSortPossibleCursorName = value; }
     /** Allow user to move columns. */
     get columnsReorderable() { return this._raw.columnsReorderable; }
     set columnsReorderable(value: boolean) { this._raw.columnsReorderable = value; }
     get columnsReorderableHideable() { return this._raw.columnsReorderableHideable; }
     set columnsReorderableHideable(value: boolean) { this._raw.columnsReorderableHideable = value; }
-    get gridRightAligned() { return this._raw.gridRightAligned; }
-    set gridRightAligned(value: boolean) {
-        this._raw.gridRightAligned = value;
-        this.invalidateHorizontalViewLayoutEventer(true);
-    }
     get defaultRowHeight() { return this._raw.defaultRowHeight; }
     set defaultRowHeight(value: number) { this._raw.defaultRowHeight = value; }
     get defaultColumnWidth() { return this._raw.defaultColumnWidth; }
@@ -237,6 +237,11 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set gridLinesVColor(value: GridSettings.Color) { this._raw.gridLinesVColor = value; }
     get gridLinesVWidth() { return this._raw.gridLinesVWidth; }
     set gridLinesVWidth(value: number) { this._raw.gridLinesVWidth = value; }
+    get gridRightAligned() { return this._raw.gridRightAligned; }
+    set gridRightAligned(value: boolean) {
+        this._raw.gridRightAligned = value;
+        this.invalidateHorizontalViewLayoutEventer(true);
+    }
     /** The cell's horizontal alignment, as interpreted by the cell renderer */
     get halign() { return this._raw.halign; }
     set halign(value: Halign) {
@@ -286,11 +291,9 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set minimumColumnWidth(value: number) { this._raw.minimumColumnWidth = value; }
     get maximumColumnWidth() { return this._raw.maximumColumnWidth; }
     set maximumColumnWidth(value: number | undefined) { this._raw.maximumColumnWidth = value; }
-    get visibleColumnWidthAdjust() { return this._raw.visibleColumnWidthAdjust; }
-    set visibleColumnWidthAdjust(value: boolean) {
-        this._raw.visibleColumnWidthAdjust = value;
-        this.invalidateHorizontalViewLayoutEventer(true);
-    }
+    /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
+    get mouseColumnSelection() { return this._raw.mouseColumnSelection; }
+    set mouseColumnSelection(value: boolean) { this._raw.mouseColumnSelection = value; }
     /** Allow multiple cell region selections. */
     get multipleSelectionAreas() { return this._raw.multipleSelectionAreas; }
     set multipleSelectionAreas(value: boolean) { this._raw.multipleSelectionAreas = value; }
@@ -347,6 +350,8 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set secondarySelectionAreaType(value: SelectionAreaType) { this._raw.secondarySelectionAreaType = value; }
     get secondarySelectionAreaTypeSpecifierModifierKey() { return this._raw.secondarySelectionAreaTypeSpecifierModifierKey; }
     set secondarySelectionAreaTypeSpecifierModifierKey(value: ModifierKeyEnum | undefined) { this._raw.secondarySelectionAreaTypeSpecifierModifierKey = value; }
+    get selectionExtendDragActiveCursorName() { return this._raw.selectionExtendDragActiveCursorName; }
+    set selectionExtendDragActiveCursorName(value: string | undefined) { this._raw.selectionExtendDragActiveCursorName = value; }
     /** Stroke color for last selection overlay. */
     get selectionRegionOutlineColor() { return this._raw.selectionRegionOutlineColor; }
     set selectionRegionOutlineColor(value: GridSettings.Color) { this._raw.selectionRegionOutlineColor = value; }
@@ -383,6 +388,11 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
         if (this.resizeEventer !== undefined) {
             this.resizeEventer();
         }
+    }
+    get visibleColumnWidthAdjust() { return this._raw.visibleColumnWidthAdjust; }
+    set visibleColumnWidthAdjust(value: boolean) {
+        this._raw.visibleColumnWidthAdjust = value;
+        this.invalidateHorizontalViewLayoutEventer(true);
     }
     get voffset() { return this._raw.voffset; }
     set voffset(value: number) { this._raw.voffset = value; }

@@ -8,6 +8,7 @@ export { Focus } from './components/focus/focus';
 export { Mouse } from './components/mouse/mouse';
 export { CellPainter } from './interfaces/data/cell-painter';
 export { DataServer } from './interfaces/data/data-server';
+export { HoverCell } from './interfaces/data/hover-cell';
 export { MainSubgrid } from './interfaces/data/main-subgrid';
 export { MetaModel } from './interfaces/data/meta-model';
 export { Subgrid } from './interfaces/data/subgrid';

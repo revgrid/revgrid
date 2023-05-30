@@ -1,6 +1,7 @@
 
 // import { CellEditor } from '../../cell-editor/cell-editor';
 import { EventDetail } from '../../components/event/event-detail';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { UiBehavior } from './ui-behavior';
 
@@ -8,17 +9,17 @@ export class CellEditingUiBehavior extends UiBehavior {
 
     readonly typeName = CellEditingUiBehavior.typeName;
 
-    override handleClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
         this.edit(cell, false);
         return super.handleClick(event, cell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined): ViewCell | null | undefined {
+    override handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
         this.edit(cell, true);
         return super.handleDblClick(event, cell);

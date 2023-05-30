@@ -1,6 +1,6 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { EventDetail } from '../../components/event/event-detail';
-import { ViewCell } from '../../interfaces/data/view-cell';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { CellEditor } from '../../interfaces/dataless/cell-editor';
 import { KeyboardEventKey } from '../../types-utils/html-types';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
@@ -11,23 +11,23 @@ import { UiBehavior } from './ui-behavior';
 export class FocusScrollUiBehavior extends UiBehavior {
     readonly typeName = FocusScrollUiBehavior.typeName;
 
-    override handlePointerDown(event: PointerEvent, cell: ViewCell | null | undefined) {
+    override handlePointerDown(event: PointerEvent, cell: HoverCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
         if (cell !== null) {
-            if (cell.subgrid.isMain) {
+            if (cell.subgrid.isMain && !cell.isMouseOverLine()) {
                 this.focusScrollBehavior.tryFocusXYAndEnsureInView(cell.viewLayoutColumn.activeColumnIndex, cell.viewLayoutRow.subgridRowIndex, cell);
             }
         }
         return super.handlePointerDown(event, cell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: ViewCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined) {
         if (cell === undefined) {
-            cell = this.tryGetViewCellFromMouseEvent(event);
+            cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell !== null) {
+        if (cell !== null && !cell.isMouseOverLine()) {
             if (this.gridSettings.editOnDoubleClick && cell.subgrid.isMain && !cell.isFixed) {
                 this.focus.tryOpenEditor(cell);
             }
@@ -180,7 +180,7 @@ export class FocusScrollUiBehavior extends UiBehavior {
         // }
     }
 
-    override handleWheelMove(event: WheelEvent, cell: ViewCell | null | undefined) {
+    override handleWheelMove(event: WheelEvent, cell: HoverCell | null | undefined) {
         const gridSettings = this.gridSettings;
         if (gridSettings.scrollingEnabled) {
             const deltaX = event.deltaX;

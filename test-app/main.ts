@@ -1,4 +1,4 @@
-import { EventDetail, HalignEnum, Revgrid, TextCellPainter, defaultGridSettings } from '..';
+import { EventDetail, HalignEnum, Revgrid, defaultGridSettings } from '..';
 import { HeaderDataServer } from './header-data-server';
 import { MainDataServer } from './main-data-server';
 import { SchemaServerImplementation } from './schema-adapter';
@@ -18,7 +18,6 @@ export class Main {
     private readonly _gridHostElement: HTMLElement;
 
     private _mainDataServer: MainDataServer;
-    private _cellPainter: TextCellPainter;
     private _grid: Revgrid;
 
     constructor() {
@@ -182,7 +181,7 @@ export class Main {
         this._deleteRowIndexTextboxElement.value = '0';
 
         this._grid.addEventListener('rev-column-sort', (event) => {
-                const cell = (event as CustomEvent<EventDetail.ColumnSort>).detail.revgridViewCell;
+                const cell = (event as CustomEvent<EventDetail.ColumnSort>).detail.revgridCell;
                 if (cell !== undefined) {
                     this._mainDataServer.sort(cell.viewLayoutColumn.column);
                 }

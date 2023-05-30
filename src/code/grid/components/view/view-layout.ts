@@ -1,5 +1,6 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { DataServer } from '../../interfaces/data/data-server';
+import { HoverCell } from '../../interfaces/data/hover-cell';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
@@ -14,6 +15,7 @@ import { ColumnImplementation } from '../column/column-implementation';
 import { ColumnsManager } from '../column/columns-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { HorizontalScrollDimension } from './horizontal-scroll-dimension';
+import { HoverCellImplementation } from './hover-cell-implementation';
 import { VerticalScrollDimension } from './vertical-scroll-dimension';
 import { ViewCellImplementation } from './view-cell-implementation';
 
@@ -984,21 +986,23 @@ export class ViewLayout {
      * @param point
      * @returns Cell coordinates
      */
-    findLeftGridLineInclusiveCellFromCanvasOffset(x: number, y: number): ViewCell | undefined {
-        const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(x);
+    findHoverCell(canvasXOffset: number, canvasYOffset: number): HoverCell | undefined {
+        const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasXOffset);
         if (columnIndex < 0) {
             return undefined;
         } else {
-            const rows = this._rows;
-            const row = rows.find((aVr) => y < aVr.bottomPlus1);
-            if (row === undefined) {
+            const rowIndex = this.findTopGridLineInclusiveRowIndexOfCanvasOffset(canvasYOffset);
+            if (rowIndex === undefined) {
                 return undefined;
             } else {
-                const cell = this.findCellAtViewpointIndex(columnIndex, row.index);
-                if (cell === undefined) {
+                const viewCell = this.findCellAtViewpointIndex(columnIndex, rowIndex);
+                if (viewCell === undefined) {
                     throw new AssertError('VGCFMP34440');
                 } else {
-                    return cell;
+                    const hoverCell = viewCell as HoverCellImplementation;
+                    hoverCell.mouseOverLeftLine = canvasXOffset < viewCell.viewLayoutColumn.left;
+                    hoverCell.mouseOverTopLine = canvasYOffset < viewCell.viewLayoutRow.top;
+                    return hoverCell;
                 }
             }
         }
@@ -2214,7 +2218,7 @@ export class ViewLayout {
 
         if (requiredSize > previousLength) {
             for (let i = previousLength; i < requiredSize; i++) {
-                pool[i] = new ViewCellImplementation(this._columnsManager);
+                pool[i] = new HoverCellImplementation(this._columnsManager);
             }
         }
     }
