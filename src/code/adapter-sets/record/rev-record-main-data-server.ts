@@ -1,4 +1,4 @@
-import { CellEditor, CellPainter, DataServer, DatalessViewCell, ListChangedTypeId, UnreachableCaseError } from '../../grid/grid-public-api';
+import { CellPainter, DataServer, DatalessViewCell, ListChangedTypeId, UnreachableCaseError } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 import { RevRecordArrayUtil } from './rev-record-array-utils';
 import { RevRecordAssertError } from './rev-record-error';
@@ -108,7 +108,7 @@ export class RevRecordMainDataServer implements DataServer, RevRecordStore.Recor
         this._callbackListener.beginChange();
     }
 
-    getCellPainter(_viewCell: DatalessViewCell, _cellEditorPainter: CellEditor.Painter | undefined): CellPainter {
+    getCellPainter(_viewCell: DatalessViewCell): CellPainter {
         return this._mainCellPainter;
     }
 

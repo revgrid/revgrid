@@ -1,5 +1,4 @@
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -53,7 +52,8 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
         );
     }
 
-    paintCells(gc: CachedCanvasRenderingContext2D) {
+    paintCells() {
+        const gc = this._renderingContext;
         const viewLayout = this.viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
@@ -92,7 +92,7 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
             const vc = viewLayoutColumns[columnIndex];
 
             const prefillColor = vc.column.settings.backgroundColor;
-            gc.clearFill(vc.left, 0, vc.width, viewHeight, prefillColor);
+            gc.clearFillRect(vc.left, 0, vc.width, viewHeight, prefillColor);
 
             // Optionally clip to visible portion of column to prevent text from overflowing to right.
             const columnClip = vc.column.settings.columnClip;
@@ -104,7 +104,7 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
                 const viewCell = pool[cellIndex++]; // next cell down the column (make sure the correct pool is used above)
 
                 try {
-                    const paintWidth = this.paintCell(gc, viewCell, prefillColor);
+                    const paintWidth = this.paintCell(viewCell, prefillColor);
                     if (paintWidth !== undefined) {
                         if (preferredWidth === undefined) {
                             preferredWidth = paintWidth;
@@ -113,7 +113,7 @@ export class ByColumnsDiscreteGridPainter extends GridPainter {
                         }
                     }
                 } catch (e) {
-                    this.paintErrorCell(e as Error, gc, vc, viewCell.viewLayoutRow);
+                    this.paintErrorCell(e as Error, vc, viewCell.viewLayoutRow);
                 }
             }
 

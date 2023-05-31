@@ -1,6 +1,5 @@
 
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -51,7 +50,8 @@ export class ByRowsGridPainter extends GridPainter {
         );
     }
 
-    paintCells(gc: CachedCanvasRenderingContext2D) {
+    paintCells() {
+        const gc = this._renderingContext;
         const gridProps = this.gridSettings;
         const gridPrefillColor = gridProps.backgroundColor;
         const viewLayout = this.viewLayout;
@@ -95,7 +95,7 @@ export class ByRowsGridPainter extends GridPainter {
             const rowBundles = rowBundlesAndPrefillColors.bundles;
             for (let r = rowBundles.length; r--;) {
                 const rowBundle = rowBundles[r];
-                gc.clearFill(firstVisibleColumnLeft, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
+                gc.clearFillRect(firstVisibleColumnLeft, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
             }
             rowPrefillColors = rowBundlesAndPrefillColors.prefillColors;
         } else {
@@ -126,7 +126,7 @@ export class ByRowsGridPainter extends GridPainter {
                 gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
                 try {
-                    const paintWidth = this.paintCell(gc, viewCell, prefillColor);
+                    const paintWidth = this.paintCell(viewCell, prefillColor);
                     if (paintWidth !== undefined) {
                         const previousColumnPreferredWidth = preferredWidths[columnIndex];
                         if (previousColumnPreferredWidth === undefined) {
@@ -136,7 +136,7 @@ export class ByRowsGridPainter extends GridPainter {
                         }
                     }
                 } catch (e) {
-                    this.paintErrorCell(e as Error, gc, vc, viewLayoutRows[rowIndex]);
+                    this.paintErrorCell(e as Error, vc, viewLayoutRows[rowIndex]);
                 }
 
                 gc.clipRestore();

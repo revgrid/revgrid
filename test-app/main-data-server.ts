@@ -1,16 +1,16 @@
-import { CellEditor, CellPainter, Column, DataServer, DatalessViewCell, SchemaServer, TextCellPainter } from '..';
+import { AlphaTextCellPainter, CellPainter, Column, DataServer, DatalessViewCell, SchemaServer } from '..';
 import { MainRecord } from './main-record';
 import { SchemaServerImplementation } from './schema-adapter';
 
 export class MainDataServer implements DataServer {
-    readonly cellPainter: TextCellPainter;
+    readonly cellPainter: AlphaTextCellPainter;
 
     private readonly _data: MainRecord[] = [];
     private _fishCreateCount = 0;
     private _notificationsClient: DataServer.NotificationsClient;
 
     constructor() {
-        this.cellPainter = new TextCellPainter(this);
+        this.cellPainter = new AlphaTextCellPainter(this);
 
         const initialDataCount = MainDataServer.initialData.length;
         this._data.length = initialDataCount;
@@ -63,8 +63,8 @@ export class MainDataServer implements DataServer {
 
     }
 
-    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter {
-        this.cellPainter.setCell(viewCell, cellEditorPainter);
+    getCellPainter(viewCell: DatalessViewCell): CellPainter {
+        this.cellPainter.setCell(viewCell);
         return this.cellPainter;
     }
 

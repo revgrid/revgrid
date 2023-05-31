@@ -1,6 +1,5 @@
 
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -63,13 +62,14 @@ export class AsNeededGridPainter extends GridPainter {
         );
     }
 
-    paintCells(gc: CachedCanvasRenderingContext2D) {
+    paintCells() {
         const viewLayout = this.viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
         const viewLayoutRows = viewLayout.rows;
         const rowCount = viewLayoutRows.length;
         if (columnCount > 0 && rowCount > 0) {
+            const gc = this._renderingContext;
             const lastColumnIndex = columnCount - 1;
             const pool = viewLayout.getColumnRowOrderedCellPool(); // must match algorithm below and computationInvalid above
             // clipToGrid,
@@ -110,7 +110,7 @@ export class AsNeededGridPainter extends GridPainter {
 
                     try {
                         // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
-                        const paintWidth = this.paintCell(gc, cell, undefined);
+                        const paintWidth = this.paintCell(cell, undefined);
                         if (paintWidth !== undefined) {
                             if (preferredWidth === undefined) {
                                 preferredWidth = paintWidth;
@@ -119,7 +119,7 @@ export class AsNeededGridPainter extends GridPainter {
                             }
                         }
                     } catch (e) {
-                        this.paintErrorCell(e as Error, gc, vc, cell.viewLayoutRow);
+                        this.paintErrorCell(e as Error, vc, cell.viewLayoutRow);
                     }
                 }
 

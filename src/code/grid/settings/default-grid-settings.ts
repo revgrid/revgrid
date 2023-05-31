@@ -150,7 +150,6 @@ export const defaultGridSettings: Required<GridSettings> = {
     columnResizeDragPossibleCursorName: 'col-resize',
     columnResizeDragActiveCursorName: 'col-resize',
     columnSortPossibleCursorName: undefined,
-    backgroundColor2: 'rgb(201, 201, 201)',
     filterFont: '12px Tahoma, Geneva, sans-serif',
     filterColor: 'rgb(25, 25, 25)',
     filterBackgroundColor: 'white',
@@ -167,8 +166,8 @@ export const defaultGridSettings: Required<GridSettings> = {
     scrollbarHoverOff: 'hidden',
     scrollingEnabled: true,
     horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed.CtrlKeyDown,
-    vScrollbarClassPrefix: '',
-    hScrollbarClassPrefix: '',
+    verticalScrollbarClassPrefix: '',
+    horizontalScrollbarClassPrefix: '',
 
     /**
      * Horizontal alignment of each cell as interpreted by it's cell renderer.
@@ -187,20 +186,6 @@ export const defaultGridSettings: Required<GridSettings> = {
     cellPadding: 5,
 
     focusedCellBorderColor: '#696969',
-
-    /**
-     * The name of a transformer function defined in require('synonomous/transformers').
-     *
-     * If the named headerify function is defined, whenever the schema array changes, it is applied each element
-     * (column schema) for each column that does not already have an explicitly defined `header` property.
-     *
-     * When this property does not name a defined headerify function, undefined column headers default to their column names.
-     *
-     * @see lib/headerifiers.js
-     * @default
-     * @type {string}
-     */
-    headerify: 'toTitle',
 
     /**
      * Enable rendering of horizontal grid lines.
@@ -481,14 +466,6 @@ export const defaultGridSettings: Required<GridSettings> = {
     columnAutosizingMax: 400,
 
     /**
-     * @summary Whether text in header cells is wrapped.
-     * @desc For performance reasons, text in data cells is not wrapped. (This is a function of the supplied `SimpleCell` renderer. Override with a custom renderer if you must have wrapped text in data cells.)
-     * @default
-     * @type {boolean}
-     */
-    headerTextWrapping: false,
-
-    /**
      * @default
      * @type {boolean}
      */
@@ -632,26 +609,19 @@ export const defaultGridSettings: Required<GridSettings> = {
     /** On mouse hover, whether to repaint the cell background and how.
      * @default '{ enabled: true, background: rgba(160, 160, 40, 0.30) }'
      */
-    hoverCellHighlight: {
-        enabled: true,
-        backgroundColor: 'rgba(160, 160, 40, 0.45)'
-    },
+    cellHoverBackgroundColor: 'rgba(160, 160, 40, 0.45)',
 
     /** On mouse hover, whether to repaint the row background and how.
      * @default '{ enabled: true, background: rgba(100, 100, 25, 0.15) }'
      */
-    hoverRowHighlight: {
-        enabled: true,
-        backgroundColor: 'rgba(100, 100, 25, 0.30)'
-
-    },
+    rowHoverBackgroundColor: 'rgba(100, 100, 25, 0.30)',
 
     /** On mouse hover, whether to repaint the column background and how.
      * @default '{ enabled: true, background: rgba(60, 60, 15, 0.15) }'
      */
-    hoverColumnHighlight: {
-        enabled: true,
-        backgroundColor: 'rgba(60, 60, 15, 0.15)'
+    columnHoverBackgroundColors: {
+        color: 'rgba(60, 60, 15, 0.15)',
+        headerColor: undefined,
     },
 
     /** @summary Display cell value as a link (with underline).

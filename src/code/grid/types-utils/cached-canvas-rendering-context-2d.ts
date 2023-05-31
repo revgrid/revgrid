@@ -1,3 +1,4 @@
+import { Rectangle } from './rectangle';
 import { AssertError, UnreachableCaseError } from './revgrid-error';
 import { TextTruncateType } from './types';
 
@@ -21,8 +22,16 @@ export class CachedCanvasRenderingContext2D {
         this.canvasRenderingContext2D.clearRect(x, y, width, height);
     }
 
+    clearBounds(bounds: Rectangle) {
+        this.canvasRenderingContext2D.clearRect(bounds.x, bounds.y, bounds.width, bounds.height);
+    }
+
     fillRect(x: number, y: number, width: number, height: number) {
         this.canvasRenderingContext2D.fillRect(x, y, width, height);
+    }
+
+    fillBounds(bounds: Rectangle) {
+        this.canvasRenderingContext2D.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
     measureText(value: string) {
@@ -105,7 +114,7 @@ export class CachedCanvasRenderingContext2D {
     // clipSave: typeof CanvasRenderingContext2DEx.clipSave;
     // clipRestore: typeof CanvasRenderingContext2DEx.clipRestore;
 
-    clearFill(x: number, y: number, width: number, height: number, color: string) {
+    clearFillRect(x: number, y: number, width: number, height: number, color: string) {
         const a = this.alpha(color);
         if (a < 1) {
             // If background is translucent, we must clear the rect before the fillRect
@@ -116,6 +125,10 @@ export class CachedCanvasRenderingContext2D {
             this.cache.fillStyle = color;
             this.fillRect(x, y, width, height);
         }
+    }
+
+    clearFillBounds(bounds: Rectangle, color: string) {
+        this.clearFillRect(bounds.x, bounds.y, bounds.width, bounds.height, color)
     }
 
     // Tried using an `alphaCache` here but it didn't make a measurable difference.

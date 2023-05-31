@@ -1,15 +1,17 @@
 
-import { CachedCanvasRenderingContext2D, CellPainter, Rectangle } from '../grid/grid-public-api';
+import { CellPainter, Rectangle } from '../grid/grid-public-api';
+import { AbstractCellPainter } from './abstract-cell-painter';
 
 /**
  * Renders a slider button.
  * Currently however the user cannot interact with it.
  * @public
  */
-export class SliderCellPainter implements CellPainter {
+export class SliderCellPainter extends AbstractCellPainter {
     config: SliderCellPainter.Config;
 
-    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined {
+    override paint(_prefillColor: string | undefined): number | undefined {
+        const gc = this._renderingContext;
         const config = this.config;
 
         const x = config.bounds.x;

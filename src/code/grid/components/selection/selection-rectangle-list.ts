@@ -92,15 +92,15 @@ export class SelectionRectangleList implements SelectionAreaList {
         }
     }
 
-    anyFlattenedContainY(y: number): boolean {
+    containsY(y: number): boolean {
         return InexclusiveRectangle.arrayContainsPoint(this._flattenedX, 0, y);
     }
 
-    anyFlattenedContainX(x: number): boolean {
+    containsX(x: number): boolean {
         return InexclusiveRectangle.arrayContainsPoint(this._flattenedY, x, 0);
     }
 
-    anyContainPoint(x: number, y: number) {
+    containsPoint(x: number, y: number) {
         return InexclusiveRectangle.arrayContainsPoint(this.rectangles, x, y);
     }
 

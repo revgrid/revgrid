@@ -592,69 +592,24 @@ export class Selection {
         }
     }
 
-    // /**
-    //  * @desc Remove the last selection that was created.
-    //  */
-    // clearMostRecentRectangleSelection() {
-    //     this.beginChange();
-    //     try {
-    //         console.debug('clearmostrecent');
-    //         const keepRowSelections = this._gridProperties.checkboxOnlyRowSelections;
-    //         if (!keepRowSelections) {
-    //             this.allRowsSelected = false;
-    //         }
-    //         const changed = this.rectangleList.removeLast();
-    //         this.setLastSelectionType(SelectionAreaType.Rectangle, !this.rectangleList.has);
-
-    //         if (changed) {
-    //             this.flagChanged(false);
-    //         }
-    //     } finally {
-    //         this.endChange();
-    //     }
-    // }
-
-    // restorePreviousColumnSelection() {
-    //     this.columns.restorePreviousSelection();
-    //     this.setLastSelectionType(SelectionAreaType.Column, !this.columns.ranges.length);
-    // }
-
-    // restorePreviousRowSelection() {
-    //     this.rows.restorePreviousSelection();
-    //     this.setLastSelectionType(SelectionAreaType.Row, !this.rows.ranges.length);
-    // }
-
-    // clearRowSelection() {
-    //     this.beginChange();
-    //     this.allRowsSelected = false;
-    //     this.rows.clear();
-    //     this.setLastSelectionType(SelectionAreaType.Row, !this.rows.ranges.length);
-    //     this.endChange();
-    // }
-
-    // hasRowSelections() {
-    //     return !this.rows.isEmpty();
-    // }
-
-    // hasColumnSelections() {
-    //     return !this.columns.isEmpty();
-    // }
-
+    isColumnSelected(activeColumnIndex: number) {
+        return this.columns.includesIndex(activeColumnIndex);
+    }
     /**
      * @summary Selection query function.
      * @returns The given cell is selected (part of an active selection).
      */
-    isCellSelectedInAnyAreaType(x: number, y: number, subgrid: DatalessSubgrid): boolean {
+    isCellSelected(x: number, y: number, subgrid: DatalessSubgrid): boolean {
         const { rowSelected, columnSelected, cellSelected } = this.getCellSelectedAreaTypes(x, y, subgrid);
         return (rowSelected || columnSelected || cellSelected);
     }
 
-    getCellSelectedAreaTypes(x: number, y: number, subgrid: DatalessSubgrid): Selection.CellSelectedAreaTypes {
+    getCellSelectedAreaTypes(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): Selection.CellSelectedAreaTypes {
         if (subgrid === this._subgrid) {
             return {
-                rowSelected: this._allRowsSelected || this.rows.includesIndex(y),
-                columnSelected: this.columns.includesIndex(x),
-                cellSelected: this.rectangleList.anyContainPoint(x, y),
+                rowSelected: this._allRowsSelected || this.rows.includesIndex(subgridRowIndex),
+                columnSelected: this.columns.includesIndex(activeColumnIndex),
+                cellSelected: this.rectangleList.containsPoint(activeColumnIndex, subgridRowIndex),
             };
         } else {
             return {

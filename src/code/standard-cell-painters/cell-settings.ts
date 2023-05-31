@@ -1,5 +1,4 @@
-import { Halign, TextTruncateType } from '../../types-utils/types';
-import { GridSettings } from './grid-settings';
+import { GridSettings, Halign, TextTruncateType } from '../grid/grid-public-api';
 
 /** @public */
 export interface CellSettings {
@@ -10,10 +9,9 @@ export interface CellSettings {
     readonly color: string;
     readonly foregroundSelectionColor: string;
     readonly foregroundSelectionFont: string;
-    readonly headerTextWrapping: boolean;
-    readonly hoverCellHighlight: GridSettings.HoverColors;
-    readonly hoverColumnHighlight: GridSettings.HoverColors;
-    readonly hoverRowHighlight: GridSettings.HoverColors;
+    readonly cellHoverBackgroundColor: string | undefined;
+    readonly columnHoverBackgroundColors: GridSettings.ColumnHoverBackgroundColors;
+    readonly rowHoverBackgroundColor: string | undefined;
     readonly linkOnHover: boolean;
     readonly linkColor: string;
     readonly linkColorOnHover: boolean;

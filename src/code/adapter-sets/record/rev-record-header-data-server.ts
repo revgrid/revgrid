@@ -1,15 +1,15 @@
-import { CellEditor, CellPainter, DataServer, DatalessViewCell } from '../../grid/grid-public-api';
-import { TextCellPainter } from '../../standard-cell-painters/standard-cell-painters-public-api';
+import { CellPainter, DataServer, DatalessViewCell } from '../../grid/grid-public-api';
+import { AlphaTextCellPainter } from '../../standard-cell-painters/standard-cell-painters-public-api';
 import { RevRecordField } from './rev-record-field';
 
 /** @public */
 export class RevRecordHeaderDataServer implements DataServer {
-    readonly cellPainter: TextCellPainter;
+    readonly cellPainter: AlphaTextCellPainter;
 
     private _dataCallbackListener: DataServer.NotificationsClient;
 
     constructor(private _rowCount = 1) {
-        this.cellPainter = new TextCellPainter(this);
+        this.cellPainter = new AlphaTextCellPainter(this);
     }
 
     subscribeDataNotifications(value: DataServer.NotificationsClient): void {
@@ -24,8 +24,8 @@ export class RevRecordHeaderDataServer implements DataServer {
         return this._rowCount;
     }
 
-    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter {
-        this.cellPainter.setCell(viewCell, cellEditorPainter);
+    getCellPainter(viewCell: DatalessViewCell): CellPainter {
+        this.cellPainter.setCell(viewCell);
         return this.cellPainter;
     }
 

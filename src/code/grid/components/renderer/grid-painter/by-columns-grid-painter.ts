@@ -1,6 +1,5 @@
 
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -58,7 +57,8 @@ export class ByColumnsGridPainter extends GridPainter {
         );
     }
 
-    paintCells(gc: CachedCanvasRenderingContext2D) {
+    paintCells() {
+        const gc = this._renderingContext;
         const viewLayout = this.viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const viewLayoutRows = viewLayout.rows;
@@ -96,7 +96,7 @@ export class ByColumnsGridPainter extends GridPainter {
         for (let i = columnBundleCount - 1; i > 0; i--) {
             const columnBundle = columnBundles[i];
             if (columnBundle !== undefined) {
-                gc.clearFill(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
+                gc.clearFillRect(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
             }
         }
 
@@ -119,7 +119,7 @@ export class ByColumnsGridPainter extends GridPainter {
                 const cell = pool[cellIndex++]; // next cell down the column (redundant for first cell in column)
 
                 try {
-                    const paintWidth = this.paintCell(gc, cell, prefillColor);
+                    const paintWidth = this.paintCell(cell, prefillColor);
                     if (paintWidth !== undefined) {
                         if (preferredWidth === undefined) {
                             preferredWidth = paintWidth;
@@ -128,7 +128,7 @@ export class ByColumnsGridPainter extends GridPainter {
                         }
                     }
                 } catch (e) {
-                    this.paintErrorCell(e as Error, gc, vc, cell.viewLayoutRow);
+                    this.paintErrorCell(e as Error, vc, cell.viewLayoutRow);
                 }
             }
 

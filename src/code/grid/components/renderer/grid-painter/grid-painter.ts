@@ -1,6 +1,5 @@
 import { ViewCell } from '../../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../../interfaces/data/view-layout-row';
-import { CellEditor } from '../../../interfaces/dataless/cell-editor';
 import { ViewLayoutColumn } from '../../../interfaces/schema/view-layout-column';
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
@@ -13,6 +12,8 @@ import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
 export abstract class GridPainter {
+    protected _renderingContext: CachedCanvasRenderingContext2D;
+
     private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
     private _rowBundlesAndPrefixColors: GridPainter.RowBundlesAndPrefillColors | undefined;
 
@@ -38,6 +39,7 @@ export abstract class GridPainter {
         public readonly partial: boolean,
         initialRebundle: boolean | undefined,
     ) {
+        this._renderingContext = this.canvasManager.gc;
         if (initialRebundle !== undefined) {
             this.rebundle = initialRebundle;
         }
@@ -67,32 +69,30 @@ export abstract class GridPainter {
         return this._rowBundlesAndPrefixColors;
     }
 
-    abstract paintCells(gc: CachedCanvasRenderingContext2D): void;
+    abstract paintCells(): void;
 
     protected paintCell(
-        gc: CachedCanvasRenderingContext2D,
         viewCell: ViewCell,
         prefillColor: string | undefined,
     ): number | undefined {
-        let cellEditorPainter: CellEditor.Painter | undefined;
         const focus = this.focus;
-        const editor = focus.editor;
-        if (editor !== undefined) { // editor exists
-            if (focus.cell !== undefined) { // editor is not hidden
-                if (editor.painter !== undefined) { // editor can be painted
-                    cellEditorPainter = editor.painter;
+        const focusCell = focus.cell;
+        if (focusCell === viewCell) { // does cell have focus
+            const editor = focus.editor;
+            if (editor !== undefined) { // is editor active
+                if (editor.paintImplemented) { // should editor be painted
+                    return editor.paint(prefillColor);
+                } else {
+                    return undefined; // Cell does not need painting while editor is active
                 }
             }
         }
-
-        const cellPainter = viewCell.subgrid.dataServer.getCellPainter(viewCell, cellEditorPainter);
-
-        const preferredWidth = cellPainter.paint(gc, prefillColor);
-
-        return preferredWidth;
+        const cellPainter = viewCell.subgrid.dataServer.getCellPainter(viewCell);
+        return cellPainter.paint(prefillColor);
     }
 
-    paintErrorCell(err: Error, gc: CachedCanvasRenderingContext2D, vc: ViewLayoutColumn, vr: ViewLayoutRow) {
+    paintErrorCell(err: Error, vc: ViewLayoutColumn, vr: ViewLayoutRow) {
+        const gc = this._renderingContext;
         const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
 
         const bounds: Rectangle = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
@@ -112,13 +112,14 @@ export abstract class GridPainter {
     /**
      * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
      */
-    paintGridlines(gc: CachedCanvasRenderingContext2D) {
+    paintGridlines() {
         const viewLayoutColumns = this.viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
         const viewLayoutRows = this.viewLayout.rows;
         const rowCount = viewLayoutRows.length;
 
         if (columnCount > 0 && rowCount > 0) {
+            const gc = this._renderingContext;
             const gridProps = this.gridSettings;
             const C1 = columnCount - 1;
             const R1 = rowCount - 1;
@@ -212,11 +213,12 @@ export abstract class GridPainter {
         }
     }
 
-    checkPaintLastSelection(gc: CachedCanvasRenderingContext2D) {
+    checkPaintLastSelection() {
         const lastSelectionBounds = this.calculateLastSelectionBounds();
 
         if (lastSelectionBounds !== undefined) {
             // Render the selection model around the last selection bounds
+            const gc = this._renderingContext;
             const gridProps = this.gridSettings;
             const selectionRegionOverlayColor = this.partial ? 'transparent' : gridProps.selectionRegionOverlayColor;
             const selectionRegionOutlineColor = gridProps.selectionRegionOutlineColor;
@@ -468,7 +470,7 @@ export abstract class GridPainter {
 
 export namespace GridPainter {
     export type ResetAllGridPaintersRequiredEventer = (this: void, blackList: string[]) => void;
-    export type RepaintAllRequiredEventer = (this: void, gc: CachedCanvasRenderingContext2D) => void;
+    export type RepaintAllRequiredEventer = (this: void) => void;
     export type Constructor = new(
         gridProperties: GridSettings,
         canvasManager: CanvasManager,
@@ -495,16 +497,5 @@ export namespace GridPainter {
     export interface RowBundlesAndPrefillColors {
         bundles: RowBundle[];
         prefillColors: string[];
-    }
-
-    export interface PaintableCellEditorInfo {
-        readonly painter: CellEditor.Painter;
-        readonly focusActiveColumnIndex: number;
-        readonly focusMainSubgridRowIndex: number;
-        readonly boundSetBoundsFunction: PaintableCellEditorInfo.BoundSetBoundsFunction | undefined;
-    }
-
-    export namespace PaintableCellEditorInfo {
-        export type BoundSetBoundsFunction = (bounds: Rectangle) => void;
     }
 }

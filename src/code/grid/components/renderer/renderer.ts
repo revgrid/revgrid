@@ -4,7 +4,6 @@ import { Selection } from '../../components/selection/selection';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema/schema-server';
 import { MergableGridSettingsImplementation } from '../../settings/mergable-grid-settings-implementation';
-import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
@@ -56,7 +55,7 @@ export class Renderer {
             this._focus,
             this._selection,
             this._mouse,
-            (gc) => this.repaintAll(gc),
+            () => this.repaintAll(),
         );
 
         this._animator = {
@@ -112,12 +111,12 @@ export class Renderer {
         }
     }
 
-    repaintAll(gc: CachedCanvasRenderingContext2D) {
+    repaintAll() {
         if (this._allGridPainter === undefined) {
             this._allGridPainter = this.getGridPainter(ByColumnsAndRowsGridPainter.key);
 
         }
-        this._allGridPainter.paintCells(gc);
+        this._allGridPainter.paintCells();
     }
 
     /**
@@ -281,7 +280,7 @@ export class Renderer {
                             const action = renderActions[i];
                             switch (action.type) {
                                 case RenderAction.Type.PaintAll: {
-                                    this.paintAll(gc);
+                                    this.paintAll();
                                     break;
                                 }
                                 default:
@@ -309,8 +308,8 @@ export class Renderer {
         }
     }
 
-    private paintAll(gc: CachedCanvasRenderingContext2D) {
-        this._gridPainter.paintCells(gc);
+    private paintAll() {
+        this._gridPainter.paintCells();
 
 
         // if (this.grid.cellEditor) {
@@ -324,12 +323,12 @@ export class Renderer {
         // will not happen because this will only be called once per data change.
         if (this._columnsManager.checkColumnAutosizing(false, true)) {
             this._viewLayout.ensureValidInsideAnimationFrame();
-            this._gridPainter.paintCells(gc);
+            this._gridPainter.paintCells();
         }
 
-        this._gridPainter.paintGridlines(gc);
+        this._gridPainter.paintGridlines();
 
-        this._gridPainter.checkPaintLastSelection(gc);
+        this._gridPainter.checkPaintLastSelection();
     }
 }
 

@@ -5,16 +5,45 @@
 ```ts
 
 // @public (undocumented)
+export abstract class AbstractCellPainter implements CellPainter {
+    constructor(_dataServer: DataServer);
+    // (undocumented)
+    protected _cell: DatalessViewCell;
+    // (undocumented)
+    protected readonly _dataServer: DataServer;
+    // (undocumented)
+    protected _grid: Revgrid;
+    // (undocumented)
+    abstract paint(prefillColor: string | undefined): number | undefined;
+    // (undocumented)
+    protected _renderingContext: CachedCanvasRenderingContext2D;
+    // (undocumented)
+    setCell(value: DatalessViewCell): void;
+    // (undocumented)
+    setGrid(value: Revgrid): void;
+}
+
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+//
+// @public
+export class AlphaTextCellPainter extends TextCellPainter {
+    // (undocumented)
+    paint(prefillColor: string | undefined): number | undefined;
+}
+
+// @public (undocumented)
 export class AssertError extends RevgridError {
     constructor(code: string, message?: string);
 }
 
 // @public
-export class ButtonCellPainter implements CellPainter {
+export class ButtonCellPainter extends AbstractCellPainter {
     // (undocumented)
     config: ButtonCellPainter.Config;
     // (undocumented)
-    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
+    paint(_prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -45,7 +74,11 @@ export class CachedCanvasRenderingContext2D {
     // (undocumented)
     readonly cache: CachedCanvasRenderingContext2D.Cache;
     // (undocumented)
-    clearFill(x: number, y: number, width: number, height: number, color: string): void;
+    clearBounds(bounds: Rectangle): void;
+    // (undocumented)
+    clearFillBounds(bounds: Rectangle, color: string): void;
+    // (undocumented)
+    clearFillRect(x: number, y: number, width: number, height: number, color: string): void;
     // (undocumented)
     clearRect(x: number, y: number, width: number, height: number): void;
     // (undocumented)
@@ -62,6 +95,8 @@ export class CachedCanvasRenderingContext2D {
     drawImage(image: CanvasImageSource, dx: number, dy: number, dw: number, dh: number): void;
     // (undocumented)
     fill(): void;
+    // (undocumented)
+    fillBounds(bounds: Rectangle): void;
     // (undocumented)
     fillRect(x: number, y: number, width: number, height: number): void;
     // (undocumented)
@@ -232,7 +267,7 @@ export namespace CachedCanvasRenderingContext2D {
 }
 
 // @public (undocumented)
-export interface CellEditor {
+export interface CellEditor extends CellPainter {
     click?(event: MouseEvent, cell: DatalessViewCell | undefined): void;
     close(cancel: boolean): void;
     closedEventer?: ((this: void) => void) | undefined;
@@ -242,7 +277,7 @@ export interface CellEditor {
     keyUp?(event: KeyboardEvent): void;
     mouseDown?(event: MouseEvent, cell: DatalessViewCell | undefined): void;
     mouseUp?(event: MouseEvent, cell: DatalessViewCell | undefined): void;
-    readonly painter?: CellEditor.Painter;
+    readonly paintImplemented: boolean;
     setBounds?(bounds: Rectangle): void;
     readonly wantDownArrow?: boolean;
     readonly wantEnd?: boolean;
@@ -256,144 +291,18 @@ export interface CellEditor {
     wheelMove?(event: WheelEvent, cell: DatalessViewCell | undefined): void;
 }
 
-// @public (undocumented)
-export namespace CellEditor {
-    export interface Painter {
-        readonly afterCell: boolean;
-        readonly beforeCellBackground: boolean;
-        readonly beforeCellBorder: boolean;
-        readonly beforeCellContent: boolean;
-        paint(gc: CachedCanvasRenderingContext2D, cell: DatalessViewCell, cellSettingsAccessor: CellSettings): number | undefined;
-        readonly paintCellBackground: boolean;
-        readonly paintCellBorder: boolean;
-        readonly paintCellContent: boolean;
-    }
-}
-
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 //
 // @public
 export interface CellPainter {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    paint(gc: CachedCanvasRenderingContext2D, prefillColor: string | undefined): number | undefined;
+    paint(prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
 export namespace CellPainter {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     export function roundRect(gc: CachedCanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean): void;
-}
-
-// @public (undocumented)
-export interface CellSettings {
-    // (undocumented)
-    readonly backgroundColor: string;
-    // (undocumented)
-    readonly backgroundSelectionColor: string;
-    // (undocumented)
-    readonly cellPadding: number;
-    // (undocumented)
-    readonly color: string;
-    // (undocumented)
-    readonly columnAutosizing: boolean;
-    // (undocumented)
-    readonly columnName: string;
-    // (undocumented)
-    readonly focusedCellBorderColor: string;
-    // (undocumented)
-    readonly font: string;
-    // (undocumented)
-    readonly foregroundSelectionColor: string;
-    // (undocumented)
-    readonly foregroundSelectionFont: string;
-    // (undocumented)
-    readonly format: string | undefined;
-    // (undocumented)
-    readonly gridLinesHWidth: number;
-    // (undocumented)
-    readonly gridLinesVWidth: number;
-    // (undocumented)
-    readonly halign: Halign;
-    // (undocumented)
-    readonly headerTextWrapping: boolean;
-    // (undocumented)
-    readonly hoverCellHighlight: GridSettings.HoverColors;
-    // (undocumented)
-    readonly hoverColumnHighlight: GridSettings.HoverColors;
-    // (undocumented)
-    readonly hoverRowHighlight: GridSettings.HoverColors;
-    // (undocumented)
-    readonly link: false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
-    // (undocumented)
-    readonly linkColor: string;
-    // (undocumented)
-    readonly linkColorOnHover: boolean;
-    // (undocumented)
-    readonly linkOnHover: boolean;
-    // (undocumented)
-    readonly strikeThrough: boolean;
-    // (undocumented)
-    readonly textTruncateType: TextTruncateType | undefined;
-    // (undocumented)
-    readonly voffset: number;
-}
-
-// Warning: (ae-internal-missing-underscore) The name "CellSettingsImplementation" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
-export class CellSettingsImplementation implements CellSettings {
-    // (undocumented)
-    get backgroundColor(): string;
-    // (undocumented)
-    get backgroundSelectionColor(): string;
-    // (undocumented)
-    get cellPadding(): number;
-    // (undocumented)
-    get color(): string;
-    // (undocumented)
-    get columnAutosizing(): boolean;
-    // (undocumented)
-    get columnName(): string;
-    // (undocumented)
-    get focusedCellBorderColor(): string;
-    // (undocumented)
-    get font(): string;
-    // (undocumented)
-    get foregroundSelectionColor(): string;
-    // (undocumented)
-    get foregroundSelectionFont(): string;
-    // (undocumented)
-    get format(): string | undefined;
-    // (undocumented)
-    get gridLinesHWidth(): number;
-    // (undocumented)
-    get gridLinesVWidth(): number;
-    // (undocumented)
-    get halign(): "left" | "right" | "center" | "start" | "end";
-    // (undocumented)
-    get headerTextWrapping(): boolean;
-    // (undocumented)
-    get hoverCellHighlight(): GridSettings.HoverColors;
-    // (undocumented)
-    get hoverColumnHighlight(): GridSettings.HoverColors;
-    // (undocumented)
-    get hoverRowHighlight(): GridSettings.HoverColors;
-    // (undocumented)
-    get link(): string | false | GridSettings.LinkProp | GridSettings.LinkFunction;
-    // (undocumented)
-    get linkColor(): string;
-    // (undocumented)
-    get linkColorOnHover(): boolean;
-    // (undocumented)
-    get linkOnHover(): boolean;
-    // (undocumented)
-    setColumn(column: Column, isHeader: boolean, isFilter: boolean): void;
-    // (undocumented)
-    get strikeThrough(): boolean;
-    // (undocumented)
-    get textTruncateType(): TextTruncateType | undefined;
-    // (undocumented)
-    get voffset(): number;
 }
 
 // @public (undocumented)
@@ -789,9 +698,9 @@ export interface DataServer {
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     fetchData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
     // (undocumented)
-    getCellEditor?(cell: DatalessViewCell): CellEditor | undefined;
+    getCellEditor?(viewCell: DatalessViewCell): CellEditor | undefined;
     // (undocumented)
-    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
+    getCellPainter(viewCell: DatalessViewCell): CellPainter;
     getCursorName?(schema: SchemaServer.Column, rowIndex: number): string;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getData?(metadataFieldName?: string): readonly DataServer.DataRow[];
@@ -1226,9 +1135,8 @@ export interface GridSettings {
     // (undocumented)
     backgroundColor: GridSettings.Color;
     // (undocumented)
-    backgroundColor2: GridSettings.Color;
-    // (undocumented)
     backgroundSelectionColor: GridSettings.Color;
+    cellHoverBackgroundColor: string | undefined;
     // (undocumented)
     cellPadding: number;
     cellPainter: string;
@@ -1257,6 +1165,7 @@ export interface GridSettings {
     columnHeaderFormat: string;
     // (undocumented)
     columnHeaderHalign: Halign;
+    columnHoverBackgroundColors: GridSettings.ColumnHoverBackgroundColors;
     columnIndexes: number[];
     // (undocumented)
     columnMoveDragActiveCursorName: string | undefined;
@@ -1367,15 +1276,9 @@ export interface GridSettings {
     gridRightAligned: boolean;
     halign: Halign;
     // (undocumented)
-    headerify: string;
-    headerTextWrapping: boolean;
+    horizontalScrollbarClassPrefix: string;
     // (undocumented)
     horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
-    hoverCellHighlight: GridSettings.HoverColors;
-    hoverColumnHighlight: GridSettings.HoverColors;
-    hoverRowHighlight: GridSettings.HoverColors;
-    // (undocumented)
-    hScrollbarClassPrefix: string;
     // (undocumented)
     lineColor: GridSettings.Color;
     // (undocumented)
@@ -1414,6 +1317,7 @@ export interface GridSettings {
     restoreColumnSelections: boolean;
     restoreRowSelections: boolean;
     restoreSingleCellSelection: boolean;
+    rowHoverBackgroundColor: string | undefined;
     // (undocumented)
     rowResize: boolean;
     rowStripes: GridSettings.RowStripe[] | undefined;
@@ -1449,11 +1353,11 @@ export interface GridSettings {
     // (undocumented)
     useHiDPI: boolean;
     // (undocumented)
+    verticalScrollbarClassPrefix: string;
+    // (undocumented)
     visibleColumnWidthAdjust: boolean;
     // (undocumented)
     voffset: number;
-    // (undocumented)
-    vScrollbarClassPrefix: string;
     // (undocumented)
     wheelHFactor: number;
     // (undocumented)
@@ -1473,26 +1377,17 @@ export namespace GridSettings {
         NO_ROWS: propClassEnum[];
     };
     // (undocumented)
+    export interface ColumnHoverBackgroundColors {
+        color: string | undefined;
+        // (undocumented)
+        headerColor: string | undefined;
+    }
+    // (undocumented)
     export type FeedbackEffect = string;
     // (undocumented)
     export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): SelectionAreaType;
     // (undocumented)
     export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): SelectionAreaTypeSpecifier.Primary | SelectionAreaTypeSpecifier.Secondary;
-    // (undocumented)
-    export interface HoverColors {
-        backgroundColor?: string;
-        enabled?: boolean;
-        // (undocumented)
-        header?: HoverColors.Header;
-    }
-    // (undocumented)
-    export namespace HoverColors {
-        // (undocumented)
-        export interface Header {
-            // (undocumented)
-            backgroundColor: string;
-        }
-    }
     // (undocumented)
     export function isAddToggleSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
@@ -1538,6 +1433,18 @@ export const enum HalignEnum {
     right = "right",
     // (undocumented)
     start = "start"
+}
+
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+//
+// @public
+export class HeaderTextCellPainter extends TextCellPainter {
+    // (undocumented)
+    paint(prefillColor: string | undefined): number | undefined;
+    // (undocumented)
+    textWrapping: boolean;
 }
 
 // @public (undocumented)
@@ -2586,9 +2493,9 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
 export class RevRecordHeaderDataServer implements DataServer {
     constructor(_rowCount?: number);
     // (undocumented)
-    readonly cellPainter: TextCellPainter;
+    readonly cellPainter: AlphaTextCellPainter;
     // (undocumented)
-    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
+    getCellPainter(viewCell: DatalessViewCell): CellPainter;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
@@ -2639,7 +2546,7 @@ export class RevRecordMainDataServer implements DataServer, RevRecordStore.Recor
     get filterCallback(): RevRecordMainDataServer.RecordFilterCallback | undefined;
     set filterCallback(value: RevRecordMainDataServer.RecordFilterCallback | undefined);
     // (undocumented)
-    getCellPainter(_viewCell: DatalessViewCell, _cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
+    getCellPainter(_viewCell: DatalessViewCell): CellPainter;
     // (undocumented)
     getFieldSortAscending(field: RevRecordFieldIndex | RevRecordField): boolean | undefined;
     // (undocumented)
@@ -2928,9 +2835,9 @@ export const enum RevRecordValueRecentChangeTypeId {
 export class RevSimpleHeaderDataServer implements DataServer {
     constructor();
     // (undocumented)
-    readonly cellPainter: TextCellPainter;
+    readonly cellPainter: AlphaTextCellPainter;
     // (undocumented)
-    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
+    getCellPainter(viewCell: DatalessViewCell): CellPainter;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
@@ -2953,12 +2860,12 @@ export class RevSimpleMainDataServer implements DataServer {
     // (undocumented)
     beginDataChange(): void;
     // (undocumented)
-    readonly cellPainter: TextCellPainter;
+    readonly cellPainter: AlphaTextCellPainter;
     delRow(index: number, count?: number): RevSimpleMainDataServer.DataRow[];
     // (undocumented)
     endDataChange(): void;
     // (undocumented)
-    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
+    getCellPainter(viewCell: DatalessViewCell): CellPainter;
     // (undocumented)
     getRow(index: number): RevSimpleMainDataServer.DataRow;
     // (undocumented)
@@ -3103,11 +3010,11 @@ export const enum SelectionAreaTypeSpecifier {
 }
 
 // @public
-export class SliderCellPainter implements CellPainter {
+export class SliderCellPainter extends AbstractCellPainter {
     // (undocumented)
     config: SliderCellPainter.Config;
     // (undocumented)
-    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
+    paint(_prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3128,11 +3035,11 @@ export namespace SliderCellPainter {
 }
 
 // @public
-export class SparkBarCellPainter implements CellPainter {
+export class SparkBarCellPainter extends AbstractCellPainter {
     // (undocumented)
     config: SparkBarCellPainter.Config;
     // (undocumented)
-    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
+    paint(_prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3157,11 +3064,11 @@ export namespace SparkBarCellPainter {
 }
 
 // @public
-export class SparkLineCellPainter implements CellPainter {
+export class SparkLineCellPainter extends AbstractCellPainter {
     // (undocumented)
     config: SparkLineCellPainter.Config;
     // (undocumented)
-    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
+    paint(_prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3244,9 +3151,9 @@ export namespace Subgrid {
 }
 
 // @public (undocumented)
-export class TagCellPainter implements CellPainter {
+export class TagCellPainter extends AbstractCellPainter {
     // (undocumented)
-    paint(_gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined;
+    paint(_prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3262,19 +3169,26 @@ export namespace TagCellPainter {
     }
 }
 
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-//
-// @public
-export class TextCellPainter implements CellPainter {
-    constructor(_dataServer: DataServer);
+// @public (undocumented)
+export abstract class TextCellPainter extends AbstractCellPainter {
     // (undocumented)
-    paint(gc: CachedCanvasRenderingContext2D, prefillColor: string | undefined): number | undefined;
+    protected checkPaintBorder(bounds: Rectangle, borderColor: string | undefined): void;
     // (undocumented)
-    setCell(cell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): void;
+    protected decorateText(): void;
     // (undocumented)
-    setGrid(value: Revgrid): void;
+    protected findLines(words: string[], width: number): string[];
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    protected renderMultiLineText(bounds: Rectangle, val: string, leftPadding: number, rightPadding: number): number;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    protected renderSingleLineText(bounds: Rectangle, val: string, leftPadding: number, rightPadding: number): number;
+    // Warning: (ae-forgotten-export) The symbol "CellSettingsImplementation" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly _settingsAccessor: CellSettingsImplementation;
+    // (undocumented)
+    protected strikeThrough(text: string, x: number, y: number, thickness: number): void;
+    // (undocumented)
+    protected underline(text: string, x: number, y: number, thickness: number): void;
 }
 
 // @public (undocumented)

@@ -1,6 +1,5 @@
 
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -51,7 +50,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
         );
     }
 
-    paintCells(gc: CachedCanvasRenderingContext2D) {
+    paintCells() {
         const gridProps = this.gridSettings;
         const viewLayout = this.viewLayout;
         const viewLayoutColumns = viewLayout.columns;
@@ -59,6 +58,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
         const viewLayoutRows = viewLayout.rows;
         const rowCount = viewLayoutRows.length;
         if (columnCount > 0 && rowCount > 0) {
+            const gc = this._renderingContext;
             const lastColumnIndex = columnCount - 1;
             const pool = viewLayout.getColumnRowOrderedCellPool(); // must match algorithm below and computationInvalid above
             // clipToGrid,
@@ -93,7 +93,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                 for (let i = columnBundleCount - 1; i > 0; i--) {
                     const columnBundle = columnBundles[i];
                     if (columnBundle !== undefined) {
-                        gc.clearFill(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
+                        gc.clearFillRect(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
                     }
                 }
                 rowPrefillColors = undefined;
@@ -101,7 +101,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                 const rowBundles = rowBundlesAndPrefillColors.bundles;
                 for (let i = rowBundles.length - 1; i >= 0; i--) {
                     const rowBundle = rowBundles[i];
-                    gc.clearFill(firstVisibleColumnLeft, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
+                    gc.clearFillRect(firstVisibleColumnLeft, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
                 }
                 rowPrefillColors = rowBundlesAndPrefillColors.prefillColors;
             }
@@ -126,7 +126,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                         const viewCell = pool[cellEvent++];
 
                         try {
-                            const paintWidth = this.paintCell(gc, viewCell, prefillColor);
+                            const paintWidth = this.paintCell(viewCell, prefillColor);
                             if (paintWidth !== undefined) {
                                 if (preferredWidth === undefined) {
                                     preferredWidth = paintWidth;
@@ -135,7 +135,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                                 }
                             }
                         } catch (e) {
-                            this.paintErrorCell(e as Error, gc, vc, viewCell.viewLayoutRow);
+                            this.paintErrorCell(e as Error, vc, viewCell.viewLayoutRow);
                         }
                     // }
                 }

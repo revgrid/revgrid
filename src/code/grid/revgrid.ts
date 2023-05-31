@@ -1703,7 +1703,7 @@ export class Revgrid {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this.selection.isCellSelectedInAnyAreaType(x, y, subgrid);
+        return this.selection.isCellSelected(x, y, subgrid);
     }
 
     isColumnOrRowSelected() {

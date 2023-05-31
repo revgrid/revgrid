@@ -14,8 +14,9 @@ export interface GridSettings {
     /** Select cell's entire row. */
     autoSelectRows: boolean;
     backgroundColor: GridSettings.Color;
-    backgroundColor2: GridSettings.Color;
     backgroundSelectionColor: GridSettings.Color;
+    /** On mouse hover, whether to repaint the cell background and how. */
+    cellHoverBackgroundColor: string | undefined;
     cellPadding: number;
     checkboxOnlyRowSelections: boolean;
     color: GridSettings.Color;
@@ -37,6 +38,8 @@ export interface GridSettings {
     columnHeaderForegroundSelectionFont: string;
     columnHeaderFormat: string;
     columnHeaderHalign: Halign;
+    /** On mouse hover, whether to repaint the column background and how. */
+    columnHoverBackgroundColors: GridSettings.ColumnHoverBackgroundColors;
     /** Active column indices */
     columnIndexes: number[];
     columnMoveDragPossibleCursorName: string | undefined;
@@ -149,17 +152,8 @@ export interface GridSettings {
     gridLinesVWidth: number;
     /** The cell's horizontal alignment, as interpreted by the cell renderer */
     halign: Halign;
-    headerify: string;
-    /** Whether text in header cells is wrapped. */
-    headerTextWrapping: boolean;
     horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
-    /** On mouse hover, whether to repaint the cell background and how. */
-    hoverCellHighlight: GridSettings.HoverColors;
-    /** On mouse hover, whether to repaint the column background and how. */
-    hoverColumnHighlight: GridSettings.HoverColors;
-    /** On mouse hover, whether to repaint the row background and how. */
-    hoverRowHighlight: GridSettings.HoverColors;
-    hScrollbarClassPrefix: string,
+    horizontalScrollbarClassPrefix: string,
     lineColor: GridSettings.Color;
     lineWidth: number;
     /** Display cell value as a link (with underline). */
@@ -211,6 +205,8 @@ export interface GridSettings {
     restoreRowSelections: boolean;
     /** Restore single cell selection across data transformations (`reindex` calls). Takes priority over restoreColumnSelections and restoreRowSelections. */
     restoreSingleCellSelection: boolean;
+    /** On mouse hover, whether to repaint the row background and how. */
+    rowHoverBackgroundColor: string | undefined;
     rowResize: boolean;
     /** Repeating pattern of property overrides for grid rows. */
     rowStripes: GridSettings.RowStripe[] | undefined;
@@ -244,7 +240,7 @@ export interface GridSettings {
     useBitBlit: boolean;
     useHiDPI: boolean;
     voffset: number;
-    vScrollbarClassPrefix: string;
+    verticalScrollbarClassPrefix: string;
     wheelHFactor: number;
     wheelVFactor: number;
     /** The default width of a column */
@@ -267,19 +263,10 @@ export namespace GridSettings {
         NO_ROWS: [propClassEnum.COLUMNS, propClassEnum.CELLS]
     }
 
-    export interface HoverColors {
-        /** `false` means not hilite on hover */
-        enabled?: boolean;
-        /** cell, row, or column background color. Alpha channel will be respected and if given will be painted over the cells predetermined color. */
-        backgroundColor?: string;
-        // @property {cssColor} [header.backgroundColor=backgroundColor] - for columns and rows, this is the background color of the column or row "handle" (header rows or columns, respectively). (Not used for cells.)
-        header?: HoverColors.Header;
-    }
-
-    export namespace HoverColors {
-        export interface Header {
-            backgroundColor: string;
-        }
+    export interface ColumnHoverBackgroundColors {
+        /** cell, row, or column background color */
+        color: string | undefined;
+        headerColor: string | undefined;
     }
 
     export type FeedbackEffect = string;

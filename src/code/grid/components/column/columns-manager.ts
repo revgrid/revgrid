@@ -181,8 +181,6 @@ export class ColumnsManager {
         this._beforeCreateColumnsListeners.forEach((listener) => listener());
 
         const schema = this.schemaServer.getSchema();
-        // fields.decorateSchema(schema);
-        // fields.decorateColumnSchema(schema, this.grid.properties.headerify);
 
         this.clearColumns();
 

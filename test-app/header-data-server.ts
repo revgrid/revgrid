@@ -1,11 +1,11 @@
-import { CellEditor, CellPainter, DataServer, DatalessViewCell, SchemaServer, TextCellPainter } from '..';
+import { CellPainter, DataServer, DatalessViewCell, HeaderTextCellPainter, SchemaServer } from '..';
 import { SchemaServerImplementation } from './schema-adapter';
 
 export class HeaderDataServer implements DataServer {
-    readonly cellPainter: TextCellPainter;
+    readonly cellPainter: HeaderTextCellPainter;
 
     constructor() {
-        this.cellPainter = new TextCellPainter(this);
+        this.cellPainter = new HeaderTextCellPainter(this);
     }
 
     getRowCount() {
@@ -16,8 +16,8 @@ export class HeaderDataServer implements DataServer {
         return (schemaColumn as SchemaServerImplementation.Column).header;
     }
 
-    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter {
-        this.cellPainter.setCell(viewCell, cellEditorPainter);
+    getCellPainter(viewCell: DatalessViewCell): CellPainter {
+        this.cellPainter.setCell(viewCell);
         return this.cellPainter;
     }
 

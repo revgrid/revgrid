@@ -23,11 +23,12 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     get autoSelectRows() { return this._raw.autoSelectRows; }
     set autoSelectRows(value: boolean) { this._raw.autoSelectRows = value; }
     get backgroundColor() { return this._raw.backgroundColor; }
-    set backgroundColor(value: GridSettings.Color) { this._raw.backgroundColor2 = value; }
-    get backgroundColor2() { return this._raw.backgroundColor; }
-    set backgroundColor2(value: GridSettings.Color) { this._raw.backgroundColor2 = value; }
+    set backgroundColor(value: GridSettings.Color) { this._raw.backgroundColor = value; }
     get backgroundSelectionColor() { return this._raw.backgroundSelectionColor; }
     set backgroundSelectionColor(value: GridSettings.Color) { this._raw.backgroundSelectionColor = value; }
+    /** On mouse hover, whether to repaint the cell background and how. */
+    get cellHoverBackgroundColor() { return this._raw.cellHoverBackgroundColor; }
+    set cellHoverBackgroundColor(value: string | undefined) { this._raw.cellHoverBackgroundColor = value; }
     get cellPadding() { return this._raw.cellPadding; }
     set cellPadding(value: number) {
         if (value !== this._raw.cellPadding) {
@@ -73,6 +74,9 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set columnHeaderFormat(value: string) { this._raw.columnHeaderFormat = value; }
     get columnHeaderHalign() { return this._raw.columnHeaderHalign; }
     set columnHeaderHalign(value: Halign) { this._raw.columnHeaderHalign = value; }
+    /** On mouse hover, whether to repaint the column background and how. */
+    get columnHoverBackgroundColors() { return this._raw.columnHoverBackgroundColors; }
+    set columnHoverBackgroundColors(value: GridSettings.ColumnHoverBackgroundColors) { this._raw.columnHoverBackgroundColors = value; }
     get columnMoveDragPossibleCursorName() { return this._raw.columnMoveDragPossibleCursorName; }
     set columnMoveDragPossibleCursorName(value: string | undefined) {this._raw.columnMoveDragPossibleCursorName = value; }
     get columnMoveDragActiveCursorName() { return this._raw.columnMoveDragActiveCursorName; }
@@ -248,24 +252,10 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
         this._raw.halign = value;
         this.viewRenderInvalidatedEventer();
     }
-    get headerify() { return this._raw.headerify; }
-    set headerify(value: string) { this._raw.headerify = value; }
-    /** Whether text in header cells is wrapped. */
-    get headerTextWrapping() { return this._raw.headerTextWrapping; }
-    set headerTextWrapping(value: boolean) { this._raw.headerTextWrapping = value; }
     get horizontalWheelScrollingAllowed() { return this._raw.horizontalWheelScrollingAllowed; }
     set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed) { this._raw.horizontalWheelScrollingAllowed = value; }
-    /** On mouse hover, whether to repaint the cell background and how. */
-    get hoverCellHighlight() { return this._raw.hoverCellHighlight; }
-    set hoverCellHighlight(value: GridSettings.HoverColors) { this._raw.hoverCellHighlight = value; }
-    /** On mouse hover, whether to repaint the column background and how. */
-    get hoverColumnHighlight() { return this._raw.hoverColumnHighlight; }
-    set hoverColumnHighlight(value: GridSettings.HoverColors) { this._raw.hoverColumnHighlight = value; }
-    /** On mouse hover, whether to repaint the row background and how. */
-    get hoverRowHighlight() { return this._raw.hoverRowHighlight; }
-    set hoverRowHighlight(value: GridSettings.HoverColors) { this._raw.hoverRowHighlight = value; }
-    get hScrollbarClassPrefix() { return this._raw.hScrollbarClassPrefix; }
-    set hScrollbarClassPrefix(value: string) { this._raw.hScrollbarClassPrefix = value; }
+    get horizontalScrollbarClassPrefix() { return this._raw.horizontalScrollbarClassPrefix; }
+    set horizontalScrollbarClassPrefix(value: string) { this._raw.horizontalScrollbarClassPrefix = value; }
     /** Display cell value as a link (with underline). */
     get link() { return this._raw.link; }
     set link(value: false | string | GridSettings.LinkProp | GridSettings.LinkFunction) { this._raw.link = value; }
@@ -332,6 +322,9 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors. */
     get mouseRowSelection() { return this._raw.mouseRowSelection; }
     set mouseRowSelection(value: boolean) { this._raw.mouseRowSelection = value; }
+    /** On mouse hover, whether to repaint the row background and how. */
+    get rowHoverBackgroundColor() { return this._raw.rowHoverBackgroundColor; }
+    set rowHoverBackgroundColor(value: string | undefined) { this._raw.rowHoverBackgroundColor = value; }
     /** Repeating pattern of property overrides for grid rows. */
     get rowStripes() { return this._raw.rowStripes; }
     set rowStripes(value: GridSettings.RowStripe[] | undefined) { this._raw.rowStripes = value; }
@@ -396,8 +389,8 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     }
     get voffset() { return this._raw.voffset; }
     set voffset(value: number) { this._raw.voffset = value; }
-    get vScrollbarClassPrefix() { return this._raw.vScrollbarClassPrefix; }
-    set vScrollbarClassPrefix(value: string) { this._raw.vScrollbarClassPrefix = value; }
+    get verticalScrollbarClassPrefix() { return this._raw.verticalScrollbarClassPrefix; }
+    set verticalScrollbarClassPrefix(value: string) { this._raw.verticalScrollbarClassPrefix = value; }
     /** The current width of the column */
     get width() { return this._raw.width; }
     set width(value: number) { this._raw.width = value; }

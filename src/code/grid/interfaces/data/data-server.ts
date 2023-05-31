@@ -1,8 +1,8 @@
 import { Rectangle } from '../../types-utils/rectangle';
 import { CellEditor } from '../dataless/cell-editor';
+import { CellPainter } from '../dataless/cell-painter';
 import { DatalessViewCell } from '../dataless/dataless-view-cell';
 import { SchemaServer } from '../schema/schema-server';
-import { CellPainter } from './cell-painter';
 // import { Hypergrid } from '../Hypergrid';
 
 /**
@@ -139,8 +139,8 @@ export interface DataServer {
     /** Title text to be displayed when mouse hovers over cell containing data point */
     getTitleText?(schema: SchemaServer.Column, rowIndex: number): string;
 
-    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter;
-    getCellEditor?(cell: DatalessViewCell): CellEditor | undefined;
+    getCellPainter(viewCell: DatalessViewCell): CellPainter;
+    getCellEditor?(viewCell: DatalessViewCell): CellEditor | undefined;
 }
 
 

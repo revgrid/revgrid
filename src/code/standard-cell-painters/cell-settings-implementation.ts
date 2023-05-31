@@ -1,7 +1,5 @@
-import { Column } from '../interfaces/schema/column';
-import { CellSettings } from '../interfaces/settings/cell-settings';
-import { ColumnSettings } from '../interfaces/settings/column-settings';
-import { GridSettings } from '../interfaces/settings/grid-settings';
+import { Column, ColumnSettings, GridSettings } from '../grid/grid-public-api';
+import { CellSettings } from './cell-settings';
 
 /** @internal */
 export class CellSettingsImplementation implements CellSettings {
@@ -68,10 +66,9 @@ export class CellSettingsImplementation implements CellSettings {
     get color() { return this._dataOrHeaderOrFilterSettings.color; }
     get foregroundSelectionColor() { return this._dataOrHeaderOrFilterSettings.foregroundSelectionColor; }
     get foregroundSelectionFont() { return this._dataOrHeaderSettings.foregroundSelectionFont; }
-    get headerTextWrapping() { return this._gridSettings.headerTextWrapping; }
-    get hoverCellHighlight() { return this._gridSettings.hoverCellHighlight; }
-    get hoverColumnHighlight() { return this._gridSettings.hoverColumnHighlight; }
-    get hoverRowHighlight() { return this._gridSettings.hoverRowHighlight; }
+    get cellHoverBackgroundColor() { return this._gridSettings.cellHoverBackgroundColor; }
+    get columnHoverBackgroundColors() { return this._gridSettings.columnHoverBackgroundColors; }
+    get rowHoverBackgroundColor() { return this._gridSettings.rowHoverBackgroundColor; }
     get linkOnHover() { return this._gridSettings.linkOnHover; }
     get linkColor() { return this._gridSettings.linkColor; }
     get linkColorOnHover() { return this._gridSettings.linkColorOnHover; }

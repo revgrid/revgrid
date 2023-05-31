@@ -1,15 +1,17 @@
 
-import { CachedCanvasRenderingContext2D, CellPainter, Rectangle } from '../grid/grid-public-api';
+import { Rectangle } from '../grid/grid-public-api';
+import { AbstractCellPainter } from './abstract-cell-painter';
 
 /**
  * Renders a sparkline.
  * {@link http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR|Edward Tufte sparkline}
  * @public
  */
-export class SparkLineCellPainter implements CellPainter {
+export class SparkLineCellPainter extends AbstractCellPainter {
     config: SparkLineCellPainter.Config;
 
-    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined {
+    override paint(_prefillColor: string | undefined): number | undefined {
+        const gc = this._renderingContext;
         const config = this.config;
 
         let x = config.bounds.x;

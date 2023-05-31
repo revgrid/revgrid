@@ -1,17 +1,17 @@
 
-import { AssertError, CellEditor, CellPainter, DataServer, DatalessViewCell } from '../../grid/grid-public-api';
-import { TextCellPainter } from '../../standard-cell-painters/standard-cell-painters-public-api';
+import { AssertError, CellPainter, DataServer, DatalessViewCell } from '../../grid/grid-public-api';
+import { AlphaTextCellPainter } from '../../standard-cell-painters/standard-cell-painters-public-api';
 import { RevSimpleSchemaServer } from './rev-simple-schema-server';
 
 /** @public */
 export class RevSimpleHeaderDataServer implements DataServer {
-        readonly cellPainter: TextCellPainter;
+        readonly cellPainter: AlphaTextCellPainter;
 
     private _rowCount = 0;
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
     constructor() {
-        this.cellPainter = new TextCellPainter(this);
+        this.cellPainter = new AlphaTextCellPainter(this);
     }
 
     subscribeDataNotifications(listener: DataServer.NotificationsClient) {
@@ -40,8 +40,8 @@ export class RevSimpleHeaderDataServer implements DataServer {
         }
     }
 
-    getCellPainter(viewCell: DatalessViewCell, cellEditorPainter: CellEditor.Painter | undefined): CellPainter {
-        this.cellPainter.setCell(viewCell, cellEditorPainter);
+    getCellPainter(viewCell: DatalessViewCell): CellPainter {
+        this.cellPainter.setCell(viewCell);
         return this.cellPainter;
     }
 

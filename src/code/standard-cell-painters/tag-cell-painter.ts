@@ -1,10 +1,11 @@
 
-import { CachedCanvasRenderingContext2D, CellPainter } from '../grid/grid-public-api';
+import { AbstractCellPainter } from './abstract-cell-painter';
 
 /** @public */
-export class TagCellPainter implements CellPainter {
+export class TagCellPainter extends AbstractCellPainter {
 
-    paint(_gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined {
+    override paint(_prefillColor: string | undefined): number | undefined {
+        // const gc = this._renderingContext;
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {
         //     const tagband = tagbands.find((tagband) => {

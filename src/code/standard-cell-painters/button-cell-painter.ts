@@ -1,14 +1,16 @@
 
-import { CachedCanvasRenderingContext2D, CellPainter, Rectangle } from '../grid/grid-public-api';
+import { CellPainter, Rectangle } from '../grid/grid-public-api';
+import { AbstractCellPainter } from './abstract-cell-painter';
 
 /**
  * The default cell rendering function for a button cell.
  * @public
  */
-export class ButtonCellPainter implements CellPainter {
+export class ButtonCellPainter extends AbstractCellPainter {
     config: ButtonCellPainter.Config;
 
-    paint(gc: CachedCanvasRenderingContext2D, _prefillColor: string | undefined): number | undefined {
+    override paint(_prefillColor: string | undefined): number | undefined {
+        const gc = this._renderingContext;
         const config = this.config;
 
         const val = config.value;
