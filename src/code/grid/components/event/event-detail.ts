@@ -84,9 +84,12 @@ export namespace EventDetail {
     }
 
     export const enum DragTypeEnum {
-        ExtendLastRectangleSelectionArea = 'revgridextendlastrectangleselectionarea',
-        ExtendLastColumnSelectionArea = 'revgridextendlastcolumnselectionarea',
-        ExtendLastRowSelectionArea = 'revgridextendlastrowselectionarea',
+        // Make sure values are all lower case so could be used in Drag Drop API
+        LastRectangleSelectionAreaExtending = 'revgridlastrectangleselectionareaextending',
+        LastColumnSelectionAreaExtending = 'revgridlastcolumnselectionareaextending',
+        LastRowSelectionAreaExtending = 'revgridlastrowselectionareaextending',
+        ColumnResizing = 'revgridcolumnresizing',
+        ColumnMoving = 'revgridcolumnmoving',
     }
 
     export type DragType = keyof typeof DragTypeEnum;

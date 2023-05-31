@@ -51,15 +51,7 @@ export class CanvasManager {
 
     copyEventer: CanvasManager.ClipboardEventer;
 
-    dragEventer: CanvasManager.DragEventer;
     dragStartEventer: CanvasManager.DragEventer;
-    dragEnterEventer: CanvasManager.DragEventer;
-    dragOverEventer: CanvasManager.DragEventer;
-    dragLeaveEventer: CanvasManager.DragEventer;
-    dragEndEventer: CanvasManager.DragEventer;
-    dropEventer: CanvasManager.DragEventer;
-
-    documentDragOverEventer: CanvasManager.DragEventer;
 
     private _mouseLocation = Point.create(-1, -1);
     // origin = null;
@@ -308,9 +300,6 @@ export class CanvasManager {
         this.canvasElement.addEventListener('touchend', this.touchEndEventListener);
         this.canvasElement.addEventListener('copy', this.copyEventListener);
 
-        this.canvasElement.addEventListener('drag', (event) => {
-            this.dragEventer(event);
-        });
         this.canvasElement.addEventListener('dragstart', (event) => {
             this.dragStartEventer(event);
             const dataTransfer = event.dataTransfer;
@@ -330,21 +319,6 @@ export class CanvasManager {
                     }
                 }
             }
-        });
-        this.canvasElement.addEventListener('dragenter', (event) => {
-            this.dragEnterEventer(event);
-        });
-        this.canvasElement.addEventListener('dragover', (event) => {
-            this.dragOverEventer(event);
-        });
-        this.canvasElement.addEventListener('dragleave', (event) => {
-            this.dragLeaveEventer(event);
-        });
-        this.canvasElement.addEventListener('dragend', (event) => {
-            this.dragEndEventer(event);
-        });
-        this.canvasElement.addEventListener('drop', (event) => {
-            this.dropEventer(event);
         });
     }
 

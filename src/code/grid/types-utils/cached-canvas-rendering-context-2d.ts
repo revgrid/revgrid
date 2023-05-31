@@ -6,7 +6,7 @@ export class CachedCanvasRenderingContext2D {
     /** @internal */
     private readonly _conditionalsStack: CachedCanvasRenderingContext2D.ConditionalsStack = [];
     /** @internal */
-    private _fontMetrics: Record<string, Record<string, number> | undefined> = {} // Record of characters and their width - previously was global
+    private _fontMetrics: CachedCanvasRenderingContext2D.FontStringWidthMap = new Map<string, CachedCanvasRenderingContext2D.StringWidthMap>;
     /** @internal */
     private _fontData: Record<string, CachedCanvasRenderingContext2D.TextHeight | undefined> = {}; // previously was global
 
@@ -143,19 +143,57 @@ export class CachedCanvasRenderingContext2D {
      * Accumulates width of string in pixels, character by character, by chaching character widths and reusing those values when previously cached.
      *
      * NOTE: There is a minor measuring error when taking the sum of the pixel widths of individual characters that make up a string vs. the pixel width of the string taken as a whole. This is possibly due to kerning or rounding. The error is typically about 0.1%.
-     * @param string - Text to measure.
+     * @param text - Text to measure.
      * @returns Width of string in pixels.
      */
-    getTextWidth(string: string) {
-        const metrics = this._fontMetrics[this.cache.font] = this._fontMetrics[this.cache.font] || {};
-        string += '';
-        const len = string.length
-        let sum = 0;
-        for (let i = 0; i < len; ++i) {
-            const c = string[i];
-            sum += metrics[c] = metrics[c] || this.measureText(c).width;
+    getTextWidth(text: string) {
+        const font = this.cache.font;
+        let charMetrics = this._fontMetrics.get(font);
+        if (charMetrics === undefined) {
+            charMetrics = new Map<string, number>();
+            this._fontMetrics.set(font, charMetrics);
         }
-        return sum;
+
+        const charCount = text.length
+        let textWidth = 0;
+        for (let i = 0; i < charCount; i++) {
+            const char = text[i];
+
+            let charWidth = charMetrics.get(char);
+            if (charWidth === undefined) {
+                charWidth = this.measureText(char).width;
+                charMetrics.set(char, charWidth);
+            }
+            textWidth += charWidth;
+        }
+
+        return textWidth;
+    }
+
+    getCharWidth(char: string) {
+        const font = this.cache.font;
+        let charMetrics = this._fontMetrics.get(font);
+        if (charMetrics === undefined) {
+            charMetrics = new Map<string, number>();
+            this._fontMetrics.set(font, charMetrics);
+        }
+
+        let charWidth = charMetrics.get(char);
+        if (charWidth === undefined) {
+            charWidth = this.measureText(char).width;
+            charMetrics.set(char, charWidth);
+        }
+
+        return charWidth;
+    }
+
+    getEmWidth() {
+        let emWidth = this.cache.emWidth;
+        if (emWidth === undefined) {
+            emWidth = this.getCharWidth('m');
+            this.cache.emWidth = emWidth;
+        }
+        return emWidth;
     }
 
     /**
@@ -175,31 +213,47 @@ export class CachedCanvasRenderingContext2D {
         abort: boolean,
         truncateFromEnd: boolean
     ): CachedCanvasRenderingContext2D.TruncatedTextWidth {
-        let metrics = this._fontMetrics[this.cache.font];
         const truncating = truncateType !== undefined;
         let truncString: string | undefined; //, truncWidth, truncAt;
 
-        if (metrics === undefined) {
-            metrics = this._fontMetrics[this.cache.font] = {};
-            metrics[CachedCanvasRenderingContext2D.ELLIPSIS] = this.measureText(CachedCanvasRenderingContext2D.ELLIPSIS).width;
+        let ellipsisWidth: number | undefined;
+        const font = this.cache.font;
+        let stringWidthsMap = this._fontMetrics.get(font);
+        if (stringWidthsMap === undefined) {
+            stringWidthsMap = new Map<string, number>();
+            this._fontMetrics.set(font, stringWidthsMap);
+            ellipsisWidth = this.measureText(CachedCanvasRenderingContext2D.ELLIPSIS).width;
+            stringWidthsMap.set(CachedCanvasRenderingContext2D.ELLIPSIS, ellipsisWidth);
+        } else {
+            ellipsisWidth = stringWidthsMap.get(CachedCanvasRenderingContext2D.ELLIPSIS);
+            if (ellipsisWidth === undefined) {
+                ellipsisWidth = this.measureText(CachedCanvasRenderingContext2D.ELLIPSIS).width;
+                stringWidthsMap.set(CachedCanvasRenderingContext2D.ELLIPSIS, ellipsisWidth);
+            }
         }
 
         text += ''; // convert to string
         // width += truncateType === TextTruncateType.BeforeLastPartiallyVisibleCharacter ? 2 : -1; // fudge for inequality
+        const textLength = text.length;
+        const textCharWidths = new Array<number>(textLength);
         let sum = 0;
         if (truncateFromEnd) {
-            const textLength = text.length;
             for (let i = textLength - 1; i >= 0; --i) {
                 const char = text[i];
-                const charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
+                let charWidth = stringWidthsMap.get(char);
+                if (charWidth === undefined) {
+                    charWidth = this.measureText(char).width;
+                    stringWidthsMap.set(char, charWidth);
+                }
+                textCharWidths[i] = charWidth;
                 sum += charWidth;
                 if (truncating && sum > width && truncString === undefined) {
                     switch (truncateType) {
                         case TextTruncateType.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
-                            let truncWidth = sum - charWidth + metrics[CachedCanvasRenderingContext2D.ELLIPSIS];
+                            let truncWidth = sum - charWidth + ellipsisWidth;
                             let truncAt = i + 1;
                             while (truncAt < textLength && truncWidth > width) {
-                                truncWidth -= metrics[text[truncAt++]];
+                                truncWidth -= textCharWidths[truncAt++];
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
@@ -223,17 +277,22 @@ export class CachedCanvasRenderingContext2D {
                 }
             }
         } else {
-            for (let i = 0, len = text.length; i < len; ++i) {
+            for (let i = 0, len = textLength; i < len; ++i) {
                 const char = text[i];
-                const charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
+                let charWidth = stringWidthsMap.get(char);
+                if (charWidth === undefined) {
+                    charWidth = this.measureText(char).width;
+                    stringWidthsMap.set(char, charWidth);
+                }
+                textCharWidths[i] = charWidth;
                 sum += charWidth;
                 if (truncating && sum > width && truncString === undefined) {
                     switch (truncateType) {
                         case TextTruncateType.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
-                            let truncWidth = sum - charWidth + metrics[CachedCanvasRenderingContext2D.ELLIPSIS];
+                            let truncWidth = sum - charWidth + ellipsisWidth;
                             let truncAt = i;
                             while (truncAt && truncWidth > width) {
-                                truncWidth -= metrics[text[--truncAt]];
+                                truncWidth -= textCharWidths[--truncAt];
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
@@ -348,6 +407,9 @@ export namespace CachedCanvasRenderingContext2D {
     export const ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d.]+)\)))$/i
     export const ELLIPSIS = '\u2026' // The "…" (dot-dot-dot) character
 
+    export type StringWidthMap = Map<string, number>;
+    export type FontStringWidthMap = Map<string, StringWidthMap>;
+
     export interface TruncatedTextWidth {
         /** `undefined` if it fits; truncated version of provided `string` if it does not. */
         text: string | undefined,
@@ -370,7 +432,6 @@ export namespace CachedCanvasRenderingContext2D {
 
         /** @internal */
         constructor(private readonly _canvasRenderingContext2D: CanvasRenderingContext2D) {
-
         }
 
         get lineDash() {
@@ -411,6 +472,7 @@ export namespace CachedCanvasRenderingContext2D {
             if (value !== this.font) {
                 this._canvasRenderingContext2D.font = value;
                 this.values.font = value;
+                this.values.emWidth = undefined;
             }
         }
         get globalAlpha() {
@@ -647,6 +709,10 @@ export namespace CachedCanvasRenderingContext2D {
                 this.values.textBaseline = value;
             }
         }
+        get emWidth() { return this.values.emWidth; }
+        set emWidth(value: number | undefined) {
+            this.values.emWidth = value;
+        }
 
 
         save() {
@@ -689,6 +755,7 @@ export namespace CachedCanvasRenderingContext2D {
             strokeStyle: string | undefined /*| CanvasGradient | CanvasPattern*/;
             textAlign: CanvasTextAlign | undefined;
             textBaseline: CanvasTextBaseline | undefined;
+            emWidth: number | undefined;
         }
     }
 }

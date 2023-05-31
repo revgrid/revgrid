@@ -67,10 +67,14 @@ export class CachedCanvasRenderingContext2D {
     // (undocumented)
     fillText(text: string, x: number, y: number, maxWidth?: number): void;
     // (undocumented)
+    getCharWidth(char: string): number;
+    // (undocumented)
+    getEmWidth(): number;
+    // (undocumented)
     getImageData(sx: number, sy: number, sw: number, sh: number): ImageData;
     // (undocumented)
     getTextHeight(font: string): CachedCanvasRenderingContext2D.TextHeight;
-    getTextWidth(string: string): number;
+    getTextWidth(text: string): number;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     getTextWidthTruncated(this: CachedCanvasRenderingContext2D, text: string, width: number, truncateType: TextTruncateType | undefined, abort: boolean, truncateFromEnd: boolean): CachedCanvasRenderingContext2D.TruncatedTextWidth;
     // (undocumented)
@@ -103,6 +107,9 @@ export namespace CachedCanvasRenderingContext2D {
     export class Cache implements Cache.Values {
         // @internal
         constructor(_canvasRenderingContext2D: CanvasRenderingContext2D);
+        // (undocumented)
+        get emWidth(): number | undefined;
+        set emWidth(value: number | undefined);
         // (undocumented)
         get fillStyle(): string | CanvasGradient;
         set fillStyle(value: string | CanvasGradient);
@@ -165,6 +172,8 @@ export namespace CachedCanvasRenderingContext2D {
         // (undocumented)
         export interface Values {
             // (undocumented)
+            emWidth: number | undefined;
+            // (undocumented)
             fillStyle: string | CanvasGradient | undefined;
             // (undocumented)
             font: string | undefined;
@@ -202,6 +211,10 @@ export namespace CachedCanvasRenderingContext2D {
     export type Conditional = boolean | undefined;
     // (undocumented)
     export type ConditionalsStack = Conditional[];
+    // (undocumented)
+    export type FontStringWidthMap = Map<string, StringWidthMap>;
+    // (undocumented)
+    export type StringWidthMap = Map<string, number>;
     // (undocumented)
     export interface TextHeight {
         // (undocumented)
@@ -897,11 +910,15 @@ export namespace EventDetail {
     // (undocumented)
     export const enum DragTypeEnum {
         // (undocumented)
-        ExtendLastColumnSelectionArea = "revgridextendlastcolumnselectionarea",
+        ColumnMoving = "revgridcolumnmoving",
         // (undocumented)
-        ExtendLastRectangleSelectionArea = "revgridextendlastrectangleselectionarea",
+        ColumnResizing = "revgridcolumnresizing",
         // (undocumented)
-        ExtendLastRowSelectionArea = "revgridextendlastrowselectionarea"
+        LastColumnSelectionAreaExtending = "revgridlastcolumnselectionareaextending",
+        // (undocumented)
+        LastRectangleSelectionAreaExtending = "revgridlastrectangleselectionareaextending",
+        // (undocumented)
+        LastRowSelectionAreaExtending = "revgridlastrowselectionareaextending"
     }
     // (undocumented)
     export interface Grid {
@@ -1242,9 +1259,9 @@ export interface GridSettings {
     columnHeaderHalign: Halign;
     columnIndexes: number[];
     // (undocumented)
-    columnMoveActiveCursorName: string | undefined;
+    columnMoveDragActiveCursorName: string | undefined;
     // (undocumented)
-    columnMovePossibleCursorName: string | undefined;
+    columnMoveDragPossibleCursorName: string | undefined;
     // (undocumented)
     columnResizeDragActiveCursorName: string | undefined;
     // (undocumented)
@@ -1574,7 +1591,11 @@ export class InexclusiveRectangle implements Rectangle {
     // (undocumented)
     containsPoint(point: Point): boolean;
     // (undocumented)
+    containsX(x: number): boolean;
+    // (undocumented)
     containsXY(x: number, y: number): boolean;
+    // (undocumented)
+    containsY(y: number): boolean;
     // (undocumented)
     createCopy(): InexclusiveRectangle;
     // (undocumented)
@@ -2085,19 +2106,7 @@ export class Revgrid {
     // (undocumented)
     protected descendantProcessDblClick(_event: MouseEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
-    protected descendantProcessDrag(_event: DragEvent, _cell: HoverCell | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessDragEnd(_event: DragEvent, _cell: HoverCell | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessDragEnter(_event: DragEvent, _cell: HoverCell | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessDragLeave(_event: DragEvent, _cell: HoverCell | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessDragOver(_event: DragEvent, _cell: HoverCell | null | undefined): void;
-    // (undocumented)
     protected descendantProcessDragStart(_event: DragEvent): void;
-    // (undocumented)
-    protected descendantProcessDrop(_event: DragEvent, _cell: HoverCell | null | undefined): void;
     // (undocumented)
     protected descendantProcessHorizontalScrollerAction(_event: EventDetail.ScrollerAction): void;
     // (undocumented)
@@ -2301,7 +2310,7 @@ export class Revgrid {
     // (undocumented)
     resetGridBorder(edge?: string): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    scrollColumnsBy(offset: number): void;
+    scrollColumnsBy(offset: number): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     scrollPageUp(): void;
     // (undocumented)

@@ -28,14 +28,6 @@ export class EventBehavior {
     uiPointerDragEventer: EventBehavior.UiPointerDragEventer;
     uiPointerDragEndEventer: EventBehavior.UiPointerDragEventer;
     uiWheelMoveEventer: EventBehavior.UiWheelEventer;
-    uiDragEventer: EventBehavior.UiDragEventer;
-    uiDragStartEventer: EventBehavior.UiDragEventer;
-    uiDragEnterEventer: EventBehavior.UiDragEventer;
-    uiDragOverEventer: EventBehavior.UiDragEventer;
-    uiDragLeaveEventer: EventBehavior.UiDragEventer;
-    uiDragEndEventer: EventBehavior.UiDragEventer;
-    uiDropEventer: EventBehavior.UiDragEventer;
-    uiDocumentDragOverEventer: (this: void, event: DragEvent) => void;
     uiContextMenuEventer: EventBehavior.UiMouseEventer;
     uiTouchStartEventer: EventBehavior.UiTouchEventer;
     uiTouchMoveEventer: EventBehavior.UiTouchEventer;
@@ -85,14 +77,7 @@ export class EventBehavior {
         this._canvasManager.touchMoveEventer = (event) => this.processTouchMoveEvent(event);
         this._canvasManager.touchEndEventer = (event) => this.processTouchEndEvent(event);
         this._canvasManager.copyEventer = (event) => this.processCopyEvent(event);
-        this._canvasManager.dragEventer = (event) => this.processDragEvent(event);
         this._canvasManager.dragStartEventer = (event) => this.processDragStartEvent(event);
-        this._canvasManager.dragEnterEventer = (event) => this.processDragEnterEvent(event);
-        this._canvasManager.dragOverEventer = (event) => this.processDragOverEvent(event);
-        this._canvasManager.dragLeaveEventer = (event) => this.processDragLeaveEvent(event);
-        this._canvasManager.dragEndEventer = (event) => this.processDragEndEvent(event);
-        this._canvasManager.dropEventer = (event) => this.processDropEvent(event);
-        this._canvasManager.documentDragOverEventer = (event) => this.processDocumentDragOverEvent(event);
 
         this._columnsManager.allColumnListChangedEventer = (typeId, index, count, targetIndex) => this.processAllColumnListChangedEvent(
             typeId, index, count, targetIndex
@@ -339,42 +324,8 @@ export class EventBehavior {
         }
     }
 
-    private processDragEvent(event: DragEvent) {
-        const cell = this.uiDragEventer(event);
-        this._descendantEventer.drag(event, cell);
-    }
-
     private processDragStartEvent(event: DragEvent) {
         this._descendantEventer.dragStart(event); // give descendant a chance to claim drag start
-    }
-
-    private processDragEnterEvent(event: DragEvent) {
-        const cell = this.uiDragEnterEventer(event);
-        this._descendantEventer.dragEnter(event, cell);
-    }
-
-    private processDragOverEvent(event: DragEvent) {
-        const cell = this.uiDragOverEventer(event);
-        this._descendantEventer.dragOver(event, cell);
-    }
-
-    private processDragLeaveEvent(event: DragEvent) {
-        const cell = this.uiDragLeaveEventer(event);
-        this._descendantEventer.dragLeave(event, cell);
-    }
-
-    private processDragEndEvent(event: DragEvent) {
-        const cell = this.uiDragEndEventer(event);
-        this._descendantEventer.dragEnd(event, cell);
-    }
-
-    private processDropEvent(event: DragEvent) {
-        const cell = this.uiDropEventer(event);
-        this._descendantEventer.drop(event, cell);
-    }
-
-    private processDocumentDragOverEvent(event: DragEvent) {
-        this.uiDocumentDragOverEventer(event);
     }
 
     private processContextMenuEvent(event: MouseEvent) {
@@ -582,13 +533,7 @@ export namespace EventBehavior {
         readonly pointerMove: DescendantEventer.Pointer;
         readonly pointerLeaveOut: DescendantEventer.Pointer;
         readonly wheelMove: DescendantEventer.Wheel;
-        readonly drag: DescendantEventer.DragCell;
         readonly dragStart: DescendantEventer.Drag;
-        readonly dragEnter: DescendantEventer.DragCell;
-        readonly dragOver: DescendantEventer.DragCell;
-        readonly dragLeave: DescendantEventer.DragCell;
-        readonly dragEnd: DescendantEventer.DragCell;
-        readonly drop: DescendantEventer.DragCell;
         readonly contextMenu: DescendantEventer.Mouse;
         readonly pointerDragStart: DescendantEventer.PointerDragStart;
         readonly pointerDrag: DescendantEventer.PointerDrag;

@@ -1,4 +1,4 @@
-
+import { EventDetail } from '../../components/event/event-detail';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { Column, ColumnWidth } from '../../interfaces/schema/column';
 import { EventBehavior } from '../component/event-behavior';
@@ -180,7 +180,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                     } else {
                         this._inPlaceAdjacentColumn = undefined; // in case resizeColumnInPlace was previously on but is now off
                     }
-                    this.mouse.setOperationCursor(this.gridSettings.columnMoveActiveCursorName);
+                    this.setMouseDragging(true);
                     return {
                         started: true,
                         cell,
@@ -194,7 +194,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         if (this._dragColumn === undefined) {
             return super.handlePointerDragEnd(event, cell);
         } else {
-            this.mouse.setOperationCursor(undefined);
+            this.setMouseDragging(false);
             this._dragColumn = undefined;
 
             event.stopPropagation();
@@ -204,19 +204,22 @@ export class ColumnResizingUiBehavior extends UiBehavior {
 
     override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
         if (this._dragColumn === undefined) {
-            cell = super.handlePointerMove(event, cell);
+            const sharedState = this.sharedState;
+            if (sharedState.locationCursorName === undefined) {
+                cell = super.handlePointerMove(event, cell);
 
-            if (cell === undefined) {
-                cell = this.tryGetHoverCellFromMouseEvent(event);
-            }
+                if (cell === undefined) {
+                    cell = this.tryGetHoverCellFromMouseEvent(event);
+                }
 
-            const canvasOffsetX = event.offsetX;
-            if (
-                cell !== null &&
-                cell.isHeader &&
-                this.calculateNearGridLine(canvasOffsetX, cell) !== ColumnResizingUiBehavior.NearGridLine.neither
-            ) {
-                this.sharedState.locationCursorName = this.gridSettings.columnResizeDragPossibleCursorName;
+                const canvasOffsetX = event.offsetX;
+                if (
+                    cell !== null &&
+                    cell.isHeader &&
+                    this.calculateNearGridLine(canvasOffsetX, cell) !== ColumnResizingUiBehavior.NearGridLine.neither
+                ) {
+                    sharedState.locationCursorName = this.gridSettings.columnResizeDragPossibleCursorName;
+                }
             }
         }
         return super.handlePointerMove(event, cell);
@@ -258,34 +261,51 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         const cellBounds = cell.bounds;
         const cellLeft = cellBounds.x;
         const cellLeftOffset = canvasOffsetX - cellLeft;
+        const cellRightOffset = cellLeft + cellBounds.width - canvasOffsetX - 1;
+
+        const emWidth = this.canvasManager.gc.getEmWidth();
+        const tolerance = Math.ceil(emWidth / 3);
         if (!this.gridSettings.gridRightAligned) {
-            // try left
-            if (cellLeftOffset < ColumnResizingUiBehavior.NearGridLine.tolerance) {
-                if (cell.viewLayoutColumn.index !== 0) { // cannot select left of first visible column
+            if (cellLeftOffset < cellRightOffset && cell.viewLayoutColumn.index !== 0) {
+                if (cellLeftOffset < tolerance) {
                     return ColumnResizingUiBehavior.NearGridLine.left;
+                } else {
+                    // Since cellLeftOffset does not meet tolerance then cellRightOffset will not either.  So no need to check cellRightOffset
+                    return ColumnResizingUiBehavior.NearGridLine.neither;
                 }
-            }
-            // try right
-            const cellRightOffsetPlus1 = cellLeft + cellBounds.width - canvasOffsetX;
-            if (cellRightOffsetPlus1 <= ColumnResizingUiBehavior.NearGridLine.tolerance) {
-                return ColumnResizingUiBehavior.NearGridLine.right;
             } else {
-                return ColumnResizingUiBehavior.NearGridLine.neither;
+                if (cellRightOffset < tolerance) {
+                    return ColumnResizingUiBehavior.NearGridLine.right;
+                } else {
+                    return ColumnResizingUiBehavior.NearGridLine.neither;
+                }
             }
         } else {
-            // try left
-            if (cellLeftOffset < ColumnResizingUiBehavior.NearGridLine.tolerance) {
-                return ColumnResizingUiBehavior.NearGridLine.left;
-            }
-            // try right
-            const cellRightPlus1 = cellLeft + cellBounds.width;
-            const cellRightOffsetPlus1 = cellRightPlus1 - ColumnResizingUiBehavior.NearGridLine.tolerance;
-            if (cellRightOffsetPlus1 >= ColumnResizingUiBehavior.NearGridLine.tolerance) {
-                if (cell.viewLayoutColumn.index !== this.viewLayout.columns.length) { // cannot select right of last visible column
+            const lastViewColumnIndex = this.viewLayout.columns.length - 1;
+            if (cellRightOffset < cellLeftOffset && cell.viewLayoutColumn.index !== lastViewColumnIndex) {
+                if (cellRightOffset < tolerance) {
                     return ColumnResizingUiBehavior.NearGridLine.right;
+                } else {
+                    // Since cellRightOffset does not meet tolerance then cellLeftOffset will not either.  So no need to check cellLeftOffset
+                    return ColumnResizingUiBehavior.NearGridLine.neither;
+                }
+            } else {
+                if (cellLeftOffset < tolerance) {
+                    return ColumnResizingUiBehavior.NearGridLine.left;
+                } else {
+                    return ColumnResizingUiBehavior.NearGridLine.neither;
                 }
             }
-            return ColumnResizingUiBehavior.NearGridLine.neither;
+        }
+    }
+
+    private setMouseDragging(active: boolean) {
+        if (active) {
+            this.mouse.setActiveDragType(EventDetail.DragTypeEnum.ColumnResizing);
+            this.mouse.setOperationCursor(this.gridSettings.columnResizeDragActiveCursorName);
+        } else {
+            this.mouse.setActiveDragType(undefined);
+            this.mouse.setOperationCursor(undefined);
         }
     }
 }
@@ -298,6 +318,5 @@ export namespace ColumnResizingUiBehavior {
         export const left = true;
         export const right = false;
         export const neither = undefined;
-        export const tolerance = 3; // pixels
     }
 }

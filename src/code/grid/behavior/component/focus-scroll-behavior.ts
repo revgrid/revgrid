@@ -401,7 +401,8 @@ export class FocusScrollBehavior {
                 const firstVisibleScrollableColumnLeftOverflow = viewLayout.firstScrollableColumnLeftOverflow;
                 const firstVisibleScrollableActiveColumnIndex = viewLayout.firstScrollableActiveColumnIndex;
                 if (firstVisibleScrollableColumnLeftOverflow !== undefined && firstVisibleScrollableActiveColumnIndex !== undefined) {
-                    if (firstVisibleScrollableColumnLeftOverflow > 0) {
+                    const scrollableVisibleColumnCount = this._viewLayout.scrollableColumnCount;
+                    if (firstVisibleScrollableColumnLeftOverflow > 0 && scrollableVisibleColumnCount > 1) {
                         wantedMaximallyVisibleActiveColumnIndex = firstVisibleScrollableActiveColumnIndex;
                     } else {
                         if (firstVisibleScrollableActiveColumnIndex > this._columnsManager.getFixedColumnCount()) {
@@ -413,8 +414,10 @@ export class FocusScrollBehavior {
                 if (directionCanvasOffsetX > scrollableBounds.topLeft.x + scrollableBounds.extent.x) {
                     const lastVisibleScrollableColumnLeftOverflow = viewLayout.lastScrollableColumnRightOverflow;
                     const lastVisibleScrollableActiveColumnIndex = viewLayout.lastScrollableActiveColumnIndex;
+
                     if (lastVisibleScrollableColumnLeftOverflow !== undefined && lastVisibleScrollableActiveColumnIndex !== undefined) {
-                        if (lastVisibleScrollableColumnLeftOverflow > 0) {
+                        const scrollableVisibleColumnCount = this._viewLayout.scrollableColumnCount;
+                        if (lastVisibleScrollableColumnLeftOverflow > 0 && scrollableVisibleColumnCount > 1) {
                             wantedMaximallyVisibleActiveColumnIndex = lastVisibleScrollableActiveColumnIndex;
                         } else {
                             const lastScrollableActiveColumnIndex = this._columnsManager.activeColumnCount - 1;
@@ -443,31 +446,10 @@ export class FocusScrollBehavior {
             return false;
         } else {
             if (directionCanvasOffsetY < scrollableBounds.topLeft.y) {
-                const limitSubgridRowIndex = viewLayout.firstScrollableSubgridRowIndex;
-                if (limitSubgridRowIndex !== undefined && limitSubgridRowIndex > this._gridSettings.fixedRowCount) {
-                    this._viewLayout.scrollVerticalViewportBy(-1);
-                    return true;
-                } else {
-                    return false;
-                }
+                return this._viewLayout.scrollVerticalViewportBy(-1);
             } else {
                 if (directionCanvasOffsetY >= scrollableBounds.exclusiveBottom) {
-                    const viewLastScrollableSubgridRowIndex = viewLayout.lastScrollableSubgridRowIndex;
-                    if (viewLastScrollableSubgridRowIndex === undefined) {
-                        return false;
-                    } else {
-                        const subgridsManager = this._subgridsManager;
-                        let limitSubgridRowIndex = subgridsManager.mainSubgrid.getRowCount() - 1;
-                        if (!this._viewLayout.verticalScrollDimension.viewportSizeExact) {
-                            limitSubgridRowIndex++;
-                        }
-                        if (viewLastScrollableSubgridRowIndex < limitSubgridRowIndex) {
-                            this._viewLayout.scrollVerticalViewportBy(+1);
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
+                    return this._viewLayout.scrollVerticalViewportBy(+1);
                 } else {
                     return false;
                 }

@@ -39,8 +39,8 @@ export interface GridSettings {
     columnHeaderHalign: Halign;
     /** Active column indices */
     columnIndexes: number[];
-    columnMovePossibleCursorName: string | undefined;
-    columnMoveActiveCursorName: string | undefined;
+    columnMoveDragPossibleCursorName: string | undefined;
+    columnMoveDragActiveCursorName: string | undefined;
     columnResizeDragPossibleCursorName: string | undefined;
     columnResizeDragActiveCursorName: string | undefined;
     columnSortPossibleCursorName: string | undefined;

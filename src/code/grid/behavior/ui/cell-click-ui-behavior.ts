@@ -11,14 +11,17 @@ export class CellClickUiBehavior extends UiBehavior {
     readonly typeName = CellClickUiBehavior.typeName;
 
     override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
-        }
-        if (cell !== null) {
-            const link = cell.columnSettings.link;
-            const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
+        const sharedState = this.sharedState;
+        if (sharedState.locationCursorName === undefined) {
+            if (cell === undefined) {
+                cell = this.tryGetHoverCellFromMouseEvent(event);
+            }
+            if (cell !== null) {
+                const link = cell.columnSettings.link;
+                const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
-            this.sharedState.locationCursorName = isActionableLink ? 'pointer' : undefined;
+                sharedState.locationCursorName = isActionableLink ? 'pointer' : undefined;
+            }
         }
 
         return super.handlePointerMove(event, cell);

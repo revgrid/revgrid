@@ -145,8 +145,8 @@ export const defaultGridSettings: Required<GridSettings> = {
     columnHeaderHalign: 'center',
     /** There is no standard format called "header"; unless defined, defaults to "string" (pass-thru formatter). */
     columnHeaderFormat: 'header',
-    columnMovePossibleCursorName: undefined,
-    columnMoveActiveCursorName: 'ew-resize',
+    columnMoveDragPossibleCursorName: undefined,
+    columnMoveDragActiveCursorName: 'ew-resize',
     columnResizeDragPossibleCursorName: 'col-resize',
     columnResizeDragActiveCursorName: 'col-resize',
     columnSortPossibleCursorName: undefined,

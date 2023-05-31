@@ -16,6 +16,8 @@ export class SelectionUiBehavior extends UiBehavior {
 
     readonly typeName = SelectionUiBehavior.typeName;
 
+    /** @internal */
+    private _activeDragType: EventDetail.DragTypeEnum | undefined;
     /**
      * a millisecond value representing the previous time an autoscroll started
      */
@@ -25,7 +27,10 @@ export class SelectionUiBehavior extends UiBehavior {
      * a millisecond value representing the time the current autoscroll started
      */
     private _sbAutoStart = 0;
-    private _stepScrollDragTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    private _stepScrollDragTickTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    private _firstStepScrollDragTime: number | undefined;
+    private _lastColumnStepScrollDragTime: number | undefined;
+    private _lastRowStepScrollDragTime: number | undefined;
 
     override handlePointerDown(event: PointerEvent, cell: HoverCell | null | undefined) {
         if (isSecondaryMouseButton(event)) {
@@ -128,8 +133,7 @@ export class SelectionUiBehavior extends UiBehavior {
                     if (dragType === undefined) {
                         return super.handlePointerDragStart(event, cell);
                     } else {
-                        this.mouse.setActiveDragType(dragType);
-                        this.mouse.setOperationCursor(this.gridSettings.selectionExtendDragActiveCursorName);
+                        this.setActiveDragType(dragType);
                         return {
                             started: true,
                             cell,
@@ -141,8 +145,7 @@ export class SelectionUiBehavior extends UiBehavior {
     }
 
     override handlePointerDrag(event: PointerEvent, cell: HoverCell | null | undefined) {
-        const activeDragType = this.mouse.activeDragType;
-        if (activeDragType === undefined || !this.dragTypeIsExtendLastSelectionArea(activeDragType)) {
+        if (this._activeDragType === undefined) {
             return super.handlePointerDrag(event, cell);
         } else {
             this.cancelScheduledStepScrollDrag();
@@ -162,13 +165,11 @@ export class SelectionUiBehavior extends UiBehavior {
     }
 
     override handlePointerDragEnd(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
-        const activeDragType = this.mouse.activeDragType;
-        if (activeDragType === undefined || !this.dragTypeIsExtendLastSelectionArea(activeDragType)) {
+        if (this._activeDragType === undefined) {
             return super.handlePointerDragEnd(event, cell);
         } else {
-            this.cancelScheduledStepScrollDrag();
-            this.mouse.setActiveDragType(undefined);
-            this.mouse.setOperationCursor(undefined);
+            this.cancelStepScroll();
+            this.setActiveDragType(undefined);
             return cell;
         }
     }
@@ -334,42 +335,107 @@ export class SelectionUiBehavior extends UiBehavior {
             throw new AssertError('SUBULSA54455');
         } else {
             const subgrid = cell.subgrid as Subgrid;
-            if (lastArea.areaType === SelectionAreaType.Column || subgrid === selection.subgrid) {
-                const origin = lastArea.inclusiveFirst;
-                const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.x, cell.viewLayoutColumn.activeColumnIndex);
-                const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.y, cell.viewLayoutRow.subgridRowIndex);
-                selection.replaceLastArea(
-                    xExclusiveStartLength.start,
-                    yExclusiveStartLength.start,
-                    xExclusiveStartLength.length,
-                    yExclusiveStartLength.length,
-                    subgrid,
-                    lastArea.areaType,
-                );
+            // let updatePossible: boolean;
+
+            // switch (lastArea.areaType) {
+            //     case SelectionAreaType.Rectangle: {
+            //         updatePossible =
+            //             this.isCellAndLastAreaColumnFixedSame(cell, lastArea) &&
+            //             this.isCellAndLastAreaRowFixedSame(cell, lastArea) &&
+            //             subgrid === selection.subgrid
+            //         break;
+            //     }
+            //     case SelectionAreaType.Column: {
+            //         updatePossible = this.isCellAndLastAreaColumnFixedSame(cell, lastArea);
+            //         break;
+            //     }
+            //     case SelectionAreaType.Row: {
+            //         updatePossible =
+            //             this.isCellAndLastAreaColumnFixedSame(cell, lastArea) &&
+            //             this.isCellAndLastAreaRowFixedSame(cell, lastArea) &&
+            //             subgrid === selection.subgrid
+            //         break;
+            //     }
+            // }
+            const lastAreaFirstX = lastArea.inclusiveFirst.x;
+            const lastAreaFirstXColumnFixed = lastAreaFirstX < this.gridSettings.fixedColumnCount;
+            if (cell.isColumnFixed === lastAreaFirstXColumnFixed) {
+                const lastAreaFirstY = lastArea.inclusiveFirst.y;
+                const lastAreaFirstYRowFixed = lastAreaFirstY < this.gridSettings.fixedRowCount;
+                if (cell.isRowFixed === lastAreaFirstYRowFixed) {
+                    if (lastArea.areaType === SelectionAreaType.Column || subgrid === selection.subgrid) {
+                        const origin = lastArea.inclusiveFirst;
+                        const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.x, cell.viewLayoutColumn.activeColumnIndex);
+                        const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.y, cell.viewLayoutRow.subgridRowIndex);
+                        selection.replaceLastArea(
+                            xExclusiveStartLength.start,
+                            yExclusiveStartLength.start,
+                            xExclusiveStartLength.length,
+                            yExclusiveStartLength.length,
+                            subgrid,
+                            lastArea.areaType,
+                        );
+                    }
+                }
             }
         }
     }
+
+    // private isCellAndLastAreaColumnFixedSame(cell: ViewCell, lastArea: LastSelectionArea) {
+    //     const lastAreaFirstX = lastArea.inclusiveFirst.x;
+    //     const lastAreaFirstXColumnFixed = lastAreaFirstX < this.gridSettings.fixedColumnCount;
+    //     return cell.isColumnFixed === lastAreaFirstXColumnFixed;
+    // }
+
+    // private isCellAndLastAreaRowFixedSame(cell: ViewCell, lastArea: LastSelectionArea) {
+    //     const lastAreaFirstY = lastArea.inclusiveFirst.y;
+    //     const lastAreaFirstYRowFixed = lastAreaFirstY < this.gridSettings.fixedRowCount;
+    //     return cell.isRowFixed === lastAreaFirstYRowFixed;
+    // }
 
     /**
      * @desc this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
      */
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
         const scrollableBounds = this.viewLayout.scrollableCanvasBounds;
-        if (scrollableBounds === undefined || scrollableBounds.containsXY(canvasOffsetX, canvasOffsetY) || !this.gridSettings.scrollingEnabled) {
-            this.cancelScheduledStepScrollDrag();
+        if (scrollableBounds === undefined || !this.gridSettings.scrollingEnabled) {
+            this.cancelStepScroll();
             return false;
         } else {
-            const stepScrolled = this.focusScrollBehavior.stepScroll(canvasOffsetX, canvasOffsetY);
-            if (!stepScrolled) {
+            const xInScrollableBounds = scrollableBounds.containsX(canvasOffsetX);
+            const yInScrollableBounds = scrollableBounds.containsY(canvasOffsetY);
+            if (xInScrollableBounds && yInScrollableBounds) {
+                this.cancelStepScroll();
                 return false;
             } else {
-                this.scheduleStepScrollDrag(canvasOffsetX, canvasOffsetY);
-
-                const cell = this.viewLayout.findScrollableCellClosestToCanvasOffset(canvasOffsetX, canvasOffsetY);
-                if (cell !== undefined) {
-                    this.tryUpdateLastSelectionArea(cell); // update the selection
+                if (this._firstStepScrollDragTime === undefined) {
+                    this._firstStepScrollDragTime = performance.now();
                 }
-                return true;
+                const firstStepScrollDragTime = this._firstStepScrollDragTime;
+
+                let stepScrolled = false;
+                if (!xInScrollableBounds) {
+                    stepScrolled = this.checkStepScrollColumn(canvasOffsetX, firstStepScrollDragTime);
+                }
+
+                if (!yInScrollableBounds) {
+                    if (this.checkStepScrollRow(canvasOffsetY, firstStepScrollDragTime)) {
+                        stepScrolled = true;
+                    }
+                }
+
+                if (!stepScrolled) {
+                    this.cancelStepScroll();
+                    return false;
+                } else {
+                    this.scheduleStepScrollDragTick(canvasOffsetX, canvasOffsetY);
+
+                    const cell = this.viewLayout.findScrollableCellClosestToCanvasOffset(canvasOffsetX, canvasOffsetY);
+                    if (cell !== undefined) {
+                        this.tryUpdateLastSelectionArea(cell); // update the selection
+                    }
+                    return true;
+                }
             }
         }
     }
@@ -411,15 +477,110 @@ export class SelectionUiBehavior extends UiBehavior {
         return Date.now() - this._sbAutoStart;
     }
 
-    private scheduleStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
-        this._stepScrollDragTimeoutHandle = setTimeout(() => this.checkStepScrollDrag(canvasOffsetX, canvasOffsetY), 25);
+    private scheduleStepScrollDragTick(canvasOffsetX: number, canvasOffsetY: number) {
+        this._stepScrollDragTickTimeoutHandle = setTimeout(
+            () => {
+                this._stepScrollDragTickTimeoutHandle = undefined;
+                this.checkStepScrollDrag(canvasOffsetX, canvasOffsetY)
+            },
+            SelectionUiBehavior.scheduleStepScrollDragTickInterval
+        );
     }
 
     private cancelScheduledStepScrollDrag() {
-        if (this._stepScrollDragTimeoutHandle !== undefined) {
-            clearTimeout(this._stepScrollDragTimeoutHandle);
-            this._stepScrollDragTimeoutHandle = undefined;
+        if (this._stepScrollDragTickTimeoutHandle !== undefined) {
+            clearTimeout(this._stepScrollDragTickTimeoutHandle);
+            this._stepScrollDragTickTimeoutHandle = undefined;
         }
+    }
+
+    private cancelStepScroll() {
+        this.cancelScheduledStepScrollDrag();
+        this._firstStepScrollDragTime = undefined;
+        this._lastColumnStepScrollDragTime = undefined;
+        this._lastRowStepScrollDragTime = undefined;
+    }
+
+    private checkStepScrollColumn(directionCanvasOffsetX: number, firstStepScrollDragTime: number) {
+        const nowTime = performance.now();
+        let actualStep: boolean;
+        if (this._lastColumnStepScrollDragTime === undefined) {
+            actualStep = true;
+        } else {
+            const steppingTime = nowTime - firstStepScrollDragTime;
+            let stepInterval: number;
+            if (steppingTime >= 4000 ) {
+                stepInterval = 150;
+            } else {
+                if (steppingTime >= 3000 ) {
+                    stepInterval = 250;
+                } else {
+                    if (steppingTime >= 2200) {
+                        stepInterval = 400;
+                    } else {
+                        if (steppingTime >= 1200) {
+                            stepInterval = 500;
+                        } else {
+                            stepInterval = 600;
+                        }
+                    }
+                }
+            }
+            const nextStepTime = this._lastColumnStepScrollDragTime + stepInterval;
+            actualStep = nowTime >= nextStepTime;
+        }
+
+        let stepped: boolean;
+        if (actualStep) {
+            this._lastColumnStepScrollDragTime = nowTime;
+            stepped = this.focusScrollBehavior.stepScrollColumn(directionCanvasOffsetX);
+        } else {
+            stepped = true; // dummy step
+        }
+        return stepped;
+    }
+
+    private checkStepScrollRow(directionCanvasOffsetY: number, firstStepScrollDragTime: number) {
+        const nowTime = performance.now();
+        let actualStep: boolean;
+        if (this._lastRowStepScrollDragTime === undefined) {
+            actualStep = true;
+        } else {
+            const steppingTime = nowTime - firstStepScrollDragTime;
+            let stepInterval: number;
+            if (steppingTime >= 3500 ) {
+                stepInterval = 35;
+            } else {
+                if (steppingTime >= 2800 ) {
+                    stepInterval = 50;
+                } else {
+                    if (steppingTime >= 2000 ) {
+                        stepInterval = 90;
+                    } else {
+                        if (steppingTime >= 1100) {
+                            stepInterval = 130;
+                        } else {
+                            if (steppingTime >= 500) {
+                                stepInterval = 200;
+                            } else {
+                                stepInterval = 250;
+                            }
+                        }
+                    }
+                }
+            }
+            const nextStepTime = this._lastRowStepScrollDragTime + stepInterval;
+            actualStep = nowTime >= nextStepTime;
+        }
+
+        let stepped: boolean;
+        if (actualStep) {
+            this._lastRowStepScrollDragTime = nowTime;
+            stepped = this.focusScrollBehavior.stepScrollRow(directionCanvasOffsetY);
+        } else {
+            stepped = true; // dummy step
+        }
+        return stepped;
     }
 
     private selectOnlyCell(originX: number, originY: number, subgrid: Subgrid, areaType: SelectionAreaType) {
@@ -450,36 +611,48 @@ export class SelectionUiBehavior extends UiBehavior {
             return undefined;
         } else {
             switch (lastArea.areaType) {
-                case SelectionAreaType.Rectangle: return EventDetail.DragTypeEnum.ExtendLastRectangleSelectionArea;
-                case SelectionAreaType.Column: return EventDetail.DragTypeEnum.ExtendLastColumnSelectionArea;
-                case SelectionAreaType.Row: return EventDetail.DragTypeEnum.ExtendLastRowSelectionArea;
+                case SelectionAreaType.Rectangle: return EventDetail.DragTypeEnum.LastRectangleSelectionAreaExtending;
+                case SelectionAreaType.Column: return EventDetail.DragTypeEnum.LastColumnSelectionAreaExtending;
+                case SelectionAreaType.Row: return EventDetail.DragTypeEnum.LastRowSelectionAreaExtending;
                 default:
                     throw new UnreachableCaseError('SUBGDTFSLA59598', lastArea.areaType);
             }
         }
     }
 
-    private dragTypesArrayContainsExtendLastSelectionAreaDragType(types: readonly EventDetail.DragTypeEnum[]) {
-        for (const type of types) {
-            if (this.dragTypeIsExtendLastSelectionArea(type)) {
-                return true;
-            }
+    private setActiveDragType(dragType: EventDetail.DragTypeEnum | undefined) {
+        this._activeDragType = dragType;
+        this.mouse.setActiveDragType(dragType);
+        if (dragType === undefined) {
+            this.mouse.setOperationCursor(undefined);
+        } else {
+            this.mouse.setOperationCursor(this.gridSettings.selectionExtendDragActiveCursorName);
         }
-        return false;
     }
 
-    private dragTypeIsExtendLastSelectionArea(type: EventDetail.DragTypeEnum) {
-        return (
-            type === EventDetail.DragTypeEnum.ExtendLastRectangleSelectionArea ||
-            type === EventDetail.DragTypeEnum.ExtendLastColumnSelectionArea ||
-            type === EventDetail.DragTypeEnum.ExtendLastRowSelectionArea
-        );
-    }
+    // private dragTypesArrayContainsExtendLastSelectionAreaDragType(types: readonly EventDetail.DragTypeEnum[]) {
+    //     for (const type of types) {
+    //         if (this.dragTypeIsExtendLastSelectionArea(type)) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
+
+    // private dragTypeIsExtendLastSelectionArea(type: EventDetail.DragTypeEnum) {
+    //     return (
+    //         type === EventDetail.DragTypeEnum.ExtendLastRectangleSelectionArea ||
+    //         type === EventDetail.DragTypeEnum.ExtendLastColumnSelectionArea ||
+    //         type === EventDetail.DragTypeEnum.ExtendLastRowSelectionArea
+    //     );
+    // }
 }
 
 /** @internal */
 export namespace SelectionUiBehavior {
     export const typeName = 'selection';
+
+    export const scheduleStepScrollDragTickInterval = 20;
 
     export interface ExtendSelectOrigin {
         readonly areaType: SelectionAreaType,

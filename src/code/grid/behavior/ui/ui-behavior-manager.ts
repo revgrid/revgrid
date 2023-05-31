@@ -92,14 +92,6 @@ export class UiBehaviorManager {
         this._eventBehavior.uiTouchMoveEventer = (event) => this.handleTouchMoveEvent(event);
         this._eventBehavior.uiTouchEndEventer = (event) => this.handleTouchEndEvent(event);
         this._eventBehavior.uiCopyEventer = (event) => this.handleCopyEvent(event);
-        this._eventBehavior.uiDragEventer = (event) => this.handleDragEvent(event);
-        this._eventBehavior.uiDragStartEventer = (event) => this.handleDragStartEvent(event);
-        this._eventBehavior.uiDragEnterEventer = (event) => this.handleDragEnterEvent(event);
-        this._eventBehavior.uiDragOverEventer = (event) => this.handleDragOverEvent(event);
-        this._eventBehavior.uiDragLeaveEventer = (event) => this.handleDragLeaveEvent(event);
-        this._eventBehavior.uiDragEndEventer = (event) => this.handleDragEndEvent(event);
-        this._eventBehavior.uiDropEventer = (event) => this.handleDropEvent(event);
-        this._eventBehavior.uiDocumentDragOverEventer = (event) => this.handleDocumentDragOverEvent(event);
         this._eventBehavior.uiHorizontalScrollerActionEventer = (event) => this.handleHorizontalScrollerActionEvent(event);
         this._eventBehavior.uiVerticalScrollerActionEventer = (event) => this.handleVerticalScrollerActionEvent(event);
     }
@@ -335,75 +327,6 @@ export class UiBehaviorManager {
             return cell;
         } else {
             return undefined;
-        }
-    }
-
-    private handleDragEvent(event: DragEvent): HoverCell | null | undefined {
-        if (this._enabled) {
-            const cell = this._firstUiBehavior.handleDrag(event, undefined);
-            return cell;
-        } else {
-            return undefined;
-        }
-    }
-
-    private handleDragStartEvent(event: DragEvent): HoverCell | null | undefined {
-        if (this._enabled) {
-            const cell = this._firstUiBehavior.handleDragStart(event, undefined);
-            return cell;
-        } else {
-            return undefined;
-        }
-    }
-
-    private handleDragEnterEvent(event: DragEvent): HoverCell | null | undefined {
-        if (this._enabled) {
-            const cell = this._firstUiBehavior.handleDragEnter(event, undefined);
-            return cell;
-        } else {
-            return undefined;
-        }
-    }
-
-    private handleDragOverEvent(event: DragEvent): HoverCell | null | undefined {
-        if (this._enabled) {
-            const cell = this._firstUiBehavior.handleDragOver(event, undefined);
-            return cell;
-        } else {
-            return undefined;
-        }
-    }
-
-    private handleDragLeaveEvent(event: DragEvent): HoverCell | null | undefined {
-        if (this._enabled) {
-            const cell = this._firstUiBehavior.handleDragLeave(event, undefined);
-            return cell;
-        } else {
-            return undefined;
-        }
-    }
-
-    private handleDragEndEvent(event: DragEvent): HoverCell | null | undefined {
-        if (this._enabled) {
-            const cell = this._firstUiBehavior.handleDragEnd(event, undefined);
-            return cell;
-        } else {
-            return undefined;
-        }
-    }
-
-    private handleDropEvent(event: DragEvent): HoverCell | null | undefined {
-        if (this._enabled) {
-            const cell = this._firstUiBehavior.handleDrop(event, undefined);
-            return cell;
-        } else {
-            return undefined;
-        }
-    }
-
-    private handleDocumentDragOverEvent(event: DragEvent) {
-        if (this._enabled) {
-            this._firstUiBehavior.handleDocumentDragOver(event);
         }
     }
 

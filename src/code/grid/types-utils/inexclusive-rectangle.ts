@@ -153,27 +153,25 @@ export class InexclusiveRectangle implements Rectangle {
     }
 
     containsXY(x: number, y: number) {
-        let minX = this._topLeft.x;
-        let maxX = minX + this._extent.x;
-        let minY = this._topLeft.y;
-        let maxY = minY + this._extent.y;
-
-        if (this._extent.x < 0) {
-            minX = maxX;
-            maxX = this._topLeft.x;
-        }
-
-        if (this._extent.y < 0) {
-            minY = maxY;
-            maxY = this._topLeft.y;
-        }
+        const topLeftX = this._topLeft.x;
+        const topLeftY = this._topLeft.y;
 
         return (
-            x >= minX &&
-            y >= minY &&
-            x < maxX &&
-            y < maxY
+            x >= topLeftX &&
+            y >= topLeftY &&
+            x < topLeftX + this._extent.x &&
+            y < topLeftY + this._extent.y
         );
+    }
+
+    containsX(x: number) {
+        const topLeftX = this._topLeft.x;
+        return (x >= topLeftX && x < topLeftX + this._extent.x);
+    }
+
+    containsY(y: number) {
+        const topLeftY = this._topLeft.y;
+        return (y >= topLeftY && y < topLeftY + this._extent.y);
     }
 
     /**

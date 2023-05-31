@@ -37,11 +37,14 @@ export class ColumnSortingUiBehavior extends UiBehavior {
     }
 
     override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
-        }
-        if (cell !== null && this.canSortWithCell(cell)) {
-            this.sharedState.locationCursorName = this.gridSettings.columnSortPossibleCursorName;
+        const sharedState = this.sharedState;
+        if (sharedState.locationCursorName === undefined) {
+            if (cell === undefined) {
+                cell = this.tryGetHoverCellFromMouseEvent(event);
+            }
+            if (cell !== null && this.canSortWithCell(cell)) {
+                sharedState.locationCursorName = this.gridSettings.columnSortPossibleCursorName;
+            }
         }
 
         return super.handlePointerMove(event, cell);

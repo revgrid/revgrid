@@ -73,10 +73,10 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set columnHeaderFormat(value: string) { this._raw.columnHeaderFormat = value; }
     get columnHeaderHalign() { return this._raw.columnHeaderHalign; }
     set columnHeaderHalign(value: Halign) { this._raw.columnHeaderHalign = value; }
-    get columnMovePossibleCursorName() { return this._raw.columnMovePossibleCursorName; }
-    set columnMovePossibleCursorName(value: string | undefined) {this._raw.columnMovePossibleCursorName = value; }
-    get columnMoveActiveCursorName() { return this._raw.columnMoveActiveCursorName; }
-    set columnMoveActiveCursorName(value: string | undefined) { this._raw.columnMoveActiveCursorName = value; }
+    get columnMoveDragPossibleCursorName() { return this._raw.columnMoveDragPossibleCursorName; }
+    set columnMoveDragPossibleCursorName(value: string | undefined) {this._raw.columnMoveDragPossibleCursorName = value; }
+    get columnMoveDragActiveCursorName() { return this._raw.columnMoveDragActiveCursorName; }
+    set columnMoveDragActiveCursorName(value: string | undefined) { this._raw.columnMoveDragActiveCursorName = value; }
     get columnResizeDragPossibleCursorName() { return this._raw.columnResizeDragPossibleCursorName; }
     set columnResizeDragPossibleCursorName(value: string | undefined) {this._raw.columnResizeDragPossibleCursorName = value; }
     get columnResizeDragActiveCursorName() { return this._raw.columnResizeDragActiveCursorName; }

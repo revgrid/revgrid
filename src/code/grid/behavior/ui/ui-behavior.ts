@@ -193,68 +193,6 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDrag(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
-        if (this.next) {
-            return this.next.handleDrag(event, cell);
-        } else {
-            return cell;
-        }
-    }
-
-    handleDragStart(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
-        if (this.next) {
-            return this.next.handleDragStart(event, cell);
-        } else {
-            return cell;
-        }
-    }
-
-    handleDragEnter(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
-        if (this.next) {
-            return this.next.handleDragEnter(event, cell);
-        } else {
-            return cell;
-        }
-    }
-
-    handleDragOver(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
-        if (this.next) {
-            return this.next.handleDragOver(event, cell);
-        } else {
-            return cell;
-        }
-    }
-
-    handleDragLeave(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
-        if (this.next) {
-            return this.next.handleDragLeave(event, cell);
-        } else {
-            return cell;
-        }
-    }
-
-    handleDragEnd(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
-        if (this.next) {
-            return this.next.handleDragEnd(event, cell);
-        } else {
-            return cell;
-        }
-    }
-
-    handleDrop(event: DragEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
-        if (this.next) {
-            return this.next.handleDrop(event, cell);
-        } else {
-            return cell;
-        }
-    }
-
-    handleDocumentDragOver(event: DragEvent) {
-        if (this.next) {
-            this.next.handleDocumentDragOver(event);
-        }
-    }
-
     handlePointerDragStart(event: DragEvent, cell: HoverCell | null | undefined): EventBehavior.UiPointerDragStartResult {
         if (this.next) {
             return this.next.handlePointerDragStart(event, cell);

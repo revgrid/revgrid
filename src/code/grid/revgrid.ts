@@ -1445,31 +1445,7 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessDrag(_event: DragEvent, _cell: HoverCell | null | undefined) {
-        // for descendants
-    }
-
     protected descendantProcessDragStart(_event: DragEvent) {
-        // for descendants
-    }
-
-    protected descendantProcessDragEnter(_event: DragEvent, _cell: HoverCell | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessDragOver(_event: DragEvent, _cell: HoverCell | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessDragLeave(_event: DragEvent, _cell: HoverCell | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessDragEnd(_event: DragEvent, _cell: HoverCell | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessDrop(_event: DragEvent, _cell: HoverCell | null | undefined) {
         // for descendants
     }
 
@@ -1964,7 +1940,7 @@ export class Revgrid {
      * @returns true if scrolled
      */
     scrollColumnsBy(offset: number) {
-        this.viewLayout.scrollColumnsBy(offset);
+        return this.viewLayout.scrollColumnsBy(offset);
     }
 
     scrollViewHorizontallyBy(delta: number) {
@@ -2050,13 +2026,7 @@ export class Revgrid {
             pointerMove: (event, cell) => this.descendantProcessPointerMove(event, cell),
             pointerLeaveOut: (event, cell) => this.descendantProcessPointerLeaveOut(event, cell),
             wheelMove: (event, cell) => this.descendantProcessWheelMove(event, cell),
-            drag: (event, cell) => this.descendantProcessDrag(event, cell),
             dragStart: (event) => this.descendantProcessDragStart(event),
-            dragEnter: (event, cell) => this.descendantProcessDragEnter(event, cell),
-            dragOver: (event, cell) => this.descendantProcessDragOver(event, cell),
-            dragLeave: (event, cell) => this.descendantProcessDragLeave(event, cell),
-            dragEnd: (event, cell) => this.descendantProcessDragEnd(event, cell),
-            drop: (event, cell) => this.descendantProcessDrop(event, cell),
             contextMenu: (event, cell) => this.descendantProcessContextMenu(event, cell),
             pointerDragStart: (event, cell) => this.descendantProcessPointerDragStart(event, cell),
             pointerDrag: (event) => this.descendantProcessPointerDrag(event),

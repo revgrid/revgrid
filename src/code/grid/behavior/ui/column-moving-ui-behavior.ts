@@ -1,3 +1,4 @@
+import { EventDetail } from '../../components/event/event-detail';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
 import { AssertError } from '../../types-utils/revgrid-error';
@@ -65,7 +66,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
             ) {
                 return super.handlePointerDragStart(event, cell);
             } else {
-                this.mouse.setOperationCursor(this.gridSettings.columnResizeDragActiveCursorName);
+                this.setMouseDragging(true)
                 this.reindexBehavior.stash();
 
                 this._dragOverlay = document.createElement('canvas');
@@ -106,23 +107,26 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                 this.reindexBehavior.unstash();
                 this.containerHtmlElement.removeChild(dragOverlay);
                 // requestAnimationFrame(() => this.render(undefined));
-                this.mouse.setOperationCursor(undefined);
+                this.setMouseDragging(false);
             }
             return cell;
         }
     }
 
     override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
-        if (this.gridSettings.columnsReorderable) {
-            if (cell === undefined) {
-                cell = this.tryGetHoverCellFromMouseEvent(event);
-            }
-            if (cell !== null &&
-                !cell.isColumnFixed &&
-                cell.isHeaderOrRowFixed &&
-                !cell.isMouseOverLine()
-            ) {
-                this.sharedState.locationCursorName = this.gridSettings.columnMovePossibleCursorName;
+        const sharedState = this.sharedState;
+        if (sharedState.locationCursorName === undefined) {
+            if (this.gridSettings.columnsReorderable) {
+                if (cell === undefined) {
+                    cell = this.tryGetHoverCellFromMouseEvent(event);
+                }
+                if (cell !== null &&
+                    !cell.isColumnFixed &&
+                    cell.isHeaderOrRowFixed &&
+                    !cell.isMouseOverLine()
+                ) {
+                    sharedState.locationCursorName = this.gridSettings.columnMoveDragPossibleCursorName;
+                }
             }
         }
 
@@ -292,6 +296,16 @@ export class ColumnMovingUiBehavior extends UiBehavior {
                     };
                 }
             }
+        }
+    }
+
+    private setMouseDragging(active: boolean) {
+        if (active) {
+            this.mouse.setActiveDragType(EventDetail.DragTypeEnum.ColumnMoving);
+            this.mouse.setOperationCursor(this.gridSettings.columnMoveDragActiveCursorName);
+        } else {
+            this.mouse.setActiveDragType(undefined);
+            this.mouse.setOperationCursor(undefined);
         }
     }
 }

@@ -199,6 +199,10 @@ export class ViewLayout {
         return this._unanchoredColumnOverflow;
     }
 
+    get scrollableColumnCount() {
+        this.ensureHorizontalValidOutsideAnimationFrame();
+        return this._columns.length - this._gridSettings.fixedColumnCount;
+    }
     get firstScrollableColumnIndex() {
         this.ensureHorizontalValidOutsideAnimationFrame();
         return this._firstScrollableColumnIndex;
@@ -279,6 +283,10 @@ export class ViewLayout {
         return this._columnsViewWidth;
     }
 
+    get scrollableRowCount() {
+        this.ensureVerticalValidOutsideAnimationFrame();
+        return this._rows.length - this._gridSettings.fixedRowCount;
+    }
     get rowScrollAnchorIndex() {
         this.ensureVerticalValidOutsideAnimationFrame();
         return this._rowScrollAnchorIndex;
@@ -694,8 +702,11 @@ export class ViewLayout {
     }
 
     scrollColumnsRowsBy(columnCount: number, rowCount: number) {
-        this.scrollColumnsBy(columnCount);
-        this.scrollRowsBy(rowCount);
+        let scrolled = this.scrollColumnsBy(columnCount);
+        if (this.scrollRowsBy(rowCount)) {
+            scrolled = true;
+        }
+        return scrolled;
     }
 
     /**
@@ -775,6 +786,7 @@ export class ViewLayout {
         const gridRightAligned = this._gridSettings.gridRightAligned
         const firstViewportScrollableActiveColumnIndex = this.firstScrollableActiveColumnIndex;
         const fixedColumnCount = this._gridSettings.fixedColumnCount;
+        const scrollableColumnCount = this.scrollableColumnCount;
         let anchorUpdated = false;
 
         // scroll only if target not in fixed columns unless grid right aligned
@@ -782,7 +794,12 @@ export class ViewLayout {
             const leftDelta =  activeColumnIndex - firstViewportScrollableActiveColumnIndex;
             const columnIsToLeft =
                 leftDelta < 0 ||
-                (maximally && leftDelta === 0 && !this.firstScrollableVisibleColumnMaximallyVisible);
+                (
+                    maximally &&
+                    leftDelta === 0 &&
+                    !this.firstScrollableVisibleColumnMaximallyVisible &&
+                    (scrollableColumnCount > 1 || !gridRightAligned)
+                );
 
             if (columnIsToLeft) {
                 // target is to left of scrollable columns
@@ -802,7 +819,12 @@ export class ViewLayout {
                     const rightDelta = activeColumnIndex - lastViewportScrollableActiveColumnIndex;
                     const columnIsToRight =
                         rightDelta > 0 ||
-                        (maximally && rightDelta === 0 && !this.lastScrollableVisibleColumnMaximallyVisible);
+                        (
+                            maximally &&
+                            rightDelta === 0 &&
+                            !this.lastScrollableVisibleColumnMaximallyVisible &&
+                            (scrollableColumnCount > 1 || gridRightAligned)
+                        );
 
                     if (columnIsToRight) {
                         // target is to right of scrollable columns
@@ -840,11 +862,11 @@ export class ViewLayout {
 
     scrollRowsBy(rowScrollCount: number) {
         const newIndex = this._rowScrollAnchorIndex + rowScrollCount;
-        this.setRowScrollAnchor(newIndex, 0);
+        return this.setRowScrollAnchor(newIndex, 0);
     }
 
     scrollVerticalViewportBy(delta: number) {
-        this.scrollRowsBy(delta);
+        return this.scrollRowsBy(delta);
     }
 
     setVerticalViewportStart(viewportStart: number){
@@ -992,7 +1014,7 @@ export class ViewLayout {
             return undefined;
         } else {
             const rowIndex = this.findTopGridLineInclusiveRowIndexOfCanvasOffset(canvasYOffset);
-            if (rowIndex === undefined) {
+            if (rowIndex < 0) {
                 return undefined;
             } else {
                 const viewCell = this.findCellAtViewpointIndex(columnIndex, rowIndex);
@@ -1976,9 +1998,9 @@ export class ViewLayout {
                     const lastVisibleColumnIndex = visibleColumnCount - 1;
                     const lastVisibleColumn = columns[lastVisibleColumnIndex];
                     const lastVisibleColumnLeft = lastVisibleColumn.left;
-                    const lastVisibleColumnOriginalAfterLeft = lastVisibleColumnLeft + lastVisibleColumn.width;
-                    if (lastVisibleColumnOriginalAfterLeft > gridWidth) {
-                        const overflow = lastVisibleColumnOriginalAfterLeft - gridWidth;
+                    const lastVisibleColumnOriginalAfterRight = lastVisibleColumnLeft + lastVisibleColumn.width;
+                    if (lastVisibleColumnOriginalAfterRight > gridWidth) {
+                        const overflow = lastVisibleColumnOriginalAfterRight - gridWidth;
                         if (visibleColumnWidthAdjust) {
                             lastVisibleColumn.width -= overflow;
                         }
@@ -1989,12 +2011,12 @@ export class ViewLayout {
 
                         scrollableColumnsViewWidth = lastVisibleColumnLeft + lastVisibleColumn.width - nonFixedStartX;
                     } else {
-                        if (lastVisibleColumnOriginalAfterLeft === gridWidth) {
+                        if (lastVisibleColumnOriginalAfterRight === gridWidth) {
                             if (!gridRightAligned) {
                                 this._unanchoredColumnOverflow = 0;
                             }
                         }
-                        scrollableColumnsViewWidth = lastVisibleColumnOriginalAfterLeft - nonFixedStartX;
+                        scrollableColumnsViewWidth = lastVisibleColumnOriginalAfterRight - nonFixedStartX;
                     }
                     if (lastVisibleColumn.activeColumnIndex >= fixedColumnCount) {
                         this._lastScrollableColumnIndex = lastVisibleColumnIndex;
