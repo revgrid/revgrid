@@ -1,5 +1,6 @@
 import { DataServer, SchemaServer } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
+import { RevRecordMergableColumnSettings } from './rev-record-mergable-column-settings';
 
 /** Provides access to a field
  * @public
@@ -31,6 +32,9 @@ export interface RevRecordField {
     valueDependsOnRecordIndex?: boolean;
     /** Set to true if field value depends on Row Index */
     valueDependsOnRowIndex?: boolean;
+
+    /** Column Settings used by grid and cell painters/editors */
+    settings: RevRecordMergableColumnSettings;
 }
 
 /** @public */

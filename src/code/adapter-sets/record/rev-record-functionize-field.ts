@@ -1,10 +1,11 @@
 import { RevRecordField } from './rev-record-field';
+import { RevRecordMergableColumnSettings } from './rev-record-mergable-column-settings';
 
 /** Provides access to a field
  * @public
  */
 export abstract class RevRecordFunctionizeField implements RevRecordField {
-    constructor(public readonly name: string) {
+    constructor(readonly name: string, readonly settings: RevRecordMergableColumnSettings) {
     }
 
     getValue: (this: void, record: never) => unknown;
@@ -17,9 +18,14 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
  * @public
  */
 export class RevRecordSimpleFunctionizeField<Record> extends RevRecordFunctionizeField {
-    constructor(name: string, value: (record: Record) => unknown,
-        compare?: (left: Record, right: Record) => number, compareDesc?: (left: Record, right: Record) => number) {
-        super(name);
+    constructor(
+        name: string,
+        settings: RevRecordMergableColumnSettings,
+        value: (record: Record) => unknown,
+        compare?: (left: Record, right: Record) => number,
+        compareDesc?: (left: Record, right: Record) => number
+    ) {
+        super(name, settings);
 
         this.getValue = value;
 
@@ -40,8 +46,12 @@ export class RevRecordSimpleFunctionizeField<Record> extends RevRecordFunctioniz
  * @public
  */
 export class RevRecordNumericFunctionizeField<Record> extends RevRecordFunctionizeField {
-    constructor(name: string, value: (record: Record) => number) {
-        super(name);
+    constructor(
+        name: string,
+        settings: RevRecordMergableColumnSettings,
+        value: (record: Record) => number,
+    ) {
+        super(name, settings);
 
         this.getValue = value;
 
@@ -55,8 +65,13 @@ export class RevRecordNumericFunctionizeField<Record> extends RevRecordFunctioni
  * @public
  */
 export class RevRecordStringFunctionizeField<Record> extends RevRecordFunctionizeField {
-    constructor(name: string, value: (record: Record) => string, options?: Intl.CollatorOptions) {
-        super(name);
+    constructor(
+        name: string,
+        settings: RevRecordMergableColumnSettings,
+        value: (record: Record) => string,
+        options?: Intl.CollatorOptions
+    ) {
+        super(name, settings);
 
         this.getValue = value;
 
@@ -70,8 +85,13 @@ export class RevRecordStringFunctionizeField<Record> extends RevRecordFunctioniz
  * @public
  */
 export class RevRecordDateFunctionizeField<Record> extends RevRecordFunctionizeField {
-    constructor(name: string, value: (record: Record) => Date, /*options?: Intl.CollatorOptions*/) {
-        super(name);
+    constructor(
+        name: string,
+        settings: RevRecordMergableColumnSettings,
+        value: (record: Record) => Date,
+        /*options?: Intl.CollatorOptions*/
+    ) {
+        super(name, settings);
 
         this.getValue = value;
 

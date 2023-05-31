@@ -4,15 +4,37 @@ import { ModifierKeyEnum } from '../types-utils/html-types';
 import { Halign, HorizontalWheelScrollingAllowed, SelectionAreaType, TextTruncateType } from '../types-utils/types';
 import { defaultGridSettings } from './default-grid-settings';
 
-export class MergableGridSettingsImplementation implements MergableGridSettings {
-    viewRenderInvalidatedEventer: MergableGridSettingsImplementation.InvalidateViewRenderEventer;
-    invalidateViewLayoutEventer: MergableGridSettingsImplementation.InvalidateViewLayoutEventer;
-    invalidateHorizontalViewLayoutEventer: MergableGridSettingsImplementation.InvalidateViewLayoutEventer;
-    invalidateVerticalViewLayoutEventer: MergableGridSettingsImplementation.InvalidateViewLayoutEventer;
-    resizeEventer: MergableGridSettingsImplementation.ResizeEventer | undefined;
+/** @public */
+export abstract class AbstractMergableGridSettings implements MergableGridSettings {
+    /** @internal */
+    viewRenderInvalidatedEventer: MergableGridSettings.ViewRenderInvalidatedEventer;
+    /** @internal */
+    viewLayoutInvalidatedEventer: MergableGridSettings.ViewLayoutInvalidatedEventer;
+    /** @internal */
+    horizontalViewLayoutInvalidatedEventer: MergableGridSettings.ViewLayoutInvalidatedEventer;
+    /** @internal */
+    verticalViewLayoutInvalidatedEventer: MergableGridSettings.ViewLayoutInvalidatedEventer;
+    /** @internal */
+    resizeEventer: MergableGridSettings.ResizeEventer | undefined;
 
     private readonly _raw: GridSettings = {} as GridSettings;
-    private readonly var = MergableGridSettingsImplementation.Var.createDefault();
+
+    private _features: string[] = defaultGridSettings.features;
+    private _gridBorder: boolean | string = defaultGridSettings.gridBorder;
+    private _gridBorderTop: boolean | string = defaultGridSettings.gridBorderTop;
+    private _gridBorderRight: boolean | string = defaultGridSettings.gridBorderRight;
+    private _gridBorderBottom: boolean | string = defaultGridSettings.gridBorderBottom;
+    private _gridBorderLeft: boolean | string = defaultGridSettings.gridBorderLeft;
+
+    constructor(nonDefaultSettings?: Partial<GridSettings>) {
+        let initialSettings: GridSettings;
+        if (nonDefaultSettings === undefined) {
+            initialSettings = defaultGridSettings;
+        } else {
+            initialSettings = { ...defaultGridSettings, ...nonDefaultSettings };
+        }
+        this.loadAllSettings(initialSettings);
+    }
 
     get addToggleSelectionAreaModifierKey() { return this._raw.addToggleSelectionAreaModifierKey; }
     set addToggleSelectionAreaModifierKey(value: ModifierKeyEnum) { this._raw.addToggleSelectionAreaModifierKey = value; }
@@ -33,7 +55,7 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set cellPadding(value: number) {
         if (value !== this._raw.cellPadding) {
             this._raw.cellPadding = value;
-            this.invalidateViewLayoutEventer(true);
+            this.viewLayoutInvalidatedEventer(true);
         }
     }
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
@@ -150,7 +172,7 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set fixedColumnCount(value: number) {
         if (value !== this._raw.fixedColumnCount) {
             this._raw.fixedColumnCount = value;
-            this.invalidateHorizontalViewLayoutEventer(true);
+            this.horizontalViewLayoutInvalidatedEventer(true);
         }
     }
     get fixedLinesHColor() { return this._raw.fixedLinesHColor; }
@@ -164,14 +186,14 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set fixedLinesHEdge(value: number | undefined) {
         if (value !== this._raw.fixedLinesHEdge) {
             this._raw.fixedLinesHEdge = value;
-            this.invalidateVerticalViewLayoutEventer(true);
+            this.verticalViewLayoutInvalidatedEventer(true);
         }
     }
     get fixedLinesHWidth() { return this._raw.fixedLinesHWidth; }
     set fixedLinesHWidth(value: number | undefined) {
         if (value !== this._raw.fixedLinesHWidth) {
             this._raw.fixedLinesHWidth = value;
-            this.invalidateVerticalViewLayoutEventer(true);
+            this.verticalViewLayoutInvalidatedEventer(true);
         }
     }
     get fixedLinesVColor() { return this._raw.fixedLinesVColor; }
@@ -185,21 +207,21 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     set fixedLinesVEdge(value: number | undefined) {
         if (value !== this._raw.fixedLinesVEdge) {
             this._raw.fixedLinesVEdge = value;
-            this.invalidateHorizontalViewLayoutEventer(true);
+            this.horizontalViewLayoutInvalidatedEventer(true);
         }
     }
     get fixedLinesVWidth() { return this._raw.fixedLinesVWidth; }
     set fixedLinesVWidth(value: number | undefined) {
         if (value !== this._raw.fixedLinesVWidth) {
             this._raw.fixedLinesVWidth = value;
-            this.invalidateHorizontalViewLayoutEventer(true);
+            this.horizontalViewLayoutInvalidatedEventer(true);
         }
     }
     get fixedRowCount() { return this._raw.fixedRowCount; }
     set fixedRowCount(value: number) {
         if (value !== this._raw.fixedRowCount) {
             this._raw.fixedRowCount = value;
-            this.invalidateVerticalViewLayoutEventer(true);
+            this.verticalViewLayoutInvalidatedEventer(true);
         }
     }
     get focusedCellBorderColor() { return this._raw.focusedCellBorderColor; }
@@ -244,7 +266,7 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     get gridRightAligned() { return this._raw.gridRightAligned; }
     set gridRightAligned(value: boolean) {
         this._raw.gridRightAligned = value;
-        this.invalidateHorizontalViewLayoutEventer(true);
+        this.horizontalViewLayoutInvalidatedEventer(true);
     }
     /** The cell's horizontal alignment, as interpreted by the cell renderer */
     get halign() { return this._raw.halign; }
@@ -331,7 +353,7 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     get scrollHorizontallySmoothly() { return this._raw.scrollHorizontallySmoothly; }
     set scrollHorizontallySmoothly(value: boolean) {
         this._raw.scrollHorizontallySmoothly = value;
-        this.invalidateHorizontalViewLayoutEventer(true);
+        this.horizontalViewLayoutInvalidatedEventer(true);
     }
     get scrollbarHoverOver() { return this._raw.scrollbarHoverOver; }
     set scrollbarHoverOver(value: string) { this._raw.scrollbarHoverOver = value; }
@@ -385,7 +407,7 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     get visibleColumnWidthAdjust() { return this._raw.visibleColumnWidthAdjust; }
     set visibleColumnWidthAdjust(value: boolean) {
         this._raw.visibleColumnWidthAdjust = value;
-        this.invalidateHorizontalViewLayoutEventer(true);
+        this.horizontalViewLayoutInvalidatedEventer(true);
     }
     get voffset() { return this._raw.voffset; }
     set voffset(value: number) { this._raw.voffset = value; }
@@ -407,8 +429,11 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     /**
      * @memberOf module:dynamicProperties
      */
-    get features() { return this.var.features; }
-    set features(features: string[]) { this.var.features = features.slice(); }
+    get features() { return this._features; }
+    set features(features: string[]) {
+        this._features = features.slice();
+        this.viewLayoutInvalidatedEventer(true);
+    }
 
     /**
      * @memberOf module:dynamicProperties
@@ -440,39 +465,43 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
     get lineWidth() { return this.gridLinesHWidth; }
     set lineWidth(width) { this.gridLinesHWidth = this.gridLinesVWidth = width; }
 
-    get gridBorder() { return this.var.gridBorder; }
+    get gridBorder() { return this._gridBorder; }
     set gridBorder(value: boolean | string) {
-        this.var.gridBorder = value;
-        this.var.gridBorderLeft = this.var.gridBorderRight = this.var.gridBorderTop = this.var.gridBorderBottom = value;
+        this._gridBorder = value;
+        this._gridBorderLeft = this._gridBorderRight = this._gridBorderTop = this._gridBorderBottom = value;
     }
 
-    get gridBorderLeft() { return this.var.gridBorderLeft; }
+    get gridBorderLeft() { return this._gridBorderLeft; }
     set gridBorderLeft(value: boolean | string) {
-        this.var.gridBorderLeft = value;
+        this._gridBorderLeft = value;
     }
 
-    get gridBorderRight() { return this.var.gridBorderRight; }
+    get gridBorderRight() { return this._gridBorderRight; }
     set gridBorderRight(value: boolean | string) {
-        this.var.gridBorderRight = value;
+        this._gridBorderRight = value;
     }
 
-    get gridBorderTop() { return this.var.gridBorderTop; }
+    get gridBorderTop() { return this._gridBorderTop; }
     set gridBorderTop(value: boolean | string) {
-        this.var.gridBorderTop = value;
+        this._gridBorderTop = value;
     }
 
-    get gridBorderBottom() { return this.var.gridBorderBottom; }
+    get gridBorderBottom() { return this._gridBorderBottom; }
     set gridBorderBottom(value: boolean | string) {
-        this.var.gridBorderBottom = value;
+        this._gridBorderBottom = value;
+    }
+
+    loadAllSettings(newSettings: GridSettings) {
+        GridSettings.assign(newSettings, this._raw);
     }
 
     loadDefaults() {
-        GridSettings.assign(defaultGridSettings, this._raw);
+        this.loadAllSettings(defaultGridSettings);
     }
 
     /** @returns true if any properties were modified - otherwise false */
-    merge(properties: Partial<GridSettings>) {
-        const changed = GridSettings.assign(properties, this._raw);
+    merge(settings: Partial<GridSettings>) {
+        const changed = GridSettings.assign(settings, this._raw);
 
         if (changed && this.resizeEventer !== undefined) {
             // not sure what changed so assume everything changed
@@ -480,36 +509,5 @@ export class MergableGridSettingsImplementation implements MergableGridSettings 
         }
 
         return changed;
-    }
-}
-
-export namespace MergableGridSettingsImplementation {
-    export type Constructor = new() => MergableGridSettingsImplementation;
-
-    export type InvalidateViewRenderEventer = (this: void) => void;
-    export type InvalidateViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
-    export type ResizeEventer = (this: void) => void;
-
-    export interface Var {
-        features: string[];
-        gridBorder: boolean | string;
-        gridBorderTop: boolean | string;
-        gridBorderRight: boolean | string;
-        gridBorderBottom: boolean | string;
-        gridBorderLeft: boolean | string;
-    }
-
-    export namespace Var {
-        export function createDefault(): Var {
-            const result: Var = {
-                features: defaultGridSettings.features,
-                gridBorder: defaultGridSettings.gridBorder,
-                gridBorderTop: defaultGridSettings.gridBorderTop,
-                gridBorderRight: defaultGridSettings.gridBorderRight,
-                gridBorderBottom: defaultGridSettings.gridBorderBottom,
-                gridBorderLeft: defaultGridSettings.gridBorderLeft,
-            }
-            return result;
-        }
     }
 }

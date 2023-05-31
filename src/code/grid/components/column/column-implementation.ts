@@ -5,7 +5,6 @@ import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableColumnSettingsImplementation } from '../../settings/mergable-column-settings-implementation';
 
 /** @internal */
 export class ColumnImplementation implements Column {
@@ -30,7 +29,7 @@ export class ColumnImplementation implements Column {
         this.name = schemaColumn.name
 
         // this.properties = columnSchema; // see {@link Column#properties properties} setter
-        this._settings = new MergableColumnSettingsImplementation(this._gridSettings, schemaColumn.initialSettings); // see {@link Column#properties properties} setter
+        this._settings = schemaColumn.settings; // see {@link Column#properties properties} setter
         this.schemaColumn = schemaColumn;
     }
 

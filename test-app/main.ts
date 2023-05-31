@@ -1,7 +1,8 @@
-import { EventDetail, HalignEnum, Revgrid, defaultGridSettings } from '..';
+import { EventDetail, GridSettings, HalignEnum, Revgrid, defaultGridSettings } from '..';
 import { HeaderDataServer } from './header-data-server';
 import { MainDataServer } from './main-data-server';
 import { SchemaServerImplementation } from './schema-adapter';
+import { TestAppMergableGridSettings } from './test-app-mergable-grid-settings';
 
 export class Main {
     private readonly _controlsElement: HTMLElement;
@@ -17,6 +18,7 @@ export class Main {
     private readonly _addFishButtonElement: HTMLButtonElement;
     private readonly _gridHostElement: HTMLElement;
 
+    private _gridSettings = new TestAppMergableGridSettings();
     private _mainDataServer: MainDataServer;
     private _grid: Revgrid;
 
@@ -130,11 +132,31 @@ export class Main {
             this._grid.destroy();
         }
 
-        const schemaServer = new SchemaServerImplementation()
+        const nonDefaultSettings: Partial<GridSettings> = {
+            editable: true,
+            singleRowSelectionMode: false,
+            multipleSelectionAreas: true,
+            autoSelectRows: false,
+            restoreColumnSelections: false,
+            sortOnDoubleClick: false,
+            cellPadding: defaultCellPadding,
+            halign: defaultHalign,
+            fixedColumnCount: defaultFixedColumnCount,
+            gridRightAligned: defaultGridRightAligned,
+            scrollHorizontallySmoothly: defaultScrollHorizontallySmoothly,
+            visibleColumnWidthAdjust: defaultVisibleColumnWidthAdjust,
+            eventDispatchEnabled: true,
+        };
+
+
+        this._gridSettings.loadDefaults();
+        this._gridSettings.merge(nonDefaultSettings);
+
+        const schemaServer = new SchemaServerImplementation(this._gridSettings);
         this._mainDataServer = new MainDataServer();
         const headerDataServer = new HeaderDataServer();
 
-        const adapterSet: Revgrid.Definition = {
+        const definition: Revgrid.Definition = {
             schemaServer,
             subgrids: [
                 {
@@ -148,26 +170,7 @@ export class Main {
             ],
         };
 
-        const gridOptions: Revgrid.Options = {
-            container: this._gridHostElement,
-            gridSettings: {
-                editable: true,
-                singleRowSelectionMode: false,
-                multipleSelectionAreas: true,
-                autoSelectRows: false,
-                restoreColumnSelections: false,
-                sortOnDoubleClick: false,
-                cellPadding: defaultCellPadding,
-                halign: defaultHalign,
-                fixedColumnCount: defaultFixedColumnCount,
-                gridRightAligned: defaultGridRightAligned,
-                scrollHorizontallySmoothly: defaultScrollHorizontallySmoothly,
-                visibleColumnWidthAdjust: defaultVisibleColumnWidthAdjust,
-                eventDispatchEnabled: true,
-            }
-        };
-
-        this._grid = new Revgrid(this._gridHostElement, adapterSet, gridOptions);
+        this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings);
 
         this._mainDataServer.cellPainter.setGrid(this._grid);
         headerDataServer.cellPainter.setGrid(this._grid);

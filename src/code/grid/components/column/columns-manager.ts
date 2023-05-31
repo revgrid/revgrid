@@ -1,6 +1,6 @@
 import { Column, ColumnWidth } from '../../interfaces/schema/column';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { ColumnSettings } from '../../interfaces/settings/column-settings';
+import { ColumnSettings, MergableColumnSettings } from '../../interfaces/settings/column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnNameWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
@@ -207,10 +207,11 @@ export class ColumnsManager {
 
     /** @internal */
     createDummyColumn() {
+        const dummySettings: MergableColumnSettings = {} as MergableColumnSettings;
         const schemaColumn: SchemaServer.Column = {
             index: -1,
             name: '',
-            initialSettings: undefined,
+            settings: dummySettings,
         }
         return new ColumnImplementation(this._gridSettings, schemaColumn);
     }

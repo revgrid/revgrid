@@ -4,7 +4,8 @@ import { MergableColumnSettings } from '../interfaces/settings/mergable-column-s
 import { Halign } from '../types-utils/types';
 import { deepExtendValue } from '../types-utils/utils';
 
-export class MergableColumnSettingsImplementation implements MergableColumnSettings {
+/** @public */
+export abstract class AbstractMergableColumnSettings implements MergableColumnSettings {
     // not overridable properties
     private _preferredWidth?: number;
 
@@ -39,12 +40,12 @@ export class MergableColumnSettingsImplementation implements MergableColumnSetti
     private _minimumColumnWidth: number | undefined;
     private _width: number | undefined;
 
-    readonly header: MergableColumnSettingsImplementation.ColumnHeader;
-    readonly filter: MergableColumnSettingsImplementation.Filter;
+    readonly header: AbstractMergableColumnSettings.ColumnHeader;
+    readonly filter: AbstractMergableColumnSettings.Filter;
 
     constructor(readonly gridSettings: GridSettings, initialColumnSettings: Partial<ColumnSettings> | undefined) {
-        this.header = new MergableColumnSettingsImplementation.ColumnHeader(this.gridSettings);
-        this.filter = new MergableColumnSettingsImplementation.Filter(this.gridSettings);
+        this.header = new AbstractMergableColumnSettings.ColumnHeader(this.gridSettings);
+        this.filter = new AbstractMergableColumnSettings.Filter(this.gridSettings);
 
         if (initialColumnSettings !== undefined) {
             if (initialColumnSettings.cellPadding !== undefined) {
@@ -214,12 +215,13 @@ export class MergableColumnSettingsImplementation implements MergableColumnSetti
         Object.keys(properties).forEach((key) => {
             const typedValue = properties[key as keyof ColumnSettings];
             const value = deepExtendValue({}, typedValue);
-            (this[key as keyof MergableColumnSettingsImplementation] as unknown) = value;
+            (this[key as keyof AbstractMergableColumnSettings] as unknown) = value;
         });
     }
 }
 
-export namespace MergableColumnSettingsImplementation {
+/** @public */
+export namespace AbstractMergableColumnSettings {
     export class ColumnHeader implements ColumnSettings.Header {
         constructor(private readonly _gridProperties: GridSettings) {
 //

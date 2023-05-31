@@ -1,17 +1,17 @@
 
 import { AssertError, CellPainter, DataServer, DatalessViewCell } from '../../grid/grid-public-api';
-import { AlphaTextCellPainter } from '../../standard-cell-painters/standard-cell-painters-public-api';
+import { HeaderTextCellPainter } from '../../standard-cell-painters/standard-cell-painters-public-api';
 import { RevSimpleSchemaServer } from './rev-simple-schema-server';
 
 /** @public */
 export class RevSimpleHeaderDataServer implements DataServer {
-        readonly cellPainter: AlphaTextCellPainter;
+    readonly cellPainter: HeaderTextCellPainter;
 
     private _rowCount = 0;
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
     constructor() {
-        this.cellPainter = new AlphaTextCellPainter(this);
+        this.cellPainter = new HeaderTextCellPainter(this);
     }
 
     subscribeDataNotifications(listener: DataServer.NotificationsClient) {

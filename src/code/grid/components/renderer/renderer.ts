@@ -3,7 +3,7 @@ import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema/schema-server';
-import { MergableGridSettingsImplementation } from '../../settings/mergable-grid-settings-implementation';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
@@ -38,7 +38,7 @@ export class Renderer {
     private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
 
     constructor(
-        private readonly _gridSettings: MergableGridSettingsImplementation,
+        private readonly _gridSettings: MergableGridSettings,
         private readonly _canvasEx: CanvasManager,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,

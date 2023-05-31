@@ -1,11 +1,30 @@
 import { MainRecord } from 'main-record';
-import { ColumnSettings, SchemaServer } from '..';
+import { MergableGridSettings, SchemaServer } from '..';
+import { TestAppMergableColumnSettings } from './test-app-mergable-column-settings';
 
 export class SchemaServerImplementation implements SchemaServer {
+    private readonly _schema: SchemaServerImplementation.Column[];
     private notificationsClient: SchemaServer.NotificationsClient;
 
+    constructor(private readonly _gridSettings: MergableGridSettings) {
+        const nameHeaders = SchemaServerImplementation.columnNameHeaders;
+        const columnCount = nameHeaders.length;
+        const schema = new Array<SchemaServerImplementation.Column>(columnCount);
+        for (let i = 0; i < columnCount; i++) {
+            const nameHeader = nameHeaders[i];
+            schema[i] = {
+                name: nameHeader.name,
+                index: i,
+                settings: new TestAppMergableColumnSettings(this._gridSettings, undefined),
+                header: nameHeader.header,
+            };
+        }
+
+        this._schema = schema;
+    }
+
     getSchema() {
-        return SchemaServerImplementation.schema;
+        return this._schema;
     }
 
     subscribeSchemaNotifications(client: SchemaServer.NotificationsClient) {
@@ -18,54 +37,43 @@ export class SchemaServerImplementation implements SchemaServer {
 export namespace SchemaServerImplementation {
     export interface Column extends SchemaServer.Column {
         name: keyof MainRecord;
-        index: number;
+        settings: TestAppMergableColumnSettings;
         header: string;
     }
 
-    const initialSettings: Partial<ColumnSettings> | undefined = undefined;
+    export interface ColumnNameHeader {
+        name: keyof MainRecord;
+        header: string;
+    }
 
-    export const schema: Column[] = [
+    export const columnNameHeaders: ColumnNameHeader[] = [
         {
             name: 'name',
-            index: 0,
             header: 'Name',
-            initialSettings,
         },
         {
             name: 'type',
-            index: 1,
             header: 'Type',
-            initialSettings,
         },
         {
             name: 'color',
-            index: 2,
             header : 'Color',
-            initialSettings,
         },
         {
             name: 'age',
-            index: 3,
             header: 'Age',
-            initialSettings,
         },
         {
             name: 'receiveDate',
-            index: 4,
             header: 'Receive Date',
-            initialSettings,
         },
         {
             name: 'favoriteFood',
-            index: 5,
             header: 'Favorite Food',
-            initialSettings,
         },
         {
             name: 'restrictMovement',
-            index: 6,
             header: 'Restrict Movement',
-            initialSettings,
         },
     ];
 }

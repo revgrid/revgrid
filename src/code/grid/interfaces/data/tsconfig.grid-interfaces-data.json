@@ -8,7 +8,7 @@
 
   "include": [
     "*.ts"
-, "../dataless/cell-painter.ts"  ],
+  ],
 
   "references": [
     { "path": "../dataless/tsconfig.grid-interfaces-dataless.json" },

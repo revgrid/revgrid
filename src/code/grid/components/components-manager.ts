@@ -1,7 +1,6 @@
 import { Subgrid } from '../interfaces/data/subgrid';
 import { SchemaServer } from '../interfaces/schema/schema-server';
-import { GridSettings } from '../interfaces/settings/grid-settings';
-import { MergableGridSettingsImplementation } from '../settings/mergable-grid-settings-implementation';
+import { MergableGridSettings } from '../interfaces/settings/mergable-grid-settings';
 import { AssertError } from '../types-utils/revgrid-error';
 import { CanvasManager } from './canvas/canvas-manager';
 import { ColumnsManager } from './column/columns-manager';
@@ -15,7 +14,6 @@ import { ViewLayout } from './view/view-layout';
 
 /** @internal */
 export class ComponentsManager {
-    readonly gridSettings: MergableGridSettingsImplementation;
     readonly canvasManager: CanvasManager;
     readonly focus: Focus;
     readonly selection: Selection;
@@ -29,55 +27,55 @@ export class ComponentsManager {
     readonly verticalScroller: Scroller;
 
     constructor(
+        gridSettings: MergableGridSettings,
         containerHtmlElement: HTMLElement,
         schemaServer: SchemaServer,
         subgridDefinitions: Subgrid.Definition[],
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
-        optionedGridSettings: Partial<GridSettings> | undefined,
         loadBuiltinFinbarStylesheet: boolean,
     ) {
-        this.gridSettings = new MergableGridSettingsImplementation();
-        this.gridSettings.loadDefaults();
-        if (optionedGridSettings !== undefined) {
-            this.gridSettings.merge(optionedGridSettings);
-        }
+        // this.gridSettings = new AbstractMergableGridSettings();
+        // this.gridSettings.loadDefaults();
+        // if (optionedGridSettings !== undefined) {
+        //     this.gridSettings.merge(optionedGridSettings);
+        // }
 
         this.canvasManager = new CanvasManager(
             containerHtmlElement,
             canvasContextAttributes,
-            this.gridSettings,
+            gridSettings,
         );
 
         this.columnsManager = new ColumnsManager(
             schemaServer,
-            this.gridSettings,
+            gridSettings,
         );
 
         if  (subgridDefinitions.length === 0) {
             throw new AssertError('CBM43330', 'Adapter set missing Subgrid specs');
         } else {
             this.subgridsManager = new SubgridsManager(
-                this.gridSettings,
+                gridSettings,
                 this.columnsManager,
                 subgridDefinitions,
             );
 
             this.viewLayout = new ViewLayout(
-                this.gridSettings,
+                gridSettings,
                 this.canvasManager,
                 this.columnsManager,
                 this.subgridsManager,
             );
 
             this.focus = new Focus(
-                this.gridSettings,
+                gridSettings,
                 this.subgridsManager.mainSubgrid,
                 this.columnsManager,
                 this.viewLayout,
             );
 
             this.selection = new Selection(
-                this.gridSettings,
+                gridSettings,
                 this.columnsManager,
             );
 
@@ -87,7 +85,7 @@ export class ComponentsManager {
             );
 
             this.renderer = new Renderer(
-                this.gridSettings,
+                gridSettings,
                 this.canvasManager,
                 this.columnsManager,
                 this.subgridsManager,
@@ -104,8 +102,8 @@ export class ComponentsManager {
                 'vertical',
                 true,
                 1,
-                this.gridSettings.wheelVFactor,
-                this.gridSettings.verticalScrollbarClassPrefix,
+                gridSettings.wheelVFactor,
+                gridSettings.verticalScrollbarClassPrefix,
                 loadBuiltinFinbarStylesheet,
                 containerHtmlElement,
                 undefined,
@@ -118,9 +116,9 @@ export class ComponentsManager {
                 false,
                 'horizontal',
                 true,
-                this.gridSettings.wheelHFactor,
+                gridSettings.wheelHFactor,
                 1,
-                this.gridSettings.horizontalScrollbarClassPrefix,
+                gridSettings.horizontalScrollbarClassPrefix,
                 loadBuiltinFinbarStylesheet,
                 containerHtmlElement,
                 this.verticalScroller,

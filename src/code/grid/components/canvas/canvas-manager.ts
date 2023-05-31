@@ -11,7 +11,7 @@
 //     window.CustomEvent.prototype = window.Event.prototype;
 // }
 
-import { MergableGridSettingsImplementation } from '../../settings/mergable-grid-settings-implementation';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 import { CssClassName } from '../../types-utils/html-types';
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
@@ -199,7 +199,7 @@ export class CanvasManager {
     constructor(
         private readonly _containerElement: HTMLElement,
         contextAttributes: CanvasRenderingContext2DSettings | undefined,
-        private readonly _gridSettings: MergableGridSettingsImplementation,
+        private readonly _gridSettings: MergableGridSettings,
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');

@@ -1,4 +1,4 @@
-import { ColumnSettings } from '../settings/column-settings';
+import { MergableColumnSettings } from '../settings/column-settings';
 
 /** @public */
 export interface SchemaServer {
@@ -18,7 +18,7 @@ export namespace SchemaServer {
     export interface Column {
         name: string;
         index: number;
-        initialSettings: Partial<ColumnSettings> | undefined;
+        settings: MergableColumnSettings;
     }
 
     export interface NotificationsClient {
@@ -41,67 +41,67 @@ export namespace SchemaServer {
 
     export type Constructor = new() => SchemaServer;
 
-    /**
-     * @summary Generates an array of columns (proper schema) from an array of Column and string.
-     */
-    export function normalizeColumns(columns: (Column | string)[]): Column[] {
-        const count = columns.length;
+    // /**
+    //  * @summary Generates an array of columns (proper schema) from an array of Column and string.
+    //  */
+    // export function normalizeColumns(columns: (Column | string)[]): Column[] {
+    //     const count = columns.length;
 
-        // extract the indices explicitly specified in the array of columns
-        const explicitIndices = new Array<number>(count);
-        let indicesCount = 0;
-        columns.forEach((column) => {
-            if (typeof column === 'object') {
-                const index = column.index;
-                if (index !== undefined) {
-                    explicitIndices[indicesCount++] = index;
-                }
-            }
-        });
+    //     // extract the indices explicitly specified in the array of columns
+    //     const explicitIndices = new Array<number>(count);
+    //     let indicesCount = 0;
+    //     columns.forEach((column) => {
+    //         if (typeof column === 'object') {
+    //             const index = column.index;
+    //             if (index !== undefined) {
+    //                 explicitIndices[indicesCount++] = index;
+    //             }
+    //         }
+    //     });
 
-        // Make sure each element of `schema` is a Column object.
-        const result = new Array<Column>(count);
+    //     // Make sure each element of `schema` is a Column object.
+    //     const result = new Array<Column>(count);
 
-        let nextIndex = 0;
-        columns.forEach( (column, i) => {
-            if (typeof column === 'string') {
-                nextIndex = calculateUnusedNextIndex(nextIndex, explicitIndices);
-                result[i] = {
-                    name: column,
-                    index: nextIndex,
-                    initialSettings: undefined,
-                }
-            } else {
-                result[i] = column;
-            }
-        });
+    //     let nextIndex = 0;
+    //     columns.forEach( (column, i) => {
+    //         if (typeof column === 'string') {
+    //             nextIndex = calculateUnusedNextIndex(nextIndex, explicitIndices);
+    //             result[i] = {
+    //                 name: column,
+    //                 index: nextIndex,
+    //                 settings: undefined,
+    //             }
+    //         } else {
+    //             result[i] = column;
+    //         }
+    //     });
 
-        // sort by indices
-        result.sort((a, b) => {
-            return a.index - b.index;
-        })
+    //     // sort by indices
+    //     result.sort((a, b) => {
+    //         return a.index - b.index;
+    //     })
 
-        // Remove all meta data columns from schema and index fields
-        for (let i = result.length - 1; i >= 0; i--) {
-            const columnSchema = result[i];
-            if (REGEXP_META_PREFIX.test(columnSchema.name)) {
-                result.splice(i, 1);
-            }
-        }
+    //     // Remove all meta data columns from schema and index fields
+    //     for (let i = result.length - 1; i >= 0; i--) {
+    //         const columnSchema = result[i];
+    //         if (REGEXP_META_PREFIX.test(columnSchema.name)) {
+    //             result.splice(i, 1);
+    //         }
+    //     }
 
-        return result;
-    }
+    //     return result;
+    // }
 
-    /** @internal */
-    function calculateUnusedNextIndex(nextIndex: number, usedIndices: number[]) {
-        while (usedIndices.includes(nextIndex)) {
-            nextIndex++;
-        }
-        return nextIndex;
-    }
+    // /** @internal */
+    // function calculateUnusedNextIndex(nextIndex: number, usedIndices: number[]) {
+    //     while (usedIndices.includes(nextIndex)) {
+    //         nextIndex++;
+    //     }
+    //     return nextIndex;
+    // }
 
-    /** @internal */
-    const REGEXP_META_PREFIX = /^__/; // starts with double underscore
+    // /** @internal */
+    // const REGEXP_META_PREFIX = /^__/; // starts with double underscore
 }
 
 /** @public */

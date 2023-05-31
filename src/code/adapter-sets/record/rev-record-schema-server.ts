@@ -226,7 +226,7 @@ export class RevRecordSchemaServer implements SchemaServer {
         const schemaColumn: RevRecordField.SchemaColumn = {
             name: field.name,
             index: fieldIndex,
-            initialSettings: undefined,
+            settings: field.settings,
             field,
         };
 

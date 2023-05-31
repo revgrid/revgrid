@@ -43,7 +43,6 @@ export class Revgrid {
     readonly mouse: Mouse;
     readonly selection: Selection;
     readonly focus: Focus;
-    readonly settings: MergableGridSettings;
     readonly canvasManager: CanvasManager;
     readonly viewLayout: ViewLayout;
 
@@ -173,12 +172,16 @@ export class Revgrid {
  * @param {string} [options.boundingRect.position='relative']
  *
  */
-    constructor(container: string | HTMLElement | undefined, definition: Revgrid.Definition, options?: Revgrid.Options) {
+    constructor(
+        container: string | HTMLElement | undefined,
+        definition: Revgrid.Definition,
+        readonly settings: MergableGridSettings,
+        options?: Revgrid.Options
+    ) {
         options = options ?? {};
 
         //Set up the container for a grid instance
-        const resolvedContainer = container ?? options.container ?? this.findOrCreateContainer(options.boundingRect);
-        this.containerHtmlElement = this.initContainer(resolvedContainer, options);
+        this.containerHtmlElement = this.initContainer(container, options);
 
         let schemaServer = definition.schemaServer;
         if (typeof schemaServer === 'function') {
@@ -186,15 +189,14 @@ export class Revgrid {
         }
 
         this._componentsManager = new ComponentsManager(
+            settings,
             this.containerHtmlElement,
             schemaServer,
             definition.subgrids,
             options.canvasContextAttributes,
-            options.gridSettings,
             options.loadBuiltinFinbarStylesheet ?? true,
         );
 
-        this.settings = this._componentsManager.gridSettings;
         this.focus = this._componentsManager.focus;
         this.selection = this._componentsManager.selection;
         this.canvasManager = this._componentsManager.canvasManager;
@@ -696,27 +698,39 @@ export class Revgrid {
     /**
      * @summary Initialize container
      */
-    private initContainer(container: string | HTMLElement, options: Revgrid.Options): HTMLElement {
-        if (typeof container === 'string') {
-            container = document.querySelector(container) as HTMLElement;
+    private initContainer(container: string | HTMLElement | undefined, options: Revgrid.Options): HTMLElement {
+        let resolvedContainer: HTMLElement;
+        if (container === undefined) {
+            resolvedContainer = this.findOrCreateContainer(options.boundingRect);
+        } else {
+            if (typeof container === 'string') {
+                const queriedContainer = document.querySelector(container);
+                if (queriedContainer === null) {
+                    throw new AssertError('RIC55998', `Container element not found: ${container}`);
+                } else {
+                    resolvedContainer = queriedContainer as HTMLElement;
+                }
+            } else {
+                resolvedContainer = container;
+            }
         }
 
         // Default Position and height to ensure DnD works
-        if (!container.style.position) {
-            container.style.position = ''; // revert to stylesheet value
+        if (!resolvedContainer.style.position) {
+            resolvedContainer.style.position = ''; // revert to stylesheet value
         }
 
-        if (container.clientHeight < 1) {
-            container.style.height = ''; // revert to stylesheet value
+        if (resolvedContainer.clientHeight < 1) {
+            resolvedContainer.style.height = ''; // revert to stylesheet value
         }
 
-        this.setStyles(container, options?.edgeStyleValues, Revgrid.edgeStyleKeys);
-        container.removeAttribute('tabindex');
+        this.setStyles(resolvedContainer, options?.edgeStyleValues, Revgrid.edgeStyleKeys);
+        resolvedContainer.removeAttribute('tabindex');
 
-        container.classList.add(CssClassName.gridContainerElementCssClass);
-        container.id = container.id || CssClassName.gridContainerElementCssIdBase + (document.querySelectorAll('.' + CssClassName.gridContainerElementCssClass).length - 1 || '');
+        resolvedContainer.classList.add(CssClassName.gridContainerElementCssClass);
+        resolvedContainer.id = resolvedContainer.id || CssClassName.gridContainerElementCssIdBase + (document.querySelectorAll('.' + CssClassName.gridContainerElementCssClass).length - 1 || '');
 
-        return container;
+        return resolvedContainer;
     }
 
     convertViewPointToDataPoint(unscrolled: Point) {
@@ -2149,20 +2163,14 @@ export namespace Revgrid {
 
     export interface Options {
 		// api?: object | string[];
-        gridSettings?: Partial<GridSettings>;
 		boundingRect?: BoundingRectStyleValues;
 		canvasContextAttributes?: CanvasRenderingContext2DSettings;
-		container?: string | HTMLElement;
 		// dataModel?: DataModel;
 		// dataModelConstructorOrArray?: Options.DataModelConstructorOrArray;
 		// force?: boolean;
 		// inject?: boolean;
 		localization?: LocalizationOptions;
 		edgeStyleValues?: EdgeStyleValues;
-        // /** Use to put data in LocalMainDataModel. Only good for quick prototypes - not recommended - use subgrids and their datamodels */
-        // data?: LocalDataRowObject[] | (() => LocalDataRowObject[]);
-        /** Use in conjunction with data. Set to true to reindex data when first loaded */
-        apply?: boolean;
 		// metadata?: DataServer.RowMetadata[];
         /** Specifies whether to load builtin FinBar stylesheet. Default: true */
         loadBuiltinFinbarStylesheet?: boolean;

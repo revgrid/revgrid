@@ -6,7 +6,7 @@ import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
-import { MergableGridSettingsImplementation } from '../../settings/mergable-grid-settings-implementation';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
@@ -139,14 +139,14 @@ export class ViewLayout {
     }
 
     constructor(
-        private readonly _gridSettings: MergableGridSettingsImplementation,
+        private readonly _gridSettings: MergableGridSettings,
         private readonly _canvasManager: CanvasManager,
         private readonly _columnsManager: ColumnsManager,
         private readonly _subgridsManager: SubgridsManager,
     ) {
-        this._gridSettings.invalidateViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
-        this._gridSettings.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
-        this._gridSettings.invalidateVerticalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
+        this._gridSettings.viewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
+        this._gridSettings.horizontalViewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
+        this._gridSettings.verticalViewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
         this._canvasManager.resizedEventerForViewLayout = () => this.invalidateAll(true);
         this._columnsManager.activeColumnWidthOrOrderChangedEventer = () => this.invalidateHorizontalAll(true)
         this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvasManager, this._columnsManager);

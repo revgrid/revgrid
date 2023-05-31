@@ -1,6 +1,8 @@
 import { AssertError, DataServer } from '../../grid/grid-public-api';
 import { RevSimpleHeaderDataServer } from './rev-simple-header-data-server';
 import { RevSimpleMainDataServer } from './rev-simple-main-data-server';
+import { RevSimpleMergableColumnSettings } from './rev-simple-mergable-column-settings';
+import { RevSimpleMergableGridSettings } from './rev-simple-mergable-grid-settings';
 import { RevSimpleSchemaServer } from './rev-simple-schema-server';
 
 /** @public */
@@ -12,6 +14,10 @@ export class RevSimpleServerSet {
     get schemaServer() { return this._schemaServer; }
     get mainDataServer() { return this._mainDataServer; }
     get headerDataServer() { return this._headerDataServer; }
+
+    constructor(readonly gridSettings: RevSimpleMergableGridSettings) {
+
+    }
 
 
     /**
@@ -83,13 +89,11 @@ export class RevSimpleServerSet {
                 const columnHeaders = new Array<string>(headerCount);
                 for (let rowIndex = 0; rowIndex < headerCount; rowIndex++) {
                     const row = headerRows[rowIndex];
-                    let header = row[columnKey];
-                    if (typeof header !== 'string') {
-                        header = columnKey;
-                    }
-                    columnHeaders[rowIndex] = header as string; // should not need this cast
+                    const header = this.convertDataValueToString(row[columnKey]);
+                    columnHeaders[rowIndex] = header;
                 }
-                schema[columnIndex] = { name: columnKey, index: columnIndex, headers: columnHeaders, initialSettings: undefined };
+                const settings = new RevSimpleMergableColumnSettings(this.gridSettings, {});
+                schema[columnIndex] = { name: columnKey, index: columnIndex, headers: columnHeaders, settings };
             }
 
             return {
@@ -99,13 +103,32 @@ export class RevSimpleServerSet {
         }
     }
 
+    private convertDataValueToString(value: DataServer.DataValue | string): string {
+        switch (typeof value) {
+            case 'string': return value;
+            case 'number': return value.toString();
+            case 'bigint': return value.toString();
+            case 'boolean': return value.toString();
+            case 'symbol': return value.toString();
+            case 'undefined': return '?Undefined';
+            case 'object': return '?Object';
+            case 'function': return value.toString();
+            default: return '?Unknown Type';
+        }
+}
+
     private calculateSchemaFromData(dataRows: RevSimpleAdapterSet.DataRow[], keyIsHeader: boolean): RevSimpleSchemaServer.Column[] {
         const { rows } = this.getInitialDefinedRows(dataRows, 1);
         if (rows.length === 0) {
             return [];
         } else {
             const row = rows[0];
-            const result = Object.keys(row).map((key, index) => ({ name: key, index, initialSettings: undefined, headers: keyIsHeader ? [key] : [] }));
+            const result = Object.keys(row).map((key, index) => ({
+                name: key,
+                index,
+                settings: new RevSimpleMergableColumnSettings(this.gridSettings, {}),
+                headers: keyIsHeader ? [key] : []
+            }));
             return result;
         }
     }
