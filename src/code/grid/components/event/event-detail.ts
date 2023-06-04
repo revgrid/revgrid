@@ -1,5 +1,6 @@
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
 import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
 
@@ -16,20 +17,20 @@ export namespace EventDetail {
         readonly newPoint: Point | undefined;
     }
 
-    export interface Mouse extends MouseEvent {
-        revgridCell?: HoverCell;
+    export interface Mouse<MCS extends MergableColumnSettings> extends MouseEvent {
+        revgridCell?: HoverCell<MCS>;
     }
 
-    export interface Pointer extends PointerEvent, Mouse {
-        revgridCell?: HoverCell;
+    export interface Pointer<MCS extends MergableColumnSettings> extends PointerEvent, Mouse<MCS> {
+        revgridCell?: HoverCell<MCS>;
     }
 
-    export interface Wheel extends WheelEvent {
-        revgridCell?: HoverCell;
+    export interface Wheel<MCS extends MergableColumnSettings> extends WheelEvent {
+        revgridCell?: HoverCell<MCS>;
     }
 
-    export interface ColumnSort extends MouseEvent {
-        revgridCell?: ViewCell;
+    export interface ColumnSort<MCS extends MergableColumnSettings> extends MouseEvent {
+        revgridCell?: ViewCell<MCS>;
     }
 
     export type Keyboard = CanvasManager.RevgridKeyboardEvent;

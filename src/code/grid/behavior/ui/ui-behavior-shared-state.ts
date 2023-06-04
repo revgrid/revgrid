@@ -4,5 +4,6 @@ export interface UiBehaviorSharedState {
 
 export namespace UiBehaviorSharedState {
     export function initialise(state: UiBehaviorSharedState) {
+        //
     }
 }

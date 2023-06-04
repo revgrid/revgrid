@@ -1,0 +1,17 @@
+{
+  "extends": "../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../tsbuildinfo/definitions.tsbuildinfo"
+  },
+
+  "include": [
+    "definitions-public-api.ts",
+  ],
+
+  "references": [
+    { "path": "./record/tsconfig.definitions-record.json" },
+    { "path": "./simple/tsconfig.definitions-simple.json" },
+  ]
+}

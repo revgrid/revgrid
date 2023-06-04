@@ -1,5 +1,6 @@
 
-import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../../interfaces/settings/mergable-grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -34,21 +35,21 @@ import { GridPainter } from './grid-painter';
  * @this {ViewLayout}
  * @param {CanvasManager.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
-export class AsNeededGridPainter extends GridPainter {
+export class AsNeededGridPainter<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends GridPainter<MGS, MCS> {
     // private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
     constructor(
-        gridProperties: GridSettings,
-        canvasManager: CanvasManager,
-        subgridsManager: SubgridsManager,
-        viewLayout: ViewLayout,
-        focus: Focus,
-        selection: Selection,
-        mouse: Mouse,
+        gridSettings: MGS,
+        canvasManager: CanvasManager<MGS>,
+        subgridsManager: SubgridsManager<MGS, MCS>,
+        viewLayout: ViewLayout<MGS, MCS>,
+        focus: Focus<MGS, MCS>,
+        selection: Selection<MGS, MCS>,
+        mouse: Mouse<MGS, MCS>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(
-            gridProperties,
+            gridSettings,
             canvasManager,
             subgridsManager,
             viewLayout,
@@ -98,7 +99,7 @@ export class AsNeededGridPainter extends GridPainter {
             for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                 const vc = viewLayoutColumns[columnIndex];
 
-                let preferredWidth: number | undefined;
+                let maxPaintWidth: number | undefined;
 
                 // Optionally clip to visible portion of column to prevent text from overflowing to right.
                 const columnClip = vc.column.settings.columnClip;
@@ -112,10 +113,10 @@ export class AsNeededGridPainter extends GridPainter {
                         // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
                         const paintWidth = this.paintCell(cell, undefined);
                         if (paintWidth !== undefined) {
-                            if (preferredWidth === undefined) {
-                                preferredWidth = paintWidth;
+                            if (maxPaintWidth === undefined) {
+                                maxPaintWidth = paintWidth;
                             } else {
-                                preferredWidth = Math.max(preferredWidth, paintWidth);
+                                maxPaintWidth = Math.max(maxPaintWidth, paintWidth);
                             }
                         }
                     } catch (e) {
@@ -125,8 +126,8 @@ export class AsNeededGridPainter extends GridPainter {
 
                 gc.clipRestore();
 
-                if (preferredWidth !== undefined) {
-                    vc.column.settings.preferredWidth = Math.ceil(preferredWidth);
+                if (maxPaintWidth !== undefined) {
+                    vc.column.maxPaintWidth = Math.ceil(maxPaintWidth);
                 }
             }
 

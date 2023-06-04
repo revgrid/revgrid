@@ -1,5 +1,6 @@
 
-import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../../interfaces/settings/mergable-grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -24,19 +25,19 @@ import { GridPainter } from './grid-painter';
  *
  * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumns|paintCellsByColumns}.
  */
-export class ByColumnsAndRowsGridPainter extends GridPainter {
+export class ByColumnsAndRowsGridPainter<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends GridPainter<MGS, MCS> {
     constructor(
-        gridProperties: GridSettings,
-        canvasManager: CanvasManager,
-        subgridsManager: SubgridsManager,
-        viewLayout: ViewLayout,
-        focus: Focus,
-        selection: Selection,
-        mouse: Mouse,
+        gridSettings: MGS,
+        canvasManager: CanvasManager<MGS>,
+        subgridsManager: SubgridsManager<MGS, MCS>,
+        viewLayout: ViewLayout<MGS, MCS>,
+        focus: Focus<MGS, MCS>,
+        selection: Selection<MGS, MCS>,
+        mouse: Mouse<MGS, MCS>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(
-            gridProperties,
+            gridSettings,
             canvasManager,
             subgridsManager,
             viewLayout,
@@ -117,7 +118,7 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                 const columnClip = vc.column.settings.columnClip;
                 gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
-                let preferredWidth: number | undefined;
+                let maxPaintWidth: number | undefined;
                 // For each row of each subgrid (of each column)...
                 for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
                     // if (!pool[p].disabled) {
@@ -128,10 +129,10 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
                         try {
                             const paintWidth = this.paintCell(viewCell, prefillColor);
                             if (paintWidth !== undefined) {
-                                if (preferredWidth === undefined) {
-                                    preferredWidth = paintWidth;
+                                if (maxPaintWidth === undefined) {
+                                    maxPaintWidth = paintWidth;
                                 } else {
-                                    preferredWidth = Math.max(preferredWidth, paintWidth);
+                                    maxPaintWidth = Math.max(maxPaintWidth, paintWidth);
                                 }
                             }
                         } catch (e) {
@@ -142,8 +143,8 @@ export class ByColumnsAndRowsGridPainter extends GridPainter {
 
                 gc.clipRestore();
 
-                if (preferredWidth !== undefined) {
-                    vc.column.settings.preferredWidth = Math.ceil(preferredWidth);
+                if (maxPaintWidth !== undefined) {
+                    vc.column.maxPaintWidth = Math.ceil(maxPaintWidth);
                 }
             }
 

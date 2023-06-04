@@ -5,12 +5,20 @@
         "*.ts"
       ],
       "parserOptions": {
-        // see notes.md for script to regenerate list of tsconfig files below
         "project": [
-          "./src/code/adapter-sets/record/tsconfig.rev-record.json",
-          "./src/code/adapter-sets/simple/tsconfig.rev-server-set-simple.json",
-          "./src/code/standard-cell-painters/tsconfig.standard-cell-painters.json",
-          "./src/code/standard-cell-editors/tsconfig.standard-cell-editors.json"
+          "./src/code/definitions/record/tsconfig.definitions-record.json",
+          "./src/code/definitions/simple/tsconfig.definitions-simple.json",
+          "./src/code/definitions/tsconfig.definitions.json",
+          "./src/code/standard/cell-editors/tsconfig.standard-cell-editors.json",
+          "./src/code/standard/cell-editors/effects/tsconfig.standard-cell-editors-effects.json",
+          "./src/code/standard/cell-painters/tsconfig.standard-cell-painters.json",
+          "./src/code/standard/settings/tsconfig.standard-settings.json",
+          "./src/code/standard/tsconfig.standard.json",
+          "./src/code/settings-implementations/in-memory/tsconfig.settings-implementations-in-memory.json",
+          "./src/code/settings-implementations/discard/tsconfig.settings-implementations-discard.json",
+          "./src/code/settings-implementations/default/tsconfig.settings-implementations-default.json",
+          "./src/code/settings-implementations/tsconfig.settings-implementations.json",
+          "./src/code/tsconfig.code.json"
         ]
       },
       "extends": [

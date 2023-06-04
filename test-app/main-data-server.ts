@@ -60,7 +60,6 @@ export class MainDataServer implements DataServer {
             default:
                 throw new Error(`Unexpected field name: ${fieldName}`);
         }
-
     }
 
     getCellPainter(viewCell: DatalessViewCell): CellPainter {

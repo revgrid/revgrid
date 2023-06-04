@@ -2,16 +2,18 @@ import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { CellEditor } from '../../interfaces/dataless/cell-editor';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { KeyboardEventKey } from '../../types-utils/html-types';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FocusScrollUiBehavior extends UiBehavior {
+export class FocusScrollUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
     readonly typeName = FocusScrollUiBehavior.typeName;
 
-    override handlePointerDown(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerDown(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -23,16 +25,22 @@ export class FocusScrollUiBehavior extends UiBehavior {
         return super.handlePointerDown(event, cell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell !== null && !cell.isMouseOverLine()) {
-            if (this.gridSettings.editOnDoubleClick && cell.subgrid.isMain && !cell.isFixed) {
-                this.focus.tryOpenEditor(cell);
+        if (cell !== this.focus.cell) {
+            // not a focusable cell
+            return super.handleDblClick(event, cell);
+        } else {
+            if (cell !== null && !cell.isMouseOverLine()) {
+                if (cell.columnSettings.editOnDoubleClick && cell.subgrid.isMain && !cell.isFixed) {
+                    this.focus.tryOpenEditor();
+                    return cell;
+                }
             }
+            return super.handleDblClick(event, cell);
         }
-        return super.handleDblClick(event, cell);
     }
 
     /**
@@ -140,10 +148,11 @@ export class FocusScrollUiBehavior extends UiBehavior {
                 }
                 default: {
                     if (key === this.gridSettings.editKey) {
-                        this.focus.tryOpenEditor(undefined);
+                        this.focus.tryOpenEditor();
                         consumedByEditor = true;
                     } else {
-                        if (this.gridSettings.editOnKeydown) {
+                        const cell = this.focus.cell;
+                        if (cell !== undefined && cell.columnSettings.editOnKeydown) {
                             consumedByEditor = this.focus.tryOpenEditorWithKey(key);
                         }
                     }
@@ -180,7 +189,7 @@ export class FocusScrollUiBehavior extends UiBehavior {
         // }
     }
 
-    override handleWheelMove(event: WheelEvent, cell: HoverCell | null | undefined) {
+    override handleWheelMove(event: WheelEvent, cell: HoverCell<MCS> | null | undefined) {
         const gridSettings = this.gridSettings;
         if (gridSettings.scrollingEnabled) {
             const deltaX = event.deltaX;
@@ -270,7 +279,7 @@ export class FocusScrollUiBehavior extends UiBehavior {
         }
     }
 
-    private checkDivertToEditor(eventDetail: EventDetail.Keyboard, wantProperty: keyof CellEditor): boolean {
+    private checkDivertToEditor(eventDetail: EventDetail.Keyboard, wantProperty: keyof CellEditor<MCS>): boolean {
         const editor = this.focus.editor;
         if (editor !== undefined && editor[wantProperty] && editor.keyDown !== undefined) {
             editor.keyDown(eventDetail);

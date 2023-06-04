@@ -1,7 +1,8 @@
 import { ViewCell } from '../../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../../interfaces/data/view-layout-row';
 import { ViewLayoutColumn } from '../../../interfaces/schema/view-layout-column';
-import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../../interfaces/settings/mergable-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { Rectangle } from '../../../types-utils/rectangle';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -11,7 +12,7 @@ import { Selection } from '../../selection/selection';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
-export abstract class GridPainter {
+export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
     protected _renderingContext: CachedCanvasRenderingContext2D;
 
     private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
@@ -27,13 +28,13 @@ export abstract class GridPainter {
     private _rowBundlesComputationId = -1;
 
     constructor(
-        protected readonly gridSettings: GridSettings,
-        protected readonly canvasManager: CanvasManager,
-        protected readonly subgridsManager: SubgridsManager,
-        protected readonly viewLayout: ViewLayout,
-        protected readonly focus: Focus,
-        protected readonly selection: Selection,
-        protected readonly mouse: Mouse,
+        protected readonly gridSettings: MGS,
+        protected readonly canvasManager: CanvasManager<MGS>,
+        protected readonly subgridsManager: SubgridsManager<MGS, MCS>,
+        protected readonly viewLayout: ViewLayout<MGS, MCS>,
+        protected readonly focus: Focus<MGS, MCS>,
+        protected readonly selection: Selection<MGS, MCS>,
+        protected readonly mouse: Mouse<MGS, MCS>,
         protected readonly repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
         public readonly key: string,
         public readonly partial: boolean,
@@ -49,7 +50,7 @@ export abstract class GridPainter {
         this._columnRebundlingRequired = true;
     }
 
-    getColumnBundles(viewLayoutColumns: ViewLayoutColumn[]) {
+    getColumnBundles(viewLayoutColumns: ViewLayoutColumn<MCS>[]) {
         if (this._columnBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._columnRebundlingRequired) {
             this._columnBundles = this.calculateColumnBundles(viewLayoutColumns);
 
@@ -59,7 +60,7 @@ export abstract class GridPainter {
         return this._columnBundles;
     }
 
-    getRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow[]) {
+    getRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<MCS>[]) {
         if (this._rowBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._rowRebundlingRequired) {
             this._rowBundlesAndPrefixColors = this.calculateRowBundlesAndPrefillColors(viewLayoutRows);
 
@@ -72,7 +73,7 @@ export abstract class GridPainter {
     abstract paintCells(): void;
 
     protected paintCell(
-        viewCell: ViewCell,
+        viewCell: ViewCell<MCS>,
         prefillColor: string | undefined,
     ): number | undefined {
         const focus = this.focus;
@@ -87,11 +88,11 @@ export abstract class GridPainter {
                 }
             }
         }
-        const cellPainter = viewCell.subgrid.dataServer.getCellPainter(viewCell);
+        const cellPainter = viewCell.subgrid.getCellPainter(viewCell);
         return cellPainter.paint(prefillColor);
     }
 
-    paintErrorCell(err: Error, vc: ViewLayoutColumn, vr: ViewLayoutRow) {
+    paintErrorCell(err: Error, vc: ViewLayoutColumn<MCS>, vr: ViewLayoutRow<MCS>) {
         const gc = this._renderingContext;
         const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
 
@@ -120,37 +121,32 @@ export abstract class GridPainter {
 
         if (columnCount > 0 && rowCount > 0) {
             const gc = this._renderingContext;
-            const gridProps = this.gridSettings;
-            const C1 = columnCount - 1;
-            const R1 = rowCount - 1;
+            const gridSettings = this.gridSettings;
+            const lastColumnIndex = columnCount - 1;
+            const lastRowIndex = rowCount - 1;
             const firstVisibleColumnLeft = viewLayoutColumns[0].left;
-            const lastVisibleColumnRight = viewLayoutColumns[C1].rightPlus1;
+            const lastVisibleColumnRight = viewLayoutColumns[lastColumnIndex].rightPlus1;
             const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
-            const viewHeight = viewLayoutRows[R1].bottomPlus1;
-            const gridLinesVColor = gridProps.gridLinesVColor;
-            const gridLinesHColor = gridProps.gridLinesHColor;
+            const viewHeight = viewLayoutRows[lastRowIndex].bottomPlus1;
+            const gridLinesVColor = gridSettings.gridLinesVColor;
+            const gridLinesHColor = gridSettings.gridLinesHColor;
             // const borderBox = gridProps.boxSizing === 'border-box';
 
-            if (
-                gridProps.gridLinesV && ( // drawing vertical grid lines?
-                    gridProps.gridLinesUserDataArea || // drawing vertical grid lines between data columns?
-                    gridProps.gridLinesColumnHeader // drawing vertical grid lines between header columns?
-                )
-            ) {
-                const gridLinesVWidth = gridProps.gridLinesVWidth;
+            if (gridSettings.gridLinesV && gridSettings.verticalGridLinesVisible) {
+                const gridLinesVWidth = gridSettings.gridLinesVWidth;
                 const preMainRowCount = this.subgridsManager.calculatePreMainRowCount();
                 const lastPreMainRow = viewLayoutRows[preMainRowCount - 1]; // any header rows?
                 const firstDataRow = viewLayoutRows[preMainRowCount]; // any data rows?
                 const userDataAreaTop = firstDataRow && firstDataRow.top;
-                const top = gridProps.gridLinesColumnHeader ? 0 : userDataAreaTop;
-                const bottom = gridProps.gridLinesUserDataArea ? viewHeight : lastPreMainRow && lastPreMainRow.bottomPlus1;
+                const top = gridSettings.verticalGridLinesVisible ? 0 : userDataAreaTop;
+                const bottom = gridSettings.horizontalGridLinesVisible ? viewHeight : lastPreMainRow && lastPreMainRow.bottomPlus1;
 
                 if (top !== undefined && bottom !== undefined) { // either undefined means nothing to draw
                     gc.cache.fillStyle = gridLinesVColor;
 
                     viewLayoutColumns.forEach((vc, c) => {
                         if (
-                            c < C1 // don't draw rule after last column
+                            c < lastColumnIndex // don't draw rule after last column
                         ) {
                             const x = vc.rightPlus1;
                             const height = bottom  - top;
@@ -159,7 +155,7 @@ export abstract class GridPainter {
                             gc.fillRect(x, top, gridLinesVWidth, height);
 
                             // when above drew a line segment in header, draw a second vertical grid line between data cells
-                            if (gridProps.gridLinesUserDataArea) {
+                            if (gridSettings.horizontalGridLinesVisible) {
                                 gc.fillRect(x, userDataAreaTop, gridLinesVWidth, bottom - userDataAreaTop);
                             }
                         }
@@ -167,14 +163,14 @@ export abstract class GridPainter {
                 }
             }
 
-            if (gridProps.gridLinesH && gridProps.gridLinesUserDataArea) {
-                const gridLinesHWidth = gridProps.gridLinesHWidth;
+            if (gridSettings.gridLinesH && gridSettings.horizontalGridLinesVisible) {
+                const gridLinesHWidth = gridSettings.gridLinesHWidth;
                 const width = lastVisibleColumnRight - firstVisibleColumnLeft;
 
                 gc.cache.fillStyle = gridLinesHColor;
 
                 viewLayoutRows.forEach(function(vr, r) {
-                    if (r < R1) { // don't draw rule below last row
+                    if (r < lastRowIndex) { // don't draw rule below last row
                         const y = vr.bottomPlus1;
                         gc.fillRect(firstVisibleColumnLeft, y, width, gridLinesHWidth);
                     }
@@ -183,11 +179,11 @@ export abstract class GridPainter {
 
             // draw fixed rule lines over grid rule lines
 
-            if (gridProps.fixedLinesHWidth !== undefined) {
+            if (gridSettings.fixedLinesHWidth !== undefined) {
                 const rowGap = viewLayoutRows.gap;
                 if (rowGap !== undefined) {
-                    gc.cache.fillStyle = gridProps.fixedLinesHColor || gridLinesHColor;
-                    const edgeWidth = gridProps.fixedLinesHEdge;
+                    gc.cache.fillStyle = gridSettings.fixedLinesHColor || gridLinesHColor;
+                    const edgeWidth = gridSettings.fixedLinesHEdge;
                     if (edgeWidth !== undefined) {
                         gc.fillRect(firstVisibleColumnLeft, rowGap.top, viewWidth, edgeWidth);
                         gc.fillRect(firstVisibleColumnLeft, rowGap.bottom - edgeWidth, viewWidth, edgeWidth);
@@ -197,11 +193,11 @@ export abstract class GridPainter {
                 }
             }
 
-            if (gridProps.fixedLinesVWidth !== undefined) {
+            if (gridSettings.fixedLinesVWidth !== undefined) {
                 const columnGap = viewLayoutColumns.gap;
                 if (columnGap !== undefined) {
-                    gc.cache.fillStyle = gridProps.fixedLinesVColor || gridLinesVColor;
-                    const edgeWidth = gridProps.fixedLinesVEdge;
+                    gc.cache.fillStyle = gridSettings.fixedLinesVColor || gridLinesVColor;
+                    const edgeWidth = gridSettings.fixedLinesVEdge;
                     if (edgeWidth !== undefined) {
                         gc.fillRect(columnGap.left, 0, edgeWidth, viewHeight);
                         gc.fillRect(columnGap.rightPlus1 - edgeWidth, 0, edgeWidth, viewHeight);
@@ -287,8 +283,8 @@ export abstract class GridPainter {
                     // selection needs scrollable data
                     return undefined;
                 } else {
-                    let vc: ViewLayoutColumn;
-                    let vr: ViewLayoutRow;
+                    let vc: ViewLayoutColumn<MCS>;
+                    let vr: ViewLayoutRow<MCS>;
                     const lastScrollableColumn = columns[columnCount - 1]; // last column in scrollable section
                     const lastScrollableRow = rows[rowCount - 1]; // last row in scrollable data section
                     const firstScrollableColumn = columns[firstScrollableColumnIndex];
@@ -356,7 +352,7 @@ export abstract class GridPainter {
         }
     }
 
-    private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn[]): GridPainter.ColumnBundle[] {
+    private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn<MCS>[]): GridPainter.ColumnBundle[] {
         const gridProps = this.gridSettings;
         const columnCount = viewLayoutColumns.length;
 
@@ -390,7 +386,7 @@ export abstract class GridPainter {
         return bundles;
     }
 
-    private calculateRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow[]): GridPainter.RowBundlesAndPrefillColors | undefined {
+    private calculateRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<MCS>[]): GridPainter.RowBundlesAndPrefillColors | undefined {
         const gridProps = this.gridSettings;
         const stripes = gridProps.rowStripes;
         if (stripes === undefined) {
@@ -471,16 +467,16 @@ export abstract class GridPainter {
 export namespace GridPainter {
     export type ResetAllGridPaintersRequiredEventer = (this: void, blackList: string[]) => void;
     export type RepaintAllRequiredEventer = (this: void) => void;
-    export type Constructor = new(
-        gridProperties: GridSettings,
-        canvasManager: CanvasManager,
-        subgridsManager: SubgridsManager,
-        viewLayout: ViewLayout,
-        focus: Focus,
-        selection: Selection,
-        mouse: Mouse,
+    export type Constructor<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> = new(
+        gridProperties: MGS,
+        canvasManager: CanvasManager<MGS>,
+        subgridsManager: SubgridsManager<MGS, MCS>,
+        viewLayout: ViewLayout<MGS, MCS>,
+        focus: Focus<MGS, MCS>,
+        selection: Selection<MGS, MCS>,
+        mouse: Mouse<MGS, MCS>,
         repaintAllRequired: RepaintAllRequiredEventer,
-    ) => GridPainter;
+    ) => GridPainter<MGS, MCS>;
 
     export interface ColumnBundle {
         backgroundColor: string;

@@ -1,6 +1,8 @@
 import { EventDetail } from '../../components/event/event-detail';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
@@ -15,19 +17,19 @@ interface Action {
 }
 
 /** @internal */
-interface MoveAction extends Action {
+interface MoveAction<MCS extends MergableColumnSettings> extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
-    source: ViewLayoutColumn;
-    target: ViewLayoutColumn;
+    source: ViewLayoutColumn<MCS>;
+    target: ViewLayoutColumn<MCS>;
 }
 
 /** @internal */
-interface ScrollAction extends Action {
+interface ScrollAction<MCS extends MergableColumnSettings> extends Action {
     type: DragActionType.Scroll;
     toRight: boolean;
     mouseOffGrid: boolean; // only considers left and right off grid
-    source: ViewLayoutColumn;
+    source: ViewLayoutColumn<MCS>;
 }
 
 /** @internal */
@@ -36,14 +38,14 @@ interface NoAction extends Action {
 }
 
 /** @internal */
-type ColumnDragAction = MoveAction | ScrollAction | NoAction
+type ColumnDragAction<MCS extends MergableColumnSettings> = MoveAction<MCS> | ScrollAction<MCS> | NoAction
 
 /** @internal */
-export class ColumnMovingUiBehavior extends UiBehavior {
+export class ColumnMovingUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
     readonly typeName = ColumnMovingUiBehavior.typeName;
 
     private _dragOverlay: HTMLCanvasElement | undefined;
-    private _dragColumn: ViewLayoutColumn | undefined;
+    private _dragColumn: ViewLayoutColumn<MCS> | undefined;
     private _scrolling = false;
     private _scrollVelocity = 0;
 
@@ -51,7 +53,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         super.initializeOn();
     }
 
-    override handlePointerDragStart(event: DragEvent, cell: HoverCell | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, cell: HoverCell<MCS> | null | undefined) {
         if (!this.gridSettings.columnsReorderable) {
             return super.handlePointerDragStart(event, cell);
         } else {
@@ -91,7 +93,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         const dragColumn = this._dragColumn;
         if (dragColumn === undefined) {
             return super.handlePointerDragEnd(event, cell);
@@ -113,7 +115,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (this.gridSettings.columnsReorderable) {
@@ -133,7 +135,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         return super.handlePointerMove(event, cell);
     }
 
-    override handlePointerDrag(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
 
         // if (event.isColumnFixed) {
         //     super.handleMouseDrag(grid, event);
@@ -156,7 +158,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         }
     }
 
-    private scroll(action: ScrollAction) {
+    private scroll(action: ScrollAction<MCS>) {
         this._scrollVelocity = action.toRight ? 1 : -1;
 
         if (!this._scrolling) {
@@ -170,7 +172,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         this._scrollVelocity = 0;
     }
 
-    private beginGridScrolling(action: ScrollAction) {
+    private beginGridScrolling(action: ScrollAction<MCS>) {
         setTimeout(() => {
             if (!this._scrolling) {
                 return;
@@ -185,7 +187,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         400);
     }
 
-    private render(dragAction: ColumnDragAction | undefined) {
+    private render(dragAction: ColumnDragAction<MCS> | undefined) {
         const dragColumn = this._dragColumn;
         if (dragColumn !== undefined) {
             const dragOverlay = this._dragOverlay;
@@ -224,7 +226,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         }
     }
 
-    private endDragColumn(dragAction: ColumnDragAction) {
+    private endDragColumn(dragAction: ColumnDragAction<MCS>) {
         switch (dragAction.type) {
             case DragActionType.Scroll:
                 if (this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid) {
@@ -242,7 +244,7 @@ export class ColumnMovingUiBehavior extends UiBehavior {
         this.eventBehavior.processColumnsChangedEvent();
     }
 
-    private getDragAction(event: MouseEvent, dragColumn: ViewLayoutColumn): ColumnDragAction {
+    private getDragAction(event: MouseEvent, dragColumn: ViewLayoutColumn<MCS>): ColumnDragAction<MCS> {
         const firstScrollableColumnViewLeft = this.viewLayout.scrollableCanvasLeft;
         if (firstScrollableColumnViewLeft === undefined) {
             return {

@@ -3,21 +3,24 @@ import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { CellEditor } from '../../interfaces/dataless/cell-editor';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Focus {
+export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
     /** @internal */
     changedEventer: Focus.ChangedEventer;
     /** @internal */
-    viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer;
+    viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer<MCS>;
+    /** @internal */
+    getCellEditorEventer: Focus.GetCellEditorEventer<MCS>;
 
-    readonly subgrid: Subgrid;
-    readonly dataServer: DataServer;
+    readonly subgrid: Subgrid<MCS>;
+    readonly dataServer: DataServer<MCS>;
 
     /** @internal */
     private _currentSubgridPoint: Point | undefined;
@@ -31,20 +34,20 @@ export class Focus {
     private _canvasY: number | undefined;
 
     /** @internal */
-    private _editor: CellEditor | undefined;
+    private _editor: CellEditor<MCS> | undefined;
     /** @internal */
-    private _cell: ViewCell | undefined;
+    private _cell: ViewCell<MCS> | undefined;
 
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _gridSettings: GridSettings,
+        private readonly _gridSettings: MGS,
         /** @internal */
-        private readonly _mainSubgrid: MainSubgrid,
+        private readonly _mainSubgrid: MainSubgrid<MCS>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager,
+        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout,
+        private readonly _viewLayout: ViewLayout<MGS, MCS>,
     ) {
         this.subgrid = this._mainSubgrid;
         this.dataServer = this.subgrid.dataServer;
@@ -76,7 +79,7 @@ export class Focus {
         this._currentSubgridPoint = undefined;
     }
 
-    set(newFocusPoint: Point, cell: ViewCell | undefined, canvasPoint: PartialPoint | undefined) {
+    set(newFocusPoint: Point, cell: ViewCell<MCS> | undefined, canvasPoint: PartialPoint | undefined) {
         const newFocusX = newFocusPoint.x;
         const newFocusY = newFocusPoint.y;
         const currentSubgridPoint = this._currentSubgridPoint;
@@ -107,13 +110,13 @@ export class Focus {
                 this.viewCellRenderInvalidatedEventer(cell);
             }
 
-            this.closeAndCheckTryOpenEditor(false, cell);
+            this.closeAndCheckTryOpenEditor(false);
 
             this.fireFocusChanged();
         }
     }
 
-    setX(activeColumnIndex: number, cell: ViewCell | undefined, canvasX: number | undefined) {
+    setX(activeColumnIndex: number, cell: ViewCell<MCS> | undefined, canvasX: number | undefined) {
         const currentSubgridPoint = this._currentSubgridPoint;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex) {
@@ -139,13 +142,13 @@ export class Focus {
                 this.viewCellRenderInvalidatedEventer(cell);
             }
 
-            this.closeAndCheckTryOpenEditor(false, cell);
+            this.closeAndCheckTryOpenEditor(false);
 
             this.fireFocusChanged();
         }
     }
 
-    setY(subgridRowIndex: number, cell: ViewCell | undefined, canvasY: number | undefined) {
+    setY(subgridRowIndex: number, cell: ViewCell<MCS> | undefined, canvasY: number | undefined) {
         const currentSubgridPoint = this._currentSubgridPoint;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.y !== subgridRowIndex) {
@@ -170,13 +173,13 @@ export class Focus {
                 this.viewCellRenderInvalidatedEventer(cell);
             }
 
-            this.closeAndCheckTryOpenEditor(false, cell);
+            this.closeAndCheckTryOpenEditor(false);
 
             this.fireFocusChanged();
         }
     }
 
-    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell | undefined, canvasX: number | undefined, canvasY: number | undefined) {
+    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell<MCS> | undefined, canvasX: number | undefined, canvasY: number | undefined) {
         const currentSubgridPoint = this._currentSubgridPoint;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex || currentSubgridPoint.y !== subgridRowIndex) {
@@ -203,7 +206,7 @@ export class Focus {
                 this.viewCellRenderInvalidatedEventer(cell);
             }
 
-            this.closeAndCheckTryOpenEditor(false, cell);
+            this.closeAndCheckTryOpenEditor(false);
 
             this.fireFocusChanged();
         }
@@ -213,7 +216,7 @@ export class Focus {
         return this._currentSubgridPoint !== undefined && activeColumnIndex === this._currentSubgridPoint.x;
     }
 
-    isSubgridRowFocused(subgridRowIndex: number, subgrid: Subgrid) {
+    isSubgridRowFocused(subgridRowIndex: number, subgrid: Subgrid<MCS>) {
         return subgrid === this._mainSubgrid && this.isMainSubgridRowFocused(subgridRowIndex);
     }
 
@@ -221,11 +224,11 @@ export class Focus {
         return this._currentSubgridPoint !== undefined && mainSubgridRowIndex === this._currentSubgridPoint.y;
     }
 
-    isCellFocused(cell: ViewCell) {
+    isCellFocused(cell: ViewCell<MCS>) {
         return cell === this._cell;
     }
 
-    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid) {
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<MCS>) {
         return subgrid === this._mainSubgrid && this.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
     }
 
@@ -237,25 +240,21 @@ export class Focus {
         );
     }
 
-    tryOpenEditor(cell: ViewCell | undefined) {
-        if (this._editor === undefined && this.dataServer.getCellEditor !== undefined) {
-            const currentSubgridPoint = this._currentSubgridPoint;
-            if (currentSubgridPoint !== undefined) {
-                const x = currentSubgridPoint.x;
-                const y = currentSubgridPoint.y;
-                if (cell === undefined) {
-                    cell = this._viewLayout.findHoverCell(x, y);
+    tryOpenEditor() {
+        if (this._editor !== undefined) {
+            return true;
+        } else {
+            const cell = this._cell;
+            if (cell === undefined || this.getCellEditorEventer === undefined) {
+                return false;
+            } else {
+                const editor = this.getCellEditorEventer(cell);
+                if (editor === undefined) {
+                    return false;
                 } else {
-                    if (x !== cell.viewLayoutColumn.activeColumnIndex || y !== cell.viewLayoutRow.subgridRowIndex) {
-                        throw new AssertError('FE55598', 'Cell is not focused');
-                    }
-                }
-                if (cell !== undefined) {
-                    const editor = this.dataServer.getCellEditor(cell);
-                    if (editor !== undefined) {
-                        editor.closedEventer = () => this.handleEditorClosed();
-                        this._editor = editor;
-                    }
+                    editor.closedEventer = () => this.handleEditorClosed();
+                    this._editor = editor;
+                    return true;
                 }
             }
         }
@@ -275,20 +274,21 @@ export class Focus {
         }
     }
 
-    closeAndCheckTryOpenEditor(cancel: boolean, cell: ViewCell | undefined) {
+    /** @internal */
+    closeAndCheckTryOpenEditor(cancel: boolean) {
         this.closeEditor(cancel);
 
         const currentSubgridPoint = this._currentSubgridPoint;
         if (currentSubgridPoint !== undefined) {
             const column = this._columnsManager.getActiveColumn(currentSubgridPoint.x);
             if (column.settings.editOnFocusCell) {
-                this.tryOpenEditor(cell);
+                this.tryOpenEditor();
             }
         }
     }
 
     /** @internal */
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer) {
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<MCS>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 Point.adjustForYRangeInserted(this._currentSubgridPoint, rowIndex, rowCount);
@@ -302,7 +302,7 @@ export class Focus {
     }
 
     /** @internal */
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer) {
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<MCS>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 const positionInDeletionRange = Point.adjustForYRangeDeleted(this._currentSubgridPoint, rowIndex, rowCount);
@@ -322,7 +322,7 @@ export class Focus {
     }
 
     /** @internal */
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer) {
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<MCS>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 Point.adjustForYRangeMoved(this._currentSubgridPoint, oldRowIndex, newRowIndex, count);
@@ -519,7 +519,9 @@ export namespace Focus {
     /** @internal */
     export type ChangedEventer = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
     /** @internal */
-    export type ViewCellRenderInvalidatedEventer = (this: void, cell: ViewCell) => void;
+    export type ViewCellRenderInvalidatedEventer<MCS extends MergableColumnSettings> = (this: void, cell: ViewCell<MCS>) => void;
+    /** @internal */
+    export type GetCellEditorEventer<MCS extends MergableColumnSettings> = (this: void, viewCell: ViewCell<MCS>) => CellEditor<MCS>;
 
     /** @internal */
     export interface Stash {

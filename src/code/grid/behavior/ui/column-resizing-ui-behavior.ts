@@ -1,15 +1,17 @@
 import { EventDetail } from '../../components/event/event-detail';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { Column, ColumnWidth } from '../../interfaces/schema/column';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { EventBehavior } from '../component/event-behavior';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class ColumnResizingUiBehavior extends UiBehavior {
+export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
 
     readonly typeName = ColumnResizingUiBehavior.typeName;
 
-    private _dragColumn: Column | undefined;
+    private _dragColumn: Column<MCS> | undefined;
 
     /**
      * the pixel location of the where the drag was initiated
@@ -22,9 +24,9 @@ export class ColumnResizingUiBehavior extends UiBehavior {
     private _dragStartWidth = -1;
 
     private _inPlaceAdjacentStartWidth: number;
-    private _inPlaceAdjacentColumn: Column | undefined;
+    private _inPlaceAdjacentColumn: Column<MCS> | undefined;
 
-    override handlePointerDrag(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         if (this._dragColumn === undefined) {
             return super.handlePointerDrag(event, cell);
         } else {
@@ -49,7 +51,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                     0 > delta && delta >= -(this._dragStartWidth - dp.minimumColumnWidth) &&
                     (!np.maximumColumnWidth || inPlaceAdjacentWidth < np.maximumColumnWidth)
                 ) {
-                    const columnWidths: ColumnWidth[] = [
+                    const columnWidths: ColumnWidth<MCS>[] = [
                         { column: this._dragColumn, width: dragWidth },
                         { column: this._inPlaceAdjacentColumn, width: inPlaceAdjacentWidth },
                     ];
@@ -60,7 +62,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDragStart(event: DragEvent, cell: HoverCell | null | undefined): EventBehavior.UiPointerDragStartResult {
+    override handlePointerDragStart(event: DragEvent, cell: HoverCell<MCS> | null | undefined): EventBehavior.UiPointerDragStartResult<MCS> {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -155,7 +157,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                     this._dragStart = canvasOffsetX;
 
                     if (this._dragColumn.settings.resizeColumnInPlace) {
-                        let column: Column | undefined;
+                        let column: Column<MCS> | undefined;
 
                         if (!gridRightBottomAligned) {
                             vcIndex++;
@@ -173,7 +175,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
 
                         if (column) {
                             this._inPlaceAdjacentColumn = column;
-                            this._inPlaceAdjacentStartWidth = column.getWidth();
+                            this._inPlaceAdjacentStartWidth = column.width;
                         } else {
                             this._inPlaceAdjacentColumn = undefined;
                         }
@@ -190,7 +192,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         if (this._dragColumn === undefined) {
             return super.handlePointerDragEnd(event, cell);
         } else {
@@ -202,7 +204,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         if (this._dragColumn === undefined) {
             const sharedState = this.sharedState;
             if (sharedState.locationCursorName === undefined) {
@@ -225,7 +227,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         return super.handlePointerMove(event, cell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -241,11 +243,20 @@ export class ColumnResizingUiBehavior extends UiBehavior {
                     return super.handleDblClick(event, cell);
                 } else {
                     let viewLayoutColumn = cell.viewLayoutColumn;
-                    if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.right) {
-                        // always work on the column to the right of the near grid line
-                        const columnIndex = viewLayoutColumn.index + 1;
-                        // columnIndex cannot be for last column as right grid line of last column cannot be near grid line
-                        viewLayoutColumn = this.viewLayout.columns[columnIndex + 1];
+                    if (this.gridSettings.gridRightAligned) {
+                        if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.right) {
+                            // always work on the column to the right of the near grid line
+                            const columnIndex = viewLayoutColumn.index;
+                            // columnIndex cannot be for last column as right grid line of last column cannot be near grid line
+                            viewLayoutColumn = this.viewLayout.columns[columnIndex + 1];
+                        }
+                    } else {
+                        if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.left) {
+                            // always work on the column to the left of the near grid line
+                            const columnIndex = viewLayoutColumn.index;
+                            // columnIndex cannot be for first column as left grid line of first column cannot be near grid line
+                            viewLayoutColumn = this.viewLayout.columns[columnIndex - 1];
+                        }
                     }
                     const column = viewLayoutColumn.column;
                     if (column.setWidthToAutoSizing()) {
@@ -257,7 +268,7 @@ export class ColumnResizingUiBehavior extends UiBehavior {
         }
     }
 
-    private calculateNearGridLine(canvasOffsetX: number, cell: HoverCell) {
+    private calculateNearGridLine(canvasOffsetX: number, cell: HoverCell<MCS>) {
         const cellBounds = cell.bounds;
         const cellLeft = cellBounds.x;
         const cellLeftOffset = canvasOffsetX - cellLeft;

@@ -1,5 +1,5 @@
-import { AbstractMergableColumnSettings } from '..';
+import { MergableColumnSettingsImplementation } from '..';
 
-export class TestAppMergableColumnSettings extends AbstractMergableColumnSettings {
+export class TestAppMergableColumnSettings extends MergableColumnSettingsImplementation {
 
 }

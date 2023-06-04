@@ -1,23 +1,24 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { MainSubgridImplementation } from './main-subgrid-implementation';
 import { SubgridImplementation } from './subgrid-implementation';
 
-export class SubgridsManager {
-    readonly mainSubgrid: MainSubgridImplementation;
-    readonly subgrids = new Array<SubgridImplementation>();
-    readonly _handledSubgrids = new Array<SubgridImplementation | undefined>();
+export class SubgridsManager<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+    readonly mainSubgrid: MainSubgridImplementation<MGS, MCS>;
+    readonly subgrids = new Array<SubgridImplementation<MGS, MCS>>();
+    readonly _handledSubgrids = new Array<SubgridImplementation<MGS, MCS> | undefined>();
 
     constructor(
-        private readonly _gridSettings: GridSettings,
-        private readonly _columnsManager: ColumnsManager,
-        definitions: Subgrid.Definition[],
+        private readonly _gridSettings: MGS,
+        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
+        definitions: Subgrid.Definition<MCS>[],
     ) {
-        let mainSubgrid: MainSubgridImplementation | undefined;
+        let mainSubgrid: MainSubgridImplementation<MGS, MCS> | undefined;
         const subgrids = this.subgrids;
         definitions.sort((left, right) => Subgrid.Role.gridOrderCompare(left.role, right.role));
         for (const definition of definitions) {
@@ -27,7 +28,7 @@ export class SubgridsManager {
                 subgrids.push(subgrid);
                 this._handledSubgrids.push(subgrid);
                 if (subgrid.role === Subgrid.RoleEnum.main) {
-                    mainSubgrid = subgrid as MainSubgridImplementation;
+                    mainSubgrid = subgrid as MainSubgridImplementation<MGS, MCS>;
                 }
             }
         }
@@ -52,7 +53,7 @@ export class SubgridsManager {
      */
     private createSubgridFromDefinition(
         subgridHandle: SubgridImplementation.Handle,
-        definition: Subgrid.Definition,
+        definition: Subgrid.Definition<MCS>,
     ) {
         const role = definition.role ?? Subgrid.Role.defaultRole;
         const isMainRole = role === Subgrid.RoleEnum.main;
@@ -80,20 +81,22 @@ export class SubgridsManager {
             definition.defaultRowHeight,
             rowHeightsCanDiffer,
             definition.rowPropertiesPrototype,
+            definition.getCellPainterEventer,
         );
     }
 
     /** @returns either Subgrid or MainSubgrid depending on role */
     private createSubgrid(
         subgridHandle: SubgridImplementation.Handle,
-        role: Subgrid.Role, dataServer: DataServer, metaModel: MetaModel | undefined,
+        role: Subgrid.Role, dataServer: DataServer<MCS>, metaModel: MetaModel | undefined,
         selectable: boolean,
         defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
+        getCellPainterEventer: Subgrid.GetCellPainterEventer<MCS>,
     ) {
-        let subgrid: SubgridImplementation;
+        let subgrid: SubgridImplementation<MGS, MCS>;
         if (role === Subgrid.RoleEnum.main) {
-            subgrid = new MainSubgridImplementation(
+            subgrid = new MainSubgridImplementation<MGS, MCS>(
                 this._gridSettings,
                 this._columnsManager,
                 subgridHandle,
@@ -105,6 +108,7 @@ export class SubgridsManager {
                 defaultRowHeight,
                 rowHeightsCanDiffer,
                 rowPropertiesPrototype,
+                getCellPainterEventer,
             );
         } else {
             subgrid = new SubgridImplementation(
@@ -119,6 +123,7 @@ export class SubgridsManager {
                 defaultRowHeight,
                 rowHeightsCanDiffer,
                 rowPropertiesPrototype,
+                getCellPainterEventer,
             );
         }
 

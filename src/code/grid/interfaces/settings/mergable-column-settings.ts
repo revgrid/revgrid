@@ -1,6 +1,7 @@
-import { ColumnSettings } from './column-settings';
+import { AllColumnSettings } from './all-column-settings';
+import { ColumnSettingsMerge } from './column-settings-merge';
 
 /** @public */
-export interface MergableColumnSettings extends ColumnSettings {
-    merge(properties: Partial<ColumnSettings>): void;
+export interface MergableColumnSettings extends AllColumnSettings, ColumnSettingsMerge {
+
 }

@@ -1,0 +1,17 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/standard-cell-editors-effects.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+  ]
+}

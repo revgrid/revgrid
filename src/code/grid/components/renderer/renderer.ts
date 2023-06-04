@@ -3,6 +3,7 @@ import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema/schema-server';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
 import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
@@ -17,10 +18,10 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 /** @internal */
-export class Renderer {
+export class Renderer<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
     renderedEventer: Renderer.RenderedEventer;
 
-    private readonly _gridPainterRepository: GridPainterRepository;
+    private readonly _gridPainterRepository: GridPainterRepository<MGS, MCS>;
     private readonly _animator: Animation.Animator;
     private readonly _renderActionQueue = new RenderActionQueue()
 
@@ -32,20 +33,20 @@ export class Renderer {
 
     private _destroyed = false;
 
-    private _gridPainter: GridPainter;
-    private _allGridPainter: GridPainter | undefined;
+    private _gridPainter: GridPainter<MGS, MCS>;
+    private _allGridPainter: GridPainter<MGS, MCS> | undefined;
 
     private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
 
     constructor(
-        private readonly _gridSettings: MergableGridSettings,
-        private readonly _canvasEx: CanvasManager,
-        private readonly _columnsManager: ColumnsManager,
-        private readonly _subgridsManager: SubgridsManager,
-        private readonly _viewLayout: ViewLayout,
-        private readonly _focus: Focus,
-        private readonly _selection: Selection,
-        private readonly _mouse: Mouse,
+        private readonly _gridSettings: MGS,
+        private readonly _canvasEx: CanvasManager<MGS>,
+        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
+        private readonly _subgridsManager: SubgridsManager<MGS, MCS>,
+        private readonly _viewLayout: ViewLayout<MGS, MCS>,
+        private readonly _focus: Focus<MGS, MCS>,
+        private readonly _selection: Selection<MGS, MCS>,
+        private readonly _mouse: Mouse<MGS, MCS>,
     ) {
         this._gridPainterRepository = new GridPainterRepository(
             this._gridSettings,
@@ -95,7 +96,7 @@ export class Renderer {
         this._destroyed = true;
     }
 
-    registerGridPainter(key: string, constructor: GridPainter.Constructor) {
+    registerGridPainter(key: string, constructor: GridPainter.Constructor<MGS, MCS>) {
         this._gridPainterRepository.register(key, constructor);
     }
 
@@ -163,7 +164,7 @@ export class Renderer {
         this._renderActionQueue.invalidateViewRender();
     }
 
-    invalidateViewCellRender(cell: ViewCell) {
+    invalidateViewCellRender(cell: ViewCell<MCS>) {
         this._renderActionQueue.invalidateViewCellRender(cell);
     }
 
@@ -321,7 +322,7 @@ export class Renderer {
         // before end-of-thread so user sees only the results of the 2nd render.
         // Mostly important on first render after setData. Note that stack overflow
         // will not happen because this will only be called once per data change.
-        if (this._columnsManager.checkColumnAutosizing(false, true)) {
+        if (this._columnsManager.checkColumnAutosizing(true, true)) {
             this._viewLayout.ensureValidInsideAnimationFrame();
             this._gridPainter.paintCells();
         }

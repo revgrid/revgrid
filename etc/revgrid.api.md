@@ -23,600 +23,6 @@ export abstract class AbstractCellPainter implements CellPainter {
     setGrid(value: Revgrid): void;
 }
 
-// @public (undocumented)
-export abstract class AbstractMergableColumnSettings implements MergableColumnSettings {
-    constructor(gridSettings: GridSettings, initialColumnSettings: Partial<ColumnSettings> | undefined);
-    // (undocumented)
-    get backgroundColor(): GridSettings.Color;
-    set backgroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get backgroundSelectionColor(): string;
-    // (undocumented)
-    get cellPadding(): number;
-    set cellPadding(value: number);
-    // (undocumented)
-    get cellPainter(): string;
-    // (undocumented)
-    get color(): string;
-    // (undocumented)
-    get columnAutosized(): boolean;
-    set columnAutosized(value: boolean);
-    // (undocumented)
-    get columnAutosizing(): boolean;
-    set columnAutosizing(value: boolean);
-    // (undocumented)
-    get columnAutosizingMax(): number;
-    set columnAutosizingMax(value: number);
-    // (undocumented)
-    get columnClip(): boolean | undefined;
-    set columnClip(value: boolean | undefined);
-    // (undocumented)
-    get editable(): boolean;
-    set editable(value: boolean);
-    // (undocumented)
-    get editOnDoubleClick(): boolean;
-    set editOnDoubleClick(value: boolean);
-    // (undocumented)
-    get editOnFocusCell(): boolean;
-    set editOnFocusCell(value: boolean);
-    // (undocumented)
-    get editOnKeydown(): boolean;
-    set editOnKeydown(value: boolean);
-    // (undocumented)
-    get editor(): string | undefined;
-    set editor(value: string | undefined);
-    // (undocumented)
-    get feedbackCount(): number;
-    set feedbackCount(value: number);
-    // (undocumented)
-    readonly filter: AbstractMergableColumnSettings.Filter;
-    // (undocumented)
-    get filterable(): boolean;
-    set filterable(value: boolean);
-    // (undocumented)
-    get font(): string;
-    set font(value: string);
-    // (undocumented)
-    get foregroundSelectionColor(): string;
-    // (undocumented)
-    get foregroundSelectionFont(): string;
-    // (undocumented)
-    get format(): string | undefined;
-    set format(value: string | undefined);
-    // (undocumented)
-    get gridLinesHWidth(): number;
-    set gridLinesHWidth(value: number);
-    // (undocumented)
-    get gridLinesVWidth(): number;
-    set gridLinesVWidth(value: number);
-    // (undocumented)
-    readonly gridSettings: GridSettings;
-    // (undocumented)
-    get halign(): Halign;
-    set halign(value: Halign);
-    // (undocumented)
-    readonly header: AbstractMergableColumnSettings.ColumnHeader;
-    // (undocumented)
-    get link(): false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
-    set link(value: false | string | GridSettings.LinkProp | GridSettings.LinkFunction);
-    // (undocumented)
-    get linkTarget(): string;
-    set linkTarget(value: string);
-    // (undocumented)
-    get maximumColumnWidth(): number | undefined;
-    set maximumColumnWidth(value: number | undefined);
-    // (undocumented)
-    merge(properties: Partial<ColumnSettings>): void;
-    // (undocumented)
-    get minimumColumnWidth(): number;
-    set minimumColumnWidth(value: number);
-    // (undocumented)
-    get mouseCellSelection(): boolean;
-    set mouseCellSelection(value: boolean);
-    // (undocumented)
-    get preferredWidth(): number | undefined;
-    set preferredWidth(value: number | undefined);
-    // (undocumented)
-    get resizeColumnInPlace(): boolean;
-    set resizeColumnInPlace(value: boolean);
-    // (undocumented)
-    get sortable(): boolean;
-    set sortable(value: boolean);
-    // (undocumented)
-    get sortOnDoubleClick(): boolean;
-    set sortOnDoubleClick(value: boolean);
-    // (undocumented)
-    get width(): number;
-    set width(value: number);
-}
-
-// @public (undocumented)
-export namespace AbstractMergableColumnSettings {
-    // (undocumented)
-    export class ColumnHeader implements ColumnSettings.Header {
-        constructor(_gridProperties: GridSettings);
-        // (undocumented)
-        get backgroundColor(): string;
-        set backgroundColor(value: string);
-        // (undocumented)
-        get backgroundSelectionColor(): string;
-        set backgroundSelectionColor(value: string);
-        // (undocumented)
-        get color(): string;
-        set color(value: string);
-        // (undocumented)
-        get font(): string;
-        set font(value: string);
-        // (undocumented)
-        get foregroundSelectionColor(): string;
-        set foregroundSelectionColor(value: string);
-        // (undocumented)
-        get foregroundSelectionFont(): string;
-        set foregroundSelectionFont(value: string);
-        // (undocumented)
-        get format(): string;
-        set format(value: string);
-        // (undocumented)
-        get halign(): Halign;
-        set halign(value: Halign);
-    }
-    // (undocumented)
-    export class Filter implements ColumnSettings.Filter {
-        constructor(_gridProperties: GridSettings);
-        // (undocumented)
-        get backgroundColor(): string;
-        set backgroundColor(value: string);
-        // (undocumented)
-        get backgroundSelectionColor(): string;
-        set backgroundSelectionColor(value: string);
-        // (undocumented)
-        get cellPainter(): string;
-        set cellPainter(value: string);
-        // (undocumented)
-        get color(): string;
-        set color(value: string);
-        // (undocumented)
-        get editor(): string;
-        set editor(value: string);
-        // (undocumented)
-        get font(): string;
-        set font(value: string);
-        // (undocumented)
-        get foregroundSelectionColor(): string;
-        set foregroundSelectionColor(value: string);
-        // (undocumented)
-        get format(): string;
-        set format(value: string);
-        // (undocumented)
-        get halign(): Halign;
-        set halign(value: Halign);
-        // (undocumented)
-        get rightIcon(): string;
-        set rightIcon(value: string);
-    }
-}
-
-// @public (undocumented)
-export abstract class AbstractMergableGridSettings implements MergableGridSettings {
-    constructor(nonDefaultSettings?: Partial<GridSettings>);
-    // Warning: (ae-forgotten-export) The symbol "ModifierKeyEnum" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    get addToggleSelectionAreaModifierKey(): ModifierKeyEnum;
-    set addToggleSelectionAreaModifierKey(value: ModifierKeyEnum);
-    // (undocumented)
-    get addToggleSelectionAreaModifierKeyDoesToggle(): boolean;
-    set addToggleSelectionAreaModifierKeyDoesToggle(value: boolean);
-    // (undocumented)
-    get autoSelectColumns(): boolean;
-    set autoSelectColumns(value: boolean);
-    // (undocumented)
-    get autoSelectRows(): boolean;
-    set autoSelectRows(value: boolean);
-    // (undocumented)
-    get backgroundColor(): GridSettings.Color;
-    set backgroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get backgroundSelectionColor(): GridSettings.Color;
-    set backgroundSelectionColor(value: GridSettings.Color);
-    get cellHoverBackgroundColor(): string | undefined;
-    set cellHoverBackgroundColor(value: string | undefined);
-    // (undocumented)
-    get cellPadding(): number;
-    set cellPadding(value: number);
-    get cellPainter(): string;
-    set cellPainter(value: string);
-    // (undocumented)
-    get checkboxOnlyRowSelections(): boolean;
-    set checkboxOnlyRowSelections(value: boolean);
-    // (undocumented)
-    get color(): GridSettings.Color;
-    set color(value: GridSettings.Color);
-    get columnAutosized(): boolean;
-    set columnAutosized(value: boolean);
-    get columnAutosizing(): boolean;
-    set columnAutosizing(value: boolean);
-    get columnAutosizingMax(): number;
-    set columnAutosizingMax(value: number);
-    get columnClip(): boolean | undefined;
-    set columnClip(value: boolean | undefined);
-    get columnGrabMargin(): number;
-    set columnGrabMargin(value: number);
-    // (undocumented)
-    get columnHeaderBackgroundColor(): GridSettings.Color;
-    set columnHeaderBackgroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderBackgroundSelectionColor(): GridSettings.Color;
-    set columnHeaderBackgroundSelectionColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderColor(): GridSettings.Color;
-    set columnHeaderColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderFont(): string;
-    set columnHeaderFont(value: string);
-    // (undocumented)
-    get columnHeaderForegroundSelectionColor(): GridSettings.Color;
-    set columnHeaderForegroundSelectionColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderForegroundSelectionFont(): string;
-    set columnHeaderForegroundSelectionFont(value: string);
-    // (undocumented)
-    get columnHeaderFormat(): string;
-    set columnHeaderFormat(value: string);
-    // (undocumented)
-    get columnHeaderHalign(): Halign;
-    set columnHeaderHalign(value: Halign);
-    get columnHoverBackgroundColors(): GridSettings.ColumnHoverBackgroundColors;
-    set columnHoverBackgroundColors(value: GridSettings.ColumnHoverBackgroundColors);
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@memberOf" is not defined in this configuration
-    get columnIndexes(): number[];
-    set columnIndexes(schemaColumnIndexes: number[]);
-    // (undocumented)
-    get columnMoveDragActiveCursorName(): string | undefined;
-    set columnMoveDragActiveCursorName(value: string | undefined);
-    // (undocumented)
-    get columnMoveDragPossibleCursorName(): string | undefined;
-    set columnMoveDragPossibleCursorName(value: string | undefined);
-    // (undocumented)
-    get columnResizeDragActiveCursorName(): string | undefined;
-    set columnResizeDragActiveCursorName(value: string | undefined);
-    // (undocumented)
-    get columnResizeDragPossibleCursorName(): string | undefined;
-    set columnResizeDragPossibleCursorName(value: string | undefined);
-    // (undocumented)
-    get columnSortPossibleCursorName(): string | undefined;
-    set columnSortPossibleCursorName(value: string | undefined);
-    get columnsReorderable(): boolean;
-    set columnsReorderable(value: boolean);
-    // (undocumented)
-    get columnsReorderableHideable(): boolean;
-    set columnsReorderableHideable(value: boolean);
-    // (undocumented)
-    get defaultColumnWidth(): number;
-    set defaultColumnWidth(value: number);
-    // (undocumented)
-    get defaultRowHeight(): number;
-    set defaultRowHeight(value: number);
-    // (undocumented)
-    get editable(): boolean;
-    set editable(value: boolean);
-    // (undocumented)
-    get editKey(): string;
-    set editKey(value: string);
-    get editOnDoubleClick(): boolean;
-    set editOnDoubleClick(value: boolean);
-    get editOnFocusCell(): boolean;
-    set editOnFocusCell(value: boolean);
-    // (undocumented)
-    get editOnKeydown(): boolean;
-    set editOnKeydown(value: boolean);
-    get editor(): string | undefined;
-    set editor(value: string | undefined);
-    get enableContinuousRepaint(): boolean;
-    set enableContinuousRepaint(value: boolean);
-    // (undocumented)
-    get eventDispatchEnabled(): boolean;
-    set eventDispatchEnabled(value: boolean);
-    // (undocumented)
-    get extendLastSelectionAreaModifierKey(): ModifierKeyEnum;
-    set extendLastSelectionAreaModifierKey(value: ModifierKeyEnum);
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@memberOf" is not defined in this configuration
-    get features(): string[];
-    set features(features: string[]);
-    get feedbackCount(): number;
-    set feedbackCount(value: number);
-    // (undocumented)
-    get feedbackEffect(): GridSettings.FeedbackEffect;
-    set feedbackEffect(value: GridSettings.FeedbackEffect);
-    // (undocumented)
-    get fetchSubregions(): boolean;
-    set fetchSubregions(value: boolean);
-    // (undocumented)
-    get filterable(): boolean;
-    set filterable(value: boolean);
-    // (undocumented)
-    get filterBackgroundColor(): GridSettings.Color;
-    set filterBackgroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get filterBackgroundSelectionColor(): GridSettings.Color;
-    set filterBackgroundSelectionColor(value: GridSettings.Color);
-    // (undocumented)
-    get filterCellPainter(): string;
-    set filterCellPainter(value: string);
-    // (undocumented)
-    get filterColor(): GridSettings.Color;
-    set filterColor(value: GridSettings.Color);
-    // (undocumented)
-    get filterEditor(): string;
-    set filterEditor(value: string);
-    // (undocumented)
-    get filterFont(): string;
-    set filterFont(value: string);
-    // (undocumented)
-    get filterForegroundSelectionColor(): GridSettings.Color;
-    set filterForegroundSelectionColor(value: GridSettings.Color);
-    // (undocumented)
-    get filterHalign(): Halign;
-    set filterHalign(value: Halign);
-    // (undocumented)
-    get fixedColumnCount(): number;
-    set fixedColumnCount(value: number);
-    // (undocumented)
-    get fixedLinesHColor(): GridSettings.Color;
-    set fixedLinesHColor(value: GridSettings.Color);
-    // (undocumented)
-    get fixedLinesHEdge(): number | undefined;
-    set fixedLinesHEdge(value: number | undefined);
-    // (undocumented)
-    get fixedLinesHWidth(): number | undefined;
-    set fixedLinesHWidth(value: number | undefined);
-    // (undocumented)
-    get fixedLinesVColor(): GridSettings.Color;
-    set fixedLinesVColor(value: GridSettings.Color);
-    // (undocumented)
-    get fixedLinesVEdge(): number | undefined;
-    set fixedLinesVEdge(value: number | undefined);
-    // (undocumented)
-    get fixedLinesVWidth(): number | undefined;
-    set fixedLinesVWidth(value: number | undefined);
-    // (undocumented)
-    get fixedRowCount(): number;
-    set fixedRowCount(value: number);
-    // (undocumented)
-    get focusedCellBorderColor(): string;
-    set focusedCellBorderColor(value: string);
-    // (undocumented)
-    get font(): string;
-    set font(value: string);
-    // (undocumented)
-    get foregroundSelectionColor(): GridSettings.Color;
-    set foregroundSelectionColor(value: GridSettings.Color);
-    // (undocumented)
-    get foregroundSelectionFont(): string;
-    set foregroundSelectionFont(value: string);
-    get format(): string | undefined;
-    set format(value: string | undefined);
-    // (undocumented)
-    get gridBorder(): boolean | string;
-    set gridBorder(value: boolean | string);
-    // (undocumented)
-    get gridBorderBottom(): boolean | string;
-    set gridBorderBottom(value: boolean | string);
-    // (undocumented)
-    get gridBorderLeft(): boolean | string;
-    set gridBorderLeft(value: boolean | string);
-    // (undocumented)
-    get gridBorderRight(): boolean | string;
-    set gridBorderRight(value: boolean | string);
-    // (undocumented)
-    get gridBorderTop(): boolean | string;
-    set gridBorderTop(value: boolean | string);
-    // (undocumented)
-    get gridLinesColumnHeader(): boolean;
-    set gridLinesColumnHeader(value: boolean);
-    // (undocumented)
-    get gridLinesH(): boolean;
-    set gridLinesH(value: boolean);
-    // (undocumented)
-    get gridLinesHColor(): GridSettings.Color;
-    set gridLinesHColor(value: GridSettings.Color);
-    // (undocumented)
-    get gridLinesHWidth(): number;
-    set gridLinesHWidth(value: number);
-    // (undocumented)
-    get gridLinesUserDataArea(): boolean;
-    set gridLinesUserDataArea(value: boolean);
-    // (undocumented)
-    get gridLinesV(): boolean;
-    set gridLinesV(value: boolean);
-    // (undocumented)
-    get gridLinesVColor(): GridSettings.Color;
-    set gridLinesVColor(value: GridSettings.Color);
-    // (undocumented)
-    get gridLinesVWidth(): number;
-    set gridLinesVWidth(value: number);
-    // (undocumented)
-    get gridRightAligned(): boolean;
-    set gridRightAligned(value: boolean);
-    get halign(): Halign;
-    set halign(value: Halign);
-    // (undocumented)
-    get horizontalScrollbarClassPrefix(): string;
-    set horizontalScrollbarClassPrefix(value: string);
-    // @internal (undocumented)
-    horizontalViewLayoutInvalidatedEventer: MergableGridSettings.ViewLayoutInvalidatedEventer;
-    // (undocumented)
-    get horizontalWheelScrollingAllowed(): HorizontalWheelScrollingAllowed;
-    set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed);
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@memberOf" is not defined in this configuration
-    get lineColor(): string;
-    set lineColor(color: string);
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@memberOf" is not defined in this configuration
-    get lineWidth(): number;
-    set lineWidth(width: number);
-    get link(): false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
-    set link(value: false | string | GridSettings.LinkProp | GridSettings.LinkFunction);
-    get linkColor(): GridSettings.Color;
-    set linkColor(value: GridSettings.Color);
-    get linkColorOnHover(): boolean;
-    set linkColorOnHover(value: boolean);
-    get linkOnHover(): boolean;
-    set linkOnHover(value: boolean);
-    get linkTarget(): string;
-    set linkTarget(value: string);
-    get linkVisitedColor(): GridSettings.Color;
-    set linkVisitedColor(value: GridSettings.Color);
-    // (undocumented)
-    loadAllSettings(newSettings: GridSettings): void;
-    // (undocumented)
-    loadDefaults(): void;
-    // (undocumented)
-    get maximumColumnWidth(): number | undefined;
-    set maximumColumnWidth(value: number | undefined);
-    get maxSortColumns(): number;
-    set maxSortColumns(value: number);
-    // (undocumented)
-    merge(settings: Partial<GridSettings>): boolean;
-    // (undocumented)
-    get minimumColumnWidth(): number;
-    set minimumColumnWidth(value: number);
-    get mouseColumnSelection(): boolean;
-    set mouseColumnSelection(value: boolean);
-    get mouseRectangleSelection(): boolean;
-    set mouseRectangleSelection(value: boolean);
-    get mouseRowSelection(): boolean;
-    set mouseRowSelection(value: boolean);
-    get multipleSelectionAreas(): boolean;
-    set multipleSelectionAreas(value: boolean);
-    get noDataMessage(): string;
-    set noDataMessage(value: string);
-    // (undocumented)
-    get primarySelectionAreaType(): SelectionAreaType;
-    set primarySelectionAreaType(value: SelectionAreaType);
-    // (undocumented)
-    propClassLayers: GridSettings.propClassEnum;
-    // (undocumented)
-    get readOnly(): boolean;
-    set readOnly(value: boolean);
-    // (undocumented)
-    get repaintFramesPerSecond(): number;
-    set repaintFramesPerSecond(value: number);
-    get repaintImmediately(): boolean;
-    set repaintImmediately(value: boolean);
-    // (undocumented)
-    get resizeColumnInPlace(): boolean;
-    set resizeColumnInPlace(value: boolean);
-    // (undocumented)
-    get resizedEventDebounceExtendedWhenPossible(): boolean;
-    set resizedEventDebounceExtendedWhenPossible(value: boolean);
-    // (undocumented)
-    get resizedEventDebounceInterval(): number;
-    set resizedEventDebounceInterval(value: number);
-    // @internal (undocumented)
-    resizeEventer: MergableGridSettings.ResizeEventer | undefined;
-    get restoreColumnSelections(): boolean;
-    set restoreColumnSelections(value: boolean);
-    get restoreRowSelections(): boolean;
-    set restoreRowSelections(value: boolean);
-    // (undocumented)
-    get restoreSingleCellSelection(): boolean;
-    set restoreSingleCellSelection(value: boolean);
-    get rowHoverBackgroundColor(): string | undefined;
-    set rowHoverBackgroundColor(value: string | undefined);
-    // (undocumented)
-    get rowResize(): boolean;
-    set rowResize(value: boolean);
-    get rowStripes(): GridSettings.RowStripe[] | undefined;
-    set rowStripes(value: GridSettings.RowStripe[] | undefined);
-    // (undocumented)
-    get scrollbarHoverOff(): string;
-    set scrollbarHoverOff(value: string);
-    // (undocumented)
-    get scrollbarHoverOver(): string;
-    set scrollbarHoverOver(value: string);
-    // (undocumented)
-    get scrollHorizontallySmoothly(): boolean;
-    set scrollHorizontallySmoothly(value: boolean);
-    // (undocumented)
-    get scrollingEnabled(): boolean;
-    set scrollingEnabled(value: boolean);
-    // (undocumented)
-    get secondarySelectionAreaType(): SelectionAreaType;
-    set secondarySelectionAreaType(value: SelectionAreaType);
-    // (undocumented)
-    get secondarySelectionAreaTypeSpecifierModifierKey(): ModifierKeyEnum | undefined;
-    set secondarySelectionAreaTypeSpecifierModifierKey(value: ModifierKeyEnum | undefined);
-    // (undocumented)
-    get selectionExtendDragActiveCursorName(): string | undefined;
-    set selectionExtendDragActiveCursorName(value: string | undefined);
-    get selectionRegionOutlineColor(): GridSettings.Color;
-    set selectionRegionOutlineColor(value: GridSettings.Color);
-    get selectionRegionOverlayColor(): GridSettings.Color;
-    set selectionRegionOverlayColor(value: GridSettings.Color);
-    // (undocumented)
-    get settingState(): boolean | undefined;
-    set settingState(value: boolean | undefined);
-    // (undocumented)
-    get showFilterRow(): boolean;
-    set showFilterRow(value: boolean);
-    // (undocumented)
-    get singleRowSelectionMode(): boolean;
-    set singleRowSelectionMode(value: boolean);
-    // (undocumented)
-    get sortable(): boolean;
-    set sortable(value: boolean);
-    get sortOnDoubleClick(): boolean;
-    set sortOnDoubleClick(value: boolean);
-    get sortOnHiddenColumns(): boolean;
-    set sortOnHiddenColumns(value: boolean);
-    get strikeThrough(): boolean;
-    set strikeThrough(value: boolean);
-    get textTruncateType(): TextTruncateType | undefined;
-    set textTruncateType(value: TextTruncateType | undefined);
-    // (undocumented)
-    get themeName(): string;
-    set themeName(value: string);
-    // (undocumented)
-    get useBitBlit(): boolean;
-    set useBitBlit(value: boolean);
-    // (undocumented)
-    get useHiDPI(): boolean;
-    set useHiDPI(value: boolean);
-    // (undocumented)
-    get verticalScrollbarClassPrefix(): string;
-    set verticalScrollbarClassPrefix(value: string);
-    // @internal (undocumented)
-    verticalViewLayoutInvalidatedEventer: MergableGridSettings.ViewLayoutInvalidatedEventer;
-    // @internal (undocumented)
-    viewLayoutInvalidatedEventer: MergableGridSettings.ViewLayoutInvalidatedEventer;
-    // @internal (undocumented)
-    viewRenderInvalidatedEventer: MergableGridSettings.ViewRenderInvalidatedEventer;
-    // (undocumented)
-    get visibleColumnWidthAdjust(): boolean;
-    set visibleColumnWidthAdjust(value: boolean);
-    // (undocumented)
-    get voffset(): number;
-    set voffset(value: number);
-    // (undocumented)
-    get wheelHFactor(): number;
-    set wheelHFactor(factor: number);
-    // (undocumented)
-    get wheelVFactor(): number;
-    set wheelVFactor(factor: number);
-    get width(): number;
-    set width(value: number);
-}
-
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -904,20 +310,24 @@ export interface Column {
     // (undocumented)
     addProperties(properties: Partial<ColumnSettings>): void;
     // (undocumented)
-    checkColumnAutosizing(force: boolean): boolean;
-    // (undocumented)
-    getWidth(): number;
+    checkColumnAutosizing(widenOnly: boolean): boolean;
     readonly index: number;
+    // (undocumented)
+    maxPaintWidth: number | undefined;
     // (undocumented)
     readonly name: string;
     // (undocumented)
     readonly schemaColumn: SchemaServer.Column;
+    // Warning: (ae-forgotten-export) The symbol "MergableColumnSettings" needs to be exported by the entry point public-api.d.ts
+    //
     // (undocumented)
     readonly settings: MergableColumnSettings;
     // (undocumented)
     setWidth(width: number | undefined): boolean;
     // (undocumented)
     setWidthToAutoSizing(): boolean;
+    // (undocumented)
+    readonly width: number;
 }
 
 // @public (undocumented)
@@ -935,17 +345,13 @@ export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSetti
     // (undocumented)
     readonly backgroundSelectionColor: string;
     // (undocumented)
-    cellPadding: number;
-    // (undocumented)
     readonly cellPainter: string;
     // (undocumented)
     readonly color: string;
     // (undocumented)
-    columnAutosized: boolean;
-    // (undocumented)
     columnAutosizing: boolean;
     // (undocumented)
-    columnAutosizingMax: number;
+    columnAutosizingMax: number | undefined;
     // (undocumented)
     columnClip: boolean | undefined;
     // (undocumented)
@@ -991,10 +397,6 @@ export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSetti
     // (undocumented)
     minimumColumnWidth: number;
     // (undocumented)
-    mouseCellSelection: boolean;
-    // (undocumented)
-    preferredWidth?: number;
-    // (undocumented)
     resizeColumnInPlace: boolean;
     // (undocumented)
     sortable: boolean;
@@ -1036,6 +438,12 @@ export namespace ColumnSettings {
 }
 
 // @public (undocumented)
+export interface ColumnSettingsMerge {
+    // (undocumented)
+    merge(properties: Partial<ColumnSettings>): void;
+}
+
+// @public (undocumented)
 export class ColumnsManager {
     // @internal
     constructor(schemaServer: SchemaServer, _gridSettings: GridSettings);
@@ -1063,13 +471,13 @@ export class ColumnsManager {
     // @internal (undocumented)
     allSchemaColumnsDeleted(): void;
     // @internal (undocumented)
-    autosizeAllColumns(): void;
+    autosizeAllColumns(widenOnly: boolean): void;
     // @internal (undocumented)
     beginSchemaChange(): void;
     // (undocumented)
     calculateFixedColumnsWidth(): number;
     // @internal (undocumented)
-    checkColumnAutosizing(force: boolean, withinAnimationFrame?: boolean): boolean;
+    checkColumnAutosizing(widenOnly: boolean, withinAnimationFrame: boolean): boolean;
     // @internal (undocumented)
     clearColumns(): void;
     // @internal (undocumented)
@@ -1631,8 +1039,8 @@ export class Focus {
     changedEventer: Focus.ChangedEventer;
     // (undocumented)
     clear(): void;
-    // (undocumented)
-    closeAndCheckTryOpenEditor(cancel: boolean, cell: ViewCell | undefined): void;
+    // @internal (undocumented)
+    closeAndCheckTryOpenEditor(cancel: boolean): void;
     // (undocumented)
     closeEditor(cancel: boolean): void;
     // @internal (undocumented)
@@ -1678,7 +1086,7 @@ export class Focus {
     // (undocumented)
     readonly subgrid: Subgrid;
     // (undocumented)
-    tryOpenEditor(cell: ViewCell | undefined): void;
+    tryOpenEditor(): boolean;
     tryOpenEditorWithKey(_key: string): boolean;
     // @internal (undocumented)
     viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer;
@@ -1719,6 +1127,7 @@ export interface GridDefinition {
 
 // @public (undocumented)
 export interface GridSettings {
+    // Warning: (ae-forgotten-export) The symbol "ModifierKeyEnum" needs to be exported by the entry point public-api.d.ts
     addToggleSelectionAreaModifierKey: ModifierKeyEnum;
     addToggleSelectionAreaModifierKeyDoesToggle: boolean;
     autoSelectColumns: boolean;
@@ -1728,8 +1137,6 @@ export interface GridSettings {
     // (undocumented)
     backgroundSelectionColor: GridSettings.Color;
     cellHoverBackgroundColor: string | undefined;
-    // (undocumented)
-    cellPadding: number;
     cellPainter: string;
     // (undocumented)
     checkboxOnlyRowSelections: boolean;
@@ -1737,7 +1144,7 @@ export interface GridSettings {
     color: GridSettings.Color;
     columnAutosized: boolean;
     columnAutosizing: boolean;
-    columnAutosizingMax: number;
+    columnAutosizingMax: number | undefined;
     columnClip: boolean | undefined;
     columnGrabMargin: number;
     // (undocumented)
@@ -2010,6 +1417,34 @@ export namespace GridSettings {
 }
 
 // @public (undocumented)
+export interface GridSettingsMerge {
+    // @internal (undocumented)
+    horizontalViewLayoutInvalidatedEventer: GridSettingsMerge.ViewLayoutInvalidatedEventer;
+    // (undocumented)
+    loadDefaults(): void;
+    // (undocumented)
+    merge(properties: Partial<GridSettings>): boolean;
+    // @internal (undocumented)
+    resizeEventer: GridSettingsMerge.ResizeEventer | undefined;
+    // @internal (undocumented)
+    verticalViewLayoutInvalidatedEventer: GridSettingsMerge.ViewLayoutInvalidatedEventer;
+    // @internal (undocumented)
+    viewLayoutInvalidatedEventer: GridSettingsMerge.ViewLayoutInvalidatedEventer;
+    // @internal (undocumented)
+    viewRenderInvalidatedEventer: GridSettingsMerge.ViewRenderInvalidatedEventer;
+}
+
+// @public (undocumented)
+export namespace GridSettingsMerge {
+    // @internal (undocumented)
+    export type ResizeEventer = (this: void) => void;
+    // @internal (undocumented)
+    export type ViewLayoutInvalidatedEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+    // @internal (undocumented)
+    export type ViewRenderInvalidatedEventer = (this: void) => void;
+}
+
+// @public (undocumented)
 export type Halign = keyof typeof HalignEnum;
 
 // @public (undocumented)
@@ -2194,37 +1629,587 @@ export interface MainSubgrid extends Subgrid {
 }
 
 // @public (undocumented)
-export interface MergableColumnSettings extends ColumnSettings {
+export abstract class MergableColumnSettingsImplementation implements ColumnSettingsMerge {
+    constructor(gridSettings: GridSettings, initialColumnSettings: Partial<ColumnSettings> | undefined);
+    // (undocumented)
+    get backgroundColor(): GridSettings.Color;
+    set backgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get backgroundSelectionColor(): string;
+    // (undocumented)
+    get cellPainter(): string;
+    // (undocumented)
+    get color(): string;
+    // (undocumented)
+    get columnAutosizing(): boolean;
+    set columnAutosizing(value: boolean);
+    // (undocumented)
+    get columnAutosizingMax(): number | undefined;
+    set columnAutosizingMax(value: number | undefined);
+    // (undocumented)
+    get columnClip(): boolean | undefined;
+    set columnClip(value: boolean | undefined);
+    // (undocumented)
+    get editable(): boolean;
+    set editable(value: boolean);
+    // (undocumented)
+    get editOnDoubleClick(): boolean;
+    set editOnDoubleClick(value: boolean);
+    // (undocumented)
+    get editOnFocusCell(): boolean;
+    set editOnFocusCell(value: boolean);
+    // (undocumented)
+    get editOnKeydown(): boolean;
+    set editOnKeydown(value: boolean);
+    // (undocumented)
+    get editor(): string | undefined;
+    set editor(value: string | undefined);
+    // (undocumented)
+    get feedbackCount(): number;
+    set feedbackCount(value: number);
+    // (undocumented)
+    readonly filter: MergableColumnSettingsImplementation.Filter;
+    // (undocumented)
+    get filterable(): boolean;
+    set filterable(value: boolean);
+    // (undocumented)
+    get font(): string;
+    set font(value: string);
+    // (undocumented)
+    get foregroundSelectionColor(): string;
+    // (undocumented)
+    get foregroundSelectionFont(): string;
+    // (undocumented)
+    get format(): string | undefined;
+    set format(value: string | undefined);
+    // (undocumented)
+    get gridLinesHWidth(): number;
+    set gridLinesHWidth(value: number);
+    // (undocumented)
+    get gridLinesVWidth(): number;
+    set gridLinesVWidth(value: number);
+    // (undocumented)
+    readonly gridSettings: GridSettings;
+    // (undocumented)
+    get halign(): Halign;
+    set halign(value: Halign);
+    // (undocumented)
+    readonly header: MergableColumnSettingsImplementation.ColumnHeader;
+    // (undocumented)
+    get link(): false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
+    set link(value: false | string | GridSettings.LinkProp | GridSettings.LinkFunction);
+    // (undocumented)
+    get linkTarget(): string;
+    set linkTarget(value: string);
+    // (undocumented)
+    get maximumColumnWidth(): number | undefined;
+    set maximumColumnWidth(value: number | undefined);
     // (undocumented)
     merge(properties: Partial<ColumnSettings>): void;
+    // (undocumented)
+    get minimumColumnWidth(): number;
+    set minimumColumnWidth(value: number);
+    // (undocumented)
+    get preferredWidth(): number | undefined;
+    set preferredWidth(value: number | undefined);
+    // (undocumented)
+    get resizeColumnInPlace(): boolean;
+    set resizeColumnInPlace(value: boolean);
+    // (undocumented)
+    get sortable(): boolean;
+    set sortable(value: boolean);
+    // (undocumented)
+    get sortOnDoubleClick(): boolean;
+    set sortOnDoubleClick(value: boolean);
+    // (undocumented)
+    get width(): number;
+    set width(value: number);
 }
 
 // @public (undocumented)
-export interface MergableGridSettings extends GridSettings {
+export namespace MergableColumnSettingsImplementation {
+    // (undocumented)
+    export class ColumnHeader implements ColumnSettings.Header {
+        constructor(_gridProperties: GridSettings);
+        // (undocumented)
+        get backgroundColor(): string;
+        set backgroundColor(value: string);
+        // (undocumented)
+        get backgroundSelectionColor(): string;
+        set backgroundSelectionColor(value: string);
+        // (undocumented)
+        get color(): string;
+        set color(value: string);
+        // (undocumented)
+        get font(): string;
+        set font(value: string);
+        // (undocumented)
+        get foregroundSelectionColor(): string;
+        set foregroundSelectionColor(value: string);
+        // (undocumented)
+        get foregroundSelectionFont(): string;
+        set foregroundSelectionFont(value: string);
+        // (undocumented)
+        get format(): string;
+        set format(value: string);
+        // (undocumented)
+        get halign(): Halign;
+        set halign(value: Halign);
+    }
+    // (undocumented)
+    export class Filter implements ColumnSettings.Filter {
+        constructor(_gridProperties: GridSettings);
+        // (undocumented)
+        get backgroundColor(): string;
+        set backgroundColor(value: string);
+        // (undocumented)
+        get backgroundSelectionColor(): string;
+        set backgroundSelectionColor(value: string);
+        // (undocumented)
+        get cellPainter(): string;
+        set cellPainter(value: string);
+        // (undocumented)
+        get color(): string;
+        set color(value: string);
+        // (undocumented)
+        get editor(): string;
+        set editor(value: string);
+        // (undocumented)
+        get font(): string;
+        set font(value: string);
+        // (undocumented)
+        get foregroundSelectionColor(): string;
+        set foregroundSelectionColor(value: string);
+        // (undocumented)
+        get format(): string;
+        set format(value: string);
+        // (undocumented)
+        get halign(): Halign;
+        set halign(value: Halign);
+        // (undocumented)
+        get rightIcon(): string;
+        set rightIcon(value: string);
+    }
+}
+
+// @public (undocumented)
+export interface MergableGridSettings extends GridSettings, GridSettingsMerge {
+}
+
+// @public (undocumented)
+export abstract class MergableGridSettingsImplementation implements GridSettings, GridSettingsMerge {
+    constructor(nonDefaultSettings?: Partial<GridSettings>);
+    // (undocumented)
+    get addToggleSelectionAreaModifierKey(): ModifierKeyEnum;
+    set addToggleSelectionAreaModifierKey(value: ModifierKeyEnum);
+    // (undocumented)
+    get addToggleSelectionAreaModifierKeyDoesToggle(): boolean;
+    set addToggleSelectionAreaModifierKeyDoesToggle(value: boolean);
+    // (undocumented)
+    get autoSelectColumns(): boolean;
+    set autoSelectColumns(value: boolean);
+    // (undocumented)
+    get autoSelectRows(): boolean;
+    set autoSelectRows(value: boolean);
+    // (undocumented)
+    get backgroundColor(): GridSettings.Color;
+    set backgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get backgroundSelectionColor(): GridSettings.Color;
+    set backgroundSelectionColor(value: GridSettings.Color);
+    get cellHoverBackgroundColor(): string | undefined;
+    set cellHoverBackgroundColor(value: string | undefined);
+    get cellPainter(): string;
+    set cellPainter(value: string);
+    // (undocumented)
+    get checkboxOnlyRowSelections(): boolean;
+    set checkboxOnlyRowSelections(value: boolean);
+    // (undocumented)
+    get color(): GridSettings.Color;
+    set color(value: GridSettings.Color);
+    get columnAutosized(): boolean;
+    set columnAutosized(value: boolean);
+    get columnAutosizing(): boolean;
+    set columnAutosizing(value: boolean);
+    get columnAutosizingMax(): number | undefined;
+    set columnAutosizingMax(value: number | undefined);
+    get columnClip(): boolean | undefined;
+    set columnClip(value: boolean | undefined);
+    get columnGrabMargin(): number;
+    set columnGrabMargin(value: number);
+    // (undocumented)
+    get columnHeaderBackgroundColor(): GridSettings.Color;
+    set columnHeaderBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderBackgroundSelectionColor(): GridSettings.Color;
+    set columnHeaderBackgroundSelectionColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderColor(): GridSettings.Color;
+    set columnHeaderColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderFont(): string;
+    set columnHeaderFont(value: string);
+    // (undocumented)
+    get columnHeaderForegroundSelectionColor(): GridSettings.Color;
+    set columnHeaderForegroundSelectionColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderForegroundSelectionFont(): string;
+    set columnHeaderForegroundSelectionFont(value: string);
+    // (undocumented)
+    get columnHeaderFormat(): string;
+    set columnHeaderFormat(value: string);
+    // (undocumented)
+    get columnHeaderHalign(): Halign;
+    set columnHeaderHalign(value: Halign);
+    get columnHoverBackgroundColors(): GridSettings.ColumnHoverBackgroundColors;
+    set columnHoverBackgroundColors(value: GridSettings.ColumnHoverBackgroundColors);
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@memberOf" is not defined in this configuration
+    get columnIndexes(): number[];
+    set columnIndexes(schemaColumnIndexes: number[]);
+    // (undocumented)
+    get columnMoveDragActiveCursorName(): string | undefined;
+    set columnMoveDragActiveCursorName(value: string | undefined);
+    // (undocumented)
+    get columnMoveDragPossibleCursorName(): string | undefined;
+    set columnMoveDragPossibleCursorName(value: string | undefined);
+    // (undocumented)
+    get columnResizeDragActiveCursorName(): string | undefined;
+    set columnResizeDragActiveCursorName(value: string | undefined);
+    // (undocumented)
+    get columnResizeDragPossibleCursorName(): string | undefined;
+    set columnResizeDragPossibleCursorName(value: string | undefined);
+    // (undocumented)
+    get columnSortPossibleCursorName(): string | undefined;
+    set columnSortPossibleCursorName(value: string | undefined);
+    get columnsReorderable(): boolean;
+    set columnsReorderable(value: boolean);
+    // (undocumented)
+    get columnsReorderableHideable(): boolean;
+    set columnsReorderableHideable(value: boolean);
+    // (undocumented)
+    get defaultColumnWidth(): number;
+    set defaultColumnWidth(value: number);
+    // (undocumented)
+    get defaultRowHeight(): number;
+    set defaultRowHeight(value: number);
+    // (undocumented)
+    get editable(): boolean;
+    set editable(value: boolean);
+    // (undocumented)
+    get editKey(): string;
+    set editKey(value: string);
+    get editOnDoubleClick(): boolean;
+    set editOnDoubleClick(value: boolean);
+    get editOnFocusCell(): boolean;
+    set editOnFocusCell(value: boolean);
+    // (undocumented)
+    get editOnKeydown(): boolean;
+    set editOnKeydown(value: boolean);
+    get editor(): string | undefined;
+    set editor(value: string | undefined);
+    get enableContinuousRepaint(): boolean;
+    set enableContinuousRepaint(value: boolean);
+    // (undocumented)
+    get eventDispatchEnabled(): boolean;
+    set eventDispatchEnabled(value: boolean);
+    // (undocumented)
+    get extendLastSelectionAreaModifierKey(): ModifierKeyEnum;
+    set extendLastSelectionAreaModifierKey(value: ModifierKeyEnum);
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@memberOf" is not defined in this configuration
+    get features(): string[];
+    set features(features: string[]);
+    get feedbackCount(): number;
+    set feedbackCount(value: number);
+    // (undocumented)
+    get feedbackEffect(): GridSettings.FeedbackEffect;
+    set feedbackEffect(value: GridSettings.FeedbackEffect);
+    // (undocumented)
+    get fetchSubregions(): boolean;
+    set fetchSubregions(value: boolean);
+    // (undocumented)
+    get filterable(): boolean;
+    set filterable(value: boolean);
+    // (undocumented)
+    get filterBackgroundColor(): GridSettings.Color;
+    set filterBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get filterBackgroundSelectionColor(): GridSettings.Color;
+    set filterBackgroundSelectionColor(value: GridSettings.Color);
+    // (undocumented)
+    get filterCellPainter(): string;
+    set filterCellPainter(value: string);
+    // (undocumented)
+    get filterColor(): GridSettings.Color;
+    set filterColor(value: GridSettings.Color);
+    // (undocumented)
+    get filterEditor(): string;
+    set filterEditor(value: string);
+    // (undocumented)
+    get filterFont(): string;
+    set filterFont(value: string);
+    // (undocumented)
+    get filterForegroundSelectionColor(): GridSettings.Color;
+    set filterForegroundSelectionColor(value: GridSettings.Color);
+    // (undocumented)
+    get filterHalign(): Halign;
+    set filterHalign(value: Halign);
+    // (undocumented)
+    get fixedColumnCount(): number;
+    set fixedColumnCount(value: number);
+    // (undocumented)
+    get fixedLinesHColor(): GridSettings.Color;
+    set fixedLinesHColor(value: GridSettings.Color);
+    // (undocumented)
+    get fixedLinesHEdge(): number | undefined;
+    set fixedLinesHEdge(value: number | undefined);
+    // (undocumented)
+    get fixedLinesHWidth(): number | undefined;
+    set fixedLinesHWidth(value: number | undefined);
+    // (undocumented)
+    get fixedLinesVColor(): GridSettings.Color;
+    set fixedLinesVColor(value: GridSettings.Color);
+    // (undocumented)
+    get fixedLinesVEdge(): number | undefined;
+    set fixedLinesVEdge(value: number | undefined);
+    // (undocumented)
+    get fixedLinesVWidth(): number | undefined;
+    set fixedLinesVWidth(value: number | undefined);
+    // (undocumented)
+    get fixedRowCount(): number;
+    set fixedRowCount(value: number);
+    // (undocumented)
+    get focusedCellBorderColor(): string;
+    set focusedCellBorderColor(value: string);
+    // (undocumented)
+    get font(): string;
+    set font(value: string);
+    // (undocumented)
+    get foregroundSelectionColor(): GridSettings.Color;
+    set foregroundSelectionColor(value: GridSettings.Color);
+    // (undocumented)
+    get foregroundSelectionFont(): string;
+    set foregroundSelectionFont(value: string);
+    get format(): string | undefined;
+    set format(value: string | undefined);
+    // (undocumented)
+    get gridBorder(): boolean | string;
+    set gridBorder(value: boolean | string);
+    // (undocumented)
+    get gridBorderBottom(): boolean | string;
+    set gridBorderBottom(value: boolean | string);
+    // (undocumented)
+    get gridBorderLeft(): boolean | string;
+    set gridBorderLeft(value: boolean | string);
+    // (undocumented)
+    get gridBorderRight(): boolean | string;
+    set gridBorderRight(value: boolean | string);
+    // (undocumented)
+    get gridBorderTop(): boolean | string;
+    set gridBorderTop(value: boolean | string);
+    // (undocumented)
+    get gridLinesColumnHeader(): boolean;
+    set gridLinesColumnHeader(value: boolean);
+    // (undocumented)
+    get gridLinesH(): boolean;
+    set gridLinesH(value: boolean);
+    // (undocumented)
+    get gridLinesHColor(): GridSettings.Color;
+    set gridLinesHColor(value: GridSettings.Color);
+    // (undocumented)
+    get gridLinesHWidth(): number;
+    set gridLinesHWidth(value: number);
+    // (undocumented)
+    get gridLinesUserDataArea(): boolean;
+    set gridLinesUserDataArea(value: boolean);
+    // (undocumented)
+    get gridLinesV(): boolean;
+    set gridLinesV(value: boolean);
+    // (undocumented)
+    get gridLinesVColor(): GridSettings.Color;
+    set gridLinesVColor(value: GridSettings.Color);
+    // (undocumented)
+    get gridLinesVWidth(): number;
+    set gridLinesVWidth(value: number);
+    // (undocumented)
+    get gridRightAligned(): boolean;
+    set gridRightAligned(value: boolean);
+    get halign(): Halign;
+    set halign(value: Halign);
+    // (undocumented)
+    get horizontalScrollbarClassPrefix(): string;
+    set horizontalScrollbarClassPrefix(value: string);
     // @internal (undocumented)
-    horizontalViewLayoutInvalidatedEventer: MergableGridSettings.ViewLayoutInvalidatedEventer;
+    horizontalViewLayoutInvalidatedEventer: GridSettingsMerge.ViewLayoutInvalidatedEventer;
+    // (undocumented)
+    get horizontalWheelScrollingAllowed(): HorizontalWheelScrollingAllowed;
+    set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed);
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@memberOf" is not defined in this configuration
+    get lineColor(): string;
+    set lineColor(color: string);
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@memberOf" is not defined in this configuration
+    get lineWidth(): number;
+    set lineWidth(width: number);
+    get link(): false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
+    set link(value: false | string | GridSettings.LinkProp | GridSettings.LinkFunction);
+    get linkColor(): GridSettings.Color;
+    set linkColor(value: GridSettings.Color);
+    get linkColorOnHover(): boolean;
+    set linkColorOnHover(value: boolean);
+    get linkOnHover(): boolean;
+    set linkOnHover(value: boolean);
+    get linkTarget(): string;
+    set linkTarget(value: string);
+    get linkVisitedColor(): GridSettings.Color;
+    set linkVisitedColor(value: GridSettings.Color);
+    // (undocumented)
+    loadAllSettings(newSettings: GridSettings): void;
     // (undocumented)
     loadDefaults(): void;
     // (undocumented)
-    merge(properties: Partial<GridSettings>): boolean;
+    get maximumColumnWidth(): number | undefined;
+    set maximumColumnWidth(value: number | undefined);
+    get maxSortColumns(): number;
+    set maxSortColumns(value: number);
+    // (undocumented)
+    merge(settings: Partial<GridSettings>): boolean;
+    // (undocumented)
+    get minimumColumnWidth(): number;
+    set minimumColumnWidth(value: number);
+    get mouseColumnSelection(): boolean;
+    set mouseColumnSelection(value: boolean);
+    get mouseRectangleSelection(): boolean;
+    set mouseRectangleSelection(value: boolean);
+    get mouseRowSelection(): boolean;
+    set mouseRowSelection(value: boolean);
+    get multipleSelectionAreas(): boolean;
+    set multipleSelectionAreas(value: boolean);
+    get noDataMessage(): string;
+    set noDataMessage(value: string);
+    // (undocumented)
+    get primarySelectionAreaType(): SelectionAreaType;
+    set primarySelectionAreaType(value: SelectionAreaType);
+    // (undocumented)
+    propClassLayers: GridSettings.propClassEnum;
+    // (undocumented)
+    get readOnly(): boolean;
+    set readOnly(value: boolean);
+    // (undocumented)
+    get repaintFramesPerSecond(): number;
+    set repaintFramesPerSecond(value: number);
+    get repaintImmediately(): boolean;
+    set repaintImmediately(value: boolean);
+    // (undocumented)
+    get resizeColumnInPlace(): boolean;
+    set resizeColumnInPlace(value: boolean);
+    // (undocumented)
+    get resizedEventDebounceExtendedWhenPossible(): boolean;
+    set resizedEventDebounceExtendedWhenPossible(value: boolean);
+    // (undocumented)
+    get resizedEventDebounceInterval(): number;
+    set resizedEventDebounceInterval(value: number);
     // @internal (undocumented)
-    resizeEventer: MergableGridSettings.ResizeEventer | undefined;
+    resizeEventer: GridSettingsMerge.ResizeEventer | undefined;
+    get restoreColumnSelections(): boolean;
+    set restoreColumnSelections(value: boolean);
+    get restoreRowSelections(): boolean;
+    set restoreRowSelections(value: boolean);
+    // (undocumented)
+    get restoreSingleCellSelection(): boolean;
+    set restoreSingleCellSelection(value: boolean);
+    get rowHoverBackgroundColor(): string | undefined;
+    set rowHoverBackgroundColor(value: string | undefined);
+    // (undocumented)
+    get rowResize(): boolean;
+    set rowResize(value: boolean);
+    get rowStripes(): GridSettings.RowStripe[] | undefined;
+    set rowStripes(value: GridSettings.RowStripe[] | undefined);
+    // (undocumented)
+    get scrollbarHoverOff(): string;
+    set scrollbarHoverOff(value: string);
+    // (undocumented)
+    get scrollbarHoverOver(): string;
+    set scrollbarHoverOver(value: string);
+    // (undocumented)
+    get scrollHorizontallySmoothly(): boolean;
+    set scrollHorizontallySmoothly(value: boolean);
+    // (undocumented)
+    get scrollingEnabled(): boolean;
+    set scrollingEnabled(value: boolean);
+    // (undocumented)
+    get secondarySelectionAreaType(): SelectionAreaType;
+    set secondarySelectionAreaType(value: SelectionAreaType);
+    // (undocumented)
+    get secondarySelectionAreaTypeSpecifierModifierKey(): ModifierKeyEnum | undefined;
+    set secondarySelectionAreaTypeSpecifierModifierKey(value: ModifierKeyEnum | undefined);
+    // (undocumented)
+    get selectionExtendDragActiveCursorName(): string | undefined;
+    set selectionExtendDragActiveCursorName(value: string | undefined);
+    get selectionRegionOutlineColor(): GridSettings.Color;
+    set selectionRegionOutlineColor(value: GridSettings.Color);
+    get selectionRegionOverlayColor(): GridSettings.Color;
+    set selectionRegionOverlayColor(value: GridSettings.Color);
+    // (undocumented)
+    get settingState(): boolean | undefined;
+    set settingState(value: boolean | undefined);
+    // (undocumented)
+    get showFilterRow(): boolean;
+    set showFilterRow(value: boolean);
+    // (undocumented)
+    get singleRowSelectionMode(): boolean;
+    set singleRowSelectionMode(value: boolean);
+    // (undocumented)
+    get sortable(): boolean;
+    set sortable(value: boolean);
+    get sortOnDoubleClick(): boolean;
+    set sortOnDoubleClick(value: boolean);
+    get sortOnHiddenColumns(): boolean;
+    set sortOnHiddenColumns(value: boolean);
+    get strikeThrough(): boolean;
+    set strikeThrough(value: boolean);
+    get textTruncateType(): TextTruncateType | undefined;
+    set textTruncateType(value: TextTruncateType | undefined);
+    // (undocumented)
+    get themeName(): string;
+    set themeName(value: string);
+    // (undocumented)
+    get useBitBlit(): boolean;
+    set useBitBlit(value: boolean);
+    // (undocumented)
+    get useHiDPI(): boolean;
+    set useHiDPI(value: boolean);
+    // (undocumented)
+    get verticalScrollbarClassPrefix(): string;
+    set verticalScrollbarClassPrefix(value: string);
     // @internal (undocumented)
-    verticalViewLayoutInvalidatedEventer: MergableGridSettings.ViewLayoutInvalidatedEventer;
+    verticalViewLayoutInvalidatedEventer: GridSettingsMerge.ViewLayoutInvalidatedEventer;
     // @internal (undocumented)
-    viewLayoutInvalidatedEventer: MergableGridSettings.ViewLayoutInvalidatedEventer;
+    viewLayoutInvalidatedEventer: GridSettingsMerge.ViewLayoutInvalidatedEventer;
     // @internal (undocumented)
-    viewRenderInvalidatedEventer: MergableGridSettings.ViewRenderInvalidatedEventer;
-}
-
-// @public (undocumented)
-export namespace MergableGridSettings {
-    // @internal (undocumented)
-    export type ResizeEventer = (this: void) => void;
-    // @internal (undocumented)
-    export type ViewLayoutInvalidatedEventer = (this: void, scrollDimensionAsWell: boolean) => void;
-    // @internal (undocumented)
-    export type ViewRenderInvalidatedEventer = (this: void) => void;
+    viewRenderInvalidatedEventer: GridSettingsMerge.ViewRenderInvalidatedEventer;
+    // (undocumented)
+    get visibleColumnWidthAdjust(): boolean;
+    set visibleColumnWidthAdjust(value: boolean);
+    // (undocumented)
+    get voffset(): number;
+    set voffset(value: number);
+    // (undocumented)
+    get wheelHFactor(): number;
+    set wheelHFactor(factor: number);
+    // (undocumented)
+    get wheelVFactor(): number;
+    set wheelVFactor(factor: number);
+    get width(): number;
+    set width(value: number);
 }
 
 // @public (undocumented)
@@ -2575,7 +2560,7 @@ export class Revgrid {
     // (undocumented)
     allowEvents(allow: boolean): void;
     // (undocumented)
-    autosizeAllColumns(): void;
+    autosizeAllColumns(widenOnly: boolean): void;
     beginSelectionChange(): void;
     // (undocumented)
     calculateActiveColumnsWidth(): number;
@@ -2594,8 +2579,6 @@ export class Revgrid {
     canvasDiv: HTMLDivElement;
     // (undocumented)
     readonly canvasManager: CanvasManager;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    checkColumnAutosizing(): boolean;
     clearAllCellProperties(x?: number): void;
     // (undocumented)
     clearColumns(): void;
@@ -3584,10 +3567,8 @@ export namespace SchemaServer {
         index: number;
         // (undocumented)
         name: string;
-        // Warning: (ae-forgotten-export) The symbol "MergableColumnSettings_2" needs to be exported by the entry point public-api.d.ts
-        //
         // (undocumented)
-        settings: MergableColumnSettings_2;
+        settings: MergableColumnSettings;
     }
     // (undocumented)
     export type Constructor = new () => SchemaServer;

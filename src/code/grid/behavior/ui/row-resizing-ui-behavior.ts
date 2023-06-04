@@ -1,10 +1,12 @@
 
 import { Subgrid } from '../../interfaces/data/subgrid';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class RowResizingUiBehavior extends UiBehavior {
+export class RowResizingUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
 
     readonly typeName = RowResizingUiBehavior.typeName;
 
@@ -36,7 +38,7 @@ export class RowResizingUiBehavior extends UiBehavior {
      * @desc return the width/height of the row/column of interest
      * @param index - the row/column index of interest
      */
-    private getAreaSize(index: number, subgrid: Subgrid): number {
+    private getAreaSize(index: number, subgrid: Subgrid<MCS>): number {
         return subgrid.getRowHeight(index);
     }
 
@@ -45,7 +47,7 @@ export class RowResizingUiBehavior extends UiBehavior {
      * @param index - the row/column index of interest
      * @param value - the width/height to set to
      */
-    private setAreaSize(index: number, value: number, subgrid: Subgrid) {
+    private setAreaSize(index: number, value: number, subgrid: Subgrid<MCS>) {
         this.rowPropertiesBehavior.setRowHeight(index, value, subgrid);
     }
 

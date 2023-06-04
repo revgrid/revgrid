@@ -11,6 +11,8 @@ import { ViewLayout } from '../../components/view/view-layout';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
@@ -25,34 +27,34 @@ import { UiBehaviorSharedState } from './ui-behavior-shared-state';
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @internal
  */
-export abstract class UiBehavior {
+export abstract class UiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
     abstract readonly typeName: string;
 
     protected readonly sharedState: UiBehaviorSharedState;
     protected readonly containerHtmlElement: HTMLElement;
 
     protected readonly gridSettings: GridSettings;
-    protected readonly canvasManager: CanvasManager;
-    protected readonly selection: Selection;
-    protected readonly focus: Focus;
-    protected readonly columnsManager: ColumnsManager;
-    protected readonly subgridsManager: SubgridsManager;
-    protected readonly viewLayout: ViewLayout;
-    protected readonly renderer: Renderer;
-    protected readonly reindexBehavior: ReindexBehavior;
+    protected readonly canvasManager: CanvasManager<MGS>;
+    protected readonly selection: Selection<MGS, MCS>;
+    protected readonly focus: Focus<MGS, MCS>;
+    protected readonly columnsManager: ColumnsManager<MGS, MCS>;
+    protected readonly subgridsManager: SubgridsManager<MGS, MCS>;
+    protected readonly viewLayout: ViewLayout<MGS, MCS>;
+    protected readonly renderer: Renderer<MGS, MCS>;
+    protected readonly reindexBehavior: ReindexBehavior<MGS, MCS>;
 
-    protected readonly mouse: Mouse;
+    protected readonly mouse: Mouse<MGS, MCS>;
 
-    protected readonly focusScrollBehavior: FocusScrollBehavior;
-    protected readonly focusSelectBehavior: FocusSelectBehavior;
-    protected readonly rowPropertiesBehavior: RowPropertiesBehavior;
-    protected readonly cellPropertiesBehavior: CellPropertiesBehavior;
-    protected readonly dataExtractBehavior: DataExtractBehavior;
-    protected readonly eventBehavior: EventBehavior;
+    protected readonly focusScrollBehavior: FocusScrollBehavior<MGS, MCS>;
+    protected readonly focusSelectBehavior: FocusSelectBehavior<MGS, MCS>;
+    protected readonly rowPropertiesBehavior: RowPropertiesBehavior<MGS, MCS>;
+    protected readonly cellPropertiesBehavior: CellPropertiesBehavior<MGS, MCS>;
+    protected readonly dataExtractBehavior: DataExtractBehavior<MGS, MCS>;
+    protected readonly eventBehavior: EventBehavior<MGS, MCS>;
 
-    protected readonly mainSubgrid: MainSubgrid;
+    protected readonly mainSubgrid: MainSubgrid<MCS>;
 
-    constructor(services: UiBehaviorServices) {
+    constructor(services: UiBehaviorServices<MGS, MCS>) {
         this.sharedState = services.sharedState;
         this.containerHtmlElement = services.containerHtmlElement;
 
@@ -81,18 +83,18 @@ export abstract class UiBehavior {
     /**
      * the next feature to be given a chance to handle incoming events
      */
-    next: UiBehavior | undefined;
+    next: UiBehavior<MGS, MCS> | undefined;
 
     /**
      * a temporary holding field for my next feature when I'm in a disconnected state
      */
-    detached: UiBehavior | undefined;
+    detached: UiBehavior<MGS, MCS> | undefined;
 
     /**
      * @desc set my next field, or if it's populated delegate to the feature in my next field
      * @param nextFeature - this is how we build the chain of responsibility
      */
-    setNext(nextFeature: UiBehavior) {
+    setNext(nextFeature: UiBehavior<MGS, MCS>) {
         if (this.next !== undefined) {
             this.next.setNext(nextFeature);
         } else {
@@ -129,7 +131,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handlePointerMove(event: PointerEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerMove(event, cell);
         } else {
@@ -137,7 +139,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerLeaveOut(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handlePointerLeaveOut(event: PointerEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerLeaveOut(event, cell);
         } else {
@@ -145,7 +147,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerEnter(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handlePointerEnter(event: PointerEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerEnter(event, cell);
         } else {
@@ -153,7 +155,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerDown(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handlePointerDown(event: PointerEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDown(event, cell);
         } else {
@@ -161,7 +163,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerUpCancel(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handlePointerUpCancel(event: PointerEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerUpCancel(event, cell);
         } else {
@@ -169,7 +171,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleWheelMove(event: WheelEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handleWheelMove(event: WheelEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handleWheelMove(event, cell);
         } else {
@@ -177,7 +179,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handleDblClick(event, cell);
         } else {
@@ -185,7 +187,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleClick(event: MouseEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handleClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handleClick(event, cell);
         } else {
@@ -193,7 +195,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerDragStart(event: DragEvent, cell: HoverCell | null | undefined): EventBehavior.UiPointerDragStartResult {
+    handlePointerDragStart(event: DragEvent, cell: HoverCell<MCS> | null | undefined): EventBehavior.UiPointerDragStartResult<MCS> {
         if (this.next) {
             return this.next.handlePointerDragStart(event, cell);
         } else {
@@ -204,7 +206,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerDrag(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handlePointerDrag(event: PointerEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDrag(event, cell);
         } else {
@@ -212,7 +214,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handlePointerDragEnd(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handlePointerDragEnd(event: PointerEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDragEnd(event, cell);
         } else {
@@ -220,7 +222,7 @@ export abstract class UiBehavior {
         }
     }
 
-    handleContextMenu(event: MouseEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    handleContextMenu(event: MouseEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this.next) {
             return this.next.handleContextMenu(event, cell);
         } else {
@@ -270,18 +272,22 @@ export abstract class UiBehavior {
         }
     }
 
-    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): HoverCell | null {
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): HoverCell<MCS> | null {
         const cell = this.viewLayout.findHoverCell(event.offsetX, event.offsetY);
         if (cell === undefined) {
             return null;
         } else {
             return cell;
         }
-
     }
 }
 
 /** @internal */
 export namespace UiBehavior {
-    export type Constructor = new (services: UiBehaviorServices) => UiBehavior;
+    export type Constructor<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> = new (services: UiBehaviorServices<MGS, MCS>) => UiBehavior<MGS, MCS>;
+
+    export interface UiBehaviorDefinition<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+        typeName: string;
+        constructor: Constructor<MGS, MCS>;
+    }
 }

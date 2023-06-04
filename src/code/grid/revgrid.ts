@@ -5,6 +5,7 @@ import { EventBehavior } from './behavior/component/event-behavior';
 import { FocusScrollBehavior } from './behavior/component/focus-scroll-behavior';
 import { FocusSelectBehavior } from './behavior/component/focus-select-behavior';
 import { RowPropertiesBehavior } from './behavior/component/row-properties-behavior';
+import { UiBehavior } from './behavior/ui/ui-behavior';
 import { UiBehaviorManager } from './behavior/ui/ui-behavior-manager';
 import { CanvasManager } from './components/canvas/canvas-manager';
 import { ColumnsManager } from './components/column/columns-manager';
@@ -29,8 +30,8 @@ import { Column, ColumnWidth } from './interfaces/schema/column';
 import { SchemaServer } from './interfaces/schema/schema-server';
 import { ColumnSettings } from './interfaces/settings/column-settings';
 import { GridSettings } from './interfaces/settings/grid-settings';
+import { MergableColumnSettings } from './interfaces/settings/mergable-column-settings';
 import { MergableGridSettings } from './interfaces/settings/mergable-grid-settings';
-import { defaultGridSettings } from './settings/default-grid-settings';
 import { CssClassName } from './types-utils/html-types';
 import { DateFormatter, Localization, NumberFormatter } from './types-utils/localization';
 import { Point } from './types-utils/point';
@@ -39,44 +40,44 @@ import { AssertError } from './types-utils/revgrid-error';
 import { ColumnNameWidth, ListChangedTypeId, SelectionAreaType } from './types-utils/types';
 
 /** @public */
-export class Revgrid {
-    readonly mouse: Mouse;
-    readonly selection: Selection;
-    readonly focus: Focus;
-    readonly canvasManager: CanvasManager;
-    readonly viewLayout: ViewLayout;
+export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+    readonly mouse: Mouse<MGS, MCS>;
+    readonly selection: Selection<MGS, MCS>;
+    readonly focus: Focus<MGS, MCS>;
+    readonly canvasManager: CanvasManager<MGS>;
+    readonly viewLayout: ViewLayout<MGS, MCS>;
 
-    readonly mainSubgrid: MainSubgrid;
-    readonly mainDataServer: DataServer;
-
-    /** @internal */
-    private readonly _componentsManager: ComponentsManager;
-    /** @internal */
-    private readonly _componentBehaviorManager: ComponentBehaviorManager;
-    /** @internal */
-    private readonly _uiBehaviorManager: UiBehaviorManager;
+    readonly mainSubgrid: MainSubgrid<MCS>;
+    readonly mainDataServer: DataServer<MCS>;
 
     /** @internal */
-    private readonly _columnsManager: ColumnsManager;
+    private readonly _componentsManager: ComponentsManager<MGS, MCS>;
     /** @internal */
-    private readonly _subgridsManager: SubgridsManager;
+    private readonly _componentBehaviorManager: ComponentBehaviorManager<MGS, MCS>;
     /** @internal */
-    private readonly _renderer: Renderer;
-    /** @internal */
-    private readonly _horizontalScroller: Scroller;
-    /** @internal */
-    private readonly _verticalScroller: Scroller;
+    private readonly _uiBehaviorManager: UiBehaviorManager<MGS, MCS>;
 
     /** @internal */
-    private readonly _focusScrollBehavior: FocusScrollBehavior;
+    private readonly _columnsManager: ColumnsManager<MGS, MCS>;
     /** @internal */
-    private readonly _focusSelectBehavior: FocusSelectBehavior;
+    private readonly _subgridsManager: SubgridsManager<MGS, MCS>;
     /** @internal */
-    private readonly _rowPropertiesBehavior: RowPropertiesBehavior;
+    private readonly _renderer: Renderer<MGS, MCS>;
     /** @internal */
-    private readonly _cellPropertiesBehavior: CellPropertiesBehavior;
+    private readonly _horizontalScroller: Scroller<MGS>;
     /** @internal */
-    private readonly _dataExtractBehavior: DataExtractBehavior;
+    private readonly _verticalScroller: Scroller<MGS>;
+
+    /** @internal */
+    private readonly _focusScrollBehavior: FocusScrollBehavior<MGS, MCS>;
+    /** @internal */
+    private readonly _focusSelectBehavior: FocusSelectBehavior<MGS, MCS>;
+    /** @internal */
+    private readonly _rowPropertiesBehavior: RowPropertiesBehavior<MGS, MCS>;
+    /** @internal */
+    private readonly _cellPropertiesBehavior: CellPropertiesBehavior<MGS, MCS>;
+    /** @internal */
+    private readonly _dataExtractBehavior: DataExtractBehavior<MGS, MCS>;
 
     destroyed = false;
 
@@ -90,8 +91,8 @@ export class Revgrid {
 
     /** @internal */
     get columnsManager() { return this._columnsManager; }
-    get allColumns(): readonly Column[] { return this._columnsManager.allColumns; }
-    get activeColumns(): readonly Column[] { return this._columnsManager.activeColumns; }
+    get allColumns(): readonly Column<MCS>[] { return this._columnsManager.allColumns; }
+    get activeColumns(): readonly Column<MCS>[] { return this._columnsManager.activeColumns; }
 
 
     getSelectedRowCount() { return this.selection.getRowCount(); }
@@ -174,9 +175,9 @@ export class Revgrid {
  */
     constructor(
         container: string | HTMLElement | undefined,
-        definition: Revgrid.Definition,
-        readonly settings: MergableGridSettings,
-        options?: Revgrid.Options
+        definition: Revgrid.Definition<MCS>,
+        readonly settings: MGS,
+        options?: Revgrid.Options<MGS, MCS>
     ) {
         options = options ?? {};
 
@@ -252,6 +253,7 @@ export class Revgrid {
             this._dataExtractBehavior,
             this._componentBehaviorManager.reindexBehavior,
             this._componentBehaviorManager.eventBehavior,
+            options.customUiBehaviorDefinitions,
         );
 
 
@@ -339,7 +341,7 @@ export class Revgrid {
 
         switch (border) {
             case true:
-                styleValue = props.lineWidth + 'px solid ' + props.lineColor;
+                styleValue = props.borderWidth + 'px solid ' + props.borderColor;
                 break;
             default:
                 styleValue = '';
@@ -561,7 +563,7 @@ export class Revgrid {
     //     }, this);
     // }
 
-    registerGridPainter(key: string, constructor: GridPainter.Constructor) {
+    registerGridPainter(key: string, constructor: GridPainter.Constructor<MGS, MCS>) {
         this._renderer.registerGridPainter(key, constructor)
     }
 
@@ -590,13 +592,6 @@ export class Revgrid {
      */
     addSettings(settings: Partial<GridSettings>) {
         return this.settings.merge(settings)
-    }
-
-    /**
-     * @desc The grid has just been rendered, make sure the column widths are optimal.
-     */
-    checkColumnAutosizing() {
-        return this._columnsManager.checkColumnAutosizing(false);
     }
 
     /**
@@ -633,7 +628,7 @@ export class Revgrid {
      * @summary Gets the number of rows in the main subgrid.
      * @returns The number of rows.
      */
-    getSubgridRowCount(subgrid: Subgrid) {
+    getSubgridRowCount(subgrid: Subgrid<MCS>) {
         return subgrid.getRowCount();
     }
 
@@ -646,7 +641,7 @@ export class Revgrid {
      * @return The data row object at y index.
      * @param y - the row index of interest
      */
-    getSingletonDataRow(y: number, subgrid?: Subgrid): DataServer.DataRow {
+    getSingletonDataRow(y: number, subgrid?: Subgrid<MCS>): DataServer.DataRow {
         if (subgrid === undefined) {
             return this.mainSubgrid.getSingletonDataRow(y);
         } else {
@@ -667,14 +662,14 @@ export class Revgrid {
         }
     }
 
-    getValue(x: number, y: number, subgrid?: Subgrid) {
+    getValue(x: number, y: number, subgrid?: Subgrid<MCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this._componentsManager.getValue(x, y, subgrid);
     }
 
-    setValue(x: number, y: number, value: number, subgrid?: Subgrid) {
+    setValue(x: number, y: number, value: number, subgrid?: Subgrid<MCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -698,7 +693,7 @@ export class Revgrid {
     /**
      * @summary Initialize container
      */
-    private initContainer(container: string | HTMLElement | undefined, options: Revgrid.Options): HTMLElement {
+    private initContainer(container: string | HTMLElement | undefined, options: Revgrid.Options<MGS, MCS>): HTMLElement {
         let resolvedContainer: HTMLElement;
         if (container === undefined) {
             resolvedContainer = this.findOrCreateContainer(options.boundingRect);
@@ -755,7 +750,7 @@ export class Revgrid {
      * @param rowIndex - The data row index.
      * @returns The given row is visible.
      */
-    isDataRowVisible(r: number, subgrid?: Subgrid) {
+    isDataRowVisible(r: number, subgrid?: Subgrid<MCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -788,7 +783,7 @@ export class Revgrid {
         return this.viewLayout.getBoundsOfCell(gridCell.x, gridCell.y);
     }
 
-    getSchema(): readonly SchemaServer.Column[] {
+    getSchema(): readonly SchemaServer.Column<MCS>[] {
         return this._columnsManager.getSchema();
     }
 
@@ -799,7 +794,7 @@ export class Revgrid {
     /**
      * @returns A copy of the all columns array by passing the params to `Array.prototype.slice`.
      */
-    getAllColumns(begin?: number, end?: number): Column[] {
+    getAllColumns(begin?: number, end?: number): Column<MCS>[] {
         const columns = this._columnsManager.allColumns;
         return columns.slice(begin, end);
     }
@@ -807,7 +802,7 @@ export class Revgrid {
     /**
      * @returns A copy of the active columns array by passing the params to `Array.prototype.slice`.
      */
-    getActiveColumns(begin?: number, end?: number): Column[] {
+    getActiveColumns(begin?: number, end?: number): Column<MCS>[] {
         const columns = this._columnsManager.activeColumns;
         return columns.slice(begin, end);
     }
@@ -873,7 +868,7 @@ export class Revgrid {
         this._columnsManager.moveColumnAfter(sourceIndex, targetIndex, ui);
     }
 
-    setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]) {
+    setActiveColumns(columnNameOrAllIndexArray: readonly (Column<MCS> | string | number)[]) {
         this._columnsManager.setActiveColumns(columnNameOrAllIndexArray);
     }
 
@@ -887,8 +882,8 @@ export class Revgrid {
         this.setActiveColumns(allColumnNames);
     }
 
-    autosizeAllColumns() {
-        this._columnsManager.autosizeAllColumns();
+    autosizeAllColumns(widenOnly: boolean) {
+        this._columnsManager.autosizeAllColumns(widenOnly);
     }
 
     setColumnScrollAnchor(index: number, offset: number) {
@@ -1090,11 +1085,11 @@ export class Revgrid {
      * @param columnWidth - The width in pixels.
      * @return column if width changed otherwise undefined
      */
-    setActiveColumnWidth(columnOrIndex: number | Column, columnWidth: number) {
+    setActiveColumnWidth(columnOrIndex: number | Column<MCS>, columnWidth: number) {
         return this._columnsManager.setActiveColumnWidth(columnOrIndex, columnWidth, false);
     }
 
-    setColumnWidths(columnWidths: ColumnWidth[]) {
+    setColumnWidths(columnWidths: ColumnWidth<MCS>[]) {
         return this._columnsManager.setColumnWidths(columnWidths, false);
     }
 
@@ -1106,7 +1101,7 @@ export class Revgrid {
      * @returns The height of the given row
      * @param rowIndex - The untranslated fixed column index.
      */
-    getRowHeight(rowIndex: number, subgrid?: Subgrid) {
+    getRowHeight(rowIndex: number, subgrid?: Subgrid<MCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1118,7 +1113,7 @@ export class Revgrid {
      * @param rowIndex - The row index.
      * @param rowHeight - The width in pixels.
      */
-    setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid) {
+    setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<MCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1399,7 +1394,7 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessColumnsWidthChanged(_columns: Column[], _ui: boolean) {
+    protected descendantProcessColumnsWidthChanged(_columns: Column<MCS>[], _ui: boolean) {
         // for descendants
     }
 
@@ -1407,7 +1402,7 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell) {
+    protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell<MCS>) {
         // for descendants
     }
 
@@ -1427,35 +1422,35 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessClick(_event: MouseEvent, _cell: HoverCell | null | undefined) {
+    protected descendantProcessClick(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessDblClick(_event: MouseEvent, _cell: HoverCell | null | undefined) {
+    protected descendantProcessDblClick(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: HoverCell | null | undefined) {
+    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerDown(_event: MouseEvent, _cell: HoverCell | null | undefined) {
+    protected descendantProcessPointerDown(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: HoverCell | null | undefined) {
+    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerMove(_event: MouseEvent, _cell: HoverCell | null | undefined) {
+    protected descendantProcessPointerMove(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: HoverCell | null | undefined) {
+    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessWheelMove(_event: MouseEvent, _cell: HoverCell | null | undefined) {
+    protected descendantProcessWheelMove(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
         // for descendants
     }
 
@@ -1463,7 +1458,7 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessContextMenu(_event: MouseEvent, _cell: HoverCell | null | undefined) {
+    protected descendantProcessContextMenu(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
         // for descendants
     }
 
@@ -1471,7 +1466,7 @@ export class Revgrid {
      * Uses DragEvent as this has original Mouse location.  Do not change DragEvent or call any of its methods
      * Return true if drag operation is to be started.
      */
-    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: HoverCell | null | undefined): boolean {
+    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: HoverCell<MCS> | null | undefined): boolean {
         return false;
     }
 
@@ -1487,11 +1482,11 @@ export class Revgrid {
         // for descendants
     }
 
-    protected descendantProcessMouseEnteredCell(_cell: ViewCell) {
+    protected descendantProcessMouseEnteredCell(_cell: ViewCell<MCS>) {
         // for descendants
     }
 
-    protected descendantProcessMouseExitedCell(_cell: ViewCell) {
+    protected descendantProcessMouseExitedCell(_cell: ViewCell<MCS>) {
         // for descendants
     }
 
@@ -1539,7 +1534,7 @@ export class Revgrid {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      */
-    getCellOwnProperties(allXOrRenderedCell: number | ViewCell, y?: number, subgrid?: Subgrid) {
+    getCellOwnProperties(allXOrRenderedCell: number | ViewCell<MCS>, y?: number, subgrid?: Subgrid<MCS>) {
         if (typeof allXOrRenderedCell === 'object') {
             // xOrCellEvent is cellEvent
             const column = allXOrRenderedCell.viewLayoutColumn.column;
@@ -1567,16 +1562,16 @@ export class Revgrid {
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @return The properties of the cell at x,y in the grid or falsy if not available.
      */
-    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell): MetaModel.CellOwnProperties | false | null | undefined{
+    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<MCS>): MetaModel.CellOwnProperties | false | null | undefined{
         return this._cellPropertiesBehavior.getCellOwnPropertiesFromRenderedCell(renderedCell);
     }
 
-    getCellProperties(allX: number, y: number, subgrid: Subgrid): CellMetaSettings {
+    getCellProperties(allX: number, y: number, subgrid: Subgrid<MCS>): CellMetaSettings {
         const column = this._columnsManager.getAllColumn(allX);
         return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
     }
 
-    getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell, key: string): MetaModel.CellOwnProperty | undefined {
+    getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<MCS>, key: string): MetaModel.CellOwnProperty | undefined {
         return this._cellPropertiesBehavior.getCellOwnPropertyFromRenderedCell(renderedCell, key);
     }
 
@@ -1589,13 +1584,13 @@ export class Revgrid {
      * @param subgrid - Subgrid in which contains cell
      * @return The specified property for the cell at x,y in the grid.
      */
-    getCellProperty(allX: number, y: number, key: string | number, subgrid: Subgrid): MetaModel.CellOwnProperty;
-    getCellProperty<T extends keyof ColumnSettings>(allX: number, y: number, key: T, subgrid: Subgrid): ColumnSettings[T];
+    getCellProperty(allX: number, y: number, key: string | number, subgrid: Subgrid<MCS>): MetaModel.CellOwnProperty;
+    getCellProperty<T extends keyof ColumnSettings>(allX: number, y: number, key: T, subgrid: Subgrid<MCS>): ColumnSettings[T];
     getCellProperty<T extends keyof ColumnSettings>(
         allX: number,
         y: number,
         key: string | T,
-        subgrid: Subgrid
+        subgrid: Subgrid<MCS>
     ): MetaModel.CellOwnProperty | ColumnSettings[T] {
         const column = this._columnsManager.getAllColumn(allX);
         return this._cellPropertiesBehavior.getCellProperty(column, y, key, subgrid);
@@ -1608,11 +1603,11 @@ export class Revgrid {
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    setCellOwnPropertiesUsingCellEvent(cell: ViewCell, properties: MetaModel.CellOwnProperties) {
+    setCellOwnPropertiesUsingCellEvent(cell: ViewCell<MCS>, properties: MetaModel.CellOwnProperties) {
         const column = cell.viewLayoutColumn.column;
         return this._cellPropertiesBehavior.setCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
-    setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
+    setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<MCS>) {
         const column = this._columnsManager.getAllColumn(allX);
         return this._cellPropertiesBehavior.setCellOwnProperties(column, y, properties, subgrid);
     }
@@ -1624,11 +1619,11 @@ export class Revgrid {
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    addCellOwnPropertiesUsingCellEvent(cell: ViewCell, properties: MetaModel.CellOwnProperties) {
+    addCellOwnPropertiesUsingCellEvent(cell: ViewCell<MCS>, properties: MetaModel.CellOwnProperties) {
         const column = cell.viewLayoutColumn.column;
         return this._cellPropertiesBehavior.addCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
-    addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid) {
+    addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<MCS>) {
         const column = this._columnsManager.getAllColumn(allX);
         return this._cellPropertiesBehavior.addCellOwnProperties(column, y, properties, subgrid);
     }
@@ -1647,17 +1642,17 @@ export class Revgrid {
      * @param key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    setCellProperty(cell: ViewCell, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
-    setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid): MetaModel.CellOwnProperties | undefined;
+    setCellProperty(cell: ViewCell<MCS>, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
+    setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<MCS>): MetaModel.CellOwnProperties | undefined;
     setCellProperty(
-        allXOrCell: ViewCell | number,
+        allXOrCell: ViewCell<MCS> | number,
         yOrKey: string | number,
         keyOrValue: string | MetaModel.CellOwnProperty,
         value?: MetaModel.CellOwnProperty,
-        subgrid?: Subgrid
+        subgrid?: Subgrid<MCS>
     ): MetaModel.CellOwnProperties | undefined {
-        let optionalCell: ViewCell | undefined;
-        let column: Column;
+        let optionalCell: ViewCell<MCS> | undefined;
+        let column: Column<MCS>;
         let dataY: number;
         let key: string;
         if (typeof allXOrCell === 'object') {
@@ -1713,7 +1708,7 @@ export class Revgrid {
      * @param x - The horizontal coordinate.
      * @param y - The vertical coordinate.
      */
-    isPointSelected(x: number, y: number, subgrid?: Subgrid): boolean {
+    isPointSelected(x: number, y: number, subgrid?: Subgrid<MCS>): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1724,27 +1719,27 @@ export class Revgrid {
         return this.selection.isColumnOrRowSelected();
     }
 
-    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid) {
+    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<MCS>) {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
-        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid);
+        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<MCS>);
     }
 
     selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType = SelectionAreaType.Rectangle) {
         this._focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, areaType);
     }
 
-    selectOnlyCell(x: number, y: number, subgrid?: Subgrid, areaType = SelectionAreaType.Rectangle) {
+    selectOnlyCell(x: number, y: number, subgrid?: Subgrid<MCS>, areaType = SelectionAreaType.Rectangle) {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
 
-        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid, areaType);
+        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid<MCS>, areaType);
     }
 
-    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid) {
-        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid);
+    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<MCS>) {
+        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid<MCS>);
     }
 
     selectAllRows() {
@@ -2018,7 +2013,7 @@ export class Revgrid {
     //     }
     // }
 
-    private createDescendantEventer(): EventBehavior.DescendantEventer {
+    private createDescendantEventer(): EventBehavior.DescendantEventer<MCS> {
         return {
             allColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessAllColumnListChanged(typeId, index, count, targetIndex),
             activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
@@ -2156,12 +2151,12 @@ export class Revgrid {
 
 /** @public */
 export namespace Revgrid {
-    export interface Definition {
-        schemaServer: (SchemaServer | SchemaServer.Constructor),
-        subgrids: Subgrid.Definition[],
+    export interface Definition<MCS extends MergableColumnSettings> {
+        schemaServer: (SchemaServer<MCS> | SchemaServer.Constructor<MCS>),
+        subgrids: Subgrid.Definition<MCS>[],
     }
 
-    export interface Options {
+    export interface Options<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
 		// api?: object | string[];
 		boundingRect?: BoundingRectStyleValues;
 		canvasContextAttributes?: CanvasRenderingContext2DSettings;
@@ -2174,9 +2169,8 @@ export namespace Revgrid {
 		// metadata?: DataServer.RowMetadata[];
         /** Specifies whether to load builtin FinBar stylesheet. Default: true */
         loadBuiltinFinbarStylesheet?: boolean;
+        customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<MGS, MCS>[];
 	}
-
-    export const defaultProperties = defaultGridSettings;
 
     export interface LocalizationOptions {
         locale?: string;

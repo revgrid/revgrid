@@ -1,12 +1,14 @@
 import { HoverCell } from '../../interfaces/data/hover-cell';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class ColumnSortingUiBehavior extends UiBehavior {
+export class ColumnSortingUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
 
     readonly typeName = ColumnSortingUiBehavior.typeName;
 
-    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -21,7 +23,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -36,7 +38,7 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (cell === undefined) {
@@ -50,8 +52,8 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         return super.handlePointerMove(event, cell);
     }
 
-    private checkSort(event: MouseEvent, cell: HoverCell, dblClick: boolean) {
-        if (this.canSortWithCell(cell) && cell.columnSettings.sortOnDoubleClick === dblClick) {
+    private checkSort(event: MouseEvent, cell: HoverCell<MCS>, dblClick: boolean) {
+        if (this.canSortWithCell(cell) && cell.columnSettings.mouseSortOnDoubleClick === dblClick) {
             this.eventBehavior.processColumnSortEvent(event, cell);
             return true;
         } else {
@@ -59,11 +61,11 @@ export class ColumnSortingUiBehavior extends UiBehavior {
         }
     }
 
-    private canSortWithCell(cell: HoverCell): boolean {
+    private canSortWithCell(cell: HoverCell<MCS>): boolean {
         return (
             cell.isHeaderOrRowFixed &&
             !cell.isMouseOverLine() &&
-            cell.columnSettings.sortable
+            cell.columnSettings.mouseSortable
         );
     }
 }

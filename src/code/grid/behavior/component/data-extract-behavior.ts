@@ -2,14 +2,16 @@ import { ColumnsManager } from '../../components/column/columns-manager';
 import { Selection } from '../../components/selection/selection';
 import { DataServer } from '../../interfaces/data/data-server';
 import { Column } from '../../interfaces/schema/column';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType } from '../../types-utils/types';
 
 /** @internal */
-export class DataExtractBehavior {
+export class DataExtractBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
     constructor(
-        private readonly _selection: Selection,
-        private readonly _columnsManager: ColumnsManager,
+        private readonly _selection: Selection<MGS, MCS>,
+        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
     ) {
 
     }
@@ -216,7 +218,7 @@ export class DataExtractBehavior {
                     rects[i] = columns;
                 }
             );
-            }
+        }
 
         return rects;
     }
@@ -276,7 +278,7 @@ export class DataExtractBehavior {
      * * `string` - name of a column from the all column list
      * @internal
      */
-    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column[] {
+    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<MCS>[] {
         const allColumns = this._columnsManager.allColumns;
         const activeColumns = this._columnsManager.activeColumns;
 
@@ -284,7 +286,7 @@ export class DataExtractBehavior {
             return activeColumns;
         } else {
             if (Array.isArray(hiddenColumns)) {
-                let columns: Column[] = [];
+                let columns: Column<MCS>[] = [];
                 hiddenColumns.forEach((index: number | string) => {
                     const key = typeof index === 'number' ? 'index' : 'name';
                     const column = allColumns.find((allColumn) => { return allColumn[key] === index; });

@@ -1,8 +1,6 @@
 import { Rectangle } from '../../types-utils/rectangle';
-import { CellEditor } from '../dataless/cell-editor';
-import { CellPainter } from '../dataless/cell-painter';
-import { DatalessViewCell } from '../dataless/dataless-view-cell';
 import { SchemaServer } from '../schema/schema-server';
+import { MergableColumnSettings } from '../settings/mergable-column-settings';
 // import { Hypergrid } from '../Hypergrid';
 
 /**
@@ -13,7 +11,7 @@ import { SchemaServer } from '../schema/schema-server';
  */
 
  /** @public */
-export interface DataServer {
+export interface DataServer<MCS extends MergableColumnSettings> {
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link DataServer#dispatchEvent dispatchEvent}, {@link DataServer#removeListener removeListener}, and {@link DataServer#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
@@ -94,7 +92,7 @@ export interface DataServer {
      * @desc Get a cell's value given its column & row indexes.
      * @returns The member with the given schema field from the data row with the given `rowIndex`.
      */
-    getValue(schema: SchemaServer.Column, rowIndex: number): DataServer.DataValue;
+    getValue(schema: SchemaServer.Column<MCS>, rowIndex: number): DataServer.DataValue;
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -131,16 +129,13 @@ export interface DataServer {
      *
      * Set a cell's value given its column schema & row indexes and a new value.
      */
-    setValue?(schema: SchemaServer.Column, rowIndex: number, newValue: unknown): void;
+    setValue?(schema: SchemaServer.Column<MCS>, rowIndex: number, newValue: unknown): void;
 
     /** Cursor to be displayed when mouse hovers over cell containing data point */
-    getCursorName?(schema: SchemaServer.Column, rowIndex: number): string;
+    getCursorName?(schema: SchemaServer.Column<MCS>, rowIndex: number): string;
 
     /** Title text to be displayed when mouse hovers over cell containing data point */
-    getTitleText?(schema: SchemaServer.Column, rowIndex: number): string;
-
-    getCellPainter(viewCell: DatalessViewCell): CellPainter;
-    getCellEditor?(viewCell: DatalessViewCell): CellEditor | undefined;
+    getTitleText?(schema: SchemaServer.Column<MCS>, rowIndex: number): string;
 }
 
 
@@ -161,7 +156,7 @@ export namespace DataServer {
     export type ArrayDataRow = DataValue[];
     export type DataRow = ArrayDataRow | ObjectDataRow;
 
-    export type Constructor = new () => DataServer;
+    export type Constructor<MCS extends MergableColumnSettings> = new () => DataServer<MCS>;
 
     /**
      * Besides `type`, your event object can contain other event details.

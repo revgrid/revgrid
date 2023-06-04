@@ -6,6 +6,7 @@ import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
 import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Rectangle } from '../../types-utils/rectangle';
@@ -46,7 +47,7 @@ import { ViewCellImplementation } from './view-cell-implementation';
  * Same parameters as {@link ViewLayout#initialize|initialize}, which is called by this constructor.
  *
  */
-export class ViewLayout {
+export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
     /** @internal */
     invalidateDataEventer: ViewLayout.InvalidatedEventer;
     /** @internal */
@@ -56,7 +57,7 @@ export class ViewLayout {
     /** @internal */
     cellPoolComputedEventerForMouse: ViewLayout.CellPoolComputedEventer;
 
-    private readonly _mainSubgrid: MainSubgrid;
+    private readonly _mainSubgrid: MainSubgrid<MCS>;
 
     /**
      * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
@@ -70,7 +71,7 @@ export class ViewLayout {
      * 2. A zero-based list of consecutive of integers representing the fixed columns (if any).
      * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
      */
-    private readonly _columns = new ViewLayout.ViewLayoutColumnArray();
+    private readonly _columns = new ViewLayout.ViewLayoutColumnArray<MCS>();
 
     /**
      * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
@@ -83,15 +84,15 @@ export class ViewLayout {
      *
      * Note that non-scrollable subgrids can come both before _and_ after the scrollable subgrid.
      */
-    private readonly _rows = new ViewLayout.ViewLayoutRowArray();
+    private readonly _rows = new ViewLayout.ViewLayoutRowArray<MCS>();
 
-    private readonly _horizontalScrollDimension: HorizontalScrollDimension;
-    private readonly _verticalScrollDimension: VerticalScrollDimension;
+    private readonly _horizontalScrollDimension: HorizontalScrollDimension<MGS, MCS>;
+    private readonly _verticalScrollDimension: VerticalScrollDimension<MGS, MCS>;
 
-    private readonly _dummyUnusedColumn: ColumnImplementation;
+    private readonly _dummyUnusedColumn: ColumnImplementation<MCS>;
 
-    private readonly _rowColumnOrderedCellPool = new Array<ViewCellImplementation>();
-    private readonly _columnRowOrderedCellPool = new Array<ViewCellImplementation>();
+    private readonly _rowColumnOrderedCellPool = new Array<ViewCellImplementation<MGS, MCS>>();
+    private readonly _columnRowOrderedCellPool = new Array<ViewCellImplementation<MGS, MCS>>();
 
     private _columnsValid = false;
     private _rowsValid = false;
@@ -139,10 +140,10 @@ export class ViewLayout {
     }
 
     constructor(
-        private readonly _gridSettings: MergableGridSettings,
-        private readonly _canvasManager: CanvasManager,
-        private readonly _columnsManager: ColumnsManager,
-        private readonly _subgridsManager: SubgridsManager,
+        private readonly _gridSettings: MGS,
+        private readonly _canvasManager: CanvasManager<MGS>,
+        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
+        private readonly _subgridsManager: SubgridsManager<MGS, MCS>,
     ) {
         this._gridSettings.viewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
         this._gridSettings.horizontalViewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
@@ -152,7 +153,7 @@ export class ViewLayout {
         this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvasManager, this._columnsManager);
         this._horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
         this._verticalScrollDimension = new VerticalScrollDimension(this._gridSettings, this._canvasManager, this._subgridsManager);
-        this._verticalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleVerticalScrollDimensionComputedEvent(withinAnimationFrame);
+        this._verticalScrollDimension.computedEventer = (withinAnimationFrame: boolean) => this.handleVerticalScrollDimensionComputedEvent(withinAnimationFrame);
 
         this._dummyUnusedColumn = this._columnsManager.createDummyColumn();
         this._columnsManager.invalidateViewEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell);
@@ -1008,7 +1009,7 @@ export class ViewLayout {
      * @param point
      * @returns Cell coordinates
      */
-    findHoverCell(canvasXOffset: number, canvasYOffset: number): HoverCell | undefined {
+    findHoverCell(canvasXOffset: number, canvasYOffset: number): HoverCell<MCS> | undefined {
         const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasXOffset);
         if (columnIndex < 0) {
             return undefined;
@@ -1017,13 +1018,12 @@ export class ViewLayout {
             if (rowIndex < 0) {
                 return undefined;
             } else {
-                const viewCell = this.findCellAtViewpointIndex(columnIndex, rowIndex);
-                if (viewCell === undefined) {
+                const hoverCell = this.findCellAtViewpointIndex(columnIndex, rowIndex) as HoverCellImplementation<MGS, MCS>;
+                if (hoverCell === undefined) {
                     throw new AssertError('VGCFMP34440');
                 } else {
-                    const hoverCell = viewCell as HoverCellImplementation;
-                    hoverCell.mouseOverLeftLine = canvasXOffset < viewCell.viewLayoutColumn.left;
-                    hoverCell.mouseOverTopLine = canvasYOffset < viewCell.viewLayoutRow.top;
+                    hoverCell.mouseOverLeftLine = canvasXOffset < hoverCell.viewLayoutColumn.left;
+                    hoverCell.mouseOverTopLine = canvasYOffset < hoverCell.viewLayoutRow.top;
                     return hoverCell;
                 }
             }
@@ -1201,7 +1201,7 @@ export class ViewLayout {
         }
     }
 
-    createUnusedSpaceColumn(): ViewLayoutColumn | undefined {
+    createUnusedSpaceColumn(): ViewLayoutColumn<MCS> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1213,7 +1213,7 @@ export class ViewLayout {
                 if (firstColumn.left <= 0) {
                     return undefined;
                 } else {
-                    const column: ViewLayoutColumn = {
+                    const column: ViewLayoutColumn<MCS> = {
                         index: -1,
                         activeColumnIndex: -1,
                         column: this._dummyUnusedColumn,
@@ -1230,7 +1230,7 @@ export class ViewLayout {
                 if (lastColumnRightPlus1 >= gridRightPlus1) {
                     return undefined;
                 } else {
-                    const column: ViewLayoutColumn = {
+                    const column: ViewLayoutColumn<MCS> = {
                         index: columnCount,
                         activeColumnIndex: columnCount,
                         column: this._dummyUnusedColumn,
@@ -1287,7 +1287,7 @@ export class ViewLayout {
      * @param activeColumnIndex - The grid column index.
      * @returns The given column if visible or `undefined` if not.
      */
-    findColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn | undefined {
+    findColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<MCS> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1308,7 +1308,7 @@ export class ViewLayout {
         }
     }
 
-    findColumnWithAllIndex(allColumnIndex: number): ViewLayoutColumn | undefined {
+    findColumnWithAllIndex(allColumnIndex: number): ViewLayoutColumn<MCS> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         for (let i = 0; i < columnCount; i++) {
@@ -1320,7 +1320,7 @@ export class ViewLayout {
         return undefined;
     }
 
-    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: Subgrid) {
+    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: Subgrid<MCS>) {
         const rows = this._rows;
         const rowCount = rows.length;
         for (let i = 0; i < rowCount; i++) {
@@ -1332,7 +1332,7 @@ export class ViewLayout {
         return undefined;
     }
 
-    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn | undefined {
+    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<MCS> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1428,7 +1428,7 @@ export class ViewLayout {
         return this._rows[rowIndex];
     }
 
-    isDataRowVisible(rowIndex: number, subgrid: Subgrid): boolean {
+    isDataRowVisible(rowIndex: number, subgrid: Subgrid<MCS>): boolean {
         return this.getVisibleDataRow(rowIndex, subgrid) !== undefined;
     }
 
@@ -1439,7 +1439,7 @@ export class ViewLayout {
      * @param rowIndex - The data row index within the given subgrid.
      * @returns The given row if visible or `undefined` if not.
      */
-    getVisibleDataRow(rowIndex: number, subgrid: Subgrid) {
+    getVisibleDataRow(rowIndex: number, subgrid: Subgrid<MCS>) {
         for (const vr of this._rows) {
             if (vr.subgridRowIndex === rowIndex && vr.subgrid === subgrid) {
                 return vr;
@@ -1583,7 +1583,7 @@ export class ViewLayout {
         }
     }
 
-    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid) {
+    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<MCS>) {
         const column = this.findColumnWithActiveIndex(activeColumnIndex);
         if (column === undefined) {
             return undefined;
@@ -1597,7 +1597,7 @@ export class ViewLayout {
         }
     }
 
-    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid) {
+    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<MCS>) {
         const column = this.findColumnWithAllIndex(allColumnIndex);
         if (column === undefined) {
             return undefined;
@@ -1639,7 +1639,7 @@ export class ViewLayout {
         }
     }
 
-    findCellAtCanvasOffset(x: number, y: number): ViewCell | undefined {
+    findCellAtCanvasOffset(x: number, y: number): ViewCell<MCS> | undefined {
         const columnIndex = this.findColumnIndexOfCanvasOffset(x);
         if (columnIndex < 0) {
             return undefined;
@@ -1798,7 +1798,7 @@ export class ViewLayout {
                 throw new AssertError('VLCH60009');
             } else {
                 let fixedWidthV: number;
-                let vc: ViewLayoutColumn;
+                let vc: ViewLayoutColumn<MCS>;
 
                 if (gridSettings.fixedLinesVWidth === undefined) {
                     fixedWidthV = gridLinesVWidth;
@@ -2103,7 +2103,7 @@ export class ViewLayout {
             while (subgridRowIndex < subgridRowCount && y < afterY) {
                 const height = subgrid.getRowHeight(subgridRowIndex);
 
-                const row: ViewLayoutRow = {
+                const row: ViewLayoutRow<MCS> = {
                     index: rowIndex,
                     subgridRowIndex,
                     subgrid,
@@ -2234,13 +2234,13 @@ export class ViewLayout {
         }
     }
 
-    private resizeCellPool(pool: ViewCell[], requiredSize: number) {
+    private resizeCellPool(pool: ViewCellImplementation<MGS, MCS>[], requiredSize: number) {
         const previousLength = pool.length;
         pool.length = requiredSize;
 
         if (requiredSize > previousLength) {
             for (let i = previousLength; i < requiredSize; i++) {
-                pool[i] = new HoverCellImplementation(this._columnsManager);
+                pool[i] = new HoverCellImplementation<MGS, MCS>(this._columnsManager);
             }
         }
     }
@@ -2266,7 +2266,7 @@ export class ViewLayout {
 
     }
 
-    private resetPoolAllCellPropertiesCaches(pool: ViewCellImplementation[]) {
+    private resetPoolAllCellPropertiesCaches(pool: ViewCell<MCS>[]) {
         const cellCount = pool.length;
         for (let i = 0; i < cellCount; i++) {
             const cell = pool[i];
@@ -2276,7 +2276,7 @@ export class ViewLayout {
 }
 
 export namespace ViewLayout {
-    export type GetRowHeightEventer = (this: void, y: number, subgrid: Subgrid | undefined) => number;
+    export type GetRowHeightEventer<MCS extends MergableColumnSettings> = (this: void, y: number, subgrid: Subgrid<MCS> | undefined) => number;
     export type CheckNeedsShapeChangedEventer = (this: void) => void;
     export type InvalidatedEventer = (this: void, action: InvalidateAction) => void;
     export type ColumnsViewWidthsChangedEventer = (this: void) => void;
@@ -2293,18 +2293,18 @@ export namespace ViewLayout {
         RowColumn,
     }
 
-    export class ViewLayoutColumnArray extends Array<ViewLayoutColumn> {
+    export class ViewLayoutColumnArray<MCS extends MergableColumnSettings> extends Array<ViewLayoutColumn<MCS>> {
         gap: ViewLayoutColumnArray.Gap | undefined;
     }
 
-    export namespace ViewLayoutColumnArray {
+    export namespace ViewLayoutColumnArray {``
         export interface Gap {
             left: number;
             rightPlus1: number;
         }
     }
 
-    export class ViewLayoutRowArray extends Array<ViewLayoutRow> {
+    export class ViewLayoutRowArray<MCS extends MergableColumnSettings> extends Array<ViewLayoutRow<MCS>> {
         gap: ViewLayoutRowArray.Gap | undefined;
     }
 

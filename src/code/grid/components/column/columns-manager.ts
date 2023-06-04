@@ -1,13 +1,14 @@
 import { Column, ColumnWidth } from '../../interfaces/schema/column';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { ColumnSettings, MergableColumnSettings } from '../../interfaces/settings/column-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { ColumnSettings } from '../../interfaces/settings/column-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnNameWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager {
+export class ColumnsManager<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
     /** @internal */
     activeColumnWidthOrOrderChangedEventer: ColumnsManager.ActiveColumnWidthOrOrderChangedEventer;
 
@@ -18,11 +19,11 @@ export class ColumnsManager {
     /** @internal */
     activeColumnListChangedEventer: UiableListChangedEventer;
     /** @internal */
-    columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer;
+    columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer<MCS>;
     /** @internal */
-    private _activeColumns = new Array<Column>();
+    private _activeColumns = new Array<Column<MCS>>();
     /** @internal */
-    private _allColumns = new Array<Column>(); // always in same order as Schema
+    private _allColumns = new Array<Column<MCS>>(); // always in same order as Schema
 
     /** @internal */
     private _beginSchemaChangeCount = 0;
@@ -34,8 +35,8 @@ export class ColumnsManager {
 
     /** @internal */
     constructor(
-        readonly schemaServer: SchemaServer,
-        private readonly _gridSettings: GridSettings,
+        readonly schemaServer: SchemaServer<MCS>,
+        private readonly _gridSettings: MGS,
     ) {
     }
 
@@ -172,8 +173,8 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    newColumn(schemaColumn: SchemaServer.Column) {
-        return new ColumnImplementation(this._gridSettings, schemaColumn);
+    newColumn(schemaColumn: SchemaServer.Column<MCS>) {
+        return new ColumnImplementation(schemaColumn);
     }
 
     /** @internal */
@@ -207,31 +208,31 @@ export class ColumnsManager {
 
     /** @internal */
     createDummyColumn() {
-        const dummySettings: MergableColumnSettings = {} as MergableColumnSettings;
-        const schemaColumn: SchemaServer.Column = {
+        const dummySettings: MCS = {} as MCS;
+        const schemaColumn: SchemaServer.Column<MCS> = {
             index: -1,
             name: '',
             settings: dummySettings,
         }
-        return new ColumnImplementation(this._gridSettings, schemaColumn);
+        return new ColumnImplementation(schemaColumn);
     }
 
     /** @internal */
     getActiveColumnWidth(x: number) {
         const column = this.getActiveColumn(x);
-        return column !== undefined ? column.getWidth() : 0;
+        return column !== undefined ? column.width : 0;
     }
 
     /** @internal */
     getActiveColumnRoundedWidth(x: number) {
         const column = this.getActiveColumn(x);
-        return column !== undefined ? Math.round(column.getWidth()) : 0;
+        return column !== undefined ? Math.round(column.width) : 0;
     }
 
     /** @internal */
     getActiveColumnCeilWidth(x: number) {
         const column = this.getActiveColumn(x);
-        return column !== undefined ? Math.ceil(column.getWidth()) : 0;
+        return column !== undefined ? Math.ceil(column.width) : 0;
     }
 
     /**
@@ -259,8 +260,8 @@ export class ColumnsManager {
      * @param columnOrIndex - The column or active column index.
      * @internal
      */
-    setActiveColumnWidth(columnOrIndex: Column | number, width: number | undefined, ui: boolean) {
-        let column: Column
+    setActiveColumnWidth(columnOrIndex: Column<MCS> | number, width: number | undefined, ui: boolean) {
+        let column: Column<MCS>
         if (typeof columnOrIndex === 'number') {
             if (columnOrIndex >= 0) {
                 column = this.getActiveColumn(columnOrIndex);
@@ -281,8 +282,8 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    setColumnWidths(columnWidths: ColumnWidth[], ui: boolean) {
-        const changedColumns = new Array<Column>(columnWidths.length);
+    setColumnWidths(columnWidths: ColumnWidth<MCS>[], ui: boolean) {
+        const changedColumns = new Array<Column<MCS>>(columnWidths.length);
         let changedColumnsCount = 0;
         for (const columnWidth of columnWidths) {
             const { column, width } = columnWidth;
@@ -302,7 +303,7 @@ export class ColumnsManager {
 
     /** @internal */
     setColumnWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean) {
-        const changedColumns = new Array<Column>(columnNameWidths.length);
+        const changedColumns = new Array<Column<MCS>>(columnNameWidths.length);
         let changedColumnsCount = 0;
         for (const columnNameWidth of columnNameWidths) {
             const { name, width } = columnNameWidth;
@@ -328,28 +329,25 @@ export class ColumnsManager {
     /**
      * @summary Sets properties for active columns.
      * @desc Sets multiple columns' properties from elements of given array or collection. Keys may be column indexes or column names. The properties collection is cleared first. Falsy elements are ignored.
-     * @param columnsHash - If undefined, this call is a no-op.
+     * @param settings - If undefined, this call is a no-op.
      * @internal
      */
-    setAllColumnProperties(columnsHash?: ColumnSettings[] | Record<string, ColumnSettings>) {
-        this.addAllColumnProperties(columnsHash, true);
+    setAllColumnSettings(settings: ColumnSettings[] | Record<string, ColumnSettings>) {
+        this.mergeAllColumnSettings(settings, true);
     }
 
     /**
      * @summary Adds properties for multiple columns.
      * @desc Adds . The properties collection is optionally cleared first. Falsy elements are ignored.
-     * @param columnsHash - If undefined, this call is a no-op.
+     * @param settings - If undefined, this call is a no-op.
      * @param settingState - Clear columns' properties objects before copying properties.
      * @internal
      */
-    addAllColumnProperties(columnsHash?: Partial<ColumnSettings>[] | Record<string, Partial<ColumnSettings>>, settingState?: boolean) {
-        if (columnsHash === undefined) {
-            return;
-        }
-
+    mergeAllColumnSettings(settings: Partial<ColumnSettings>[] | Record<string, Partial<ColumnSettings>>, settingState?: boolean) {
+        // looks weird - needs fixing
         const allColumns = this._allColumns;
 
-        if (Array.isArray(columnsHash)) {
+        if (Array.isArray(settings)) {
             const columnCount = allColumns.length;
             for (let i = 0; i < columnCount; i++) {
                 const column = allColumns[i];
@@ -357,10 +355,10 @@ export class ColumnsManager {
                     // column.clearProperties(); // needs to be implemented
                 }
 
-                column.addProperties(columnsHash[i]);
+                column.mergeSettings(settings[i]);
             }
         } else {
-            Object.keys(columnsHash).forEach((key) => {
+            Object.keys(settings).forEach((key) => {
                 const index = this._allColumns.findIndex((column) => column.name === key)
 
                 if (index >= 0) {
@@ -370,7 +368,7 @@ export class ColumnsManager {
                             // column.clearProperties(); // needs to be implemented
                         }
 
-                        column.addProperties(columnsHash[key]);
+                        column.mergeSettings(settings[key]);
                     }
                 }
             });
@@ -402,7 +400,7 @@ export class ColumnsManager {
         const activeColumns = this._activeColumns;
         const sourceColumnList = isActiveColumnIndexes ? activeColumns : this._allColumns;
 
-        let newColumns: Column[];
+        let newColumns: Column<MCS>[];
         if (columnIndexOrIndices === undefined) {
             newColumns = sourceColumnList;
         } else {
@@ -437,8 +435,6 @@ export class ColumnsManager {
         if (referenceIndex >= 0) {
             activeColumns.splice(referenceIndex, 0, ...newColumns);
         }
-
-        this._gridSettings.columnIndexes = activeColumns.map((column) => column.index );
     }
 
     setActiveColumnsAndWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean) {
@@ -475,12 +471,12 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    setActiveColumns(columnNameOrAllIndexArray: readonly (Column | string | number)[]) {
+    setActiveColumns(columnNameOrAllIndexArray: readonly (Column<MCS> | string | number)[]) {
         const newActiveCount = columnNameOrAllIndexArray.length;
-        const newActiveColumns = new Array<Column>(newActiveCount);
+        const newActiveColumns = new Array<Column<MCS>>(newActiveCount);
         for (let i = 0; i < newActiveCount; i++) {
             const columnNameOrAllIndex = columnNameOrAllIndexArray[i];
-            let column: Column;
+            let column: Column<MCS>;
             if (typeof columnNameOrAllIndex === 'number') {
                 column = this._allColumns[columnNameOrAllIndex];
             } else {
@@ -606,16 +602,16 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    autosizeAllColumns() {
-        this.checkColumnAutosizing(true);
+    autosizeAllColumns(widenOnly: boolean) {
+        this.checkColumnAutosizing(widenOnly, false);
     }
 
     /** @internal */
-    checkColumnAutosizing(force: boolean, withinAnimationFrame = false) {
+    checkColumnAutosizing(widenOnly: boolean, withinAnimationFrame: boolean) {
         let autoSized = false;
 
         for (const column of this._activeColumns) {
-            if (column.checkColumnAutosizing(force)) {
+            if (column.checkColumnAutosizing(widenOnly)) {
                 autoSized = true;
             }
         }
@@ -631,12 +627,12 @@ export class ColumnsManager {
     }
 
     /** @internal */
-    get allColumns(): readonly Column[] {
+    get allColumns(): readonly Column<MCS>[] {
         return this._allColumns;
     }
 
     /** @internal */
-    get activeColumns(): readonly Column[] {
+    get activeColumns(): readonly Column<MCS>[] {
         return this._activeColumns;
     }
 
@@ -645,7 +641,7 @@ export class ColumnsManager {
         // this does not look right
         const visible = this._activeColumns;
         const all = this._allColumns;
-        const hidden = new Array<Column>();
+        const hidden = new Array<Column<MCS>>();
         for (let i = 0; i < all.length; i++) {
             if (visible.indexOf(all[i]) === -1) {
                 hidden.push(all[i]);
@@ -662,7 +658,7 @@ export class ColumnsManager {
 export namespace ColumnsManager {
     export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
     export type ActiveColumnWidthOrOrderChangedEventer = (this: void) => void;
-    export type ColumnsWidthChangedEventer = (this: void, columns: Column[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventer<MCS extends MergableColumnSettings> = (this: void, columns: Column<MCS>[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

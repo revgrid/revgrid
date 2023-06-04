@@ -8,7 +8,7 @@
 
   "include": [
     "*.ts"
-  ],
+, "../interfaces/settings/default-grid-settings.ts"  ],
 
   "references": [
     { "path": "../interfaces/data/tsconfig.grid-interfaces-data.json" },

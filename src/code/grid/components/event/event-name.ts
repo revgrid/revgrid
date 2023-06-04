@@ -1,13 +1,14 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
 import { ViewCell } from '../../interfaces/data/view-cell';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
 import { EventDetail } from './event-detail';
 
 /** @public */
-export type EventName = keyof EventName.DetailMap;
+export type EventName<MCS extends MergableColumnSettings> = keyof EventName.DetailMap<MCS>;
 
 /** @public */
 export namespace EventName {
-    export interface DetailMap {
+    export interface DetailMap<MCS extends MergableColumnSettings> {
         // SchemaModel / DataModel
         'rev-schema-loaded': undefined;
         'rev-data-loaded': undefined;
@@ -22,23 +23,23 @@ export namespace EventName {
         'rev-data-postreindex': undefined;
 
         // Grid
-        'rev-column-sort': EventDetail.ColumnSort;
+        'rev-column-sort': EventDetail.ColumnSort<MCS>;
         'rev-cell-focus-changed': EventDetail.CellFocusChanged;
         'rev-selection-changed': EventDetail.Grid;
-        'rev-context-menu': EventDetail.Pointer;
-        'rev-pointer-down': EventDetail.Pointer;
-        'rev-pointer-up-cancel': EventDetail.Pointer;
-        'rev-pointer-move': EventDetail.Pointer;
-        'rev-pointer-enter': EventDetail.Pointer;
-        'rev-pointer-leave-out': EventDetail.Pointer;
-        'rev-wheel-move': EventDetail.Wheel;
+        'rev-context-menu': EventDetail.Pointer<MCS>;
+        'rev-pointer-down': EventDetail.Pointer<MCS>;
+        'rev-pointer-up-cancel': EventDetail.Pointer<MCS>;
+        'rev-pointer-move': EventDetail.Pointer<MCS>;
+        'rev-pointer-enter': EventDetail.Pointer<MCS>;
+        'rev-pointer-leave-out': EventDetail.Pointer<MCS>;
+        'rev-wheel-move': EventDetail.Wheel<MCS>;
         'rev-key-down': EventDetail.Keyboard;
         'rev-key-up': EventDetail.Keyboard;
         'rev-filter-applied': undefined;
-        'rev-cell-enter': ViewCell;
-        'rev-cell-exit': ViewCell;
-        'rev-click': EventDetail.Pointer;
-        'rev-dbl-click': EventDetail.Pointer;
+        'rev-cell-enter': ViewCell<MCS>;
+        'rev-cell-exit': ViewCell<MCS>;
+        'rev-click': EventDetail.Pointer<MCS>;
+        'rev-dbl-click': EventDetail.Pointer<MCS>;
         'rev-columns-view-widths-changed': undefined;
         'rev-grid-rendered': EventDetail.Grid;
         'rev-grid-resized': EventDetail.Resize;

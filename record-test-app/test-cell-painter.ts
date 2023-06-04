@@ -319,7 +319,7 @@ function renderMultiLineText(
     }
 
     let halignOffset = leftPadding;
-    let valignOffset = config.voffset;
+    let valignOffset = config.cellVerticalOffset;
     const halign = config.halign;
     const textHeight = gc.getTextHeight(config.font).height;
 

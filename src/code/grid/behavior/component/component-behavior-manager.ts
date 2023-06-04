@@ -7,7 +7,8 @@ import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
 import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
@@ -37,30 +38,30 @@ import { ServerNotificationBehavior } from './server-notification-behavior';
  * @abstract
  */
 /** @internal */
-export class ComponentBehaviorManager {
-    readonly focusScrollBehavior: FocusScrollBehavior;
-    readonly focusSelectBehavior: FocusSelectBehavior;
-    readonly eventBehavior: EventBehavior;
-    readonly reindexBehavior: ReindexBehavior;
-    readonly rowPropertiesBehavior: RowPropertiesBehavior;
-    readonly cellPropertiesBehavior: CellPropertiesBehavior;
-    readonly dataExtractBehavior: DataExtractBehavior;
+export class ComponentBehaviorManager<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+    readonly focusScrollBehavior: FocusScrollBehavior<MGS, MCS>;
+    readonly focusSelectBehavior: FocusSelectBehavior<MGS, MCS>;
+    readonly eventBehavior: EventBehavior<MGS, MCS>;
+    readonly reindexBehavior: ReindexBehavior<MGS, MCS>;
+    readonly rowPropertiesBehavior: RowPropertiesBehavior<MGS, MCS>;
+    readonly cellPropertiesBehavior: CellPropertiesBehavior<MGS, MCS>;
+    readonly dataExtractBehavior: DataExtractBehavior<MGS, MCS>;
 
-    private readonly _serverNotificationBehavior: ServerNotificationBehavior;
+    private readonly _serverNotificationBehavior: ServerNotificationBehavior<MGS, MCS>;
 
     constructor(
-        gridSettings: GridSettings,
-        canvasManager: CanvasManager,
-        columnsManager: ColumnsManager,
-        subgridsManager: SubgridsManager,
-        viewLayout: ViewLayout,
-        focus: Focus,
-        selection: Selection,
-        mouse: Mouse,
-        renderer: Renderer,
-        horizontalScroller: Scroller,
-        verticalScroller: Scroller,
-        descendantEventer: EventBehavior.DescendantEventer,
+        gridSettings: MGS,
+        canvasManager: CanvasManager<MGS>,
+        columnsManager: ColumnsManager<MGS, MCS>,
+        subgridsManager: SubgridsManager<MGS, MCS>,
+        viewLayout: ViewLayout<MGS, MCS>,
+        focus: Focus<MGS, MCS>,
+        selection: Selection<MGS, MCS>,
+        mouse: Mouse<MGS, MCS>,
+        renderer: Renderer<MGS, MCS>,
+        horizontalScroller: Scroller<MGS>,
+        verticalScroller: Scroller<MGS>,
+        descendantEventer: EventBehavior.DescendantEventer<MCS>,
     ) {
         this.eventBehavior = new EventBehavior(
             gridSettings.eventDispatchEnabled,

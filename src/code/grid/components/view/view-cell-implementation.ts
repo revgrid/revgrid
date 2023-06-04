@@ -5,12 +5,13 @@ import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
-import { ColumnSettings } from '../../interfaces/settings/column-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export abstract class ViewCellImplementation implements ViewCell{
+export abstract class ViewCellImplementation<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> implements ViewCell<MCS> {
     /** Set by some Grid Painters to record out cell was painted. If fingerprint is same on successive repaints of cell, then
      * cell does not need to be repainted
      * @internal
@@ -20,22 +21,22 @@ export abstract class ViewCellImplementation implements ViewCell{
     cellOwnProperties: MetaModel.CellOwnProperties | undefined; // only get via CellPropertiesBehavior
 
     /** @internal */
-    private _subgrid: Subgrid;
+    private _subgrid: Subgrid<MCS>;
     /** @internal */
-    private _viewLayoutColumn: ViewLayoutColumn;
+    private _viewLayoutColumn: ViewLayoutColumn<MCS>;
     /** @internal */
-    private _viewLayoutRow: ViewLayoutRow;
+    private _viewLayoutRow: ViewLayoutRow<MCS>;
 
     // caches
     /** @internal */
     private _bounds: Rectangle | undefined;
     /** @internal */
-    private _columnSettings: ColumnSettings | undefined;
+    private _columnSettings: MCS | undefined;
 
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _columnsManager: ColumnsManager) {
+        private readonly _columnsManager: ColumnsManager<MGS, MCS>) {
     }
 
     get subgrid() { return this._subgrid; }
@@ -220,7 +221,7 @@ export abstract class ViewCellImplementation implements ViewCell{
 
     /** special method for use by renderer which reuses cellEvent object for performance reasons
      * @internal */
-    reset(viewLayoutColumn: ViewLayoutColumn, viewLayoutRow: ViewLayoutRow) {
+    reset(viewLayoutColumn: ViewLayoutColumn<MCS>, viewLayoutRow: ViewLayoutRow<MCS>) {
         // getter caches
         this._columnSettings = undefined;
         this.cellOwnProperties = undefined;
@@ -244,7 +245,7 @@ export abstract class ViewCellImplementation implements ViewCell{
      * @returns Visibility.
      * @internal
      */
-    resetGridXY(vc: ViewLayoutColumn | undefined, vr: ViewLayoutRow | undefined) {
+    resetGridXY(vc: ViewLayoutColumn<MCS> | undefined, vr: ViewLayoutRow<MCS> | undefined) {
         if (vc === undefined) {
             return false;
         } else {

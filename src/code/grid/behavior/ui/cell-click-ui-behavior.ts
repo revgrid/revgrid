@@ -1,23 +1,24 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class CellClickUiBehavior extends UiBehavior {
+export class CellClickUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
 
     readonly typeName = CellClickUiBehavior.typeName;
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (cell === undefined) {
                 cell = this.tryGetHoverCellFromMouseEvent(event);
             }
             if (cell !== null) {
-                const link = cell.columnSettings.link;
+                const link = false// cell.columnSettings.link;
                 const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
                 sharedState.locationCursorName = isActionableLink ? 'pointer' : undefined;
@@ -27,7 +28,7 @@ export class CellClickUiBehavior extends UiBehavior {
         return super.handlePointerMove(event, cell);
     }
 
-    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -64,7 +65,7 @@ export class CellClickUiBehavior extends UiBehavior {
      * | `null` | `grid.windowOpen` failed to open a window |
      * | _otherwise_ | A `window` reference returned by a successful call to `grid.windowOpen`. |
      */
-    openLink(viewCell: ViewCell): boolean | null | undefined | Window {
+    openLink(viewCell: ViewCell<MCS>): boolean | null | undefined | Window {
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
         const rowIndex = viewCell.viewLayoutRow.subgridRowIndex;
@@ -72,10 +73,10 @@ export class CellClickUiBehavior extends UiBehavior {
         const dataRow = subgrid.getSingletonDataRow(rowIndex);
         const config = Object.create(viewCell.columnSettings, { dataRow: { value: dataRow } });
         const value = subgrid.getValue(viewCell.viewLayoutColumn.column, rowIndex);
-        const linkProp = viewCell.columnSettings.link;
+        const linkProp: [url: string, target: string] | ((this: void, cellEvent: unknown) => string) = ['', '']// viewCell.columnSettings.link;
 
-        let linkPropTuple: GridSettings.LinkProp | undefined;
-        let link: boolean | string | GridSettings.LinkFunction;
+        let linkPropTuple: [url: string, target: string] | undefined;
+        let link: boolean | string | ((this: void, cellEvent: unknown) => string);
         if (Array.isArray(linkProp)) {
             link = linkProp[0];
             linkPropTuple = linkProp;
@@ -98,7 +99,7 @@ export class CellClickUiBehavior extends UiBehavior {
                 break;
 
             case 'function':
-                unknownUrl = link(viewCell);
+                // unknownUrl = link(viewCell);
                 break;
         }
 
@@ -118,7 +119,7 @@ export class CellClickUiBehavior extends UiBehavior {
         // STEP 5: Decorate the link as "visited"
         if (result) {
             const column = viewCell.viewLayoutColumn.column;
-            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', this.gridSettings.linkVisitedColor, subgrid, viewCell);
+            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', CellClickUiBehavior.linkVisitedColor, subgrid, viewCell);
             this.renderer.invalidateViewCellRender(viewCell);
         }
 
@@ -129,4 +130,6 @@ export class CellClickUiBehavior extends UiBehavior {
 /** @internal */
 export namespace CellClickUiBehavior {
     export const typeName = 'cellclick';
+
+    export const linkVisitedColor = '';
 }

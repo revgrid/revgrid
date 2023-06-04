@@ -1,15 +1,17 @@
 
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class HoverUiBehavior extends UiBehavior {
+export class HoverUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
 
     readonly typeName = HoverUiBehavior.typeName;
 
-    override handlePointerMove(event: PointerEvent, hoverCell: HoverCell | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: HoverCell<MCS> | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
@@ -23,7 +25,7 @@ export class HoverUiBehavior extends UiBehavior {
         return super.handlePointerMove(event, hoverCell);
     }
 
-    override handlePointerEnter(event: PointerEvent, hoverCell: HoverCell | null | undefined) {
+    override handlePointerEnter(event: PointerEvent, hoverCell: HoverCell<MCS> | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
@@ -37,12 +39,12 @@ export class HoverUiBehavior extends UiBehavior {
         return super.handlePointerEnter(event, hoverCell);
     }
 
-    override handlePointerLeaveOut(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerLeaveOut(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         this.mouse.setMouseCanvasOffset(undefined, undefined);
         return super.handlePointerLeaveOut(event, cell);
     }
 
-    private getViewCellFromHoverCell(cell: HoverCell | null): ViewCell | undefined {
+    private getViewCellFromHoverCell(cell: HoverCell<MCS> | null): ViewCell<MCS> | undefined {
         if (cell === null) {
             return undefined;
         } else {

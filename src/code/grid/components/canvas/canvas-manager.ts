@@ -20,7 +20,7 @@ import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-err
 import { Writable } from '../../types-utils/types';
 
 /** @public */
-export class CanvasManager {
+export class CanvasManager<MGS extends MergableGridSettings> {
     resizedEventerForViewLayout: CanvasManager.ResizedEventer;
     resizedEventerForEventBehavior: CanvasManager.ResizedEventer;
 
@@ -199,7 +199,7 @@ export class CanvasManager {
     constructor(
         private readonly _containerElement: HTMLElement,
         contextAttributes: CanvasRenderingContext2DSettings | undefined,
-        private readonly _gridSettings: MergableGridSettings,
+        private readonly _gridSettings: MGS,
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');

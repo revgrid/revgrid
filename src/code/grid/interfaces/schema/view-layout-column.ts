@@ -1,11 +1,12 @@
+import { MergableColumnSettings } from '../settings/mergable-column-settings';
 import { Column } from './column';
 
-export interface ViewLayoutColumn {
+export interface ViewLayoutColumn<MCS extends MergableColumnSettings> {
     /** A back reference to the element's array index in {@link ViewLayout#columns}. */
     index: number;
     /** Dereferences {@link Behavior#columns}, the subset of _active_ columns, specifying which column to show in that position. */
     activeColumnIndex: number;
-    column: Column;
+    column: Column<MCS>;
     /** Pixel coordinate of the left edge of this column, rounded to nearest integer. */
     left: number;
     /** Pixel coordinate of the right edge of this column + 1, rounded to nearest integer. */

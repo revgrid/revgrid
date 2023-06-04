@@ -1,5 +1,6 @@
 
-import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../../interfaces/settings/mergable-grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -24,19 +25,19 @@ import { GridPainter } from './grid-painter';
  *
  * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumns|paintCellsByColumns}.
  */
-export class ByRowsGridPainter extends GridPainter {
+export class ByRowsGridPainter<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends GridPainter<MGS, MCS> {
     constructor(
-        gridProperties: GridSettings,
-        canvasManager: CanvasManager,
-        subgridsManager: SubgridsManager,
-        viewLayout: ViewLayout,
-        focus: Focus,
-        selection: Selection,
-        mouse: Mouse,
+        gridSettings: MGS,
+        canvasManager: CanvasManager<MGS>,
+        subgridsManager: SubgridsManager<MGS, MCS>,
+        viewLayout: ViewLayout<MGS, MCS>,
+        focus: Focus<MGS, MCS>,
+        selection: Selection<MGS, MCS>,
+        mouse: Mouse<MGS, MCS>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(
-            gridProperties,
+            gridSettings,
             canvasManager,
             subgridsManager,
             viewLayout,
@@ -61,7 +62,7 @@ export class ByRowsGridPainter extends GridPainter {
         const rowCount = viewLayoutRows.length;
         const lastColumnIndex = columnCount - 1;
         const pool = viewLayout.getRowColumnOrderedCellPool(); // must match algorithm below and computationInvalid above
-        const preferredWidths = new Array<number | undefined>(columnCount);
+        const maxPaintWidths = new Array<number | undefined>(columnCount);
         // columnClip,
         // clipToGrid,
         let firstVisibleColumnLeft: number;
@@ -128,11 +129,11 @@ export class ByRowsGridPainter extends GridPainter {
                 try {
                     const paintWidth = this.paintCell(viewCell, prefillColor);
                     if (paintWidth !== undefined) {
-                        const previousColumnPreferredWidth = preferredWidths[columnIndex];
-                        if (previousColumnPreferredWidth === undefined) {
-                            preferredWidths[columnIndex] = paintWidth;
+                        const previousColumnMaxPaintWidth = maxPaintWidths[columnIndex];
+                        if (previousColumnMaxPaintWidth === undefined) {
+                            maxPaintWidths[columnIndex] = paintWidth;
                         } else {
-                            preferredWidths[columnIndex] = Math.max(previousColumnPreferredWidth, paintWidth);
+                            maxPaintWidths[columnIndex] = Math.max(previousColumnMaxPaintWidth, paintWidth);
                         }
                     }
                 } catch (e) {
@@ -147,9 +148,9 @@ export class ByRowsGridPainter extends GridPainter {
 
         for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
             const vc = viewLayoutColumns[columnIndex];
-            const preferredWidth = preferredWidths[columnIndex];
-            if (preferredWidth !== undefined) {
-                vc.column.settings.preferredWidth = Math.ceil(preferredWidth);
+            const maxPaintWidth = maxPaintWidths[columnIndex];
+            if (maxPaintWidth !== undefined) {
+                vc.column.maxPaintWidth = Math.ceil(maxPaintWidth);
             }
         }
     }

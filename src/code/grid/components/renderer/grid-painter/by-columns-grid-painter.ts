@@ -1,5 +1,6 @@
 
-import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../../interfaces/settings/mergable-grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -31,19 +32,19 @@ import { GridPainter } from './grid-painter';
  * Note that text never overflows to left because text starting point is never < 0. The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.
  */
 
-export class ByColumnsGridPainter extends GridPainter {
+export class ByColumnsGridPainter<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends GridPainter<MGS, MCS> {
     constructor(
-        gridProperties: GridSettings,
-        canvasManager: CanvasManager,
-        subgridsManager: SubgridsManager,
-        viewLayout: ViewLayout,
-        focus: Focus,
-        selection: Selection,
-        mouse: Mouse,
+        gridSettings: MGS,
+        canvasManager: CanvasManager<MGS>,
+        subgridsManager: SubgridsManager<MGS, MCS>,
+        viewLayout: ViewLayout<MGS, MCS>,
+        focus: Focus<MGS, MCS>,
+        selection: Selection<MGS, MCS>,
+        mouse: Mouse<MGS, MCS>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(
-            gridProperties,
+            gridSettings,
             canvasManager,
             subgridsManager,
             viewLayout,
@@ -113,7 +114,7 @@ export class ByColumnsGridPainter extends GridPainter {
             const columnClip = vc.column.settings.columnClip;
             gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
-            let preferredWidth: number | undefined;
+            let maxPaintWidth: number | undefined;
             // For each row of each subgrid (of each column)...
             for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
                 const cell = pool[cellIndex++]; // next cell down the column (redundant for first cell in column)
@@ -121,10 +122,10 @@ export class ByColumnsGridPainter extends GridPainter {
                 try {
                     const paintWidth = this.paintCell(cell, prefillColor);
                     if (paintWidth !== undefined) {
-                        if (preferredWidth === undefined) {
-                            preferredWidth = paintWidth;
+                        if (maxPaintWidth === undefined) {
+                            maxPaintWidth = paintWidth;
                         } else {
-                            preferredWidth = Math.max(preferredWidth, paintWidth);
+                            maxPaintWidth = Math.max(maxPaintWidth, paintWidth);
                         }
                     }
                 } catch (e) {
@@ -134,8 +135,8 @@ export class ByColumnsGridPainter extends GridPainter {
 
             gc.clipRestore();
 
-            if (preferredWidth !== undefined) {
-                vc.column.settings.preferredWidth = Math.ceil(preferredWidth);
+            if (maxPaintWidth !== undefined) {
+                vc.column.maxPaintWidth = Math.ceil(maxPaintWidth);
             }
         }
 

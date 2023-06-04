@@ -1,15 +1,16 @@
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { HorizontalVertical } from '../../types-utils/types';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ScrollDimension } from './scroll-dimension';
 
-export class VerticalScrollDimension extends ScrollDimension {
+export class VerticalScrollDimension<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends ScrollDimension<MGS> {
     constructor(
-        private readonly _gridSettings: GridSettings,
-        canvasManager: CanvasManager,
-        private readonly _subgridsManager: SubgridsManager,
+        private readonly _gridSettings: MGS,
+        canvasManager: CanvasManager<MGS>,
+        private readonly _subgridsManager: SubgridsManager<MGS, MCS>,
     ) {
         super(
             HorizontalVertical.Vertical,

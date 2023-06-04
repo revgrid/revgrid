@@ -1,7 +1,7 @@
 // Public API
 
-export * from './adapter-sets/record/rev-record-public-api';
-export * from './adapter-sets/simple/rev-simple-public-api';
+export * from './definitions/definitions-public-api';
 export * from './grid/grid-public-api';
-export * from './standard-cell-painters/standard-cell-painters-public-api';
+export * from './settings-implementations/settings-implementations-public-api';
+export * from './standard/standard-public-api';
 

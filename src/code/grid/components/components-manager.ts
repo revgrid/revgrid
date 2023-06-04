@@ -1,5 +1,6 @@
 import { Subgrid } from '../interfaces/data/subgrid';
 import { SchemaServer } from '../interfaces/schema/schema-server';
+import { MergableColumnSettings } from '../interfaces/settings/mergable-column-settings';
 import { MergableGridSettings } from '../interfaces/settings/mergable-grid-settings';
 import { AssertError } from '../types-utils/revgrid-error';
 import { CanvasManager } from './canvas/canvas-manager';
@@ -13,24 +14,24 @@ import { SubgridsManager } from './subgrid/subgrids-manager';
 import { ViewLayout } from './view/view-layout';
 
 /** @internal */
-export class ComponentsManager {
-    readonly canvasManager: CanvasManager;
-    readonly focus: Focus;
-    readonly selection: Selection;
-    readonly columnsManager: ColumnsManager;
-    readonly subgridsManager: SubgridsManager;
-    readonly viewLayout: ViewLayout;
-    readonly renderer: Renderer;
-    readonly mouse: Mouse;
+export class ComponentsManager<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+    readonly canvasManager: CanvasManager<MGS>;
+    readonly focus: Focus<MGS, MCS>;
+    readonly selection: Selection<MGS, MCS>;
+    readonly columnsManager: ColumnsManager<MGS, MCS>;
+    readonly subgridsManager: SubgridsManager<MGS, MCS>;
+    readonly viewLayout: ViewLayout<MGS, MCS>;
+    readonly renderer: Renderer<MGS, MCS>;
+    readonly mouse: Mouse<MGS, MCS>;
 
-    readonly horizontalScroller: Scroller;
-    readonly verticalScroller: Scroller;
+    readonly horizontalScroller: Scroller<MGS>;
+    readonly verticalScroller: Scroller<MGS>;
 
     constructor(
-        gridSettings: MergableGridSettings,
+        gridSettings: MGS,
         containerHtmlElement: HTMLElement,
-        schemaServer: SchemaServer,
-        subgridDefinitions: Subgrid.Definition[],
+        schemaServer: SchemaServer<MCS>,
+        subgridDefinitions: Subgrid.Definition<MCS>[],
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
         loadBuiltinFinbarStylesheet: boolean,
     ) {
@@ -46,7 +47,7 @@ export class ComponentsManager {
             gridSettings,
         );
 
-        this.columnsManager = new ColumnsManager(
+        this.columnsManager = new ColumnsManager<MGS, MCS>(
             schemaServer,
             gridSettings,
         );
@@ -167,7 +168,7 @@ export class ComponentsManager {
         this.subgridsManager.destroy();
     }
 
-    getValue(x: number, y: number, subgrid: Subgrid) {
+    getValue(x: number, y: number, subgrid: Subgrid<MCS>) {
         const column = this.columnsManager.getActiveColumn(x);
         const schemaColumn = column.schemaColumn;
         const dataServer = subgrid.dataServer;
@@ -184,7 +185,7 @@ export class ComponentsManager {
      * @param value - New cell data.
      * @param subgrid - `x` and `y` are _data cell coordinates_ in the given subgrid data model. If If omitted, `x` and `y` are _grid cell coordinates._
      */
-    setValue(x: number, y: number, value: unknown, subgrid: Subgrid) {
+    setValue(x: number, y: number, value: unknown, subgrid: Subgrid<MCS>) {
         const dataServer = subgrid.dataServer;
         if (dataServer.setValue === undefined) {
             throw new AssertError('BSV32220');

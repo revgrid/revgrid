@@ -3,24 +3,27 @@ import { MergableColumnSettings } from '../settings/mergable-column-settings';
 import { SchemaServer } from './schema-server';
 
 /** @public */
-export interface Column {
-    readonly schemaColumn: SchemaServer.Column;
+export interface Column<MCS extends MergableColumnSettings> {
+    readonly schemaColumn: SchemaServer.Column<MCS>;
     /** Always the same as SchemaColumn index */
     readonly index: number;
     readonly name: string;
 
-    readonly settings: MergableColumnSettings;
+    readonly width: number;
 
-    getWidth(): number;
+    readonly settings: MCS;
+
+    maxPaintWidth: number | undefined;
+
     setWidth(width: number | undefined): boolean;
     setWidthToAutoSizing(): boolean;
-    checkColumnAutosizing(force: boolean): boolean;
+    checkColumnAutosizing(widenOnly: boolean): boolean;
 
-    addProperties(properties: Partial<ColumnSettings>): void;
+    mergeSettings(properties: Partial<ColumnSettings>): void;
 }
 
 /** @public */
-export interface ColumnWidth {
-    column: Column;
+export interface ColumnWidth<MCS extends MergableColumnSettings> {
+    column: Column<MCS>;
     width: number | undefined;
 }

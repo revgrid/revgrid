@@ -3,17 +3,21 @@ import { DataServer } from '../../interfaces/data/data-server';
 import { Column } from '../../interfaces/schema/column';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
 
 /** @internal */
-export class ColumnImplementation implements Column {
-    readonly schemaColumn: SchemaServer.Column;
+export class ColumnImplementation<MCS extends MergableColumnSettings> implements Column<MCS> {
+    readonly schemaColumn: SchemaServer.Column<MCS>;
     readonly index: number; // always the same as SchemaColumn index
     readonly name: string;
 
     /** @internal */
-    private _settings: MergableColumnSettings;
+    maxPaintWidth: number | undefined;
+
+    /** @internal */
+    private _width: number;
+    /** @internal */
+    private _settings: MCS;
 
     /** @summary Create a new `Column` object.
      * @param columnSchema.header - Displayed in column headers. If not defined, name is used.
@@ -22,15 +26,13 @@ export class ColumnImplementation implements Column {
      */
     /** @internal */
     constructor(
-        private readonly _gridSettings: GridSettings,
-        schemaColumn: SchemaServer.Column
+        schemaColumn: SchemaServer.Column<MCS>
     ) {
         this.index = schemaColumn.index;
         this.name = schemaColumn.name
-
-        // this.properties = columnSchema; // see {@link Column#properties properties} setter
-        this._settings = schemaColumn.settings; // see {@link Column#properties properties} setter
         this.schemaColumn = schemaColumn;
+        this._settings = schemaColumn.settings;
+        this._width = this._settings.defaultColumnWidth;
     }
 
     // mixIn: overrider.mixIn,
@@ -70,26 +72,22 @@ export class ColumnImplementation implements Column {
     // }
 
     get settings() { return this._settings; }
-
-    getWidth() {
-        return this._settings.width;
-    }
+    get width() { return this._width; }
 
     setWidth(width: number | undefined) {
         if (width === undefined) {
-            if (this._settings.columnAutosizing) {
-                return false;
-            } else {
-                this._settings.columnAutosizing = true;
-                return true;
-            }
+            return this.setWidthToAutoSizing();
         } else {
-            width = Math.min(Math.max(this._settings.minimumColumnWidth, width), this._settings.maximumColumnWidth || Infinity);
-            if (!this._settings.columnAutosizing && width === this._settings.width) {
+            width = Math.ceil(Math.min(Math.max(this._settings.minimumColumnWidth, width), this._settings.maximumColumnWidth ?? Infinity));
+            if (!this._settings.columnAutosizing && width === this._settings.defaultColumnWidth) {
                 return false;
             } else {
-                this._settings.width = Math.ceil(width);
-                this._settings.columnAutosizing = false;
+                this._width = width;
+                // this._settings.width = width;
+                const newSettings: Partial<ColumnSettings> = {
+                    columnAutosizing: false,
+                };
+                this._settings.merge(newSettings);
                 return true;
             }
         }
@@ -99,36 +97,56 @@ export class ColumnImplementation implements Column {
         if (this._settings.columnAutosizing) {
             return false;
         } else {
-            this._settings.columnAutosizing = true;
-            this._settings.columnAutosized = false; // make sure an initial autosize happens
+            const newSettings: Partial<ColumnSettings> = {
+                columnAutosizing: true,
+            };
+            this._settings.merge(newSettings);
             return true;
         }
     }
 
-    /** @internal */
-    checkColumnAutosizing(force: boolean) {
-        const settings = this._settings;
-        let autoSized: boolean;
+    getMaxPaintWidth() {
+        return this.maxPaintWidth;
+    }
 
-        if (settings.columnAutosizing) {
-            const width = settings.width;
-            const preferredWidth = settings.preferredWidth ?? width;
-            force = force || !settings.columnAutosized;
-            if (width !== preferredWidth || force && preferredWidth !== undefined) {
-                settings.width = force ? preferredWidth : Math.max(width, preferredWidth);
-                if (settings.columnAutosizingMax && settings.width > settings.columnAutosizingMax) {
-                    settings.width = settings.columnAutosizingMax;
-                }
-                settings.columnAutosized = !isNaN(settings.width);
-                autoSized = settings.width !== width;
-            } else {
-                autoSized = false;
-            }
+    /** @internal */
+    checkColumnAutosizing(widenOnly: boolean) {
+        const settings = this._settings;
+
+        let preferredWidth: number;
+        if (!settings.columnAutosizing) {
+            preferredWidth = settings.defaultColumnWidth;
         } else {
-            autoSized = false;
+            const maxPaintWidth = this.maxPaintWidth;
+            if (maxPaintWidth === undefined) {
+                return false;
+            } else {
+                if (widenOnly) {
+                    const existingPreferredWidth = this._width;
+                    if (existingPreferredWidth !== undefined && existingPreferredWidth >= maxPaintWidth) {
+                        return false;
+                    } else {
+                        preferredWidth = maxPaintWidth;
+                    }
+                } else {
+                    preferredWidth = maxPaintWidth;
+                }
+
+                const columnAutosizingMax = settings.columnAutosizingMax;
+                if (columnAutosizingMax !== undefined) {
+                    if (preferredWidth > columnAutosizingMax) {
+                        preferredWidth = columnAutosizingMax;
+                    }
+                }
+            }
         }
 
-        return autoSized;
+        if (preferredWidth === this._width) {
+            return false;
+        } else {
+            this._width = preferredWidth;
+            return true;
+        }
     }
 
     // set properties(properties) {
@@ -137,10 +155,10 @@ export class ColumnImplementation implements Column {
 
     /**
      * @desc Amend properties for this hypergrid only.
-     * @param properties - A simple properties hash.
+     * @param settings - A simple properties hash.
      */
-    addProperties(properties: Partial<ColumnSettings>) {
-        this._settings.merge(properties);
+    mergeSettings(settings: Partial<ColumnSettings>) {
+        this._settings.merge(settings);
     }
 
     /**

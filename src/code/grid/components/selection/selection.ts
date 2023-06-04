@@ -2,7 +2,8 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { DatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils/types';
@@ -21,7 +22,7 @@ import { SelectionRectangleList } from './selection-rectangle-list';
  * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
  */
 
-export class Selection {
+export class Selection<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
     changedEventerForRenderer: Selection.ChangedEventer;
     changedEventerForEventBehavior: Selection.ChangedEventer;
 
@@ -29,7 +30,7 @@ export class Selection {
     readonly columns = new SelectionRangeList();
     readonly rectangleList = new SelectionRectangleList();
 
-    private _subgrid: Subgrid | undefined;
+    private _subgrid: Subgrid<MCS> | undefined;
     private _lastArea: LastSelectionArea | undefined;
     private _allRowsSelected = false;
 
@@ -37,11 +38,11 @@ export class Selection {
     private _changed = false;
     private _silentlyChanged = false;
 
-    private _snapshot: Selection | undefined;
+    private _snapshot: Selection<MGS, MCS> | undefined;
 
     constructor(
-        private readonly _gridSettings: GridSettings,
-        private readonly _columnsManager: ColumnsManager,
+        private readonly _gridSettings: MGS,
+        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
     ) {
     }
 
@@ -73,18 +74,6 @@ export class Selection {
                 const silentlyChanged = this._silentlyChanged;
                 this._silentlyChanged = false;
 
-                // const gridProps = this._gridProperties;
-
-                // if (!gridProps.checkboxOnlyRowSelections && gridProps.autoSelectRows) {
-                //     // Project the cell selection into the rows
-                //     this.selectRowsFromCellsOrLastRectangle();
-                // }
-
-                // if (gridProps.autoSelectColumns) {
-                //     // Project the cell selection into the columns
-                //     this.selectColumnsFromRectangles();
-                // }
-
                 if (!silentlyChanged) {
                     this.changedEventerForRenderer();
                     this.changedEventerForEventBehavior();
@@ -97,7 +86,7 @@ export class Selection {
         }
     }
 
-    assign(other: Selection) {
+    assign(other: Selection<MGS, MCS>) {
         this.rectangleList.assign(other.rectangleList);
         this.rows.assign(other.rows);
         this.columns.assign(other.columns);
@@ -105,7 +94,7 @@ export class Selection {
         this._subgrid = other._subgrid;
     }
 
-    createStash(): Selection.Stash {
+    createStash(): Selection.Stash<MCS> {
         const rowIds = this.createRowsStash();
         const columnNames = this.createColumnsStash();
 
@@ -117,7 +106,7 @@ export class Selection {
         };
     }
 
-    restoreStash(stash: Selection.Stash) {
+    restoreStash(stash: Selection.Stash<MCS>) {
         this.beginChange();
         try {
             this.clear();
@@ -207,7 +196,7 @@ export class Selection {
         }
     }
 
-    selectOnlyCell(x: number, y: number, subgrid: Subgrid, areaType: SelectionAreaType) {
+    selectOnlyCell(x: number, y: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             this.clear();
@@ -217,7 +206,7 @@ export class Selection {
         }
     }
 
-    selectCell(x: number, y: number, subgrid: Subgrid, areaType: SelectionAreaType) {
+    selectCell(x: number, y: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             if (subgrid !== this._subgrid) {
@@ -230,7 +219,7 @@ export class Selection {
         }
     }
 
-    deselectCellArea(x: number, y: number, subgrid: Subgrid) {
+    deselectCellArea(x: number, y: number, subgrid: Subgrid<MCS>) {
         const rectangle: Rectangle = {
             x,
             y,
@@ -240,7 +229,7 @@ export class Selection {
         this.deselectRectangle(rectangle, subgrid);
     }
 
-    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid, areaType: SelectionAreaType) {
+    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             let area: SelectionArea;
@@ -295,7 +284,7 @@ export class Selection {
         }
     }
 
-    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid) {
+    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
         this.beginChange();
         try {
             this.clear();
@@ -305,7 +294,7 @@ export class Selection {
         }
     }
 
-    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid, silent = false) {
+    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>, silent = false) {
         this.beginChange();
         try {
             if (this.areaCount > 0) {
@@ -334,7 +323,7 @@ export class Selection {
         return this._lastArea;
     }
 
-    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid) {
+    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<MCS>) {
         if (subgrid === this._subgrid) {
             const index = this.rectangleList.findIndex(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
             if (index >= 0) {
@@ -347,7 +336,7 @@ export class Selection {
         }
     }
 
-    selectOnlyAllRows(subgrid: Subgrid) {
+    selectOnlyAllRows(subgrid: Subgrid<MCS>) {
         this.beginChange();
         if (subgrid !== this._subgrid || !this._allRowsSelected) {
             this._changed = true;
@@ -360,7 +349,7 @@ export class Selection {
         this.endChange();
     }
 
-    selectAllRows(subgrid: Subgrid) {
+    selectAllRows(subgrid: Subgrid<MCS>) {
         this.beginChange();
         if (!this._allRowsSelected) {
             this._changed = true;
@@ -393,7 +382,7 @@ export class Selection {
     }
 
     /** Parameters specify a rectangle in Data, the rows of which will be selected */
-    selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid) {
+    selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
         this.beginChange();
         try {
             if (subgrid !== this._subgrid) {
@@ -418,7 +407,7 @@ export class Selection {
         }
     }
 
-    deselectRows(y: number, count: number, subgrid: Subgrid) {
+    deselectRows(y: number, count: number, subgrid: Subgrid<MCS>) {
         if (subgrid === this._subgrid) {
             const changed = this.rows.delete(y, count);
             if (changed) {
@@ -454,11 +443,11 @@ export class Selection {
         }
     }
 
-    selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid) {
+    selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid<MCS>) {
         this.selectRows(x, inexclusiveY, 1, 1, subgrid); // implement properly in future
     }
 
-    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid) {
+    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<MCS>) {
         this.beginChange();
 
         if (subgrid !== this._subgrid) {
@@ -481,7 +470,7 @@ export class Selection {
         return lastArea;
     }
 
-    deselectColumns(x: number, count: number, subgrid: Subgrid) {
+    deselectColumns(x: number, count: number, subgrid: Subgrid<MCS>) {
         if (subgrid === this._subgrid) {
             const changed = this.columns.delete(x, count);
             if (changed) {
@@ -517,11 +506,11 @@ export class Selection {
         }
     }
 
-    selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid) {
+    selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid<MCS>) {
         this.selectColumns(inexclusiveX, y, 1, 1, subgrid); // implement properly in future
     }
 
-    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid, areaType: SelectionAreaType) {
+    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -531,7 +520,7 @@ export class Selection {
         }
     }
 
-    replaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid) {
+    replaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -541,7 +530,7 @@ export class Selection {
         }
     }
 
-    replaceLastAreaWithColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid) {
+    replaceLastAreaWithColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<MCS>) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -551,7 +540,7 @@ export class Selection {
         }
     }
 
-    replaceLastAreaWithRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid) {
+    replaceLastAreaWithRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -561,7 +550,7 @@ export class Selection {
         }
     }
 
-    selectToggleCell(originX: number, originY: number, subgrid: Subgrid, areaType: SelectionAreaType): boolean {
+    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType): boolean {
         const cellCoveringSelectionAreas = this.getAreasCoveringCell(originX, originY, subgrid);
         const priorityCoveringArea = SelectionArea.getPriorityCellCoveringSelectionArea(cellCoveringSelectionAreas);
         if (priorityCoveringArea === undefined) {
@@ -672,7 +661,7 @@ export class Selection {
     //     this.rectangleList.getFlattenedYs();
     // }
 
-    getAreasCoveringCell(x: number, y: number, subgrid: Subgrid | undefined) {
+    getAreasCoveringCell(x: number, y: number, subgrid: Subgrid<MCS> | undefined) {
         let result: SelectionArea[];
         if (subgrid !== undefined && subgrid !== this._subgrid) {
             result = [];
@@ -739,7 +728,7 @@ export class Selection {
         }
     }
 
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer) {
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<MCS>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -768,7 +757,7 @@ export class Selection {
         }
     }
 
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer) {
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<MCS>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -797,7 +786,7 @@ export class Selection {
         }
     }
 
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer) {
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<MCS>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -1143,8 +1132,8 @@ export namespace Selection {
         cellSelected: boolean;
     }
 
-    export interface Stash {
-        readonly subgrid: Subgrid | undefined;
+    export interface Stash<MCS extends MergableColumnSettings> {
+        readonly subgrid: Subgrid<MCS> | undefined;
         readonly allRowsSelected: boolean,
         readonly rowIds: unknown[] | undefined,
         readonly columnNames: string[] | undefined,

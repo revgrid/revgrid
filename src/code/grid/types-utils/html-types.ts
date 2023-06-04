@@ -1,4 +1,3 @@
-import { UnreachableCaseError } from './revgrid-error';
 
 export namespace CssClassName {
     export const gridElementCssClass = 'revgrid';
@@ -8,31 +7,6 @@ export namespace CssClassName {
 
 export function isSecondaryMouseButton(event: MouseEvent) {
     return event.button === 2;
-}
-
-export const enum ModifierKeyEnum {
-    Control = 'Control',
-    Shift = 'Shift',
-    Meta = 'Meta',
-    Alt = 'Alt',
-}
-
-export type ModifierKey = keyof typeof ModifierKeyEnum;
-
-export namespace ModifierKey {
-    export const all = [ModifierKeyEnum.Control];
-
-    export function isDownInEvent<T extends MouseEvent | KeyboardEvent>(keyEnum: ModifierKeyEnum | undefined, event: T) {
-        switch (keyEnum) {
-            case undefined: return false;
-            case ModifierKeyEnum.Control: return event.ctrlKey;
-            case ModifierKeyEnum.Shift: return event.shiftKey;
-            case ModifierKeyEnum.Meta: return event.metaKey;
-            case ModifierKeyEnum.Alt: return event.altKey;
-            default:
-                throw new UnreachableCaseError('HTMKIKIKE40941', keyEnum);
-        }
-    }
 }
 
 export namespace KeyboardEventKey {

@@ -1,7 +1,9 @@
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class ClipboardUiBehavior extends UiBehavior {
+export class ClipboardUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
     readonly typeName = ClipboardUiBehavior.typeName;
 
     override handleCopy(eventDetail: ClipboardEvent) {

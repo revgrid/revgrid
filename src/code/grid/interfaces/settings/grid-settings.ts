@@ -1,68 +1,45 @@
-import { ModifierKey, ModifierKeyEnum } from '../../types-utils/html-types';
+import { ModifierKey, ModifierKeyEnum } from '../../types-utils/modifier-key';
 import { UnreachableCaseError } from '../../types-utils/revgrid-error';
-import { Halign, HorizontalWheelScrollingAllowed, SelectionAreaType, SelectionAreaTypeSpecifier, TextTruncateType } from '../../types-utils/types';
+import { Halign, HorizontalWheelScrollingAllowed, SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils/types';
 import { deepExtendValue } from '../../types-utils/utils';
 
 /** @public */
 export interface GridSettings {
     /** Modifier key that indicates a UI action should add a selection area to selection or toggle a selection area within a selection */
-    addToggleSelectionAreaModifierKey: ModifierKeyEnum;
+    readonly addToggleSelectionAreaModifierKey: ModifierKeyEnum;
     /** Specifies whether the addToggleSelectionAreaModifierKey toggles.  If if does not toggle, then it adds */
-    addToggleSelectionAreaModifierKeyDoesToggle: boolean;
-    /** Select cell's entire column. */
-    autoSelectColumns: boolean;
-    /** Select cell's entire row. */
-    autoSelectRows: boolean;
-    backgroundColor: GridSettings.Color;
-    backgroundSelectionColor: GridSettings.Color;
-    /** On mouse hover, whether to repaint the cell background and how. */
-    cellHoverBackgroundColor: string | undefined;
-    cellPadding: number;
-    checkboxOnlyRowSelections: boolean;
-    color: GridSettings.Color;
-    /** Whether the column is auto-sized */
-    columnAutosized: boolean;
+    readonly addToggleSelectionAreaModifierKeyDoesToggle: boolean;
+    readonly backgroundColor: GridSettings.Color;
+    readonly borderWidth: number;
+    readonly borderColor: string;
+    readonly color: GridSettings.Color;
     /** Whether to automatically expand column width to accommodate widest rendered value. */
-    columnAutosizing: boolean;
+    readonly columnAutosizing: boolean;
     /** The widest the column will be auto-sized to. */
-    columnAutosizingMax: number;
+    readonly columnAutosizingMax: number | undefined;
     /** Set up a clipping region around each column before painting cells. */
-    columnClip: boolean | undefined;
-    /** Column grab within this number of pixels from top of cell. */
-    columnGrabMargin: number;
-    columnHeaderBackgroundColor: GridSettings.Color;
-    columnHeaderBackgroundSelectionColor: GridSettings.Color;
-    columnHeaderColor: GridSettings.Color;
-    columnHeaderFont: string;
-    columnHeaderForegroundSelectionColor: GridSettings.Color;
-    columnHeaderForegroundSelectionFont: string;
-    columnHeaderFormat: string;
-    columnHeaderHalign: Halign;
-    /** On mouse hover, whether to repaint the column background and how. */
-    columnHoverBackgroundColors: GridSettings.ColumnHoverBackgroundColors;
-    /** Active column indices */
-    columnIndexes: number[];
-    columnMoveDragPossibleCursorName: string | undefined;
-    columnMoveDragActiveCursorName: string | undefined;
-    columnResizeDragPossibleCursorName: string | undefined;
-    columnResizeDragActiveCursorName: string | undefined;
-    columnSortPossibleCursorName: string | undefined;
+    readonly columnClip: boolean | undefined;
+    readonly columnMoveDragPossibleCursorName: string | undefined;
+    readonly columnMoveDragActiveCursorName: string | undefined;
+    readonly columnResizeDragPossibleCursorName: string | undefined;
+    readonly columnResizeDragActiveCursorName: string | undefined;
+    readonly columnSortPossibleCursorName: string | undefined;
     /** Allow user to move columns. */
-    columnsReorderable: boolean;
+    readonly columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
-    columnsReorderableHideable: boolean;
-    defaultRowHeight: number;
-    defaultColumnWidth: number;
-    editable: boolean;
+    readonly columnsReorderableHideable: boolean;
+    readonly defaultRowHeight: number;
+    readonly defaultColumnWidth: number;
+    readonly defaultUiBehaviorTypeNames: string[];
+    readonly editable: boolean;
     /** Edit cell on double-click rather than single-click. */
-    editOnDoubleClick: boolean;
-    editOnKeydown: boolean;
+    readonly editOnDoubleClick: boolean;
+    readonly editOnKeydown: boolean;
     /** Keyboard event key for editing a cell */
-    editKey: string;
+    readonly editKey: string;
     /** Open cell editor when cell selected via keyboard navigation. */
-    editOnFocusCell: boolean;
+    readonly editOnFocusCell: boolean;
     /** Name of a cell editor. */
-    editor: string | undefined;
     // /** Emit events arising from SchemaModel and DataModel callbacks */
     // emitModelEvents: boolean;
     /** @summary Re-render grid at maximum speed.
@@ -71,47 +48,45 @@ export interface GridSettings {
      * * `grid.getCanvas().currentFPS` is a measure of the number times the grid is being re-rendered each second.
      * * The Hypergrid renderer gobbles up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). For this reason, we emphatically advise against shipping applications using this mode.
      */
-    enableContinuousRepaint: boolean;
+    readonly enableContinuousRepaint: boolean;
     /** Modifier key that indicates a UI action should extend the selection area */
-    extendLastSelectionAreaModifierKey: ModifierKeyEnum;
+    readonly extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     /** Whether grid events are dispatched as DOM events */
-    eventDispatchEnabled: boolean;
-    features: string[];
+    readonly eventDispatchEnabled: boolean;
     /** Validation failure feedback. */
-    feedbackCount: number;
-    feedbackEffect: GridSettings.FeedbackEffect;
-    fetchSubregions: boolean;
-    filterable: boolean;
-    filterBackgroundColor: GridSettings.Color;
-    filterBackgroundSelectionColor: GridSettings.Color;
-    filterColor: GridSettings.Color;
-    filterEditor: string;
-    filterFont: string;
-    filterForegroundSelectionColor: GridSettings.Color;
-    filterHalign: Halign;
-    filterCellPainter: string;
+    readonly feedbackCount: number;
+    readonly feedbackEffect: GridSettings.FeedbackEffect;
+    readonly filterable: boolean;
+    readonly filterBackgroundColor: GridSettings.Color;
+    readonly filterBackgroundSelectionColor: GridSettings.Color;
+    readonly filterColor: GridSettings.Color;
+    readonly filterEditor: string;
+    readonly filterFont: string;
+    readonly filterForegroundSelectionColor: GridSettings.Color;
+    readonly filterHalign: Halign;
+    readonly filterCellPainter: string;
 
-    fixedColumnCount: number;
+    readonly fixedColumnCount: number;
     /**
      * Define this property to style rule lines between fixed & scolling rows differently from {@link module:defaults.gridLinesHColor}.
      */
-    fixedLinesHColor: GridSettings.Color;
+    readonly fixedLinesHColor: GridSettings.Color;
     /**
      * Define this property to render just the edges of the lines between non-scrollable rows & scrollable rows, creating a double-line effect.
      * The value is the thickness of the edges.
      * Undefined means no edge effect
      * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesHWidth fixedLinesHWidth} to `3`.
      */
-    fixedLinesHEdge: number | undefined;
+    readonly fixedLinesHEdge: number | undefined;
     /**
      * Define this property to style rule lines between non-scrollable rows and scrollable rows differently from {@link module:defaults.gridLinesHWidth gridLinesHWidth}.
      * Undefine it to show normal grid line in that position.
      */
-    fixedLinesHWidth: number | undefined;
+    readonly fixedLinesHWidth: number | undefined;
     /**
      * Define this property to style rule lines between fixed & scolling columns differently from {@link module:defaults.gridLinesVColor}.
      */
-    fixedLinesVColor: GridSettings.Color;
+    readonly fixedLinesVColor: GridSettings.Color;
     /**
      * Define this property to render just the edges of the lines between fixed & scrolling columns, creating a double-line effect.
      * The value is the thickness of the edges.
@@ -119,164 +94,181 @@ export interface GridSettings {
      * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesVWidth fixedLinesVWidth} to `3`.
      * {@link module:defaults.fixedLinesVWidth}
      */
-    fixedLinesVEdge: number | undefined;
+    readonly fixedLinesVEdge: number | undefined;
     /**
      * Define this property to style rule lines between non-scrollable columns and scrollable columns differently from {@link module:defaults.gridLinesVWidth gridLinesVWidth}.
      * Undefine it to show normal grid line in that position.
      */
-    fixedLinesVWidth: number | undefined;
-    fixedRowCount: number;
-    focusedCellBorderColor: GridSettings.Color;
-    font: string;
-    foregroundSelectionColor: GridSettings.Color;
-    foregroundSelectionFont: string;
-    /** Name of a formatter for cell text. */
-    format: string | undefined;
+    readonly fixedLinesVWidth: number | undefined;
+    readonly fixedRowCount: number;
     /**
      * Instead of visible columns starting from left side of canvas, they end at the right side of canvas
      * So last column is always visible and the first one visible is dependent on the width of the canvas
      */
-    gridRightAligned: boolean;
-    gridBorder: boolean | string;
-    gridBorderBottom: boolean | string;
-    gridBorderLeft: boolean | string;
-    gridBorderRight: boolean | string;
-    gridBorderTop: boolean | string;
-    gridLinesColumnHeader: boolean;
-    gridLinesH: boolean;
-    gridLinesHColor: GridSettings.Color;
-    gridLinesHWidth: number;
-    gridLinesUserDataArea: boolean;
-    gridLinesV: boolean;
-    gridLinesVColor: GridSettings.Color;
-    gridLinesVWidth: number;
-    /** The cell's horizontal alignment, as interpreted by the cell renderer */
-    halign: Halign;
-    horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
-    horizontalScrollbarClassPrefix: string,
-    lineColor: GridSettings.Color;
-    lineWidth: number;
-    /** Display cell value as a link (with underline). */
-    link: false | string | GridSettings.LinkProp | GridSettings.LinkFunction;
-    /** Color for link. */
-    linkColor: GridSettings.Color;
-    /** Color link on hover only. */
-    linkColorOnHover: boolean;
-    /** Underline link on hover only. */
-    linkOnHover: boolean;
-    /** The window (or tab) in which to open the link. */
-    linkTarget: string;
-    /** Color for visited link. */
-    linkVisitedColor: GridSettings.Color;
-    /** The maximum number of columns that may participate in a multi-column sort (via ctrl-click headers). */
-    maxSortColumns: number;
-    minimumColumnWidth: number;
-    maximumColumnWidth: number | undefined;
-    visibleColumnWidthAdjust: boolean;
+    readonly gridRightAligned: boolean;
+    readonly gridBorder: boolean | string;
+    readonly gridBorderBottom: boolean | string;
+    readonly gridBorderLeft: boolean | string;
+    readonly gridBorderRight: boolean | string;
+    readonly gridBorderTop: boolean | string;
+    readonly verticalGridLinesVisible: boolean;
+    /** Enable rendering of horizontal grid lines. */
+    readonly gridLinesH: boolean;
+    /** Color of horizontal grid lines. */
+    readonly gridLinesHColor: GridSettings.Color;
+    /** Thickness of horizontal grid lines (pixels). */
+    readonly gridLinesHWidth: number;
+    readonly horizontalGridLinesVisible: boolean;
+    /** Enable rendering of vertical grid lines. */
+    readonly gridLinesV: boolean;
+    /** Color of vertical grid lines. */
+    readonly gridLinesVColor: GridSettings.Color;
+    /** Thickness of vertical grid lines (pixels). */
+    readonly gridLinesVWidth: number;
+    readonly horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
+    readonly horizontalScrollbarClassPrefix: string,
+    readonly minimumColumnWidth: number;
+    readonly maximumColumnWidth: number | undefined;
+    readonly visibleColumnWidthAdjust: boolean;
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
-    mouseRectangleSelection: boolean;
+    readonly mouseRectangleSelection: boolean;
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
-    mouseColumnSelection: boolean;
+    readonly mouseColumnSelection: boolean;
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors. */
-    mouseRowSelection: boolean;
+    readonly mouseRowSelection: boolean;
     /** Allow multiple cell region selections. */
-    multipleSelectionAreas: boolean;
-    /** Mappings for cell navigation keys. */
-    noDataMessage: string;
+    readonly multipleSelectionAreas: boolean;
     /** The area type that is added to a selection by default in a UI operation. Can also be specified in API calls which add an area to a Selection. */
-    primarySelectionAreaType: SelectionAreaType;
-    // propClassLayers: GridSettings.propClassEnum;
-    readOnly: boolean;
-    /** Name of cell renderer. */
-    cellPainter: string;
+    readonly primarySelectionAreaType: SelectionAreaType;
     /**
      * Normally multiple calls to {@link Hypergrid#repaint grid.repaint()}, {@link Hypergrid#reindex grid.reindex()}, {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()}, and/or {@link Hypergrid#behaviorStateChanged grid.behaviorStateChanged()} defer their actions until just before the next scheduled render. For debugging purposes, set `repaintImmediately` to truthy to carry out these actions immediately while leaving the paint loop running for when you resume execution. Alternatively, call {@link Canvas#stopPaintLoop grid.canvas.stopPaintLoop()}. Caveat: Both these modes are for debugging purposes only and may not render the grid perfectly for all interactions.
      */
-    repaintImmediately: boolean;
-    repaintFramesPerSecond: number;
-    resizeColumnInPlace: boolean;
+    readonly repaintImmediately: boolean;
+    readonly repaintFramesPerSecond: number;
+    readonly resizeColumnInPlace: boolean;
     /** Reduce resize processing even more by increasing debounce when lots of resize observer call backs are occurring */
-    resizedEventDebounceExtendedWhenPossible: boolean;
+    readonly resizedEventDebounceExtendedWhenPossible: boolean;
     /** Reduce resize processing with debounce.  In milliseconds */
-    resizedEventDebounceInterval: number;
+    readonly resizedEventDebounceInterval: number;
     /** Restore column selections across data transformations (`reindex` calls). */
-    restoreColumnSelections: boolean;
+    readonly restoreColumnSelections: boolean;
     /** Restore row selections across data transformations (`reindex` calls). */
-    restoreRowSelections: boolean;
+    readonly restoreRowSelections: boolean;
     /** Restore single cell selection across data transformations (`reindex` calls). Takes priority over restoreColumnSelections and restoreRowSelections. */
-    restoreSingleCellSelection: boolean;
+    readonly restoreSingleCellSelection: boolean;
     /** On mouse hover, whether to repaint the row background and how. */
-    rowHoverBackgroundColor: string | undefined;
-    rowResize: boolean;
+    readonly rowResize: boolean;
     /** Repeating pattern of property overrides for grid rows. */
-    rowStripes: GridSettings.RowStripe[] | undefined;
+    readonly rowStripes: GridSettings.RowStripe[] | undefined;
     /** Anchor column does not need to align with edge of grid */
-    scrollHorizontallySmoothly: boolean;
-    scrollbarHoverOver: string,
-    scrollbarHoverOff: string,
-    scrollingEnabled: boolean,
+    readonly scrollHorizontallySmoothly: boolean;
+    readonly scrollbarHoverOver: string,
+    readonly scrollbarHoverOff: string,
+    readonly scrollingEnabled: boolean,
     /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a Selection. */
-    secondarySelectionAreaType: SelectionAreaType;
-    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
+    readonly secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
+    readonly secondarySelectionAreaType: SelectionAreaType;
     /** Cursor to appear when extending a selection with a mouse drag */
-    selectionExtendDragActiveCursorName: string | undefined;
+    readonly selectionExtendDragActiveCursorName: string | undefined;
     /** Stroke color for last selection overlay. */
-    selectionRegionOutlineColor: GridSettings.Color;
+    readonly selectionRegionOutlineColor: GridSettings.Color;
     /** Fill color for last selection overlay. */
-    selectionRegionOverlayColor: GridSettings.Color;
-    settingState?: boolean;
-    singleRowSelectionMode: boolean;
-    showFilterRow: boolean;
+    readonly selectionRegionOverlayColor: GridSettings.Color;
+    readonly singleRowSelectionMode: boolean;
+    readonly showFilterRow: boolean;
     /** Sort column on double-click rather than single-click. */
-    sortOnDoubleClick: boolean;
-    /** Column(s) participating and subsequently hidden still affect sort. */
-    sortOnHiddenColumns: boolean;
-    /** Display cell font with strike-through line drawn over it. */
-    strikeThrough: boolean;
-    themeName: string;
-    /** How to truncate text. */
-    textTruncateType: TextTruncateType | undefined;
-    sortable: boolean;
-    useBitBlit: boolean;
-    useHiDPI: boolean;
-    voffset: number;
-    verticalScrollbarClassPrefix: string;
-    wheelHFactor: number;
-    wheelVFactor: number;
-    /** The default width of a column */
-    width: number;
+    readonly mouseSortOnDoubleClick: boolean;
+    /** Column can be sorted with mouse click on column header */
+    readonly mouseSortable: boolean;
+    readonly useHiDPI: boolean;
+    readonly verticalScrollbarClassPrefix: string;
+    readonly wheelHFactor: number;
+    readonly wheelVFactor: number;
 }
 
 /** @public */
 export namespace GridSettings {
     export type Color = /* CanvasGradient | CanvasPattern |*/ string;
 
-    export const enum propClassEnum {
-        COLUMNS = 1,
-        STRIPES = 2,
-        ROWS = 3,
-        CELLS= 4
-    }
-
-    export const propClassLayersMap = {
-        DEFAULT: [propClassEnum.COLUMNS, propClassEnum.STRIPES, propClassEnum.ROWS, propClassEnum.CELLS],
-        NO_ROWS: [propClassEnum.COLUMNS, propClassEnum.CELLS]
-    }
-
-    export interface ColumnHoverBackgroundColors {
-        /** cell, row, or column background color */
-        color: string | undefined;
-        headerColor: string | undefined;
-    }
-
     export type FeedbackEffect = string;
-
-    export type LinkFunction = (this: void, cellEvent: unknown) => string;
-    export type LinkProp = [url: string, target: string];
 
     export interface RowStripe {
         backgroundColor?: string;
     }
+
+    // interface Base {
+    //     bb: boolean;
+    //     bs: string;
+    // }
+
+    // const defaultBase: Base = {
+    //     bb: true,
+    //     bs: 's',
+    // }
+
+    // type BaseIdInfos = { [key in keyof Base]: Info };
+    // const baseIdInfos: BaseIdInfos = {
+    //     bb: { id: 'bb' },
+    //     bs: { id: 'bs' },
+    // }
+
+
+    // interface Ex extends Base {
+    //     ds: string;
+    //     dn: number;
+    // }
+
+    // type GetBase<D> = { [key in keyof D]: D[key] }
+
+
+    // const defaultEx: Ex = {
+    //     ds: 'e',
+    //     dn: 5,
+    // };
+
+    // type ExIdInfos = { [key in keyof Ex]: Info };
+    // const exIdInfos: ExIdInfos = {
+    //     ds: { id: 'ds' },
+    //     dn: { id: 'dn' }
+    // }
+
+    // type ExToBase = { [key in keyof Ex]: keyof Base };
+    // const exToBase: ExToBase = {
+    //     'dn': 'bb',
+    //     'ds': 'bs',
+    // };
+
+    // interface Not {
+    //     nd: Date;
+    //     ns: string;
+    // }
+
+    // interface Info {
+    //     readonly id: keyof OnlyEx;
+    // }
+
+    // type OnlyEx = Base & Ex;
+    // type OnlyExId = keyof OnlyEx;
+
+    // // type IdInfo<T> = { [key in keyof (Base | Ex)]: Info };
+
+    // type IdInfos = { [key in OnlyExId]: Info };
+    // const idInfos: IdInfos = {
+    //     ...baseIdInfos,
+    //     ...exIdInfos,
+    // };
+
+    // const defaults: Base & Ex = {
+    //     ...defaultBase,
+    //     ...defaultEx,
+    // }
+
+
+    // const xx = defaultBase[exToBase['ds']];
+
+    // type ResolvedDefaults = {[ key in keyof Ex]: ExToBase[key]};
+
+    // const x = defaults.bs === 'x'
 
     export function assign(source: Partial<GridSettings>, target: GridSettings): boolean {
         const sourceKeys = Object.keys(source) as (keyof GridSettings)[];

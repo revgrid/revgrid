@@ -4,6 +4,8 @@ import { HoverCell } from '../../interfaces/data/hover-cell';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { isSecondaryMouseButton } from '../../types-utils/html-types';
 import { Point } from '../../types-utils/point';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
@@ -12,7 +14,7 @@ import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class SelectionUiBehavior extends UiBehavior {
+export class SelectionUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
 
     readonly typeName = SelectionUiBehavior.typeName;
 
@@ -32,7 +34,7 @@ export class SelectionUiBehavior extends UiBehavior {
     private _lastColumnStepScrollDragTime: number | undefined;
     private _lastRowStepScrollDragTime: number | undefined;
 
-    override handlePointerDown(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerDown(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         if (isSecondaryMouseButton(event)) {
             return super.handlePointerDown(event, cell);
         } else {
@@ -64,7 +66,7 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    override handleClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (!event.altKey || isSecondaryMouseButton(event)) {
             return super.handleClick(event, cell);
         } else {
@@ -98,7 +100,7 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDragStart(event: DragEvent, cell: HoverCell | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, cell: HoverCell<MCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -144,7 +146,7 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDrag(event: PointerEvent, cell: HoverCell | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
         if (this._activeDragType === undefined) {
             return super.handlePointerDrag(event, cell);
         } else {
@@ -164,7 +166,7 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell | null | undefined): HoverCell | null | undefined {
+    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
         if (this._activeDragType === undefined) {
             return super.handlePointerDragEnd(event, cell);
         } else {
@@ -189,14 +191,14 @@ export class SelectionUiBehavior extends UiBehavior {
         super.handleKeyDown(eventDetail);
     }
 
-    private trySelectFromMouseDownInScrollableMain(event: MouseEvent, cell: ViewCell) {
+    private trySelectFromMouseDownInScrollableMain(event: MouseEvent, cell: ViewCell<MCS>) {
         const areaTypeSpecifier = GridSettings.getSelectionAreaTypeSpecifierFromEvent(this.gridSettings, event);
         const areaType = this.selection.calculateAreaTypeFromSpecifier(areaTypeSpecifier);
 
         if (!GridSettings.isMouseSelectionAllowed(this.gridSettings, areaType)) {
             return false;
         } else {
-            const subgrid = cell.subgrid as Subgrid;
+            const subgrid = cell.subgrid as Subgrid<MCS>;
             const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
             const selection = this.selection;
@@ -236,7 +238,7 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    private trySelectFromMouseDownInHeaderOrFixedRow(event: MouseEvent, cell: ViewCell) {
+    private trySelectFromMouseDownInHeaderOrFixedRow(event: MouseEvent, cell: ViewCell<MCS>) {
         if (!this.gridSettings.mouseColumnSelection) {
             return false;
         } else {
@@ -280,7 +282,7 @@ export class SelectionUiBehavior extends UiBehavior {
         }
     }
 
-    private trySelectFromMouseDownInFixedColumn(event: MouseEvent, cell: ViewCell) {
+    private trySelectFromMouseDownInFixedColumn(event: MouseEvent, cell: ViewCell<MCS>) {
         if (!this.gridSettings.mouseRowSelection) {
             return false;
         } else {
@@ -328,13 +330,13 @@ export class SelectionUiBehavior extends UiBehavior {
      * @desc Handle a mousedrag selection.
      * @param keys - array of the keys that are currently pressed down
      */
-    private tryUpdateLastSelectionArea(cell: ViewCell) {
+    private tryUpdateLastSelectionArea(cell: ViewCell<MCS>) {
         const selection = this.selection;
         const lastArea = selection.lastArea;
         if (lastArea === undefined) {
             throw new AssertError('SUBULSA54455');
         } else {
-            const subgrid = cell.subgrid as Subgrid;
+            const subgrid = cell.subgrid as Subgrid<MCS>;
             // let updatePossible: boolean;
 
             // switch (lastArea.areaType) {
@@ -583,7 +585,7 @@ export class SelectionUiBehavior extends UiBehavior {
         return stepped;
     }
 
-    private selectOnlyCell(originX: number, originY: number, subgrid: Subgrid, areaType: SelectionAreaType) {
+    private selectOnlyCell(originX: number, originY: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
         let lastActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
 
@@ -654,9 +656,9 @@ export namespace SelectionUiBehavior {
 
     export const scheduleStepScrollDragTickInterval = 20;
 
-    export interface ExtendSelectOrigin {
+    export interface ExtendSelectOrigin<MCS extends MergableColumnSettings> {
         readonly areaType: SelectionAreaType,
-        readonly subgrid: Subgrid;
+        readonly subgrid: Subgrid<MCS>;
         readonly point: Point;
     }
 

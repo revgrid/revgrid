@@ -9,7 +9,6 @@
   "include": [
     "grid-public-api.ts",
     "revgrid.ts",
-    "./cell-editor/*.ts",
     "template/*.ts",
   ],
 

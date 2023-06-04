@@ -1,11 +1,13 @@
 
 import { ScrollDimension } from '../../components/view/scroll-dimension';
 import { HoverCell } from '../../interfaces/data/hover-cell';
+import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class TouchScrollingUiBehavior extends UiBehavior {
+export class TouchScrollingUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
 
     readonly typeName = TouchScrollingUiBehavior.typeName;
 
@@ -22,11 +24,11 @@ export class TouchScrollingUiBehavior extends UiBehavior {
         }
     }
 
-    override handleClick(event: MouseEvent, cell: HoverCell | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
         return cell;
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
         return cell;
     }
 
@@ -93,7 +95,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
         this.decelerate(this.viewLayout.horizontalScrollDimension, offset, timeOffset);
     }
 
-    private decelerate(scrollDimension: ScrollDimension, offset: number, timeOffset: number) {
+    private decelerate(scrollDimension: ScrollDimension<MGS>, offset: number, timeOffset: number) {
         const velocity = (Math.abs(offset) / timeOffset) * 100;
         const dir = -Math.sign(offset);
         const interval = this.getInitialInterval(velocity);
@@ -101,7 +103,7 @@ export class TouchScrollingUiBehavior extends UiBehavior {
         this.step(scrollDimension, velocity, dir, interval);
     }
 
-    private step(scrollDimension: ScrollDimension, velocity: number, dir: number, interval: number) {
+    private step(scrollDimension: ScrollDimension<MGS>, velocity: number, dir: number, interval: number) {
         if (velocity > 0) {
             const viewportStart = scrollDimension.viewportStart;
             if (viewportStart !== undefined) {
