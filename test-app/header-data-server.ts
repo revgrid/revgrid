@@ -1,24 +1,13 @@
-import { CellPainter, DataServer, DatalessViewCell, HeaderTextCellPainter, SchemaServer } from '..';
+import { DataServer, SchemaServer, StandardInMemoryBehavioredColumnSettings } from '..';
 import { SchemaServerImplementation } from './schema-adapter';
 
-export class HeaderDataServer implements DataServer {
-    readonly cellPainter: HeaderTextCellPainter;
-
-    constructor() {
-        this.cellPainter = new HeaderTextCellPainter(this);
-    }
-
+export class HeaderDataServer implements DataServer<StandardInMemoryBehavioredColumnSettings> {
     getRowCount() {
         return 1;
     }
 
-    getValue(schemaColumn: SchemaServer.Column) {
+    getValue(schemaColumn: SchemaServer.Column<StandardInMemoryBehavioredColumnSettings>) {
         return (schemaColumn as SchemaServerImplementation.Column).header;
-    }
-
-    getCellPainter(viewCell: DatalessViewCell): CellPainter {
-        this.cellPainter.setCell(viewCell);
-        return this.cellPainter;
     }
 
     subscribeDataNotifications() {

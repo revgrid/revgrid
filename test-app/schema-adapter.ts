@@ -1,21 +1,22 @@
 import { MainRecord } from 'main-record';
-import { MergableGridSettings, SchemaServer } from '..';
-import { TestAppMergableColumnSettings } from './test-app-mergable-column-settings';
+import { SchemaServer, StandardInMemoryBehavioredColumnSettings } from '..';
 
-export class SchemaServerImplementation implements SchemaServer {
+export class SchemaServerImplementation implements SchemaServer<StandardInMemoryBehavioredColumnSettings> {
     private readonly _schema: SchemaServerImplementation.Column[];
-    private notificationsClient: SchemaServer.NotificationsClient;
+    private notificationsClient: SchemaServer.NotificationsClient<StandardInMemoryBehavioredColumnSettings>;
 
-    constructor(private readonly _gridSettings: MergableGridSettings) {
+    constructor() {
         const nameHeaders = SchemaServerImplementation.columnNameHeaders;
         const columnCount = nameHeaders.length;
         const schema = new Array<SchemaServerImplementation.Column>(columnCount);
         for (let i = 0; i < columnCount; i++) {
             const nameHeader = nameHeaders[i];
+            const settings = new StandardInMemoryBehavioredColumnSettings();
+            settings.load(standardAllColumnSettingsDefaults);
             schema[i] = {
                 name: nameHeader.name,
                 index: i,
-                settings: new TestAppMergableColumnSettings(this._gridSettings, undefined),
+                settings,
                 header: nameHeader.header,
             };
         }
@@ -27,7 +28,7 @@ export class SchemaServerImplementation implements SchemaServer {
         return this._schema;
     }
 
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient) {
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<StandardInMemoryBehavioredColumnSettings>) {
         this.notificationsClient = client;
 
         this.notificationsClient.schemaChanged();
@@ -35,9 +36,9 @@ export class SchemaServerImplementation implements SchemaServer {
 }
 
 export namespace SchemaServerImplementation {
-    export interface Column extends SchemaServer.Column {
+    export interface Column extends SchemaServer.Column<StandardInMemoryBehavioredColumnSettings> {
         name: keyof MainRecord;
-        settings: TestAppMergableColumnSettings;
+        settings: StandardInMemoryBehavioredColumnSettings;
         header: string;
     }
 

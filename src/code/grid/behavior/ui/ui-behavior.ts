@@ -25,7 +25,7 @@ import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
- * @internal
+ * @public
  */
 export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     abstract readonly typeName: string;
@@ -117,6 +117,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         this.next = this.detached;
     }
 
+    /** @internal */
     handleKeyDown(eventDetail: EventDetail.Keyboard) {
         if (this.next) {
             this.next.handleKeyDown(eventDetail);
@@ -125,12 +126,14 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handleKeyUp(eventDetail: EventDetail.Keyboard) {
         if (this.next) {
             this.next.handleKeyUp(eventDetail);
         }
     }
 
+    /** @internal */
     handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerMove(event, cell);
@@ -139,6 +142,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handlePointerLeaveOut(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerLeaveOut(event, cell);
@@ -147,6 +151,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handlePointerEnter(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerEnter(event, cell);
@@ -155,6 +160,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handlePointerDown(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDown(event, cell);
@@ -163,6 +169,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handlePointerUpCancel(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerUpCancel(event, cell);
@@ -171,6 +178,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handleWheelMove(event: WheelEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handleWheelMove(event, cell);
@@ -179,6 +187,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handleDblClick(event, cell);
@@ -187,6 +196,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handleClick(event, cell);
@@ -195,6 +205,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handlePointerDragStart(event: DragEvent, cell: HoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS> {
         if (this.next) {
             return this.next.handlePointerDragStart(event, cell);
@@ -206,6 +217,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handlePointerDrag(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDrag(event, cell);
@@ -214,6 +226,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handlePointerDragEnd(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDragEnd(event, cell);
@@ -222,6 +235,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handleContextMenu(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (this.next) {
             return this.next.handleContextMenu(event, cell);
@@ -230,48 +244,56 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     handleTouchStart(eventDetail: TouchEvent) {
         if (this.next) {
             this.next.handleTouchStart(eventDetail);
         }
     }
 
+    /** @internal */
     handleTouchMove(eventDetail: TouchEvent) {
         if (this.next) {
             this.next.handleTouchMove(eventDetail);
         }
     }
 
+    /** @internal */
     handleTouchEnd(eventDetail: TouchEvent) {
         if (this.next) {
             this.next.handleTouchEnd(eventDetail);
         }
     }
 
+    /** @internal */
     handleCopy(eventDetail: ClipboardEvent) {
         if (this.next) {
             this.next.handleCopy(eventDetail);
         }
     }
 
+    /** @internal */
     handleHorizontalScrollerAction(action: EventDetail.ScrollerAction) {
         if (this.next) {
             this.next.handleHorizontalScrollerAction(action);
         }
     }
 
+    /** @internal */
     handleVerticalScrollerAction(action: EventDetail.ScrollerAction) {
         if (this.next) {
             this.next.handleVerticalScrollerAction(action);
         }
     }
 
+    /** @internal */
     initializeOn() {
         if (this.next) {
             this.next.initializeOn();
         }
     }
 
+    /** @internal */
     protected tryGetHoverCellFromMouseEvent(event: MouseEvent): HoverCell<BCS> | null {
         const cell = this.viewLayout.findHoverCell(event.offsetX, event.offsetY);
         if (cell === undefined) {
@@ -282,7 +304,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 }
 
-/** @internal */
+/** @public */
 export namespace UiBehavior {
     export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> = new (services: UiBehaviorServices<BGS, BCS>) => UiBehavior<BGS, BCS>;
 

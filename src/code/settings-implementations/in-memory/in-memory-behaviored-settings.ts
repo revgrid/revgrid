@@ -8,13 +8,20 @@ import {
 
 /** @public */
 export class InMemoryBehavioredSettings {
+    /** @internal */
     viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer;
+    /** @internal */
     viewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
+    /** @internal */
     horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
+    /** @internal */
     verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
+    /** @internal */
     resizeEventer: GridSettingsBehavior.ResizeEventer;
 
+    /** @internal */
     private _beginChangeCount = 0;
+    /** @internal */
     private _beginChangeInvalidateType: GridSettingChangeInvalidateTypeId | undefined;
 
     beginChange() {
@@ -36,10 +43,12 @@ export class InMemoryBehavioredSettings {
         }
     }
 
+    /** @internal */
     protected invalidateViewRender() {
         this.invalidateByType(GridSettingChangeInvalidateTypeId.ViewRender);
     }
 
+    /** @internal */
     protected invalidateByType(invalidateType: GridSettingChangeInvalidateTypeId) {
         if (this._beginChangeCount === 0) {
             switch (invalidateType) {

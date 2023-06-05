@@ -7,7 +7,7 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType } from '../../types-utils/types';
 
-/** @internal */
+/** @public */
 export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     constructor(
         private readonly _selection: Selection<BGS, BCS>,
@@ -260,6 +260,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
         return rects;
     }
 
+    /** @internal */
     private getDefinedSubgrid() {
         const subgrid = this._selection.subgrid;
         if (subgrid === undefined) {

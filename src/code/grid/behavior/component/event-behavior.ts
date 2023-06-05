@@ -16,43 +16,78 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { Point } from '../../types-utils/point';
 import { ListChangedTypeId } from '../../types-utils/types';
 
+/** @public */
 export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    /** @internal */
     uiKeyDownEventer: EventBehavior.UiKeyEventer;
+    /** @internal */
     uiKeyUpEventer: EventBehavior.UiKeyEventer;
+    /** @internal */
     uiClickEventer: EventBehavior.UiMouseEventer<BCS>;
+    /** @internal */
     uiDblClickEventer: EventBehavior.UiMouseEventer<BCS>;
+    /** @internal */
     uiPointerDownEventer: EventBehavior.UiPointerEventer<BCS>;
+    /** @internal */
     uiPointerUpCancelEventer: EventBehavior.UiPointerEventer<BCS>;
+    /** @internal */
     uiPointerMoveEventer: EventBehavior.UiPointerEventer<BCS>;
+    /** @internal */
     uiPointerEnterEventer: EventBehavior.UiPointerEventer<BCS>;
+    /** @internal */
     uiPointerLeaveOutEventer: EventBehavior.UiPointerEventer<BCS>;
+    /** @internal */
     uiPointerDragStartEventer: EventBehavior.UiPointerDragStartEventer<BCS>;
+    /** @internal */
     uiPointerDragEventer: EventBehavior.UiPointerDragEventer<BCS>;
+    /** @internal */
     uiPointerDragEndEventer: EventBehavior.UiPointerDragEventer<BCS>;
+    /** @internal */
     uiWheelMoveEventer: EventBehavior.UiWheelEventer<BCS>;
+    /** @internal */
     uiContextMenuEventer: EventBehavior.UiMouseEventer<BCS>;
+    /** @internal */
     uiTouchStartEventer: EventBehavior.UiTouchEventer;
+    /** @internal */
     uiTouchMoveEventer: EventBehavior.UiTouchEventer;
+    /** @internal */
     uiTouchEndEventer: EventBehavior.UiTouchEventer;
+    /** @internal */
     uiCopyEventer: EventBehavior.UiClipboardEventer;
+    /** @internal */
     uiHorizontalScrollerActionEventer: EventBehavior.UiScrollerActionEventer;
+    /** @internal */
     uiVerticalScrollerActionEventer: EventBehavior.UiScrollerActionEventer;
 
+    /** @internal */
     private readonly _dispatchEnabled: boolean;
+    /** @internal */
     private _destroyed = false;
 
+    /** @internal */
     constructor(
         dispatchEnabled: boolean,
+        /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
+        /** @internal */
         private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        /** @internal */
         private readonly _focus: Focus<BGS, BCS>,
+        /** @internal */
         private readonly _selection: Selection<BGS, BCS>,
+        /** @internal */
         private readonly _mouse: Mouse<BGS, BCS>,
+        /** @internal */
         private readonly _renderer: Renderer<BGS, BCS>,
+        /** @internal */
         private readonly _horizontalScroller: Scroller<BGS>,
+        /** @internal */
         private readonly _verticalScroller: Scroller<BGS>,
+        /** @internal */
         private readonly _descendantEventer: EventBehavior.DescendantEventer<BCS>,
+        /** @internal */
         private readonly _dispatchEventEventer: EventBehavior.DispatchEventEventer,
     ) {
         this._dispatchEnabled = dispatchEnabled;
@@ -105,10 +140,12 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         this._verticalScroller.actionEventer = (action) => this.processVerticalScrollerEvent(action);
     }
 
+    /** @internal */
     destroy() {
         this._destroyed = true;
     }
 
+    /** @internal */
     processColumnsChangedEvent() {
         this._descendantEventer.columnsChanged();
 
@@ -117,6 +154,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     processColumnSortEvent(event: MouseEvent, cell: ViewCell<BCS>) {
         this._descendantEventer.columnSort(event, cell);
 
@@ -125,6 +163,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processCanvasResizedEvent() {
         this._descendantEventer.resized();
 
@@ -139,6 +178,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processAllColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
         this._descendantEventer.allColumnListChanged(typeId, index, count, targetIndex);
         if (this._dispatchEnabled) {
@@ -146,14 +186,17 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processActiveColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
         this._descendantEventer.activeColumnListChanged(typeId, index, count, targetIndex, ui);
     }
 
+    /** @internal */
     private processColumnsWidthChangedEvent(columns: Column<BCS>[], ui: boolean) {
         this._descendantEventer.columnsWidthChanged(columns, ui);
     }
 
+    /** @internal */
     private processColumnsViewWidthsChangedEvent() {
         this._descendantEventer.columnsViewWidthsChanged();
 
@@ -162,6 +205,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processHorizontalScrollViewportStartChangedEvent() {
         this._descendantEventer.horizontalScrollViewportStartChanged();
 
@@ -170,6 +214,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processVerticalScrollViewportStartChangedEvent() {
         this._descendantEventer.verticalScrollViewportStartChanged();
 
@@ -178,14 +223,17 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processFocusEvent(event: FocusEvent) {
         this._descendantEventer.focus(event);
     }
 
+    /** @internal */
     private processBlurEvent(event: FocusEvent) {
         this._descendantEventer.blur(event);
     }
 
+    /** @internal */
     private processKeyDownEvent(event: EventDetail.Keyboard) {
         this.uiKeyDownEventer(event);
 
@@ -196,6 +244,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processKeyUpEvent(event: EventDetail.Keyboard) {
         this.uiKeyUpEventer(event);
 
@@ -206,6 +255,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processClickEvent(event: MouseEvent) {
         let cell = this.uiClickEventer(event);
         if (this._dispatchEnabled) {
@@ -221,6 +271,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processDblClickEvent(event: MouseEvent) {
         let cell = this.uiDblClickEventer(event);
         if (this._dispatchEnabled) {
@@ -236,6 +287,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processPointerEnterEvent(event: PointerEvent) {
         let cell = this.uiPointerEnterEventer(event);
         if (this._dispatchEnabled) {
@@ -251,6 +303,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processPointerDownEvent(event: PointerEvent) {
         let cell = this.uiPointerDownEventer(event);
         if (this._dispatchEnabled) {
@@ -266,6 +319,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processPointerUpCancelEvent(event: PointerEvent) {
         let cell = this.uiPointerUpCancelEventer(event);
         if (this._dispatchEnabled) {
@@ -281,6 +335,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processPointerMoveEvent(event: PointerEvent) {
         let cell = this.uiPointerMoveEventer(event);
         if (this._dispatchEnabled) {
@@ -296,6 +351,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processPointerLeaveOutEvent(event: PointerEvent) {
         let cell = this.uiPointerLeaveOutEventer(event);
         if (this._dispatchEnabled) {
@@ -311,6 +367,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processWheelMoveEvent(event: WheelEvent) {
         let cell = this.uiWheelMoveEventer(event);
         if (this._dispatchEnabled) {
@@ -326,10 +383,12 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processDragStartEvent(event: DragEvent) {
         this._descendantEventer.dragStart(event); // give descendant a chance to claim drag start
     }
 
+    /** @internal */
     private processContextMenuEvent(event: MouseEvent) {
         let cell = this.uiContextMenuEventer(event);
         if (this._dispatchEnabled) {
@@ -345,6 +404,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processPointerDragStartEvent(event: DragEvent) {
         const result = this.uiPointerDragStartEventer(event);
         if (result.started) {
@@ -356,6 +416,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processPointerDragEvent(event: PointerEvent, internal: boolean) {
         if (internal) {
             this.uiPointerDragEventer(event);
@@ -364,6 +425,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processPointerDragEndEvent(event: PointerEvent, internal: boolean) {
         if (internal) {
             this.uiPointerDragEndEventer(event);
@@ -372,6 +434,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processTouchStartEvent(event: TouchEvent) {
         this.uiTouchStartEventer(event);
 
@@ -382,6 +445,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processTouchMoveEvent(event: TouchEvent) {
         this.uiTouchMoveEventer(event);
 
@@ -392,6 +456,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processTouchEndEvent(event: TouchEvent) {
         this.uiTouchEndEventer(event);
 
@@ -402,12 +467,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processCopyEvent(event: ClipboardEvent) {
         this.uiCopyEventer(event);
 
         this._descendantEventer.copy(event);
     }
 
+    /** @internal */
     private processCellFocusChangedEvent(oldPoint: Point | undefined, newPoint: Point | undefined) {
         this._descendantEventer.cellFocusChanged(oldPoint, newPoint);
 
@@ -421,6 +488,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processSelectionChangedEvent() {
         this._descendantEventer.selectionChanged();
 
@@ -429,6 +497,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processHorizontalScrollerEvent(action: EventDetail.ScrollerAction) {
         this.uiHorizontalScrollerActionEventer(action);
 
@@ -439,6 +508,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processVerticalScrollerEvent(action: EventDetail.ScrollerAction) {
         this.uiVerticalScrollerActionEventer(action);
 
@@ -449,6 +519,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processMouseEnteredCellEvent(cell: ViewCell<BCS>) {
         this._descendantEventer.mouseEnteredCell(cell);
 
@@ -457,6 +528,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private processMouseExitedCellEvent(cell: ViewCell<BCS>) {
         this._descendantEventer.mouseExitedCell(cell);
 
@@ -473,6 +545,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private dispatchCustomEvent<T extends EventName<BCS>>(
         eventName: T,
         cancelable: boolean,
@@ -492,6 +565,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
+    /** @internal */
     private dispatchMouseEvent<T extends EventName.Mouse>(eventName: T, event: MouseEvent | WheelEvent, cell: ViewCell<BCS> | null | undefined) {
         if (cell === null) {
             cell = undefined;
@@ -506,14 +580,18 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 }
 
+/** @public */
 export namespace EventBehavior {
+    /** @internal */
     export type DispatchEventEventer = (this: void, event: Event) => boolean;
 
+    /** @internal */
     export interface UiPointerDragStartResult<BCS extends BehavioredColumnSettings> {
         readonly started: boolean;
         readonly cell: HoverCell<BCS> | null | undefined;
     }
 
+    /** @internal */
     export interface DescendantEventer<BCS extends BehavioredColumnSettings> {
         readonly allColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
@@ -554,6 +632,7 @@ export namespace EventBehavior {
         readonly verticalScrollerAction: DescendantEventer.ScrollerAction;
     }
 
+    /** @internal */
     export namespace DescendantEventer {
         export type Signal = (this: void) => void;
         export type Focus = (this: void, event: FocusEvent) => void;
@@ -572,47 +651,24 @@ export namespace EventBehavior {
         export type CellFocusChanged = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
     }
 
+    /** @internal */
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
+    /** @internal */
     export type UiMouseEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Mouse<BCS>) => HoverCell<BCS> | null | undefined;
+    /** @internal */
     export type UiPointerEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<BCS>) => HoverCell<BCS> | null | undefined;
+    /** @internal */
     export type UiPointerDragEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<BCS>) => void;
+    /** @internal */
     export type UiPointerDragStartEventer<BCS extends BehavioredColumnSettings> = (this: void, dragEvent: DragEvent) => UiPointerDragStartResult<BCS>;
+    /** @internal */
     export type UiWheelEventer<BCS extends BehavioredColumnSettings> = (this: void, wheelEvent: EventDetail.Wheel<BCS>) => HoverCell<BCS> | null | undefined;
+    /** @internal */
     export type UiDragEventer<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent) => HoverCell<BCS> | null | undefined;
+    /** @internal */
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;
+    /** @internal */
     export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
+    /** @internal */
     export type UiScrollerActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;
-
-    // Extra properties added to Event Detail
-    // export interface ExtraDetail {
-    //     type: string;
-    //     grid: Hypegrid;
-    //     time: number;
-    //     primitiveEvent: CellEvent | MouseEvent | KeyboardEvent | Point;
-
-    //     gridCell: WritablePoint,
-    //     dataCell: WritablePoint,
-    //     mousePoint: Point,
-    //     gridPoint: Point,
-    //     clientPoint: Point,
-    //     pagePoint: Point,
-    //     keys: string[],
-    //     row: unknown,
-    // }
-
-    // export type UntypedEventInitDictOrDetail =
-    //     | CustomEventInit
-    //     | EventDetail.Resize
-    //     | EventDetail.Keyboard
-    //     | EventDetail.Touch
-    //     | CellEditor.EventDetail
-    //     | EventDetail.ColumnSortDetail
-    //     | SelectionDetail
-    //     | EventDetail.GridDetail
-    //     | EventDetail.ScrollDetail
-    //     | EventDetail.RowDataInvalidatedDetail
-    //     | EventDetail.CellDataInvalidatedDetail
-    //     | CellEvent;
-
-    // export type EventInitDictOrDetail = UntypedEventInitDictOrDetail | ExtraDetail;
 }

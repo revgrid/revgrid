@@ -17,35 +17,56 @@ import { GridPainterRepository } from './grid-painter/grid-painter-repository';
 import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
-/** @internal */
+/** @public */
 export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    /** @internal */
     renderedEventer: Renderer.RenderedEventer;
 
+    /** @internal */
     private readonly _gridPainterRepository: GridPainterRepository<BGS, BCS>;
+    /** @internal */
     private readonly _animator: Animation.Animator;
+    /** @internal */
     private readonly _renderActionQueue = new RenderActionQueue()
 
+    /** @internal */
     private _documentHidden = false;
 
+    /** @internal */
     private _lastModelUpdateId: ModelUpdateId = lowestValidModelUpdateId;
+    /** @internal */
     private _lastRenderedModelUpdateId: ModelUpdateId = lowestValidModelUpdateId;
+    /** @internal */
     private _waitModelRenderedResolves = new Array<Renderer.WaitModelRenderedResolve>();
 
+    /** @internal */
     private _destroyed = false;
 
+    /** @internal */
     private _gridPainter: GridPainter<BGS, BCS>;
+    /** @internal */
     private _allGridPainter: GridPainter<BGS, BCS> | undefined;
 
+    /** @internal */
     private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
 
+    /** @internal */
     constructor(
+        /** @internal */
         private readonly _gridSettings: BGS,
+        /** @internal */
         private readonly _canvasEx: CanvasManager<BGS>,
+        /** @internal */
         private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        /** @internal */
         private readonly _subgridsManager: SubgridsManager<BGS, BCS>,
+        /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        /** @internal */
         private readonly _focus: Focus<BGS, BCS>,
+        /** @internal */
         private readonly _selection: Selection<BGS, BCS>,
+        /** @internal */
         private readonly _mouse: Mouse<BGS, BCS>,
     ) {
         this._gridPainterRepository = new GridPainterRepository(
@@ -88,6 +109,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     get painting() { return this._animator.animating; }
     get lastModelUpdateId() { return this._lastModelUpdateId; }
 
+    /** @internal */
     destroy() {
         this.resolveWaitModelRendered(invalidModelUpdateId);
 
@@ -96,14 +118,17 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this._destroyed = true;
     }
 
+    /** @internal */
     registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS>) {
         this._gridPainterRepository.register(key, constructor);
     }
 
+    /** @internal */
     getGridPainter(key: string) {
         return this._gridPainterRepository.get(key);
     }
 
+    /** @internal */
     setGridPainter(key: string) {
         const gridPainter = this._gridPainterRepository.get(key);
 
@@ -112,6 +137,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     repaintAll() {
         if (this._allGridPainter === undefined) {
             this._allGridPainter = this.getGridPainter(ByColumnsAndRowsGridPainter.key);
@@ -122,7 +148,8 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /**
      * Certain renderers that pre-bundle column rects based on columns' background colors need to re-bundle when columns' background colors change. This method sets the `rebundle` property to `true` for those renderers that have that property.
-     */
+     * @internal
+    */
     flagColumnRebundlingRequired() {
         const all = this._gridPainterRepository.allCreated();
         for (const value of all) {
@@ -130,19 +157,24 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     start() {
         Animation.registerAnimator(this._animator);
     }
 
+    /** @internal */
     stop() {
         Animation.deregisterAnimator(this._animator);
     }
 
+    /** @internal */
     modelUpdated() {
         ++this._lastModelUpdateId;
     }
 
-    /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update */
+    /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update
+     * @internal
+    */
     waitModelRendered(): Promise<ModelUpdateId> {
         const lastRenderedModelUpdateId = this._lastRenderedModelUpdateId;
         if (lastRenderedModelUpdateId === this._lastModelUpdateId) {
@@ -152,26 +184,32 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     beginChange() {
         this._renderActionQueue.beginChange();
     }
 
+    /** @internal */
     endChange() {
         this._renderActionQueue.endChange();
     }
 
+    /** @internal */
     invalidateViewRender() {
         this._renderActionQueue.invalidateViewRender();
     }
 
+    /** @internal */
     invalidateViewCellRender(cell: ViewCell<BCS>) {
         this._renderActionQueue.invalidateViewCellRender(cell);
     }
 
+    /** @internal */
     invalidateAllData() {
         this._renderActionQueue.invalidateAllData();
     }
 
+    /** @internal */
     invalidateDataRows(rowIndex: number, count: number) {
         const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (firstScrollableSubgridRowIndex === undefined) {
@@ -190,6 +228,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     invalidateDataRow(rowIndex: number) {
         const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (firstScrollableSubgridRowIndex === undefined) {
@@ -208,6 +247,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     invalidateDataRowCells(rowIndex: number, allColumnIndexes: number[]) {
         const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (firstScrollableSubgridRowIndex === undefined) {
@@ -226,6 +266,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     invalidateDataCell(allColumnIndex: number, rowIndex: number) {
         const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (firstScrollableSubgridRowIndex === undefined) {
@@ -245,14 +286,17 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     getCurrentFPS() {
         return this._animator.currentFPS;
     }
 
+    /** @internal */
     private handlePageVisibilityChange() {
         this._documentHidden = document.hidden;
     }
 
+    /** @internal */
     private resolveWaitModelRendered(lastModelUpdateId: number) {
         if (this._waitModelRenderedResolves.length > 0) {
             for (const resolve of this._waitModelRenderedResolves) {
@@ -262,6 +306,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     private processRenderActionQueue() {
         if (this._documentHidden) {
             return false;
@@ -309,6 +354,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     private paintAll() {
         this._gridPainter.paintCells();
 
@@ -333,8 +379,10 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 }
 
-/** @internal */
+/** @public */
 export namespace Renderer {
+    /** @internal */
     export type WaitModelRenderedResolve = (this: void, id: ModelUpdateId) => void;
+    /** @internal */
     export type RenderedEventer = (this: void) => void;
 }

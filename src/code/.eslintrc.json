@@ -16,7 +16,7 @@
           "./src/code/standard/tsconfig.standard.json",
           "./src/code/settings-implementations/in-memory/tsconfig.settings-implementations-in-memory.json",
           "./src/code/settings-implementations/discard/tsconfig.settings-implementations-discard.json",
-          "./src/code/settings-implementations/default/tsconfig.settings-implementations-default.json",
+          "./src/code/settings-implementations/defaults/tsconfig.settings-implementations-defaults.json",
           "./src/code/settings-implementations/tsconfig.settings-implementations.json",
           "./src/code/tsconfig.code.json"
         ]

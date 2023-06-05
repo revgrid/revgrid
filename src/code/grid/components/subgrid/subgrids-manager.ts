@@ -1,4 +1,5 @@
 import { DataServer } from '../../interfaces/data/data-server';
+import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
@@ -8,18 +9,26 @@ import { ColumnsManager } from '../column/columns-manager';
 import { MainSubgridImplementation } from './main-subgrid-implementation';
 import { SubgridImplementation } from './subgrid-implementation';
 
+/** @public */
 export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
-    readonly mainSubgrid: MainSubgridImplementation<BGS, BCS>;
-    readonly subgrids = new Array<SubgridImplementation<BGS, BCS>>();
+    readonly mainSubgrid: MainSubgrid<BCS>;
+    readonly subgrids: Subgrid<BCS>[];
+    /** @internal */
+    readonly subgridImplementations = new Array<SubgridImplementation<BGS, BCS>>();
+    /** @internal */
     readonly _handledSubgrids = new Array<SubgridImplementation<BGS, BCS> | undefined>();
 
+    /** @internal */
     constructor(
+        /** @internal */
         private readonly _gridSettings: BGS,
+        /** @internal */
         private readonly _columnsManager: ColumnsManager<BGS, BCS>,
         definitions: Subgrid.Definition<BCS>[],
     ) {
-        let mainSubgrid: MainSubgridImplementation<BGS, BCS> | undefined;
-        const subgrids = this.subgrids;
+        this.subgrids = this.subgridImplementations;
+        let mainSubgrid: MainSubgrid<BCS> | undefined;
+        const subgrids = this.subgridImplementations;
         definitions.sort((left, right) => Subgrid.Role.gridOrderCompare(left.role, right.role));
         for (const definition of definitions) {
             if (definition !== undefined) {
@@ -40,10 +49,12 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
         }
     }
 
+    /** @internal */
     destroy() {
         this.destroySubgrids();
     }
 
+    /** @internal */
     getSubgridByHandle(handle: SubgridImplementation.Handle) { return this._handledSubgrids[handle]; }
 
     /**
@@ -131,7 +142,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
     }
 
     calculateRowCount() {
-        const subgrids = this.subgrids;
+        const subgrids = this.subgridImplementations;
         const subgridCount = subgrids.length;
         let count = 0;
         for (let i = 0; i < subgridCount; i++) {
@@ -143,7 +154,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
 
     calculatePreMainRowCount() {
         let count = 0;
-        for (const subgrid of this.subgrids) {
+        for (const subgrid of this.subgridImplementations) {
             if (subgrid.isMain) {
                 break;
             }
@@ -155,7 +166,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
     calculatePreMainHeight() {
         let height = 0;
         let subgridCount = 0;
-        for (const subgrid of this.subgrids) {
+        for (const subgrid of this.subgridImplementations) {
             if (subgrid.isMain) {
                 break;
             }
@@ -173,7 +184,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
     }
 
     calculatePreMainPlusFixedRowsHeight(): number {
-        const subgrids = this.subgrids;
+        const subgrids = this.subgridImplementations;
         const subgridCount = subgrids.length;
 
         let preSubgridCountPlusFixedRowCount = 0;
@@ -212,7 +223,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
     calculatePostMainRowCount() {
         let count = 0;
         let hadMain = false;
-        for (const subgrid of this.subgrids) {
+        for (const subgrid of this.subgridImplementations) {
             if (hadMain) {
                 count += subgrid.getRowCount();
             }
@@ -227,7 +238,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
         let hadMain = false;
         let height = 0;
         let subgridCount = 0;
-        for (const subgrid of this.subgrids) {
+        for (const subgrid of this.subgridImplementations) {
             if (hadMain) {
                 const subgridHeight = subgrid.calculateHeight();
                 height += subgridHeight;
@@ -251,7 +262,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
         let footersHeight = 0;
         let footerSubgridCount = 0
         let otherSubgridCount = 0;
-        for (const subgrid of this.subgrids) {
+        for (const subgrid of this.subgridImplementations) {
             if (hadMain) {
                 const subgridHeight = subgrid.calculateHeight();
                 if (subgrid.isFooter) {
@@ -288,7 +299,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
         let footersHeight = 0;
         let footerSubgridCount = 0;
         let summarySubgridCount = 0;
-        for (const subgrid of this.subgrids) {
+        for (const subgrid of this.subgridImplementations) {
             if (subgrid.isFooter) {
                 footersHeight += subgrid.calculateHeight();
                 footerSubgridCount++;
@@ -318,7 +329,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
 
     calculatePrePostMainRowcount() {
         let count = 0;
-        for (const subgrid of this.subgrids) {
+        for (const subgrid of this.subgridImplementations) {
             if (!subgrid.isMain) {
                 count += subgrid.getRowCount();
             }
@@ -328,7 +339,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
 
     calculateFootersHeight() {
         let height = 0;
-        for (const subgrid of this.subgrids) {
+        for (const subgrid of this.subgridImplementations) {
             if (subgrid.isFooter) {
                 height += subgrid.calculateHeight();
             }
@@ -341,19 +352,20 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
      */
     getAllRowCount() {
         let count = 0;
-        for (const subgrid of this.subgrids) {
+        for (const subgrid of this.subgridImplementations) {
             count += subgrid.getRowCount();
         }
         return count;
     }
 
+    /** @internal */
     private destroySubgrids() {
-        const subgridCount = this.subgrids.length;
+        const subgridCount = this.subgridImplementations.length;
         for (let i = subgridCount - 1; i > 0; i--) {
-            const subgrid = this.subgrids[i];
+            const subgrid = this.subgridImplementations[i];
             subgrid.destroy();
         }
-        this.subgrids.length = 0;
+        this.subgridImplementations.length = 0;
 
         const handledSubgrids = this._handledSubgrids;
         const handledSubgridCount = handledSubgrids.length;
@@ -363,6 +375,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
     }
 }
 
+/** @public */
 export namespace SubgridsManager {
     export type LoadedEventer = (this: void) => void;
 

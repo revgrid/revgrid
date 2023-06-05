@@ -83,10 +83,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     localization: Localization;
 
     readonly containerHtmlElement: HTMLElement;
-    canvasDiv: HTMLDivElement;
-
-    needsShapeChanged = false;
-    needsStateChanged = false;
 
     /** @internal */
     get columnsManager() { return this._columnsManager; }
@@ -255,42 +251,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             options.customUiBehaviorDefinitions,
         );
 
-
-        // Install shared plug-ins (those with a `preinstall` method)
-        // Hypergrid.prototype.installPlugins(options.plugins);
-
-        this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
-        this.setFormatter(options.localization);
-
-        // if (options.data) {
-        //     this.setData(options.data, options); // if no behavior has yet been set, `setData` sets a default behavior
-        // } else {
-        //     if (options.behaviorConstructor || options.dataModel || options.dataModelConstructorOrArray) {
-        //         this.setBehavior(options); // also sets options.data
-        //     }
-        // }
-
-        // this.resizeScrollbars();
-
-        // this._scrollBehavior.synchronizeScrollingBoundaries();
-
-        // /**
-        //  * @name plugins
-        //  * @summary Dictionary of named instance plug-ins.
-        //  * @desc See examples for how to reference (albeit there is normally no need to reference plugins directly).
-        //  *
-        //  * For the dictionary of _shared_ plugins, see {@link Hypergrid.plugins|plugins} (a property of the constructor).
-        //  * @example
-        //  * var instancePlugins = myGrid.plugins;
-        //  * var instancePlugins = this.plugins; // internal use
-        //  * var myInstancePlugin = myGrid.plugins.myInstancePlugin;
-        //  * @type {object}
-        //  */
-        // // this.plugins = {};
-
-        // // Install instance plug-ins (those that are constructors OR have an `install` method)
-        // this.installPlugins(options.plugins);
-
         this.canvasManager.start();
         this._renderer.start();
 
@@ -320,12 +280,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         }
 
         this.destroyed = true;
-
-        // delete this.containerHtmlElement;
-        // delete this.canvas.div;
-        // delete this.canvas.canvas;
-        // delete this.sbVScroller;
-        // delete this.sbHScroller;
     }
 
     resetGridBorder(edge?: string) {
@@ -348,11 +302,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         }
         this.canvasManager.canvasElement.style.setProperty(styleName, styleValue);
     }
-
-    /**
-     * Cached result of webkit test.
-     */
-    isWebkit = true;
 
     /**
      * We do not support IE 11; we do NOT support older versions of IE.
@@ -528,24 +477,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS>) {
         this._renderer.registerGridPainter(key, constructor)
-    }
-
-    setFormatter(options?: Revgrid.LocalizationOptions) {
-        options = options ?? {};
-        this.localization = new Localization(
-            options.locale || Revgrid.defaultLocalizationOptions.locale,
-            options.numberOptions || Revgrid.defaultLocalizationOptions.numberOptions,
-            options.dateOptions || Revgrid.defaultLocalizationOptions.dateOptions
-        );
-    }
-
-    getFormatter(localizerName: string | undefined) {
-        return this.localization.get(localizerName).format;
-    }
-
-    formatValue(localizerName: string | undefined, value: unknown) {
-        const formatter = this.getFormatter(localizerName);
-        return formatter(value);
     }
 
     /**
@@ -1199,34 +1130,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.canvasManager.checksize();
     }
 
-
-    /**
-     * @desc Stop the global repainting flag thread.
-     */
-    // stopPaintThread() {
-    //     this.canvas.stopPaintThread(); // not implemented
-    // }
-
-    /**
-     * @desc Stop the global resize check flag thread.
-     */
-    // stopResizeThread() {
-    //     this.canvas.stopResizeThread(); // not implemented
-    // }
-
-    /**
-     * @desc Restart the global resize check flag thread.
-     */
-    // restartResizeThread() {
-    //     this.canvas.restartResizeThread(); // not implemented
-    // }
-
-    /**
-     * @desc Restart the global repainting check flag thread.
-     */
-    // restartPaintThread() {
-    //     this.canvas.restartPaintThread(); // not implemented
-    // }
 
     swapColumns(source: number, target: number) {
         //Turns out this is called during dragged 'i.e' when the floater column is reshuffled
@@ -1967,6 +1870,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     //     }
     // }
 
+    /** @internal */
     private createDescendantEventer(): EventBehavior.DescendantEventer<BCS> {
         return {
             allColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessAllColumnListChanged(typeId, index, count, targetIndex),
@@ -2111,16 +2015,9 @@ export namespace Revgrid {
     }
 
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
-		// api?: object | string[];
 		boundingRect?: BoundingRectStyleValues;
 		canvasContextAttributes?: CanvasRenderingContext2DSettings;
-		// dataModel?: DataModel;
-		// dataModelConstructorOrArray?: Options.DataModelConstructorOrArray;
-		// force?: boolean;
-		// inject?: boolean;
-		localization?: LocalizationOptions;
 		edgeStyleValues?: EdgeStyleValues;
-		// metadata?: DataServer.RowMetadata[];
         /** Specifies whether to load builtin FinBar stylesheet. Default: true */
         loadBuiltinFinbarStylesheet?: boolean;
         customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS>[];

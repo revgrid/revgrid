@@ -1,8 +1,19 @@
-import { EventDetail, GridSettings, HalignEnum, Revgrid, defaultGridSettings } from '..';
+import {
+    DatalessViewCell,
+    EventDetail,
+    HalignEnum,
+    Revgrid,
+    StandardAlphaTextCellPainter,
+    StandardHeaderTextCellPainter,
+    StandardInMemoryBehavioredColumnSettings,
+    StandardInMemoryBehavioredGridSettings,
+    gridSettingsDefaults,
+    standardAllGridSettingsDefaults,
+    standardGridSettingsDefaults,
+} from '..';
 import { HeaderDataServer } from './header-data-server';
 import { MainDataServer } from './main-data-server';
 import { SchemaServerImplementation } from './schema-adapter';
-import { TestAppMergableGridSettings } from './test-app-mergable-grid-settings';
 
 export class Main {
     private readonly _controlsElement: HTMLElement;
@@ -18,9 +29,13 @@ export class Main {
     private readonly _addFishButtonElement: HTMLButtonElement;
     private readonly _gridHostElement: HTMLElement;
 
-    private _gridSettings = new TestAppMergableGridSettings();
+    private _gridSettings = new StandardInMemoryBehavioredGridSettings();
     private _mainDataServer: MainDataServer;
-    private _grid: Revgrid;
+    private _headerDataServer: HeaderDataServer;
+    private _mainCellPainter: StandardAlphaTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings>;
+    private _headerCellPainter: StandardHeaderTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings>;
+
+    private _grid: Revgrid<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings>;
 
     constructor() {
         const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
@@ -67,7 +82,7 @@ export class Main {
             throw new Error('rightHalignCheckBoxElement not found');
         } else {
             this._rightHalignCheckboxElement.onchange = () => {
-                this._grid.settings.halign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
+                this._grid.settings.horizontalAlign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
             };
         }
 
@@ -132,59 +147,58 @@ export class Main {
             this._grid.destroy();
         }
 
-        const nonDefaultSettings: Partial<GridSettings> = {
-            editable: true,
-            singleRowSelectionMode: false,
-            multipleSelectionAreas: true,
-            autoSelectRows: false,
-            restoreColumnSelections: false,
-            sortOnDoubleClick: false,
-            cellPadding: defaultCellPadding,
-            halign: defaultHalign,
-            fixedColumnCount: defaultFixedColumnCount,
-            gridRightAligned: defaultGridRightAligned,
-            scrollHorizontallySmoothly: defaultScrollHorizontallySmoothly,
-            visibleColumnWidthAdjust: defaultVisibleColumnWidthAdjust,
-            eventDispatchEnabled: true,
-        };
+        const gridSettings = this._gridSettings;
+
+        gridSettings.load(standardAllGridSettingsDefaults);
+        gridSettings.beginChange(); // disable events;
+
+        gridSettings.editable = true;
+        gridSettings.multipleSelectionAreas = true;
+        gridSettings.mouseSortOnDoubleClick = false;
+        gridSettings.cellPadding = defaultCellPadding;
+        gridSettings.horizontalAlign = defaultHorizontalAlign;
+        gridSettings.fixedColumnCount = defaultFixedColumnCount;
+        gridSettings.gridRightAligned = defaultGridRightAligned;
+        gridSettings.scrollHorizontallySmoothly = defaultScrollHorizontallySmoothly;
+        gridSettings.visibleColumnWidthAdjust = defaultVisibleColumnWidthAdjust;
+        gridSettings.eventDispatchEnabled = true;
 
 
-        this._gridSettings.loadDefaults();
-        this._gridSettings.merge(nonDefaultSettings);
-
-        const schemaServer = new SchemaServerImplementation(this._gridSettings);
+        const schemaServer = new SchemaServerImplementation();
         this._mainDataServer = new MainDataServer();
-        const headerDataServer = new HeaderDataServer();
+        this._headerDataServer = new HeaderDataServer();
 
-        const definition: Revgrid.Definition = {
+        const definition: Revgrid.Definition<StandardInMemoryBehavioredColumnSettings> = {
             schemaServer,
             subgrids: [
                 {
                     role: 'header',
-                    dataServer: headerDataServer,
+                    dataServer: this._headerDataServer,
+                    getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
                 },
                 {
                     role: 'main',
                     dataServer: this._mainDataServer,
+                    getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
                 }
             ],
         };
 
         this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings);
 
-        this._mainDataServer.cellPainter.setGrid(this._grid);
-        headerDataServer.cellPainter.setGrid(this._grid);
+        this._mainCellPainter = new StandardAlphaTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings>(this._grid, this._mainDataServer);
+        this._headerCellPainter = new StandardHeaderTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings>(this._grid, this._headerDataServer);
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();
         this._cellPaddingTextboxElement.value = this._grid.settings.cellPadding.toString();
-        this._rightHalignCheckboxElement.checked = this._grid.settings.halign === HalignEnum.right;
+        this._rightHalignCheckboxElement.checked = this._grid.settings.horizontalAlign === HalignEnum.right;
         this._gridRightAlignedCheckboxElement.checked = this._grid.settings.gridRightAligned;
         this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.settings.scrollHorizontallySmoothly;
         this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.settings.visibleColumnWidthAdjust;
         this._deleteRowIndexTextboxElement.value = '0';
 
         this._grid.addEventListener('rev-column-sort', (event) => {
-                const cell = (event as CustomEvent<EventDetail.ColumnSort>).detail.revgridCell;
+                const cell = (event as CustomEvent<EventDetail.ColumnSort<StandardInMemoryBehavioredColumnSettings>>).detail.revgridCell;
                 if (cell !== undefined) {
                     this._mainDataServer.sort(cell.viewLayoutColumn.column);
                 }
@@ -192,39 +206,50 @@ export class Main {
         );
 
         this._grid.allowEvents(true);
+        gridSettings.endChange(); // fire pending invalidate events
 
-        const columns = this._grid.getAllColumns();
+        // const columns = this._grid.getAllColumns();
 
-        for (const column of columns) {
-            switch (column.name) {
-                case 'name':
-                case 'type':
-                case 'favoriteFood':
-                    column.settings.editor = 'TextField';
-                    break;
-                case 'id':
-                case 'age':
-                    column.settings.editor = 'Number';
-                    break;
-                case 'receiveDate':
-                    column.settings.editor = 'Date';
-                    break;
-                case 'color':
-                    column.settings.editor = 'Color';
-                    break;
-                case 'restrictMovement':
-                    column.settings.editor = 'TextField'; // need something else for boolean
-                    break;
-                default:
-                    throw new Error(`Editor does not support field: ${column.name}`);
-            }
-        }
+        // for (const column of columns) {
+        //     switch (column.name) {
+        //         case 'name':
+        //         case 'type':
+        //         case 'favoriteFood':
+        //             column.settings.editor = 'TextField';
+        //             break;
+        //         case 'id':
+        //         case 'age':
+        //             column.settings.editor = 'Number';
+        //             break;
+        //         case 'receiveDate':
+        //             column.settings.editor = 'Date';
+        //             break;
+        //         case 'color':
+        //             column.settings.editor = 'Color';
+        //             break;
+        //         case 'restrictMovement':
+        //             column.settings.editor = 'TextField'; // need something else for boolean
+        //             break;
+        //         default:
+        //             throw new Error(`Editor does not support field: ${column.name}`);
+        //     }
+        // }
+    }
+
+    getMainCellPainter(viewCell: DatalessViewCell<StandardInMemoryBehavioredColumnSettings>) {
+        this._mainCellPainter.setCell(viewCell);
+        return this._mainCellPainter;
+    }
+
+    getHeaderCellPainter(viewCell: DatalessViewCell<StandardInMemoryBehavioredColumnSettings>) {
+        this._headerCellPainter.setCell(viewCell);
+        return this._headerCellPainter;
     }
 }
 
-const defaultGridRightAligned = defaultGridSettings.gridRightAligned;
-const defaultScrollHorizontallySmoothly = defaultGridSettings.scrollHorizontallySmoothly;
-const defaultVisibleColumnWidthAdjust = defaultGridSettings.visibleColumnWidthAdjust;
-const defaultCellPadding = defaultGridSettings.cellPadding;
-const defaultFixedColumnCount: typeof defaultGridSettings.fixedColumnCount = 2;
-const defaultHalign: typeof defaultGridSettings.halign = 'left';
+const defaultGridRightAligned = gridSettingsDefaults.gridRightAligned;
+const defaultScrollHorizontallySmoothly = gridSettingsDefaults.scrollHorizontallySmoothly;
+const defaultVisibleColumnWidthAdjust = gridSettingsDefaults.visibleColumnWidthAdjust;
+const defaultCellPadding = standardGridSettingsDefaults.cellPadding;
+const defaultFixedColumnCount: typeof gridSettingsDefaults.fixedColumnCount = 2;
+const defaultHorizontalAlign: typeof standardGridSettingsDefaults.horizontalAlign = 'left';

@@ -18,9 +18,10 @@ import { ReindexBehavior } from '../component/reindex-behavior';
 import { RowPropertiesBehavior } from '../component/row-properties-behavior';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
-/** @internal */
+/** @public */
 export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
 
+    /** @internal */
     constructor(
         readonly sharedState: UiBehaviorSharedState,
         readonly containerHtmlElement: HTMLElement,

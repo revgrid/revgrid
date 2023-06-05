@@ -1,17 +1,13 @@
-import { AlphaTextCellPainter, CellPainter, Column, DataServer, DatalessViewCell, SchemaServer } from '..';
+import { Column, DataServer, SchemaServer, StandardBehavioredColumnSettings } from '..';
 import { MainRecord } from './main-record';
 import { SchemaServerImplementation } from './schema-adapter';
 
-export class MainDataServer implements DataServer {
-    readonly cellPainter: AlphaTextCellPainter;
-
+export class MainDataServer implements DataServer<StandardBehavioredColumnSettings> {
     private readonly _data: MainRecord[] = [];
     private _fishCreateCount = 0;
     private _notificationsClient: DataServer.NotificationsClient;
 
     constructor() {
-        this.cellPainter = new AlphaTextCellPainter(this);
-
         const initialDataCount = MainDataServer.initialData.length;
         this._data.length = initialDataCount;
         for (let i = 0; i < initialDataCount; i++) {
@@ -34,7 +30,7 @@ export class MainDataServer implements DataServer {
         return this._data.length;
     }
 
-    getValue(columnSchema: SchemaServer.Column, rowIndex: number) {
+    getValue(columnSchema: SchemaServer.Column<StandardBehavioredColumnSettings>, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = (columnSchema as SchemaServerImplementation.Column).name;
         return record[fieldName];
@@ -44,7 +40,7 @@ export class MainDataServer implements DataServer {
         return this._data[rowIndex].id;
     }
 
-    getTitleText(columnSchema: SchemaServer.Column, rowIndex: number) {
+    getTitleText(columnSchema: SchemaServer.Column<StandardBehavioredColumnSettings>, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = (columnSchema as SchemaServerImplementation.Column).name;
         const prefix = fieldName + ': '
@@ -62,12 +58,7 @@ export class MainDataServer implements DataServer {
         }
     }
 
-    getCellPainter(viewCell: DatalessViewCell): CellPainter {
-        this.cellPainter.setCell(viewCell);
-        return this.cellPainter;
-    }
-
-    sort(column: Column) {
+    sort(column: Column<StandardBehavioredColumnSettings>) {
         this._notificationsClient.preReindex();
         try {
             const schemaColumn = column.schemaColumn as SchemaServerImplementation.Column;

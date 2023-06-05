@@ -42,10 +42,10 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         private readonly _reindexStashManager: ReindexBehavior<BGS, BCS>,
     ) {
         this._schemaServer = this._columnsManager.schemaServer;
-        this._subgrids = this._subgridsManager.subgrids;
+        this._subgrids = this._subgridsManager.subgridImplementations;
         this._mainDataServer = this._subgridsManager.mainSubgrid.dataServer;
 
-        const subgrids = this._subgridsManager.subgrids;
+        const subgrids = this._subgrids;
         for (const subgrid of subgrids) {
             const dataServer = subgrid.dataServer;
             const notificationsClient: DataServer.NotificationsClient = {

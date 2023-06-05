@@ -1,6 +1,7 @@
 import { DatalessViewCell } from '../dataless/dataless-view-cell';
 import { ViewLayoutColumn } from '../schema/view-layout-column';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { DataServer } from './data-server';
 import { Subgrid } from './subgrid';
 import { ViewLayoutRow } from './view-layout-row';
 
@@ -9,6 +10,9 @@ export interface ViewCell<BCS extends BehavioredColumnSettings> extends Dataless
     readonly subgrid: Subgrid<BCS>;
     readonly viewLayoutColumn: ViewLayoutColumn<BCS>;
     readonly viewLayoutRow: ViewLayoutRow<BCS>;
+
+    readonly value: DataServer.DataValue;
+
 }
 
 /** @public */

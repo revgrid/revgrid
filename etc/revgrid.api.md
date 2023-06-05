@@ -314,6 +314,9 @@ export namespace ColumnSettingsBehavior {
 }
 
 // @public (undocumented)
+export const columnSettingsDefaults: Required<ColumnSettings>;
+
+// @public (undocumented)
 export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     // @internal
     constructor(schemaServer: SchemaServer<BCS>, _gridSettings: BGS);
@@ -1248,6 +1251,9 @@ export namespace GridSettingsBehavior {
 }
 
 // @public (undocumented)
+export const gridSettingsDefaults: Required<GridSettings>;
+
+// @public (undocumented)
 export type Halign = keyof typeof HalignEnum;
 
 // @public (undocumented)
@@ -2139,8 +2145,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     get canvasBounds(): InexclusiveRectangle;
     // (undocumented)
-    canvasDiv: HTMLDivElement;
-    // (undocumented)
     readonly canvasManager: CanvasManager<BGS>;
     clearAllCellProperties(x?: number): void;
     // (undocumented)
@@ -2242,8 +2246,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType?: SelectionAreaType): void;
     // (undocumented)
-    formatValue(localizerName: string | undefined, value: unknown): string;
-    // (undocumented)
     getActiveColumn(activeIndex: number): Column<BCS>;
     // (undocumented)
     getActiveColumnIndexByAllIndex(allIndex: number): number;
@@ -2286,8 +2288,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getData(): readonly DataServer.DataRow[];
     // (undocumented)
     getFocusedViewCell(useAllCells: boolean): ViewCell<BCS> | undefined;
-    // (undocumented)
-    getFormatter(localizerName: string | undefined): (value: unknown) => string;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     getGridCellFromMousePoint(mouse: Point): HoverCell<BCS> | undefined;
     // (undocumented)
@@ -2340,7 +2340,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     isDataVisible(c: number, rn: number): boolean;
     // (undocumented)
     isPointSelected(x: number, y: number, subgrid?: Subgrid<BCS>): boolean;
-    isWebkit: boolean;
     // Warning: (ae-forgotten-export) The symbol "Localization" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -2355,10 +2354,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean): void;
     // (undocumented)
     moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean): void;
-    // (undocumented)
-    needsShapeChanged: boolean;
-    // (undocumented)
-    needsStateChanged: boolean;
     // (undocumented)
     get nonFixedColumnsViewWidth(): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2436,8 +2431,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     setColumnWidths(columnWidths: ColumnWidth<BCS>[]): boolean;
     // (undocumented)
     setColumnWidthsByName(columnNameWidths: ColumnNameWidth[]): boolean;
-    // (undocumented)
-    setFormatter(options?: Revgrid.LocalizationOptions): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<BCS>): void;
     // (undocumented)
@@ -2451,7 +2444,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     showColumns(columnIndexes: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
     // (undocumented)
     showColumns(isActiveColumnIndexes: boolean, columnIndexes?: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // (undocumented)
     swapColumns(source: number, target: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     updateSize(): void;
@@ -2526,15 +2519,11 @@ export namespace Revgrid {
         boundingRect?: BoundingRectStyleValues;
         // (undocumented)
         canvasContextAttributes?: CanvasRenderingContext2DSettings;
-        // Warning: (ae-forgotten-export) The symbol "UiBehavior" needs to be exported by the entry point public-api.d.ts
-        //
         // (undocumented)
         customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS>[];
         // (undocumented)
         edgeStyleValues?: EdgeStyleValues;
         loadBuiltinFinbarStylesheet?: boolean;
-        // (undocumented)
-        localization?: LocalizationOptions;
     }
     const // (undocumented)
     boundingRectStyleKeys: Array<keyof BoundingRectStyleValues>;
@@ -3169,6 +3158,9 @@ export interface StandardAllColumnSettings extends StandardColumnSettings, Colum
 export interface StandardAllGridSettings extends StandardGridSettings, GridSettings {
 }
 
+// @public (undocumented)
+export const standardAllGridSettingsDefaults: StandardAllGridSettings;
+
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -3277,6 +3269,9 @@ export interface StandardGridSettings {
     verticalOffset: number;
 }
 
+// @public (undocumented)
+export const standardGridSettingsDefaults: StandardGridSettings;
+
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -3287,6 +3282,126 @@ export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSet
     paint(prefillColor: string | undefined): number | undefined;
     // (undocumented)
     textWrapping: boolean;
+}
+
+// @public (undocumented)
+export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehavioredColumnSettings {
+    // (undocumented)
+    get cellFocusedBorderColor(): GridSettings.Color;
+    set cellFocusedBorderColor(value: GridSettings.Color);
+    // (undocumented)
+    get cellHoverBackgroundColor(): GridSettings.Color | undefined;
+    set cellHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get cellPadding(): number;
+    set cellPadding(value: number);
+    // (undocumented)
+    get columnHeaderBackgroundColor(): GridSettings.Color;
+    set columnHeaderBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderFont(): string;
+    set columnHeaderFont(value: string);
+    // (undocumented)
+    get columnHeaderForegroundColor(): GridSettings.Color;
+    set columnHeaderForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderHorizontalAlign(): Halign;
+    set columnHeaderHorizontalAlign(value: Halign);
+    // (undocumented)
+    get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
+    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderSelectionFont(): string;
+    set columnHeaderSelectionFont(value: string);
+    // (undocumented)
+    get columnHeaderSelectionForegroundColor(): GridSettings.Color;
+    set columnHeaderSelectionForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHoverBackgroundColor(): GridSettings.Color | undefined;
+    set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get font(): string;
+    set font(value: string);
+    // (undocumented)
+    get horizontalAlign(): Halign;
+    set horizontalAlign(value: Halign);
+    // (undocumented)
+    load(settings: StandardAllGridSettings): void;
+    // (undocumented)
+    get textStrikeThrough(): boolean;
+    set textStrikeThrough(value: boolean);
+    // (undocumented)
+    get textTruncateType(): TextTruncateType | undefined;
+    set textTruncateType(value: TextTruncateType | undefined);
+    // (undocumented)
+    get verticalOffset(): number;
+    set verticalOffset(value: number);
+}
+
+// @public (undocumented)
+export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings {
+    // (undocumented)
+    get cellFocusedBorderColor(): GridSettings.Color;
+    set cellFocusedBorderColor(value: GridSettings.Color);
+    // (undocumented)
+    get cellHoverBackgroundColor(): GridSettings.Color | undefined;
+    set cellHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get cellPadding(): number;
+    set cellPadding(value: number);
+    // (undocumented)
+    get columnHeaderBackgroundColor(): GridSettings.Color;
+    set columnHeaderBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderFont(): string;
+    set columnHeaderFont(value: string);
+    // (undocumented)
+    get columnHeaderForegroundColor(): GridSettings.Color;
+    set columnHeaderForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderHorizontalAlign(): Halign;
+    set columnHeaderHorizontalAlign(value: Halign);
+    // (undocumented)
+    get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
+    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderSelectionFont(): string;
+    set columnHeaderSelectionFont(value: string);
+    // (undocumented)
+    get columnHeaderSelectionForegroundColor(): GridSettings.Color;
+    set columnHeaderSelectionForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHoverBackgroundColor(): GridSettings.Color | undefined;
+    set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get font(): string;
+    set font(value: string);
+    // (undocumented)
+    get horizontalAlign(): Halign;
+    set horizontalAlign(value: Halign);
+    // (undocumented)
+    load(settings: StandardAllGridSettings): void;
+    // (undocumented)
+    get rowHoverBackgroundColor(): GridSettings.Color | undefined;
+    set rowHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get selectionBackgroundColor(): GridSettings.Color;
+    set selectionBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get selectionFont(): GridSettings.Color;
+    set selectionFont(value: GridSettings.Color);
+    // (undocumented)
+    get selectionForegroundColor(): GridSettings.Color;
+    set selectionForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get textStrikeThrough(): boolean;
+    set textStrikeThrough(value: boolean);
+    // (undocumented)
+    get textTruncateType(): TextTruncateType | undefined;
+    set textTruncateType(value: TextTruncateType | undefined);
+    // (undocumented)
+    get verticalOffset(): number;
+    set verticalOffset(value: number);
 }
 
 // @public
@@ -3418,6 +3533,8 @@ export interface Subgrid<BCS extends BehavioredColumnSettings> extends DatalessS
     // (undocumented)
     getCellPainter(viewCell: DatalessViewCell<BCS>): CellPainter;
     // (undocumented)
+    getDefaultRowHeight(): number;
+    // (undocumented)
     getRowCount(): number;
     // (undocumented)
     getRowHeight(rowIndex: number): number;
@@ -3434,7 +3551,11 @@ export interface Subgrid<BCS extends BehavioredColumnSettings> extends DatalessS
     // (undocumented)
     getValueFromDataRowAtColumn(dataRow: DataServer.DataRow, column: Column<BCS>): DataServer.DataValue;
     // (undocumented)
+    readonly isFooter: boolean;
+    // (undocumented)
     readonly metaModel: MetaModel | undefined;
+    // (undocumented)
+    readonly rowHeightsCanDiffer: boolean;
     // (undocumented)
     readonly schemaServer: SchemaServer<BCS>;
     // (undocumented)
@@ -3459,7 +3580,7 @@ export namespace Subgrid {
         getCellPainterEventer: GetCellPainterEventer<BCS>;
         // (undocumented)
         metaModel?: MetaModel | MetaModel.Constructor;
-        role?: Subgrid.Role;
+        role?: DatalessSubgrid.Role;
         // (undocumented)
         rowPropertiesCanSpecifyRowHeight?: boolean;
         // (undocumented)
@@ -3486,6 +3607,137 @@ export const enum TextTruncateType {
 // @public (undocumented)
 export type UiableListChangedEventHandler = (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
 
+// @public
+export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    // Warning: (ae-forgotten-export) The symbol "UiBehaviorServices" needs to be exported by the entry point public-api.d.ts
+    constructor(services: UiBehaviorServices<BGS, BCS>);
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    attachChain(): void;
+    // (undocumented)
+    protected readonly canvasManager: CanvasManager<BGS>;
+    // Warning: (ae-forgotten-export) The symbol "CellPropertiesBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS>;
+    // (undocumented)
+    protected readonly columnsManager: ColumnsManager<BGS, BCS>;
+    // (undocumented)
+    protected readonly containerHtmlElement: HTMLElement;
+    // Warning: (ae-forgotten-export) The symbol "DataExtractBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS>;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    detachChain(): void;
+    detached: UiBehavior<BGS, BCS> | undefined;
+    // Warning: (ae-forgotten-export) The symbol "EventBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly eventBehavior: EventBehavior<BGS, BCS>;
+    // (undocumented)
+    protected readonly focus: Focus<BGS, BCS>;
+    // Warning: (ae-forgotten-export) The symbol "FocusScrollBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS>;
+    // Warning: (ae-forgotten-export) The symbol "FocusSelectBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS>;
+    // (undocumented)
+    protected readonly gridSettings: GridSettings;
+    // @internal (undocumented)
+    handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handleContextMenu(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handleCopy(eventDetail: ClipboardEvent): void;
+    // @internal (undocumented)
+    handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handleHorizontalScrollerAction(action: EventDetail.ScrollerAction): void;
+    // @internal (undocumented)
+    handleKeyDown(eventDetail: EventDetail.Keyboard): void;
+    // @internal (undocumented)
+    handleKeyUp(eventDetail: EventDetail.Keyboard): void;
+    // @internal (undocumented)
+    handlePointerDown(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handlePointerDrag(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handlePointerDragEnd(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handlePointerDragStart(event: DragEvent, cell: HoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS>;
+    // @internal (undocumented)
+    handlePointerEnter(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handlePointerLeaveOut(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handlePointerUpCancel(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    handleTouchEnd(eventDetail: TouchEvent): void;
+    // @internal (undocumented)
+    handleTouchMove(eventDetail: TouchEvent): void;
+    // @internal (undocumented)
+    handleTouchStart(eventDetail: TouchEvent): void;
+    // @internal (undocumented)
+    handleVerticalScrollerAction(action: EventDetail.ScrollerAction): void;
+    // @internal (undocumented)
+    handleWheelMove(event: WheelEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    // @internal (undocumented)
+    initializeOn(): void;
+    // (undocumented)
+    protected readonly mainSubgrid: MainSubgrid<BCS>;
+    // (undocumented)
+    protected readonly mouse: Mouse<BGS, BCS>;
+    next: UiBehavior<BGS, BCS> | undefined;
+    // Warning: (ae-forgotten-export) The symbol "ReindexBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly reindexBehavior: ReindexBehavior<BGS, BCS>;
+    // Warning: (ae-forgotten-export) The symbol "Renderer" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly renderer: Renderer<BGS, BCS>;
+    // Warning: (ae-forgotten-export) The symbol "RowPropertiesBehavior" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS>;
+    // (undocumented)
+    protected readonly selection: Selection_2<BGS, BCS>;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    setNext(nextFeature: UiBehavior<BGS, BCS>): void;
+    // Warning: (ae-forgotten-export) The symbol "UiBehaviorSharedState" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly sharedState: UiBehaviorSharedState;
+    // Warning: (ae-forgotten-export) The symbol "SubgridsManager" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly subgridsManager: SubgridsManager<BGS, BCS>;
+    // @internal (undocumented)
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): HoverCell<BCS> | null;
+    // (undocumented)
+    abstract readonly typeName: string;
+    // (undocumented)
+    protected readonly viewLayout: ViewLayout<BGS, BCS>;
+}
+
+// @public (undocumented)
+export namespace UiBehavior {
+    // (undocumented)
+    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> = new (services: UiBehaviorServices<BGS, BCS>) => UiBehavior<BGS, BCS>;
+    // (undocumented)
+    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+        // (undocumented)
+        constructor: Constructor<BGS, BCS>;
+        // (undocumented)
+        typeName: string;
+    }
+}
+
 // @public (undocumented)
 export class UnreachableCaseError extends RevgridError {
     constructor(code: string, value: never);
@@ -3495,6 +3747,8 @@ export class UnreachableCaseError extends RevgridError {
 export interface ViewCell<BCS extends BehavioredColumnSettings> extends DatalessViewCell<BCS> {
     // (undocumented)
     readonly subgrid: Subgrid<BCS>;
+    // (undocumented)
+    readonly value: DataServer.DataValue;
     // (undocumented)
     readonly viewLayoutColumn: ViewLayoutColumn<BCS>;
     // Warning: (ae-forgotten-export) The symbol "ViewLayoutRow" needs to be exported by the entry point public-api.d.ts

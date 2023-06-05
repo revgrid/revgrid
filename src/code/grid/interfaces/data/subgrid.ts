@@ -13,8 +13,13 @@ export interface Subgrid<BCS extends BehavioredColumnSettings> extends DatalessS
     readonly dataServer: DataServer<BCS>;
     readonly metaModel: MetaModel | undefined;
 
+    readonly isFooter: boolean;
+    readonly rowHeightsCanDiffer: boolean;
+
     getRowCount(): number;
     getSingletonDataRow(rowIndex: number): DataServer.DataRow;
+
+    getDefaultRowHeight(): number;
 
     getRowMetadata(rowIndex: number): MetaModel.RowMetadata | undefined;
     setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined): void;
@@ -46,7 +51,7 @@ export namespace Subgrid {
 
     export interface Definition<BCS extends BehavioredColumnSettings> {
         /** defaults to main */
-        role?: Subgrid.Role;
+        role?: DatalessSubgrid.Role;
         dataServer: DataServer<BCS> | DataServer.Constructor<BCS>;
         metaModel?: MetaModel | MetaModel.Constructor;
         selectable?: boolean;

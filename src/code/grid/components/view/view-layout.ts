@@ -374,7 +374,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     get columnRowCellPoolComputationInvalid() { return this._columnRowOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
     get rowColumnCellPoolComputationInvalid() { return this._rowColumnOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
 
-    getRowColumnOrderedCellPool() {
+    getRowColumnOrderedCellPool(): ViewCell<BCS>[] {
         const pool = this._rowColumnOrderedCellPool;
         if (this.rowColumnCellPoolComputationInvalid) {
             const rows = this._rows;
@@ -400,7 +400,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         return pool;
     }
 
-    getColumnRowOrderedCellPool() {
+    getColumnRowOrderedCellPool(): ViewCell<BCS>[] {
         const pool = this._columnRowOrderedCellPool;
         if (this.columnRowCellPoolComputationInvalid) {
             const rows = this._rows;

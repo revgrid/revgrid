@@ -1,6 +1,7 @@
 // Public API
 
 export { GridDefinition } from './behavior/component/grid-definition';
+export { UiBehavior } from './behavior/ui/ui-behavior';
 export { ColumnsManager } from './components/column/columns-manager';
 export { EventDetail } from './components/event/event-detail';
 export { EventName } from './components/event/event-name';
