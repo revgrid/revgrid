@@ -46,10 +46,10 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                 const dp = this._dragColumn.settings;
                 if (
                     0 < delta && delta <= (this._inPlaceAdjacentStartWidth - np.minimumColumnWidth) &&
-                    (!dp.maximumColumnWidth || dragWidth <= dp.maximumColumnWidth)
+                    (dp.maximumColumnWidth === undefined || dragWidth <= dp.maximumColumnWidth)
                     ||
                     0 > delta && delta >= -(this._dragStartWidth - dp.minimumColumnWidth) &&
-                    (!np.maximumColumnWidth || inPlaceAdjacentWidth < np.maximumColumnWidth)
+                    (np.maximumColumnWidth === undefined || inPlaceAdjacentWidth < np.maximumColumnWidth)
                 ) {
                     const columnWidths: ColumnWidth<BCS>[] = [
                         { column: this._dragColumn, width: dragWidth },

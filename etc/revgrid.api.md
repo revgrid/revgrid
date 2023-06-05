@@ -1007,7 +1007,12 @@ export interface GridDefinition<BCS extends BehavioredColumnSettings> {
 }
 
 // @public (undocumented)
-export const enum GridSettingChangeInvalidateType {
+export namespace GridSettingChangeInvalidateType {
+    export function getHigherPriority(left: GridSettingChangeInvalidateTypeId, right: GridSettingChangeInvalidateTypeId): GridSettingChangeInvalidateTypeId;
+}
+
+// @public (undocumented)
+export const enum GridSettingChangeInvalidateTypeId {
     // (undocumented)
     HorizontalViewLayout = 2,
     // (undocumented)
@@ -1028,10 +1033,10 @@ export const enum GridSettingChangeInvalidateType {
     ViewRender = 1
 }
 
-// Warning: (ae-forgotten-export) The symbol "GridSettingChangeInvalidateTypes" needs to be exported by the entry point public-api.d.ts
+// Warning: (ae-forgotten-export) The symbol "GridSettingChangeInvalidateTypeIds" needs to be exported by the entry point public-api.d.ts
 //
 // @public (undocumented)
-export const gridSettingChangeInvalidateTypes: GridSettingChangeInvalidateTypes;
+export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateTypeIds;
 
 // @public (undocumented)
 export interface GridSettings {
@@ -1387,14 +1392,64 @@ export namespace InexclusiveRectangle {
     export function arrayContainsPoint(rectangles: InexclusiveRectangle[], x: number, y: number): boolean;
 }
 
+// Warning: (ae-forgotten-export) The symbol "InMemoryBehavioredSettings" needs to be exported by the entry point public-api.d.ts
+//
 // @public (undocumented)
-export class InMemoryDefaultBehavioredColumnSettings {
+export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings implements BehavioredColumnSettings {
     // (undocumented)
-    viewRenderInvalidatedEventer: ColumnSettingsBehavior.ViewRenderInvalidatedEventer;
+    get backgroundColor(): string;
+    set backgroundColor(value: string);
+    // (undocumented)
+    get color(): string;
+    set color(value: string);
+    // (undocumented)
+    get columnAutosizingMax(): number | undefined;
+    set columnAutosizingMax(value: number | undefined);
+    // (undocumented)
+    get columnClip(): boolean | undefined;
+    set columnClip(value: boolean | undefined);
+    // (undocumented)
+    get defaultColumnAutosizing(): boolean;
+    set defaultColumnAutosizing(value: boolean);
+    // (undocumented)
+    get defaultColumnWidth(): number;
+    set defaultColumnWidth(value: number);
+    // (undocumented)
+    get editable(): boolean;
+    set editable(value: boolean);
+    // (undocumented)
+    get editOnDoubleClick(): boolean;
+    set editOnDoubleClick(value: boolean);
+    // (undocumented)
+    get editOnFocusCell(): boolean;
+    set editOnFocusCell(value: boolean);
+    // (undocumented)
+    get editOnKeydown(): boolean;
+    set editOnKeydown(value: boolean);
+    // (undocumented)
+    get filterable(): boolean;
+    set filterable(value: boolean);
+    // (undocumented)
+    load(settings: ColumnSettings): void;
+    // (undocumented)
+    get maximumColumnWidth(): number | undefined;
+    set maximumColumnWidth(value: number | undefined);
+    // (undocumented)
+    get minimumColumnWidth(): number;
+    set minimumColumnWidth(value: number);
+    // (undocumented)
+    get mouseSortable(): boolean;
+    set mouseSortable(value: boolean);
+    // (undocumented)
+    get mouseSortOnDoubleClick(): boolean;
+    set mouseSortOnDoubleClick(value: boolean);
+    // (undocumented)
+    get resizeColumnInPlace(): boolean;
+    set resizeColumnInPlace(value: boolean);
 }
 
 // @public (undocumented)
-export class InMemoryDefaultBehavioredGridSettings implements BehavioredGridSettings {
+export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings implements BehavioredGridSettings {
     // (undocumented)
     get addToggleSelectionAreaModifierKey(): ModifierKeyEnum;
     set addToggleSelectionAreaModifierKey(value: ModifierKeyEnum);
@@ -1570,8 +1625,6 @@ export class InMemoryDefaultBehavioredGridSettings implements BehavioredGridSett
     get horizontalScrollbarClassPrefix(): string;
     set horizontalScrollbarClassPrefix(value: string);
     // (undocumented)
-    horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
-    // (undocumented)
     get horizontalWheelScrollingAllowed(): HorizontalWheelScrollingAllowed;
     set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed);
     // (undocumented)
@@ -1619,8 +1672,6 @@ export class InMemoryDefaultBehavioredGridSettings implements BehavioredGridSett
     get resizedEventDebounceInterval(): number;
     set resizedEventDebounceInterval(value: number);
     // (undocumented)
-    resizeEventer: GridSettingsBehavior.ResizeEventer;
-    // (undocumented)
     get rowResize(): boolean;
     set rowResize(value: boolean);
     // (undocumented)
@@ -1665,12 +1716,6 @@ export class InMemoryDefaultBehavioredGridSettings implements BehavioredGridSett
     // (undocumented)
     get verticalScrollbarClassPrefix(): string;
     set verticalScrollbarClassPrefix(value: string);
-    // (undocumented)
-    verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
-    // (undocumented)
-    viewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
-    // (undocumented)
-    viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer;
     // (undocumented)
     get visibleColumnWidthAdjust(): boolean;
     set visibleColumnWidthAdjust(value: boolean);

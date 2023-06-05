@@ -23,7 +23,7 @@ export { BehavioredColumnSettings } from './interfaces/settings/behaviored-colum
 export { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
 export { ColumnSettings } from './interfaces/settings/column-settings';
 export { ColumnSettingsBehavior } from './interfaces/settings/column-settings-behavior';
-export { GridSettingChangeInvalidateType, gridSettingChangeInvalidateTypes } from './interfaces/settings/grid-setting-change-invalidate-types';
+export { GridSettingChangeInvalidateType, GridSettingChangeInvalidateTypeId, gridSettingChangeInvalidateTypeIds } from './interfaces/settings/grid-setting-change-invalidate-types';
 export { GridSettings } from './interfaces/settings/grid-settings';
 export { GridSettingsBehavior } from './interfaces/settings/grid-settings-behavior';
 export { Revgrid } from './revgrid';

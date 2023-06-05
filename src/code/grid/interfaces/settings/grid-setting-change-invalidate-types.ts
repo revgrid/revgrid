@@ -1,7 +1,8 @@
+import { AssertError } from '../../types-utils/revgrid-error';
 import { GridSettings } from './grid-settings';
 
 /** @public */
-export const enum GridSettingChangeInvalidateType {
+export const enum GridSettingChangeInvalidateTypeId {
     None,
     ViewRender,
     HorizontalViewLayout,
@@ -14,101 +15,168 @@ export const enum GridSettingChangeInvalidateType {
 }
 
 /** @public */
-export type GridSettingChangeInvalidateTypes = {
-    [key in keyof GridSettings]: GridSettingChangeInvalidateType;
+export namespace GridSettingChangeInvalidateType {
+    interface Priority {
+        value: number; // higher value means higher priority
+        ifEqualThenHigherTypeId: GridSettingChangeInvalidateTypeId | undefined;
+    }
+    const prioritiesMap = new Map<GridSettingChangeInvalidateTypeId, Priority>();
+    prioritiesMap.set(GridSettingChangeInvalidateTypeId.None,
+        { value: 0, ifEqualThenHigherTypeId: undefined }
+    );
+    prioritiesMap.set(GridSettingChangeInvalidateTypeId.ViewRender,
+        { value: 1, ifEqualThenHigherTypeId: undefined }
+    );
+    prioritiesMap.set(GridSettingChangeInvalidateTypeId.HorizontalViewLayout,
+        { value: 2, ifEqualThenHigherTypeId: GridSettingChangeInvalidateTypeId.ViewLayout }
+    );
+    prioritiesMap.set(GridSettingChangeInvalidateTypeId.VerticalViewLayout,
+        { value: 2, ifEqualThenHigherTypeId: GridSettingChangeInvalidateTypeId.ViewLayout }
+    );
+    prioritiesMap.set(GridSettingChangeInvalidateTypeId.ViewLayout,
+        { value: 3, ifEqualThenHigherTypeId: undefined }
+    );
+    prioritiesMap.set(GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
+        { value: 4, ifEqualThenHigherTypeId: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension }
+    );
+    prioritiesMap.set(GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension,
+        { value: 4, ifEqualThenHigherTypeId: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension }
+    );
+    prioritiesMap.set(GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
+        { value: 5, ifEqualThenHigherTypeId: undefined }
+    );
+    prioritiesMap.set(GridSettingChangeInvalidateTypeId.Resize,
+        { value: 5, ifEqualThenHigherTypeId: undefined }
+    );
+
+    /** May return a type id different from the 2 parameters */
+    export function getHigherPriority(left: GridSettingChangeInvalidateTypeId, right: GridSettingChangeInvalidateTypeId) {
+        const leftPriority = prioritiesMap.get(left);
+        if (leftPriority === undefined) {
+            throw new AssertError('GSCITGHPL44220', left.toString());
+        } else {
+            const rightPriority = prioritiesMap.get(right);
+            if (rightPriority === undefined) {
+                throw new AssertError('GSCITGHPR44220', right.toString());
+            } else {
+                const leftPriorityValue = leftPriority.value;
+                const rightPriorityValue = rightPriority.value;
+                if (leftPriorityValue > rightPriorityValue) {
+                    return left;
+                } else {
+                    if (rightPriorityValue > leftPriorityValue) {
+                        return right;
+                    } else {
+                        const ifEqualThenHigherTypeId = leftPriority.ifEqualThenHigherTypeId;
+                        if (ifEqualThenHigherTypeId === undefined) {
+                            return left;
+                        } else {
+                            return ifEqualThenHigherTypeId;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 /** @public */
-export const gridSettingChangeInvalidateTypes: GridSettingChangeInvalidateTypes = {
-    addToggleSelectionAreaModifierKey: GridSettingChangeInvalidateType.None,
-    addToggleSelectionAreaModifierKeyDoesToggle: GridSettingChangeInvalidateType.None,
-    backgroundColor: GridSettingChangeInvalidateType.ViewRender,
-    borderWidth: GridSettingChangeInvalidateType.None,
-    borderColor: GridSettingChangeInvalidateType.None,
-    color: GridSettingChangeInvalidateType.ViewRender,
-    columnAutosizingMax: GridSettingChangeInvalidateType.ViewRender,
-    columnClip: GridSettingChangeInvalidateType.ViewRender,
-    columnMoveDragPossibleCursorName: GridSettingChangeInvalidateType.None,
-    columnMoveDragActiveCursorName: GridSettingChangeInvalidateType.None,
-    columnResizeDragPossibleCursorName: GridSettingChangeInvalidateType.None,
-    columnResizeDragActiveCursorName: GridSettingChangeInvalidateType.None,
-    columnSortPossibleCursorName: GridSettingChangeInvalidateType.None,
-    columnsReorderable: GridSettingChangeInvalidateType.None,
-    columnsReorderableHideable: GridSettingChangeInvalidateType.None,
-    defaultRowHeight: GridSettingChangeInvalidateType.ViewLayoutAndScrollDimension,
-    defaultColumnAutosizing: GridSettingChangeInvalidateType.None,
-    defaultColumnWidth: GridSettingChangeInvalidateType.None,
-    defaultUiBehaviorTypeNames: GridSettingChangeInvalidateType.Resize,
-    editable: GridSettingChangeInvalidateType.None,
-    editOnDoubleClick: GridSettingChangeInvalidateType.None,
-    editOnKeydown: GridSettingChangeInvalidateType.None,
-    editKey: GridSettingChangeInvalidateType.None,
-    editOnFocusCell: GridSettingChangeInvalidateType.None,
-    enableContinuousRepaint: GridSettingChangeInvalidateType.ViewRender,
-    extendLastSelectionAreaModifierKey: GridSettingChangeInvalidateType.None,
-    eventDispatchEnabled: GridSettingChangeInvalidateType.None,
-    filterable: GridSettingChangeInvalidateType.None,
-    filterBackgroundColor: GridSettingChangeInvalidateType.ViewRender,
-    filterBackgroundSelectionColor: GridSettingChangeInvalidateType.ViewRender,
-    filterColor: GridSettingChangeInvalidateType.ViewRender,
-    filterEditor: GridSettingChangeInvalidateType.ViewRender,
-    filterFont: GridSettingChangeInvalidateType.ViewRender,
-    filterForegroundSelectionColor: GridSettingChangeInvalidateType.ViewRender,
-    filterHalign: GridSettingChangeInvalidateType.ViewRender,
-    filterCellPainter: GridSettingChangeInvalidateType.ViewRender,
-    fixedColumnCount: GridSettingChangeInvalidateType.HorizontalViewLayoutAndScrollDimension,
-    fixedLinesHColor: GridSettingChangeInvalidateType.ViewRender,
-    fixedLinesHEdge: GridSettingChangeInvalidateType.VerticalViewLayoutAndScrollDimension,
-    fixedLinesHWidth: GridSettingChangeInvalidateType.VerticalViewLayoutAndScrollDimension,
-    fixedLinesVColor: GridSettingChangeInvalidateType.ViewRender,
-    fixedLinesVEdge: GridSettingChangeInvalidateType.HorizontalViewLayoutAndScrollDimension,
-    fixedLinesVWidth: GridSettingChangeInvalidateType.HorizontalViewLayoutAndScrollDimension,
-    fixedRowCount: GridSettingChangeInvalidateType.ViewLayoutAndScrollDimension,
-    gridRightAligned: GridSettingChangeInvalidateType.ViewLayoutAndScrollDimension,
-    gridBorder: GridSettingChangeInvalidateType.Resize,
-    gridBorderBottom: GridSettingChangeInvalidateType.Resize,
-    gridBorderLeft: GridSettingChangeInvalidateType.Resize,
-    gridBorderRight: GridSettingChangeInvalidateType.Resize,
-    gridBorderTop: GridSettingChangeInvalidateType.Resize,
-    verticalGridLinesVisible: GridSettingChangeInvalidateType.ViewRender,
-    gridLinesH: GridSettingChangeInvalidateType.VerticalViewLayoutAndScrollDimension,
-    gridLinesHColor: GridSettingChangeInvalidateType.ViewRender,
-    gridLinesHWidth: GridSettingChangeInvalidateType.VerticalViewLayoutAndScrollDimension,
-    horizontalGridLinesVisible: GridSettingChangeInvalidateType.ViewRender,
-    gridLinesV: GridSettingChangeInvalidateType.HorizontalViewLayoutAndScrollDimension,
-    gridLinesVColor: GridSettingChangeInvalidateType.ViewRender,
-    gridLinesVWidth: GridSettingChangeInvalidateType.HorizontalViewLayoutAndScrollDimension,
-    horizontalWheelScrollingAllowed: GridSettingChangeInvalidateType.None,
-    horizontalScrollbarClassPrefix: GridSettingChangeInvalidateType.None,
-    minimumColumnWidth: GridSettingChangeInvalidateType.ViewLayoutAndScrollDimension,
-    maximumColumnWidth: GridSettingChangeInvalidateType.ViewLayoutAndScrollDimension,
-    visibleColumnWidthAdjust: GridSettingChangeInvalidateType.ViewLayoutAndScrollDimension,
-    mouseRectangleSelection: GridSettingChangeInvalidateType.None,
-    mouseColumnSelection: GridSettingChangeInvalidateType.None,
-    mouseRowSelection: GridSettingChangeInvalidateType.None,
-    multipleSelectionAreas: GridSettingChangeInvalidateType.None,
-    primarySelectionAreaType: GridSettingChangeInvalidateType.None,
-    repaintImmediately: GridSettingChangeInvalidateType.None,
-    repaintFramesPerSecond: GridSettingChangeInvalidateType.None,
-    resizeColumnInPlace: GridSettingChangeInvalidateType.None,
-    resizedEventDebounceExtendedWhenPossible: GridSettingChangeInvalidateType.None,
-    resizedEventDebounceInterval: GridSettingChangeInvalidateType.None,
-    rowResize: GridSettingChangeInvalidateType.VerticalViewLayoutAndScrollDimension,
-    rowStripes: GridSettingChangeInvalidateType.ViewRender,
-    scrollHorizontallySmoothly: GridSettingChangeInvalidateType.HorizontalViewLayoutAndScrollDimension,
-    scrollbarHoverOver: GridSettingChangeInvalidateType.None,
-    scrollbarHoverOff: GridSettingChangeInvalidateType.None,
-    scrollingEnabled: GridSettingChangeInvalidateType.None,
-    secondarySelectionAreaTypeSpecifierModifierKey: GridSettingChangeInvalidateType.None,
-    secondarySelectionAreaType: GridSettingChangeInvalidateType.None,
-    selectionExtendDragActiveCursorName: GridSettingChangeInvalidateType.None,
-    selectionRegionOutlineColor: GridSettingChangeInvalidateType.ViewRender,
-    selectionRegionOverlayColor: GridSettingChangeInvalidateType.ViewRender,
-    showFilterRow: GridSettingChangeInvalidateType.VerticalViewLayoutAndScrollDimension,
-    mouseSortOnDoubleClick: GridSettingChangeInvalidateType.None,
-    mouseSortable: GridSettingChangeInvalidateType.None,
-    useHiDPI: GridSettingChangeInvalidateType.Resize,
-    verticalScrollbarClassPrefix: GridSettingChangeInvalidateType.Resize,
-    wheelHFactor: GridSettingChangeInvalidateType.None,
-    wheelVFactor: GridSettingChangeInvalidateType.None,
+export type GridSettingChangeInvalidateTypeIds = {
+    [key in keyof GridSettings]: GridSettingChangeInvalidateTypeId;
+}
+
+/** @public */
+export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateTypeIds = {
+    addToggleSelectionAreaModifierKey: GridSettingChangeInvalidateTypeId.None,
+    addToggleSelectionAreaModifierKeyDoesToggle: GridSettingChangeInvalidateTypeId.None,
+    backgroundColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    borderWidth: GridSettingChangeInvalidateTypeId.None,
+    borderColor: GridSettingChangeInvalidateTypeId.None,
+    color: GridSettingChangeInvalidateTypeId.ViewRender,
+    columnAutosizingMax: GridSettingChangeInvalidateTypeId.ViewRender,
+    columnClip: GridSettingChangeInvalidateTypeId.ViewRender,
+    columnMoveDragPossibleCursorName: GridSettingChangeInvalidateTypeId.None,
+    columnMoveDragActiveCursorName: GridSettingChangeInvalidateTypeId.None,
+    columnResizeDragPossibleCursorName: GridSettingChangeInvalidateTypeId.None,
+    columnResizeDragActiveCursorName: GridSettingChangeInvalidateTypeId.None,
+    columnSortPossibleCursorName: GridSettingChangeInvalidateTypeId.None,
+    columnsReorderable: GridSettingChangeInvalidateTypeId.None,
+    columnsReorderableHideable: GridSettingChangeInvalidateTypeId.None,
+    defaultRowHeight: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
+    defaultColumnAutosizing: GridSettingChangeInvalidateTypeId.None,
+    defaultColumnWidth: GridSettingChangeInvalidateTypeId.None,
+    defaultUiBehaviorTypeNames: GridSettingChangeInvalidateTypeId.Resize,
+    editable: GridSettingChangeInvalidateTypeId.None,
+    editOnDoubleClick: GridSettingChangeInvalidateTypeId.None,
+    editOnKeydown: GridSettingChangeInvalidateTypeId.None,
+    editKey: GridSettingChangeInvalidateTypeId.None,
+    editOnFocusCell: GridSettingChangeInvalidateTypeId.None,
+    enableContinuousRepaint: GridSettingChangeInvalidateTypeId.ViewRender,
+    extendLastSelectionAreaModifierKey: GridSettingChangeInvalidateTypeId.None,
+    eventDispatchEnabled: GridSettingChangeInvalidateTypeId.None,
+    filterable: GridSettingChangeInvalidateTypeId.None,
+    filterBackgroundColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    filterBackgroundSelectionColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    filterColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    filterEditor: GridSettingChangeInvalidateTypeId.ViewRender,
+    filterFont: GridSettingChangeInvalidateTypeId.ViewRender,
+    filterForegroundSelectionColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    filterHalign: GridSettingChangeInvalidateTypeId.ViewRender,
+    filterCellPainter: GridSettingChangeInvalidateTypeId.ViewRender,
+    fixedColumnCount: GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
+    fixedLinesHColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    fixedLinesHEdge: GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension,
+    fixedLinesHWidth: GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension,
+    fixedLinesVColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    fixedLinesVEdge: GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
+    fixedLinesVWidth: GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
+    fixedRowCount: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
+    gridRightAligned: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
+    gridBorder: GridSettingChangeInvalidateTypeId.Resize,
+    gridBorderBottom: GridSettingChangeInvalidateTypeId.Resize,
+    gridBorderLeft: GridSettingChangeInvalidateTypeId.Resize,
+    gridBorderRight: GridSettingChangeInvalidateTypeId.Resize,
+    gridBorderTop: GridSettingChangeInvalidateTypeId.Resize,
+    verticalGridLinesVisible: GridSettingChangeInvalidateTypeId.ViewRender,
+    gridLinesH: GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension,
+    gridLinesHColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    gridLinesHWidth: GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension,
+    horizontalGridLinesVisible: GridSettingChangeInvalidateTypeId.ViewRender,
+    gridLinesV: GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
+    gridLinesVColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    gridLinesVWidth: GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
+    horizontalWheelScrollingAllowed: GridSettingChangeInvalidateTypeId.None,
+    horizontalScrollbarClassPrefix: GridSettingChangeInvalidateTypeId.None,
+    minimumColumnWidth: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
+    maximumColumnWidth: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
+    visibleColumnWidthAdjust: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
+    mouseRectangleSelection: GridSettingChangeInvalidateTypeId.None,
+    mouseColumnSelection: GridSettingChangeInvalidateTypeId.None,
+    mouseRowSelection: GridSettingChangeInvalidateTypeId.None,
+    multipleSelectionAreas: GridSettingChangeInvalidateTypeId.None,
+    primarySelectionAreaType: GridSettingChangeInvalidateTypeId.None,
+    repaintImmediately: GridSettingChangeInvalidateTypeId.None,
+    repaintFramesPerSecond: GridSettingChangeInvalidateTypeId.None,
+    resizeColumnInPlace: GridSettingChangeInvalidateTypeId.None,
+    resizedEventDebounceExtendedWhenPossible: GridSettingChangeInvalidateTypeId.None,
+    resizedEventDebounceInterval: GridSettingChangeInvalidateTypeId.None,
+    rowResize: GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension,
+    rowStripes: GridSettingChangeInvalidateTypeId.ViewRender,
+    scrollHorizontallySmoothly: GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
+    scrollbarHoverOver: GridSettingChangeInvalidateTypeId.None,
+    scrollbarHoverOff: GridSettingChangeInvalidateTypeId.None,
+    scrollingEnabled: GridSettingChangeInvalidateTypeId.None,
+    secondarySelectionAreaTypeSpecifierModifierKey: GridSettingChangeInvalidateTypeId.None,
+    secondarySelectionAreaType: GridSettingChangeInvalidateTypeId.None,
+    selectionExtendDragActiveCursorName: GridSettingChangeInvalidateTypeId.None,
+    selectionRegionOutlineColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    selectionRegionOverlayColor: GridSettingChangeInvalidateTypeId.ViewRender,
+    showFilterRow: GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension,
+    mouseSortOnDoubleClick: GridSettingChangeInvalidateTypeId.None,
+    mouseSortable: GridSettingChangeInvalidateTypeId.None,
+    useHiDPI: GridSettingChangeInvalidateTypeId.Resize,
+    verticalScrollbarClassPrefix: GridSettingChangeInvalidateTypeId.Resize,
+    wheelHFactor: GridSettingChangeInvalidateTypeId.None,
+    wheelVFactor: GridSettingChangeInvalidateTypeId.None,
 };
