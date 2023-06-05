@@ -1,14 +1,14 @@
 import { DatalessViewCell } from '../dataless/dataless-view-cell';
 import { ViewLayoutColumn } from '../schema/view-layout-column';
-import { MergableColumnSettings } from '../settings/mergable-column-settings';
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { Subgrid } from './subgrid';
 import { ViewLayoutRow } from './view-layout-row';
 
 /** @public */
-export interface ViewCell<MCS extends MergableColumnSettings> extends DatalessViewCell<MCS> {
-    readonly subgrid: Subgrid<MCS>;
-    readonly viewLayoutColumn: ViewLayoutColumn<MCS>;
-    readonly viewLayoutRow: ViewLayoutRow<MCS>;
+export interface ViewCell<BCS extends BehavioredColumnSettings> extends DatalessViewCell<BCS> {
+    readonly subgrid: Subgrid<BCS>;
+    readonly viewLayoutColumn: ViewLayoutColumn<BCS>;
+    readonly viewLayoutRow: ViewLayoutRow<BCS>;
 }
 
 /** @public */

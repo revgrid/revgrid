@@ -1,14 +1,14 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { EventDetail } from './event-detail';
 
 /** @public */
-export type EventName<MCS extends MergableColumnSettings> = keyof EventName.DetailMap<MCS>;
+export type EventName<BCS extends BehavioredColumnSettings> = keyof EventName.DetailMap<BCS>;
 
 /** @public */
 export namespace EventName {
-    export interface DetailMap<MCS extends MergableColumnSettings> {
+    export interface DetailMap<BCS extends BehavioredColumnSettings> {
         // SchemaModel / DataModel
         'rev-schema-loaded': undefined;
         'rev-data-loaded': undefined;
@@ -23,23 +23,23 @@ export namespace EventName {
         'rev-data-postreindex': undefined;
 
         // Grid
-        'rev-column-sort': EventDetail.ColumnSort<MCS>;
+        'rev-column-sort': EventDetail.ColumnSort<BCS>;
         'rev-cell-focus-changed': EventDetail.CellFocusChanged;
         'rev-selection-changed': EventDetail.Grid;
-        'rev-context-menu': EventDetail.Pointer<MCS>;
-        'rev-pointer-down': EventDetail.Pointer<MCS>;
-        'rev-pointer-up-cancel': EventDetail.Pointer<MCS>;
-        'rev-pointer-move': EventDetail.Pointer<MCS>;
-        'rev-pointer-enter': EventDetail.Pointer<MCS>;
-        'rev-pointer-leave-out': EventDetail.Pointer<MCS>;
-        'rev-wheel-move': EventDetail.Wheel<MCS>;
+        'rev-context-menu': EventDetail.Pointer<BCS>;
+        'rev-pointer-down': EventDetail.Pointer<BCS>;
+        'rev-pointer-up-cancel': EventDetail.Pointer<BCS>;
+        'rev-pointer-move': EventDetail.Pointer<BCS>;
+        'rev-pointer-enter': EventDetail.Pointer<BCS>;
+        'rev-pointer-leave-out': EventDetail.Pointer<BCS>;
+        'rev-wheel-move': EventDetail.Wheel<BCS>;
         'rev-key-down': EventDetail.Keyboard;
         'rev-key-up': EventDetail.Keyboard;
         'rev-filter-applied': undefined;
-        'rev-cell-enter': ViewCell<MCS>;
-        'rev-cell-exit': ViewCell<MCS>;
-        'rev-click': EventDetail.Pointer<MCS>;
-        'rev-dbl-click': EventDetail.Pointer<MCS>;
+        'rev-cell-enter': ViewCell<BCS>;
+        'rev-cell-exit': ViewCell<BCS>;
+        'rev-click': EventDetail.Pointer<BCS>;
+        'rev-dbl-click': EventDetail.Pointer<BCS>;
         'rev-columns-view-widths-changed': undefined;
         'rev-grid-rendered': EventDetail.Grid;
         'rev-grid-resized': EventDetail.Resize;

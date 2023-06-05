@@ -3,15 +3,15 @@
 import { EventDetail } from '../../components/event/event-detail';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UiBehavior } from './ui-behavior';
 
-export class CellEditingUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
+export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
 
     readonly typeName = CellEditingUiBehavior.typeName;
 
-    override handleClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -19,7 +19,7 @@ export class CellEditingUiBehavior<MGS extends MergableGridSettings, MCS extends
         return super.handleClick(event, cell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined): HoverCell<MCS> | null | undefined {
+    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -62,7 +62,7 @@ export class CellEditingUiBehavior<MGS extends MergableGridSettings, MCS extends
         }
     }
 
-    edit(cell: ViewCell<MCS> | null, onDoubleClick: boolean) {
+    edit(cell: ViewCell<BCS> | null, onDoubleClick: boolean) {
         if (
             cell !== null &&
             cell.isMain &&

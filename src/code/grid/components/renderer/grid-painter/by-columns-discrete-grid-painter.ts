@@ -1,5 +1,5 @@
-import { MergableColumnSettings } from '../../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -27,15 +27,15 @@ import { GridPainter } from './grid-painter';
  * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumnsDiscrete|paintCellsByColumnsDiscrete}.
  */
 
-export class ByColumnsDiscreteGridPainter<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends GridPainter<MGS, MCS> {
+export class ByColumnsDiscreteGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends GridPainter<BGS, BCS> {
     constructor(
-        gridSettings: MGS,
-        canvasManager: CanvasManager<MGS>,
-        subgridsManager: SubgridsManager<MGS, MCS>,
-        viewLayout: ViewLayout<MGS, MCS>,
-        focus: Focus<MGS, MCS>,
-        selection: Selection<MGS, MCS>,
-        mouse: Mouse<MGS, MCS>,
+        gridSettings: BGS,
+        canvasManager: CanvasManager<BGS>,
+        subgridsManager: SubgridsManager<BGS, BCS>,
+        viewLayout: ViewLayout<BGS, BCS>,
+        focus: Focus<BGS, BCS>,
+        selection: Selection<BGS, BCS>,
+        mouse: Mouse<BGS, BCS>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(

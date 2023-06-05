@@ -1,9 +1,9 @@
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { HorizontalVertical } from '../../types-utils/types';
 import { CanvasManager } from '../canvas/canvas-manager';
 
-export abstract class ScrollDimension<MGS extends MergableGridSettings> {
+export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     changedEventer: ScrollDimension.ChangedEventer;
     computedEventer: ScrollDimension.ComputedEventer;
     scrollerTargettedViewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer;
@@ -26,7 +26,7 @@ export abstract class ScrollDimension<MGS extends MergableGridSettings> {
 
     constructor(
         public readonly horizontalVertical: HorizontalVertical,
-        protected readonly _canvasEx: CanvasManager<MGS>,
+        protected readonly _canvasEx: CanvasManager<BGS>,
     ) {
 
     }

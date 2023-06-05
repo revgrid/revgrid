@@ -1,16 +1,16 @@
 import { CachedCanvasRenderingContext2D, CellEditor, DataServer, DatalessViewCell, Revgrid, ViewCell } from '../../grid/grid-public-api';
-import { StandardAllColumnSettings, StandardAllGridSettings, StandardMergableColumnSettings, StandardMergableGridSettings } from '../settings/standard-settings-public-api';
+import { StandardAllColumnSettings, StandardAllGridSettings, StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 
-export abstract class StandardCellEditor<MGS extends StandardMergableGridSettings, MCS extends StandardMergableColumnSettings> implements CellEditor<MCS> {
+export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> implements CellEditor<BCS> {
     readonly paintImplemented: boolean = false;
 
     protected readonly _gridSettings: StandardAllGridSettings;
     protected readonly _renderingContext: CachedCanvasRenderingContext2D;
-    protected _cell: DatalessViewCell<MCS>;
+    protected _cell: DatalessViewCell<BCS>;
     protected _columnSettings: StandardAllColumnSettings;
-    protected _dataServer: DataServer<MCS>;
+    protected _dataServer: DataServer<BCS>;
 
-    constructor(protected readonly _grid: Revgrid<MGS, MCS>) {
+    constructor(protected readonly _grid: Revgrid<BGS, BCS>) {
         const grid = this._grid;
         this._gridSettings = grid.settings;
         this._renderingContext = grid.canvasManager.gc;
@@ -20,7 +20,7 @@ export abstract class StandardCellEditor<MGS extends StandardMergableGridSetting
         return undefined;
     }
 
-    open(viewCell: ViewCell<MCS>) {
+    open(viewCell: ViewCell<BCS>) {
         this._cell = viewCell;
         this._columnSettings = viewCell.columnSettings;
         this._dataServer = viewCell.subgrid.dataServer;

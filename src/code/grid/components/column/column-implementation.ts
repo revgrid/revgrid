@@ -2,12 +2,12 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { Column } from '../../interfaces/schema/column';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
 
 /** @internal */
-export class ColumnImplementation<MCS extends MergableColumnSettings> implements Column<MCS> {
-    readonly schemaColumn: SchemaServer.Column<MCS>;
+export class ColumnImplementation<BCS extends BehavioredColumnSettings> implements Column<BCS> {
+    readonly schemaColumn: SchemaServer.Column<BCS>;
     readonly index: number; // always the same as SchemaColumn index
     readonly name: string;
 
@@ -17,7 +17,9 @@ export class ColumnImplementation<MCS extends MergableColumnSettings> implements
     /** @internal */
     private _width: number;
     /** @internal */
-    private _settings: MCS;
+    private _autosizing: boolean;
+    /** @internal */
+    private _settings: BCS;
 
     /** @summary Create a new `Column` object.
      * @param columnSchema.header - Displayed in column headers. If not defined, name is used.
@@ -26,13 +28,14 @@ export class ColumnImplementation<MCS extends MergableColumnSettings> implements
      */
     /** @internal */
     constructor(
-        schemaColumn: SchemaServer.Column<MCS>
+        schemaColumn: SchemaServer.Column<BCS>
     ) {
         this.index = schemaColumn.index;
         this.name = schemaColumn.name
         this.schemaColumn = schemaColumn;
         this._settings = schemaColumn.settings;
         this._width = this._settings.defaultColumnWidth;
+        this._autosizing = this._settings.defaultColumnAutosizing;
     }
 
     // mixIn: overrider.mixIn,
@@ -79,28 +82,21 @@ export class ColumnImplementation<MCS extends MergableColumnSettings> implements
             return this.setWidthToAutoSizing();
         } else {
             width = Math.ceil(Math.min(Math.max(this._settings.minimumColumnWidth, width), this._settings.maximumColumnWidth ?? Infinity));
-            if (!this._settings.columnAutosizing && width === this._settings.defaultColumnWidth) {
+            if (!this._autosizing && width === this._width) {
                 return false;
             } else {
                 this._width = width;
-                // this._settings.width = width;
-                const newSettings: Partial<ColumnSettings> = {
-                    columnAutosizing: false,
-                };
-                this._settings.merge(newSettings);
+                this._autosizing = false;
                 return true;
             }
         }
     }
 
     setWidthToAutoSizing() {
-        if (this._settings.columnAutosizing) {
+        if (this._autosizing) {
             return false;
         } else {
-            const newSettings: Partial<ColumnSettings> = {
-                columnAutosizing: true,
-            };
-            this._settings.merge(newSettings);
+            this._autosizing = true;
             return true;
         }
     }
@@ -114,7 +110,7 @@ export class ColumnImplementation<MCS extends MergableColumnSettings> implements
         const settings = this._settings;
 
         let preferredWidth: number;
-        if (!settings.columnAutosizing) {
+        if (!settings.defaultColumnAutosizing) {
             preferredWidth = settings.defaultColumnWidth;
         } else {
             const maxPaintWidth = this.maxPaintWidth;
@@ -157,8 +153,8 @@ export class ColumnImplementation<MCS extends MergableColumnSettings> implements
      * @desc Amend properties for this hypergrid only.
      * @param settings - A simple properties hash.
      */
-    mergeSettings(settings: Partial<ColumnSettings>) {
-        this._settings.merge(settings);
+    loadSettings(settings: ColumnSettings) {
+        this._settings.load(settings);
     }
 
     /**

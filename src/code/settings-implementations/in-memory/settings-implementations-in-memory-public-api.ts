@@ -1,3 +1,3 @@
-export { InMemoryDefaultMergableColumnSettings } from './in-memory-default-mergable-column-settings';
-export { InMemoryDefaultMergableGridSettings } from './in-memory-default-mergable-grid-settings';
+export { InMemoryDefaultBehavioredColumnSettings } from './in-memory-default-behaviored-column-settings';
+export { InMemoryDefaultBehavioredGridSettings } from './in-memory-default-behaviored-grid-settings';
 

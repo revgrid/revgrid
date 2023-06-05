@@ -6,9 +6,9 @@ import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
 import { EventBehavior } from '../component/event-behavior';
@@ -19,29 +19,29 @@ import { RowPropertiesBehavior } from '../component/row-properties-behavior';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /** @internal */
-export class UiBehaviorServices<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
 
     constructor(
         readonly sharedState: UiBehaviorSharedState,
         readonly containerHtmlElement: HTMLElement,
         readonly gridSettings: GridSettings,
-        readonly canvasManager: CanvasManager<MGS>,
-        readonly selection: Selection<MGS, MCS>,
-        readonly focus: Focus<MGS, MCS>,
-        readonly columnsManager: ColumnsManager<MGS, MCS>,
-        readonly subgridsManager: SubgridsManager<MGS, MCS>,
-        readonly viewLayout: ViewLayout<MGS, MCS>,
-        readonly renderer: Renderer<MGS, MCS>,
+        readonly canvasManager: CanvasManager<BGS>,
+        readonly selection: Selection<BGS, BCS>,
+        readonly focus: Focus<BGS, BCS>,
+        readonly columnsManager: ColumnsManager<BGS, BCS>,
+        readonly subgridsManager: SubgridsManager<BGS, BCS>,
+        readonly viewLayout: ViewLayout<BGS, BCS>,
+        readonly renderer: Renderer<BGS, BCS>,
 
-        readonly mouse: Mouse<MGS, MCS>,
+        readonly mouse: Mouse<BGS, BCS>,
 
-        readonly reindexBehavior: ReindexBehavior<MGS, MCS>,
-        readonly focusScrollBehavior: FocusScrollBehavior<MGS, MCS>,
-        readonly focusSelectBehavior: FocusSelectBehavior<MGS, MCS>,
-        readonly rowPropertiesBehavior: RowPropertiesBehavior<MGS, MCS>,
-        readonly cellPropertiesBehavior: CellPropertiesBehavior<MGS, MCS>,
-        readonly dataExtractBehavior: DataExtractBehavior<MGS, MCS>,
-        readonly eventBehavior: EventBehavior<MGS, MCS>,
+        readonly reindexBehavior: ReindexBehavior<BGS, BCS>,
+        readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS>,
+        readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS>,
+        readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS>,
+        readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS>,
+        readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS>,
+        readonly eventBehavior: EventBehavior<BGS, BCS>,
     ) {
 
     }

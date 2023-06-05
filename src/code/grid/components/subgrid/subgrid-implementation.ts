@@ -5,14 +5,14 @@ import { CellPainter } from '../../interfaces/dataless/cell-painter';
 import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
 import { Column } from '../../interfaces/schema/column';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class SubgridImplementation<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> implements Subgrid<MCS> {
+export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> implements Subgrid<BCS> {
     readonly isMain: boolean = false;
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
@@ -24,7 +24,7 @@ export class SubgridImplementation<MGS extends MergableGridSettings, MCS extends
 
     /** @internal */
     /** @internal */
-    private rowProxy: SubgridImplementation.DataRowProxy<MCS>; // used if DataServer.getRowProperties not implemented
+    private rowProxy: SubgridImplementation.DataRowProxy<BCS>; // used if DataServer.getRowProperties not implemented
     /** @internal */
     private readonly _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | null;
 
@@ -38,18 +38,18 @@ export class SubgridImplementation<MGS extends MergableGridSettings, MCS extends
         /** @internal */
         protected readonly _gridSettings: GridSettings,
         /** @internal */
-        protected readonly _columnsManager: ColumnsManager<MGS, MCS>,
+        protected readonly _columnsManager: ColumnsManager<BGS, BCS>,
         /** @internal */
         public readonly handle: SubgridImplementation.Handle,
         public readonly role: Subgrid.Role,
-        public readonly schemaServer: SchemaServer<MCS>,
-        public readonly dataServer: DataServer<MCS>,
+        public readonly schemaServer: SchemaServer<BCS>,
+        public readonly dataServer: DataServer<BCS>,
         public readonly metaModel: MetaModel | undefined,
         public readonly selectable: boolean,
         public readonly defaultRowHeight: number | undefined,
         public readonly rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
-        private readonly _getCellPainterEventer: Subgrid.GetCellPainterEventer<MCS>,
+        private readonly _getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS>,
     ) {
         switch (role) {
             case 'main':
@@ -115,11 +115,11 @@ export class SubgridImplementation<MGS extends MergableGridSettings, MCS extends
         return false;
     }
 
-    getValue(column: Column<MCS>, rowIndex: number): DataServer.DataValue {
+    getValue(column: Column<BCS>, rowIndex: number): DataServer.DataValue {
         return this.dataServer.getValue(column.schemaColumn, rowIndex);
     }
 
-    setValue(column: Column<MCS>, rowIndex: number, value: DataServer.DataValue) {
+    setValue(column: Column<BCS>, rowIndex: number, value: DataServer.DataValue) {
         if (this.dataServer.setValue === undefined) {
             throw new AssertError('SSV60009');
         } else {
@@ -139,7 +139,7 @@ export class SubgridImplementation<MGS extends MergableGridSettings, MCS extends
         }
     }
 
-    getValueFromDataRowAtColumn(dataRow: DataServer.DataRow, column: Column<MCS>) {
+    getValueFromDataRowAtColumn(dataRow: DataServer.DataRow, column: Column<BCS>) {
         if (Array.isArray(dataRow)) {
             return dataRow[column.schemaColumn.index];
         } else {
@@ -151,7 +151,7 @@ export class SubgridImplementation<MGS extends MergableGridSettings, MCS extends
         return this.dataServer.getRowCount();
     }
 
-    getCellPainter(viewCell: DatalessViewCell<MCS>): CellPainter {
+    getCellPainter(viewCell: DatalessViewCell<BCS>): CellPainter {
         return this._getCellPainterEventer(viewCell);
     }
 
@@ -528,13 +528,13 @@ export namespace SubgridImplementation {
     export type Handle = number;
 
     /** @internal */
-    export class DataRowProxy<MCS extends MergableColumnSettings> {
+    export class DataRowProxy<BCS extends BehavioredColumnSettings> {
         [columnName: string]: DataServer.DataValue;
 
         ____rowIndex: number;
         ____columnNames: string[] = [];
 
-        constructor(readonly schemaServer: SchemaServer<MCS>, readonly dataServer: DataServer<MCS>) {
+        constructor(readonly schemaServer: SchemaServer<BCS>, readonly dataServer: DataServer<BCS>) {
             this.updateSchema(); // is this necessary? If we do not always get the "rev-schema-loaded" event then it is necessary
         }
 

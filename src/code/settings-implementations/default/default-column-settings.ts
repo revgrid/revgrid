@@ -5,7 +5,7 @@ import { defaultGridSettings } from './default-grid-settings';
 export const defaultColumnSettings: Required<ColumnSettings> = {
     color: defaultGridSettings.color,
     backgroundColor: defaultGridSettings.backgroundColor,
-    columnAutosizing: defaultGridSettings.columnAutosizing,
+    defaultColumnAutosizing: defaultGridSettings.defaultColumnAutosizing,
     columnAutosizingMax: defaultGridSettings.columnAutosizingMax,
     columnClip: defaultGridSettings.columnClip,
     defaultColumnWidth: defaultGridSettings.defaultColumnWidth,
@@ -13,7 +13,6 @@ export const defaultColumnSettings: Required<ColumnSettings> = {
     editOnDoubleClick: defaultGridSettings.editOnDoubleClick,
     editOnKeydown: defaultGridSettings.editOnKeydown,
     editOnFocusCell: defaultGridSettings.editOnFocusCell,
-    feedbackCount: defaultGridSettings.feedbackCount,
     filterable: defaultGridSettings.filterable,
     minimumColumnWidth: defaultGridSettings.minimumColumnWidth,
     maximumColumnWidth: defaultGridSettings.maximumColumnWidth,

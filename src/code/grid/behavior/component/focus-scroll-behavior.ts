@@ -7,23 +7,23 @@ import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 
-export class FocusScrollBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
-    private readonly _mainSubgrid: MainSubgrid<MCS>;
+export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    private readonly _mainSubgrid: MainSubgrid<BCS>;
 
     constructor(
-        private readonly _gridSettings: MGS,
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
-        private readonly _subgridsManager: SubgridsManager<MGS, MCS>,
-        private readonly _viewLayout: ViewLayout<MGS, MCS>,
-        private readonly _focus: Focus<MGS, MCS>,
+        private readonly _gridSettings: BGS,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        private readonly _focus: Focus<BGS, BCS>,
     ) {
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
     }
 
-    tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<MCS> | undefined) {
+    tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<BCS> | undefined) {
         if (this.isXScrollabe(x) && this.isYScrollabe(y)) {
             this._viewLayout.ensureColumnRowAreInView(x, y, true)
             this._focus.setXY(x, y, cell, undefined, undefined);
@@ -149,7 +149,7 @@ export class FocusScrollBehavior<MGS extends MergableGridSettings, MCS extends M
     }
 
     // probably can get rid of this with a bit more cleanup
-    getFocusedViewCell(useAllCells: boolean): ViewCell<MCS> | undefined {
+    getFocusedViewCell(useAllCells: boolean): ViewCell<BCS> | undefined {
         const focusedPoint = this._focus.currentSubgridPoint;
         if (focusedPoint === undefined) {
             return undefined;
@@ -160,7 +160,7 @@ export class FocusScrollBehavior<MGS extends MergableGridSettings, MCS extends M
                 // When expanding selections larger than the view, the origin/corner
                 // points may not be rendered and would normally fail to reset cell's position.
                 // Mock column and row objects for this.reset() to use:
-                const vc: ViewLayoutColumn<MCS> = {
+                const vc: ViewLayoutColumn<BCS> = {
                     column: this._columnsManager.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
                     activeColumnIndex: gridX,
                     index: -1,
@@ -168,7 +168,7 @@ export class FocusScrollBehavior<MGS extends MergableGridSettings, MCS extends M
                     rightPlus1: -1,
                     width: -1,
                 };
-                const vr: ViewLayoutRow<MCS> = {
+                const vr: ViewLayoutRow<BCS> = {
                     subgridRowIndex: dataY,
                     index: -1,
                     subgrid: this._subgridsManager.mainSubgrid,

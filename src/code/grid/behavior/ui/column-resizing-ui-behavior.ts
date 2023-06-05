@@ -1,17 +1,17 @@
 import { EventDetail } from '../../components/event/event-detail';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { Column, ColumnWidth } from '../../interfaces/schema/column';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { EventBehavior } from '../component/event-behavior';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
+export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
 
     readonly typeName = ColumnResizingUiBehavior.typeName;
 
-    private _dragColumn: Column<MCS> | undefined;
+    private _dragColumn: Column<BCS> | undefined;
 
     /**
      * the pixel location of the where the drag was initiated
@@ -24,9 +24,9 @@ export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS exte
     private _dragStartWidth = -1;
 
     private _inPlaceAdjacentStartWidth: number;
-    private _inPlaceAdjacentColumn: Column<MCS> | undefined;
+    private _inPlaceAdjacentColumn: Column<BCS> | undefined;
 
-    override handlePointerDrag(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
         if (this._dragColumn === undefined) {
             return super.handlePointerDrag(event, cell);
         } else {
@@ -51,7 +51,7 @@ export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS exte
                     0 > delta && delta >= -(this._dragStartWidth - dp.minimumColumnWidth) &&
                     (!np.maximumColumnWidth || inPlaceAdjacentWidth < np.maximumColumnWidth)
                 ) {
-                    const columnWidths: ColumnWidth<MCS>[] = [
+                    const columnWidths: ColumnWidth<BCS>[] = [
                         { column: this._dragColumn, width: dragWidth },
                         { column: this._inPlaceAdjacentColumn, width: inPlaceAdjacentWidth },
                     ];
@@ -62,7 +62,7 @@ export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS exte
         }
     }
 
-    override handlePointerDragStart(event: DragEvent, cell: HoverCell<MCS> | null | undefined): EventBehavior.UiPointerDragStartResult<MCS> {
+    override handlePointerDragStart(event: DragEvent, cell: HoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS> {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -157,7 +157,7 @@ export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS exte
                     this._dragStart = canvasOffsetX;
 
                     if (this._dragColumn.settings.resizeColumnInPlace) {
-                        let column: Column<MCS> | undefined;
+                        let column: Column<BCS> | undefined;
 
                         if (!gridRightBottomAligned) {
                             vcIndex++;
@@ -192,7 +192,7 @@ export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS exte
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
         if (this._dragColumn === undefined) {
             return super.handlePointerDragEnd(event, cell);
         } else {
@@ -204,7 +204,7 @@ export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS exte
         }
     }
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
         if (this._dragColumn === undefined) {
             const sharedState = this.sharedState;
             if (sharedState.locationCursorName === undefined) {
@@ -227,7 +227,7 @@ export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS exte
         return super.handlePointerMove(event, cell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -268,7 +268,7 @@ export class ColumnResizingUiBehavior<MGS extends MergableGridSettings, MCS exte
         }
     }
 
-    private calculateNearGridLine(canvasOffsetX: number, cell: HoverCell<MCS>) {
+    private calculateNearGridLine(canvasOffsetX: number, cell: HoverCell<BCS>) {
         const cellBounds = cell.bounds;
         const cellLeft = cellBounds.x;
         const cellLeftOffset = canvasOffsetX - cellLeft;

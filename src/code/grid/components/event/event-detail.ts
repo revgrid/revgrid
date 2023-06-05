@@ -1,6 +1,6 @@
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
 
@@ -17,20 +17,20 @@ export namespace EventDetail {
         readonly newPoint: Point | undefined;
     }
 
-    export interface Mouse<MCS extends MergableColumnSettings> extends MouseEvent {
-        revgridCell?: HoverCell<MCS>;
+    export interface Mouse<BCS extends BehavioredColumnSettings> extends MouseEvent {
+        revgridCell?: HoverCell<BCS>;
     }
 
-    export interface Pointer<MCS extends MergableColumnSettings> extends PointerEvent, Mouse<MCS> {
-        revgridCell?: HoverCell<MCS>;
+    export interface Pointer<BCS extends BehavioredColumnSettings> extends PointerEvent, Mouse<BCS> {
+        revgridCell?: HoverCell<BCS>;
     }
 
-    export interface Wheel<MCS extends MergableColumnSettings> extends WheelEvent {
-        revgridCell?: HoverCell<MCS>;
+    export interface Wheel<BCS extends BehavioredColumnSettings> extends WheelEvent {
+        revgridCell?: HoverCell<BCS>;
     }
 
-    export interface ColumnSort<MCS extends MergableColumnSettings> extends MouseEvent {
-        revgridCell?: ViewCell<MCS>;
+    export interface ColumnSort<BCS extends BehavioredColumnSettings> extends MouseEvent {
+        revgridCell?: ViewCell<BCS>;
     }
 
     export type Keyboard = CanvasManager.RevgridKeyboardEvent;

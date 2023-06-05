@@ -4,15 +4,14 @@ import { GridSettings } from './grid-settings';
 export type ColumnSettings = Pick<GridSettings,
     'backgroundColor' |
     'color' |
-    'columnAutosizing' |
     'columnAutosizingMax' |
     'columnClip' |
+    'defaultColumnAutosizing' |
     'defaultColumnWidth' |
     'editable' |
     'editOnKeydown' |
     'editOnFocusCell' |
     'editOnDoubleClick' |
-    'feedbackCount' |
     'filterable' |
     'maximumColumnWidth' |
     'minimumColumnWidth' |

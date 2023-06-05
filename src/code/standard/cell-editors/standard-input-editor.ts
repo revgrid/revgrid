@@ -1,11 +1,11 @@
 import { Revgrid, ViewCell } from '../../grid/grid-public-api';
-import { StandardMergableColumnSettings, StandardMergableGridSettings } from '../settings/standard-settings-public-api';
+import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellEditor } from './standard-cell-editor';
 
-export abstract class StandardInputEditor<MGS extends StandardMergableGridSettings, MCS extends StandardMergableColumnSettings> extends StandardCellEditor<MGS, MCS> {
+export abstract class StandardInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardCellEditor<BGS, BCS> {
     protected readonly inputElement: HTMLInputElement;
 
-    constructor(grid: Revgrid<MGS, MCS>, inputType: string) {
+    constructor(grid: Revgrid<BGS, BCS>, inputType: string) {
         super(grid);
 
         const element = document.createElement('input') as HTMLInputElement;
@@ -14,7 +14,7 @@ export abstract class StandardInputEditor<MGS extends StandardMergableGridSettin
         this.inputElement = element;
     }
 
-    override open(viewCell: ViewCell<MCS>) {
+    override open(viewCell: ViewCell<BCS>) {
         super.open(viewCell)
         this.inputElement.style.textAlign = viewCell.columnSettings.horizontalAlign;
         this.inputElement.style.font = viewCell.columnSettings.font;

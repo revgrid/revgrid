@@ -7,8 +7,8 @@ import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
 import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
@@ -38,30 +38,30 @@ import { ServerNotificationBehavior } from './server-notification-behavior';
  * @abstract
  */
 /** @internal */
-export class ComponentBehaviorManager<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
-    readonly focusScrollBehavior: FocusScrollBehavior<MGS, MCS>;
-    readonly focusSelectBehavior: FocusSelectBehavior<MGS, MCS>;
-    readonly eventBehavior: EventBehavior<MGS, MCS>;
-    readonly reindexBehavior: ReindexBehavior<MGS, MCS>;
-    readonly rowPropertiesBehavior: RowPropertiesBehavior<MGS, MCS>;
-    readonly cellPropertiesBehavior: CellPropertiesBehavior<MGS, MCS>;
-    readonly dataExtractBehavior: DataExtractBehavior<MGS, MCS>;
+export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS>;
+    readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS>;
+    readonly eventBehavior: EventBehavior<BGS, BCS>;
+    readonly reindexBehavior: ReindexBehavior<BGS, BCS>;
+    readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS>;
+    readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS>;
+    readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS>;
 
-    private readonly _serverNotificationBehavior: ServerNotificationBehavior<MGS, MCS>;
+    private readonly _serverNotificationBehavior: ServerNotificationBehavior<BGS, BCS>;
 
     constructor(
-        gridSettings: MGS,
-        canvasManager: CanvasManager<MGS>,
-        columnsManager: ColumnsManager<MGS, MCS>,
-        subgridsManager: SubgridsManager<MGS, MCS>,
-        viewLayout: ViewLayout<MGS, MCS>,
-        focus: Focus<MGS, MCS>,
-        selection: Selection<MGS, MCS>,
-        mouse: Mouse<MGS, MCS>,
-        renderer: Renderer<MGS, MCS>,
-        horizontalScroller: Scroller<MGS>,
-        verticalScroller: Scroller<MGS>,
-        descendantEventer: EventBehavior.DescendantEventer<MCS>,
+        gridSettings: BGS,
+        canvasManager: CanvasManager<BGS>,
+        columnsManager: ColumnsManager<BGS, BCS>,
+        subgridsManager: SubgridsManager<BGS, BCS>,
+        viewLayout: ViewLayout<BGS, BCS>,
+        focus: Focus<BGS, BCS>,
+        selection: Selection<BGS, BCS>,
+        mouse: Mouse<BGS, BCS>,
+        renderer: Renderer<BGS, BCS>,
+        horizontalScroller: Scroller<BGS>,
+        verticalScroller: Scroller<BGS>,
+        descendantEventer: EventBehavior.DescendantEventer<BCS>,
     ) {
         this.eventBehavior = new EventBehavior(
             gridSettings.eventDispatchEnabled,

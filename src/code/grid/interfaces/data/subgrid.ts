@@ -3,14 +3,14 @@ import { DatalessSubgrid } from '../dataless/dataless-subgrid';
 import { DatalessViewCell } from '../dataless/dataless-view-cell';
 import { Column } from '../schema/column';
 import { SchemaServer } from '../schema/schema-server';
-import { MergableColumnSettings } from '../settings/mergable-column-settings';
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { DataServer } from './data-server';
 import { MetaModel } from './meta-model';
 
 /** @public */
-export interface Subgrid<MCS extends MergableColumnSettings> extends DatalessSubgrid {
-    readonly schemaServer: SchemaServer<MCS>;
-    readonly dataServer: DataServer<MCS>;
+export interface Subgrid<BCS extends BehavioredColumnSettings> extends DatalessSubgrid {
+    readonly schemaServer: SchemaServer<BCS>;
+    readonly dataServer: DataServer<BCS>;
     readonly metaModel: MetaModel | undefined;
 
     getRowCount(): number;
@@ -27,32 +27,32 @@ export interface Subgrid<MCS extends MergableColumnSettings> extends DatalessSub
 
     setRowProperty(y: number, key: string, isHeight: boolean, value: unknown): boolean;
 
-    getValue(column: Column<MCS>, rowIndex: number): DataServer.DataValue;
-    setValue(column: Column<MCS>, rowIndex: number, value: DataServer.DataValue): void;
+    getValue(column: Column<BCS>, rowIndex: number): DataServer.DataValue;
+    setValue(column: Column<BCS>, rowIndex: number, value: DataServer.DataValue): void;
 
-    getValueFromDataRowAtColumn(dataRow: DataServer.DataRow, column: Column<MCS>): DataServer.DataValue;
+    getValueFromDataRowAtColumn(dataRow: DataServer.DataRow, column: Column<BCS>): DataServer.DataValue;
 
-    getCellPainter(viewCell: DatalessViewCell<MCS>): CellPainter;
+    getCellPainter(viewCell: DatalessViewCell<BCS>): CellPainter;
 }
 
 /** @public */
 export namespace Subgrid {
-    export type GetCellPainterEventer<MCS extends MergableColumnSettings> = (this: void, viewCell: DatalessViewCell<MCS>) => CellPainter;
+    export type GetCellPainterEventer<BCS extends BehavioredColumnSettings> = (this: void, viewCell: DatalessViewCell<BCS>) => CellPainter;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export import RoleEnum = DatalessSubgrid.RoleEnum;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export import Role = DatalessSubgrid.Role;
 
-    export interface Definition<MCS extends MergableColumnSettings> {
+    export interface Definition<BCS extends BehavioredColumnSettings> {
         /** defaults to main */
         role?: Subgrid.Role;
-        dataServer: DataServer<MCS> | DataServer.Constructor<MCS>;
+        dataServer: DataServer<BCS> | DataServer.Constructor<BCS>;
         metaModel?: MetaModel | MetaModel.Constructor;
         selectable?: boolean;
         defaultRowHeight?: number;
         rowPropertiesCanSpecifyRowHeight?: boolean;
         rowPropertiesPrototype?: MetaModel.RowPropertiesPrototype;
-        getCellPainterEventer: GetCellPainterEventer<MCS>;
+        getCellPainterEventer: GetCellPainterEventer<BCS>;
     }
 }

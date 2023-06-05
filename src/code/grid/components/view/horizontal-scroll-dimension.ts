@@ -1,15 +1,15 @@
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { HorizontalVertical } from '../../types-utils/types';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { ColumnsManager } from '../column/columns-manager';
 import { ScrollDimension } from './scroll-dimension';
 
-export class HorizontalScrollDimension<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends ScrollDimension<MGS> {
+export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends ScrollDimension<BGS> {
     constructor(
-        private readonly _gridSettings: MGS,
-        canvasManager: CanvasManager<MGS>,
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
+        private readonly _gridSettings: BGS,
+        canvasManager: CanvasManager<BGS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
     ) {
         super(
             HorizontalVertical.Horizontal,

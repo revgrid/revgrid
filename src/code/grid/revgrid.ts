@@ -28,10 +28,9 @@ import { Subgrid } from './interfaces/data/subgrid';
 import { ViewCell } from './interfaces/data/view-cell';
 import { Column, ColumnWidth } from './interfaces/schema/column';
 import { SchemaServer } from './interfaces/schema/schema-server';
+import { BehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from './interfaces/settings/column-settings';
-import { GridSettings } from './interfaces/settings/grid-settings';
-import { MergableColumnSettings } from './interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from './interfaces/settings/mergable-grid-settings';
 import { CssClassName } from './types-utils/html-types';
 import { DateFormatter, Localization, NumberFormatter } from './types-utils/localization';
 import { Point } from './types-utils/point';
@@ -40,44 +39,44 @@ import { AssertError } from './types-utils/revgrid-error';
 import { ColumnNameWidth, ListChangedTypeId, SelectionAreaType } from './types-utils/types';
 
 /** @public */
-export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
-    readonly mouse: Mouse<MGS, MCS>;
-    readonly selection: Selection<MGS, MCS>;
-    readonly focus: Focus<MGS, MCS>;
-    readonly canvasManager: CanvasManager<MGS>;
-    readonly viewLayout: ViewLayout<MGS, MCS>;
+export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    readonly mouse: Mouse<BGS, BCS>;
+    readonly selection: Selection<BGS, BCS>;
+    readonly focus: Focus<BGS, BCS>;
+    readonly canvasManager: CanvasManager<BGS>;
+    readonly viewLayout: ViewLayout<BGS, BCS>;
 
-    readonly mainSubgrid: MainSubgrid<MCS>;
-    readonly mainDataServer: DataServer<MCS>;
-
-    /** @internal */
-    private readonly _componentsManager: ComponentsManager<MGS, MCS>;
-    /** @internal */
-    private readonly _componentBehaviorManager: ComponentBehaviorManager<MGS, MCS>;
-    /** @internal */
-    private readonly _uiBehaviorManager: UiBehaviorManager<MGS, MCS>;
+    readonly mainSubgrid: MainSubgrid<BCS>;
+    readonly mainDataServer: DataServer<BCS>;
 
     /** @internal */
-    private readonly _columnsManager: ColumnsManager<MGS, MCS>;
+    private readonly _componentsManager: ComponentsManager<BGS, BCS>;
     /** @internal */
-    private readonly _subgridsManager: SubgridsManager<MGS, MCS>;
+    private readonly _componentBehaviorManager: ComponentBehaviorManager<BGS, BCS>;
     /** @internal */
-    private readonly _renderer: Renderer<MGS, MCS>;
-    /** @internal */
-    private readonly _horizontalScroller: Scroller<MGS>;
-    /** @internal */
-    private readonly _verticalScroller: Scroller<MGS>;
+    private readonly _uiBehaviorManager: UiBehaviorManager<BGS, BCS>;
 
     /** @internal */
-    private readonly _focusScrollBehavior: FocusScrollBehavior<MGS, MCS>;
+    private readonly _columnsManager: ColumnsManager<BGS, BCS>;
     /** @internal */
-    private readonly _focusSelectBehavior: FocusSelectBehavior<MGS, MCS>;
+    private readonly _subgridsManager: SubgridsManager<BGS, BCS>;
     /** @internal */
-    private readonly _rowPropertiesBehavior: RowPropertiesBehavior<MGS, MCS>;
+    private readonly _renderer: Renderer<BGS, BCS>;
     /** @internal */
-    private readonly _cellPropertiesBehavior: CellPropertiesBehavior<MGS, MCS>;
+    private readonly _horizontalScroller: Scroller<BGS>;
     /** @internal */
-    private readonly _dataExtractBehavior: DataExtractBehavior<MGS, MCS>;
+    private readonly _verticalScroller: Scroller<BGS>;
+
+    /** @internal */
+    private readonly _focusScrollBehavior: FocusScrollBehavior<BGS, BCS>;
+    /** @internal */
+    private readonly _focusSelectBehavior: FocusSelectBehavior<BGS, BCS>;
+    /** @internal */
+    private readonly _rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS>;
+    /** @internal */
+    private readonly _cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS>;
+    /** @internal */
+    private readonly _dataExtractBehavior: DataExtractBehavior<BGS, BCS>;
 
     destroyed = false;
 
@@ -91,8 +90,8 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
 
     /** @internal */
     get columnsManager() { return this._columnsManager; }
-    get allColumns(): readonly Column<MCS>[] { return this._columnsManager.allColumns; }
-    get activeColumns(): readonly Column<MCS>[] { return this._columnsManager.activeColumns; }
+    get allColumns(): readonly Column<BCS>[] { return this._columnsManager.allColumns; }
+    get activeColumns(): readonly Column<BCS>[] { return this._columnsManager.activeColumns; }
 
 
     getSelectedRowCount() { return this.selection.getRowCount(); }
@@ -175,9 +174,9 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
  */
     constructor(
         container: string | HTMLElement | undefined,
-        definition: Revgrid.Definition<MCS>,
-        readonly settings: MGS,
-        options?: Revgrid.Options<MGS, MCS>
+        definition: Revgrid.Definition<BCS>,
+        readonly settings: BGS,
+        options?: Revgrid.Options<BGS, BCS>
     ) {
         options = options ?? {};
 
@@ -335,7 +334,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         const propName = 'gridBorder' + edge;
         const styleName = 'border' + edge;
         const props = this.settings;
-        const border = props[propName as keyof MergableGridSettings];
+        const border = props[propName as keyof BehavioredGridSettings];
 
         let styleValue: string;
 
@@ -370,36 +369,6 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         this.containerHtmlElement.removeAttribute(attribute);
     }
 
-    loadDefaultSettings() {
-        /**
-         * @name properties
-         * @type {object}
-         * @summary Object containing the properties of the grid.
-         * @desc Grid properties objects have the following structure:
-         * 1. User-configured properties and dynamic properties are in the "own" layer.
-         * 2. Extends from the theme object.
-         * 3. The theme object in turn extends from the {@link module:defaults|defaults} object.
-         *
-         * Note: Any changes the application developer may wish to make to the {@link module:defaults|defaults}
-         * object should be made _before_ reaching this point (_i.e.,_ prior to any grid instantiations).
-         */
-        this.settings.loadDefaults();
-
-        // Done in constructor
-        // For all default props of object type, if a dynamic prop, invoke setter; else deep clone it so changes
-        // made to inner props won't go to object on theme or defaults layers which are shared by other instances.
-        // Object.keys(defaults).forEach(function(key) {
-        //     var value = defaults[key];
-        //     if (typeof value === 'object') {
-        //         if (dynamicPropertyDescriptors[key]) {
-        //             this[key] = value; // invoke dynamic prop setter
-        //         } else {
-        //             this[key] = deepClone(value); // just a plain object
-        //         }
-        //     }
-        // }, this.properties);
-    }
-
     /** @internal */
     createColumns() {
         // used by Behavior.addState()
@@ -412,14 +381,8 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param options.subgrids - Consumed by {@link BehaviorManager#reset}.
      * If omitted, previously established subgrids list is reused.
      */
-    reset(nonDefaultProperties: Partial<GridSettings> | undefined) {
+    reset() {
         this._componentsManager.reset();
-
-        if (nonDefaultProperties !== undefined) {
-            this.settings.loadDefaults();
-            this.settings.merge(nonDefaultProperties);
-        }
-
         this.canvasManager.resize(false); // Will invalidate all and cause a repaint
     }
 
@@ -563,7 +526,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
     //     }, this);
     // }
 
-    registerGridPainter(key: string, constructor: GridPainter.Constructor<MGS, MCS>) {
+    registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS>) {
         this._renderer.registerGridPainter(key, constructor)
     }
 
@@ -583,15 +546,6 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
     formatValue(localizerName: string | undefined, value: unknown) {
         const formatter = this.getFormatter(localizerName);
         return formatter(value);
-    }
-
-
-    /**
-     * @desc Amend properties for this hypergrid only.
-     * @param properties - A simple properties hash.
-     */
-    addSettings(settings: Partial<GridSettings>) {
-        return this.settings.merge(settings)
     }
 
     /**
@@ -628,7 +582,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @summary Gets the number of rows in the main subgrid.
      * @returns The number of rows.
      */
-    getSubgridRowCount(subgrid: Subgrid<MCS>) {
+    getSubgridRowCount(subgrid: Subgrid<BCS>) {
         return subgrid.getRowCount();
     }
 
@@ -641,7 +595,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @return The data row object at y index.
      * @param y - the row index of interest
      */
-    getSingletonDataRow(y: number, subgrid?: Subgrid<MCS>): DataServer.DataRow {
+    getSingletonDataRow(y: number, subgrid?: Subgrid<BCS>): DataServer.DataRow {
         if (subgrid === undefined) {
             return this.mainSubgrid.getSingletonDataRow(y);
         } else {
@@ -662,14 +616,14 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         }
     }
 
-    getValue(x: number, y: number, subgrid?: Subgrid<MCS>) {
+    getValue(x: number, y: number, subgrid?: Subgrid<BCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this._componentsManager.getValue(x, y, subgrid);
     }
 
-    setValue(x: number, y: number, value: number, subgrid?: Subgrid<MCS>) {
+    setValue(x: number, y: number, value: number, subgrid?: Subgrid<BCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -693,7 +647,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
     /**
      * @summary Initialize container
      */
-    private initContainer(container: string | HTMLElement | undefined, options: Revgrid.Options<MGS, MCS>): HTMLElement {
+    private initContainer(container: string | HTMLElement | undefined, options: Revgrid.Options<BGS, BCS>): HTMLElement {
         let resolvedContainer: HTMLElement;
         if (container === undefined) {
             resolvedContainer = this.findOrCreateContainer(options.boundingRect);
@@ -750,7 +704,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param rowIndex - The data row index.
      * @returns The given row is visible.
      */
-    isDataRowVisible(r: number, subgrid?: Subgrid<MCS>) {
+    isDataRowVisible(r: number, subgrid?: Subgrid<BCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -783,7 +737,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         return this.viewLayout.getBoundsOfCell(gridCell.x, gridCell.y);
     }
 
-    getSchema(): readonly SchemaServer.Column<MCS>[] {
+    getSchema(): readonly SchemaServer.Column<BCS>[] {
         return this._columnsManager.getSchema();
     }
 
@@ -794,7 +748,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
     /**
      * @returns A copy of the all columns array by passing the params to `Array.prototype.slice`.
      */
-    getAllColumns(begin?: number, end?: number): Column<MCS>[] {
+    getAllColumns(begin?: number, end?: number): Column<BCS>[] {
         const columns = this._columnsManager.allColumns;
         return columns.slice(begin, end);
     }
@@ -802,7 +756,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
     /**
      * @returns A copy of the active columns array by passing the params to `Array.prototype.slice`.
      */
-    getActiveColumns(begin?: number, end?: number): Column<MCS>[] {
+    getActiveColumns(begin?: number, end?: number): Column<BCS>[] {
         const columns = this._columnsManager.activeColumns;
         return columns.slice(begin, end);
     }
@@ -868,7 +822,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         this._columnsManager.moveColumnAfter(sourceIndex, targetIndex, ui);
     }
 
-    setActiveColumns(columnNameOrAllIndexArray: readonly (Column<MCS> | string | number)[]) {
+    setActiveColumns(columnNameOrAllIndexArray: readonly (Column<BCS> | string | number)[]) {
         this._columnsManager.setActiveColumns(columnNameOrAllIndexArray);
     }
 
@@ -1085,11 +1039,11 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param columnWidth - The width in pixels.
      * @return column if width changed otherwise undefined
      */
-    setActiveColumnWidth(columnOrIndex: number | Column<MCS>, columnWidth: number) {
+    setActiveColumnWidth(columnOrIndex: number | Column<BCS>, columnWidth: number) {
         return this._columnsManager.setActiveColumnWidth(columnOrIndex, columnWidth, false);
     }
 
-    setColumnWidths(columnWidths: ColumnWidth<MCS>[]) {
+    setColumnWidths(columnWidths: ColumnWidth<BCS>[]) {
         return this._columnsManager.setColumnWidths(columnWidths, false);
     }
 
@@ -1101,7 +1055,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @returns The height of the given row
      * @param rowIndex - The untranslated fixed column index.
      */
-    getRowHeight(rowIndex: number, subgrid?: Subgrid<MCS>) {
+    getRowHeight(rowIndex: number, subgrid?: Subgrid<BCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1113,7 +1067,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param rowIndex - The row index.
      * @param rowHeight - The width in pixels.
      */
-    setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<MCS>) {
+    setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<BCS>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1394,7 +1348,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         // for descendants
     }
 
-    protected descendantProcessColumnsWidthChanged(_columns: Column<MCS>[], _ui: boolean) {
+    protected descendantProcessColumnsWidthChanged(_columns: Column<BCS>[], _ui: boolean) {
         // for descendants
     }
 
@@ -1402,7 +1356,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         // for descendants
     }
 
-    protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell<MCS>) {
+    protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell<BCS>) {
         // for descendants
     }
 
@@ -1422,35 +1376,35 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         // for descendants
     }
 
-    protected descendantProcessClick(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
+    protected descendantProcessClick(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessDblClick(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
+    protected descendantProcessDblClick(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
+    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerDown(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
+    protected descendantProcessPointerDown(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
+    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerMove(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
+    protected descendantProcessPointerMove(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
+    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessWheelMove(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
+    protected descendantProcessWheelMove(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
@@ -1458,7 +1412,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         // for descendants
     }
 
-    protected descendantProcessContextMenu(_event: MouseEvent, _cell: HoverCell<MCS> | null | undefined) {
+    protected descendantProcessContextMenu(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
@@ -1466,7 +1420,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * Uses DragEvent as this has original Mouse location.  Do not change DragEvent or call any of its methods
      * Return true if drag operation is to be started.
      */
-    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: HoverCell<MCS> | null | undefined): boolean {
+    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: HoverCell<BCS> | null | undefined): boolean {
         return false;
     }
 
@@ -1482,11 +1436,11 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         // for descendants
     }
 
-    protected descendantProcessMouseEnteredCell(_cell: ViewCell<MCS>) {
+    protected descendantProcessMouseEnteredCell(_cell: ViewCell<BCS>) {
         // for descendants
     }
 
-    protected descendantProcessMouseExitedCell(_cell: ViewCell<MCS>) {
+    protected descendantProcessMouseExitedCell(_cell: ViewCell<BCS>) {
         // for descendants
     }
 
@@ -1534,7 +1488,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      */
-    getCellOwnProperties(allXOrRenderedCell: number | ViewCell<MCS>, y?: number, subgrid?: Subgrid<MCS>) {
+    getCellOwnProperties(allXOrRenderedCell: number | ViewCell<BCS>, y?: number, subgrid?: Subgrid<BCS>) {
         if (typeof allXOrRenderedCell === 'object') {
             // xOrCellEvent is cellEvent
             const column = allXOrRenderedCell.viewLayoutColumn.column;
@@ -1562,16 +1516,16 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @return The properties of the cell at x,y in the grid or falsy if not available.
      */
-    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<MCS>): MetaModel.CellOwnProperties | false | null | undefined{
+    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS>): MetaModel.CellOwnProperties | false | null | undefined{
         return this._cellPropertiesBehavior.getCellOwnPropertiesFromRenderedCell(renderedCell);
     }
 
-    getCellProperties(allX: number, y: number, subgrid: Subgrid<MCS>): CellMetaSettings {
+    getCellProperties(allX: number, y: number, subgrid: Subgrid<BCS>): CellMetaSettings {
         const column = this._columnsManager.getAllColumn(allX);
         return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
     }
 
-    getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<MCS>, key: string): MetaModel.CellOwnProperty | undefined {
+    getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS>, key: string): MetaModel.CellOwnProperty | undefined {
         return this._cellPropertiesBehavior.getCellOwnPropertyFromRenderedCell(renderedCell, key);
     }
 
@@ -1584,13 +1538,13 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param subgrid - Subgrid in which contains cell
      * @return The specified property for the cell at x,y in the grid.
      */
-    getCellProperty(allX: number, y: number, key: string | number, subgrid: Subgrid<MCS>): MetaModel.CellOwnProperty;
-    getCellProperty<T extends keyof ColumnSettings>(allX: number, y: number, key: T, subgrid: Subgrid<MCS>): ColumnSettings[T];
+    getCellProperty(allX: number, y: number, key: string | number, subgrid: Subgrid<BCS>): MetaModel.CellOwnProperty;
+    getCellProperty<T extends keyof ColumnSettings>(allX: number, y: number, key: T, subgrid: Subgrid<BCS>): ColumnSettings[T];
     getCellProperty<T extends keyof ColumnSettings>(
         allX: number,
         y: number,
         key: string | T,
-        subgrid: Subgrid<MCS>
+        subgrid: Subgrid<BCS>
     ): MetaModel.CellOwnProperty | ColumnSettings[T] {
         const column = this._columnsManager.getAllColumn(allX);
         return this._cellPropertiesBehavior.getCellProperty(column, y, key, subgrid);
@@ -1603,11 +1557,11 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    setCellOwnPropertiesUsingCellEvent(cell: ViewCell<MCS>, properties: MetaModel.CellOwnProperties) {
+    setCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS>, properties: MetaModel.CellOwnProperties) {
         const column = cell.viewLayoutColumn.column;
         return this._cellPropertiesBehavior.setCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
-    setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<MCS>) {
+    setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS>) {
         const column = this._columnsManager.getAllColumn(allX);
         return this._cellPropertiesBehavior.setCellOwnProperties(column, y, properties, subgrid);
     }
@@ -1619,11 +1573,11 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    addCellOwnPropertiesUsingCellEvent(cell: ViewCell<MCS>, properties: MetaModel.CellOwnProperties) {
+    addCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS>, properties: MetaModel.CellOwnProperties) {
         const column = cell.viewLayoutColumn.column;
         return this._cellPropertiesBehavior.addCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
-    addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<MCS>) {
+    addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS>) {
         const column = this._columnsManager.getAllColumn(allX);
         return this._cellPropertiesBehavior.addCellOwnProperties(column, y, properties, subgrid);
     }
@@ -1642,17 +1596,17 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    setCellProperty(cell: ViewCell<MCS>, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
-    setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<MCS>): MetaModel.CellOwnProperties | undefined;
+    setCellProperty(cell: ViewCell<BCS>, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
+    setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<BCS>): MetaModel.CellOwnProperties | undefined;
     setCellProperty(
-        allXOrCell: ViewCell<MCS> | number,
+        allXOrCell: ViewCell<BCS> | number,
         yOrKey: string | number,
         keyOrValue: string | MetaModel.CellOwnProperty,
         value?: MetaModel.CellOwnProperty,
-        subgrid?: Subgrid<MCS>
+        subgrid?: Subgrid<BCS>
     ): MetaModel.CellOwnProperties | undefined {
-        let optionalCell: ViewCell<MCS> | undefined;
-        let column: Column<MCS>;
+        let optionalCell: ViewCell<BCS> | undefined;
+        let column: Column<BCS>;
         let dataY: number;
         let key: string;
         if (typeof allXOrCell === 'object') {
@@ -1708,7 +1662,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
      * @param x - The horizontal coordinate.
      * @param y - The vertical coordinate.
      */
-    isPointSelected(x: number, y: number, subgrid?: Subgrid<MCS>): boolean {
+    isPointSelected(x: number, y: number, subgrid?: Subgrid<BCS>): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1719,27 +1673,27 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
         return this.selection.isColumnOrRowSelected();
     }
 
-    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<MCS>) {
+    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS>) {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
-        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<MCS>);
+        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<BCS>);
     }
 
     selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType = SelectionAreaType.Rectangle) {
         this._focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, areaType);
     }
 
-    selectOnlyCell(x: number, y: number, subgrid?: Subgrid<MCS>, areaType = SelectionAreaType.Rectangle) {
+    selectOnlyCell(x: number, y: number, subgrid?: Subgrid<BCS>, areaType = SelectionAreaType.Rectangle) {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
 
-        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid<MCS>, areaType);
+        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid<BCS>, areaType);
     }
 
-    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<MCS>) {
-        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid<MCS>);
+    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS>) {
+        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid<BCS>);
     }
 
     selectAllRows() {
@@ -2013,7 +1967,7 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
     //     }
     // }
 
-    private createDescendantEventer(): EventBehavior.DescendantEventer<MCS> {
+    private createDescendantEventer(): EventBehavior.DescendantEventer<BCS> {
         return {
             allColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessAllColumnListChanged(typeId, index, count, targetIndex),
             activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
@@ -2151,12 +2105,12 @@ export class Revgrid<MGS extends MergableGridSettings, MCS extends MergableColum
 
 /** @public */
 export namespace Revgrid {
-    export interface Definition<MCS extends MergableColumnSettings> {
-        schemaServer: (SchemaServer<MCS> | SchemaServer.Constructor<MCS>),
-        subgrids: Subgrid.Definition<MCS>[],
+    export interface Definition<BCS extends BehavioredColumnSettings> {
+        schemaServer: (SchemaServer<BCS> | SchemaServer.Constructor<BCS>),
+        subgrids: Subgrid.Definition<BCS>[],
     }
 
-    export interface Options<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+    export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
 		// api?: object | string[];
 		boundingRect?: BoundingRectStyleValues;
 		canvasContextAttributes?: CanvasRenderingContext2DSettings;
@@ -2169,7 +2123,7 @@ export namespace Revgrid {
 		// metadata?: DataServer.RowMetadata[];
         /** Specifies whether to load builtin FinBar stylesheet. Default: true */
         loadBuiltinFinbarStylesheet?: boolean;
-        customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<MGS, MCS>[];
+        customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS>[];
 	}
 
     export interface LocalizationOptions {

@@ -1,9 +1,9 @@
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 
 /** @public */
-export interface GridDefinition<MCS extends MergableColumnSettings> {
-    schemaServer: (SchemaServer<MCS> | SchemaServer.Constructor<MCS>),
-    subgrids: Subgrid.Definition<MCS>[],
+export interface GridDefinition<BCS extends BehavioredColumnSettings> {
+    schemaServer: (SchemaServer<BCS> | SchemaServer.Constructor<BCS>),
+    subgrids: Subgrid.Definition<BCS>[],
 }

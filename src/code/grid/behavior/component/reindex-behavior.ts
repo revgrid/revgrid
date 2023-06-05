@@ -1,17 +1,17 @@
 import { Focus } from '../../components/focus/focus';
 import { Selection } from '../../components/selection/selection';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 
-export class ReindexBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     private _requestNestCount = 0;
     private _focusStash: Focus.Stash | undefined;
-    private _selectionStash: Selection.Stash<MCS> | undefined;
+    private _selectionStash: Selection.Stash<BCS> | undefined;
 
     constructor(
-        private readonly _focus: Focus<MGS, MCS>,
-        private readonly _selection: Selection<MGS, MCS>,
+        private readonly _focus: Focus<BGS, BCS>,
+        private readonly _selection: Selection<BGS, BCS>,
     ) {
 
     }

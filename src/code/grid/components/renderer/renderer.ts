@@ -3,8 +3,8 @@ import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema/schema-server';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
@@ -18,10 +18,10 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 /** @internal */
-export class Renderer<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     renderedEventer: Renderer.RenderedEventer;
 
-    private readonly _gridPainterRepository: GridPainterRepository<MGS, MCS>;
+    private readonly _gridPainterRepository: GridPainterRepository<BGS, BCS>;
     private readonly _animator: Animation.Animator;
     private readonly _renderActionQueue = new RenderActionQueue()
 
@@ -33,20 +33,20 @@ export class Renderer<MGS extends MergableGridSettings, MCS extends MergableColu
 
     private _destroyed = false;
 
-    private _gridPainter: GridPainter<MGS, MCS>;
-    private _allGridPainter: GridPainter<MGS, MCS> | undefined;
+    private _gridPainter: GridPainter<BGS, BCS>;
+    private _allGridPainter: GridPainter<BGS, BCS> | undefined;
 
     private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
 
     constructor(
-        private readonly _gridSettings: MGS,
-        private readonly _canvasEx: CanvasManager<MGS>,
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
-        private readonly _subgridsManager: SubgridsManager<MGS, MCS>,
-        private readonly _viewLayout: ViewLayout<MGS, MCS>,
-        private readonly _focus: Focus<MGS, MCS>,
-        private readonly _selection: Selection<MGS, MCS>,
-        private readonly _mouse: Mouse<MGS, MCS>,
+        private readonly _gridSettings: BGS,
+        private readonly _canvasEx: CanvasManager<BGS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        private readonly _focus: Focus<BGS, BCS>,
+        private readonly _selection: Selection<BGS, BCS>,
+        private readonly _mouse: Mouse<BGS, BCS>,
     ) {
         this._gridPainterRepository = new GridPainterRepository(
             this._gridSettings,
@@ -96,7 +96,7 @@ export class Renderer<MGS extends MergableGridSettings, MCS extends MergableColu
         this._destroyed = true;
     }
 
-    registerGridPainter(key: string, constructor: GridPainter.Constructor<MGS, MCS>) {
+    registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS>) {
         this._gridPainterRepository.register(key, constructor);
     }
 
@@ -164,7 +164,7 @@ export class Renderer<MGS extends MergableGridSettings, MCS extends MergableColu
         this._renderActionQueue.invalidateViewRender();
     }
 
-    invalidateViewCellRender(cell: ViewCell<MCS>) {
+    invalidateViewCellRender(cell: ViewCell<BCS>) {
         this._renderActionQueue.invalidateViewCellRender(cell);
     }
 

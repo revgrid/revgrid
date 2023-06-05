@@ -11,26 +11,26 @@ import { ViewLayout } from '../../components/view/view-layout';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column } from '../../interfaces/schema/column';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../../types-utils/point';
 import { ListChangedTypeId } from '../../types-utils/types';
 
-export class EventBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     uiKeyDownEventer: EventBehavior.UiKeyEventer;
     uiKeyUpEventer: EventBehavior.UiKeyEventer;
-    uiClickEventer: EventBehavior.UiMouseEventer<MCS>;
-    uiDblClickEventer: EventBehavior.UiMouseEventer<MCS>;
-    uiPointerDownEventer: EventBehavior.UiPointerEventer<MCS>;
-    uiPointerUpCancelEventer: EventBehavior.UiPointerEventer<MCS>;
-    uiPointerMoveEventer: EventBehavior.UiPointerEventer<MCS>;
-    uiPointerEnterEventer: EventBehavior.UiPointerEventer<MCS>;
-    uiPointerLeaveOutEventer: EventBehavior.UiPointerEventer<MCS>;
-    uiPointerDragStartEventer: EventBehavior.UiPointerDragStartEventer<MCS>;
-    uiPointerDragEventer: EventBehavior.UiPointerDragEventer<MCS>;
-    uiPointerDragEndEventer: EventBehavior.UiPointerDragEventer<MCS>;
-    uiWheelMoveEventer: EventBehavior.UiWheelEventer<MCS>;
-    uiContextMenuEventer: EventBehavior.UiMouseEventer<MCS>;
+    uiClickEventer: EventBehavior.UiMouseEventer<BCS>;
+    uiDblClickEventer: EventBehavior.UiMouseEventer<BCS>;
+    uiPointerDownEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerUpCancelEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerMoveEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerEnterEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerLeaveOutEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerDragStartEventer: EventBehavior.UiPointerDragStartEventer<BCS>;
+    uiPointerDragEventer: EventBehavior.UiPointerDragEventer<BCS>;
+    uiPointerDragEndEventer: EventBehavior.UiPointerDragEventer<BCS>;
+    uiWheelMoveEventer: EventBehavior.UiWheelEventer<BCS>;
+    uiContextMenuEventer: EventBehavior.UiMouseEventer<BCS>;
     uiTouchStartEventer: EventBehavior.UiTouchEventer;
     uiTouchMoveEventer: EventBehavior.UiTouchEventer;
     uiTouchEndEventer: EventBehavior.UiTouchEventer;
@@ -43,16 +43,16 @@ export class EventBehavior<MGS extends MergableGridSettings, MCS extends Mergabl
 
     constructor(
         dispatchEnabled: boolean,
-        private readonly _canvasManager: CanvasManager<MGS>,
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
-        private readonly _viewLayout: ViewLayout<MGS, MCS>,
-        private readonly _focus: Focus<MGS, MCS>,
-        private readonly _selection: Selection<MGS, MCS>,
-        private readonly _mouse: Mouse<MGS, MCS>,
-        private readonly _renderer: Renderer<MGS, MCS>,
-        private readonly _horizontalScroller: Scroller<MGS>,
-        private readonly _verticalScroller: Scroller<MGS>,
-        private readonly _descendantEventer: EventBehavior.DescendantEventer<MCS>,
+        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        private readonly _focus: Focus<BGS, BCS>,
+        private readonly _selection: Selection<BGS, BCS>,
+        private readonly _mouse: Mouse<BGS, BCS>,
+        private readonly _renderer: Renderer<BGS, BCS>,
+        private readonly _horizontalScroller: Scroller<BGS>,
+        private readonly _verticalScroller: Scroller<BGS>,
+        private readonly _descendantEventer: EventBehavior.DescendantEventer<BCS>,
         private readonly _dispatchEventEventer: EventBehavior.DispatchEventEventer,
     ) {
         this._dispatchEnabled = dispatchEnabled;
@@ -117,7 +117,7 @@ export class EventBehavior<MGS extends MergableGridSettings, MCS extends Mergabl
         }
     }
 
-    processColumnSortEvent(event: MouseEvent, cell: ViewCell<MCS>) {
+    processColumnSortEvent(event: MouseEvent, cell: ViewCell<BCS>) {
         this._descendantEventer.columnSort(event, cell);
 
         if (this._dispatchEnabled) {
@@ -150,7 +150,7 @@ export class EventBehavior<MGS extends MergableGridSettings, MCS extends Mergabl
         this._descendantEventer.activeColumnListChanged(typeId, index, count, targetIndex, ui);
     }
 
-    private processColumnsWidthChangedEvent(columns: Column<MCS>[], ui: boolean) {
+    private processColumnsWidthChangedEvent(columns: Column<BCS>[], ui: boolean) {
         this._descendantEventer.columnsWidthChanged(columns, ui);
     }
 
@@ -449,7 +449,7 @@ export class EventBehavior<MGS extends MergableGridSettings, MCS extends Mergabl
         }
     }
 
-    private processMouseEnteredCellEvent(cell: ViewCell<MCS>) {
+    private processMouseEnteredCellEvent(cell: ViewCell<BCS>) {
         this._descendantEventer.mouseEnteredCell(cell);
 
         if (this._dispatchEnabled) {
@@ -457,7 +457,7 @@ export class EventBehavior<MGS extends MergableGridSettings, MCS extends Mergabl
         }
     }
 
-    private processMouseExitedCellEvent(cell: ViewCell<MCS>) {
+    private processMouseExitedCellEvent(cell: ViewCell<BCS>) {
         this._descendantEventer.mouseExitedCell(cell);
 
         if (this._dispatchEnabled) {
@@ -473,34 +473,34 @@ export class EventBehavior<MGS extends MergableGridSettings, MCS extends Mergabl
         }
     }
 
-    private dispatchCustomEvent<T extends EventName<MCS>>(
+    private dispatchCustomEvent<T extends EventName<BCS>>(
         eventName: T,
         cancelable: boolean,
-        eventDetail: EventName.DetailMap<MCS>[T] | undefined,
+        eventDetail: EventName.DetailMap<BCS>[T] | undefined,
     ): boolean {
         if (this._destroyed) {
             return false;
         } else {
-            const eventInit: CustomEventInit<EventName.DetailMap<MCS>[T]> = {
+            const eventInit: CustomEventInit<EventName.DetailMap<BCS>[T]> = {
                 detail: eventDetail,
                 cancelable,
             };
 
-            const event = new CustomEvent<EventName.DetailMap<MCS>[T]>(eventName, eventInit);
+            const event = new CustomEvent<EventName.DetailMap<BCS>[T]>(eventName, eventInit);
 
             return this._dispatchEventEventer(event);
         }
     }
 
-    private dispatchMouseEvent<T extends EventName.Mouse>(eventName: T, event: MouseEvent | WheelEvent, cell: ViewCell<MCS> | null | undefined) {
+    private dispatchMouseEvent<T extends EventName.Mouse>(eventName: T, event: MouseEvent | WheelEvent, cell: ViewCell<BCS> | null | undefined) {
         if (cell === null) {
             cell = undefined;
         } else {
             if (cell !== undefined) {
-                cell = Object.create(cell) as HoverCell<MCS>; // clone cell
+                cell = Object.create(cell) as HoverCell<BCS>; // clone cell
             }
         }
-        const detail = event as EventName.DetailMap<MCS>[T];
+        const detail = event as EventName.DetailMap<BCS>[T];
         detail.revgridCell = cell;
         return this.dispatchCustomEvent(eventName, false, detail);
     }
@@ -509,40 +509,40 @@ export class EventBehavior<MGS extends MergableGridSettings, MCS extends Mergabl
 export namespace EventBehavior {
     export type DispatchEventEventer = (this: void, event: Event) => boolean;
 
-    export interface UiPointerDragStartResult<MCS extends MergableColumnSettings> {
+    export interface UiPointerDragStartResult<BCS extends BehavioredColumnSettings> {
         readonly started: boolean;
-        readonly cell: HoverCell<MCS> | null | undefined;
+        readonly cell: HoverCell<BCS> | null | undefined;
     }
 
-    export interface DescendantEventer<MCS extends MergableColumnSettings> {
+    export interface DescendantEventer<BCS extends BehavioredColumnSettings> {
         readonly allColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
         readonly columnsChanged: DescendantEventer.Signal;
-        readonly columnsWidthChanged: (this: void, columns: Column<MCS>[], ui: boolean) => void;
+        readonly columnsWidthChanged: (this: void, columns: Column<BCS>[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: DescendantEventer.Signal;
-        readonly columnSort: (this: void, event: MouseEvent, cell: ViewCell<MCS>) => void;
+        readonly columnSort: (this: void, event: MouseEvent, cell: ViewCell<BCS>) => void;
         readonly cellFocusChanged: DescendantEventer.CellFocusChanged;
         readonly selectionChanged: DescendantEventer.Signal;
         readonly focus: DescendantEventer.Focus;
         readonly blur: DescendantEventer.Focus;
         readonly keyDown: DescendantEventer.Key;
         readonly keyUp: DescendantEventer.Key;
-        readonly click: DescendantEventer.Mouse<MCS>;
-        readonly dblClick: DescendantEventer.Mouse<MCS>;
-        readonly pointerEnter: DescendantEventer.Pointer<MCS>;
-        readonly pointerDown: DescendantEventer.Pointer<MCS>;
-        readonly pointerUpCancel: DescendantEventer.Pointer<MCS>;
-        readonly pointerMove: DescendantEventer.Pointer<MCS>;
-        readonly pointerLeaveOut: DescendantEventer.Pointer<MCS>;
-        readonly wheelMove: DescendantEventer.Wheel<MCS>;
+        readonly click: DescendantEventer.Mouse<BCS>;
+        readonly dblClick: DescendantEventer.Mouse<BCS>;
+        readonly pointerEnter: DescendantEventer.Pointer<BCS>;
+        readonly pointerDown: DescendantEventer.Pointer<BCS>;
+        readonly pointerUpCancel: DescendantEventer.Pointer<BCS>;
+        readonly pointerMove: DescendantEventer.Pointer<BCS>;
+        readonly pointerLeaveOut: DescendantEventer.Pointer<BCS>;
+        readonly wheelMove: DescendantEventer.Wheel<BCS>;
         readonly dragStart: DescendantEventer.Drag;
-        readonly contextMenu: DescendantEventer.Mouse<MCS>;
-        readonly pointerDragStart: DescendantEventer.PointerDragStart<MCS>;
+        readonly contextMenu: DescendantEventer.Mouse<BCS>;
+        readonly pointerDragStart: DescendantEventer.PointerDragStart<BCS>;
         readonly pointerDrag: DescendantEventer.PointerDrag;
         readonly pointerDragEnd: DescendantEventer.PointerDrag;
         readonly rendered: DescendantEventer.Signal;
-        readonly mouseEnteredCell: DescendantEventer.ViewCellOnly<MCS>;
-        readonly mouseExitedCell: DescendantEventer.ViewCellOnly<MCS>;
+        readonly mouseEnteredCell: DescendantEventer.ViewCellOnly<BCS>;
+        readonly mouseExitedCell: DescendantEventer.ViewCellOnly<BCS>;
         readonly touchStart: DescendantEventer.Touch;
         readonly touchMove: DescendantEventer.Touch;
         readonly touchEnd: DescendantEventer.Touch;
@@ -558,27 +558,27 @@ export namespace EventBehavior {
         export type Signal = (this: void) => void;
         export type Focus = (this: void, event: FocusEvent) => void;
         export type Key = (this: void, event: EventDetail.Keyboard) => void;
-        export type Mouse<MCS extends MergableColumnSettings> = (this: void, event: MouseEvent, cell: HoverCell<MCS> | null | undefined) => void;
-        export type Pointer<MCS extends MergableColumnSettings> = (this: void, event: PointerEvent, cell: HoverCell<MCS> | null | undefined) => void;
+        export type Mouse<BCS extends BehavioredColumnSettings> = (this: void, event: MouseEvent, cell: HoverCell<BCS> | null | undefined) => void;
+        export type Pointer<BCS extends BehavioredColumnSettings> = (this: void, event: PointerEvent, cell: HoverCell<BCS> | null | undefined) => void;
         export type PointerDrag = (this: void, event: PointerEvent) => void;
-        export type PointerDragStart<MCS extends MergableColumnSettings> = (this: void, event: DragEvent, cell: HoverCell<MCS> | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
-        export type Wheel<MCS extends MergableColumnSettings> = (this: void, event: WheelEvent, cell: HoverCell<MCS> | null | undefined) => void;
-        export type DragCell<MCS extends MergableColumnSettings> = (this: void, event: DragEvent, cell: HoverCell<MCS> | null | undefined) => void;
+        export type PointerDragStart<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent, cell: HoverCell<BCS> | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
+        export type Wheel<BCS extends BehavioredColumnSettings> = (this: void, event: WheelEvent, cell: HoverCell<BCS> | null | undefined) => void;
+        export type DragCell<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent, cell: HoverCell<BCS> | null | undefined) => void;
         export type Drag = (this: void, event: DragEvent) => void;
         export type Touch = (this: void, event: TouchEvent) => void;
-        export type ViewCellOnly<MCS extends MergableColumnSettings> = (this: void, cell: ViewCell<MCS>) => void;
+        export type ViewCellOnly<BCS extends BehavioredColumnSettings> = (this: void, cell: ViewCell<BCS>) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
         export type ScrollerAction = (this: void, event: EventDetail.ScrollerAction) => void;
         export type CellFocusChanged = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
     }
 
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
-    export type UiMouseEventer<MCS extends MergableColumnSettings> = (this: void, pointerEvent: EventDetail.Mouse<MCS>) => HoverCell<MCS> | null | undefined;
-    export type UiPointerEventer<MCS extends MergableColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<MCS>) => HoverCell<MCS> | null | undefined;
-    export type UiPointerDragEventer<MCS extends MergableColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<MCS>) => void;
-    export type UiPointerDragStartEventer<MCS extends MergableColumnSettings> = (this: void, dragEvent: DragEvent) => UiPointerDragStartResult<MCS>;
-    export type UiWheelEventer<MCS extends MergableColumnSettings> = (this: void, wheelEvent: EventDetail.Wheel<MCS>) => HoverCell<MCS> | null | undefined;
-    export type UiDragEventer<MCS extends MergableColumnSettings> = (this: void, event: DragEvent) => HoverCell<MCS> | null | undefined;
+    export type UiMouseEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Mouse<BCS>) => HoverCell<BCS> | null | undefined;
+    export type UiPointerEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<BCS>) => HoverCell<BCS> | null | undefined;
+    export type UiPointerDragEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<BCS>) => void;
+    export type UiPointerDragStartEventer<BCS extends BehavioredColumnSettings> = (this: void, dragEvent: DragEvent) => UiPointerDragStartResult<BCS>;
+    export type UiWheelEventer<BCS extends BehavioredColumnSettings> = (this: void, wheelEvent: EventDetail.Wheel<BCS>) => HoverCell<BCS> | null | undefined;
+    export type UiDragEventer<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent) => HoverCell<BCS> | null | undefined;
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;
     export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
     export type UiScrollerActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;

@@ -1,17 +1,17 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class CellClickUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
+export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
 
     readonly typeName = CellClickUiBehavior.typeName;
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (cell === undefined) {
@@ -28,7 +28,7 @@ export class CellClickUiBehavior<MGS extends MergableGridSettings, MCS extends M
         return super.handlePointerMove(event, cell);
     }
 
-    override handleClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -65,7 +65,7 @@ export class CellClickUiBehavior<MGS extends MergableGridSettings, MCS extends M
      * | `null` | `grid.windowOpen` failed to open a window |
      * | _otherwise_ | A `window` reference returned by a successful call to `grid.windowOpen`. |
      */
-    openLink(viewCell: ViewCell<MCS>): boolean | null | undefined | Window {
+    openLink(viewCell: ViewCell<BCS>): boolean | null | undefined | Window {
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
         const rowIndex = viewCell.viewLayoutRow.subgridRowIndex;

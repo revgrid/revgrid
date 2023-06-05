@@ -2,18 +2,18 @@ import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { CellEditor } from '../../interfaces/dataless/cell-editor';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { KeyboardEventKey } from '../../types-utils/html-types';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FocusScrollUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
+export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
     readonly typeName = FocusScrollUiBehavior.typeName;
 
-    override handlePointerDown(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handlePointerDown(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -25,7 +25,7 @@ export class FocusScrollUiBehavior<MGS extends MergableGridSettings, MCS extends
         return super.handlePointerDown(event, cell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -189,7 +189,7 @@ export class FocusScrollUiBehavior<MGS extends MergableGridSettings, MCS extends
         // }
     }
 
-    override handleWheelMove(event: WheelEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handleWheelMove(event: WheelEvent, cell: HoverCell<BCS> | null | undefined) {
         const gridSettings = this.gridSettings;
         if (gridSettings.scrollingEnabled) {
             const deltaX = event.deltaX;
@@ -279,7 +279,7 @@ export class FocusScrollUiBehavior<MGS extends MergableGridSettings, MCS extends
         }
     }
 
-    private checkDivertToEditor(eventDetail: EventDetail.Keyboard, wantProperty: keyof CellEditor<MCS>): boolean {
+    private checkDivertToEditor(eventDetail: EventDetail.Keyboard, wantProperty: keyof CellEditor<BCS>): boolean {
         const editor = this.focus.editor;
         if (editor !== undefined && editor[wantProperty] && editor.keyDown !== undefined) {
             editor.keyDown(eventDetail);

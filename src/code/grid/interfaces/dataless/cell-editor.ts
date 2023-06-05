@@ -1,10 +1,10 @@
 import { Rectangle } from '../../types-utils/rectangle';
-import { MergableColumnSettings } from '../settings/mergable-column-settings';
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { CellPainter } from './cell-painter';
 import { DatalessViewCell } from './dataless-view-cell';
 
 /** @public */
-export interface CellEditor<MCS extends MergableColumnSettings> extends CellPainter {
+export interface CellEditor<BCS extends BehavioredColumnSettings> extends CellPainter {
     /** If true, then CellPaint.paint() function should be used to paint cells - otherwise it can be ignored */
     readonly paintImplemented: boolean;
 
@@ -43,15 +43,15 @@ export interface CellEditor<MCS extends MergableColumnSettings> extends CellPain
     keyUp?(event: KeyboardEvent): void;
 
     /** Implement if editor wants mouse click events */
-    click?(event: MouseEvent, cell: DatalessViewCell<MCS> | undefined): void;
+    click?(event: MouseEvent, cell: DatalessViewCell<BCS> | undefined): void;
     /** Implement if editor wants mouse double click events */
-    dblClick?(event: MouseEvent, cell: DatalessViewCell<MCS> | undefined): void;
+    dblClick?(event: MouseEvent, cell: DatalessViewCell<BCS> | undefined): void;
     /** Implement if editor wants mouse down events */
-    mouseDown?(event: MouseEvent, cell: DatalessViewCell<MCS> | undefined): void;
+    mouseDown?(event: MouseEvent, cell: DatalessViewCell<BCS> | undefined): void;
     /** Implement if editor wants mouse up events */
-    mouseUp?(event: MouseEvent, cell: DatalessViewCell<MCS> | undefined): void;
+    mouseUp?(event: MouseEvent, cell: DatalessViewCell<BCS> | undefined): void;
     /** Implement if editor wants wheel move events */
-    wheelMove?(event: WheelEvent, cell: DatalessViewCell<MCS> | undefined): void;
+    wheelMove?(event: WheelEvent, cell: DatalessViewCell<BCS> | undefined): void;
 
     /** Editor can optionally use this eventer to notify Grid that it has completed */
     closedEventer?: ((this: void) => void) | undefined;

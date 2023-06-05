@@ -3,12 +3,12 @@ import { EventDetail } from '../../components/event/event-detail';
 import { HoverCellImplementation } from '../../components/view/hover-cell-implementation';
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FiltersUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
+export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
 
     readonly typeName = FiltersUiBehavior.typeName;
 
@@ -43,18 +43,18 @@ export class FiltersUiBehavior<MGS extends MergableGridSettings, MCS extends Mer
         }
     }
 
-    handleLEFT(cellEvent: ViewCell<MCS>) {
+    handleLEFT(cellEvent: ViewCell<BCS>) {
         this.moveLaterally(cellEvent, -1);
     }
 
-    handleRIGHT(cellEvent: ViewCell<MCS>) {
+    handleRIGHT(cellEvent: ViewCell<BCS>) {
         this.moveLaterally(cellEvent, +1);
     }
 
     handleUP = this.moveDown;
     handleDOWN = this.moveDown;
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -66,7 +66,7 @@ export class FiltersUiBehavior<MGS extends MergableGridSettings, MCS extends Mer
         }
     }
 
-    override handleClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -78,7 +78,7 @@ export class FiltersUiBehavior<MGS extends MergableGridSettings, MCS extends Mer
         }
     }
 
-    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<MCS>, deltaX: number) {
+    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS>, deltaX: number) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         let gridX = cellEvent.viewLayoutColumn.index;
         const gridY = cellEvent.viewLayoutRow.index;
@@ -101,7 +101,7 @@ export class FiltersUiBehavior<MGS extends MergableGridSettings, MCS extends Mer
         this.moveDown(moveDownCellEvent);
     }
 
-    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<MCS>) {
+    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS>) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         const gridX = cellEvent.viewLayoutColumn.index;
 

@@ -8,21 +8,21 @@ import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { DataServer } from '../../interfaces/data/data-server';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ReindexBehavior } from './reindex-behavior';
 
-export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
-    private readonly _schemaServer: SchemaServer<MCS>;
-    private readonly _subgrids: SubgridImplementation<MGS, MCS>[];
-    private readonly _mainDataServer: DataServer<MCS>;
+export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    private readonly _schemaServer: SchemaServer<BCS>;
+    private readonly _subgrids: SubgridImplementation<BGS, BCS>[];
+    private readonly _mainDataServer: DataServer<BCS>;
 
     private _destroyed = false;
     private _notificationsEnabled = false;
     private _schemaNotificationsSubscribed = false;
 
     /** @internal */
-    private readonly schemaServerNotificationsClient: SchemaServer.NotificationsClient<MCS> = {
+    private readonly schemaServerNotificationsClient: SchemaServer.NotificationsClient<BCS> = {
         beginChange: () => this.handleBeginSchemaChange(),
         endChange: () => this.handleEndSchemaChange(),
         columnsInserted: (columnIndex, columnCount) => this.handleColumnsInserted(columnIndex, columnCount),
@@ -33,13 +33,13 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     constructor(
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
-        private readonly _subgridsManager: SubgridsManager<MGS, MCS>,
-        private readonly _viewLayout: ViewLayout<MGS, MCS>,
-        private readonly _focus: Focus<MGS, MCS>,
-        private readonly _selection: Selection<MGS, MCS>,
-        private readonly _renderer: Renderer<MGS, MCS>,
-        private readonly _reindexStashManager: ReindexBehavior<MGS, MCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        private readonly _focus: Focus<BGS, BCS>,
+        private readonly _selection: Selection<BGS, BCS>,
+        private readonly _renderer: Renderer<BGS, BCS>,
+        private readonly _reindexStashManager: ReindexBehavior<BGS, BCS>,
     ) {
         this._schemaServer = this._columnsManager.schemaServer;
         this._subgrids = this._subgridsManager.subgrids;
@@ -236,7 +236,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleInvalidateAll(dataServer: DataServer<MCS>) {
+    private handleInvalidateAll(dataServer: DataServer<BCS>) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateAllData();
@@ -244,7 +244,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleInvalidateRows(_dataServer: DataServer<MCS>, rowIndex: number, count: number) {
+    private handleInvalidateRows(_dataServer: DataServer<BCS>, rowIndex: number, count: number) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataRows(rowIndex, count);
@@ -252,7 +252,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleInvalidateRow(_dataServer: DataServer<MCS>, rowIndex: number) {
+    private handleInvalidateRow(_dataServer: DataServer<BCS>, rowIndex: number) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataRow(rowIndex);
@@ -260,7 +260,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleInvalidateRowColumns(_dataServer: DataServer<MCS>, rowIndex: number, _schemaColumnIndex: number, _columnCount: number) {
+    private handleInvalidateRowColumns(_dataServer: DataServer<BCS>, rowIndex: number, _schemaColumnIndex: number, _columnCount: number) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataRow(rowIndex); // this should be improved to use this._renderer.invalidateRowColumns()
@@ -268,7 +268,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleInvalidateRowCells(_dataServer: DataServer<MCS>, rowIndex: number, schemaColumnIndexes: number[]) {
+    private handleInvalidateRowCells(_dataServer: DataServer<BCS>, rowIndex: number, schemaColumnIndexes: number[]) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataRowCells(rowIndex, schemaColumnIndexes);
@@ -276,7 +276,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleInvalidateCell(_dataServer: DataServer<MCS>, schemaColumnIndex: number, rowIndex: number) {
+    private handleInvalidateCell(_dataServer: DataServer<BCS>, schemaColumnIndex: number, rowIndex: number) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataCell(schemaColumnIndex, rowIndex);
@@ -284,7 +284,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleRowsInserted(dataServer: DataServer<MCS>, index: number, count: number) {
+    private handleRowsInserted(dataServer: DataServer<BCS>, index: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -299,7 +299,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleRowsDeleted(dataServer: DataServer<MCS>, index: number, count: number) {
+    private handleRowsDeleted(dataServer: DataServer<BCS>, index: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -314,7 +314,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleAllRowsDeleted(dataServer: DataServer<MCS>) {
+    private handleAllRowsDeleted(dataServer: DataServer<BCS>) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -331,7 +331,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleRowsMoved(dataServer: DataServer<MCS>, oldRowIndex: number, newRowIndex: number, rowCount: number) {
+    private handleRowsMoved(dataServer: DataServer<BCS>, oldRowIndex: number, newRowIndex: number, rowCount: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -346,7 +346,7 @@ export class ServerNotificationBehavior<MGS extends MergableGridSettings, MCS ex
     }
 
     /** @internal */
-    private handleRowsLoaded(dataServer: DataServer<MCS>) {
+    private handleRowsLoaded(dataServer: DataServer<BCS>) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -411,17 +411,17 @@ export namespace ServerNotificationBehavior {
     export type ColumnsDeletedEvent = (this: void, columnIndex: number, columnCount: number) => void;
     export type AllColumnsDeletedEvent = () => void;
     export type SchemaChangedEvent = (this: void) => void;
-    export type GetSchemaColumnEvent<MCS extends MergableColumnSettings> = (this: void, index: number) => SchemaServer.Column<MCS>;
-    export type GetActiveSchemaColumnsEvent<MCS extends MergableColumnSettings> = (this: void) => SchemaServer.Column<MCS>[];
+    export type GetSchemaColumnEvent<BCS extends BehavioredColumnSettings> = (this: void, index: number) => SchemaServer.Column<BCS>;
+    export type GetActiveSchemaColumnsEvent<BCS extends BehavioredColumnSettings> = (this: void) => SchemaServer.Column<BCS>[];
 
     export type BeginDataChangeEvent = (this: void) => void;
     export type EndDataChangeEvent = (this: void) => void;
 
-    export type RowsInsertedEvent<MCS extends MergableColumnSettings> = (this: void, dataModel: DataServer<MCS>, rowIndex: number, rowCount: number) => void;
-    export type RowsDeletedEvent<MCS extends MergableColumnSettings> = (this: void, dataModel: DataServer<MCS>, rowIndex: number, rowCount: number) => void;
-    export type AllRowsDeletedEvent<MCS extends MergableColumnSettings> = (this: void, dataModel: DataServer<MCS>) => void;
-    export type RowsLoadedEvent<MCS extends MergableColumnSettings> = (this: void, dataModel: DataServer<MCS>) => void;
-    export type RowsMovedEvent<MCS extends MergableColumnSettings> = (this: void, dataModel: DataServer<MCS>, oldRowIndex: number, newRowIndex: number, rowCount: number) => void;
+    export type RowsInsertedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>, rowIndex: number, rowCount: number) => void;
+    export type RowsDeletedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>, rowIndex: number, rowCount: number) => void;
+    export type AllRowsDeletedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>) => void;
+    export type RowsLoadedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>) => void;
+    export type RowsMovedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>, oldRowIndex: number, newRowIndex: number, rowCount: number) => void;
     export type InvalidateAllEvent = (this: void) => void;
     export type InvalidateRowsEvent = (this: void, rowIndex: number, count: number) => void;
     export type InvalidateRowEvent = (this: void, rowIndex: number) => void;
@@ -430,7 +430,7 @@ export namespace ServerNotificationBehavior {
     export type InvalidateCellEvent = (this: void, schemaColumnIndex: number, rowIndex: number) => void;
     export type PreReindexEvent = (this: void) => void;
     export type PostReindexEvent = (this: void) => void;
-    export type GridEvent<MCS extends MergableColumnSettings> = <T extends EventName<MCS>>(this: void, eventName: T, eventDetail: EventName.DetailMap<MCS>[T] | undefined) => void;
+    export type GridEvent<BCS extends BehavioredColumnSettings> = <T extends EventName<BCS>>(this: void, eventName: T, eventDetail: EventName.DetailMap<BCS>[T] | undefined) => void;
 
     export type SchemaUpdatedListener = (this: void) => void;
 }

@@ -2,11 +2,11 @@ import { ViewLayout } from '../../components/view/view-layout';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 
-export class RowPropertiesBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
-    constructor(private readonly _viewLayout: ViewLayout<MGS, MCS>) {
+export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    constructor(private readonly _viewLayout: ViewLayout<BGS, BCS>) {
     }
 
     /**
@@ -14,7 +14,7 @@ export class RowPropertiesBehavior<MGS extends MergableGridSettings, MCS extends
      * @param rowIndex - Data row index local to dataModel.
      * @param height - pixel height
      */
-    setRowHeight(rowIndex: number, height: number, subgrid: Subgrid<MCS>) {
+    setRowHeight(rowIndex: number, height: number, subgrid: Subgrid<BCS>) {
         const setSucceeded = subgrid.setRowProperty(rowIndex, 'height', true, height);
         if (setSucceeded) {
             this._viewLayout.invalidateHorizontalAll(true);
@@ -27,11 +27,11 @@ export class RowPropertiesBehavior<MGS extends MergableGridSettings, MCS extends
      * @param properties - The new row properties object. If `undefined`, this call is a no-op.
      * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
-    setRowPropertiesUsingCell(cell: ViewCell<MCS>, properties: MetaModel.RowProperties | undefined) {
+    setRowPropertiesUsingCell(cell: ViewCell<BCS>, properties: MetaModel.RowProperties | undefined) {
         this.setRowProperties(cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid)
     }
 
-    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined, subgrid: Subgrid<MCS>): void {
+    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined, subgrid: Subgrid<BCS>): void {
         const setSucceeded = subgrid.setRowProperties(rowIndex, properties);
         if (setSucceeded) {
             this._viewLayout.invalidateHorizontalAll(false);
@@ -46,11 +46,11 @@ export class RowPropertiesBehavior<MGS extends MergableGridSettings, MCS extends
      * @param dataModel - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
 
-    setRowPropertyUsingCell(cell: ViewCell<MCS>, key: string, value: unknown) {
+    setRowPropertyUsingCell(cell: ViewCell<BCS>, key: string, value: unknown) {
         this.setRowProperty(cell.viewLayoutRow.subgridRowIndex, key, value, cell.subgrid);
     }
 
-    setRowProperty(y: number, key: string, value: unknown, subgrid: Subgrid<MCS>) {
+    setRowProperty(y: number, key: string, value: unknown, subgrid: Subgrid<BCS>) {
         const isHeight = (key === 'height');
         const setSucceeded = subgrid.setRowProperty(y, key, isHeight, value);
         if (setSucceeded) {

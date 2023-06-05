@@ -1,4 +1,4 @@
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { EventDetail } from '../event/event-detail';
 import { ScrollDimension } from '../view/scroll-dimension';
@@ -8,7 +8,7 @@ import { cssInjector } from './css-injector';
 // Maintained in code so not dependent being in stylesheet.
 // const BAR_STYLE = 'position: absolute;';
 
-export class Scroller<MGS extends MergableGridSettings> {
+export class Scroller<BGS extends BehavioredGridSettings> {
     /**
      * @name bar
      * @summary The generated scrollbar element.
@@ -160,7 +160,7 @@ export class Scroller<MGS extends MergableGridSettings> {
      * @param options - Options object. See the type definition for member details.
      */
     constructor(
-        private readonly _scrollDimension: ScrollDimension<MGS>,
+        private readonly _scrollDimension: ScrollDimension<BGS>,
         instanceId: number,
         private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
         private readonly orientation: Scroller.Orientation,
@@ -170,7 +170,7 @@ export class Scroller<MGS extends MergableGridSettings> {
         classPrefix: string | undefined,
         loadBuiltinCssStylesheet: boolean,
         cssStylesheetReferenceElement: HTMLElement,
-        private readonly _spaceAccomodatedScroller: Scroller<MGS> | undefined,
+        private readonly _spaceAccomodatedScroller: Scroller<BGS> | undefined,
     ) {
         // make bound versions of all the mouse event handler
         const bound = this._bound;

@@ -3,24 +3,24 @@ import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { CellEditor } from '../../interfaces/dataless/cell-editor';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     /** @internal */
     changedEventer: Focus.ChangedEventer;
     /** @internal */
-    viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer<MCS>;
+    viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer<BCS>;
     /** @internal */
-    getCellEditorEventer: Focus.GetCellEditorEventer<MCS>;
+    getCellEditorEventer: Focus.GetCellEditorEventer<BCS>;
 
-    readonly subgrid: Subgrid<MCS>;
-    readonly dataServer: DataServer<MCS>;
+    readonly subgrid: Subgrid<BCS>;
+    readonly dataServer: DataServer<BCS>;
 
     /** @internal */
     private _currentSubgridPoint: Point | undefined;
@@ -34,20 +34,20 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
     private _canvasY: number | undefined;
 
     /** @internal */
-    private _editor: CellEditor<MCS> | undefined;
+    private _editor: CellEditor<BCS> | undefined;
     /** @internal */
-    private _cell: ViewCell<MCS> | undefined;
+    private _cell: ViewCell<BCS> | undefined;
 
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _gridSettings: MGS,
+        private readonly _gridSettings: BGS,
         /** @internal */
-        private readonly _mainSubgrid: MainSubgrid<MCS>,
+        private readonly _mainSubgrid: MainSubgrid<BCS>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout<MGS, MCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS>,
     ) {
         this.subgrid = this._mainSubgrid;
         this.dataServer = this.subgrid.dataServer;
@@ -79,7 +79,7 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
         this._currentSubgridPoint = undefined;
     }
 
-    set(newFocusPoint: Point, cell: ViewCell<MCS> | undefined, canvasPoint: PartialPoint | undefined) {
+    set(newFocusPoint: Point, cell: ViewCell<BCS> | undefined, canvasPoint: PartialPoint | undefined) {
         const newFocusX = newFocusPoint.x;
         const newFocusY = newFocusPoint.y;
         const currentSubgridPoint = this._currentSubgridPoint;
@@ -116,7 +116,7 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
         }
     }
 
-    setX(activeColumnIndex: number, cell: ViewCell<MCS> | undefined, canvasX: number | undefined) {
+    setX(activeColumnIndex: number, cell: ViewCell<BCS> | undefined, canvasX: number | undefined) {
         const currentSubgridPoint = this._currentSubgridPoint;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex) {
@@ -148,7 +148,7 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
         }
     }
 
-    setY(subgridRowIndex: number, cell: ViewCell<MCS> | undefined, canvasY: number | undefined) {
+    setY(subgridRowIndex: number, cell: ViewCell<BCS> | undefined, canvasY: number | undefined) {
         const currentSubgridPoint = this._currentSubgridPoint;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.y !== subgridRowIndex) {
@@ -179,7 +179,7 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
         }
     }
 
-    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell<MCS> | undefined, canvasX: number | undefined, canvasY: number | undefined) {
+    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell<BCS> | undefined, canvasX: number | undefined, canvasY: number | undefined) {
         const currentSubgridPoint = this._currentSubgridPoint;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex || currentSubgridPoint.y !== subgridRowIndex) {
@@ -216,7 +216,7 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
         return this._currentSubgridPoint !== undefined && activeColumnIndex === this._currentSubgridPoint.x;
     }
 
-    isSubgridRowFocused(subgridRowIndex: number, subgrid: Subgrid<MCS>) {
+    isSubgridRowFocused(subgridRowIndex: number, subgrid: Subgrid<BCS>) {
         return subgrid === this._mainSubgrid && this.isMainSubgridRowFocused(subgridRowIndex);
     }
 
@@ -224,11 +224,11 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
         return this._currentSubgridPoint !== undefined && mainSubgridRowIndex === this._currentSubgridPoint.y;
     }
 
-    isCellFocused(cell: ViewCell<MCS>) {
+    isCellFocused(cell: ViewCell<BCS>) {
         return cell === this._cell;
     }
 
-    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<MCS>) {
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS>) {
         return subgrid === this._mainSubgrid && this.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
     }
 
@@ -288,7 +288,7 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
     }
 
     /** @internal */
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<MCS>) {
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 Point.adjustForYRangeInserted(this._currentSubgridPoint, rowIndex, rowCount);
@@ -302,7 +302,7 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
     }
 
     /** @internal */
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<MCS>) {
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 const positionInDeletionRange = Point.adjustForYRangeDeleted(this._currentSubgridPoint, rowIndex, rowCount);
@@ -322,7 +322,7 @@ export class Focus<MGS extends MergableGridSettings, MCS extends MergableColumnS
     }
 
     /** @internal */
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<MCS>) {
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<BCS>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 Point.adjustForYRangeMoved(this._currentSubgridPoint, oldRowIndex, newRowIndex, count);
@@ -519,9 +519,9 @@ export namespace Focus {
     /** @internal */
     export type ChangedEventer = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
     /** @internal */
-    export type ViewCellRenderInvalidatedEventer<MCS extends MergableColumnSettings> = (this: void, cell: ViewCell<MCS>) => void;
+    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings> = (this: void, cell: ViewCell<BCS>) => void;
     /** @internal */
-    export type GetCellEditorEventer<MCS extends MergableColumnSettings> = (this: void, viewCell: ViewCell<MCS>) => CellEditor<MCS>;
+    export type GetCellEditorEventer<BCS extends BehavioredColumnSettings> = (this: void, viewCell: ViewCell<BCS>) => CellEditor<BCS>;
 
     /** @internal */
     export interface Stash {

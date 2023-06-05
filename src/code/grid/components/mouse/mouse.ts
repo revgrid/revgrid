@@ -1,26 +1,26 @@
 import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { EventDetail } from '../event/event-detail';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Mouse<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     /** @internal */
-    cellEnteredEventer: Mouse.CellEnteredExitedEventer<MCS>;
+    cellEnteredEventer: Mouse.CellEnteredExitedEventer<BCS>;
     /** @internal */
-    cellExitedEventer: Mouse.CellEnteredExitedEventer<MCS>;
+    cellExitedEventer: Mouse.CellEnteredExitedEventer<BCS>;
     /** @internal */
-    viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer<MCS>;
+    viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer<BCS>;
     /** @internal */
     private _activeDragType: EventDetail.DragTypeEnum | undefined;
     /** @internal */
     private _canvasOffsetPoint: Point | undefined;
     /** @internal */
-    private _hoverCell: ViewCell<MCS> | undefined;
+    private _hoverCell: ViewCell<BCS> | undefined;
     /** @internal */
     private _operationCursorName: string | undefined; // gets priority over hover cell and location cursor
     /** @internal */
@@ -29,9 +29,9 @@ export class Mouse<MGS extends MergableGridSettings, MCS extends MergableColumnS
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _canvasManager: CanvasManager<MGS>,
+        private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout<MGS, MCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS>,
     ) {
         this._viewLayout.cellPoolComputedEventerForMouse = () => this.processViewLayoutComputed();
     }
@@ -48,7 +48,7 @@ export class Mouse<MGS extends MergableGridSettings, MCS extends MergableColumnS
     }
 
     /** @internal */
-    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell<MCS> | undefined) {
+    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell<BCS> | undefined) {
         this._canvasOffsetPoint = canvasOffsetPoint;
         this.updateHoverCell(cell, true);
     }
@@ -76,7 +76,7 @@ export class Mouse<MGS extends MergableGridSettings, MCS extends MergableColumnS
 
     /** @internal */
     private processViewLayoutComputed() {
-        let newHoverCell: HoverCell<MCS> | undefined;
+        let newHoverCell: HoverCell<BCS> | undefined;
         const canvasOffsetPoint = this._canvasOffsetPoint;
         if (canvasOffsetPoint === undefined) {
             newHoverCell = undefined;
@@ -88,7 +88,7 @@ export class Mouse<MGS extends MergableGridSettings, MCS extends MergableColumnS
     }
 
     /** @internal */
-    private updateHoverCell(cell: ViewCell<MCS> | undefined, invalidateViewCellRender: boolean) {
+    private updateHoverCell(cell: ViewCell<BCS> | undefined, invalidateViewCellRender: boolean) {
         const existingHoverCell = this._hoverCell;
         if (cell === undefined) {
             if (existingHoverCell !== undefined) {
@@ -208,8 +208,8 @@ export class Mouse<MGS extends MergableGridSettings, MCS extends MergableColumnS
 /** @public */
 export namespace Mouse {
     /** @internal */
-    export type CellEnteredExitedEventer<MCS extends MergableColumnSettings> = (this: void, cell: ViewCell<MCS>) => void;
-    export type ViewCellRenderInvalidatedEventer<MCS extends MergableColumnSettings> = (this: void, cell: ViewCell<MCS>) => void;
+    export type CellEnteredExitedEventer<BCS extends BehavioredColumnSettings> = (this: void, cell: ViewCell<BCS>) => void;
+    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings> = (this: void, cell: ViewCell<BCS>) => void;
 
     /** @internal */
     export interface CursorNameAndTitleText {

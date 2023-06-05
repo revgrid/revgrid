@@ -1,17 +1,17 @@
 import { Rectangle } from '../../types-utils/rectangle';
 import { ViewLayoutColumn } from '../schema/view-layout-column';
-import { MergableColumnSettings } from '../settings/mergable-column-settings';
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { DatalessSubgrid } from './dataless-subgrid';
 import { DatalessViewLayoutRow } from './dataless-view-layout-row';
 
 /** @public */
-export interface DatalessViewCell<MCS extends MergableColumnSettings> {
-    readonly viewLayoutColumn: ViewLayoutColumn<MCS>;
+export interface DatalessViewCell<BCS extends BehavioredColumnSettings> {
+    readonly viewLayoutColumn: ViewLayoutColumn<BCS>;
     readonly subgrid: DatalessSubgrid;
     readonly viewLayoutRow: DatalessViewLayoutRow;
 
     readonly bounds: Rectangle;
-    readonly columnSettings: MCS;
+    readonly columnSettings: BCS;
 
     readonly isRowVisible: boolean;
     readonly isColumnVisible: boolean;
@@ -36,7 +36,7 @@ export interface DatalessViewCell<MCS extends MergableColumnSettings> {
 export namespace DatalessViewCell {
     export type PaintFingerprint = Record<string, unknown>;
 
-    export function sameByDataPoint<MCS extends MergableColumnSettings>(left: DatalessViewCell<MCS>, right: DatalessViewCell<MCS>) {
+    export function sameByDataPoint<BCS extends BehavioredColumnSettings>(left: DatalessViewCell<BCS>, right: DatalessViewCell<BCS>) {
         return (
             left.viewLayoutRow.subgridRowIndex === right.viewLayoutRow.subgridRowIndex &&
             left.viewLayoutColumn.column.index === right.viewLayoutColumn.column.index &&

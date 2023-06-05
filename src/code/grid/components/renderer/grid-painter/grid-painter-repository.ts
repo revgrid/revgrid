@@ -1,5 +1,5 @@
-import { MergableColumnSettings } from '../../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { Registry } from '../../../types-utils/registry';
 import { AssertError } from '../../../types-utils/revgrid-error';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -15,26 +15,26 @@ import { ByColumnsGridPainter } from './by-columns-grid-painter';
 import { ByRowsGridPainter } from './by-rows-grid-painter';
 import { GridPainter } from './grid-painter';
 
-export class GridPainterRepository<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
-    private constructorRegistry = new Registry<GridPainter.Constructor<MGS, MCS>>();
-    private cache = new Map<string, GridPainter<MGS, MCS>>();
+export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    private constructorRegistry = new Registry<GridPainter.Constructor<BGS, BCS>>();
+    private cache = new Map<string, GridPainter<BGS, BCS>>();
 
     constructor(
-        private readonly _gridSettings: MGS,
-        private readonly _canvasEx: CanvasManager<MGS>,
-        private readonly _subgridsManager: SubgridsManager<MGS, MCS>,
-        private readonly _viewLayout: ViewLayout<MGS, MCS>,
-        private readonly _focus: Focus<MGS, MCS>,
-        private readonly _selection: Selection<MGS, MCS>,
-        private readonly _mouse: Mouse<MGS, MCS>,
+        private readonly _gridSettings: BGS,
+        private readonly _canvasEx: CanvasManager<BGS>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        private readonly _focus: Focus<BGS, BCS>,
+        private readonly _selection: Selection<BGS, BCS>,
+        private readonly _mouse: Mouse<BGS, BCS>,
         private readonly _repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         // preregister the standard grid painters
-        this.constructorRegistry.register(AsNeededGridPainter.key, AsNeededGridPainter<MGS, MCS>);
-        this.constructorRegistry.register(ByColumnsGridPainter.key, ByColumnsGridPainter<MGS, MCS>);
-        this.constructorRegistry.register(ByColumnsDiscreteGridPainter.key, ByColumnsDiscreteGridPainter<MGS, MCS>);
-        this.constructorRegistry.register(ByColumnsAndRowsGridPainter.key, ByColumnsAndRowsGridPainter<MGS, MCS>);
-        this.constructorRegistry.register(ByRowsGridPainter.key, ByRowsGridPainter<MGS, MCS>);
+        this.constructorRegistry.register(AsNeededGridPainter.key, AsNeededGridPainter<BGS, BCS>);
+        this.constructorRegistry.register(ByColumnsGridPainter.key, ByColumnsGridPainter<BGS, BCS>);
+        this.constructorRegistry.register(ByColumnsDiscreteGridPainter.key, ByColumnsDiscreteGridPainter<BGS, BCS>);
+        this.constructorRegistry.register(ByColumnsAndRowsGridPainter.key, ByColumnsAndRowsGridPainter<BGS, BCS>);
+        this.constructorRegistry.register(ByRowsGridPainter.key, ByRowsGridPainter<BGS, BCS>);
     }
 
     get(key: string) {
@@ -68,7 +68,7 @@ export class GridPainterRepository<MGS extends MergableGridSettings, MCS extends
         return this.cache.values();
     }
 
-    register(key: string, constructor: GridPainter.Constructor<MGS, MCS>) {
+    register(key: string, constructor: GridPainter.Constructor<BGS, BCS>) {
         this.constructorRegistry.register(key, constructor);
     }
 }

@@ -1,10 +1,10 @@
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 
-export class RenderActionQueue<MCS extends MergableColumnSettings> {
+export class RenderActionQueue<BCS extends BehavioredColumnSettings> {
     actionsQueuedEventer: RenderActioner.ActionsQueuedEventer;
 
     private _queuedActions: RenderAction[] = [];
@@ -103,7 +103,7 @@ export class RenderActionQueue<MCS extends MergableColumnSettings> {
         }
     }
 
-    invalidateViewCellRender(_cell: ViewCell<MCS>) {
+    invalidateViewCellRender(_cell: ViewCell<BCS>) {
         this.beginChange();
         try {
             this.queuePaintAllAction();

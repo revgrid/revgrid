@@ -1,14 +1,14 @@
 import { HoverCell } from '../../interfaces/data/hover-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class ColumnSortingUiBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> extends UiBehavior<MGS, MCS> {
+export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
 
     readonly typeName = ColumnSortingUiBehavior.typeName;
 
-    override handleClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -23,7 +23,7 @@ export class ColumnSortingUiBehavior<MGS extends MergableGridSettings, MCS exten
         }
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -38,7 +38,7 @@ export class ColumnSortingUiBehavior<MGS extends MergableGridSettings, MCS exten
         }
     }
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell<MCS> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (cell === undefined) {
@@ -52,7 +52,7 @@ export class ColumnSortingUiBehavior<MGS extends MergableGridSettings, MCS exten
         return super.handlePointerMove(event, cell);
     }
 
-    private checkSort(event: MouseEvent, cell: HoverCell<MCS>, dblClick: boolean) {
+    private checkSort(event: MouseEvent, cell: HoverCell<BCS>, dblClick: boolean) {
         if (this.canSortWithCell(cell) && cell.columnSettings.mouseSortOnDoubleClick === dblClick) {
             this.eventBehavior.processColumnSortEvent(event, cell);
             return true;
@@ -61,7 +61,7 @@ export class ColumnSortingUiBehavior<MGS extends MergableGridSettings, MCS exten
         }
     }
 
-    private canSortWithCell(cell: HoverCell<MCS>): boolean {
+    private canSortWithCell(cell: HoverCell<BCS>): boolean {
         return (
             cell.isHeaderOrRowFixed &&
             !cell.isMouseOverLine() &&

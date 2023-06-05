@@ -8,8 +8,8 @@ import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { HoverCell } from '../../interfaces/data/hover-cell';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
 import { DataExtractBehavior } from '../component/data-extract-behavior';
@@ -35,35 +35,35 @@ import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /** @internal */
-export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
-    private readonly _uiBehaviorFactory = new UiBehaviorFactory<MGS, MCS>();
-    private readonly _uiBehaviorMap = new Map<string, UiBehavior<MGS, MCS>>();
-    private readonly _firstUiBehavior: UiBehavior<MGS, MCS>;
+export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    private readonly _uiBehaviorFactory = new UiBehaviorFactory<BGS, BCS>();
+    private readonly _uiBehaviorMap = new Map<string, UiBehavior<BGS, BCS>>();
+    private readonly _firstUiBehavior: UiBehavior<BGS, BCS>;
 
     readonly _sharedState: UiBehaviorSharedState; // Will be initialised in constructor
-    readonly _services: UiBehaviorServices<MGS, MCS>;
+    readonly _services: UiBehaviorServices<BGS, BCS>;
 
     private _enabled = false;
 
     constructor(
         containerHtmlElement: HTMLElement,
-        private readonly _gridSettings: MGS,
-        canvasManager: CanvasManager<MGS>,
-        focus: Focus<MGS, MCS>,
-        selection: Selection<MGS, MCS>,
-        columnsManager: ColumnsManager<MGS, MCS>,
-        subgridsManager: SubgridsManager<MGS, MCS>,
-        viewLayout: ViewLayout<MGS, MCS>,
-        renderer: Renderer<MGS, MCS>,
-        private readonly _mouse: Mouse<MGS, MCS>,
-        focusScrollBehavior: FocusScrollBehavior<MGS, MCS>,
-        selectionBehavior: FocusSelectBehavior<MGS, MCS>,
-        rowPropertiesBehavior: RowPropertiesBehavior<MGS, MCS>,
-        cellPropertiesBehavior: CellPropertiesBehavior<MGS, MCS>,
-        dataExtractBehavior: DataExtractBehavior<MGS, MCS>,
-        reindexBehavior: ReindexBehavior<MGS, MCS>,
-        private readonly _eventBehavior: EventBehavior<MGS, MCS>,
-        customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<MGS, MCS>[] | undefined,
+        private readonly _gridSettings: BGS,
+        canvasManager: CanvasManager<BGS>,
+        focus: Focus<BGS, BCS>,
+        selection: Selection<BGS, BCS>,
+        columnsManager: ColumnsManager<BGS, BCS>,
+        subgridsManager: SubgridsManager<BGS, BCS>,
+        viewLayout: ViewLayout<BGS, BCS>,
+        renderer: Renderer<BGS, BCS>,
+        private readonly _mouse: Mouse<BGS, BCS>,
+        focusScrollBehavior: FocusScrollBehavior<BGS, BCS>,
+        selectionBehavior: FocusSelectBehavior<BGS, BCS>,
+        rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS>,
+        cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS>,
+        dataExtractBehavior: DataExtractBehavior<BGS, BCS>,
+        reindexBehavior: ReindexBehavior<BGS, BCS>,
+        private readonly _eventBehavior: EventBehavior<BGS, BCS>,
+        customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<BGS, BCS>[] | undefined,
     ) {
         this._sharedState = {} as UiBehaviorSharedState
 
@@ -112,7 +112,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
         this._eventBehavior.uiVerticalScrollerActionEventer = (event) => this.handleVerticalScrollerActionEvent(event);
     }
 
-    load(customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<MGS, MCS>[] | undefined) {
+    load(customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<BGS, BCS>[] | undefined) {
         /**
          * @summary Controller chain of command.
          * @desc Each feature is linked to the next feature.
@@ -143,7 +143,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
 
         const typeNames = this._gridSettings.defaultUiBehaviorTypeNames;
         const maxCount = typeNames.length;
-        const uiBehaviors = new Array<UiBehavior<MGS, MCS>>(maxCount);
+        const uiBehaviors = new Array<UiBehavior<BGS, BCS>>(maxCount);
         let count = 0;
         for (let i = 0; i < maxCount; i++) {
             const name = typeNames[i];
@@ -214,7 +214,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
      * @param event - the event details
      * @internal
      */
-    private handlePointerMoveEvent(event: PointerEvent): HoverCell<MCS> | null | undefined {
+    private handlePointerMoveEvent(event: PointerEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             this._sharedState.locationCursorName = undefined;
             const cell = this._firstUiBehavior.handlePointerMove(event, undefined);
@@ -230,7 +230,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
      * @param event - the event details
      * @internal
      */
-    private handleClickEvent(event: MouseEvent): HoverCell<MCS> | null | undefined {
+    private handleClickEvent(event: MouseEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleClick(event, undefined);
             return cell;
@@ -243,7 +243,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
      * @desc delegate handling tap to the feature chain of responsibility
      * @internal
      */
-    private handleContextMenuEvent(event: MouseEvent): HoverCell<MCS> | null | undefined {
+    private handleContextMenuEvent(event: MouseEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleContextMenu(event, undefined);
             return cell;
@@ -256,7 +256,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
      * @desc delegate handling wheel moved to the feature chain of responsibility
      * @internal
      */
-    private handleWheelMovedEvent(event: WheelEvent): HoverCell<MCS> | null | undefined {
+    private handleWheelMovedEvent(event: WheelEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleWheelMove(event, undefined);
             return cell;
@@ -270,7 +270,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
      * @param event - the event details
      * @internal
      */
-    private handlePointerUpCancelEvent(event: PointerEvent): HoverCell<MCS> | null | undefined {
+    private handlePointerUpCancelEvent(event: PointerEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerUpCancel(event, undefined);
             return cell;
@@ -279,7 +279,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
         }
     }
 
-    private handlePointerDragStartEvent(event: DragEvent): EventBehavior.UiPointerDragStartResult<MCS> {
+    private handlePointerDragStartEvent(event: DragEvent): EventBehavior.UiPointerDragStartResult<BCS> {
         if (this._enabled) {
             return this._firstUiBehavior.handlePointerDragStart(event, undefined);
         } else {
@@ -290,7 +290,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
         }
     }
 
-    private handlePointerDragEvent(event: PointerEvent): HoverCell<MCS> | null | undefined {
+    private handlePointerDragEvent(event: PointerEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerDrag(event, undefined);
             return cell;
@@ -299,7 +299,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
         }
     }
 
-    private handlePointerDragEndEvent(event: PointerEvent): HoverCell<MCS> | null | undefined {
+    private handlePointerDragEndEvent(event: PointerEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerDragEnd(event, undefined);
             return cell;
@@ -313,7 +313,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
      * @param event - the event details
      * @internal
      */
-    private handleDblClickEvent(event: MouseEvent): HoverCell<MCS> | null | undefined {
+    private handleDblClickEvent(event: MouseEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleDblClick(event, undefined);
             return cell;
@@ -326,7 +326,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
      * @param event - the event details
      * @internal
      */
-    private handlePointerDownEvent(event: PointerEvent): HoverCell<MCS> | null | undefined {
+    private handlePointerDownEvent(event: PointerEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerDown(event, undefined);
             return cell;
@@ -339,7 +339,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handlePointerEnterEvent(event: PointerEvent): HoverCell<MCS> | null | undefined {
+    private handlePointerEnterEvent(event: PointerEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerEnter(event, undefined);
             return cell;
@@ -352,7 +352,7 @@ export class UiBehaviorManager<MGS extends MergableGridSettings, MCS extends Mer
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handlePointerLeaveOutEvent(event: PointerEvent): HoverCell<MCS> | null | undefined {
+    private handlePointerLeaveOutEvent(event: PointerEvent): HoverCell<BCS> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerLeaveOut(event, undefined);
             return cell;

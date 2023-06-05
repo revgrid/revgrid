@@ -1,10 +1,10 @@
-export { AlphaTextCellPainter } from './alpha-text-cell-painter';
-export { ButtonCellPainter } from './button-cell-painter';
-export { HeaderTextCellPainter } from './header-text-cell-painter';
-export { SliderCellPainter } from './slider-cell-painter';
-export { SparkBarCellPainter } from './spark-bar-cell-painter';
-export { SparkLineCellPainter } from './spark-line-cell-painter';
+export { StandardAlphaTextCellPainter } from './standard-alpha-text-cell-painter';
+export { StandardButtonCellPainter } from './standard-button-cell-painter';
 export { StandardCellPainter } from './standard-cell-painter';
-export { TagCellPainter } from './tag-cell-painter';
-export { TextCellPainter } from './text-cell-painter';
+export { StandardHeaderTextCellPainter } from './standard-header-text-cell-painter';
+export { StandardSliderCellPainter } from './standard-slider-cell-painter';
+export { StandardSparkBarCellPainter } from './standard-spark-bar-cell-painter';
+export { StandardSparkLineCellPainter } from './standard-spark-line-cell-painter';
+export { StandardTagCellPainter } from './standard-tag-cell-painter';
+export { StandardTextCellPainter } from './standard-text-cell-painter';
 

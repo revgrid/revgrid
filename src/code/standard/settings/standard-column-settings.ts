@@ -1,5 +1,6 @@
 import { StandardGridSettings } from './standard-grid-settings';
 
+/** @public */
 export type StandardColumnSettings = Pick<StandardGridSettings,
     'cellPadding' |
     'cellFocusedBorderColor' |

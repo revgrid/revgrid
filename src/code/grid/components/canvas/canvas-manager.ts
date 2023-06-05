@@ -11,7 +11,7 @@
 //     window.CustomEvent.prototype = window.Event.prototype;
 // }
 
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 import { CssClassName } from '../../types-utils/html-types';
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
@@ -20,7 +20,7 @@ import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-err
 import { Writable } from '../../types-utils/types';
 
 /** @public */
-export class CanvasManager<MGS extends MergableGridSettings> {
+export class CanvasManager<BGS extends BehavioredGridSettings> {
     resizedEventerForViewLayout: CanvasManager.ResizedEventer;
     resizedEventerForEventBehavior: CanvasManager.ResizedEventer;
 
@@ -199,7 +199,7 @@ export class CanvasManager<MGS extends MergableGridSettings> {
     constructor(
         private readonly _containerElement: HTMLElement,
         contextAttributes: CanvasRenderingContext2DSettings | undefined,
-        private readonly _gridSettings: MGS,
+        private readonly _gridSettings: BGS,
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');

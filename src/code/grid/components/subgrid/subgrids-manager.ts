@@ -1,24 +1,24 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { MainSubgridImplementation } from './main-subgrid-implementation';
 import { SubgridImplementation } from './subgrid-implementation';
 
-export class SubgridsManager<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
-    readonly mainSubgrid: MainSubgridImplementation<MGS, MCS>;
-    readonly subgrids = new Array<SubgridImplementation<MGS, MCS>>();
-    readonly _handledSubgrids = new Array<SubgridImplementation<MGS, MCS> | undefined>();
+export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    readonly mainSubgrid: MainSubgridImplementation<BGS, BCS>;
+    readonly subgrids = new Array<SubgridImplementation<BGS, BCS>>();
+    readonly _handledSubgrids = new Array<SubgridImplementation<BGS, BCS> | undefined>();
 
     constructor(
-        private readonly _gridSettings: MGS,
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
-        definitions: Subgrid.Definition<MCS>[],
+        private readonly _gridSettings: BGS,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        definitions: Subgrid.Definition<BCS>[],
     ) {
-        let mainSubgrid: MainSubgridImplementation<MGS, MCS> | undefined;
+        let mainSubgrid: MainSubgridImplementation<BGS, BCS> | undefined;
         const subgrids = this.subgrids;
         definitions.sort((left, right) => Subgrid.Role.gridOrderCompare(left.role, right.role));
         for (const definition of definitions) {
@@ -28,7 +28,7 @@ export class SubgridsManager<MGS extends MergableGridSettings, MCS extends Merga
                 subgrids.push(subgrid);
                 this._handledSubgrids.push(subgrid);
                 if (subgrid.role === Subgrid.RoleEnum.main) {
-                    mainSubgrid = subgrid as MainSubgridImplementation<MGS, MCS>;
+                    mainSubgrid = subgrid as MainSubgridImplementation<BGS, BCS>;
                 }
             }
         }
@@ -53,7 +53,7 @@ export class SubgridsManager<MGS extends MergableGridSettings, MCS extends Merga
      */
     private createSubgridFromDefinition(
         subgridHandle: SubgridImplementation.Handle,
-        definition: Subgrid.Definition<MCS>,
+        definition: Subgrid.Definition<BCS>,
     ) {
         const role = definition.role ?? Subgrid.Role.defaultRole;
         const isMainRole = role === Subgrid.RoleEnum.main;
@@ -88,15 +88,15 @@ export class SubgridsManager<MGS extends MergableGridSettings, MCS extends Merga
     /** @returns either Subgrid or MainSubgrid depending on role */
     private createSubgrid(
         subgridHandle: SubgridImplementation.Handle,
-        role: Subgrid.Role, dataServer: DataServer<MCS>, metaModel: MetaModel | undefined,
+        role: Subgrid.Role, dataServer: DataServer<BCS>, metaModel: MetaModel | undefined,
         selectable: boolean,
         defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
-        getCellPainterEventer: Subgrid.GetCellPainterEventer<MCS>,
+        getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS>,
     ) {
-        let subgrid: SubgridImplementation<MGS, MCS>;
+        let subgrid: SubgridImplementation<BGS, BCS>;
         if (role === Subgrid.RoleEnum.main) {
-            subgrid = new MainSubgridImplementation<MGS, MCS>(
+            subgrid = new MainSubgridImplementation<BGS, BCS>(
                 this._gridSettings,
                 this._columnsManager,
                 subgridHandle,

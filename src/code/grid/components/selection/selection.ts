@@ -2,8 +2,8 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { DatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils/types';
@@ -22,7 +22,7 @@ import { SelectionRectangleList } from './selection-rectangle-list';
  * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
  */
 
-export class Selection<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class Selection<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     changedEventerForRenderer: Selection.ChangedEventer;
     changedEventerForEventBehavior: Selection.ChangedEventer;
 
@@ -30,7 +30,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
     readonly columns = new SelectionRangeList();
     readonly rectangleList = new SelectionRectangleList();
 
-    private _subgrid: Subgrid<MCS> | undefined;
+    private _subgrid: Subgrid<BCS> | undefined;
     private _lastArea: LastSelectionArea | undefined;
     private _allRowsSelected = false;
 
@@ -38,11 +38,11 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
     private _changed = false;
     private _silentlyChanged = false;
 
-    private _snapshot: Selection<MGS, MCS> | undefined;
+    private _snapshot: Selection<BGS, BCS> | undefined;
 
     constructor(
-        private readonly _gridSettings: MGS,
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
+        private readonly _gridSettings: BGS,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
     ) {
     }
 
@@ -86,7 +86,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    assign(other: Selection<MGS, MCS>) {
+    assign(other: Selection<BGS, BCS>) {
         this.rectangleList.assign(other.rectangleList);
         this.rows.assign(other.rows);
         this.columns.assign(other.columns);
@@ -94,7 +94,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         this._subgrid = other._subgrid;
     }
 
-    createStash(): Selection.Stash<MCS> {
+    createStash(): Selection.Stash<BCS> {
         const rowIds = this.createRowsStash();
         const columnNames = this.createColumnsStash();
 
@@ -106,7 +106,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         };
     }
 
-    restoreStash(stash: Selection.Stash<MCS>) {
+    restoreStash(stash: Selection.Stash<BCS>) {
         this.beginChange();
         try {
             this.clear();
@@ -196,7 +196,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    selectOnlyCell(x: number, y: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
+    selectOnlyCell(x: number, y: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             this.clear();
@@ -206,7 +206,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    selectCell(x: number, y: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
+    selectCell(x: number, y: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             if (subgrid !== this._subgrid) {
@@ -219,7 +219,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    deselectCellArea(x: number, y: number, subgrid: Subgrid<MCS>) {
+    deselectCellArea(x: number, y: number, subgrid: Subgrid<BCS>) {
         const rectangle: Rectangle = {
             x,
             y,
@@ -229,7 +229,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         this.deselectRectangle(rectangle, subgrid);
     }
 
-    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
+    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             let area: SelectionArea;
@@ -284,7 +284,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
+    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
         this.beginChange();
         try {
             this.clear();
@@ -294,7 +294,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>, silent = false) {
+    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>, silent = false) {
         this.beginChange();
         try {
             if (this.areaCount > 0) {
@@ -323,7 +323,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         return this._lastArea;
     }
 
-    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<MCS>) {
+    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<BCS>) {
         if (subgrid === this._subgrid) {
             const index = this.rectangleList.findIndex(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
             if (index >= 0) {
@@ -336,7 +336,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    selectOnlyAllRows(subgrid: Subgrid<MCS>) {
+    selectOnlyAllRows(subgrid: Subgrid<BCS>) {
         this.beginChange();
         if (subgrid !== this._subgrid || !this._allRowsSelected) {
             this._changed = true;
@@ -349,7 +349,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         this.endChange();
     }
 
-    selectAllRows(subgrid: Subgrid<MCS>) {
+    selectAllRows(subgrid: Subgrid<BCS>) {
         this.beginChange();
         if (!this._allRowsSelected) {
             this._changed = true;
@@ -382,7 +382,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
     }
 
     /** Parameters specify a rectangle in Data, the rows of which will be selected */
-    selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
+    selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
         this.beginChange();
         try {
             if (subgrid !== this._subgrid) {
@@ -407,7 +407,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    deselectRows(y: number, count: number, subgrid: Subgrid<MCS>) {
+    deselectRows(y: number, count: number, subgrid: Subgrid<BCS>) {
         if (subgrid === this._subgrid) {
             const changed = this.rows.delete(y, count);
             if (changed) {
@@ -443,11 +443,11 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid<MCS>) {
+    selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid<BCS>) {
         this.selectRows(x, inexclusiveY, 1, 1, subgrid); // implement properly in future
     }
 
-    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<MCS>) {
+    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS>) {
         this.beginChange();
 
         if (subgrid !== this._subgrid) {
@@ -470,7 +470,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         return lastArea;
     }
 
-    deselectColumns(x: number, count: number, subgrid: Subgrid<MCS>) {
+    deselectColumns(x: number, count: number, subgrid: Subgrid<BCS>) {
         if (subgrid === this._subgrid) {
             const changed = this.columns.delete(x, count);
             if (changed) {
@@ -506,11 +506,11 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid<MCS>) {
+    selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid<BCS>) {
         this.selectColumns(inexclusiveX, y, 1, 1, subgrid); // implement properly in future
     }
 
-    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
+    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -520,7 +520,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    replaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
+    replaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -530,7 +530,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    replaceLastAreaWithColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<MCS>) {
+    replaceLastAreaWithColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS>) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -540,7 +540,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    replaceLastAreaWithRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
+    replaceLastAreaWithRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -550,7 +550,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType): boolean {
+    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType): boolean {
         const cellCoveringSelectionAreas = this.getAreasCoveringCell(originX, originY, subgrid);
         const priorityCoveringArea = SelectionArea.getPriorityCellCoveringSelectionArea(cellCoveringSelectionAreas);
         if (priorityCoveringArea === undefined) {
@@ -661,7 +661,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
     //     this.rectangleList.getFlattenedYs();
     // }
 
-    getAreasCoveringCell(x: number, y: number, subgrid: Subgrid<MCS> | undefined) {
+    getAreasCoveringCell(x: number, y: number, subgrid: Subgrid<BCS> | undefined) {
         let result: SelectionArea[];
         if (subgrid !== undefined && subgrid !== this._subgrid) {
             result = [];
@@ -728,7 +728,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<MCS>) {
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -757,7 +757,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<MCS>) {
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -786,7 +786,7 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
         }
     }
 
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<MCS>) {
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<BCS>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -983,22 +983,18 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
      * @returns Number of selected rows or `undefined` if `restoreRowSelections` is falsy.
      */
     private createRowsStash() {
-        if (!this._gridSettings.restoreRowSelections) {
+        const subgrid = this._subgrid;
+        if (subgrid === undefined) {
             return undefined;
         } else {
-            const subgrid = this._subgrid;
-            if (subgrid === undefined) {
+            const dataServer = subgrid.dataServer;
+            const getRowIdFromIndexFtn = dataServer.getRowIdFromIndex;
+            if (getRowIdFromIndexFtn === undefined) {
                 return undefined;
             } else {
-                const dataServer = subgrid.dataServer;
-                const getRowIdFromIndexFtn = dataServer.getRowIdFromIndex;
-                if (getRowIdFromIndexFtn === undefined) {
-                    return undefined;
-                } else {
-                    const boundGetRowIdFromIndexFtn = getRowIdFromIndexFtn.bind(dataServer);
-                    const selectedRowIndices = this.getRowIndices();
-                    return selectedRowIndices.map( (selectedRowIndex) => boundGetRowIdFromIndexFtn(selectedRowIndex) );
-                }
+                const boundGetRowIdFromIndexFtn = getRowIdFromIndexFtn.bind(dataServer);
+                const selectedRowIndices = this.getRowIndices();
+                return selectedRowIndices.map( (selectedRowIndex) => boundGetRowIdFromIndexFtn(selectedRowIndex) );
             }
         }
     }
@@ -1074,12 +1070,8 @@ export class Selection<MGS extends MergableGridSettings, MCS extends MergableCol
      * @returns Number of selected columns or `undefined` if `restoreColumnSelections` is falsy.
      */
     private createColumnsStash() {
-        if (!this._gridSettings.restoreColumnSelections) {
-            return undefined;
-        } else {
-            const selectedColumns = this.getColumnIndices();
-            return selectedColumns.map( (selectedColumnIndex) => this._columnsManager.getActiveColumn(selectedColumnIndex).name );
-        }
+        const selectedColumns = this.getColumnIndices();
+        return selectedColumns.map( (selectedColumnIndex) => this._columnsManager.getActiveColumn(selectedColumnIndex).name );
     }
 
     private restoreColumnsStash(columnNames: string[] | undefined) {
@@ -1132,8 +1124,8 @@ export namespace Selection {
         cellSelected: boolean;
     }
 
-    export interface Stash<MCS extends MergableColumnSettings> {
-        readonly subgrid: Subgrid<MCS> | undefined;
+    export interface Stash<BCS extends BehavioredColumnSettings> {
+        readonly subgrid: Subgrid<BCS> | undefined;
         readonly allRowsSelected: boolean,
         readonly rowIds: unknown[] | undefined,
         readonly columnNames: string[] | undefined,

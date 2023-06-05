@@ -1,27 +1,27 @@
-import { MergableColumnSettings } from '../settings/mergable-column-settings';
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 
 /** @public */
-export interface SchemaServer<MCS extends MergableColumnSettings> {
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<MCS>): void;
-    unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<MCS>): void;
+export interface SchemaServer<BCS extends BehavioredColumnSettings> {
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<BCS>): void;
+    unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<BCS>): void;
 
     /**
      * @desc Get list of columns. The order of the columns in the list defines the column indexes.
      *
      * On initial call and again whenever the schema changes, the data model must dispatch the `hypegrid-schema-loaded` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
      */
-    getSchema(): readonly SchemaServer.Column<MCS>[];
+    getSchema(): readonly SchemaServer.Column<BCS>[];
 }
 
 /** @public */
 export namespace SchemaServer {
-    export interface Column<MCS extends MergableColumnSettings> {
+    export interface Column<BCS extends BehavioredColumnSettings> {
         name: string;
         index: number;
-        settings: MCS;
+        settings: BCS;
     }
 
-    export interface NotificationsClient<MCS extends MergableColumnSettings> {
+    export interface NotificationsClient<BCS extends BehavioredColumnSettings> {
         beginChange: (this: void) => void;
         endChange: (this: void) => void;
         /**
@@ -36,10 +36,10 @@ export namespace SchemaServer {
         allColumnsDeleted: (this: void) => void;
         /** Try to use columnsInserted, columnsDeleted, allColumnsDeleted instead of schemaChanged. These provide better optimisations and control of selection. */
         schemaChanged: (this: void) => void;
-        getActiveSchemaColumns: (this: void) => readonly SchemaServer.Column<MCS>[];
+        getActiveSchemaColumns: (this: void) => readonly SchemaServer.Column<BCS>[];
     }
 
-    export type Constructor<MCS extends MergableColumnSettings> = new() => SchemaServer<MCS>;
+    export type Constructor<BCS extends BehavioredColumnSettings> = new() => SchemaServer<BCS>;
 
     // /**
     //  * @summary Generates an array of columns (proper schema) from an array of Column and string.

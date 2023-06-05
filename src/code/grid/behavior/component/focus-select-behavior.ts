@@ -2,19 +2,19 @@ import { Focus } from '../../components/focus/focus';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
 import { Subgrid } from '../../interfaces/data/subgrid';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
 import { SelectionAreaType } from '../../types-utils/types';
 
-export class FocusSelectBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     constructor(
-        private readonly _gridSettings: MGS,
-        private readonly _selection: Selection<MGS, MCS>,
-        private readonly _focus: Focus<MGS, MCS>,
-        private readonly _viewLayout: ViewLayout<MGS, MCS>,
-        private readonly _checkFocusEventer: FocusSelectBehavior.CheckFocusEventer<MCS>,
+        private readonly _gridSettings: BGS,
+        private readonly _selection: Selection<BGS, BCS>,
+        private readonly _focus: Focus<BGS, BCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        private readonly _checkFocusEventer: FocusSelectBehavior.CheckFocusEventer<BCS>,
     ) {
     }
 
@@ -40,7 +40,7 @@ export class FocusSelectBehavior<MGS extends MergableGridSettings, MCS extends M
         this._selection.selectColumns(activeColumnIndex, rowIndex, 1, 1, this._focus.subgrid);
     }
 
-    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<MCS>) {
+    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS>) {
         const selection = this._selection;
         const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
         selection.beginChange();
@@ -52,23 +52,23 @@ export class FocusSelectBehavior<MGS extends MergableGridSettings, MCS extends M
         }
     }
 
-    selectToggleRow(subgridRowIndex: number, subgrid: Subgrid<MCS>) {
+    selectToggleRow(subgridRowIndex: number, subgrid: Subgrid<BCS>) {
         const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectToggleRow(columnIndex, subgridRowIndex, subgrid);
     }
 
-    selectAddRow(subgridRowIndex: number, subgrid: Subgrid<MCS>) {
+    selectAddRow(subgridRowIndex: number, subgrid: Subgrid<BCS>) {
         const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectRows(columnIndex, subgridRowIndex, 1, 1, subgrid);
     }
 
-    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
+    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
         const area = this._selection.selectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
 
-    focusSelectOnlyCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
+    focusSelectOnlyCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
         this._selection.selectOnlyCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
         this._checkFocusEventer(activeColumnIndex, subgridRowIndex, subgrid);
     }
@@ -80,24 +80,24 @@ export class FocusSelectBehavior<MGS extends MergableGridSettings, MCS extends M
             const viewLayoutRows = this._viewLayout.rows;
             if (viewLayoutRowIndex < viewLayoutRows.length) {
                 const vr = this._viewLayout.rows[viewLayoutRowIndex];
-                this.focusSelectOnlyCell(vc.activeColumnIndex, vr.subgridRowIndex, vr.subgrid as Subgrid<MCS>, areaType);
+                this.focusSelectOnlyCell(vc.activeColumnIndex, vr.subgridRowIndex, vr.subgrid as Subgrid<BCS>, areaType);
             }
         }
     }
 
-    focusReplaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
+    focusReplaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
         const area = this._selection.replaceLastArea(inexclusiveX, inexclusiveY, width, height, subgrid, areaType);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
 
-    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<MCS>) {
+    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
         const area = this._selection.replaceLastAreaWithRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
 
-    focusSelectAddCell(x: number, y: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType) {
+    focusSelectAddCell(x: number, y: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
         this._selection.selectCell(x, y, subgrid, areaType);
 
         if (subgrid === this._focus.subgrid) {
@@ -105,7 +105,7 @@ export class FocusSelectBehavior<MGS extends MergableGridSettings, MCS extends M
         }
     }
 
-    focusSelectToggleCell(originX: number, originY: number, subgrid: Subgrid<MCS>, areaType: SelectionAreaType): boolean {
+    focusSelectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType): boolean {
         const added = this._selection.selectToggleCell(originX, originY, subgrid, areaType);
         if (added) {
             this._checkFocusEventer(originX, originY, subgrid);
@@ -165,5 +165,5 @@ export class FocusSelectBehavior<MGS extends MergableGridSettings, MCS extends M
 }
 
 export namespace FocusSelectBehavior {
-    export type CheckFocusEventer<MCS extends MergableColumnSettings> = (this: void, activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<MCS>) => void;
+    export type CheckFocusEventer<BCS extends BehavioredColumnSettings> = (this: void, activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS>) => void;
 }

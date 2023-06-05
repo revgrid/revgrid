@@ -13,8 +13,6 @@ export interface GridSettings {
     readonly borderWidth: number;
     readonly borderColor: string;
     readonly color: GridSettings.Color;
-    /** Whether to automatically expand column width to accommodate widest rendered value. */
-    readonly columnAutosizing: boolean;
     /** The widest the column will be auto-sized to. */
     readonly columnAutosizingMax: number | undefined;
     /** Set up a clipping region around each column before painting cells. */
@@ -29,6 +27,8 @@ export interface GridSettings {
     /** Columns can be hidden when being reordered. */
     readonly columnsReorderableHideable: boolean;
     readonly defaultRowHeight: number;
+    /** Whether to automatically expand column width to accommodate widest rendered value. */
+    readonly defaultColumnAutosizing: boolean;
     readonly defaultColumnWidth: number;
     readonly defaultUiBehaviorTypeNames: string[];
     readonly editable: boolean;
@@ -54,8 +54,6 @@ export interface GridSettings {
     /** Whether grid events are dispatched as DOM events */
     readonly eventDispatchEnabled: boolean;
     /** Validation failure feedback. */
-    readonly feedbackCount: number;
-    readonly feedbackEffect: GridSettings.FeedbackEffect;
     readonly filterable: boolean;
     readonly filterBackgroundColor: GridSettings.Color;
     readonly filterBackgroundSelectionColor: GridSettings.Color;
@@ -126,7 +124,7 @@ export interface GridSettings {
     /** Thickness of vertical grid lines (pixels). */
     readonly gridLinesVWidth: number;
     readonly horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
-    readonly horizontalScrollbarClassPrefix: string,
+    readonly horizontalScrollbarClassPrefix: string;
     readonly minimumColumnWidth: number;
     readonly maximumColumnWidth: number | undefined;
     readonly visibleColumnWidthAdjust: boolean;
@@ -150,21 +148,15 @@ export interface GridSettings {
     readonly resizedEventDebounceExtendedWhenPossible: boolean;
     /** Reduce resize processing with debounce.  In milliseconds */
     readonly resizedEventDebounceInterval: number;
-    /** Restore column selections across data transformations (`reindex` calls). */
-    readonly restoreColumnSelections: boolean;
-    /** Restore row selections across data transformations (`reindex` calls). */
-    readonly restoreRowSelections: boolean;
-    /** Restore single cell selection across data transformations (`reindex` calls). Takes priority over restoreColumnSelections and restoreRowSelections. */
-    readonly restoreSingleCellSelection: boolean;
     /** On mouse hover, whether to repaint the row background and how. */
     readonly rowResize: boolean;
     /** Repeating pattern of property overrides for grid rows. */
     readonly rowStripes: GridSettings.RowStripe[] | undefined;
     /** Anchor column does not need to align with edge of grid */
     readonly scrollHorizontallySmoothly: boolean;
-    readonly scrollbarHoverOver: string,
-    readonly scrollbarHoverOff: string,
-    readonly scrollingEnabled: boolean,
+    readonly scrollbarHoverOver: string;
+    readonly scrollbarHoverOff: string;
+    readonly scrollingEnabled: boolean;
     /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a Selection. */
     readonly secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
     readonly secondarySelectionAreaType: SelectionAreaType;
@@ -174,7 +166,6 @@ export interface GridSettings {
     readonly selectionRegionOutlineColor: GridSettings.Color;
     /** Fill color for last selection overlay. */
     readonly selectionRegionOverlayColor: GridSettings.Color;
-    readonly singleRowSelectionMode: boolean;
     readonly showFilterRow: boolean;
     /** Sort column on double-click rather than single-click. */
     readonly mouseSortOnDoubleClick: boolean;

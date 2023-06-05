@@ -2,16 +2,16 @@ import { ColumnsManager } from '../../components/column/columns-manager';
 import { Selection } from '../../components/selection/selection';
 import { DataServer } from '../../interfaces/data/data-server';
 import { Column } from '../../interfaces/schema/column';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType } from '../../types-utils/types';
 
 /** @internal */
-export class DataExtractBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     constructor(
-        private readonly _selection: Selection<MGS, MCS>,
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
+        private readonly _selection: Selection<BGS, BCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
     ) {
 
     }
@@ -278,7 +278,7 @@ export class DataExtractBehavior<MGS extends MergableGridSettings, MCS extends M
      * * `string` - name of a column from the all column list
      * @internal
      */
-    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<MCS>[] {
+    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<BCS>[] {
         const allColumns = this._columnsManager.allColumns;
         const activeColumns = this._columnsManager.activeColumns;
 
@@ -286,7 +286,7 @@ export class DataExtractBehavior<MGS extends MergableGridSettings, MCS extends M
             return activeColumns;
         } else {
             if (Array.isArray(hiddenColumns)) {
-                let columns: Column<MCS>[] = [];
+                let columns: Column<BCS>[] = [];
                 hiddenColumns.forEach((index: number | string) => {
                     const key = typeof index === 'number' ? 'index' : 'name';
                     const column = allColumns.find((allColumn) => { return allColumn[key] === index; });

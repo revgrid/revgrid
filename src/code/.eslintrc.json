@@ -6,9 +6,9 @@
       ],
       "parserOptions": {
         "project": [
-          "./src/code/definitions/record/tsconfig.definitions-record.json",
-          "./src/code/definitions/simple/tsconfig.definitions-simple.json",
-          "./src/code/definitions/tsconfig.definitions.json",
+          "./src/code/server-sets/record/tsconfig.server-sets-record.json",
+          "./src/code/server-sets/simple/tsconfig.server-sets-simple.json",
+          "./src/code/server-sets/tsconfig.server-sets.json",
           "./src/code/standard/cell-editors/tsconfig.standard-cell-editors.json",
           "./src/code/standard/cell-editors/effects/tsconfig.standard-cell-editors-effects.json",
           "./src/code/standard/cell-painters/tsconfig.standard-cell-painters.json",

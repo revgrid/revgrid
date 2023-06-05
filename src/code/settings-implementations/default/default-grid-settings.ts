@@ -234,44 +234,11 @@ export const defaultGridSettings: Required<GridSettings> = {
     repaintFramesPerSecond: 60,
     repaintImmediately: false,
     useHiDPI: true,
-
-    // emitModelEvents: false,
-
-    /** @summary Validation failure feedback.
-     * @desc Validation occurs on {@link CellEditor#stopEditing|stopEditing}, normally called on commit (`TAB`, `ENTER`, or any other keys listed in `navKeyMap`).
-     *
-     * On successful validation, the value is saved back to the data source and the editor is closed.
-     *
-     * On validation failure, feedback is shown to the user in the form of an "error effect" possibly followed by an "end effect" containing a detailed explanation.
-     *
-     * The error effect to use is named in {@link module:defaults.feedbackEffect|feedbackEffect}.
-     *
-     * The value of this property is the number of times to show the "error effect" on validation failure before showing the detailed explanation.
-     *
-     * `feedback` may be set to one of:
-     * * **`undefined`** - Do not show the error effect or the alert. Just discard the value and close the editor (as if `ESC` had been typed).
-     * * **`0`** - Just shows the error feedback effect (see the {@link CellEditor#errorEffect|errorEffect} property).
-     * * **`1`** - Shows the error feedback effect followed by the detailed explanation.
-     * * `2` or more:
-     *   1. Shows the error feedback effect
-     *   2. On every `feedback` tries, shows the detailed explanation.
-     * @default
-     * @type {number|undefined}
-     */
-    feedbackCount: 3,
-
-    /**
-     * @default
-     * @type {{name:string,options:object}|string}
-     * {@link module:defaults.feedbackCount|feedbackCount}
-     */
-    feedbackEffect: 'shaker',
     fixedColumnCount: 0,
     fixedRowCount: 0,
     mouseRectangleSelection: true,
     mouseColumnSelection: true,
     mouseRowSelection: true,
-    singleRowSelectionMode: true,
     primarySelectionAreaType: SelectionAreaType.Rectangle,
     secondarySelectionAreaType: SelectionAreaType.Row,
     secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum.Alt,
@@ -311,7 +278,7 @@ export const defaultGridSettings: Required<GridSettings> = {
      * @default
      * @type {boolean}
      */
-    columnAutosizing: true,
+    defaultColumnAutosizing: true,
 
     /**
      * @summary The widest the column will be auto-sized to.
@@ -450,10 +417,6 @@ export const defaultGridSettings: Required<GridSettings> = {
         // 'thumbwheelscrolling',
         'clipboard'
     ],
-
-    restoreRowSelections: true,
-    restoreColumnSelections: true,
-    restoreSingleCellSelection: true,
 
     borderWidth: 1,
     borderColor: '#000000',

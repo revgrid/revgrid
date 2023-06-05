@@ -1,17 +1,17 @@
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { ColumnSettings } from '../settings/column-settings';
-import { MergableColumnSettings } from '../settings/mergable-column-settings';
 import { SchemaServer } from './schema-server';
 
 /** @public */
-export interface Column<MCS extends MergableColumnSettings> {
-    readonly schemaColumn: SchemaServer.Column<MCS>;
+export interface Column<BCS extends BehavioredColumnSettings> {
+    readonly schemaColumn: SchemaServer.Column<BCS>;
     /** Always the same as SchemaColumn index */
     readonly index: number;
     readonly name: string;
 
     readonly width: number;
 
-    readonly settings: MCS;
+    readonly settings: BCS;
 
     maxPaintWidth: number | undefined;
 
@@ -19,11 +19,11 @@ export interface Column<MCS extends MergableColumnSettings> {
     setWidthToAutoSizing(): boolean;
     checkColumnAutosizing(widenOnly: boolean): boolean;
 
-    mergeSettings(properties: Partial<ColumnSettings>): void;
+    loadSettings(settings: ColumnSettings): void;
 }
 
 /** @public */
-export interface ColumnWidth<MCS extends MergableColumnSettings> {
-    column: Column<MCS>;
+export interface ColumnWidth<BCS extends BehavioredColumnSettings> {
+    column: Column<BCS>;
     width: number | undefined;
 }

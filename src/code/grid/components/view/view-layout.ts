@@ -6,8 +6,8 @@ import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
@@ -47,7 +47,7 @@ import { ViewCellImplementation } from './view-cell-implementation';
  * Same parameters as {@link ViewLayout#initialize|initialize}, which is called by this constructor.
  *
  */
-export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     /** @internal */
     invalidateDataEventer: ViewLayout.InvalidatedEventer;
     /** @internal */
@@ -57,7 +57,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
     /** @internal */
     cellPoolComputedEventerForMouse: ViewLayout.CellPoolComputedEventer;
 
-    private readonly _mainSubgrid: MainSubgrid<MCS>;
+    private readonly _mainSubgrid: MainSubgrid<BCS>;
 
     /**
      * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
@@ -71,7 +71,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
      * 2. A zero-based list of consecutive of integers representing the fixed columns (if any).
      * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
      */
-    private readonly _columns = new ViewLayout.ViewLayoutColumnArray<MCS>();
+    private readonly _columns = new ViewLayout.ViewLayoutColumnArray<BCS>();
 
     /**
      * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
@@ -84,15 +84,15 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
      *
      * Note that non-scrollable subgrids can come both before _and_ after the scrollable subgrid.
      */
-    private readonly _rows = new ViewLayout.ViewLayoutRowArray<MCS>();
+    private readonly _rows = new ViewLayout.ViewLayoutRowArray<BCS>();
 
-    private readonly _horizontalScrollDimension: HorizontalScrollDimension<MGS, MCS>;
-    private readonly _verticalScrollDimension: VerticalScrollDimension<MGS, MCS>;
+    private readonly _horizontalScrollDimension: HorizontalScrollDimension<BGS, BCS>;
+    private readonly _verticalScrollDimension: VerticalScrollDimension<BGS, BCS>;
 
-    private readonly _dummyUnusedColumn: ColumnImplementation<MCS>;
+    private readonly _dummyUnusedColumn: ColumnImplementation<BCS>;
 
-    private readonly _rowColumnOrderedCellPool = new Array<ViewCellImplementation<MGS, MCS>>();
-    private readonly _columnRowOrderedCellPool = new Array<ViewCellImplementation<MGS, MCS>>();
+    private readonly _rowColumnOrderedCellPool = new Array<ViewCellImplementation<BGS, BCS>>();
+    private readonly _columnRowOrderedCellPool = new Array<ViewCellImplementation<BGS, BCS>>();
 
     private _columnsValid = false;
     private _rowsValid = false;
@@ -140,10 +140,10 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
     }
 
     constructor(
-        private readonly _gridSettings: MGS,
-        private readonly _canvasManager: CanvasManager<MGS>,
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
-        private readonly _subgridsManager: SubgridsManager<MGS, MCS>,
+        private readonly _gridSettings: BGS,
+        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS>,
     ) {
         this._gridSettings.viewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
         this._gridSettings.horizontalViewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
@@ -1009,7 +1009,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
      * @param point
      * @returns Cell coordinates
      */
-    findHoverCell(canvasXOffset: number, canvasYOffset: number): HoverCell<MCS> | undefined {
+    findHoverCell(canvasXOffset: number, canvasYOffset: number): HoverCell<BCS> | undefined {
         const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasXOffset);
         if (columnIndex < 0) {
             return undefined;
@@ -1018,7 +1018,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
             if (rowIndex < 0) {
                 return undefined;
             } else {
-                const hoverCell = this.findCellAtViewpointIndex(columnIndex, rowIndex) as HoverCellImplementation<MGS, MCS>;
+                const hoverCell = this.findCellAtViewpointIndex(columnIndex, rowIndex) as HoverCellImplementation<BGS, BCS>;
                 if (hoverCell === undefined) {
                     throw new AssertError('VGCFMP34440');
                 } else {
@@ -1201,7 +1201,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
         }
     }
 
-    createUnusedSpaceColumn(): ViewLayoutColumn<MCS> | undefined {
+    createUnusedSpaceColumn(): ViewLayoutColumn<BCS> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1213,7 +1213,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
                 if (firstColumn.left <= 0) {
                     return undefined;
                 } else {
-                    const column: ViewLayoutColumn<MCS> = {
+                    const column: ViewLayoutColumn<BCS> = {
                         index: -1,
                         activeColumnIndex: -1,
                         column: this._dummyUnusedColumn,
@@ -1230,7 +1230,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
                 if (lastColumnRightPlus1 >= gridRightPlus1) {
                     return undefined;
                 } else {
-                    const column: ViewLayoutColumn<MCS> = {
+                    const column: ViewLayoutColumn<BCS> = {
                         index: columnCount,
                         activeColumnIndex: columnCount,
                         column: this._dummyUnusedColumn,
@@ -1287,7 +1287,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
      * @param activeColumnIndex - The grid column index.
      * @returns The given column if visible or `undefined` if not.
      */
-    findColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<MCS> | undefined {
+    findColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<BCS> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1308,7 +1308,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
         }
     }
 
-    findColumnWithAllIndex(allColumnIndex: number): ViewLayoutColumn<MCS> | undefined {
+    findColumnWithAllIndex(allColumnIndex: number): ViewLayoutColumn<BCS> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         for (let i = 0; i < columnCount; i++) {
@@ -1320,7 +1320,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
         return undefined;
     }
 
-    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: Subgrid<MCS>) {
+    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: Subgrid<BCS>) {
         const rows = this._rows;
         const rowCount = rows.length;
         for (let i = 0; i < rowCount; i++) {
@@ -1332,7 +1332,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
         return undefined;
     }
 
-    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<MCS> | undefined {
+    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<BCS> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1428,7 +1428,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
         return this._rows[rowIndex];
     }
 
-    isDataRowVisible(rowIndex: number, subgrid: Subgrid<MCS>): boolean {
+    isDataRowVisible(rowIndex: number, subgrid: Subgrid<BCS>): boolean {
         return this.getVisibleDataRow(rowIndex, subgrid) !== undefined;
     }
 
@@ -1439,7 +1439,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
      * @param rowIndex - The data row index within the given subgrid.
      * @returns The given row if visible or `undefined` if not.
      */
-    getVisibleDataRow(rowIndex: number, subgrid: Subgrid<MCS>) {
+    getVisibleDataRow(rowIndex: number, subgrid: Subgrid<BCS>) {
         for (const vr of this._rows) {
             if (vr.subgridRowIndex === rowIndex && vr.subgrid === subgrid) {
                 return vr;
@@ -1583,7 +1583,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
         }
     }
 
-    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<MCS>) {
+    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS>) {
         const column = this.findColumnWithActiveIndex(activeColumnIndex);
         if (column === undefined) {
             return undefined;
@@ -1597,7 +1597,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
         }
     }
 
-    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<MCS>) {
+    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS>) {
         const column = this.findColumnWithAllIndex(allColumnIndex);
         if (column === undefined) {
             return undefined;
@@ -1639,7 +1639,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
         }
     }
 
-    findCellAtCanvasOffset(x: number, y: number): ViewCell<MCS> | undefined {
+    findCellAtCanvasOffset(x: number, y: number): ViewCell<BCS> | undefined {
         const columnIndex = this.findColumnIndexOfCanvasOffset(x);
         if (columnIndex < 0) {
             return undefined;
@@ -1798,7 +1798,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
                 throw new AssertError('VLCH60009');
             } else {
                 let fixedWidthV: number;
-                let vc: ViewLayoutColumn<MCS>;
+                let vc: ViewLayoutColumn<BCS>;
 
                 if (gridSettings.fixedLinesVWidth === undefined) {
                     fixedWidthV = gridLinesVWidth;
@@ -2103,7 +2103,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
             while (subgridRowIndex < subgridRowCount && y < afterY) {
                 const height = subgrid.getRowHeight(subgridRowIndex);
 
-                const row: ViewLayoutRow<MCS> = {
+                const row: ViewLayoutRow<BCS> = {
                     index: rowIndex,
                     subgridRowIndex,
                     subgrid,
@@ -2234,13 +2234,13 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
         }
     }
 
-    private resizeCellPool(pool: ViewCellImplementation<MGS, MCS>[], requiredSize: number) {
+    private resizeCellPool(pool: ViewCellImplementation<BGS, BCS>[], requiredSize: number) {
         const previousLength = pool.length;
         pool.length = requiredSize;
 
         if (requiredSize > previousLength) {
             for (let i = previousLength; i < requiredSize; i++) {
-                pool[i] = new HoverCellImplementation<MGS, MCS>(this._columnsManager);
+                pool[i] = new HoverCellImplementation<BGS, BCS>(this._columnsManager);
             }
         }
     }
@@ -2266,7 +2266,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
 
     }
 
-    private resetPoolAllCellPropertiesCaches(pool: ViewCell<MCS>[]) {
+    private resetPoolAllCellPropertiesCaches(pool: ViewCell<BCS>[]) {
         const cellCount = pool.length;
         for (let i = 0; i < cellCount; i++) {
             const cell = pool[i];
@@ -2276,7 +2276,7 @@ export class ViewLayout<MGS extends MergableGridSettings, MCS extends MergableCo
 }
 
 export namespace ViewLayout {
-    export type GetRowHeightEventer<MCS extends MergableColumnSettings> = (this: void, y: number, subgrid: Subgrid<MCS> | undefined) => number;
+    export type GetRowHeightEventer<BCS extends BehavioredColumnSettings> = (this: void, y: number, subgrid: Subgrid<BCS> | undefined) => number;
     export type CheckNeedsShapeChangedEventer = (this: void) => void;
     export type InvalidatedEventer = (this: void, action: InvalidateAction) => void;
     export type ColumnsViewWidthsChangedEventer = (this: void) => void;
@@ -2293,7 +2293,7 @@ export namespace ViewLayout {
         RowColumn,
     }
 
-    export class ViewLayoutColumnArray<MCS extends MergableColumnSettings> extends Array<ViewLayoutColumn<MCS>> {
+    export class ViewLayoutColumnArray<BCS extends BehavioredColumnSettings> extends Array<ViewLayoutColumn<BCS>> {
         gap: ViewLayoutColumnArray.Gap | undefined;
     }
 
@@ -2304,7 +2304,7 @@ export namespace ViewLayout {
         }
     }
 
-    export class ViewLayoutRowArray<MCS extends MergableColumnSettings> extends Array<ViewLayoutRow<MCS>> {
+    export class ViewLayoutRowArray<BCS extends BehavioredColumnSettings> extends Array<ViewLayoutRow<BCS>> {
         gap: ViewLayoutRowArray.Gap | undefined;
     }
 

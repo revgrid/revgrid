@@ -1,5 +1,5 @@
-export { discardColumnSettingsMerge } from './discard-column-settings-merge';
-export { discardDefaultMergableColumnSettings } from './discard-default-mergable-column-settings';
-export { discardDefaultMergableGridSettings } from './discard-default-mergable-grid-settings';
-export { discardGridSettingsMerge } from './discard-grid-settings-merge';
+export { discardColumnSettingsBehavior } from './discard-column-settings-behavior';
+export { discardDefaultBehavioredColumnSettings } from './discard-default-behaviored-column-settings';
+export { discardDefaultBehavioredGridSettings } from './discard-default-behaviored-grid-settings';
+export { discardGridSettingsBehavior } from './discard-grid-settings-behavior';
 

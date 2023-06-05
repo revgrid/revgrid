@@ -1,1 +1,1 @@
-export { StandardColorInputEditor } from './color-input-editor';
+export { StandardColorInputEditor } from './standard-color-input-editor';

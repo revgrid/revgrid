@@ -1,8 +1,8 @@
 import { ViewCell } from '../../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../../interfaces/data/view-layout-row';
 import { ViewLayoutColumn } from '../../../interfaces/schema/view-layout-column';
-import { MergableColumnSettings } from '../../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../../interfaces/settings/mergable-grid-settings';
+import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { Rectangle } from '../../../types-utils/rectangle';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -12,7 +12,7 @@ import { Selection } from '../../selection/selection';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
-export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     protected _renderingContext: CachedCanvasRenderingContext2D;
 
     private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
@@ -28,13 +28,13 @@ export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends 
     private _rowBundlesComputationId = -1;
 
     constructor(
-        protected readonly gridSettings: MGS,
-        protected readonly canvasManager: CanvasManager<MGS>,
-        protected readonly subgridsManager: SubgridsManager<MGS, MCS>,
-        protected readonly viewLayout: ViewLayout<MGS, MCS>,
-        protected readonly focus: Focus<MGS, MCS>,
-        protected readonly selection: Selection<MGS, MCS>,
-        protected readonly mouse: Mouse<MGS, MCS>,
+        protected readonly gridSettings: BGS,
+        protected readonly canvasManager: CanvasManager<BGS>,
+        protected readonly subgridsManager: SubgridsManager<BGS, BCS>,
+        protected readonly viewLayout: ViewLayout<BGS, BCS>,
+        protected readonly focus: Focus<BGS, BCS>,
+        protected readonly selection: Selection<BGS, BCS>,
+        protected readonly mouse: Mouse<BGS, BCS>,
         protected readonly repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
         public readonly key: string,
         public readonly partial: boolean,
@@ -50,7 +50,7 @@ export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends 
         this._columnRebundlingRequired = true;
     }
 
-    getColumnBundles(viewLayoutColumns: ViewLayoutColumn<MCS>[]) {
+    getColumnBundles(viewLayoutColumns: ViewLayoutColumn<BCS>[]) {
         if (this._columnBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._columnRebundlingRequired) {
             this._columnBundles = this.calculateColumnBundles(viewLayoutColumns);
 
@@ -60,7 +60,7 @@ export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends 
         return this._columnBundles;
     }
 
-    getRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<MCS>[]) {
+    getRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<BCS>[]) {
         if (this._rowBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._rowRebundlingRequired) {
             this._rowBundlesAndPrefixColors = this.calculateRowBundlesAndPrefillColors(viewLayoutRows);
 
@@ -73,7 +73,7 @@ export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends 
     abstract paintCells(): void;
 
     protected paintCell(
-        viewCell: ViewCell<MCS>,
+        viewCell: ViewCell<BCS>,
         prefillColor: string | undefined,
     ): number | undefined {
         const focus = this.focus;
@@ -92,7 +92,7 @@ export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends 
         return cellPainter.paint(prefillColor);
     }
 
-    paintErrorCell(err: Error, vc: ViewLayoutColumn<MCS>, vr: ViewLayoutRow<MCS>) {
+    paintErrorCell(err: Error, vc: ViewLayoutColumn<BCS>, vr: ViewLayoutRow<BCS>) {
         const gc = this._renderingContext;
         const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
 
@@ -283,8 +283,8 @@ export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends 
                     // selection needs scrollable data
                     return undefined;
                 } else {
-                    let vc: ViewLayoutColumn<MCS>;
-                    let vr: ViewLayoutRow<MCS>;
+                    let vc: ViewLayoutColumn<BCS>;
+                    let vr: ViewLayoutRow<BCS>;
                     const lastScrollableColumn = columns[columnCount - 1]; // last column in scrollable section
                     const lastScrollableRow = rows[rowCount - 1]; // last row in scrollable data section
                     const firstScrollableColumn = columns[firstScrollableColumnIndex];
@@ -352,7 +352,7 @@ export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends 
         }
     }
 
-    private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn<MCS>[]): GridPainter.ColumnBundle[] {
+    private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn<BCS>[]): GridPainter.ColumnBundle[] {
         const gridProps = this.gridSettings;
         const columnCount = viewLayoutColumns.length;
 
@@ -386,7 +386,7 @@ export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends 
         return bundles;
     }
 
-    private calculateRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<MCS>[]): GridPainter.RowBundlesAndPrefillColors | undefined {
+    private calculateRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<BCS>[]): GridPainter.RowBundlesAndPrefillColors | undefined {
         const gridProps = this.gridSettings;
         const stripes = gridProps.rowStripes;
         if (stripes === undefined) {
@@ -467,16 +467,16 @@ export abstract class GridPainter<MGS extends MergableGridSettings, MCS extends 
 export namespace GridPainter {
     export type ResetAllGridPaintersRequiredEventer = (this: void, blackList: string[]) => void;
     export type RepaintAllRequiredEventer = (this: void) => void;
-    export type Constructor<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> = new(
-        gridProperties: MGS,
-        canvasManager: CanvasManager<MGS>,
-        subgridsManager: SubgridsManager<MGS, MCS>,
-        viewLayout: ViewLayout<MGS, MCS>,
-        focus: Focus<MGS, MCS>,
-        selection: Selection<MGS, MCS>,
-        mouse: Mouse<MGS, MCS>,
+    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> = new(
+        gridProperties: BGS,
+        canvasManager: CanvasManager<BGS>,
+        subgridsManager: SubgridsManager<BGS, BCS>,
+        viewLayout: ViewLayout<BGS, BCS>,
+        focus: Focus<BGS, BCS>,
+        selection: Selection<BGS, BCS>,
+        mouse: Mouse<BGS, BCS>,
         repaintAllRequired: RepaintAllRequiredEventer,
-    ) => GridPainter<MGS, MCS>;
+    ) => GridPainter<BGS, BCS>;
 
     export interface ColumnBundle {
         backgroundColor: string;

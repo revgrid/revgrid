@@ -7,16 +7,16 @@ import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column } from '../../interfaces/schema/column';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { CellMetaSettingsImplementation } from '../../settings/cell-meta-settings-implementation';
 
-export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     constructor(
-        private readonly _columnsManager: ColumnsManager<MGS, MCS>,
-        private readonly _subgridsManger: SubgridsManager<MGS, MCS>,
-        private readonly _viewLayout: ViewLayout<MGS, MCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        private readonly _subgridsManger: SubgridsManager<BGS, BCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS>,
     ) {
     }
     /**
@@ -28,7 +28,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      * @return The properties of the cell at x,y in the grid.
      */
     /** @internal */
-    getCellPropertiesAccessor(column: Column<MCS>, rowIndex: number, subgrid: Subgrid<MCS>): CellMetaSettings {
+    getCellPropertiesAccessor(column: Column<BCS>, rowIndex: number, subgrid: Subgrid<BCS>): CellMetaSettings {
         const cellOwnProperties = this.getCellOwnProperties(column, rowIndex, subgrid);
         return new CellMetaSettingsImplementation((cellOwnProperties ? cellOwnProperties : undefined), column.settings);
     }
@@ -39,7 +39,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      * @returns New cell properties object, based on column properties object, with `properties` copied to it.
      */
     /** @internal */
-    setCellOwnProperties(column: Column<MCS>, rowIndex: number, properties: MetaModel.CellOwnProperties | undefined, subgrid: Subgrid<MCS>) {
+    setCellOwnProperties(column: Column<BCS>, rowIndex: number, properties: MetaModel.CellOwnProperties | undefined, subgrid: Subgrid<BCS>) {
         let metadata = subgrid.getRowMetadata(rowIndex);
         if (properties === undefined) {
             if (metadata !== undefined) {
@@ -63,7 +63,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      * @returns Cell's own properties object, which will be created by this call if it did not already exist.
      */
     /** @internal */
-    addCellOwnProperties(column: Column<MCS>, rowIndex: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<MCS>) {
+    addCellOwnProperties(column: Column<BCS>, rowIndex: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS>) {
         const columnKey = column.name as keyof MetaModel.RowMetadata;
         let metadata = subgrid.getRowMetadata(rowIndex);
         let existingProperties: MetaModel.CellOwnProperties | undefined;
@@ -105,7 +105,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `null`.
      */
     /** @internal */
-    getCellOwnProperties(column: Column<MCS>, rowIndex: number, subgrid: Subgrid<MCS>) {
+    getCellOwnProperties(column: Column<BCS>, rowIndex: number, subgrid: Subgrid<BCS>) {
         const metadata = subgrid.getRowMetadata(rowIndex);
         if (metadata === undefined) {
             return undefined;
@@ -120,7 +120,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      * @param rowIndex - Data row coordinate.
      */
     /** @internal */
-    deleteCellOwnProperties(column: Column<MCS>, rowIndex: number, subgrid: Subgrid<MCS>) {
+    deleteCellOwnProperties(column: Column<BCS>, rowIndex: number, subgrid: Subgrid<BCS>) {
         this.setCellOwnProperties(column, rowIndex, undefined, subgrid);
     }
 
@@ -131,13 +131,13 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      * @return The specified property for the cell at x,y in the grid.
      */
     /** @internal */
-    getCellProperty(column: Column<MCS>, rowIndex: number, key: string | number, subgrid: Subgrid<MCS>): MetaModel.CellOwnProperty;
-    getCellProperty<T extends keyof ColumnSettings>(column: Column<MCS>, rowIndex: number, key: T, subgrid: Subgrid<MCS>): ColumnSettings[T];
+    getCellProperty(column: Column<BCS>, rowIndex: number, key: string | number, subgrid: Subgrid<BCS>): MetaModel.CellOwnProperty;
+    getCellProperty<T extends keyof ColumnSettings>(column: Column<BCS>, rowIndex: number, key: T, subgrid: Subgrid<BCS>): ColumnSettings[T];
     getCellProperty<T extends keyof ColumnSettings>(
-        column: Column<MCS>,
+        column: Column<BCS>,
         rowIndex: number,
         key: string | number | T,
-        subgrid: Subgrid<MCS>
+        subgrid: Subgrid<BCS>
     ): MetaModel.CellOwnProperty | ColumnSettings[T] {
         const cellProperties = this.getCellPropertiesAccessor(column, rowIndex, subgrid);
         return cellProperties.get(key);
@@ -149,12 +149,12 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      */
     /** @internal */
     setCellProperty(
-        column: Column<MCS>,
+        column: Column<BCS>,
         rowIndex: number,
         key: string,
         value: unknown | undefined,
-        subgrid: Subgrid<MCS>,
-        optionalCell: ViewCell<MCS> | undefined,
+        subgrid: Subgrid<BCS>,
+        optionalCell: ViewCell<BCS> | undefined,
     ) {
         let metadata = subgrid.getRowMetadata(rowIndex);
         let properties: MetaModel.CellOwnProperties | undefined;
@@ -186,7 +186,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
             optionalCell = this._viewLayout.findCellAtDataPoint(column.index, rowIndex, subgrid);
         }
         if (optionalCell !== undefined) {
-            (optionalCell as ViewCellImplementation<MGS, MCS>).clearCellOwnProperties();
+            (optionalCell as ViewCellImplementation<BGS, BCS>).clearCellOwnProperties();
         }
 
         return properties;
@@ -198,7 +198,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      * @param rowIndex - Data row coordinate.
      */
     /** @internal */
-    deleteCellProperty(column: Column<MCS>, rowIndex: number, key: string, subgrid: Subgrid<MCS>) {
+    deleteCellProperty(column: Column<BCS>, rowIndex: number, key: string, subgrid: Subgrid<BCS>) {
         this.setCellProperty(column, rowIndex, key, undefined, subgrid, undefined);
     }
 
@@ -206,7 +206,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      * Clear all cell properties from all cells in this column.
      */
     /** @internal */
-    clearAllCellProperties(column: Column<MCS> | undefined) {
+    clearAllCellProperties(column: Column<BCS> | undefined) {
         const subgrids = this._subgridsManger.subgrids;
         subgrids.forEach((subgrid) => {
             const rowCount = subgrid.getRowCount();
@@ -234,9 +234,9 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @return The properties of the cell at x,y in the grid or falsy if not available.
      */
-    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<MCS>): MetaModel.CellOwnProperties | false | null | undefined{
+    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS>): MetaModel.CellOwnProperties | false | null | undefined{
         // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
-        const viewCellImplementation = renderedCell as ViewCellImplementation<MGS, MCS>;
+        const viewCellImplementation = renderedCell as ViewCellImplementation<BGS, BCS>;
         let cellOwnProperties = viewCellImplementation.cellOwnProperties;
         if (cellOwnProperties === undefined) {
             cellOwnProperties = this.getCellOwnProperties(renderedCell.viewLayoutColumn.column, renderedCell.viewLayoutRow.subgridRowIndex, renderedCell.subgrid);
@@ -245,7 +245,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
         return cellOwnProperties;
     }
 
-    getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<MCS>, key: string): MetaModel.CellOwnProperty | undefined {
+    getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS>, key: string): MetaModel.CellOwnProperty | undefined {
         const cellOwnProperties = this.getCellOwnPropertiesFromRenderedCell(renderedCell);
         if (cellOwnProperties) {
             return cellOwnProperties[key];
@@ -257,7 +257,7 @@ export class CellPropertiesBehavior<MGS extends MergableGridSettings, MCS extend
 }
 
 export namespace CellPropertiesBehavior {
-    export type GetRowMetadataEventer<MCS extends MergableColumnSettings> = (this: void, rowIndex: number, subgrid: Subgrid<MCS>) => MetaModel.RowMetadata | undefined;
-    export type SetRowMetadataEventer<MCS extends MergableColumnSettings> = (this: void, rowIndex: number, subgrid: Subgrid<MCS>) => void;
+    export type GetRowMetadataEventer<BCS extends BehavioredColumnSettings> = (this: void, rowIndex: number, subgrid: Subgrid<BCS>) => MetaModel.RowMetadata | undefined;
+    export type SetRowMetadataEventer<BCS extends BehavioredColumnSettings> = (this: void, rowIndex: number, subgrid: Subgrid<BCS>) => void;
 
 }

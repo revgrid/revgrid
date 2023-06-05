@@ -1,14 +1,14 @@
 import { Column, ColumnWidth } from '../../interfaces/schema/column';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
-import { MergableColumnSettings } from '../../interfaces/settings/mergable-column-settings';
-import { MergableGridSettings } from '../../interfaces/settings/mergable-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnNameWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager<MGS extends MergableGridSettings, MCS extends MergableColumnSettings> {
+export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
     /** @internal */
     activeColumnWidthOrOrderChangedEventer: ColumnsManager.ActiveColumnWidthOrOrderChangedEventer;
 
@@ -19,11 +19,11 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
     /** @internal */
     activeColumnListChangedEventer: UiableListChangedEventer;
     /** @internal */
-    columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer<MCS>;
+    columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer<BCS>;
     /** @internal */
-    private _activeColumns = new Array<Column<MCS>>();
+    private _activeColumns = new Array<Column<BCS>>();
     /** @internal */
-    private _allColumns = new Array<Column<MCS>>(); // always in same order as Schema
+    private _allColumns = new Array<Column<BCS>>(); // always in same order as Schema
 
     /** @internal */
     private _beginSchemaChangeCount = 0;
@@ -35,8 +35,8 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
 
     /** @internal */
     constructor(
-        readonly schemaServer: SchemaServer<MCS>,
-        private readonly _gridSettings: MGS,
+        readonly schemaServer: SchemaServer<BCS>,
+        private readonly _gridSettings: BGS,
     ) {
     }
 
@@ -173,7 +173,7 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
     }
 
     /** @internal */
-    newColumn(schemaColumn: SchemaServer.Column<MCS>) {
+    newColumn(schemaColumn: SchemaServer.Column<BCS>) {
         return new ColumnImplementation(schemaColumn);
     }
 
@@ -208,8 +208,8 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
 
     /** @internal */
     createDummyColumn() {
-        const dummySettings: MCS = {} as MCS;
-        const schemaColumn: SchemaServer.Column<MCS> = {
+        const dummySettings: BCS = {} as BCS;
+        const schemaColumn: SchemaServer.Column<BCS> = {
             index: -1,
             name: '',
             settings: dummySettings,
@@ -260,8 +260,8 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
      * @param columnOrIndex - The column or active column index.
      * @internal
      */
-    setActiveColumnWidth(columnOrIndex: Column<MCS> | number, width: number | undefined, ui: boolean) {
-        let column: Column<MCS>
+    setActiveColumnWidth(columnOrIndex: Column<BCS> | number, width: number | undefined, ui: boolean) {
+        let column: Column<BCS>
         if (typeof columnOrIndex === 'number') {
             if (columnOrIndex >= 0) {
                 column = this.getActiveColumn(columnOrIndex);
@@ -282,8 +282,8 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
     }
 
     /** @internal */
-    setColumnWidths(columnWidths: ColumnWidth<MCS>[], ui: boolean) {
-        const changedColumns = new Array<Column<MCS>>(columnWidths.length);
+    setColumnWidths(columnWidths: ColumnWidth<BCS>[], ui: boolean) {
+        const changedColumns = new Array<Column<BCS>>(columnWidths.length);
         let changedColumnsCount = 0;
         for (const columnWidth of columnWidths) {
             const { column, width } = columnWidth;
@@ -303,7 +303,7 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
 
     /** @internal */
     setColumnWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean) {
-        const changedColumns = new Array<Column<MCS>>(columnNameWidths.length);
+        const changedColumns = new Array<Column<BCS>>(columnNameWidths.length);
         let changedColumnsCount = 0;
         for (const columnNameWidth of columnNameWidths) {
             const { name, width } = columnNameWidth;
@@ -332,8 +332,13 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
      * @param settings - If undefined, this call is a no-op.
      * @internal
      */
-    setAllColumnSettings(settings: ColumnSettings[] | Record<string, ColumnSettings>) {
-        this.mergeAllColumnSettings(settings, true);
+    loadAllColumnSettings(settings: ColumnSettings) {
+        const allColumns = this._allColumns;
+        const columnCount = allColumns.length;
+        for (let i = 0; i < columnCount; i++) {
+            const column = allColumns[i];
+            column.loadSettings(settings);
+        }
     }
 
     /**
@@ -345,34 +350,34 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
      */
     mergeAllColumnSettings(settings: Partial<ColumnSettings>[] | Record<string, Partial<ColumnSettings>>, settingState?: boolean) {
         // looks weird - needs fixing
-        const allColumns = this._allColumns;
+        // const allColumns = this._allColumns;
 
-        if (Array.isArray(settings)) {
-            const columnCount = allColumns.length;
-            for (let i = 0; i < columnCount; i++) {
-                const column = allColumns[i];
-                if (settingState === true) {
-                    // column.clearProperties(); // needs to be implemented
-                }
+        // if (Array.isArray(settings)) {
+        //     const columnCount = allColumns.length;
+        //     for (let i = 0; i < columnCount; i++) {
+        //         const column = allColumns[i];
+        //         if (settingState === true) {
+        //             // column.clearProperties(); // needs to be implemented
+        //         }
 
-                column.mergeSettings(settings[i]);
-            }
-        } else {
-            Object.keys(settings).forEach((key) => {
-                const index = this._allColumns.findIndex((column) => column.name === key)
+        //         column.loadSettings(settings[i]);
+        //     }
+        // } else {
+        //     Object.keys(settings).forEach((key) => {
+        //         const index = this._allColumns.findIndex((column) => column.name === key)
 
-                if (index >= 0) {
-                    const column = allColumns[index];
-                    if (column) {
-                        if (settingState === true) {
-                            // column.clearProperties(); // needs to be implemented
-                        }
+        //         if (index >= 0) {
+        //             const column = allColumns[index];
+        //             if (column) {
+        //                 if (settingState === true) {
+        //                     // column.clearProperties(); // needs to be implemented
+        //                 }
 
-                        column.mergeSettings(settings[key]);
-                    }
-                }
-            });
-        }
+        //                 column.loadSettings(settings[key]);
+        //             }
+        //         }
+        //     });
+        // }
     }
 
     showColumns(
@@ -400,7 +405,7 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
         const activeColumns = this._activeColumns;
         const sourceColumnList = isActiveColumnIndexes ? activeColumns : this._allColumns;
 
-        let newColumns: Column<MCS>[];
+        let newColumns: Column<BCS>[];
         if (columnIndexOrIndices === undefined) {
             newColumns = sourceColumnList;
         } else {
@@ -471,12 +476,12 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
     }
 
     /** @internal */
-    setActiveColumns(columnNameOrAllIndexArray: readonly (Column<MCS> | string | number)[]) {
+    setActiveColumns(columnNameOrAllIndexArray: readonly (Column<BCS> | string | number)[]) {
         const newActiveCount = columnNameOrAllIndexArray.length;
-        const newActiveColumns = new Array<Column<MCS>>(newActiveCount);
+        const newActiveColumns = new Array<Column<BCS>>(newActiveCount);
         for (let i = 0; i < newActiveCount; i++) {
             const columnNameOrAllIndex = columnNameOrAllIndexArray[i];
-            let column: Column<MCS>;
+            let column: Column<BCS>;
             if (typeof columnNameOrAllIndex === 'number') {
                 column = this._allColumns[columnNameOrAllIndex];
             } else {
@@ -523,7 +528,7 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
         }
 
         // column.clearProperties(); // needs implementation
-        column.settings.merge(properties);
+        column.settings.load(properties);
         this.invalidateViewEventer(true); // true in case width affected
         return column.settings;
     }
@@ -627,12 +632,12 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
     }
 
     /** @internal */
-    get allColumns(): readonly Column<MCS>[] {
+    get allColumns(): readonly Column<BCS>[] {
         return this._allColumns;
     }
 
     /** @internal */
-    get activeColumns(): readonly Column<MCS>[] {
+    get activeColumns(): readonly Column<BCS>[] {
         return this._activeColumns;
     }
 
@@ -641,7 +646,7 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
         // this does not look right
         const visible = this._activeColumns;
         const all = this._allColumns;
-        const hidden = new Array<Column<MCS>>();
+        const hidden = new Array<Column<BCS>>();
         for (let i = 0; i < all.length; i++) {
             if (visible.indexOf(all[i]) === -1) {
                 hidden.push(all[i]);
@@ -658,7 +663,7 @@ export class ColumnsManager<MGS extends MergableGridSettings, MCS extends Mergab
 export namespace ColumnsManager {
     export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
     export type ActiveColumnWidthOrOrderChangedEventer = (this: void) => void;
-    export type ColumnsWidthChangedEventer<MCS extends MergableColumnSettings> = (this: void, columns: Column<MCS>[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings> = (this: void, columns: Column<BCS>[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }
