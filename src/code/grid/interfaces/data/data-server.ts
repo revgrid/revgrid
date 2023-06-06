@@ -129,7 +129,7 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
      *
      * Set a cell's value given its column schema & row indexes and a new value.
      */
-    setValue?(schema: SchemaServer.Column<BCS>, rowIndex: number, newValue: unknown): void;
+    setValue?(schema: SchemaServer.Column<BCS>, rowIndex: number, value: DataServer.DataValue): void;
 
     /** Cursor to be displayed when mouse hovers over cell containing data point */
     getCursorName?(schema: SchemaServer.Column<BCS>, rowIndex: number): string;

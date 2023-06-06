@@ -12,7 +12,6 @@ export interface ViewCell<BCS extends BehavioredColumnSettings> extends Dataless
     readonly viewLayoutRow: ViewLayoutRow<BCS>;
 
     readonly value: DataServer.DataValue;
-
 }
 
 /** @public */

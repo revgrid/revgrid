@@ -1,4 +1,4 @@
-import { Revgrid, ViewCell } from '../../grid/grid-public-api';
+import { Rectangle, Revgrid } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellEditor } from './standard-cell-editor';
 
@@ -14,10 +14,11 @@ export abstract class StandardInputEditor<BGS extends StandardBehavioredGridSett
         this.inputElement = element;
     }
 
-    override open(viewCell: ViewCell<BCS>) {
-        super.open(viewCell)
-        this.inputElement.style.textAlign = viewCell.columnSettings.horizontalAlign;
-        this.inputElement.style.font = viewCell.columnSettings.font;
+    setBounds(bounds: Rectangle) {
+        this.inputElement.style.left = bounds.x + 'px';
+        this.inputElement.style.top = bounds.y + 'px';
+        this.inputElement.style.width = bounds.width + 'px';
+        this.inputElement.style.height = bounds.width + 'px';
     }
 
     selectAll() {

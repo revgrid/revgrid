@@ -588,7 +588,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * @summary Selection query function.
      * @returns The given cell is selected (part of an active selection).
      */
-    isCellSelected(x: number, y: number, subgrid: DatalessSubgrid): boolean {
+    isCellSelected(x: number, y: number, subgrid: Subgrid<BCS>): boolean {
         const { rowSelected, columnSelected, cellSelected } = this.getCellSelectedAreaTypes(x, y, subgrid);
         return (rowSelected || columnSelected || cellSelected);
     }

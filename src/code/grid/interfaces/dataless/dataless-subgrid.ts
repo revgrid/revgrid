@@ -7,8 +7,11 @@ export interface DatalessSubgrid {
     readonly isHeader: boolean;
     readonly isFilter: boolean;
     readonly isSummary: boolean;
+    readonly isFooter: boolean;
+
     readonly selectable: boolean;
 
+    readonly rowHeightsCanDiffer: boolean;
     readonly fixedRowCount: number;
 
     isRowFixed(rowIndex: number): boolean;

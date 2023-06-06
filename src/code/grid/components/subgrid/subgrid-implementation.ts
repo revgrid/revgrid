@@ -1,7 +1,8 @@
+import { CellPainter } from '../../interfaces/data/cell-painter';
 import { DataServer } from '../../interfaces/data/data-server';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
-import { CellPainter } from '../../interfaces/dataless/cell-painter';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
 import { Column } from '../../interfaces/schema/column';
 import { SchemaServer } from '../../interfaces/schema/schema-server';

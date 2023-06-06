@@ -1,7 +1,7 @@
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 
 /** @public */
-export interface SchemaServer<BCS extends BehavioredColumnSettings> {
+export interface SchemaServer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<BCS>): void;
     unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<BCS>): void;
 
@@ -10,7 +10,7 @@ export interface SchemaServer<BCS extends BehavioredColumnSettings> {
      *
      * On initial call and again whenever the schema changes, the data model must dispatch the `hypegrid-schema-loaded` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
      */
-    getSchema(): readonly SchemaServer.Column<BCS>[];
+    getSchema(): readonly SC[];
 }
 
 /** @public */
@@ -39,7 +39,7 @@ export namespace SchemaServer {
         getActiveSchemaColumns: (this: void) => readonly SchemaServer.Column<BCS>[];
     }
 
-    export type Constructor<BCS extends BehavioredColumnSettings> = new() => SchemaServer<BCS>;
+    export type Constructor<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = new() => SchemaServer<BCS, SC>;
 
     // /**
     //  * @summary Generates an array of columns (proper schema) from an array of Column and string.

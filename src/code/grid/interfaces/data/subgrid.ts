@@ -1,9 +1,9 @@
-import { CellPainter } from '../dataless/cell-painter';
 import { DatalessSubgrid } from '../dataless/dataless-subgrid';
 import { DatalessViewCell } from '../dataless/dataless-view-cell';
 import { Column } from '../schema/column';
 import { SchemaServer } from '../schema/schema-server';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { CellPainter } from './cell-painter';
 import { DataServer } from './data-server';
 import { MetaModel } from './meta-model';
 
@@ -12,9 +12,6 @@ export interface Subgrid<BCS extends BehavioredColumnSettings> extends DatalessS
     readonly schemaServer: SchemaServer<BCS>;
     readonly dataServer: DataServer<BCS>;
     readonly metaModel: MetaModel | undefined;
-
-    readonly isFooter: boolean;
-    readonly rowHeightsCanDiffer: boolean;
 
     getRowCount(): number;
     getSingletonDataRow(rowIndex: number): DataServer.DataRow;

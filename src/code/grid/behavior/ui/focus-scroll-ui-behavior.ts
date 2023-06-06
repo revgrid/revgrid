@@ -1,7 +1,7 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { EventDetail } from '../../components/event/event-detail';
+import { CellEditor } from '../../interfaces/data/cell-editor';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { CellEditor } from '../../interfaces/dataless/cell-editor';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { KeyboardEventKey } from '../../types-utils/html-types';

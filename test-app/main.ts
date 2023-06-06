@@ -1,12 +1,17 @@
 import {
+    CellEditor,
     DatalessViewCell,
     EventDetail,
     HalignEnum,
     Revgrid,
+    SchemaServer,
     StandardAlphaTextCellPainter,
     StandardHeaderTextCellPainter,
     StandardInMemoryBehavioredColumnSettings,
     StandardInMemoryBehavioredGridSettings,
+    StandardTextInputEditor,
+    Subgrid,
+    ViewCell,
     gridSettingsDefaults,
     standardAllGridSettingsDefaults,
     standardGridSettingsDefaults,
@@ -205,6 +210,13 @@ export class Main {
             }
         );
 
+        this._grid.focus.getCellEditorEventer = (
+            schemaColumn,
+            subgridRowIndex,
+            subgrid,
+            viewCell
+        ) => this.getCellEditor(schemaColumn, subgridRowIndex, subgrid, viewCell);
+
         this._grid.allowEvents(true);
         gridSettings.endChange(); // fire pending invalidate events
 
@@ -244,6 +256,18 @@ export class Main {
     getHeaderCellPainter(viewCell: DatalessViewCell<StandardInMemoryBehavioredColumnSettings>) {
         this._headerCellPainter.setCell(viewCell);
         return this._headerCellPainter;
+    }
+
+    getCellEditor(
+        schemaColumn: SchemaServer.Column<StandardInMemoryBehavioredColumnSettings>,
+        subgridRowIndex: number,
+        subgrid: Subgrid<StandardInMemoryBehavioredColumnSettings>,
+        viewCell: ViewCell<StandardInMemoryBehavioredColumnSettings> | undefined
+    ): CellEditor<StandardInMemoryBehavioredColumnSettings> | undefined {
+        switch (schemaColumn.name) {
+            case 'name': return new StandardTextInputEditor(this._grid);
+            default: return undefined;
+        }
     }
 }
 

@@ -228,16 +228,20 @@ export namespace CachedCanvasRenderingContext2D {
 
 // @public (undocumented)
 export interface CellEditor<BCS extends BehavioredColumnSettings> extends CellPainter {
-    click?(event: MouseEvent, cell: DatalessViewCell<BCS> | undefined): void;
-    close(cancel: boolean): void;
-    closedEventer?: ((this: void) => void) | undefined;
-    dblClick?(event: MouseEvent, cell: DatalessViewCell<BCS> | undefined): void;
+    click?(event: MouseEvent, cell: ViewCell<BCS> | undefined): void;
+    close(cancel: boolean): DataServer.DataValue | undefined;
+    closedEventer?: CellEditor.ClosedEventer;
+    dblClick?(event: MouseEvent, cell: ViewCell<BCS> | undefined): void;
     hide?(): void;
+    initialise(initialData: DataServer.DataValue): void;
+    invalidateData?(): void;
     keyDown?(event: KeyboardEvent): void;
     keyUp?(event: KeyboardEvent): void;
-    mouseDown?(event: MouseEvent, cell: DatalessViewCell<BCS> | undefined): void;
-    mouseUp?(event: MouseEvent, cell: DatalessViewCell<BCS> | undefined): void;
+    mouseDown?(event: MouseEvent, cell: ViewCell<BCS> | undefined): void;
+    mouseUp?(event: MouseEvent, cell: ViewCell<BCS> | undefined): void;
     readonly paintImplemented: boolean;
+    pullDataEventer?: CellEditor.PullDataEventer;
+    pushDataEventer?: CellEditor.PushDataEventer;
     setBounds?(bounds: Rectangle): void;
     readonly wantDownArrow?: boolean;
     readonly wantEnd?: boolean;
@@ -248,7 +252,17 @@ export interface CellEditor<BCS extends BehavioredColumnSettings> extends CellPa
     readonly wantRightArrow?: boolean;
     readonly wantTab?: boolean;
     readonly wantUpArrow?: boolean;
-    wheelMove?(event: WheelEvent, cell: DatalessViewCell<BCS> | undefined): void;
+    wheelMove?(event: WheelEvent, cell: ViewCell<BCS> | undefined): void;
+}
+
+// @public (undocumented)
+export namespace CellEditor {
+    // (undocumented)
+    export type ClosedEventer = (this: void, value: DataServer.DataValue | undefined) => void;
+    // (undocumented)
+    export type PullDataEventer = (this: void) => DataServer.DataValue;
+    // (undocumented)
+    export type PushDataEventer = (this: void, value: DataServer.DataValue) => void;
 }
 
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -460,6 +474,8 @@ export interface DatalessSubgrid {
     // (undocumented)
     readonly isFilter: boolean;
     // (undocumented)
+    readonly isFooter: boolean;
+    // (undocumented)
     readonly isHeader: boolean;
     // (undocumented)
     readonly isMain: boolean;
@@ -469,6 +485,8 @@ export interface DatalessSubgrid {
     readonly isSummary: boolean;
     // (undocumented)
     readonly role: DatalessSubgrid.Role;
+    // (undocumented)
+    readonly rowHeightsCanDiffer: boolean;
     // (undocumented)
     readonly selectable: boolean;
 }
@@ -589,7 +607,7 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setRow?(rowIndex: number, dataRow?: DataServer.DataRow): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    setValue?(schema: SchemaServer.Column<BCS>, rowIndex: number, newValue: unknown): void;
+    setValue?(schema: SchemaServer.Column<BCS>, rowIndex: number, value: DataServer.DataValue): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
@@ -933,7 +951,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     readonly dataServer: DataServer<BCS>;
     // (undocumented)
     get editor(): CellEditor<BCS> | undefined;
-    // @internal (undocumented)
+    // (undocumented)
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS>;
     // (undocumented)
     isActiveColumnFocused(activeColumnIndex: number): boolean;
@@ -976,8 +994,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 export namespace Focus {
     // @internal (undocumented)
     export type ChangedEventer = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
-    // @internal (undocumented)
-    export type GetCellEditorEventer<BCS extends BehavioredColumnSettings> = (this: void, viewCell: ViewCell<BCS>) => CellEditor<BCS>;
+    // (undocumented)
+    export type GetCellEditorEventer<BCS extends BehavioredColumnSettings> = (this: void, schemaColumn: SchemaServer.Column<BCS>, subgridRowIndex: number, subgrid: Subgrid<BCS>, cell: ViewCell<BCS> | undefined) => CellEditor<BCS> | undefined;
     // @internal (undocumented)
     export interface Stash {
         // (undocumented)
@@ -3263,8 +3281,12 @@ export abstract class StandardCellPainter<BGS extends StandardBehavioredGridSett
 // Warning: (ae-forgotten-export) The symbol "StandardInputEditor" needs to be exported by the entry point public-api.d.ts
 //
 // @public (undocumented)
-export abstract class StandardColorInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardInputEditor<BGS, BCS> {
+export class StandardColorInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardInputEditor<BGS, BCS> {
     constructor(grid: Revgrid<BGS, BCS>);
+    // (undocumented)
+    close(cancel: boolean): string | undefined;
+    // (undocumented)
+    initialise(value: DataServer.DataValue): void;
 }
 
 // @public (undocumented)
@@ -3272,6 +3294,15 @@ export type StandardColumnSettings = Pick<StandardGridSettings, 'cellPadding' | 
 
 // @public (undocumented)
 export const standardColumnSettingsDefaults: Required<StandardColumnSettings>;
+
+// @public (undocumented)
+export class StandardDateInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardInputEditor<BGS, BCS> {
+    constructor(grid: Revgrid<BGS, BCS>);
+    // (undocumented)
+    close(cancel: boolean): string | undefined;
+    // (undocumented)
+    initialise(value: DataServer.DataValue): void;
+}
 
 // @public (undocumented)
 export interface StandardGridSettings {
@@ -3444,6 +3475,24 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
     set verticalOffset(value: number);
 }
 
+// @public (undocumented)
+export class StandardNumberInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardInputEditor<BGS, BCS> {
+    constructor(grid: Revgrid<BGS, BCS>);
+    // (undocumented)
+    close(cancel: boolean): string | undefined;
+    // (undocumented)
+    initialise(value: DataServer.DataValue): void;
+}
+
+// @public (undocumented)
+export class StandardRangeInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardInputEditor<BGS, BCS> {
+    constructor(grid: Revgrid<BGS, BCS>);
+    // (undocumented)
+    close(cancel: boolean): string | undefined;
+    // (undocumented)
+    initialise(value: DataServer.DataValue): void;
+}
+
 // @public
 export class StandardSliderCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardCellPainter<BGS, BCS> {
     // (undocumented)
@@ -3567,6 +3616,15 @@ export abstract class StandardTextCellPainter<BGS extends StandardBehavioredGrid
 }
 
 // @public (undocumented)
+export class StandardTextInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardInputEditor<BGS, BCS> {
+    constructor(grid: Revgrid<BGS, BCS>);
+    // (undocumented)
+    close(cancel: boolean): string | undefined;
+    // (undocumented)
+    initialise(value: DataServer.DataValue): void;
+}
+
+// @public (undocumented)
 export interface Subgrid<BCS extends BehavioredColumnSettings> extends DatalessSubgrid {
     // (undocumented)
     readonly dataServer: DataServer<BCS>;
@@ -3591,11 +3649,7 @@ export interface Subgrid<BCS extends BehavioredColumnSettings> extends DatalessS
     // (undocumented)
     getValueFromDataRowAtColumn(dataRow: DataServer.DataRow, column: Column<BCS>): DataServer.DataValue;
     // (undocumented)
-    readonly isFooter: boolean;
-    // (undocumented)
     readonly metaModel: MetaModel | undefined;
-    // (undocumented)
-    readonly rowHeightsCanDiffer: boolean;
     // (undocumented)
     readonly schemaServer: SchemaServer<BCS>;
     // (undocumented)
