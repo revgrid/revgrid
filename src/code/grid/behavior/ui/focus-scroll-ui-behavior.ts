@@ -1,6 +1,6 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { EventDetail } from '../../components/event/event-detail';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { CellEditor } from '../../interfaces/dataless/cell-editor';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -13,33 +13,38 @@ import { UiBehavior } from './ui-behavior';
 export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
     readonly typeName = FocusScrollUiBehavior.typeName;
 
-    override handlePointerDown(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
+    override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell !== null) {
-            if (cell.subgrid.isMain && !cell.isMouseOverLine()) {
-                this.focusScrollBehavior.tryFocusXYAndEnsureInView(cell.viewLayoutColumn.activeColumnIndex, cell.viewLayoutRow.subgridRowIndex, cell);
+        if (hoverCell !== null && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+            const viewCell = hoverCell.viewCell;
+            if (viewCell.subgrid.isMain) {
+                this.focusScrollBehavior.tryFocusXYAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, viewCell);
             }
         }
-        return super.handlePointerDown(event, cell);
+        return super.handlePointerDown(event, hoverCell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
+    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell !== this.focus.cell) {
-            // not a focusable cell
-            return super.handleDblClick(event, cell);
+        if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+            return super.handleDblClick(event, hoverCell);
         } else {
-            if (cell !== null && !cell.isMouseOverLine()) {
-                if (cell.columnSettings.editOnDoubleClick && cell.subgrid.isMain && !cell.isFixed) {
+            const viewCell = hoverCell.viewCell;
+            if (viewCell !== this.focus.cell) {
+                // not a focusable cell
+                return super.handleDblClick(event, hoverCell);
+            } else {
+                if (viewCell.columnSettings.editOnDoubleClick && viewCell.subgrid.isMain && !viewCell.isFixed) {
                     this.focus.tryOpenEditor();
-                    return cell;
+                    return hoverCell;
+                } else {
+                    return super.handleDblClick(event, hoverCell);
                 }
             }
-            return super.handleDblClick(event, cell);
         }
     }
 
@@ -189,7 +194,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         // }
     }
 
-    override handleWheelMove(event: WheelEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handleWheelMove(event: WheelEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         const gridSettings = this.gridSettings;
         if (gridSettings.scrollingEnabled) {
             const deltaX = event.deltaX;

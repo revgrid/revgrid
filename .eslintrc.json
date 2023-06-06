@@ -1,7 +1,8 @@
 {
   "root": true,
   "ignorePatterns": [
-    "projects/**/*"
+    "projects/**/*",
+    "src/code/standard/cell-painters/ignore/**/*.ts"
   ],
   "overrides": [
     {
@@ -26,18 +27,18 @@
       },
       "extends": [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended" // Uses the recommended rules from @typescript-eslint/eslint-plugin
+        "plugin:@typescript-eslint/recommended", // Uses the recommended rules from @typescript-eslint/eslint-plugin
         // "plugin:@typescript-eslint/recommended-requiring-type-checking",
         // "plugin:@typescript-eslint/strict",
-        // "plugin:import/recommended",
-        // "plugin:import/typescript"
+        "plugin:import/recommended",
+        "plugin:import/typescript"
       ],
-      // "settings": {
-      //   "import/resolver": {
-      //     "typescript": true,
-      //     "node": true
-      //   }
-      // },
+      "settings": {
+        "import/resolver": {
+          "typescript": true,
+          "node": true
+        }
+      },
       "rules": {
         "no-fallthrough":"error",
         "no-underscore-dangle": "off",
@@ -62,8 +63,8 @@
         "no-shadow": "off",
         "@typescript-eslint/no-shadow": ["error", {"ignoreTypeValueShadow": true }],
         "no-return-await": "off",
-        "@typescript-eslint/return-await": "error"
-        // "import/no-cycle": ["error"]
+        "@typescript-eslint/return-await": "error",
+        "import/no-cycle": ["error"]
       }
     }
   ]

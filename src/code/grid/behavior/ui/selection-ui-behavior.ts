@@ -1,6 +1,6 @@
 
 import { EventDetail } from '../../components/event/event-detail';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
@@ -34,31 +34,33 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
     private _lastColumnStepScrollDragTime: number | undefined;
     private _lastRowStepScrollDragTime: number | undefined;
 
-    override handlePointerDown(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
-        if (isSecondaryMouseButton(event)) {
-            return super.handlePointerDown(event, cell);
+    override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+        if (!event.altKey || isSecondaryMouseButton(event)) {
+            this.selection.clear();
+            return super.handlePointerDown(event, hoverCell);
         } else {
-            if (cell === undefined) {
-                cell = this.tryGetHoverCellFromMouseEvent(event);
+            if (hoverCell === undefined) {
+                hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (cell === null || cell.isMouseOverLine()) {
-                return super.handlePointerDown(event, cell);
+            if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+                return super.handlePointerDown(event, hoverCell);
             } else {
-                const subgrid = cell.subgrid;
+                const viewCell = hoverCell.viewCell;
+                const subgrid = viewCell.subgrid;
                 const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
 
                 if (!isSelectable) {
-                    return super.handlePointerDown(event, cell);
+                    return super.handlePointerDown(event, hoverCell);
                 } else {
                     let selectSucceeded: boolean;
-                    if (!cell.isScrollable) {
-                        return super.handlePointerDown(event, cell);
+                    if (!viewCell.isScrollable) {
+                        return super.handlePointerDown(event, hoverCell);
                     } else {
-                        selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, cell);
+                        selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, viewCell);
                         if (!selectSucceeded) {
-                            return super.handlePointerDown(event, cell);
+                            return super.handlePointerDown(event, hoverCell);
                         } else {
-                            return cell;
+                            return hoverCell;
                         }
                     }
                 }
@@ -66,87 +68,93 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (!event.altKey || isSecondaryMouseButton(event)) {
-            return super.handleClick(event, cell);
+            return super.handleClick(event, hoverCell);
         } else {
-            if (cell === undefined) {
-                cell = this.tryGetHoverCellFromMouseEvent(event);
+            if (hoverCell === undefined) {
+                hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (cell === null || cell.isMouseOverLine()) {
-                return super.handleClick(event, cell);
+            if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+                return super.handleClick(event, hoverCell);
             } else {
                 let selectSucceeded: boolean;
-                if (cell.isColumnFixed) {
-                    if (!cell.subgrid.selectable) {
+                const viewCell = hoverCell.viewCell;
+                if (viewCell.isColumnFixed) {
+                    if (!viewCell.subgrid.selectable) {
                         selectSucceeded = false;
                     } else {
-                        selectSucceeded = this.trySelectFromMouseDownInFixedColumn(event, cell);
+                        selectSucceeded = this.trySelectFromMouseDownInFixedColumn(event, viewCell);
                     }
                 } else {
-                    if (!cell.isHeaderOrRowFixed || !this.mainSubgrid.selectable) {
+                    if (!viewCell.isHeaderOrRowFixed || !this.mainSubgrid.selectable) {
                         selectSucceeded = false;
                     } else {
-                        selectSucceeded = this.trySelectFromMouseDownInHeaderOrFixedRow(event, cell);
+                        selectSucceeded = this.trySelectFromMouseDownInHeaderOrFixedRow(event, viewCell);
                     }
                 }
 
                 if (!selectSucceeded) {
-                    return super.handleClick(event, cell);
+                    return super.handleClick(event, hoverCell);
                 } else {
-                    return cell;
+                    return hoverCell;
                 }
             }
         }
     }
 
-    override handlePointerDragStart(event: DragEvent, cell: HoverCell<BCS> | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
-        }
-        if (cell === null || cell.isMouseOverLine()) {
-            return super.handlePointerDragStart(event, cell);
+    override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+        if (!event.altKey || isSecondaryMouseButton(event)) {
+            return super.handlePointerDragStart(event, hoverCell);
         } else {
-            const subgrid = cell.subgrid;
-            const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
-
-            if (!isSelectable) {
-                return super.handlePointerDragStart(event, cell);
+            if (hoverCell === undefined) {
+                hoverCell = this.tryGetHoverCellFromMouseEvent(event);
+            }
+            if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+                return super.handlePointerDragStart(event, hoverCell);
             } else {
-                let selectSucceeded: boolean;
-                if (cell.isHeaderOrRowFixed) {
-                    selectSucceeded = this.trySelectFromMouseDownInHeaderOrFixedRow(event, cell);
+                const viewCell = hoverCell.viewCell;
+                const subgrid = viewCell.subgrid;
+                const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
+
+                if (!isSelectable) {
+                    return super.handlePointerDragStart(event, hoverCell);
                 } else {
-                    if (cell.isColumnFixed) {
-                        selectSucceeded = this.trySelectFromMouseDownInFixedColumn(event, cell);
+                    let selectSucceeded: boolean;
+                    if (viewCell.isHeaderOrRowFixed) {
+                        selectSucceeded = this.trySelectFromMouseDownInHeaderOrFixedRow(event, viewCell);
                     } else {
-                        if (cell.isMain) {
-                            selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, cell)
+                        if (viewCell.isColumnFixed) {
+                            selectSucceeded = this.trySelectFromMouseDownInFixedColumn(event, viewCell);
                         } else {
-                            selectSucceeded = false;
+                            if (viewCell.isMain) {
+                                selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, viewCell)
+                            } else {
+                                selectSucceeded = false;
+                            }
+                        }
+                    }
+
+                    if (!selectSucceeded) {
+                        return super.handlePointerDragStart(event, hoverCell);
+                    } else {
+                        const dragType = this.getDragTypeFromSelectionLastArea();
+                        if (dragType === undefined) {
+                            return super.handlePointerDragStart(event, hoverCell);
+                        } else {
+                            this.setActiveDragType(dragType);
+                            return {
+                                started: true,
+                                hoverCell,
+                            };
                         }
                     }
                 }
-
-                if (!selectSucceeded) {
-                    return super.handlePointerDragStart(event, cell);
-                } else {
-                    const dragType = this.getDragTypeFromSelectionLastArea();
-                    if (dragType === undefined) {
-                        return super.handlePointerDragStart(event, cell);
-                    } else {
-                        this.setActiveDragType(dragType);
-                        return {
-                            started: true,
-                            cell,
-                        };
-                    }
-                }
             }
         }
     }
 
-    override handlePointerDrag(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         if (this._activeDragType === undefined) {
             return super.handlePointerDrag(event, cell);
         } else {
@@ -159,14 +167,14 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
                     cell = this.tryGetHoverCellFromMouseEvent(event);
                 }
                 if (cell !== null) {
-                    this.tryUpdateLastSelectionArea(cell);
+                    this.tryUpdateLastSelectionArea(cell.viewCell);
                 }
                 return cell;
             }
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    override handlePointerDragEnd(event: PointerEvent, cell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this._activeDragType === undefined) {
             return super.handlePointerDragEnd(event, cell);
         } else {
@@ -192,8 +200,8 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     private trySelectFromMouseDownInScrollableMain(event: MouseEvent, cell: ViewCell<BCS>) {
-        const areaTypeSpecifier = GridSettings.getSelectionAreaTypeSpecifierFromEvent(this.gridSettings, event);
-        const areaType = this.selection.calculateAreaTypeFromSpecifier(areaTypeSpecifier);
+        // const areaTypeSpecifier = GridSettings.getSelectionAreaTypeSpecifierFromEvent(this.gridSettings, event);
+        const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
 
         if (!GridSettings.isMouseSelectionAllowed(this.gridSettings, areaType)) {
             return false;
@@ -626,9 +634,9 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         this._activeDragType = dragType;
         this.mouse.setActiveDragType(dragType);
         if (dragType === undefined) {
-            this.mouse.setOperationCursor(undefined);
+            this.mouse.setOperation(undefined, undefined);
         } else {
-            this.mouse.setOperationCursor(this.gridSettings.selectionExtendDragActiveCursorName);
+            this.mouse.setOperation(this.gridSettings.selectionExtendDragActiveCursorName, this.gridSettings.selectionExtendDragActiveTitleText);
         }
     }
 

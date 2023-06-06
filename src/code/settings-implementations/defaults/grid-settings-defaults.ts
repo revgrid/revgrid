@@ -62,10 +62,15 @@ export const gridSettingsDefaults: Required<GridSettings> = {
     backgroundColor: 'rgb(241, 241, 241)',
 
     columnMoveDragPossibleCursorName: undefined,
+    columnMoveDragPossibleTitleText: 'Drag to move column',
     columnMoveDragActiveCursorName: 'ew-resize',
+    columnMoveDragActiveTitleText: '',
     columnResizeDragPossibleCursorName: 'col-resize',
+    columnResizeDragPossibleTitleText: 'Double click to adjust width to fit text\nHold <shift> to widen only\nHold <Ctrl> to activate auto fit',
     columnResizeDragActiveCursorName: 'col-resize',
+    columnResizeDragActiveTitleText: '',
     columnSortPossibleCursorName: undefined,
+    columnSortPossibleTitleText: 'Click to sort', // Change this if double click to sort is true
     filterFont: '12px Tahoma, Geneva, sans-serif',
     filterColor: 'rgb(25, 25, 25)',
     filterBackgroundColor: 'white',
@@ -241,11 +246,12 @@ export const gridSettingsDefaults: Required<GridSettings> = {
     mouseRowSelection: true,
     primarySelectionAreaType: SelectionAreaType.Rectangle,
     secondarySelectionAreaType: SelectionAreaType.Row,
-    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum.Alt,
+    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum.Control,
     extendLastSelectionAreaModifierKey: ModifierKeyEnum.Shift,
     addToggleSelectionAreaModifierKey: ModifierKeyEnum.Control,
     addToggleSelectionAreaModifierKeyDoesToggle: true,
     selectionExtendDragActiveCursorName: 'cell',
+    selectionExtendDragActiveTitleText: undefined,
 
     /**
      * @summary Fill color for last selection overlay.
@@ -341,7 +347,7 @@ export const gridSettingsDefaults: Required<GridSettings> = {
      * @type {boolean}
      */
     mouseSortable: true,
-    mouseSortOnDoubleClick: true,
+    mouseSortOnDoubleClick: false,
 
     multipleSelectionAreas: false,
     enableContinuousRepaint: false,

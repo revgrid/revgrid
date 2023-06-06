@@ -18,10 +18,15 @@ export interface GridSettings {
     /** Set up a clipping region around each column before painting cells. */
     readonly columnClip: boolean | undefined;
     readonly columnMoveDragPossibleCursorName: string | undefined;
+    readonly columnMoveDragPossibleTitleText: string | undefined;
     readonly columnMoveDragActiveCursorName: string | undefined;
+    readonly columnMoveDragActiveTitleText: string | undefined;
     readonly columnResizeDragPossibleCursorName: string | undefined;
+    readonly columnResizeDragPossibleTitleText: string | undefined;
     readonly columnResizeDragActiveCursorName: string | undefined;
+    readonly columnResizeDragActiveTitleText: string | undefined;
     readonly columnSortPossibleCursorName: string | undefined;
+    readonly columnSortPossibleTitleText: string | undefined;
     /** Allow user to move columns. */
     readonly columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
@@ -162,6 +167,7 @@ export interface GridSettings {
     readonly secondarySelectionAreaType: SelectionAreaType;
     /** Cursor to appear when extending a selection with a mouse drag */
     readonly selectionExtendDragActiveCursorName: string | undefined;
+    readonly selectionExtendDragActiveTitleText: string | undefined;
     /** Stroke color for last selection overlay. */
     readonly selectionRegionOutlineColor: GridSettings.Color;
     /** Fill color for last selection overlay. */

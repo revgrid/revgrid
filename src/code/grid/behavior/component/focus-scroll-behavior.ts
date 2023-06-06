@@ -1,7 +1,7 @@
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { HoverCellImplementation } from '../../components/view/hover-cell-implementation';
+import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
 import { ViewLayout } from '../../components/view/view-layout';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
@@ -176,7 +176,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
                     bottomPlus1: -1,
                     height: -1,
                 };
-                const cellEvent = new HoverCellImplementation(this._columnsManager);
+                const cellEvent = new ViewCellImplementation(this._columnsManager);
                 cellEvent.reset(vc, vr);
                 return cellEvent;
             } else {
@@ -188,7 +188,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
                     if (vr === undefined) {
                         return undefined;
                     } else {
-                        const cellEvent = new HoverCellImplementation(this._columnsManager);
+                        const cellEvent = new ViewCellImplementation(this._columnsManager);
                         cellEvent.reset(vc, vr);
                         return cellEvent;
                     }

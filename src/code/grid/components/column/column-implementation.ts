@@ -28,7 +28,8 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings> implemen
      */
     /** @internal */
     constructor(
-        schemaColumn: SchemaServer.Column<BCS>
+        schemaColumn: SchemaServer.Column<BCS>,
+        private readonly _horizontalViewLayoutInvalidatedEventer: ColumnImplementation.HorizontalViewLayoutInvalidatedEventer,
     ) {
         this.index = schemaColumn.index;
         this.name = schemaColumn.name
@@ -78,27 +79,31 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings> implemen
     get width() { return this._width; }
 
     setWidth(width: number | undefined) {
+        let changed: boolean;
+
         if (width === undefined) {
-            return this.setWidthToAutoSizing();
+            if (this._autosizing) {
+                changed = false;
+            } else {
+                this._autosizing = true;
+                changed = true;
+            }
         } else {
             width = Math.ceil(Math.min(Math.max(this._settings.minimumColumnWidth, width), this._settings.maximumColumnWidth ?? Infinity));
             if (!this._autosizing && width === this._width) {
-                return false;
+                changed = false;
             } else {
                 this._width = width;
                 this._autosizing = false;
-                return true;
+                changed = true;
             }
         }
-    }
 
-    setWidthToAutoSizing() {
-        if (this._autosizing) {
-            return false;
-        } else {
-            this._autosizing = true;
-            return true;
+        if (changed) {
+            this._horizontalViewLayoutInvalidatedEventer();
         }
+
+        return changed;
     }
 
     getMaxPaintWidth() {
@@ -107,41 +112,45 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings> implemen
 
     /** @internal */
     checkColumnAutosizing(widenOnly: boolean) {
-        const settings = this._settings;
-
-        let preferredWidth: number;
-        if (!settings.defaultColumnAutosizing) {
-            preferredWidth = settings.defaultColumnWidth;
+        if (!this._autosizing) {
+            return false;
         } else {
-            const maxPaintWidth = this.maxPaintWidth;
-            if (maxPaintWidth === undefined) {
-                return false;
+            const settings = this._settings;
+
+            let preferredWidth: number;
+            if (!settings.defaultColumnAutosizing) {
+                preferredWidth = settings.defaultColumnWidth;
             } else {
-                if (widenOnly) {
-                    const existingPreferredWidth = this._width;
-                    if (existingPreferredWidth !== undefined && existingPreferredWidth >= maxPaintWidth) {
-                        return false;
+                const maxPaintWidth = this.maxPaintWidth;
+                if (maxPaintWidth === undefined) {
+                    return false;
+                } else {
+                    if (widenOnly) {
+                        const existingPreferredWidth = this._width;
+                        if (existingPreferredWidth !== undefined && existingPreferredWidth >= maxPaintWidth) {
+                            return false;
+                        } else {
+                            preferredWidth = maxPaintWidth;
+                        }
                     } else {
                         preferredWidth = maxPaintWidth;
                     }
-                } else {
-                    preferredWidth = maxPaintWidth;
-                }
 
-                const columnAutosizingMax = settings.columnAutosizingMax;
-                if (columnAutosizingMax !== undefined) {
-                    if (preferredWidth > columnAutosizingMax) {
-                        preferredWidth = columnAutosizingMax;
+                    const columnAutosizingMax = settings.columnAutosizingMax;
+                    if (columnAutosizingMax !== undefined) {
+                        if (preferredWidth > columnAutosizingMax) {
+                            preferredWidth = columnAutosizingMax;
+                        }
                     }
                 }
             }
-        }
 
-        if (preferredWidth === this._width) {
-            return false;
-        } else {
-            this._width = preferredWidth;
-            return true;
+            if (preferredWidth === this._width) {
+                return false;
+            } else {
+                this._width = preferredWidth;
+                return true;
+            }
         }
     }
 
@@ -233,4 +242,8 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings> implemen
     //     const localizerName = this.properties.format;
     //     return this.grid.localization.get(localizerName).format;
     // }
+}
+
+export namespace ColumnImplementation {
+    export type HorizontalViewLayoutInvalidatedEventer = (this: void) => void;
 }

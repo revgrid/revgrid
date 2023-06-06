@@ -1,5 +1,6 @@
 import { EventDetail } from '../../components/event/event-detail';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column, ColumnWidth } from '../../interfaces/schema/column';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -26,9 +27,9 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
     private _inPlaceAdjacentStartWidth: number;
     private _inPlaceAdjacentColumn: Column<BCS> | undefined;
 
-    override handlePointerDrag(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
         if (this._dragColumn === undefined) {
-            return super.handlePointerDrag(event, cell);
+            return super.handlePointerDrag(event, hoverCell);
         } else {
             const mouseValue = event.offsetX;
             let delta: number;
@@ -58,28 +59,29 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                     this.columnsManager.setColumnWidths(columnWidths, true);
                 }
             }
-            return cell;
+            return hoverCell;
         }
     }
 
-    override handlePointerDragStart(event: DragEvent, cell: HoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS> {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
+    override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS> {
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
 
-        if (cell === null) {
-            return super.handlePointerDragStart(event, cell);
+        if (hoverCell === null) {
+            return super.handlePointerDragStart(event, hoverCell);
         } else {
+            const viewCell = hoverCell.viewCell;
             const canvasOffsetX = event.offsetX;
-            if (!cell.isHeaderOrRowFixed) {
-                return super.handlePointerDragStart(event, cell);
+            if (!viewCell.isHeaderOrRowFixed) {
+                return super.handlePointerDragStart(event, hoverCell);
             } else {
-                const nearGridLine = this.calculateNearGridLine(canvasOffsetX, cell);
+                const nearGridLine = this.calculateNearGridLine(canvasOffsetX, viewCell);
                 if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.neither) {
-                    return super.handlePointerDragStart(event, cell);
+                    return super.handlePointerDragStart(event, hoverCell);
                 } else {
                     const viewLayoutColumnCount = this.viewLayout.columns.length;
-                    let vc = cell.viewLayoutColumn;
+                    let vc = viewCell.viewLayoutColumn;
                     let vcIndex = vc.index;
 
                     const gridRightBottomAligned = this.gridSettings.gridRightAligned;
@@ -88,30 +90,30 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                             vcIndex--;
                             if (vcIndex < 0) {
                                 // can't drag left-most column boundary
-                                return super.handlePointerDragStart(event, cell);
+                                return super.handlePointerDragStart(event, hoverCell);
                             } else {
                                 vc = this.viewLayout.columns[vcIndex];
                                 this._dragColumn = vc.column;
                                 this._dragStartWidth = vc.width;
                             }
                         } else {
-                            this._dragColumn = cell.viewLayoutColumn.column;
-                            this._dragStartWidth = cell.bounds.width;
+                            this._dragColumn = viewCell.viewLayoutColumn.column;
+                            this._dragStartWidth = viewCell.bounds.width;
                         }
                     } else {
-                        if (canvasOffsetX >= cell.bounds.x + cell.bounds.width - 3) {
+                        if (canvasOffsetX >= viewCell.bounds.x + viewCell.bounds.width - 3) {
                             vcIndex++;
                             if (vcIndex >= viewLayoutColumnCount) {
                                 // can't drag right-most column boundary
-                                return super.handlePointerDragStart(event, cell);
+                                return super.handlePointerDragStart(event, hoverCell);
                             } else {
                                 vc = this.viewLayout.columns[vcIndex];
                                 this._dragColumn = vc.column;
                                 this._dragStartWidth = vc.width;
                             }
                         } else {
-                            this._dragColumn = cell.viewLayoutColumn.column;
-                            this._dragStartWidth = cell.bounds.width;
+                            this._dragColumn = viewCell.viewLayoutColumn.column;
+                            this._dragStartWidth = viewCell.bounds.width;
                         }
                     }
 
@@ -185,14 +187,14 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                     this.setMouseDragging(true);
                     return {
                         started: true,
-                        cell,
+                        hoverCell,
                     }
                 }
             }
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerDragEnd(event: PointerEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         if (this._dragColumn === undefined) {
             return super.handlePointerDragEnd(event, cell);
         } else {
@@ -204,45 +206,37 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
         }
     }
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
         if (this._dragColumn === undefined) {
-            const sharedState = this.sharedState;
-            if (sharedState.locationCursorName === undefined) {
-                cell = super.handlePointerMove(event, cell);
-
-                if (cell === undefined) {
-                    cell = this.tryGetHoverCellFromMouseEvent(event);
+            if (this.sharedState.locationCursorName === undefined) {
+                if (hoverCell === undefined) {
+                    hoverCell = this.tryGetHoverCellFromMouseEvent(event);
                 }
-
-                const canvasOffsetX = event.offsetX;
-                if (
-                    cell !== null &&
-                    cell.isHeader &&
-                    this.calculateNearGridLine(canvasOffsetX, cell) !== ColumnResizingUiBehavior.NearGridLine.neither
-                ) {
-                    sharedState.locationCursorName = this.gridSettings.columnResizeDragPossibleCursorName;
+                if (hoverCell !== null) {
+                    this.checkSetLocation(event, hoverCell.viewCell);
                 }
             }
         }
-        return super.handlePointerMove(event, cell);
+        return super.handlePointerMove(event, hoverCell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
+    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell === null) {
-            return super.handleDblClick(event, cell);
+        if (hoverCell === null) {
+            return super.handleDblClick(event, hoverCell);
         } else {
-            if (!cell.isHeaderOrRowFixed) {
-                return super.handleDblClick(event, cell);
+            const viewCell = hoverCell.viewCell;
+            if (!viewCell.isHeaderOrRowFixed) {
+                return super.handleDblClick(event, hoverCell);
             } else {
                 const canvasOffsetX = event.offsetX;
-                const nearGridLine = this.calculateNearGridLine(canvasOffsetX, cell);
+                const nearGridLine = this.calculateNearGridLine(canvasOffsetX, viewCell);
                 if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.neither) {
-                    return super.handleDblClick(event, cell);
+                    return super.handleDblClick(event, hoverCell);
                 } else {
-                    let viewLayoutColumn = cell.viewLayoutColumn;
+                    let viewLayoutColumn = viewCell.viewLayoutColumn;
                     if (this.gridSettings.gridRightAligned) {
                         if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.right) {
                             // always work on the column to the right of the near grid line
@@ -259,16 +253,37 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                         }
                     }
                     const column = viewLayoutColumn.column;
-                    if (column.setWidthToAutoSizing()) {
-                        this.viewLayout.invalidateAll(true);
+                    if (event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
+                        column.setWidth(undefined); // make autosizing
+                    } else {
+                        const maxWidth = column.maxPaintWidth;
+                        if (event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
+                            if (maxWidth !== undefined && column.width < maxWidth) {
+                                column.setWidth(maxWidth);
+                            }
+                        } else {
+                            column.setWidth(maxWidth);
+                        }
                     }
-                    return cell;
+
+                    // location may no longer be valid
+                    const sharedState = this.sharedState;
+                    sharedState.locationCursorName = undefined;
+                    sharedState.locationTitleText = undefined;
+
+                    // cell may have changed
+                    hoverCell = this.tryGetHoverCellFromMouseEvent(event);
+                    if (hoverCell !== null) {
+                        this.checkSetLocation(event, hoverCell.viewCell);
+                    }
+
+                    return hoverCell;
                 }
             }
         }
     }
 
-    private calculateNearGridLine(canvasOffsetX: number, cell: HoverCell<BCS>) {
+    private calculateNearGridLine(canvasOffsetX: number, cell: ViewCell<BCS>) {
         const cellBounds = cell.bounds;
         const cellLeft = cellBounds.x;
         const cellLeftOffset = canvasOffsetX - cellLeft;
@@ -313,10 +328,23 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
     private setMouseDragging(active: boolean) {
         if (active) {
             this.mouse.setActiveDragType(EventDetail.DragTypeEnum.ColumnResizing);
-            this.mouse.setOperationCursor(this.gridSettings.columnResizeDragActiveCursorName);
+            this.mouse.setOperation(this.gridSettings.columnResizeDragActiveCursorName, this.gridSettings.columnResizeDragActiveTitleText);
         } else {
             this.mouse.setActiveDragType(undefined);
-            this.mouse.setOperationCursor(undefined);
+            this.mouse.setOperation(undefined, undefined);
+        }
+    }
+
+    private checkSetLocation(event: MouseEvent, cell: ViewCell<BCS>) {
+        const canvasOffsetX = event.offsetX;
+        if (
+            cell !== null &&
+            cell.isHeader &&
+            this.calculateNearGridLine(canvasOffsetX, cell) !== ColumnResizingUiBehavior.NearGridLine.neither
+        ) {
+            const sharedState = this.sharedState;
+            sharedState.locationCursorName = this.gridSettings.columnResizeDragPossibleCursorName;
+            sharedState.locationTitleText = this.gridSettings.columnResizeDragPossibleTitleText;
         }
     }
 }

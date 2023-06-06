@@ -21,7 +21,7 @@ import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
 import { CellMetaSettings } from './interfaces/data/cell-meta-settings';
 import { DataServer } from './interfaces/data/data-server';
-import { HoverCell } from './interfaces/data/hover-cell';
+import { LinedHoverCell } from './interfaces/data/hover-cell';
 import { MainSubgrid } from './interfaces/data/main-subgrid';
 import { MetaModel } from './interfaces/data/meta-model';
 import { Subgrid } from './interfaces/data/subgrid';
@@ -657,7 +657,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @param mouse - The mouse point to interrogate.
      */
     getGridCellFromMousePoint(mouse: Point) {
-        return this.viewLayout.findHoverCell(mouse.x, mouse.y);
+        return this.viewLayout.findLinedHoverCell(mouse.x, mouse.y);
     }
 
     /**
@@ -1279,35 +1279,35 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessClick(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
+    protected descendantProcessClick(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessDblClick(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
+    protected descendantProcessDblClick(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
+    protected descendantProcessPointerEnter(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerDown(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
+    protected descendantProcessPointerDown(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
+    protected descendantProcessPointerUpCancel(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerMove(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
+    protected descendantProcessPointerMove(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
+    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
-    protected descendantProcessWheelMove(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
+    protected descendantProcessWheelMove(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
@@ -1315,7 +1315,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessContextMenu(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined) {
+    protected descendantProcessContextMenu(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined) {
         // for descendants
     }
 
@@ -1323,7 +1323,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * Uses DragEvent as this has original Mouse location.  Do not change DragEvent or call any of its methods
      * Return true if drag operation is to be started.
      */
-    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: HoverCell<BCS> | null | undefined): boolean {
+    protected descendantProcessPointerDragStart(_event: DragEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): boolean {
         return false;
     }
 

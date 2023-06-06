@@ -1,5 +1,5 @@
 import { DataServer } from '../../interfaces/data/data-server';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -11,7 +11,7 @@ export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     readonly typeName = CellClickUiBehavior.typeName;
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (cell === undefined) {
@@ -22,26 +22,27 @@ export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends
                 const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
                 sharedState.locationCursorName = isActionableLink ? 'pointer' : undefined;
+                sharedState.locationTitleText = undefined;
             }
         }
 
         return super.handlePointerMove(event, cell);
     }
 
-    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
+    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell === null || cell.isMain) {
-            return super.handleClick(event, cell);
+        if (hoverCell === null || hoverCell.viewCell.isMain) {
+            return super.handleClick(event, hoverCell);
         } else {
-            if (this.openLink(cell) !== undefined) {
-                return cell;
+            if (this.openLink(hoverCell.viewCell) !== undefined) {
+                return hoverCell;
             } else {
                 // if (this.grid.cellClicked(cell)) {
                 //     return cell;
                 // } else {
-                    return super.handleClick(event, cell);
+                    return super.handleClick(event, hoverCell);
                 // }
             }
         }

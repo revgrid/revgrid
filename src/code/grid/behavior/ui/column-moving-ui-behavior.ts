@@ -1,5 +1,5 @@
 import { EventDetail } from '../../components/event/event-detail';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -49,51 +49,48 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
     private _scrolling = false;
     private _scrollVelocity = 0;
 
-    override initializeOn() {
-        super.initializeOn();
-    }
-
-    override handlePointerDragStart(event: DragEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
         if (!this.gridSettings.columnsReorderable) {
-            return super.handlePointerDragStart(event, cell);
+            return super.handlePointerDragStart(event, hoverCell);
         } else {
-            if (cell === undefined) {
-                cell = this.tryGetHoverCellFromMouseEvent(event);
+            if (hoverCell === undefined) {
+                hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
 
-            if (
-                cell === null ||
-                cell.isColumnFixed ||
-                !cell.isHeaderOrRowFixed
-            ) {
-                return super.handlePointerDragStart(event, cell);
+            if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+                return super.handlePointerDragStart(event, hoverCell);
             } else {
-                this.setMouseDragging(true)
-                this.reindexBehavior.stash();
+                const viewCell = hoverCell.viewCell;
+                if (viewCell.isColumnFixed || !viewCell.isHeaderOrRowFixed) {
+                    return super.handlePointerDragStart(event, hoverCell);
+                } else {
+                    this.setMouseDragging(true)
+                    this.reindexBehavior.stash();
 
-                this._dragOverlay = document.createElement('canvas');
-                this._dragOverlay.style.position = 'absolute';
-                this._dragOverlay.style.pointerEvents = 'none';
-                this._dragOverlay.style.top = '0px';
-                this._dragOverlay.style.left = '0px';
-                this._dragOverlay.style.display = 'none';
+                    this._dragOverlay = document.createElement('canvas');
+                    this._dragOverlay.style.position = 'absolute';
+                    this._dragOverlay.style.pointerEvents = 'none';
+                    this._dragOverlay.style.top = '0px';
+                    this._dragOverlay.style.left = '0px';
+                    this._dragOverlay.style.display = 'none';
 
-                this.containerHtmlElement.appendChild(this._dragOverlay);
+                    this.containerHtmlElement.appendChild(this._dragOverlay);
 
-                this._dragColumn = cell.viewLayoutColumn;
-                this._dragOverlay.width = this.canvasManager.flooredContainerWidth;
-                this._dragOverlay.height = this.canvasManager.flooredContainerHeight;
-                this._dragOverlay.style.display = '';
+                    this._dragColumn = viewCell.viewLayoutColumn;
+                    this._dragOverlay.width = this.canvasManager.flooredContainerWidth;
+                    this._dragOverlay.height = this.canvasManager.flooredContainerHeight;
+                    this._dragOverlay.style.display = '';
 
-                return {
-                    started: true,
-                    cell,
+                    return {
+                        started: true,
+                        hoverCell,
+                    }
                 }
             }
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerDragEnd(event: PointerEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         const dragColumn = this._dragColumn;
         if (dragColumn === undefined) {
             return super.handlePointerDragEnd(event, cell);
@@ -115,27 +112,27 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         }
     }
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (this.gridSettings.columnsReorderable) {
-                if (cell === undefined) {
-                    cell = this.tryGetHoverCellFromMouseEvent(event);
+                if (hoverCell === undefined) {
+                    hoverCell = this.tryGetHoverCellFromMouseEvent(event);
                 }
-                if (cell !== null &&
-                    !cell.isColumnFixed &&
-                    cell.isHeaderOrRowFixed &&
-                    !cell.isMouseOverLine()
-                ) {
-                    sharedState.locationCursorName = this.gridSettings.columnMoveDragPossibleCursorName;
+                if (hoverCell !== null && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+                    const viewCell = hoverCell.viewCell;
+                    if (!viewCell.isColumnFixed && viewCell.isHeaderOrRowFixed) {
+                        sharedState.locationCursorName = this.gridSettings.columnMoveDragPossibleCursorName;
+                        sharedState.locationTitleText = this.gridSettings.columnMoveDragPossibleTitleText;
+                    }
                 }
             }
         }
 
-        return super.handlePointerMove(event, cell);
+        return super.handlePointerMove(event, hoverCell);
     }
 
-    override handlePointerDrag(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: LinedHoverCell<BCS> | null | undefined) {
 
         // if (event.isColumnFixed) {
         //     super.handleMouseDrag(grid, event);
@@ -304,10 +301,10 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
     private setMouseDragging(active: boolean) {
         if (active) {
             this.mouse.setActiveDragType(EventDetail.DragTypeEnum.ColumnMoving);
-            this.mouse.setOperationCursor(this.gridSettings.columnMoveDragActiveCursorName);
+            this.mouse.setOperation(this.gridSettings.columnMoveDragActiveCursorName, this.gridSettings.columnMoveDragActiveTitleText);
         } else {
             this.mouse.setActiveDragType(undefined);
-            this.mouse.setOperationCursor(undefined);
+            this.mouse.setOperation(undefined, undefined);
         }
     }
 }

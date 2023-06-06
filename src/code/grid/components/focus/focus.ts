@@ -51,7 +51,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     ) {
         this.subgrid = this._mainSubgrid;
         this.dataServer = this.subgrid.dataServer;
-        this._viewLayout.cellPoolComputedEventerForFocus = () => this.handelCellPoolComputedEvent();
+        this._viewLayout.cellPoolComputedEventerForFocus = () => this.handleCellPoolComputedEvent();
     }
 
     get currentSubgridX() { return this._currentSubgridPoint === undefined ? undefined : this._currentSubgridPoint.x; }
@@ -102,7 +102,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             }
 
             if (cell === undefined) {
-                cell = this._viewLayout.findCellAtGridPoint(newFocusX, newFocusY, this.subgrid);
+                cell = this._viewLayout.findCellAtGridPoint(newFocusX, newFocusY, this.subgrid, true);
             }
 
             if (cell !== undefined) {
@@ -134,7 +134,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             }
 
             if (cell === undefined) {
-                cell = this._viewLayout.findCellAtGridPoint(activeColumnIndex, y, this.subgrid);
+                cell = this._viewLayout.findCellAtGridPoint(activeColumnIndex, y, this.subgrid, true);
             }
 
             if (cell !== undefined) {
@@ -165,7 +165,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             }
 
             if (cell === undefined) {
-                cell = this._viewLayout.findCellAtGridPoint(x, subgridRowIndex, this.subgrid);
+                cell = this._viewLayout.findCellAtGridPoint(x, subgridRowIndex, this.subgrid, true);
             }
 
             if (cell !== undefined) {
@@ -198,7 +198,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             }
 
             if (cell === undefined) {
-                cell = this._viewLayout.findCellAtGridPoint(activeColumnIndex, subgridRowIndex, this.subgrid);
+                cell = this._viewLayout.findCellAtGridPoint(activeColumnIndex, subgridRowIndex, this.subgrid, true);
             }
 
             if (cell !== undefined) {
@@ -415,11 +415,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private handelCellPoolComputedEvent() {
+    private handleCellPoolComputedEvent() {
         // Called within Request Animation Frame. Do not call any external code.
         const focusPoint = this._currentSubgridPoint;
         if (focusPoint !== undefined) {
-            const cell = this._viewLayout.findCellAtGridPoint(focusPoint.x, focusPoint.y, this.subgrid);
+            const cell = this._viewLayout.findCellAtGridPoint(focusPoint.x, focusPoint.y, this.subgrid, false);
             if (cell !== this._cell) {
                 const editor = this._editor;
                 if (editor !== undefined) {

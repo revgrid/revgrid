@@ -1,6 +1,6 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { DataServer } from '../../interfaces/data/data-server';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
@@ -16,7 +16,6 @@ import { ColumnImplementation } from '../column/column-implementation';
 import { ColumnsManager } from '../column/columns-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { HorizontalScrollDimension } from './horizontal-scroll-dimension';
-import { HoverCellImplementation } from './hover-cell-implementation';
 import { VerticalScrollDimension } from './vertical-scroll-dimension';
 import { ViewCellImplementation } from './view-cell-implementation';
 
@@ -156,7 +155,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         this._verticalScrollDimension.computedEventer = (withinAnimationFrame: boolean) => this.handleVerticalScrollDimensionComputedEvent(withinAnimationFrame);
 
         this._dummyUnusedColumn = this._columnsManager.createDummyColumn();
-        this._columnsManager.invalidateViewEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell);
+        this._columnsManager.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell);
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
         this.reset();
     }
@@ -1009,7 +1008,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      * @param point
      * @returns Cell coordinates
      */
-    findHoverCell(canvasXOffset: number, canvasYOffset: number): HoverCell<BCS> | undefined {
+    findLinedHoverCell(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS> | undefined {
+        this.ensureValidOutsideAnimationFrame();
         const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasXOffset);
         if (columnIndex < 0) {
             return undefined;
@@ -1018,13 +1018,17 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             if (rowIndex < 0) {
                 return undefined;
             } else {
-                const hoverCell = this.findCellAtViewpointIndex(columnIndex, rowIndex) as HoverCellImplementation<BGS, BCS>;
-                if (hoverCell === undefined) {
+                const viewCell = this.findCellAtViewpointIndex(columnIndex, rowIndex, true);
+                if (viewCell === undefined) {
                     throw new AssertError('VGCFMP34440');
                 } else {
-                    hoverCell.mouseOverLeftLine = canvasXOffset < hoverCell.viewLayoutColumn.left;
-                    hoverCell.mouseOverTopLine = canvasYOffset < hoverCell.viewLayoutRow.top;
-                    return hoverCell;
+                    const mouseOverLeftLine = canvasXOffset < viewCell.viewLayoutColumn.left;
+                    const mouseOverTopLine = canvasYOffset < viewCell.viewLayoutRow.top;
+                    return {
+                        viewCell,
+                        mouseOverLeftLine,
+                        mouseOverTopLine,
+                    };
                 }
             }
         }
@@ -1039,7 +1043,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             if (rowIndex < 0) {
                 return undefined;
             } else {
-                return this.findCellAtViewpointIndex(columnIndex, rowIndex);
+                return this.findCellAtViewpointIndex(columnIndex, rowIndex, true);
             }
         }
     }
@@ -1070,6 +1074,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     findColumnIndexOfCanvasOffset(canvasOffsetX: number) {
+        // called from within animation frame
         const columns = this._columns;
         const columnCount = columns.length;
         if (canvasOffsetX < 0 || columnCount === 0) {
@@ -1583,7 +1588,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS>) {
+    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS>, canComputePool: boolean) {
         const column = this.findColumnWithActiveIndex(activeColumnIndex);
         if (column === undefined) {
             return undefined;
@@ -1592,7 +1597,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             if (row === undefined) {
                 return undefined;
             } else {
-                return this.findCellAtViewpointIndex(column.index, row.index);
+                return this.findCellAtViewpointIndex(column.index, row.index, canComputePool);
             }
         }
     }
@@ -1606,12 +1611,13 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             if (row === undefined) {
                 return undefined;
             } else {
-                return this.findCellAtViewpointIndex(column.index, row.index);
+                return this.findCellAtViewpointIndex(column.index, row.index, true);
             }
         }
     }
 
-    findCellAtViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number) {
+    findCellAtViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number, canComputePool: boolean) {
+        // called from within animation frame
         if (this._columnRowOrderedCellPoolComputationId === this._rowsColumnsComputationId) {
             const cellIndex = viewportColumnIndex * this._rows.length + viewportRowIndex;
             return this._columnRowOrderedCellPool[cellIndex];
@@ -1620,26 +1626,32 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 const cellIndex = viewportRowIndex * this._columns.length + viewportColumnIndex;
                 return this._rowColumnOrderedCellPool[cellIndex];
             } else {
-                if (this._columnRowOrderedCellPoolComputationId > 0) {
-                    const pool = this.getColumnRowOrderedCellPool();
-                    const cellIndex = viewportColumnIndex * this._rows.length + viewportRowIndex;
-                    return pool[cellIndex];
+                if (!canComputePool) {
+                    // cannot recompute pool if called from pool computed event
+                    throw new AssertError('VLFCAVI22290');
                 } else {
-                    if (this._rowColumnOrderedCellPoolComputationId > 0) {
-                        const pool = this.getRowColumnOrderedCellPool();
-                        const cellIndex = viewportRowIndex * this._columns.length + viewportColumnIndex;
-                        return pool[cellIndex];
-                    } else {
+                    if (this._columnRowOrderedCellPoolComputationId > 0) {
                         const pool = this.getColumnRowOrderedCellPool();
                         const cellIndex = viewportColumnIndex * this._rows.length + viewportRowIndex;
                         return pool[cellIndex];
+                    } else {
+                        if (this._rowColumnOrderedCellPoolComputationId > 0) {
+                            const pool = this.getRowColumnOrderedCellPool();
+                            const cellIndex = viewportRowIndex * this._columns.length + viewportColumnIndex;
+                            return pool[cellIndex];
+                        } else {
+                            const pool = this.getColumnRowOrderedCellPool();
+                            const cellIndex = viewportColumnIndex * this._rows.length + viewportRowIndex;
+                            return pool[cellIndex];
+                        }
                     }
                 }
             }
         }
     }
 
-    findCellAtCanvasOffset(x: number, y: number): ViewCell<BCS> | undefined {
+    findCellAtCanvasOffset(x: number, y: number, canComputePool: boolean): ViewCell<BCS> | undefined {
+        // called from within animation frame
         const columnIndex = this.findColumnIndexOfCanvasOffset(x);
         if (columnIndex < 0) {
             return undefined;
@@ -1649,7 +1661,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             if (row === undefined) {
                 return undefined;
             } else {
-                const cell = this.findCellAtViewpointIndex(columnIndex, row.index);
+                const cell = this.findCellAtViewpointIndex(columnIndex, row.index, canComputePool);
                 if (cell === undefined) {
                     throw new AssertError('VGCFMP34440');
                 } else {
@@ -2167,6 +2179,28 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         this._rowsColumnsComputationId++;
     }
 
+    private ensureValidOutsideAnimationFrame() {
+        if (!this._horizontalScrollDimension.ensureValidInsideAnimationFrame()) {
+            // was previously not valid
+            this._columnsValid = false;
+        }
+
+        if (!this._verticalScrollDimension.ensureValidInsideAnimationFrame()) {
+            // was previously not valid
+            this._rowsValid = false;
+        }
+
+        if (!this._columnsValid) {
+            this.computeHorizontal(false);
+            this._columnsValid = true;
+        }
+
+        if (this._rowsValid) {
+            this.computeVertical(false);
+            this._rowsValid = true;
+        }
+    }
+
     private ensureHorizontalValidOutsideAnimationFrame() {
         if (!this._horizontalScrollDimension.ensureValidOutsideAnimationFrame()) {
             // was previously not valid
@@ -2240,7 +2274,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
         if (requiredSize > previousLength) {
             for (let i = previousLength; i < requiredSize; i++) {
-                pool[i] = new HoverCellImplementation<BGS, BCS>(this._columnsManager);
+                pool[i] = new ViewCellImplementation<BGS, BCS>(this._columnsManager);
             }
         }
     }

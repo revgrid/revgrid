@@ -54,7 +54,7 @@ export namespace EventName {
         'rev-columns-created': undefined;
     }
 
-    export type Mouse =
+    export type MouseHoverCell =
         'rev-click' |
         'rev-dbl-click' |
         'rev-pointer-up-cancel' |

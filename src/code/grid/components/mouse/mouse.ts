@@ -1,4 +1,3 @@
-import { HoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -24,7 +23,11 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     private _operationCursorName: string | undefined; // gets priority over hover cell and location cursor
     /** @internal */
+    private _operationTitleText: string | undefined; // gets priority over hover cell and location cursor
+    /** @internal */
     private _locationCursorName: string | undefined; // gets priority over hover cell cursor
+    /** @internal */
+    private _locationTitleText: string | undefined; // gets priority over hover cell cursor
 
     /** @internal */
     constructor(
@@ -44,7 +47,9 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         this._canvasOffsetPoint = undefined;
         this._hoverCell = undefined;
         this._operationCursorName = undefined;
+        this._operationTitleText = undefined;
         this._locationCursorName = undefined;
+        this._locationTitleText = undefined;
     }
 
     /** @internal */
@@ -54,18 +59,20 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    setOperationCursor(cursorName: string | undefined) {
-        if (cursorName !== this._operationCursorName) {
+    setOperation(cursorName: string | undefined, titleText: string | undefined) {
+        if (cursorName !== this._operationCursorName || titleText !== this._operationTitleText) {
             this._operationCursorName = cursorName;
-            this.updateOperationLocationCursor();
+            this._operationTitleText = titleText;
+            this.updateOperationLocation();
         }
     }
 
     /** @internal */
-    setLocationCursor(cursorName: string | undefined) {
-        if (cursorName !== this._locationCursorName) {
+    setLocation(cursorName: string | undefined, titleText: string | undefined) {
+        if (cursorName !== this._locationCursorName || titleText !== this._locationTitleText) {
             this._locationCursorName = cursorName;
-            this.updateOperationLocationCursor();
+            this._locationTitleText = titleText;
+            this.updateOperationLocation();
         }
     }
 
@@ -76,12 +83,12 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private processViewLayoutComputed() {
-        let newHoverCell: HoverCell<BCS> | undefined;
+        let newHoverCell: ViewCell<BCS> | undefined;
         const canvasOffsetPoint = this._canvasOffsetPoint;
         if (canvasOffsetPoint === undefined) {
             newHoverCell = undefined;
         } else {
-            newHoverCell = this._viewLayout.findHoverCell(canvasOffsetPoint.x, canvasOffsetPoint.y);
+            newHoverCell = this._viewLayout.findCellAtCanvasOffset(canvasOffsetPoint.x, canvasOffsetPoint.y, false);
         }
 
         this.updateHoverCell(newHoverCell, false);
@@ -129,78 +136,77 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     private updateHoverCursorAndTitleText() {
         if (this._operationCursorName === undefined && this._locationCursorName === undefined) {
             if (this._hoverCell === undefined) {
-                this._canvasManager.setCursorAndTitleText(undefined, '');
+                this._canvasManager.setCursor(undefined);
             } else {
-                const cursorNameAndTitleText = this.getCellCursorNameAndTitleText();
-                if (cursorNameAndTitleText === undefined) {
-                    this._canvasManager.setCursorAndTitleText(undefined, '');
-                } else {
-                    this._canvasManager.setCursorAndTitleText(cursorNameAndTitleText.cursorName, cursorNameAndTitleText.titleText);
-                }
+                const cursorName = this.getCellCursorName();
+                this._canvasManager.setCursor(cursorName);
+            }
+        }
+
+        if (this._operationTitleText === undefined && this._locationTitleText === undefined) {
+            if (this._hoverCell === undefined) {
+                this._canvasManager.setTitleText('');
+            } else {
+                const titleText = this.getCellTitleText();
+                this._canvasManager.setTitleText(titleText);
             }
         }
     }
 
     /** @internal */
-    private updateOperationLocationCursor() {
-        let titleText: string;
+    private updateOperationLocation() {
         let cursorName: string | undefined;
         if (this._operationCursorName !== undefined) {
-            titleText = '';
             cursorName = this._operationCursorName;
         } else {
             if (this._locationCursorName !== undefined) {
-                titleText = '';
                 cursorName = this._locationCursorName;
             } else {
-                const cursorNameAndTitleText = this.getCellCursorNameAndTitleText();
-                if (cursorNameAndTitleText === undefined) {
-                    titleText = '';
-                } else {
-                    cursorName = cursorNameAndTitleText.cursorName;
-                    titleText = cursorNameAndTitleText.titleText;
-                }
+                cursorName = this.getCellCursorName();
             }
         }
-        this._canvasManager.setCursorAndTitleText(cursorName, titleText);
+        this._canvasManager.setCursor(cursorName);
 
-
-        if (this._operationCursorName === undefined && this._locationCursorName === undefined) {
-            if (this._hoverCell === undefined) {
-                this._canvasManager.setCursorAndTitleText(undefined, '');
+        let titleText: string;
+        if (this._operationTitleText !== undefined) {
+            titleText = this._operationTitleText;
+        } else {
+            if (this._locationTitleText !== undefined) {
+                titleText = this._locationTitleText;
             } else {
-                const cursorNameAndTitleText = this.getCellCursorNameAndTitleText();
-                if (cursorNameAndTitleText === undefined) {
-                    this._canvasManager.setCursorAndTitleText(undefined, '');
-                } else {
-                    this._canvasManager.setCursorAndTitleText(cursorNameAndTitleText.cursorName, cursorNameAndTitleText.titleText);
-                }
+                titleText = this.getCellTitleText();
             }
         }
+        this._canvasManager.setTitleText(titleText);
     }
 
     /** @internal */
-    private getCellCursorNameAndTitleText(): Mouse.CursorNameAndTitleText | undefined {
+    private getCellCursorName(): string | undefined {
         const cell = this._hoverCell;
         if (cell === undefined) {
             return undefined;
         } else {
             const dataServer = cell.subgrid.dataServer;
-            let cursorName: string | undefined;
-            if (dataServer.getCursorName !== undefined) {
-                cursorName = dataServer.getCursorName(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
-            }
-            let titleText: string;
-            if (dataServer.getTitleText === undefined) {
-                titleText = '';
+            if (dataServer.getCursorName === undefined) {
+                return undefined;
             } else {
-                titleText = dataServer.getTitleText(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
+                return dataServer.getCursorName(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
             }
+        }
+    }
 
-            return {
-                cursorName,
-                titleText,
-            };
+    /** @internal */
+    private getCellTitleText(): string {
+        const cell = this._hoverCell;
+        if (cell === undefined) {
+            return '';
+        } else {
+            const dataServer = cell.subgrid.dataServer;
+            if (dataServer.getTitleText === undefined) {
+                return '';
+            } else {
+                return dataServer.getTitleText(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
+            }
         }
     }
 }

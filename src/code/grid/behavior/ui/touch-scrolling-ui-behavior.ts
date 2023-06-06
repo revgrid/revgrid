@@ -1,6 +1,6 @@
 
 import { ScrollDimension } from '../../components/view/scroll-dimension';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
@@ -24,11 +24,11 @@ export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
         }
     }
 
-    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         return cell;
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         return cell;
     }
 
@@ -73,11 +73,11 @@ export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
     private getTouchedBounds(eventDetail: TouchEvent) {
         const firstTouch = eventDetail.touches[0];
         const canvasFirstTouchOffsetPoint = this.canvasManager.getOffsetPoint(firstTouch);
-        const cell = this.viewLayout.findHoverCell(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
+        const cell = this.viewLayout.findLinedHoverCell(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
         if (cell === undefined) {
             return undefined;
         } else {
-            const bounds = cell.bounds as TouchScrollingUiBehavior.TouchedBounds;
+            const bounds = cell.viewCell.bounds as TouchScrollingUiBehavior.TouchedBounds;
             bounds.timestamp = Date.now();
             return bounds;
         }

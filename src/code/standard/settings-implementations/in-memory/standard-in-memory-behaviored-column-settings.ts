@@ -2,12 +2,12 @@ import {
     GridSettings,
     Halign,
     TextTruncateType
-} from '../../grid/grid-public-api';
-import { InMemoryBehavioredGridSettings } from '../../settings-implementations/settings-implementations-public-api';
-import { StandardAllGridSettings } from './standard-all-grid-settings';
+} from '../../../grid/grid-public-api';
+import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
+import { StandardAllColumnSettings, StandardColumnSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings {
+export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehavioredColumnSettings {
     private _cellPadding: number;
     private _cellFocusedBorderColor: GridSettings.Color;
     private _cellHoverBackgroundColor: GridSettings.Color | undefined;
@@ -19,10 +19,6 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
     private _columnHeaderSelectionFont: string;
     private _columnHeaderSelectionBackgroundColor: GridSettings.Color;
     private _columnHeaderSelectionForegroundColor: GridSettings.Color;
-    private _rowHoverBackgroundColor: GridSettings.Color | undefined;
-    private _selectionFont: GridSettings.Color;
-    private _selectionBackgroundColor: GridSettings.Color;
-    private _selectionForegroundColor: GridSettings.Color;
     private _horizontalAlign: Halign;
     private _verticalOffset: number;
     private _font: string;
@@ -106,34 +102,6 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.invalidateViewRender();
         }
     }
-    get rowHoverBackgroundColor() { return this._rowHoverBackgroundColor; }
-    set rowHoverBackgroundColor(value: GridSettings.Color | undefined) {
-        if (value !== this._rowHoverBackgroundColor) {
-            this._rowHoverBackgroundColor = value;
-            this.invalidateViewRender();
-        }
-    }
-    get selectionFont() { return this._selectionFont; }
-    set selectionFont(value: GridSettings.Color) {
-        if (value !== this._selectionFont) {
-            this._selectionFont = value;
-            this.invalidateViewRender();
-        }
-    }
-    get selectionBackgroundColor() { return this._selectionBackgroundColor; }
-    set selectionBackgroundColor(value: GridSettings.Color) {
-        if (value !== this._selectionBackgroundColor) {
-            this._selectionBackgroundColor = value;
-            this.invalidateViewRender();
-        }
-    }
-    get selectionForegroundColor() { return this._selectionForegroundColor; }
-    set selectionForegroundColor(value: GridSettings.Color) {
-        if (value !== this._selectionForegroundColor) {
-            this._selectionForegroundColor = value;
-            this.invalidateViewRender();
-        }
-    }
     get horizontalAlign() { return this._horizontalAlign; }
     set horizontalAlign(value: Halign) {
         if (value !== this._horizontalAlign) {
@@ -170,27 +138,65 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
 
-    override load(settings: StandardAllGridSettings) {
+    override load(settings: StandardAllColumnSettings) {
         super.load(settings);
-        this._cellPadding = settings.cellPadding;
-        this._cellFocusedBorderColor = settings.cellFocusedBorderColor;
-        this._cellHoverBackgroundColor = settings.cellHoverBackgroundColor;
-        this._columnHoverBackgroundColor = settings.columnHoverBackgroundColor;
-        this._columnHeaderFont = settings.columnHeaderFont;
-        this._columnHeaderHorizontalAlign = settings.columnHeaderHorizontalAlign;
-        this._columnHeaderBackgroundColor = settings.columnHeaderBackgroundColor;
-        this._columnHeaderForegroundColor = settings.columnHeaderForegroundColor;
-        this._columnHeaderSelectionFont = settings.columnHeaderSelectionFont;
-        this._columnHeaderSelectionBackgroundColor = settings.columnHeaderSelectionBackgroundColor;
-        this._columnHeaderSelectionForegroundColor = settings.columnHeaderSelectionForegroundColor;
-        this._rowHoverBackgroundColor = settings.rowHoverBackgroundColor;
-        this._selectionFont = settings.selectionFont;
-        this._selectionBackgroundColor = settings.selectionBackgroundColor;
-        this._selectionForegroundColor = settings.selectionForegroundColor;
-        this._horizontalAlign = settings.horizontalAlign;
-        this._verticalOffset = settings.verticalOffset;
-        this._font = settings.font;
-        this._textTruncateType = settings.textTruncateType;
-        this._textStrikeThrough = settings.textStrikeThrough;
+
+        for (const key in settings) {
+            // Use loop so that compiler will report error if any setting missing
+            const columnSettingsKey = key as keyof StandardColumnSettings;
+            switch (columnSettingsKey) {
+                case 'cellPadding':
+                    this._cellPadding = settings.cellPadding;
+                    break;
+                case 'cellFocusedBorderColor':
+                    this._cellFocusedBorderColor = settings.cellFocusedBorderColor;
+                    break;
+                case 'cellHoverBackgroundColor':
+                    this._cellHoverBackgroundColor = settings.cellHoverBackgroundColor;
+                    break;
+                case 'columnHoverBackgroundColor':
+                    this._columnHoverBackgroundColor = settings.columnHoverBackgroundColor;
+                    break;
+                case 'columnHeaderFont':
+                    this._columnHeaderFont = settings.columnHeaderFont;
+                    break;
+                case 'columnHeaderHorizontalAlign':
+                    this._columnHeaderHorizontalAlign = settings.columnHeaderHorizontalAlign;
+                    break;
+                case 'columnHeaderBackgroundColor':
+                    this._columnHeaderBackgroundColor = settings.columnHeaderBackgroundColor;
+                    break;
+                case 'columnHeaderForegroundColor':
+                    this._columnHeaderForegroundColor = settings.columnHeaderForegroundColor;
+                    break;
+                case 'columnHeaderSelectionFont':
+                    this._columnHeaderSelectionFont = settings.columnHeaderSelectionFont;
+                    break;
+                case 'columnHeaderSelectionBackgroundColor':
+                    this._columnHeaderSelectionBackgroundColor = settings.columnHeaderSelectionBackgroundColor;
+                    break;
+                case 'columnHeaderSelectionForegroundColor':
+                    this._columnHeaderSelectionForegroundColor = settings.columnHeaderSelectionForegroundColor;
+                    break;
+                case 'horizontalAlign':
+                    this._horizontalAlign = settings.horizontalAlign;
+                    break;
+                case 'verticalOffset':
+                    this._verticalOffset = settings.verticalOffset;
+                    break;
+                case 'font':
+                    this._font = settings.font;
+                    break;
+                case 'textTruncateType':
+                    this._textTruncateType = settings.textTruncateType;
+                    break;
+                case 'textStrikeThrough':
+                    this._textStrikeThrough = settings.textStrikeThrough;
+                    break;
+
+                default:
+                    columnSettingsKey satisfies never;
+            }
+        }
     }
 }

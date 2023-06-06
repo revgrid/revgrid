@@ -1,8 +1,8 @@
-import { TextTruncateType } from '../../grid/grid-public-api';
-import { StandardGridSettings } from './standard-grid-settings';
+import { TextTruncateType } from '../../../grid/grid-public-api';
+import { StandardGridSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export const standardGridSettingsDefaults: StandardGridSettings = {
+export const standardGridSettingsDefaults: Required<StandardGridSettings> = {
     cellPadding: 5,
     cellFocusedBorderColor: '#696969',
     cellHoverBackgroundColor: 'rgba(160, 160, 40, 0.45)',

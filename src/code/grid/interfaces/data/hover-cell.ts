@@ -2,9 +2,16 @@ import { BehavioredColumnSettings } from '../settings/behaviored-column-settings
 import { ViewCell } from './view-cell';
 
 /** @public */
-export interface HoverCell<BCS extends BehavioredColumnSettings> extends ViewCell<BCS> {
-    mouseOverLeftLine: boolean;
-    mouseOverTopLine: boolean;
+export interface LinedHoverCell<BCS extends BehavioredColumnSettings> {
+    readonly viewCell: ViewCell<BCS>;
 
-    isMouseOverLine(): boolean;
+    readonly mouseOverLeftLine: boolean;
+    readonly mouseOverTopLine: boolean;
+}
+
+/** @public */
+export namespace LinedHoverCell {
+    export function isMouseOverLine<BCS extends BehavioredColumnSettings>(hoverCell: LinedHoverCell<BCS>) {
+        return hoverCell.mouseOverLeftLine || hoverCell.mouseOverTopLine;
+    }
 }

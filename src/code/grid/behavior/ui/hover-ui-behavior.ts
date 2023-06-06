@@ -1,5 +1,5 @@
 
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -11,7 +11,7 @@ export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
 
     readonly typeName = HoverUiBehavior.typeName;
 
-    override handlePointerMove(event: PointerEvent, hoverCell: HoverCell<BCS> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
@@ -25,7 +25,7 @@ export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
         return super.handlePointerMove(event, hoverCell);
     }
 
-    override handlePointerEnter(event: PointerEvent, hoverCell: HoverCell<BCS> | null | undefined) {
+    override handlePointerEnter(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
@@ -39,19 +39,19 @@ export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
         return super.handlePointerEnter(event, hoverCell);
     }
 
-    override handlePointerLeaveOut(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerLeaveOut(event: PointerEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         this.mouse.setMouseCanvasOffset(undefined, undefined);
         return super.handlePointerLeaveOut(event, cell);
     }
 
-    private getViewCellFromHoverCell(cell: HoverCell<BCS> | null): ViewCell<BCS> | undefined {
+    private getViewCellFromHoverCell(cell: LinedHoverCell<BCS> | null): ViewCell<BCS> | undefined {
         if (cell === null) {
             return undefined;
         } else {
-            if (cell.isMouseOverLine()) {
+            if (LinedHoverCell.isMouseOverLine(cell)) {
                 return undefined;
             } else {
-                return cell;
+                return cell.viewCell;
             }
         }
     }

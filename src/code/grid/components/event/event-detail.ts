@@ -1,5 +1,4 @@
-import { HoverCell } from '../../interfaces/data/hover-cell';
-import { ViewCell } from '../../interfaces/data/view-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
@@ -18,19 +17,19 @@ export namespace EventDetail {
     }
 
     export interface Mouse<BCS extends BehavioredColumnSettings> extends MouseEvent {
-        revgridCell?: HoverCell<BCS>;
+        revgridHoverCell?: LinedHoverCell<BCS>;
     }
 
     export interface Pointer<BCS extends BehavioredColumnSettings> extends PointerEvent, Mouse<BCS> {
-        revgridCell?: HoverCell<BCS>;
+        revgridHoverCell?: LinedHoverCell<BCS>;
     }
 
     export interface Wheel<BCS extends BehavioredColumnSettings> extends WheelEvent {
-        revgridCell?: HoverCell<BCS>;
+        revgridHoverCell?: LinedHoverCell<BCS>;
     }
 
     export interface ColumnSort<BCS extends BehavioredColumnSettings> extends MouseEvent {
-        revgridCell?: ViewCell<BCS>;
+        revgridHoverCell?: LinedHoverCell<BCS>;
     }
 
     export type Keyboard = CanvasManager.RevgridKeyboardEvent;

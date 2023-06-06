@@ -174,7 +174,7 @@ export class Main {
                 {
                     role: 'header',
                     dataServer: this._headerDataServer,
-                    getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
+                    getCellPainterEventer: (viewCell: DatalessViewCell<StandardInMemoryBehavioredColumnSettings>) => this.getHeaderCellPainter(viewCell),
                 },
                 {
                     role: 'main',
@@ -198,9 +198,9 @@ export class Main {
         this._deleteRowIndexTextboxElement.value = '0';
 
         this._grid.addEventListener('rev-column-sort', (event) => {
-                const cell = (event as CustomEvent<EventDetail.ColumnSort<StandardInMemoryBehavioredColumnSettings>>).detail.revgridCell;
-                if (cell !== undefined) {
-                    this._mainDataServer.sort(cell.viewLayoutColumn.column);
+                const hoverCell = (event as CustomEvent<EventDetail.ColumnSort<StandardInMemoryBehavioredColumnSettings>>).detail.revgridHoverCell;
+                if (hoverCell !== undefined) {
+                    this._mainDataServer.sort(hoverCell.viewCell.viewLayoutColumn.column);
                 }
             }
         );

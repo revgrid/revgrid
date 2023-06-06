@@ -1,4 +1,5 @@
 import { DataServer } from '../../grid/grid-public-api';
+// eslint-disable-next-line import/no-cycle
 import { RevRecordRow } from './rev-record-row';
 
 /** @public */

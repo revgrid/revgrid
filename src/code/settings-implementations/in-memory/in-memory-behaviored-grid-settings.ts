@@ -17,14 +17,19 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _borderWidth: number;
     private _borderColor: string;
     private _color: GridSettings.Color;
-    private _columnAutosizing: boolean;
+    private _defaultColumnAutosizing: boolean;
     private _columnAutosizingMax: number | undefined;
     private _columnClip: boolean | undefined;
     private _columnMoveDragPossibleCursorName: string | undefined;
+    private _columnMoveDragPossibleTitleText: string | undefined;
     private _columnMoveDragActiveCursorName: string | undefined;
+    private _columnMoveDragActiveTitleText: string | undefined;
     private _columnResizeDragPossibleCursorName: string | undefined;
+    private _columnResizeDragPossibleTitleText: string | undefined;
     private _columnResizeDragActiveCursorName: string | undefined;
+    private _columnResizeDragActiveTitleText: string | undefined;
     private _columnSortPossibleCursorName: string | undefined;
+    private _columnSortPossibleTitleText: string | undefined;
     private _columnsReorderable: boolean;
     private _columnsReorderableHideable: boolean;
     private _defaultRowHeight: number;
@@ -93,6 +98,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
     private _secondarySelectionAreaType: SelectionAreaType;
     private _selectionExtendDragActiveCursorName: string | undefined;
+    private _selectionExtendDragActiveTitleText: string | undefined;
     private _selectionRegionOutlineColor: GridSettings.Color;
     private _selectionRegionOverlayColor: GridSettings.Color;
     private _showFilterRow: boolean;
@@ -151,10 +157,10 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.invalidateByType(invalidateType);
         }
     }
-    get defaultColumnAutosizing() { return this._columnAutosizing; }
+    get defaultColumnAutosizing() { return this._defaultColumnAutosizing; }
     set defaultColumnAutosizing(value: boolean) {
-        if (value !== this._columnAutosizing) {
-            this._columnAutosizing = value;
+        if (value !== this._defaultColumnAutosizing) {
+            this._defaultColumnAutosizing = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnAutosizing;
             this.invalidateByType(invalidateType);
         }
@@ -183,11 +189,27 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.invalidateByType(invalidateType);
         }
     }
+    get columnMoveDragPossibleTitleText() { return this._columnMoveDragPossibleTitleText; }
+    set columnMoveDragPossibleTitleText(value: string | undefined) {
+        if (value !== this._columnMoveDragPossibleTitleText) {
+            this._columnMoveDragPossibleTitleText = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragPossibleTitleText;
+            this.invalidateByType(invalidateType);
+        }
+    }
     get columnMoveDragActiveCursorName() { return this._columnMoveDragActiveCursorName; }
     set columnMoveDragActiveCursorName(value: string | undefined) {
         if (value !== this._columnMoveDragActiveCursorName) {
             this._columnMoveDragActiveCursorName = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragActiveCursorName;
+            this.invalidateByType(invalidateType);
+        }
+    }
+    get columnMoveDragActiveTitleText() { return this._columnMoveDragActiveTitleText; }
+    set columnMoveDragActiveTitleText(value: string | undefined) {
+        if (value !== this._columnMoveDragActiveTitleText) {
+            this._columnMoveDragActiveTitleText = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragActiveTitleText;
             this.invalidateByType(invalidateType);
         }
     }
@@ -199,6 +221,14 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.invalidateByType(invalidateType);
         }
     }
+    get columnResizeDragPossibleTitleText() { return this._columnResizeDragPossibleTitleText; }
+    set columnResizeDragPossibleTitleText(value: string | undefined) {
+        if (value !== this._columnResizeDragPossibleTitleText) {
+            this._columnResizeDragPossibleTitleText = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragPossibleTitleText;
+            this.invalidateByType(invalidateType);
+        }
+    }
     get columnResizeDragActiveCursorName() { return this._columnResizeDragActiveCursorName; }
     set columnResizeDragActiveCursorName(value: string | undefined) {
         if (value !== this._columnResizeDragActiveCursorName) {
@@ -207,11 +237,27 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.invalidateByType(invalidateType);
         }
     }
+    get columnResizeDragActiveTitleText() { return this._columnResizeDragActiveTitleText; }
+    set columnResizeDragActiveTitleText(value: string | undefined) {
+        if (value !== this._columnResizeDragActiveTitleText) {
+            this._columnResizeDragActiveTitleText = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragActiveTitleText;
+            this.invalidateByType(invalidateType);
+        }
+    }
     get columnSortPossibleCursorName() { return this._columnSortPossibleCursorName; }
     set columnSortPossibleCursorName(value: string | undefined) {
         if (value !== this._columnSortPossibleCursorName) {
             this._columnSortPossibleCursorName = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnSortPossibleCursorName;
+            this.invalidateByType(invalidateType);
+        }
+    }
+    get columnSortPossibleTitleText() { return this._columnSortPossibleTitleText; }
+    set columnSortPossibleTitleText(value: string | undefined) {
+        if (value !== this._columnSortPossibleTitleText) {
+            this._columnSortPossibleTitleText = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.columnSortPossibleTitleText;
             this.invalidateByType(invalidateType);
         }
     }
@@ -759,6 +805,14 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.invalidateByType(invalidateType);
         }
     }
+    get selectionExtendDragActiveTitleText() { return this._selectionExtendDragActiveTitleText; }
+    set selectionExtendDragActiveTitleText(value: string | undefined) {
+        if (value !== this._selectionExtendDragActiveTitleText) {
+            this._selectionExtendDragActiveTitleText = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.selectionExtendDragActiveTitleText;
+            this.invalidateByType(invalidateType);
+        }
+    }
     get selectionRegionOutlineColor() { return this._selectionRegionOutlineColor; }
     set selectionRegionOutlineColor(value: GridSettings.Color) {
         if (value !== this._selectionRegionOutlineColor) {
@@ -833,96 +887,306 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     }
 
     load(settings: GridSettings) {
-        this._addToggleSelectionAreaModifierKey = settings.addToggleSelectionAreaModifierKey;
-        this._addToggleSelectionAreaModifierKeyDoesToggle = settings.addToggleSelectionAreaModifierKeyDoesToggle;
-        this._backgroundColor = settings.backgroundColor;
-        this._borderWidth = settings.borderWidth;
-        this._borderColor = settings.borderColor;
-        this._color = settings.color;
-        this._columnAutosizing = settings.defaultColumnAutosizing;
-        this._columnAutosizingMax = settings.columnAutosizingMax;
-        this._columnClip = settings.columnClip;
-        this._columnMoveDragPossibleCursorName = settings.columnMoveDragPossibleCursorName;
-        this._columnMoveDragActiveCursorName = settings.columnMoveDragActiveCursorName;
-        this._columnResizeDragPossibleCursorName = settings.columnResizeDragPossibleCursorName;
-        this._columnResizeDragActiveCursorName = settings.columnResizeDragActiveCursorName;
-        this._columnSortPossibleCursorName = settings.columnSortPossibleCursorName;
-        this._columnsReorderable = settings.columnsReorderable;
-        this._columnsReorderableHideable = settings.columnsReorderableHideable;
-        this._defaultRowHeight = settings.defaultRowHeight;
-        this._defaultColumnWidth = settings.defaultColumnWidth;
-        this._defaultUiBehaviorTypeNames = settings.defaultUiBehaviorTypeNames;
-        this._editable = settings.editable;
-        this._editOnDoubleClick = settings.editOnDoubleClick;
-        this._editOnKeydown = settings.editOnKeydown;
-        this._editKey = settings.editKey;
-        this._editOnFocusCell = settings.editOnFocusCell;
-        this._enableContinuousRepaint = settings.enableContinuousRepaint;
-        this._extendLastSelectionAreaModifierKey = settings.extendLastSelectionAreaModifierKey;
-        this._eventDispatchEnabled = settings.eventDispatchEnabled;
-        this._filterable = settings.filterable;
-        this._filterBackgroundColor = settings.filterBackgroundColor;
-        this._filterBackgroundSelectionColor = settings.filterBackgroundSelectionColor;
-        this._filterColor = settings.filterColor;
-        this._filterEditor = settings.filterEditor;
-        this._filterFont = settings.filterFont;
-        this._filterForegroundSelectionColor = settings.filterForegroundSelectionColor;
-        this._filterHalign = settings.filterHalign;
-        this._filterCellPainter = settings.filterCellPainter;
-        this._fixedColumnCount = settings.fixedColumnCount;
-        this._fixedLinesHColor = settings.fixedLinesHColor;
-        this._fixedLinesHEdge = settings.fixedLinesHEdge;
-        this._fixedLinesHWidth = settings.fixedLinesHWidth;
-        this._fixedLinesVColor = settings.fixedLinesVColor;
-        this._fixedLinesVEdge = settings.fixedLinesVEdge;
-        this._fixedLinesVWidth = settings.fixedLinesVWidth;
-        this._fixedRowCount = settings.fixedRowCount;
-        this._gridRightAligned = settings.gridRightAligned;
-        this._gridBorder = settings.gridBorder;
-        this._gridBorderBottom = settings.gridBorderBottom;
-        this._gridBorderLeft = settings.gridBorderLeft;
-        this._gridBorderRight = settings.gridBorderRight;
-        this._gridBorderTop = settings.gridBorderTop;
-        this._verticalGridLinesVisible = settings.verticalGridLinesVisible;
-        this._gridLinesH = settings.gridLinesH;
-        this._gridLinesHColor = settings.gridLinesHColor;
-        this._gridLinesHWidth = settings.gridLinesHWidth;
-        this._horizontalGridLinesVisible = settings.horizontalGridLinesVisible;
-        this._gridLinesV = settings.gridLinesV;
-        this._gridLinesVColor = settings.gridLinesVColor;
-        this._gridLinesVWidth = settings.gridLinesVWidth;
-        this._horizontalWheelScrollingAllowed = settings.horizontalWheelScrollingAllowed;
-        this._horizontalScrollbarClassPrefix = settings.horizontalScrollbarClassPrefix;
-        this._minimumColumnWidth = settings.minimumColumnWidth;
-        this._maximumColumnWidth = settings.maximumColumnWidth;
-        this._visibleColumnWidthAdjust = settings.visibleColumnWidthAdjust;
-        this._mouseRectangleSelection = settings.mouseRectangleSelection;
-        this._mouseColumnSelection = settings.mouseColumnSelection;
-        this._mouseRowSelection = settings.mouseRowSelection;
-        this._multipleSelectionAreas = settings.multipleSelectionAreas;
-        this._primarySelectionAreaType = settings.primarySelectionAreaType;
-        this._repaintImmediately = settings.repaintImmediately;
-        this._repaintFramesPerSecond = settings.repaintFramesPerSecond;
-        this._resizeColumnInPlace = settings.resizeColumnInPlace;
-        this._resizedEventDebounceExtendedWhenPossible = settings.resizedEventDebounceExtendedWhenPossible;
-        this._resizedEventDebounceInterval = settings.resizedEventDebounceInterval;
-        this._rowResize = settings.rowResize;
-        this._rowStripes = settings.rowStripes;
-        this._scrollHorizontallySmoothly = settings.scrollHorizontallySmoothly;
-        this._scrollbarHoverOver = settings.scrollbarHoverOver;
-        this._scrollbarHoverOff = settings.scrollbarHoverOff;
-        this._scrollingEnabled = settings.scrollingEnabled;
-        this._secondarySelectionAreaTypeSpecifierModifierKey = settings.secondarySelectionAreaTypeSpecifierModifierKey;
-        this._secondarySelectionAreaType = settings.secondarySelectionAreaType;
-        this._selectionExtendDragActiveCursorName = settings.selectionExtendDragActiveCursorName;
-        this._selectionRegionOutlineColor = settings.selectionRegionOutlineColor;
-        this._selectionRegionOverlayColor = settings.selectionRegionOverlayColor;
-        this._showFilterRow = settings.showFilterRow;
-        this._mouseSortOnDoubleClick = settings.mouseSortOnDoubleClick;
-        this._mouseSortable = settings.mouseSortable;
-        this._useHiDPI = settings.useHiDPI;
-        this._verticalScrollbarClassPrefix = settings.verticalScrollbarClassPrefix;
-        this._wheelHFactor = settings.wheelHFactor;
-        this._wheelVFactor = settings.wheelVFactor;
+        for (const key in settings) {
+            // Use loop so that compiler will report error if any setting missing
+            const gridSettingsKey = key as keyof GridSettings;
+            switch (gridSettingsKey) {
+                case 'addToggleSelectionAreaModifierKey':
+                    this._addToggleSelectionAreaModifierKey = settings.addToggleSelectionAreaModifierKey;
+                    break;
+                case 'addToggleSelectionAreaModifierKeyDoesToggle':
+                    this._addToggleSelectionAreaModifierKeyDoesToggle = settings.addToggleSelectionAreaModifierKeyDoesToggle;
+                    break;
+                case 'backgroundColor':
+                    this._backgroundColor = settings.backgroundColor;
+                    break;
+                case 'borderWidth':
+                    this._borderWidth = settings.borderWidth;
+                    break;
+                case 'borderColor':
+                    this._borderColor = settings.borderColor;
+                    break;
+                case 'color':
+                    this._color = settings.color;
+                    break;
+                case 'defaultColumnAutosizing':
+                    this._defaultColumnAutosizing = settings.defaultColumnAutosizing;
+                    break;
+                case 'columnAutosizingMax':
+                    this._columnAutosizingMax = settings.columnAutosizingMax;
+                    break;
+                case 'columnClip':
+                    this._columnClip = settings.columnClip;
+                    break;
+                case 'columnMoveDragPossibleCursorName':
+                    this._columnMoveDragPossibleCursorName = settings.columnMoveDragPossibleCursorName;
+                    break;
+                case 'columnMoveDragPossibleTitleText':
+                    this._columnMoveDragPossibleTitleText = settings.columnMoveDragPossibleTitleText;
+                    break;
+                case 'columnMoveDragActiveCursorName':
+                    this._columnMoveDragActiveCursorName = settings.columnMoveDragActiveCursorName;
+                    break;
+                case 'columnMoveDragActiveTitleText':
+                    this._columnMoveDragActiveTitleText = settings.columnMoveDragActiveTitleText;
+                    break;
+                case 'columnResizeDragPossibleCursorName':
+                    this._columnResizeDragPossibleCursorName = settings.columnResizeDragPossibleCursorName;
+                    break;
+                case 'columnResizeDragPossibleTitleText':
+                    this._columnResizeDragPossibleTitleText = settings.columnResizeDragPossibleTitleText;
+                    break;
+                case 'columnResizeDragActiveCursorName':
+                    this._columnResizeDragActiveCursorName = settings.columnResizeDragActiveCursorName;
+                    break;
+                case 'columnResizeDragActiveTitleText':
+                    this._columnResizeDragActiveTitleText = settings.columnResizeDragActiveTitleText;
+                    break;
+                case 'columnSortPossibleCursorName':
+                    this._columnSortPossibleCursorName = settings.columnSortPossibleCursorName;
+                    break;
+                case 'columnSortPossibleTitleText':
+                    this._columnSortPossibleTitleText = settings.columnSortPossibleTitleText;
+                    break;
+                case 'columnsReorderable':
+                    this._columnsReorderable = settings.columnsReorderable;
+                    break;
+                case 'columnsReorderableHideable':
+                    this._columnsReorderableHideable = settings.columnsReorderableHideable;
+                    break;
+                case 'defaultRowHeight':
+                    this._defaultRowHeight = settings.defaultRowHeight;
+                    break;
+                case 'defaultColumnWidth':
+                    this._defaultColumnWidth = settings.defaultColumnWidth;
+                    break;
+                case 'defaultUiBehaviorTypeNames':
+                    this._defaultUiBehaviorTypeNames = settings.defaultUiBehaviorTypeNames;
+                    break;
+                case 'editable':
+                    this._editable = settings.editable;
+                    break;
+                case 'editOnDoubleClick':
+                    this._editOnDoubleClick = settings.editOnDoubleClick;
+                    break;
+                case 'editOnKeydown':
+                    this._editOnKeydown = settings.editOnKeydown;
+                    break;
+                case 'editKey':
+                    this._editKey = settings.editKey;
+                    break;
+                case 'editOnFocusCell':
+                    this._editOnFocusCell = settings.editOnFocusCell;
+                    break;
+                case 'enableContinuousRepaint':
+                    this._enableContinuousRepaint = settings.enableContinuousRepaint;
+                    break;
+                case 'extendLastSelectionAreaModifierKey':
+                    this._extendLastSelectionAreaModifierKey = settings.extendLastSelectionAreaModifierKey;
+                    break;
+                case 'eventDispatchEnabled':
+                    this._eventDispatchEnabled = settings.eventDispatchEnabled;
+                    break;
+                case 'filterable':
+                    this._filterable = settings.filterable;
+                    break;
+                case 'filterBackgroundColor':
+                    this._filterBackgroundColor = settings.filterBackgroundColor;
+                    break;
+                case 'filterBackgroundSelectionColor':
+                    this._filterBackgroundSelectionColor = settings.filterBackgroundSelectionColor;
+                    break;
+                case 'filterColor':
+                    this._filterColor = settings.filterColor;
+                    break;
+                case 'filterEditor':
+                    this._filterEditor = settings.filterEditor;
+                    break;
+                case 'filterFont':
+                    this._filterFont = settings.filterFont;
+                    break;
+                case 'filterForegroundSelectionColor':
+                    this._filterForegroundSelectionColor = settings.filterForegroundSelectionColor;
+                    break;
+                case 'filterHalign':
+                    this._filterHalign = settings.filterHalign;
+                    break;
+                case 'filterCellPainter':
+                    this._filterCellPainter = settings.filterCellPainter;
+                    break;
+                case 'fixedColumnCount':
+                    this._fixedColumnCount = settings.fixedColumnCount;
+                    break;
+                case 'fixedLinesHColor':
+                    this._fixedLinesHColor = settings.fixedLinesHColor;
+                    break;
+                case 'fixedLinesHEdge':
+                    this._fixedLinesHEdge = settings.fixedLinesHEdge;
+                    break;
+                case 'fixedLinesHWidth':
+                    this._fixedLinesHWidth = settings.fixedLinesHWidth;
+                    break;
+                case 'fixedLinesVColor':
+                    this._fixedLinesVColor = settings.fixedLinesVColor;
+                    break;
+                case 'fixedLinesVEdge':
+                    this._fixedLinesVEdge = settings.fixedLinesVEdge;
+                    break;
+                case 'fixedLinesVWidth':
+                    this._fixedLinesVWidth = settings.fixedLinesVWidth;
+                    break;
+                case 'fixedRowCount':
+                    this._fixedRowCount = settings.fixedRowCount;
+                    break;
+                case 'gridRightAligned':
+                    this._gridRightAligned = settings.gridRightAligned;
+                    break;
+                case 'gridBorder':
+                    this._gridBorder = settings.gridBorder;
+                    break;
+                case 'gridBorderBottom':
+                    this._gridBorderBottom = settings.gridBorderBottom;
+                    break;
+                case 'gridBorderLeft':
+                    this._gridBorderLeft = settings.gridBorderLeft;
+                    break;
+                case 'gridBorderRight':
+                    this._gridBorderRight = settings.gridBorderRight;
+                    break;
+                case 'gridBorderTop':
+                    this._gridBorderTop = settings.gridBorderTop;
+                    break;
+                case 'verticalGridLinesVisible':
+                    this._verticalGridLinesVisible = settings.verticalGridLinesVisible;
+                    break;
+                case 'gridLinesH':
+                    this._gridLinesH = settings.gridLinesH;
+                    break;
+                case 'gridLinesHColor':
+                    this._gridLinesHColor = settings.gridLinesHColor;
+                    break;
+                case 'gridLinesHWidth':
+                    this._gridLinesHWidth = settings.gridLinesHWidth;
+                    break;
+                case 'horizontalGridLinesVisible':
+                    this._horizontalGridLinesVisible = settings.horizontalGridLinesVisible;
+                    break;
+                case 'gridLinesV':
+                    this._gridLinesV = settings.gridLinesV;
+                    break;
+                case 'gridLinesVColor':
+                    this._gridLinesVColor = settings.gridLinesVColor;
+                    break;
+                case 'gridLinesVWidth':
+                    this._gridLinesVWidth = settings.gridLinesVWidth;
+                    break;
+                case 'horizontalWheelScrollingAllowed':
+                    this._horizontalWheelScrollingAllowed = settings.horizontalWheelScrollingAllowed;
+                    break;
+                case 'horizontalScrollbarClassPrefix':
+                    this._horizontalScrollbarClassPrefix = settings.horizontalScrollbarClassPrefix;
+                    break;
+                case 'minimumColumnWidth':
+                    this._minimumColumnWidth = settings.minimumColumnWidth;
+                    break;
+                case 'maximumColumnWidth':
+                    this._maximumColumnWidth = settings.maximumColumnWidth;
+                    break;
+                case 'visibleColumnWidthAdjust':
+                    this._visibleColumnWidthAdjust = settings.visibleColumnWidthAdjust;
+                    break;
+                case 'mouseRectangleSelection':
+                    this._mouseRectangleSelection = settings.mouseRectangleSelection;
+                    break;
+                case 'mouseColumnSelection':
+                    this._mouseColumnSelection = settings.mouseColumnSelection;
+                    break;
+                case 'mouseRowSelection':
+                    this._mouseRowSelection = settings.mouseRowSelection;
+                    break;
+                case 'multipleSelectionAreas':
+                    this._multipleSelectionAreas = settings.multipleSelectionAreas;
+                    break;
+                case 'primarySelectionAreaType':
+                    this._primarySelectionAreaType = settings.primarySelectionAreaType;
+                    break;
+                case 'repaintImmediately':
+                    this._repaintImmediately = settings.repaintImmediately;
+                    break;
+                case 'repaintFramesPerSecond':
+                    this._repaintFramesPerSecond = settings.repaintFramesPerSecond;
+                    break;
+                case 'resizeColumnInPlace':
+                    this._resizeColumnInPlace = settings.resizeColumnInPlace;
+                    break;
+                case 'resizedEventDebounceExtendedWhenPossible':
+                    this._resizedEventDebounceExtendedWhenPossible = settings.resizedEventDebounceExtendedWhenPossible;
+                    break;
+                case 'resizedEventDebounceInterval':
+                    this._resizedEventDebounceInterval = settings.resizedEventDebounceInterval;
+                    break;
+                case 'rowResize':
+                    this._rowResize = settings.rowResize;
+                    break;
+                case 'rowStripes':
+                    this._rowStripes = settings.rowStripes;
+                    break;
+                case 'scrollHorizontallySmoothly':
+                    this._scrollHorizontallySmoothly = settings.scrollHorizontallySmoothly;
+                    break;
+                case 'scrollbarHoverOver':
+                    this._scrollbarHoverOver = settings.scrollbarHoverOver;
+                    break;
+                case 'scrollbarHoverOff':
+                    this._scrollbarHoverOff = settings.scrollbarHoverOff;
+                    break;
+                case 'scrollingEnabled':
+                    this._scrollingEnabled = settings.scrollingEnabled;
+                    break;
+                case 'secondarySelectionAreaTypeSpecifierModifierKey':
+                    this._secondarySelectionAreaTypeSpecifierModifierKey = settings.secondarySelectionAreaTypeSpecifierModifierKey;
+                    break;
+                case 'secondarySelectionAreaType':
+                    this._secondarySelectionAreaType = settings.secondarySelectionAreaType;
+                    break;
+                case 'selectionExtendDragActiveCursorName':
+                    this._selectionExtendDragActiveCursorName = settings.selectionExtendDragActiveCursorName;
+                    break;
+                case 'selectionExtendDragActiveTitleText':
+                    this._selectionExtendDragActiveTitleText = settings.selectionExtendDragActiveTitleText;
+                    break;
+                case 'selectionRegionOutlineColor':
+                    this._selectionRegionOutlineColor = settings.selectionRegionOutlineColor;
+                    break;
+                case 'selectionRegionOverlayColor':
+                    this._selectionRegionOverlayColor = settings.selectionRegionOverlayColor;
+                    break;
+                case 'showFilterRow':
+                    this._showFilterRow = settings.showFilterRow;
+                    break;
+                case 'mouseSortOnDoubleClick':
+                    this._mouseSortOnDoubleClick = settings.mouseSortOnDoubleClick;
+                    break;
+                case 'mouseSortable':
+                    this._mouseSortable = settings.mouseSortable;
+                    break;
+                case 'useHiDPI':
+                    this._useHiDPI = settings.useHiDPI;
+                    break;
+                case 'verticalScrollbarClassPrefix':
+                    this._verticalScrollbarClassPrefix = settings.verticalScrollbarClassPrefix;
+                    break;
+                case 'wheelHFactor':
+                    this._wheelHFactor = settings.wheelHFactor;
+                    break;
+                case 'wheelVFactor':
+                    this._wheelVFactor = settings.wheelVFactor;
+                    break;
+
+                default: {
+                    gridSettingsKey satisfies never;
+                }
+            }
+        }
     }
 }

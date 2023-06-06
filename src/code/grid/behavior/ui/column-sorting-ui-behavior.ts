@@ -1,4 +1,5 @@
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UiBehavior } from './ui-behavior';
@@ -8,7 +9,7 @@ export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS ext
 
     readonly typeName = ColumnSortingUiBehavior.typeName;
 
-    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -23,7 +24,7 @@ export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS ext
         }
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -38,33 +39,41 @@ export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS ext
         }
     }
 
-    override handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
-            if (cell === undefined) {
-                cell = this.tryGetHoverCellFromMouseEvent(event);
+            if (hoverCell === undefined) {
+                hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (cell !== null && this.canSortWithCell(cell)) {
-                sharedState.locationCursorName = this.gridSettings.columnSortPossibleCursorName;
+            if (hoverCell !== null && LinedHoverCell.isMouseOverLine(hoverCell)) {
+                const viewCell = hoverCell.viewCell;
+                if (this.canSortWithCell(viewCell)) {
+                    sharedState.locationCursorName = this.gridSettings.columnSortPossibleCursorName;
+                    sharedState.locationTitleText = this.gridSettings.columnSortPossibleTitleText;
+                }
             }
         }
 
-        return super.handlePointerMove(event, cell);
+        return super.handlePointerMove(event, hoverCell);
     }
 
-    private checkSort(event: MouseEvent, cell: HoverCell<BCS>, dblClick: boolean) {
-        if (this.canSortWithCell(cell) && cell.columnSettings.mouseSortOnDoubleClick === dblClick) {
-            this.eventBehavior.processColumnSortEvent(event, cell);
-            return true;
-        } else {
+    private checkSort(event: MouseEvent, hoverCell: LinedHoverCell<BCS>, dblClick: boolean) {
+        if (LinedHoverCell.isMouseOverLine(hoverCell)) {
             return false;
+        } else {
+            const viewCell = hoverCell.viewCell;
+            if (this.canSortWithCell(viewCell) && viewCell.columnSettings.mouseSortOnDoubleClick === dblClick) {
+                this.eventBehavior.processColumnSortEvent(event, viewCell);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
-    private canSortWithCell(cell: HoverCell<BCS>): boolean {
+    private canSortWithCell(cell: ViewCell<BCS>): boolean {
         return (
             cell.isHeaderOrRowFixed &&
-            !cell.isMouseOverLine() &&
             cell.columnSettings.mouseSortable
         );
     }

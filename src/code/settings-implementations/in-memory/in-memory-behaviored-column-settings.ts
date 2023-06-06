@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, ColumnSettings, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, ColumnSettings, UnreachableCaseError, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
 import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */
@@ -165,21 +165,63 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     }
 
     load(settings: ColumnSettings) {
-        this._backgroundColor = settings.backgroundColor;
-        this._color = settings.color;
-        this._columnAutosizingMax = settings.columnAutosizingMax;
-        this._columnClip = settings.columnClip;
-        this._defaultColumnAutosizing = settings.defaultColumnAutosizing;
-        this._defaultColumnWidth = settings.defaultColumnWidth;
-        this._editable = settings.editable;
-        this._editOnKeydown = settings.editOnKeydown;
-        this._editOnFocusCell = settings.editOnFocusCell;
-        this._editOnDoubleClick = settings.editOnDoubleClick;
-        this._filterable = settings.filterable;
-        this._maximumColumnWidth = settings.maximumColumnWidth;
-        this._minimumColumnWidth = settings.minimumColumnWidth;
-        this._resizeColumnInPlace = settings.resizeColumnInPlace;
-        this._mouseSortOnDoubleClick = settings.mouseSortOnDoubleClick;
-        this._mouseSortable = settings.mouseSortable;
+        for (const key in settings) {
+            // Use loop so that compiler will report error if any setting missing
+            const columnSettingsKey = key as keyof ColumnSettings;
+            switch (columnSettingsKey) {
+                case 'backgroundColor':
+                    this._backgroundColor = settings.backgroundColor;
+                    break;
+                case 'color':
+                    this._color = settings.color;
+                    break;
+                case 'columnAutosizingMax':
+                    this._columnAutosizingMax = settings.columnAutosizingMax;
+                    break;
+                case 'columnClip':
+                    this._columnClip = settings.columnClip;
+                    break;
+                case 'defaultColumnAutosizing':
+                    this._defaultColumnAutosizing = settings.defaultColumnAutosizing;
+                    break;
+                case 'defaultColumnWidth':
+                    this._defaultColumnWidth = settings.defaultColumnWidth;
+                    break;
+                case 'editable':
+                    this._editable = settings.editable;
+                    break;
+                case 'editOnKeydown':
+                    this._editOnKeydown = settings.editOnKeydown;
+                    break;
+                case 'editOnFocusCell':
+                    this._editOnFocusCell = settings.editOnFocusCell;
+                    break;
+                case 'editOnDoubleClick':
+                    this._editOnDoubleClick = settings.editOnDoubleClick;
+                    break;
+                case 'filterable':
+                    this._filterable = settings.filterable;
+                    break;
+                case 'maximumColumnWidth':
+                    this._maximumColumnWidth = settings.maximumColumnWidth;
+                    break;
+                case 'minimumColumnWidth':
+                    this._minimumColumnWidth = settings.minimumColumnWidth;
+                    break;
+                case 'resizeColumnInPlace':
+                    this._resizeColumnInPlace = settings.resizeColumnInPlace;
+                    break;
+                case 'mouseSortOnDoubleClick':
+                    this._mouseSortOnDoubleClick = settings.mouseSortOnDoubleClick;
+                    break;
+                case 'mouseSortable':
+                    this._mouseSortable = settings.mouseSortable;
+                    break;
+
+                default: {
+                    columnSettingsKey satisfies never;
+                }
+            }
+        }
     }
 }

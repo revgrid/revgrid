@@ -16,7 +16,6 @@ export interface Column<BCS extends BehavioredColumnSettings> {
     maxPaintWidth: number | undefined;
 
     setWidth(width: number | undefined): boolean;
-    setWidthToAutoSizing(): boolean;
     checkColumnAutosizing(widenOnly: boolean): boolean;
 
     loadSettings(settings: ColumnSettings): void;

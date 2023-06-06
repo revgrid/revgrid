@@ -1,7 +1,7 @@
 
 // import { CellEditor } from '../../cell-editor/cell-editor';
 import { EventDetail } from '../../components/event/event-detail';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -11,19 +11,23 @@ export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
 
     readonly typeName = CellEditingUiBehavior.typeName;
 
-    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
+    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        this.edit(cell, false);
-        return super.handleClick(event, cell);
+        if (hoverCell !== null) {
+            this.edit(hoverCell.viewCell, false);
+        }
+        return super.handleClick(event, hoverCell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        this.edit(cell, true);
+        if (cell !== null) {
+            this.edit(cell?.viewCell, true);
+        }
         return super.handleDblClick(event, cell);
     }
 

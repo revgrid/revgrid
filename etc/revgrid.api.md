@@ -283,8 +283,6 @@ export interface Column<BCS extends BehavioredColumnSettings> {
     // (undocumented)
     setWidth(width: number | undefined): boolean;
     // (undocumented)
-    setWidthToAutoSizing(): boolean;
-    // (undocumented)
     readonly width: number;
 }
 
@@ -388,7 +386,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     // @internal
     hideColumns(allColumnIndexes: number | number[]): void;
     // @internal (undocumented)
-    invalidateViewEventer: ColumnsManager.InvalidateViewEventer;
+    invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     // (undocumented)
     isColumnFixed(activeColumnIndex: number): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -452,7 +450,7 @@ export namespace ColumnsManager {
     // (undocumented)
     export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings> = (this: void, columns: Column<BCS>[], ui: boolean) => void;
     // (undocumented)
-    export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+    export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
 }
 
 // @public (undocumented)
@@ -692,7 +690,7 @@ export namespace EventDetail {
     // (undocumented)
     export interface ColumnSort<BCS extends BehavioredColumnSettings> extends MouseEvent {
         // (undocumented)
-        revgridCell?: ViewCell<BCS>;
+        revgridHoverCell?: LinedHoverCell<BCS>;
     }
     // (undocumented)
     export type DragType = keyof typeof DragTypeEnum;
@@ -721,12 +719,12 @@ export namespace EventDetail {
     // (undocumented)
     export interface Mouse<BCS extends BehavioredColumnSettings> extends MouseEvent {
         // (undocumented)
-        revgridCell?: HoverCell<BCS>;
+        revgridHoverCell?: LinedHoverCell<BCS>;
     }
     // (undocumented)
     export interface Pointer<BCS extends BehavioredColumnSettings> extends PointerEvent, Mouse<BCS> {
         // (undocumented)
-        revgridCell?: HoverCell<BCS>;
+        revgridHoverCell?: LinedHoverCell<BCS>;
     }
     // (undocumented)
     export interface Resize {
@@ -792,7 +790,7 @@ export namespace EventDetail {
     // (undocumented)
     export interface Wheel<BCS extends BehavioredColumnSettings> extends WheelEvent {
         // (undocumented)
-        revgridCell?: HoverCell<BCS>;
+        revgridHoverCell?: LinedHoverCell<BCS>;
     }
 }
 
@@ -885,7 +883,7 @@ export namespace EventName {
         'rev-wheel-move': EventDetail.Wheel<BCS>;
     }
     // (undocumented)
-    export type Mouse = 'rev-click' | 'rev-dbl-click' | 'rev-pointer-up-cancel' | 'rev-pointer-down' | 'rev-pointer-move' | 'rev-pointer-enter' | 'rev-pointer-leave-out' | 'rev-wheel-move' | 'rev-context-menu' | 'rev-column-sort';
+    export type MouseHoverCell = 'rev-click' | 'rev-dbl-click' | 'rev-pointer-up-cancel' | 'rev-pointer-down' | 'rev-pointer-move' | 'rev-pointer-enter' | 'rev-pointer-leave-out' | 'rev-wheel-move' | 'rev-context-menu' | 'rev-column-sort';
 }
 
 // @public (undocumented)
@@ -1058,13 +1056,23 @@ export interface GridSettings {
     // (undocumented)
     readonly columnMoveDragActiveCursorName: string | undefined;
     // (undocumented)
+    readonly columnMoveDragActiveTitleText: string | undefined;
+    // (undocumented)
     readonly columnMoveDragPossibleCursorName: string | undefined;
+    // (undocumented)
+    readonly columnMoveDragPossibleTitleText: string | undefined;
     // (undocumented)
     readonly columnResizeDragActiveCursorName: string | undefined;
     // (undocumented)
+    readonly columnResizeDragActiveTitleText: string | undefined;
+    // (undocumented)
     readonly columnResizeDragPossibleCursorName: string | undefined;
     // (undocumented)
+    readonly columnResizeDragPossibleTitleText: string | undefined;
+    // (undocumented)
     readonly columnSortPossibleCursorName: string | undefined;
+    // (undocumented)
+    readonly columnSortPossibleTitleText: string | undefined;
     readonly columnsReorderable: boolean;
     readonly columnsReorderableHideable: boolean;
     readonly defaultColumnAutosizing: boolean;
@@ -1179,6 +1187,8 @@ export interface GridSettings {
     readonly secondarySelectionAreaType: SelectionAreaType;
     readonly secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
     readonly selectionExtendDragActiveCursorName: string | undefined;
+    // (undocumented)
+    readonly selectionExtendDragActiveTitleText: string | undefined;
     readonly selectionRegionOutlineColor: GridSettings.Color;
     readonly selectionRegionOverlayColor: GridSettings.Color;
     // (undocumented)
@@ -1286,16 +1296,6 @@ export const enum HorizontalWheelScrollingAllowed {
     CtrlKeyDown = 2,
     // (undocumented)
     Never = 0
-}
-
-// @public (undocumented)
-export interface HoverCell<BCS extends BehavioredColumnSettings> extends ViewCell<BCS> {
-    // (undocumented)
-    isMouseOverLine(): boolean;
-    // (undocumented)
-    mouseOverLeftLine: boolean;
-    // (undocumented)
-    mouseOverTopLine: boolean;
 }
 
 // @public (undocumented)
@@ -1484,17 +1484,32 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get columnMoveDragActiveCursorName(): string | undefined;
     set columnMoveDragActiveCursorName(value: string | undefined);
     // (undocumented)
+    get columnMoveDragActiveTitleText(): string | undefined;
+    set columnMoveDragActiveTitleText(value: string | undefined);
+    // (undocumented)
     get columnMoveDragPossibleCursorName(): string | undefined;
     set columnMoveDragPossibleCursorName(value: string | undefined);
+    // (undocumented)
+    get columnMoveDragPossibleTitleText(): string | undefined;
+    set columnMoveDragPossibleTitleText(value: string | undefined);
     // (undocumented)
     get columnResizeDragActiveCursorName(): string | undefined;
     set columnResizeDragActiveCursorName(value: string | undefined);
     // (undocumented)
+    get columnResizeDragActiveTitleText(): string | undefined;
+    set columnResizeDragActiveTitleText(value: string | undefined);
+    // (undocumented)
     get columnResizeDragPossibleCursorName(): string | undefined;
     set columnResizeDragPossibleCursorName(value: string | undefined);
     // (undocumented)
+    get columnResizeDragPossibleTitleText(): string | undefined;
+    set columnResizeDragPossibleTitleText(value: string | undefined);
+    // (undocumented)
     get columnSortPossibleCursorName(): string | undefined;
     set columnSortPossibleCursorName(value: string | undefined);
+    // (undocumented)
+    get columnSortPossibleTitleText(): string | undefined;
+    set columnSortPossibleTitleText(value: string | undefined);
     // (undocumented)
     get columnsReorderable(): boolean;
     set columnsReorderable(value: boolean);
@@ -1705,6 +1720,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get selectionExtendDragActiveCursorName(): string | undefined;
     set selectionExtendDragActiveCursorName(value: string | undefined);
     // (undocumented)
+    get selectionExtendDragActiveTitleText(): string | undefined;
+    set selectionExtendDragActiveTitleText(value: string | undefined);
+    // (undocumented)
     get selectionRegionOutlineColor(): GridSettings.Color;
     set selectionRegionOutlineColor(value: GridSettings.Color);
     // (undocumented)
@@ -1735,6 +1753,22 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
 
 // @public (undocumented)
 export const invalidModelUpdateId = -1;
+
+// @public (undocumented)
+export interface LinedHoverCell<BCS extends BehavioredColumnSettings> {
+    // (undocumented)
+    readonly mouseOverLeftLine: boolean;
+    // (undocumented)
+    readonly mouseOverTopLine: boolean;
+    // (undocumented)
+    readonly viewCell: ViewCell<BCS>;
+}
+
+// @public (undocumented)
+export namespace LinedHoverCell {
+    // (undocumented)
+    export function isMouseOverLine<BCS extends BehavioredColumnSettings>(hoverCell: LinedHoverCell<BCS>): boolean;
+}
 
 // @public (undocumented)
 export type ListChangedEventHandler = (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
@@ -1868,11 +1902,11 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // @internal (undocumented)
     setActiveDragType(value: EventDetail.DragTypeEnum | undefined): void;
     // @internal (undocumented)
-    setLocationCursor(cursorName: string | undefined): void;
+    setLocation(cursorName: string | undefined, titleText: string | undefined): void;
     // @internal (undocumented)
     setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell<BCS> | undefined): void;
     // @internal (undocumented)
-    setOperationCursor(cursorName: string | undefined): void;
+    setOperation(cursorName: string | undefined, titleText: string | undefined): void;
     // @internal (undocumented)
     viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer<BCS>;
 }
@@ -2172,7 +2206,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined): void;
     // (undocumented)
-    protected descendantProcessClick(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined): void;
+    protected descendantProcessClick(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): void;
     // (undocumented)
     protected descendantProcessColumnsChanged(): void;
     // (undocumented)
@@ -2182,11 +2216,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessColumnsWidthChanged(_columns: Column<BCS>[], _ui: boolean): void;
     // (undocumented)
-    protected descendantProcessContextMenu(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined): void;
+    protected descendantProcessContextMenu(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): void;
     // (undocumented)
     protected descendantProcessCopy(_event: ClipboardEvent): void;
     // (undocumented)
-    protected descendantProcessDblClick(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined): void;
+    protected descendantProcessDblClick(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): void;
     // (undocumented)
     protected descendantProcessDragStart(_event: DragEvent): void;
     // (undocumented)
@@ -2202,20 +2236,20 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessMouseExitedCell(_cell: ViewCell<BCS>): void;
     // (undocumented)
-    protected descendantProcessPointerDown(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined): void;
+    protected descendantProcessPointerDown(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): void;
     // (undocumented)
     protected descendantProcessPointerDrag(_event: PointerEvent): void;
     // (undocumented)
     protected descendantProcessPointerDragEnd(_event: PointerEvent): void;
-    protected descendantProcessPointerDragStart(_event: DragEvent, _cell: HoverCell<BCS> | null | undefined): boolean;
+    protected descendantProcessPointerDragStart(_event: DragEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): boolean;
     // (undocumented)
-    protected descendantProcessPointerEnter(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined): void;
+    protected descendantProcessPointerEnter(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): void;
     // (undocumented)
-    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined): void;
+    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): void;
     // (undocumented)
-    protected descendantProcessPointerMove(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined): void;
+    protected descendantProcessPointerMove(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): void;
     // (undocumented)
-    protected descendantProcessPointerUpCancel(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined): void;
+    protected descendantProcessPointerUpCancel(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): void;
     // (undocumented)
     protected descendantProcessRendered(): void;
     // (undocumented)
@@ -2233,7 +2267,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessVerticalScrollViewportStartChanged(): void;
     // (undocumented)
-    protected descendantProcessWheelMove(_event: MouseEvent, _cell: HoverCell<BCS> | null | undefined): void;
+    protected descendantProcessWheelMove(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS> | null | undefined): void;
     // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "Hypgrid"
     destroy(): void;
     // (undocumented)
@@ -2289,7 +2323,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     getFocusedViewCell(useAllCells: boolean): ViewCell<BCS> | undefined;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    getGridCellFromMousePoint(mouse: Point): HoverCell<BCS> | undefined;
+    getGridCellFromMousePoint(mouse: Point): LinedHoverCell<BCS> | undefined;
     // (undocumented)
     getHiddenColumns(): Column<BCS>[];
     // (undocumented)
@@ -3155,6 +3189,9 @@ export interface StandardAllColumnSettings extends StandardColumnSettings, Colum
 }
 
 // @public (undocumented)
+export const standardAllColumnSettingsDefaults: StandardAllColumnSettings;
+
+// @public (undocumented)
 export interface StandardAllGridSettings extends StandardGridSettings, GridSettings {
 }
 
@@ -3234,6 +3271,9 @@ export abstract class StandardColorInputEditor<BGS extends StandardBehavioredGri
 export type StandardColumnSettings = Pick<StandardGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'horizontalAlign' | 'verticalOffset' | 'font' | 'textTruncateType' | 'textStrikeThrough'>;
 
 // @public (undocumented)
+export const standardColumnSettingsDefaults: Required<StandardColumnSettings>;
+
+// @public (undocumented)
 export interface StandardGridSettings {
     // (undocumented)
     cellFocusedBorderColor: GridSettings.Color;
@@ -3270,7 +3310,7 @@ export interface StandardGridSettings {
 }
 
 // @public (undocumented)
-export const standardGridSettingsDefaults: StandardGridSettings;
+export const standardGridSettingsDefaults: Required<StandardGridSettings>;
 
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -3326,7 +3366,7 @@ export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehaviored
     get horizontalAlign(): Halign;
     set horizontalAlign(value: Halign);
     // (undocumented)
-    load(settings: StandardAllGridSettings): void;
+    load(settings: StandardAllColumnSettings): void;
     // (undocumented)
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
@@ -3647,13 +3687,13 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     // (undocumented)
     protected readonly gridSettings: GridSettings;
     // @internal (undocumented)
-    handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
-    handleContextMenu(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handleContextMenu(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
     handleCopy(eventDetail: ClipboardEvent): void;
     // @internal (undocumented)
-    handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
     handleHorizontalScrollerAction(action: EventDetail.ScrollerAction): void;
     // @internal (undocumented)
@@ -3661,21 +3701,21 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     // @internal (undocumented)
     handleKeyUp(eventDetail: EventDetail.Keyboard): void;
     // @internal (undocumented)
-    handlePointerDown(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
-    handlePointerDrag(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handlePointerDrag(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
-    handlePointerDragEnd(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handlePointerDragEnd(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
-    handlePointerDragStart(event: DragEvent, cell: HoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS>;
+    handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS>;
     // @internal (undocumented)
-    handlePointerEnter(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handlePointerEnter(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
-    handlePointerLeaveOut(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handlePointerLeaveOut(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
-    handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
-    handlePointerUpCancel(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handlePointerUpCancel(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
     handleTouchEnd(eventDetail: TouchEvent): void;
     // @internal (undocumented)
@@ -3685,9 +3725,9 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     // @internal (undocumented)
     handleVerticalScrollerAction(action: EventDetail.ScrollerAction): void;
     // @internal (undocumented)
-    handleWheelMove(event: WheelEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined;
+    handleWheelMove(event: WheelEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined;
     // @internal (undocumented)
-    initializeOn(): void;
+    initialise(): void;
     // (undocumented)
     protected readonly mainSubgrid: MainSubgrid<BCS>;
     // (undocumented)
@@ -3718,7 +3758,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     // (undocumented)
     protected readonly subgridsManager: SubgridsManager<BGS, BCS>;
     // @internal (undocumented)
-    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): HoverCell<BCS> | null;
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS> | null;
     // (undocumented)
     abstract readonly typeName: string;
     // (undocumented)
@@ -3779,7 +3819,7 @@ export namespace WritablePoint {
 // Warnings were encountered during analysis:
 //
 // src/code/grid/components/selection/selection.ts:22:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/components/view/view-layout.ts:30:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/components/view/view-layout.ts:29:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

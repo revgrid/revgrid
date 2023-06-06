@@ -7,12 +7,13 @@
   },
 
   "include": [
-    "standard-public-api.ts",
+    "*.ts",
   ],
 
   "references": [
     { "path": "./cell-editors/tsconfig.standard-cell-editors.json" },
     { "path": "./cell-painters/tsconfig.standard-cell-painters.json" },
+    { "path": "./settings-implementations/tsconfig.standard-settings-implementations.json" },
     { "path": "./settings/tsconfig.standard-settings.json" },
   ]
 }

@@ -13,7 +13,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     activeColumnWidthOrOrderChangedEventer: ColumnsManager.ActiveColumnWidthOrOrderChangedEventer;
 
     /** @internal */
-    invalidateViewEventer: ColumnsManager.InvalidateViewEventer;
+    invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
     allColumnListChangedEventer: ListChangedEventer;
     /** @internal */
@@ -174,7 +174,10 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
     /** @internal */
     newColumn(schemaColumn: SchemaServer.Column<BCS>) {
-        return new ColumnImplementation(schemaColumn);
+        return new ColumnImplementation(
+            schemaColumn,
+            () => this.invalidateHorizontalViewLayoutEventer(true),
+        );
     }
 
     /** @internal */
@@ -201,7 +204,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             }
         }
 
-        this.invalidateViewEventer(true);
+        this.invalidateHorizontalViewLayoutEventer(true);
         this.activeColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined, false);
         this.allColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined);
     }
@@ -214,7 +217,11 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             name: '',
             settings: dummySettings,
         }
-        return new ColumnImplementation(schemaColumn);
+        return new ColumnImplementation(
+            schemaColumn,
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            () => {},
+        );
     }
 
     /** @internal */
@@ -273,7 +280,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         }
         const changed = column.setWidth(width);
         if (changed) {
-            this.invalidateViewEventer(true);
+            this.invalidateHorizontalViewLayoutEventer(true);
             this.columnsWidthChangedEventer([column], ui);
             return column;
         } else {
@@ -295,7 +302,6 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             return false;
         } else {
             changedColumns.length = changedColumnsCount;
-            this.invalidateViewEventer(true);
             this.columnsWidthChangedEventer(changedColumns, ui);
             return true;
         }
@@ -320,7 +326,6 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             return false;
         } else {
             changedColumns.length = changedColumnsCount;
-            this.invalidateViewEventer(true);
             this.columnsWidthChangedEventer(changedColumns, ui);
             return true;
         }
@@ -503,7 +508,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         const oldActiveCount = this._activeColumns.length;
         this._activeColumns.splice(0, oldActiveCount, ...newActiveColumns);
 
-        this.invalidateViewEventer(true);
+        this.invalidateHorizontalViewLayoutEventer(true);
     }
 
     /**
@@ -529,7 +534,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
         // column.clearProperties(); // needs implementation
         column.settings.load(properties);
-        this.invalidateViewEventer(true); // true in case width affected
+        this.invalidateHorizontalViewLayoutEventer(true); // true in case width affected
         return column.settings;
     }
 
@@ -562,7 +567,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             return;
         }
         columns[target] = sourceColumn;
-        this.invalidateViewEventer(true); // true in case swapped with fixed column
+        this.invalidateHorizontalViewLayoutEventer(true); // true in case swapped with fixed column
     }
 
     /** @internal */
@@ -623,9 +628,9 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
         if (autoSized) {
             if (withinAnimationFrame) {
-                setTimeout(() => this.invalidateViewEventer(true), 0);
+                setTimeout(() => this.invalidateHorizontalViewLayoutEventer(true), 0);
             } else {
-                this.invalidateViewEventer(true);
+                this.invalidateHorizontalViewLayoutEventer(true);
             }
         }
         return autoSized;
@@ -661,7 +666,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
 /** @public */
 export namespace ColumnsManager {
-    export type InvalidateViewEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+    export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
     export type ActiveColumnWidthOrOrderChangedEventer = (this: void) => void;
     export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings> = (this: void, columns: Column<BCS>[], ui: boolean) => void;
 

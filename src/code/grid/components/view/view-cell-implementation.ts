@@ -11,7 +11,7 @@ import { Rectangle } from '../../types-utils/rectangle';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export abstract class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> implements ViewCell<BCS> {
+export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> implements ViewCell<BCS> {
     /** Set by some Grid Painters to record out cell was painted. If fingerprint is same on successive repaints of cell, then
      * cell does not need to be repainted
      * @internal

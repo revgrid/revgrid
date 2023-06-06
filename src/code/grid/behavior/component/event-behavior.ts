@@ -8,7 +8,7 @@ import { Renderer } from '../../components/renderer/renderer';
 import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column } from '../../interfaces/schema/column';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
@@ -159,7 +159,12 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         this._descendantEventer.columnSort(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-column-sort', event, cell);
+            const hoverCell: LinedHoverCell<BCS> = {
+                viewCell: cell,
+                mouseOverLeftLine: false,
+                mouseOverTopLine: false,
+            }
+            this.dispatchMouseHoverCellEvent('rev-column-sort', event, hoverCell);
         }
     }
 
@@ -260,14 +265,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiClickEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
             }
         }
 
         this._descendantEventer.click(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-click', event, cell);
+            this.dispatchMouseHoverCellEvent('rev-click', event, cell);
         }
     }
 
@@ -276,14 +281,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiDblClickEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
             }
         }
 
         this._descendantEventer.dblClick(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-dbl-click', event, cell);
+            this.dispatchMouseHoverCellEvent('rev-dbl-click', event, cell);
         }
     }
 
@@ -292,14 +297,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerEnterEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
             }
         }
 
         this._descendantEventer.pointerEnter(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-pointer-enter', event, cell);
+            this.dispatchMouseHoverCellEvent('rev-pointer-enter', event, cell);
         }
     }
 
@@ -308,14 +313,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerDownEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
             }
         }
 
         this._descendantEventer.pointerDown(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-pointer-down', event, cell);
+            this.dispatchMouseHoverCellEvent('rev-pointer-down', event, cell);
         }
     }
 
@@ -324,14 +329,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerUpCancelEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
             }
         }
 
         this._descendantEventer.pointerUpCancel(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-pointer-up-cancel', event, cell);
+            this.dispatchMouseHoverCellEvent('rev-pointer-up-cancel', event, cell);
         }
     }
 
@@ -340,14 +345,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerMoveEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
             }
         }
 
         this._descendantEventer.pointerMove(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-pointer-move', event, cell);
+            this.dispatchMouseHoverCellEvent('rev-pointer-move', event, cell);
         }
     }
 
@@ -356,14 +361,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerLeaveOutEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
             }
         }
 
         this._descendantEventer.pointerLeaveOut(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-pointer-leave-out', event, cell);
+            this.dispatchMouseHoverCellEvent('rev-pointer-leave-out', event, cell);
         }
     }
 
@@ -372,14 +377,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiWheelMoveEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
             }
         }
 
         this._descendantEventer.wheelMove(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-wheel-move', event, cell);
+            this.dispatchMouseHoverCellEvent('rev-wheel-move', event, cell);
         }
     }
 
@@ -393,14 +398,14 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiContextMenuEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
             }
         }
 
         this._descendantEventer.contextMenu(event, cell);
 
         if (this._dispatchEnabled) {
-            this.dispatchMouseEvent('rev-context-menu', event, cell);
+            this.dispatchMouseHoverCellEvent('rev-context-menu', event, cell);
         }
     }
 
@@ -411,7 +416,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
             return true; // internally started
         } else {
             // const cell = this.uiMouseDragStartEventer(event);
-            const started = this._descendantEventer.pointerDragStart(event, result.cell);
+            const started = this._descendantEventer.pointerDragStart(event, result.hoverCell);
             return started ? false : undefined;
         }
     }
@@ -566,16 +571,20 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private dispatchMouseEvent<T extends EventName.Mouse>(eventName: T, event: MouseEvent | WheelEvent, cell: ViewCell<BCS> | null | undefined) {
+    private dispatchMouseHoverCellEvent<T extends EventName.MouseHoverCell>(eventName: T, event: MouseEvent | WheelEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         if (cell === null) {
             cell = undefined;
         } else {
             if (cell !== undefined) {
-                cell = Object.create(cell) as HoverCell<BCS>; // clone cell
+                cell = {
+                    viewCell: Object.create(cell.viewCell) as ViewCell<BCS>,
+                    mouseOverLeftLine: cell.mouseOverLeftLine,
+                    mouseOverTopLine: cell.mouseOverTopLine,
+                }
             }
         }
         const detail = event as EventName.DetailMap<BCS>[T];
-        detail.revgridCell = cell;
+        detail.revgridHoverCell = cell;
         return this.dispatchCustomEvent(eventName, false, detail);
     }
 }
@@ -588,7 +597,7 @@ export namespace EventBehavior {
     /** @internal */
     export interface UiPointerDragStartResult<BCS extends BehavioredColumnSettings> {
         readonly started: boolean;
-        readonly cell: HoverCell<BCS> | null | undefined;
+        readonly hoverCell: LinedHoverCell<BCS> | null | undefined;
     }
 
     /** @internal */
@@ -637,12 +646,12 @@ export namespace EventBehavior {
         export type Signal = (this: void) => void;
         export type Focus = (this: void, event: FocusEvent) => void;
         export type Key = (this: void, event: EventDetail.Keyboard) => void;
-        export type Mouse<BCS extends BehavioredColumnSettings> = (this: void, event: MouseEvent, cell: HoverCell<BCS> | null | undefined) => void;
-        export type Pointer<BCS extends BehavioredColumnSettings> = (this: void, event: PointerEvent, cell: HoverCell<BCS> | null | undefined) => void;
+        export type Mouse<BCS extends BehavioredColumnSettings> = (this: void, event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) => void;
+        export type Pointer<BCS extends BehavioredColumnSettings> = (this: void, event: PointerEvent, cell: LinedHoverCell<BCS> | null | undefined) => void;
         export type PointerDrag = (this: void, event: PointerEvent) => void;
-        export type PointerDragStart<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent, cell: HoverCell<BCS> | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
-        export type Wheel<BCS extends BehavioredColumnSettings> = (this: void, event: WheelEvent, cell: HoverCell<BCS> | null | undefined) => void;
-        export type DragCell<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent, cell: HoverCell<BCS> | null | undefined) => void;
+        export type PointerDragStart<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent, cell: LinedHoverCell<BCS> | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
+        export type Wheel<BCS extends BehavioredColumnSettings> = (this: void, event: WheelEvent, cell: LinedHoverCell<BCS> | null | undefined) => void;
+        export type DragCell<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent, cell: LinedHoverCell<BCS> | null | undefined) => void;
         export type Drag = (this: void, event: DragEvent) => void;
         export type Touch = (this: void, event: TouchEvent) => void;
         export type ViewCellOnly<BCS extends BehavioredColumnSettings> = (this: void, cell: ViewCell<BCS>) => void;
@@ -654,17 +663,17 @@ export namespace EventBehavior {
     /** @internal */
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
     /** @internal */
-    export type UiMouseEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Mouse<BCS>) => HoverCell<BCS> | null | undefined;
+    export type UiMouseEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Mouse<BCS>) => LinedHoverCell<BCS> | null | undefined;
     /** @internal */
-    export type UiPointerEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<BCS>) => HoverCell<BCS> | null | undefined;
+    export type UiPointerEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<BCS>) => LinedHoverCell<BCS> | null | undefined;
     /** @internal */
     export type UiPointerDragEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<BCS>) => void;
     /** @internal */
     export type UiPointerDragStartEventer<BCS extends BehavioredColumnSettings> = (this: void, dragEvent: DragEvent) => UiPointerDragStartResult<BCS>;
     /** @internal */
-    export type UiWheelEventer<BCS extends BehavioredColumnSettings> = (this: void, wheelEvent: EventDetail.Wheel<BCS>) => HoverCell<BCS> | null | undefined;
+    export type UiWheelEventer<BCS extends BehavioredColumnSettings> = (this: void, wheelEvent: EventDetail.Wheel<BCS>) => LinedHoverCell<BCS> | null | undefined;
     /** @internal */
-    export type UiDragEventer<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent) => HoverCell<BCS> | null | undefined;
+    export type UiDragEventer<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent) => LinedHoverCell<BCS> | null | undefined;
     /** @internal */
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;
     /** @internal */

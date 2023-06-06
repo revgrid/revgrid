@@ -8,7 +8,7 @@ import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -134,113 +134,113 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handlePointerMove(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handlePointerMove(event, cell);
+            return this.next.handlePointerMove(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handlePointerLeaveOut(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handlePointerLeaveOut(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handlePointerLeaveOut(event, cell);
+            return this.next.handlePointerLeaveOut(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handlePointerEnter(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handlePointerEnter(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handlePointerEnter(event, cell);
+            return this.next.handlePointerEnter(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handlePointerDown(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handlePointerDown(event, cell);
+            return this.next.handlePointerDown(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handlePointerUpCancel(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handlePointerUpCancel(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handlePointerUpCancel(event, cell);
+            return this.next.handlePointerUpCancel(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handleWheelMove(event: WheelEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handleWheelMove(event: WheelEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handleWheelMove(event, cell);
+            return this.next.handleWheelMove(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handleDblClick(event, cell);
+            return this.next.handleDblClick(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handleClick(event, cell);
+            return this.next.handleClick(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handlePointerDragStart(event: DragEvent, cell: HoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS> {
+    handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS> {
         if (this.next) {
-            return this.next.handlePointerDragStart(event, cell);
+            return this.next.handlePointerDragStart(event, hoverCell);
         } else {
             return {
                 started: false,
-                cell,
+                hoverCell,
             };
         }
     }
 
     /** @internal */
-    handlePointerDrag(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handlePointerDrag(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handlePointerDrag(event, cell);
+            return this.next.handlePointerDrag(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handlePointerDragEnd(event: PointerEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handlePointerDragEnd(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handlePointerDragEnd(event, cell);
+            return this.next.handlePointerDragEnd(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
     /** @internal */
-    handleContextMenu(event: MouseEvent, cell: HoverCell<BCS> | null | undefined): HoverCell<BCS> | null | undefined {
+    handleContextMenu(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
         if (this.next) {
-            return this.next.handleContextMenu(event, cell);
+            return this.next.handleContextMenu(event, hoverCell);
         } else {
-            return cell;
+            return hoverCell;
         }
     }
 
@@ -287,15 +287,15 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    initializeOn() {
+    initialise() {
         if (this.next) {
-            this.next.initializeOn();
+            this.next.initialise();
         }
     }
 
     /** @internal */
-    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): HoverCell<BCS> | null {
-        const cell = this.viewLayout.findHoverCell(event.offsetX, event.offsetY);
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS> | null {
+        const cell = this.viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
         if (cell === undefined) {
             return null;
         } else {

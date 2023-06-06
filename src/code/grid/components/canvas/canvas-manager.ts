@@ -112,6 +112,9 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
             case CanvasManager.PointerDownState.Dragging:
                 this.pointerDragEndEventer(event, this._pointerDragInternal);
                 this.pointerUpCancelEventer(event);
+                this.setPointerDownState(CanvasManager.PointerDownState.IgnoreClickAfterDrag, event);
+                break;
+            case CanvasManager.PointerDownState.IgnoreClickAfterDrag:
                 this.setPointerDownState(CanvasManager.PointerDownState.NotDown, event);
                 break;
             default:
@@ -171,7 +174,11 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     }
 
     private clickEventListener = (e: MouseEvent) => {
-        this.clickEventer(e);
+        if (this._pointerDownState === CanvasManager.PointerDownState.IgnoreClickAfterDrag) {
+            this.setPointerDownState(CanvasManager.PointerDownState.NotDown, undefined);
+        } else {
+            this.clickEventer(e);
+        }
     };
     private dblClickEventListener = (e: MouseEvent) => {
         this.dblClickEventer(e);
@@ -228,6 +235,10 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
                     // must have lost a pointer up event
                     this.pointerDownEventer(event);
                     break;
+                case CanvasManager.PointerDownState.IgnoreClickAfterDrag:
+                    // must have lost a click event
+                    this.pointerDownEventer(event);
+                    break;
                 case CanvasManager.PointerDownState.DragStarting:
                 case CanvasManager.PointerDownState.Dragging:
                     // Should normally never occur but debugger can trigger this transition
@@ -245,6 +256,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
             switch (this._pointerDownState) {
                 case CanvasManager.PointerDownState.NotDown:
                 case CanvasManager.PointerDownState.NotDragging:
+                case CanvasManager.PointerDownState.IgnoreClickAfterDrag:
                     this.pointerMoveEventer(event);
                     break;
                 case CanvasManager.PointerDownState.DragStarting: {
@@ -533,13 +545,15 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         return this.canvasElement.dispatchEvent(e);
     }
 
-    setCursorAndTitleText(cursorName: string | undefined, titleText: string) {
+    setCursor(cursorName: string | undefined) {
         if (cursorName === undefined) {
             this.canvasElement.style.cursor = '';
         } else {
             this.canvasElement.style.cursor = cursorName;
         }
+    }
 
+    setTitleText(titleText: string) {
         this.canvasElement.title = titleText;
     }
 
@@ -577,16 +591,17 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     }
 
     private setPointerDownState(state: CanvasManager.PointerDownState, event: PointerEvent | undefined) {
-        this._pointerDownState = state;
-
         switch (state) {
             case CanvasManager.PointerDownState.NotDown:
             case CanvasManager.PointerDownState.NotDragging:
+            case CanvasManager.PointerDownState.IgnoreClickAfterDrag:
                 document.body.style.userSelect = '';
-                if (event === undefined) {
-                    throw new AssertError('CMSPDSN68201');
-                } else {
+                if (event !== undefined) {
                     this.canvasElement.releasePointerCapture(event.pointerId);
+                } else {
+                    if (this._pointerDownState !== CanvasManager.PointerDownState.IgnoreClickAfterDrag) {
+                        throw new AssertError('CMSPDSN68201');
+                    }
                 }
                 break;
             case CanvasManager.PointerDownState.DragStarting:
@@ -603,6 +618,8 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
             default:
                 throw new UnreachableCaseError('CMSPDS87732', state);
         }
+
+        this._pointerDownState = state;
     }
 
     private checkPreventDefault(e: KeyboardEvent) {
@@ -822,6 +839,7 @@ export namespace CanvasManager {
         NotDragging,
         DragStarting,
         Dragging,
+        IgnoreClickAfterDrag,
     }
     export type WritableEventDetailKeyboard = Writable<RevgridKeyboardEvent>;
 

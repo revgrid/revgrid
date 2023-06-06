@@ -1,7 +1,7 @@
 
 import { EventDetail } from '../../components/event/event-detail';
-import { HoverCellImplementation } from '../../components/view/hover-cell-implementation';
-import { HoverCell } from '../../interfaces/data/hover-cell';
+import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
+import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -54,23 +54,23 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
     handleUP = this.moveDown;
     handleDOWN = this.moveDown;
 
-    override handleDblClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
-        if (cell === undefined) {
-            cell = this.tryGetHoverCellFromMouseEvent(event);
+    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell !== null && cell.isFilter) {
+        if (hoverCell !== null && hoverCell.viewCell.isFilter) {
             // this.grid.onEditorActivate(cell);
-            return cell;
+            return hoverCell;
         } else {
-            return super.handleDblClick(event, cell);
+            return super.handleDblClick(event, hoverCell);
         }
     }
 
-    override handleClick(event: MouseEvent, cell: HoverCell<BCS> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell !== null && cell.isFilter) {
+        if (cell !== null && cell.viewCell.isFilter) {
             // this.grid.onEditorActivate(cell);
             return cell;
         } else {
@@ -85,7 +85,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         const originX = gridX;
         const C = this.viewLayout.columns.length;
 
-        const moveDownCellEvent = new HoverCellImplementation(this.columnsManager); // redefine so we don't reset the original below
+        const moveDownCellEvent = new ViewCellImplementation(this.columnsManager); // redefine so we don't reset the original below
 
         while (
             (gridX = (gridX + deltaX + C) % C) !== originX &&

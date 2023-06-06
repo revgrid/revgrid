@@ -8,7 +8,7 @@ export { EventName } from './components/event/event-name';
 export { Focus } from './components/focus/focus';
 export { Mouse } from './components/mouse/mouse';
 export { DataServer } from './interfaces/data/data-server';
-export { HoverCell } from './interfaces/data/hover-cell';
+export { LinedHoverCell } from './interfaces/data/hover-cell';
 export { MainSubgrid } from './interfaces/data/main-subgrid';
 export { MetaModel } from './interfaces/data/meta-model';
 export { Subgrid } from './interfaces/data/subgrid';
