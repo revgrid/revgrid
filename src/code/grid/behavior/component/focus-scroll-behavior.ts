@@ -6,24 +6,25 @@ import { ViewLayout } from '../../components/view/view-layout';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 
-export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
-    private readonly _mainSubgrid: MainSubgrid<BCS>;
+export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+    private readonly _mainSubgrid: MainSubgrid<BCS, SC>;
 
     constructor(
         private readonly _gridSettings: BGS,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS>,
-        private readonly _focus: Focus<BGS, BCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SC>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
+        private readonly _focus: Focus<BGS, BCS, SC>,
     ) {
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
     }
 
-    tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<BCS> | undefined) {
+    tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<BCS, SC> | undefined) {
         if (this.isXScrollabe(x) && this.isYScrollabe(y)) {
             this._viewLayout.ensureColumnRowAreInView(x, y, true)
             this._focus.setXY(x, y, cell, undefined, undefined);
@@ -149,7 +150,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     // probably can get rid of this with a bit more cleanup
-    getFocusedViewCell(useAllCells: boolean): ViewCell<BCS> | undefined {
+    getFocusedViewCell(useAllCells: boolean): ViewCell<BCS, SC> | undefined {
         const focusedPoint = this._focus.currentSubgridPoint;
         if (focusedPoint === undefined) {
             return undefined;
@@ -160,7 +161,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
                 // When expanding selections larger than the view, the origin/corner
                 // points may not be rendered and would normally fail to reset cell's position.
                 // Mock column and row objects for this.reset() to use:
-                const vc: ViewLayoutColumn<BCS> = {
+                const vc: ViewLayoutColumn<BCS, SC> = {
                     column: this._columnsManager.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
                     activeColumnIndex: gridX,
                     index: -1,
@@ -168,7 +169,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
                     rightPlus1: -1,
                     width: -1,
                 };
-                const vr: ViewLayoutRow<BCS> = {
+                const vr: ViewLayoutRow<BCS, SC> = {
                     subgridRowIndex: dataY,
                     index: -1,
                     subgrid: this._subgridsManager.mainSubgrid,

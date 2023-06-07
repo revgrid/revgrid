@@ -1,4 +1,4 @@
-import { GridProperties, RevRecordSysTick } from '../dist/types/public-api';
+import { GridSettings, RevRecordSysTick } from '..';
 
 /** @public */
 export interface RecordGridSettings {
@@ -101,9 +101,9 @@ export namespace RecordGridSettings {
 
     export function createGridPropertiesFromSettings(
         settings: RecordGridSettings,
-        existingProperties: GridProperties | undefined
-    ): Partial<GridProperties> {
-        const properties: Partial<GridProperties> = {};
+        existingProperties: GridSettings | undefined
+    ): Partial<GridSettings> {
+        const properties: Partial<GridSettings> = {};
 
         const newFontFamily = settings.fontFamily;
         if (newFontFamily !== '') {

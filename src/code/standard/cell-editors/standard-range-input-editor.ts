@@ -1,23 +1,26 @@
-import { DataServer, Revgrid } from '../../grid/grid-public-api';
+import { DataServer, Revgrid, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardInputEditor } from './standard-input-editor';
 
 /** @public */
-export class StandardRangeInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardInputEditor<BGS, BCS> {
-    constructor(grid: Revgrid<BGS, BCS>) {
-        super(grid, 'range');
+export class StandardRangeInputEditor<
+    BGS extends StandardBehavioredGridSettings,
+    BCS extends StandardBehavioredColumnSettings,
+    SC extends SchemaServer.Column<BCS>
+> extends StandardInputEditor<BGS, BCS, SC> {
+    constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean) {
+        super(grid, readonly, 'range');
         this.inputElement.classList.add('revgrid-range-input-editor');
     }
 
-    override initialise(value: DataServer.DataValue) {
+    override open(value: DataServer.DataValue) {
+        super.open(value);
         this.inputElement.value = value as string;
     }
 
     override close(cancel: boolean) {
-        if (cancel) {
-            return undefined;
-        } else {
-            return this.inputElement.value;
-        }
+        const value = (cancel || this.readonly) ? undefined : this.inputElement.value;
+        super.close(cancel);
+        return value;
     }
 }

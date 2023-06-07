@@ -1,4 +1,5 @@
 
+import { SchemaServer } from '../../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -32,15 +33,15 @@ import { GridPainter } from './grid-painter';
  * Note that text never overflows to left because text starting point is never < 0. The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.
  */
 
-export class ByColumnsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends GridPainter<BGS, BCS> {
+export class ByColumnsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends GridPainter<BGS, BCS, SC> {
     constructor(
         gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
-        subgridsManager: SubgridsManager<BGS, BCS>,
-        viewLayout: ViewLayout<BGS, BCS>,
-        focus: Focus<BGS, BCS>,
-        selection: Selection<BGS, BCS>,
-        mouse: Mouse<BGS, BCS>,
+        subgridsManager: SubgridsManager<BGS, BCS, SC>,
+        viewLayout: ViewLayout<BGS, BCS, SC>,
+        focus: Focus<BGS, BCS, SC>,
+        selection: Selection<BGS, BCS, SC>,
+        mouse: Mouse<BGS, BCS, SC>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(

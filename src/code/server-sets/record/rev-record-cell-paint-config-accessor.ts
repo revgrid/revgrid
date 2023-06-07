@@ -1,13 +1,13 @@
-import { BehavioredColumnSettings, ViewCell } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, SchemaServer, ViewCell } from '../../grid/grid-public-api';
 import { RevRecordCellPaintConfig } from './rev-record-cell-paint-config';
 import { RevRecordMainDataServer } from './rev-record-main-data-server';
 import { RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
-export class RevRecordCellPaintConfigAccessor<BCS extends BehavioredColumnSettings> implements RevRecordCellPaintConfig {
+export class RevRecordCellPaintConfigAccessor<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> implements RevRecordCellPaintConfig {
     readonly valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId;
     readonly recordRecentChangeTypeId?: RevRecordRecentChangeTypeId;
 
-    constructor(cell: ViewCell<BCS>, mainAdapter: RevRecordMainDataServer<BCS>) {
+    constructor(cell: ViewCell<BCS, SC>, mainAdapter: RevRecordMainDataServer<BCS>) {
         let rowIndex = cell.viewLayoutRow.subgridRowIndex;
 
         if (mainAdapter.rowOrderReversed) {

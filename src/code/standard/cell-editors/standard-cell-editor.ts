@@ -1,7 +1,11 @@
-import { CellEditor, DataServer, Revgrid } from '../../grid/grid-public-api';
+import { CellEditor, DataServer, Revgrid, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 
-export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> implements CellEditor<BCS> {
+export abstract class StandardCellEditor<
+    BGS extends StandardBehavioredGridSettings,
+    BCS extends StandardBehavioredColumnSettings,
+    SC extends SchemaServer.Column<BCS>
+> implements CellEditor<BCS, SC> {
     pullDataEventer: CellEditor.PullDataEventer;
     pushDataEventer: CellEditor.PushDataEventer;
     closedEventer: CellEditor.ClosedEventer;
@@ -14,7 +18,7 @@ export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSetti
     // protected _columnSettings: StandardAllColumnSettings;
     // protected _dataServer: DataServer<BCS>;
 
-    constructor(protected readonly _grid: Revgrid<BGS, BCS>) {
+    constructor(protected readonly _grid: Revgrid<BGS, BCS, SC>, readonly readonly: boolean) {
         // const grid = this._grid;
         // this._gridSettings = grid.settings;
         // this._renderingContext = grid.canvasManager.gc;
@@ -24,6 +28,6 @@ export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSetti
         return undefined;
     }
 
-    abstract initialise(value: DataServer.DataValue): void;
+    abstract open(value: DataServer.DataValue): void;
     abstract close(cancel: boolean): DataServer.DataValue | undefined;
 }

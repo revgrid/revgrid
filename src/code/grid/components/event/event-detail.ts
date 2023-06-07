@@ -1,4 +1,5 @@
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
@@ -16,20 +17,20 @@ export namespace EventDetail {
         readonly newPoint: Point | undefined;
     }
 
-    export interface Mouse<BCS extends BehavioredColumnSettings> extends MouseEvent {
-        revgridHoverCell?: LinedHoverCell<BCS>;
+    export interface Mouse<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends MouseEvent {
+        revgridHoverCell?: LinedHoverCell<BCS, SC>;
     }
 
-    export interface Pointer<BCS extends BehavioredColumnSettings> extends PointerEvent, Mouse<BCS> {
-        revgridHoverCell?: LinedHoverCell<BCS>;
+    export interface Pointer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends PointerEvent, Mouse<BCS, SC> {
+        revgridHoverCell?: LinedHoverCell<BCS, SC>;
     }
 
-    export interface Wheel<BCS extends BehavioredColumnSettings> extends WheelEvent {
-        revgridHoverCell?: LinedHoverCell<BCS>;
+    export interface Wheel<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends WheelEvent {
+        revgridHoverCell?: LinedHoverCell<BCS, SC>;
     }
 
-    export interface ColumnSort<BCS extends BehavioredColumnSettings> extends MouseEvent {
-        revgridHoverCell?: LinedHoverCell<BCS>;
+    export interface ColumnSort<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends MouseEvent {
+        revgridHoverCell?: LinedHoverCell<BCS, SC>;
     }
 
     export type Keyboard = CanvasManager.RevgridKeyboardEvent;

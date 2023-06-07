@@ -1,9 +1,13 @@
-import { Rectangle } from '../../grid/grid-public-api';
+import { Rectangle, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
 /** @public */
-export abstract class StandardTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardCellPainter<BGS, BCS> {
+export abstract class StandardTextCellPainter<
+    BGS extends StandardBehavioredGridSettings,
+    BCS extends StandardBehavioredColumnSettings,
+    SC extends SchemaServer.Column<BCS>
+> extends StandardCellPainter<BGS, BCS, SC> {
 /* [SIZE NOTE] (11/1/2018): Always call `drawImage` with explicit width and height overload.
  * Possible browser bug: Although 3rd and 4th parameters to `drawImage` are optional,
  * when image data derived from SVG source, some browsers (e.g., Chrome 70) implementation

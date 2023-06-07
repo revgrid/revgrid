@@ -1,9 +1,14 @@
 
+import { SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
 /** @public */
-export class StandardTagCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardCellPainter<BGS, BCS> {
+export class StandardTagCellPainter<
+    BGS extends StandardBehavioredGridSettings,
+    BCS extends StandardBehavioredColumnSettings,
+    SC extends SchemaServer.Column<BCS>
+> extends StandardCellPainter<BGS, BCS, SC> {
 
     override paint(_prefillColor: string | undefined): number | undefined {
         // const gc = this._renderingContext;

@@ -110,69 +110,6 @@ export const gridSettingsDefaults: Required<GridSettings> = {
      * @default
      */
     horizontalGridLinesVisible: true,
-
-    /**
-     * Set canvas's CSS border to this string as well as:
-     * * {@link module:dynamicProperties.gridBorderLeft gridBorderLeft}
-     * * {@link module:dynamicProperties.gridBorderRight gridBorderRight}
-     * * {@link module:dynamicProperties.gridBorderTop gridBorderTop}
-     * * {@link module:dynamicProperties.gridBorderBottom gridBorderBottom}.
-     *
-     * If set to:
-     * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
-     * `false`: uses null
-     *
-     * Caveat: The use of `grid.canvas.canvas.style.boxSizing = 'border-box'` is _not_ recommended due to
-     * the fact that the canvas is squashed slightly to accommodate the border resulting in blurred text.
-     *
-     * @default
-     * @type {boolean|string}
-     */
-    gridBorder: false,
-
-    /**
-     * Set canvas's left CSS border to this string.
-     *
-     * If set to:
-     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
-     * * `false`: uses null
-     * @default
-     * @type {boolean|string}
-     */
-    gridBorderLeft: false,
-
-    /**
-     * Set canvas's right CSS border to this string.
-     *
-     * If set to:
-     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
-     * * `false`: uses null
-     * @default
-     * @type {boolean}
-     */
-    gridBorderRight: false,
-
-    /**
-     * Set canvas's top CSS border to this string.
-     *
-     * If set to:
-     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
-     * * `false`: uses null
-     * @default
-     * @type {boolean}
-     */
-    gridBorderTop: false,
-
-    /**
-     * Set canvas's bottom CSS border to this string.
-     *
-     * If set to:
-     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
-     * * `false`: uses null
-     * @default
-     * @type {boolean}
-     */
-    gridBorderBottom: false,
     gridRightAligned: false,
     fixedLinesHWidth: 2,
     fixedLinesHEdge: undefined,
@@ -423,9 +360,6 @@ export const gridSettingsDefaults: Required<GridSettings> = {
         // 'thumbwheelscrolling',
         'clipboard'
     ],
-
-    borderWidth: 1,
-    borderColor: '#000000',
 };
 
 /** cssColor

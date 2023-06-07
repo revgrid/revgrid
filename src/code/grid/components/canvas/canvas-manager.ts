@@ -64,6 +64,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     private _repeatKeyStartTime = 0;
 
     readonly instanceId = getNextInstanceId();
+    readonly canvasContainerElement: HTMLElement;
     readonly canvasElement: HTMLCanvasElement;
     /** @internal */
     readonly gc: CachedCanvasRenderingContext2D;
@@ -204,7 +205,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     }
 
     constructor(
-        private readonly _containerElement: HTMLElement,
+        readonly containerElement: HTMLElement,
         contextAttributes: CanvasRenderingContext2DSettings | undefined,
         private readonly _gridSettings: BGS,
     ) {
@@ -218,7 +219,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
 
         this.gc = createCachedContext(this.canvasElement, contextAttributes);
 
-        this._containerElement.appendChild(this.canvasElement);
+        this.containerElement.appendChild(this.canvasElement);
 
         this._emptyImage = document.createElement('img');
         this._emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -350,7 +351,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
 
     start() {
         this._gridSettings.resizeEventer = () => this.resize(false);
-        this._resizeObserver.observe(this._containerElement);
+        this._resizeObserver.observe(this.containerElement);
         this._started = true;
     }
 
@@ -633,7 +634,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     }
 
     private getContainerBoundingClientRect() {
-        return this._containerElement.getBoundingClientRect();
+        return this.containerElement.getBoundingClientRect();
     }
 
     private getCanvasBoundingClientRect() {

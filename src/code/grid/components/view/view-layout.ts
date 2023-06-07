@@ -5,6 +5,8 @@ import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
+import { Column } from '../../interfaces/schema/column';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -12,7 +14,6 @@ import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { HorizontalVertical } from '../../types-utils/types';
-import { ColumnImplementation } from '../column/column-implementation';
 import { ColumnsManager } from '../column/columns-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { HorizontalScrollDimension } from './horizontal-scroll-dimension';
@@ -46,7 +47,7 @@ import { ViewCellImplementation } from './view-cell-implementation';
  * Same parameters as {@link ViewLayout#initialize|initialize}, which is called by this constructor.
  *
  */
-export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     /** @internal */
     invalidateDataEventer: ViewLayout.InvalidatedEventer;
     /** @internal */
@@ -56,7 +57,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     cellPoolComputedEventerForMouse: ViewLayout.CellPoolComputedEventer;
 
-    private readonly _mainSubgrid: MainSubgrid<BCS>;
+    private readonly _mainSubgrid: MainSubgrid<BCS, SC>;
 
     /**
      * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
@@ -70,7 +71,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      * 2. A zero-based list of consecutive of integers representing the fixed columns (if any).
      * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
      */
-    private readonly _columns = new ViewLayout.ViewLayoutColumnArray<BCS>();
+    private readonly _columns = new ViewLayout.ViewLayoutColumnArray<BCS, SC>();
 
     /**
      * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
@@ -83,15 +84,15 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      *
      * Note that non-scrollable subgrids can come both before _and_ after the scrollable subgrid.
      */
-    private readonly _rows = new ViewLayout.ViewLayoutRowArray<BCS>();
+    private readonly _rows = new ViewLayout.ViewLayoutRowArray<BCS, SC>();
 
-    private readonly _horizontalScrollDimension: HorizontalScrollDimension<BGS, BCS>;
-    private readonly _verticalScrollDimension: VerticalScrollDimension<BGS, BCS>;
+    private readonly _horizontalScrollDimension: HorizontalScrollDimension<BGS, BCS, SC>;
+    private readonly _verticalScrollDimension: VerticalScrollDimension<BGS, BCS, SC>;
 
-    private readonly _dummyUnusedColumn: ColumnImplementation<BCS>;
+    private readonly _dummyUnusedColumn: Column<BCS, SC>;
 
-    private readonly _rowColumnOrderedCellPool = new Array<ViewCellImplementation<BGS, BCS>>();
-    private readonly _columnRowOrderedCellPool = new Array<ViewCellImplementation<BGS, BCS>>();
+    private readonly _rowColumnOrderedCellPool = new Array<ViewCellImplementation<BGS, BCS, SC>>();
+    private readonly _columnRowOrderedCellPool = new Array<ViewCellImplementation<BGS, BCS, SC>>();
 
     private _columnsValid = false;
     private _rowsValid = false;
@@ -141,8 +142,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     constructor(
         private readonly _gridSettings: BGS,
         private readonly _canvasManager: CanvasManager<BGS>,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SC>,
     ) {
         this._gridSettings.viewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
         this._gridSettings.horizontalViewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
@@ -373,7 +374,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     get columnRowCellPoolComputationInvalid() { return this._columnRowOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
     get rowColumnCellPoolComputationInvalid() { return this._rowColumnOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
 
-    getRowColumnOrderedCellPool(): ViewCell<BCS>[] {
+    getRowColumnOrderedCellPool(): ViewCell<BCS, SC>[] {
         const pool = this._rowColumnOrderedCellPool;
         if (this.rowColumnCellPoolComputationInvalid) {
             const rows = this._rows;
@@ -399,7 +400,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         return pool;
     }
 
-    getColumnRowOrderedCellPool(): ViewCell<BCS>[] {
+    getColumnRowOrderedCellPool(): ViewCell<BCS, SC>[] {
         const pool = this._columnRowOrderedCellPool;
         if (this.columnRowCellPoolComputationInvalid) {
             const rows = this._rows;
@@ -1008,7 +1009,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      * @param point
      * @returns Cell coordinates
      */
-    findLinedHoverCell(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS> | undefined {
+    findLinedHoverCell(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS, SC> | undefined {
         this.ensureValidOutsideAnimationFrame();
         const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasXOffset);
         if (columnIndex < 0) {
@@ -1206,7 +1207,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    createUnusedSpaceColumn(): ViewLayoutColumn<BCS> | undefined {
+    createUnusedSpaceColumn(): ViewLayoutColumn<BCS, SC> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1218,7 +1219,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 if (firstColumn.left <= 0) {
                     return undefined;
                 } else {
-                    const column: ViewLayoutColumn<BCS> = {
+                    const column: ViewLayoutColumn<BCS, SC> = {
                         index: -1,
                         activeColumnIndex: -1,
                         column: this._dummyUnusedColumn,
@@ -1235,7 +1236,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 if (lastColumnRightPlus1 >= gridRightPlus1) {
                     return undefined;
                 } else {
-                    const column: ViewLayoutColumn<BCS> = {
+                    const column: ViewLayoutColumn<BCS, SC> = {
                         index: columnCount,
                         activeColumnIndex: columnCount,
                         column: this._dummyUnusedColumn,
@@ -1292,7 +1293,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      * @param activeColumnIndex - The grid column index.
      * @returns The given column if visible or `undefined` if not.
      */
-    findColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<BCS> | undefined {
+    findColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<BCS, SC> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1313,7 +1314,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    findColumnWithAllIndex(allColumnIndex: number): ViewLayoutColumn<BCS> | undefined {
+    findColumnWithAllIndex(allColumnIndex: number): ViewLayoutColumn<BCS, SC> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         for (let i = 0; i < columnCount; i++) {
@@ -1325,7 +1326,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         return undefined;
     }
 
-    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: Subgrid<BCS>) {
+    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: Subgrid<BCS, SC>) {
         const rows = this._rows;
         const rowCount = rows.length;
         for (let i = 0; i < rowCount; i++) {
@@ -1337,7 +1338,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         return undefined;
     }
 
-    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<BCS> | undefined {
+    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<BCS, SC> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1433,7 +1434,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         return this._rows[rowIndex];
     }
 
-    isDataRowVisible(rowIndex: number, subgrid: Subgrid<BCS>): boolean {
+    isDataRowVisible(rowIndex: number, subgrid: Subgrid<BCS, SC>): boolean {
         return this.getVisibleDataRow(rowIndex, subgrid) !== undefined;
     }
 
@@ -1444,7 +1445,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      * @param rowIndex - The data row index within the given subgrid.
      * @returns The given row if visible or `undefined` if not.
      */
-    getVisibleDataRow(rowIndex: number, subgrid: Subgrid<BCS>) {
+    getVisibleDataRow(rowIndex: number, subgrid: Subgrid<BCS, SC>) {
         for (const vr of this._rows) {
             if (vr.subgridRowIndex === rowIndex && vr.subgrid === subgrid) {
                 return vr;
@@ -1588,7 +1589,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS>, canComputePool: boolean) {
+    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SC>, canComputePool: boolean) {
         const column = this.findColumnWithActiveIndex(activeColumnIndex);
         if (column === undefined) {
             return undefined;
@@ -1602,7 +1603,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS>) {
+    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SC>) {
         const column = this.findColumnWithAllIndex(allColumnIndex);
         if (column === undefined) {
             return undefined;
@@ -1650,7 +1651,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    findCellAtCanvasOffset(x: number, y: number, canComputePool: boolean): ViewCell<BCS> | undefined {
+    findCellAtCanvasOffset(x: number, y: number, canComputePool: boolean): ViewCell<BCS, SC> | undefined {
         // called from within animation frame
         const columnIndex = this.findColumnIndexOfCanvasOffset(x);
         if (columnIndex < 0) {
@@ -1810,7 +1811,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 throw new AssertError('VLCH60009');
             } else {
                 let fixedWidthV: number;
-                let vc: ViewLayoutColumn<BCS>;
 
                 if (gridSettings.fixedLinesVWidth === undefined) {
                     fixedWidthV = gridLinesVWidth;
@@ -1961,7 +1961,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
                             const rightPlus1 = left + visibleWidth;
 
-                            vc = {
+                            const vc: ViewLayoutColumn<BCS, SC> = {
                                 index: visibleColumnCount,
                                 activeColumnIndex,
                                 column: columnsManager.getActiveColumn(activeColumnIndex),
@@ -2115,7 +2115,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             while (subgridRowIndex < subgridRowCount && y < afterY) {
                 const height = subgrid.getRowHeight(subgridRowIndex);
 
-                const row: ViewLayoutRow<BCS> = {
+                const row: ViewLayoutRow<BCS, SC> = {
                     index: rowIndex,
                     subgridRowIndex,
                     subgrid,
@@ -2268,13 +2268,13 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    private resizeCellPool(pool: ViewCellImplementation<BGS, BCS>[], requiredSize: number) {
+    private resizeCellPool(pool: ViewCellImplementation<BGS, BCS, SC>[], requiredSize: number) {
         const previousLength = pool.length;
         pool.length = requiredSize;
 
         if (requiredSize > previousLength) {
             for (let i = previousLength; i < requiredSize; i++) {
-                pool[i] = new ViewCellImplementation<BGS, BCS>(this._columnsManager);
+                pool[i] = new ViewCellImplementation<BGS, BCS, SC>(this._columnsManager);
             }
         }
     }
@@ -2300,7 +2300,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     }
 
-    private resetPoolAllCellPropertiesCaches(pool: ViewCell<BCS>[]) {
+    private resetPoolAllCellPropertiesCaches(pool: ViewCell<BCS, SC>[]) {
         const cellCount = pool.length;
         for (let i = 0; i < cellCount; i++) {
             const cell = pool[i];
@@ -2310,7 +2310,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 }
 
 export namespace ViewLayout {
-    export type GetRowHeightEventer<BCS extends BehavioredColumnSettings> = (this: void, y: number, subgrid: Subgrid<BCS> | undefined) => number;
+    export type GetRowHeightEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, y: number, subgrid: Subgrid<BCS, SC> | undefined) => number;
     export type CheckNeedsShapeChangedEventer = (this: void) => void;
     export type InvalidatedEventer = (this: void, action: InvalidateAction) => void;
     export type ColumnsViewWidthsChangedEventer = (this: void) => void;
@@ -2327,18 +2327,18 @@ export namespace ViewLayout {
         RowColumn,
     }
 
-    export class ViewLayoutColumnArray<BCS extends BehavioredColumnSettings> extends Array<ViewLayoutColumn<BCS>> {
+    export class ViewLayoutColumnArray<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends Array<ViewLayoutColumn<BCS, SC>> {
         gap: ViewLayoutColumnArray.Gap | undefined;
     }
 
-    export namespace ViewLayoutColumnArray {``
+    export namespace ViewLayoutColumnArray {
         export interface Gap {
             left: number;
             rightPlus1: number;
         }
     }
 
-    export class ViewLayoutRowArray<BCS extends BehavioredColumnSettings> extends Array<ViewLayoutRow<BCS>> {
+    export class ViewLayoutRowArray<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends Array<ViewLayoutRow<BCS, SC>> {
         gap: ViewLayoutRowArray.Gap | undefined;
     }
 

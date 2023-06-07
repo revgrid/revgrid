@@ -1,7 +1,7 @@
-import { MainRecord } from 'main-record';
 import { SchemaServer, StandardInMemoryBehavioredColumnSettings, standardAllColumnSettingsDefaults } from '..';
+import { MainRecord } from './main-record';
 
-export class SchemaServerImplementation implements SchemaServer<StandardInMemoryBehavioredColumnSettings> {
+export class SchemaServerImplementation implements SchemaServer<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column> {
     private readonly _schema: SchemaServerImplementation.Column[];
     private notificationsClient: SchemaServer.NotificationsClient<StandardInMemoryBehavioredColumnSettings>;
 

@@ -3,12 +3,13 @@ import { EventDetail } from '../../components/event/event-detail';
 import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
+export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
 
     readonly typeName = FiltersUiBehavior.typeName;
 
@@ -43,18 +44,18 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    handleLEFT(cellEvent: ViewCell<BCS>) {
+    handleLEFT(cellEvent: ViewCell<BCS, SC>) {
         this.moveLaterally(cellEvent, -1);
     }
 
-    handleRIGHT(cellEvent: ViewCell<BCS>) {
+    handleRIGHT(cellEvent: ViewCell<BCS, SC>) {
         this.moveLaterally(cellEvent, +1);
     }
 
     handleUP = this.moveDown;
     handleDOWN = this.moveDown;
 
-    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -66,7 +67,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -78,7 +79,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS>, deltaX: number) {
+    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS, SC>, deltaX: number) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         let gridX = cellEvent.viewLayoutColumn.index;
         const gridY = cellEvent.viewLayoutRow.index;
@@ -101,7 +102,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         this.moveDown(moveDownCellEvent);
     }
 
-    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS>) {
+    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS, SC>) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         const gridX = cellEvent.viewLayoutColumn.index;
 

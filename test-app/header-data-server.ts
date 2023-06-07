@@ -1,5 +1,5 @@
 import { DataServer, SchemaServer, StandardInMemoryBehavioredColumnSettings } from '..';
-import { SchemaServerImplementation } from './schema-adapter';
+import { SchemaServerImplementation } from './schema-server-implementation';
 
 export class HeaderDataServer implements DataServer<StandardInMemoryBehavioredColumnSettings> {
     getRowCount() {

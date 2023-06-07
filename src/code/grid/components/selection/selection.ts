@@ -2,6 +2,7 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { DatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
@@ -22,7 +23,7 @@ import { SelectionRectangleList } from './selection-rectangle-list';
  * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
  */
 
-export class Selection<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+export class Selection<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     changedEventerForRenderer: Selection.ChangedEventer;
     changedEventerForEventBehavior: Selection.ChangedEventer;
 
@@ -30,7 +31,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
     readonly columns = new SelectionRangeList();
     readonly rectangleList = new SelectionRectangleList();
 
-    private _subgrid: Subgrid<BCS> | undefined;
+    private _subgrid: Subgrid<BCS, SC> | undefined;
     private _lastArea: LastSelectionArea | undefined;
     private _allRowsSelected = false;
 
@@ -38,11 +39,11 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
     private _changed = false;
     private _silentlyChanged = false;
 
-    private _snapshot: Selection<BGS, BCS> | undefined;
+    private _snapshot: Selection<BGS, BCS, SC> | undefined;
 
     constructor(
         private readonly _gridSettings: BGS,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
     ) {
     }
 
@@ -86,7 +87,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    assign(other: Selection<BGS, BCS>) {
+    assign(other: Selection<BGS, BCS, SC>) {
         this.rectangleList.assign(other.rectangleList);
         this.rows.assign(other.rows);
         this.columns.assign(other.columns);
@@ -94,7 +95,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         this._subgrid = other._subgrid;
     }
 
-    createStash(): Selection.Stash<BCS> {
+    createStash(): Selection.Stash<BCS, SC> {
         const rowIds = this.createRowsStash();
         const columnNames = this.createColumnsStash();
 
@@ -106,7 +107,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         };
     }
 
-    restoreStash(stash: Selection.Stash<BCS>) {
+    restoreStash(stash: Selection.Stash<BCS, SC>) {
         this.beginChange();
         try {
             this.clear();
@@ -196,7 +197,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    selectOnlyCell(x: number, y: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
+    selectOnlyCell(x: number, y: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             this.clear();
@@ -206,7 +207,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    selectCell(x: number, y: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
+    selectCell(x: number, y: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             if (subgrid !== this._subgrid) {
@@ -219,7 +220,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    deselectCellArea(x: number, y: number, subgrid: Subgrid<BCS>) {
+    deselectCellArea(x: number, y: number, subgrid: Subgrid<BCS, SC>) {
         const rectangle: Rectangle = {
             x,
             y,
@@ -229,7 +230,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         this.deselectRectangle(rectangle, subgrid);
     }
 
-    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
+    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             let area: SelectionArea;
@@ -284,7 +285,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
+    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>) {
         this.beginChange();
         try {
             this.clear();
@@ -294,7 +295,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>, silent = false) {
+    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>, silent = false) {
         this.beginChange();
         try {
             if (this.areaCount > 0) {
@@ -323,7 +324,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         return this._lastArea;
     }
 
-    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<BCS>) {
+    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<BCS, SC>) {
         if (subgrid === this._subgrid) {
             const index = this.rectangleList.findIndex(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
             if (index >= 0) {
@@ -336,7 +337,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    selectOnlyAllRows(subgrid: Subgrid<BCS>) {
+    selectOnlyAllRows(subgrid: Subgrid<BCS, SC>) {
         this.beginChange();
         if (subgrid !== this._subgrid || !this._allRowsSelected) {
             this._changed = true;
@@ -349,7 +350,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         this.endChange();
     }
 
-    selectAllRows(subgrid: Subgrid<BCS>) {
+    selectAllRows(subgrid: Subgrid<BCS, SC>) {
         this.beginChange();
         if (!this._allRowsSelected) {
             this._changed = true;
@@ -382,7 +383,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /** Parameters specify a rectangle in Data, the rows of which will be selected */
-    selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
+    selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>) {
         this.beginChange();
         try {
             if (subgrid !== this._subgrid) {
@@ -407,7 +408,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    deselectRows(y: number, count: number, subgrid: Subgrid<BCS>) {
+    deselectRows(y: number, count: number, subgrid: Subgrid<BCS, SC>) {
         if (subgrid === this._subgrid) {
             const changed = this.rows.delete(y, count);
             if (changed) {
@@ -443,11 +444,11 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid<BCS>) {
+    selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid<BCS, SC>) {
         this.selectRows(x, inexclusiveY, 1, 1, subgrid); // implement properly in future
     }
 
-    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS>) {
+    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS, SC>) {
         this.beginChange();
 
         if (subgrid !== this._subgrid) {
@@ -470,7 +471,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         return lastArea;
     }
 
-    deselectColumns(x: number, count: number, subgrid: Subgrid<BCS>) {
+    deselectColumns(x: number, count: number, subgrid: Subgrid<BCS, SC>) {
         if (subgrid === this._subgrid) {
             const changed = this.columns.delete(x, count);
             if (changed) {
@@ -506,11 +507,11 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid<BCS>) {
+    selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid<BCS, SC>) {
         this.selectColumns(inexclusiveX, y, 1, 1, subgrid); // implement properly in future
     }
 
-    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType) {
+    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -520,7 +521,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    replaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
+    replaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -530,7 +531,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    replaceLastAreaWithColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS>) {
+    replaceLastAreaWithColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS, SC>) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -540,7 +541,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    replaceLastAreaWithRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS>) {
+    replaceLastAreaWithRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>) {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -550,7 +551,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS>, areaType: SelectionAreaType): boolean {
+    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType): boolean {
         const cellCoveringSelectionAreas = this.getAreasCoveringCell(originX, originY, subgrid);
         const priorityCoveringArea = SelectionArea.getPriorityCellCoveringSelectionArea(cellCoveringSelectionAreas);
         if (priorityCoveringArea === undefined) {
@@ -588,7 +589,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * @summary Selection query function.
      * @returns The given cell is selected (part of an active selection).
      */
-    isCellSelected(x: number, y: number, subgrid: Subgrid<BCS>): boolean {
+    isCellSelected(x: number, y: number, subgrid: Subgrid<BCS, SC>): boolean {
         const { rowSelected, columnSelected, cellSelected } = this.getCellSelectedAreaTypes(x, y, subgrid);
         return (rowSelected || columnSelected || cellSelected);
     }
@@ -661,7 +662,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
     //     this.rectangleList.getFlattenedYs();
     // }
 
-    getAreasCoveringCell(x: number, y: number, subgrid: Subgrid<BCS> | undefined) {
+    getAreasCoveringCell(x: number, y: number, subgrid: Subgrid<BCS, SC> | undefined) {
         let result: SelectionArea[];
         if (subgrid !== undefined && subgrid !== this._subgrid) {
             result = [];
@@ -1124,8 +1125,8 @@ export namespace Selection {
         cellSelected: boolean;
     }
 
-    export interface Stash<BCS extends BehavioredColumnSettings> {
-        readonly subgrid: Subgrid<BCS> | undefined;
+    export interface Stash<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+        readonly subgrid: Subgrid<BCS, SC> | undefined;
         readonly allRowsSelected: boolean,
         readonly rowIds: unknown[] | undefined,
         readonly columnNames: string[] | undefined,

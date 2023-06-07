@@ -7,16 +7,17 @@ import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column } from '../../interfaces/schema/column';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { CellMetaSettingsImplementation } from '../../settings/cell-meta-settings-implementation';
 
-export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     constructor(
-        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
-        private readonly _subgridsManger: SubgridsManager<BGS, BCS>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
+        private readonly _subgridsManger: SubgridsManager<BGS, BCS, SC>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
     ) {
     }
     /**
@@ -28,7 +29,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      * @return The properties of the cell at x,y in the grid.
      */
     /** @internal */
-    getCellPropertiesAccessor(column: Column<BCS>, rowIndex: number, subgrid: Subgrid<BCS>): CellMetaSettings {
+    getCellPropertiesAccessor(column: Column<BCS, SC>, rowIndex: number, subgrid: Subgrid<BCS, SC>): CellMetaSettings {
         const cellOwnProperties = this.getCellOwnProperties(column, rowIndex, subgrid);
         return new CellMetaSettingsImplementation((cellOwnProperties ? cellOwnProperties : undefined), column.settings);
     }
@@ -39,7 +40,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      * @returns New cell properties object, based on column properties object, with `properties` copied to it.
      */
     /** @internal */
-    setCellOwnProperties(column: Column<BCS>, rowIndex: number, properties: MetaModel.CellOwnProperties | undefined, subgrid: Subgrid<BCS>) {
+    setCellOwnProperties(column: Column<BCS, SC>, rowIndex: number, properties: MetaModel.CellOwnProperties | undefined, subgrid: Subgrid<BCS, SC>) {
         let metadata = subgrid.getRowMetadata(rowIndex);
         if (properties === undefined) {
             if (metadata !== undefined) {
@@ -63,7 +64,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      * @returns Cell's own properties object, which will be created by this call if it did not already exist.
      */
     /** @internal */
-    addCellOwnProperties(column: Column<BCS>, rowIndex: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS>) {
+    addCellOwnProperties(column: Column<BCS, SC>, rowIndex: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SC>) {
         const columnKey = column.name as keyof MetaModel.RowMetadata;
         let metadata = subgrid.getRowMetadata(rowIndex);
         let existingProperties: MetaModel.CellOwnProperties | undefined;
@@ -105,7 +106,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `null`.
      */
     /** @internal */
-    getCellOwnProperties(column: Column<BCS>, rowIndex: number, subgrid: Subgrid<BCS>) {
+    getCellOwnProperties(column: Column<BCS, SC>, rowIndex: number, subgrid: Subgrid<BCS, SC>) {
         const metadata = subgrid.getRowMetadata(rowIndex);
         if (metadata === undefined) {
             return undefined;
@@ -120,7 +121,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      * @param rowIndex - Data row coordinate.
      */
     /** @internal */
-    deleteCellOwnProperties(column: Column<BCS>, rowIndex: number, subgrid: Subgrid<BCS>) {
+    deleteCellOwnProperties(column: Column<BCS, SC>, rowIndex: number, subgrid: Subgrid<BCS, SC>) {
         this.setCellOwnProperties(column, rowIndex, undefined, subgrid);
     }
 
@@ -131,13 +132,13 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      * @return The specified property for the cell at x,y in the grid.
      */
     /** @internal */
-    getCellProperty(column: Column<BCS>, rowIndex: number, key: string | number, subgrid: Subgrid<BCS>): MetaModel.CellOwnProperty;
-    getCellProperty<T extends keyof ColumnSettings>(column: Column<BCS>, rowIndex: number, key: T, subgrid: Subgrid<BCS>): ColumnSettings[T];
+    getCellProperty(column: Column<BCS, SC>, rowIndex: number, key: string | number, subgrid: Subgrid<BCS, SC>): MetaModel.CellOwnProperty;
+    getCellProperty<T extends keyof ColumnSettings>(column: Column<BCS, SC>, rowIndex: number, key: T, subgrid: Subgrid<BCS, SC>): ColumnSettings[T];
     getCellProperty<T extends keyof ColumnSettings>(
-        column: Column<BCS>,
+        column: Column<BCS, SC>,
         rowIndex: number,
         key: string | number | T,
-        subgrid: Subgrid<BCS>
+        subgrid: Subgrid<BCS, SC>
     ): MetaModel.CellOwnProperty | ColumnSettings[T] {
         const cellProperties = this.getCellPropertiesAccessor(column, rowIndex, subgrid);
         return cellProperties.get(key);
@@ -149,12 +150,12 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      */
     /** @internal */
     setCellProperty(
-        column: Column<BCS>,
+        column: Column<BCS, SC>,
         rowIndex: number,
         key: string,
         value: unknown | undefined,
-        subgrid: Subgrid<BCS>,
-        optionalCell: ViewCell<BCS> | undefined,
+        subgrid: Subgrid<BCS, SC>,
+        optionalCell: ViewCell<BCS, SC> | undefined,
     ) {
         let metadata = subgrid.getRowMetadata(rowIndex);
         let properties: MetaModel.CellOwnProperties | undefined;
@@ -186,7 +187,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
             optionalCell = this._viewLayout.findCellAtDataPoint(column.index, rowIndex, subgrid);
         }
         if (optionalCell !== undefined) {
-            (optionalCell as ViewCellImplementation<BGS, BCS>).clearCellOwnProperties();
+            (optionalCell as ViewCellImplementation<BGS, BCS, SC>).clearCellOwnProperties();
         }
 
         return properties;
@@ -198,7 +199,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      * @param rowIndex - Data row coordinate.
      */
     /** @internal */
-    deleteCellProperty(column: Column<BCS>, rowIndex: number, key: string, subgrid: Subgrid<BCS>) {
+    deleteCellProperty(column: Column<BCS, SC>, rowIndex: number, key: string, subgrid: Subgrid<BCS, SC>) {
         this.setCellProperty(column, rowIndex, key, undefined, subgrid, undefined);
     }
 
@@ -206,7 +207,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      * Clear all cell properties from all cells in this column.
      */
     /** @internal */
-    clearAllCellProperties(column: Column<BCS> | undefined) {
+    clearAllCellProperties(column: Column<BCS, SC> | undefined) {
         const subgrids = this._subgridsManger.subgrids;
         subgrids.forEach((subgrid) => {
             const rowCount = subgrid.getRowCount();
@@ -234,9 +235,9 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @return The properties of the cell at x,y in the grid or falsy if not available.
      */
-    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS>): MetaModel.CellOwnProperties | false | null | undefined{
+    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS, SC>): MetaModel.CellOwnProperties | false | null | undefined{
         // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
-        const viewCellImplementation = renderedCell as ViewCellImplementation<BGS, BCS>;
+        const viewCellImplementation = renderedCell as ViewCellImplementation<BGS, BCS, SC>;
         let cellOwnProperties = viewCellImplementation.cellOwnProperties;
         if (cellOwnProperties === undefined) {
             cellOwnProperties = this.getCellOwnProperties(renderedCell.viewLayoutColumn.column, renderedCell.viewLayoutRow.subgridRowIndex, renderedCell.subgrid);
@@ -245,7 +246,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
         return cellOwnProperties;
     }
 
-    getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS>, key: string): MetaModel.CellOwnProperty | undefined {
+    getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS, SC>, key: string): MetaModel.CellOwnProperty | undefined {
         const cellOwnProperties = this.getCellOwnPropertiesFromRenderedCell(renderedCell);
         if (cellOwnProperties) {
             return cellOwnProperties[key];
@@ -257,7 +258,13 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
 }
 
 export namespace CellPropertiesBehavior {
-    export type GetRowMetadataEventer<BCS extends BehavioredColumnSettings> = (this: void, rowIndex: number, subgrid: Subgrid<BCS>) => MetaModel.RowMetadata | undefined;
-    export type SetRowMetadataEventer<BCS extends BehavioredColumnSettings> = (this: void, rowIndex: number, subgrid: Subgrid<BCS>) => void;
+    export type GetRowMetadataEventer<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = (this: void, rowIndex: number, subgrid: Subgrid<BCS, SC>) => MetaModel.RowMetadata | undefined;
+    export type SetRowMetadataEventer<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = (this: void, rowIndex: number, subgrid: Subgrid<BCS, SC>) => void;
 
 }

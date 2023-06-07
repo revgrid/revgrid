@@ -1,12 +1,13 @@
 
 import { Subgrid } from '../../interfaces/data/subgrid';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
+export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
 
     readonly typeName = RowResizingUiBehavior.typeName;
 
@@ -38,7 +39,7 @@ export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
      * @desc return the width/height of the row/column of interest
      * @param index - the row/column index of interest
      */
-    private getAreaSize(index: number, subgrid: Subgrid<BCS>): number {
+    private getAreaSize(index: number, subgrid: Subgrid<BCS, SC>): number {
         return subgrid.getRowHeight(index);
     }
 
@@ -47,7 +48,7 @@ export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
      * @param index - the row/column index of interest
      * @param value - the width/height to set to
      */
-    private setAreaSize(index: number, value: number, subgrid: Subgrid<BCS>) {
+    private setAreaSize(index: number, value: number, subgrid: Subgrid<BCS, SC>) {
         this.rowPropertiesBehavior.setRowHeight(index, value, subgrid);
     }
 

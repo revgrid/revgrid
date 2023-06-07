@@ -5,7 +5,7 @@ import { RevRecordStore } from './rev-record-store';
 import { RevRecordFieldIndex } from './rev-record-types';
 
 /** @public */
-export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> implements SchemaServer<BCS> {
+export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> implements SchemaServer<BCS, RevRecordField.SchemaColumn<BCS>> {
     /** @internal */
     fieldListChangedEventer: ListChangedEventHandler | undefined;
 
@@ -175,7 +175,7 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
         return this._fieldValueDependsOnRecordIndexFieldIndexes;
     }
 
-    getSchema(): readonly SchemaServer.Column<BCS>[] {
+    getSchema(): readonly RevRecordField.SchemaColumn<BCS>[] {
         return this._schema;
     }
 

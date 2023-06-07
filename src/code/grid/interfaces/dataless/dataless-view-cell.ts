@@ -1,12 +1,13 @@
 import { Rectangle } from '../../types-utils/rectangle';
+import { SchemaServer } from '../schema/schema-server';
 import { ViewLayoutColumn } from '../schema/view-layout-column';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { DatalessSubgrid } from './dataless-subgrid';
 import { DatalessViewLayoutRow } from './dataless-view-layout-row';
 
 /** @public */
-export interface DatalessViewCell<BCS extends BehavioredColumnSettings> {
-    readonly viewLayoutColumn: ViewLayoutColumn<BCS>;
+export interface DatalessViewCell<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+    readonly viewLayoutColumn: ViewLayoutColumn<BCS, SC>;
     readonly subgrid: DatalessSubgrid;
     readonly viewLayoutRow: DatalessViewLayoutRow;
 
@@ -36,7 +37,7 @@ export interface DatalessViewCell<BCS extends BehavioredColumnSettings> {
 export namespace DatalessViewCell {
     export type PaintFingerprint = Record<string, unknown>;
 
-    export function sameByDataPoint<BCS extends BehavioredColumnSettings>(left: DatalessViewCell<BCS>, right: DatalessViewCell<BCS>) {
+    export function sameByDataPoint<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>>(left: DatalessViewCell<BCS, SC>, right: DatalessViewCell<BCS, SC>) {
         return (
             left.viewLayoutRow.subgridRowIndex === right.viewLayoutRow.subgridRowIndex &&
             left.viewLayoutColumn.column.index === right.viewLayoutColumn.column.index &&

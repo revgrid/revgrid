@@ -10,6 +10,7 @@ import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
@@ -27,7 +28,7 @@ import { UiBehaviorSharedState } from './ui-behavior-shared-state';
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @public
  */
-export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     abstract readonly typeName: string;
 
     protected readonly sharedState: UiBehaviorSharedState;
@@ -35,26 +36,26 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     protected readonly gridSettings: GridSettings;
     protected readonly canvasManager: CanvasManager<BGS>;
-    protected readonly selection: Selection<BGS, BCS>;
-    protected readonly focus: Focus<BGS, BCS>;
-    protected readonly columnsManager: ColumnsManager<BGS, BCS>;
-    protected readonly subgridsManager: SubgridsManager<BGS, BCS>;
-    protected readonly viewLayout: ViewLayout<BGS, BCS>;
-    protected readonly renderer: Renderer<BGS, BCS>;
-    protected readonly reindexBehavior: ReindexBehavior<BGS, BCS>;
+    protected readonly selection: Selection<BGS, BCS, SC>;
+    protected readonly focus: Focus<BGS, BCS, SC>;
+    protected readonly columnsManager: ColumnsManager<BGS, BCS, SC>;
+    protected readonly subgridsManager: SubgridsManager<BGS, BCS, SC>;
+    protected readonly viewLayout: ViewLayout<BGS, BCS, SC>;
+    protected readonly renderer: Renderer<BGS, BCS, SC>;
+    protected readonly reindexBehavior: ReindexBehavior<BGS, BCS, SC>;
 
-    protected readonly mouse: Mouse<BGS, BCS>;
+    protected readonly mouse: Mouse<BGS, BCS, SC>;
 
-    protected readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS>;
-    protected readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS>;
-    protected readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS>;
-    protected readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS>;
-    protected readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS>;
-    protected readonly eventBehavior: EventBehavior<BGS, BCS>;
+    protected readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SC>;
+    protected readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SC>;
+    protected readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SC>;
+    protected readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SC>;
+    protected readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SC>;
+    protected readonly eventBehavior: EventBehavior<BGS, BCS, SC>;
 
-    protected readonly mainSubgrid: MainSubgrid<BCS>;
+    protected readonly mainSubgrid: MainSubgrid<BCS, SC>;
 
-    constructor(services: UiBehaviorServices<BGS, BCS>) {
+    constructor(services: UiBehaviorServices<BGS, BCS, SC>) {
         this.sharedState = services.sharedState;
         this.containerHtmlElement = services.containerHtmlElement;
 
@@ -83,18 +84,18 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     /**
      * the next feature to be given a chance to handle incoming events
      */
-    next: UiBehavior<BGS, BCS> | undefined;
+    next: UiBehavior<BGS, BCS, SC> | undefined;
 
     /**
      * a temporary holding field for my next feature when I'm in a disconnected state
      */
-    detached: UiBehavior<BGS, BCS> | undefined;
+    detached: UiBehavior<BGS, BCS, SC> | undefined;
 
     /**
      * @desc set my next field, or if it's populated delegate to the feature in my next field
      * @param nextFeature - this is how we build the chain of responsibility
      */
-    setNext(nextFeature: UiBehavior<BGS, BCS>) {
+    setNext(nextFeature: UiBehavior<BGS, BCS, SC>) {
         if (this.next !== undefined) {
             this.next.setNext(nextFeature);
         } else {
@@ -134,7 +135,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handlePointerMove(event, hoverCell);
         } else {
@@ -143,7 +144,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handlePointerLeaveOut(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handlePointerLeaveOut(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handlePointerLeaveOut(event, hoverCell);
         } else {
@@ -152,7 +153,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handlePointerEnter(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handlePointerEnter(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handlePointerEnter(event, hoverCell);
         } else {
@@ -161,7 +162,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDown(event, hoverCell);
         } else {
@@ -170,7 +171,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handlePointerUpCancel(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handlePointerUpCancel(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handlePointerUpCancel(event, hoverCell);
         } else {
@@ -179,7 +180,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handleWheelMove(event: WheelEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handleWheelMove(event: WheelEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handleWheelMove(event, hoverCell);
         } else {
@@ -188,7 +189,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handleDblClick(event, hoverCell);
         } else {
@@ -197,7 +198,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handleClick(event, hoverCell);
         } else {
@@ -206,7 +207,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS> {
+    handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS, SC> {
         if (this.next) {
             return this.next.handlePointerDragStart(event, hoverCell);
         } else {
@@ -218,7 +219,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handlePointerDrag(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handlePointerDrag(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDrag(event, hoverCell);
         } else {
@@ -227,7 +228,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handlePointerDragEnd(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handlePointerDragEnd(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDragEnd(event, hoverCell);
         } else {
@@ -236,7 +237,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handleContextMenu(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined): LinedHoverCell<BCS> | null | undefined {
+    handleContextMenu(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
         if (this.next) {
             return this.next.handleContextMenu(event, hoverCell);
         } else {
@@ -294,7 +295,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS> | null {
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SC> | null {
         const cell = this.viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
         if (cell === undefined) {
             return null;
@@ -306,10 +307,14 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
 
 /** @public */
 export namespace UiBehavior {
-    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> = new (services: UiBehaviorServices<BGS, BCS>) => UiBehavior<BGS, BCS>;
+    export type Constructor<
+        BGS extends BehavioredGridSettings,
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = new (services: UiBehaviorServices<BGS, BCS, SC>) => UiBehavior<BGS, BCS, SC>;
 
-    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
         typeName: string;
-        constructor: Constructor<BGS, BCS>;
+        constructor: Constructor<BGS, BCS, SC>;
     }
 }

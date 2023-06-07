@@ -1,5 +1,5 @@
 
-import { CellPainter, Rectangle } from '../../grid/grid-public-api';
+import { CellPainter, Rectangle, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -8,7 +8,11 @@ import { StandardCellPainter } from './standard-cell-painter';
  * Currently however the user cannot interact with it.
  * @public
  */
-export class StandardSliderCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardCellPainter<BGS, BCS> {
+export class StandardSliderCellPainter<
+    BGS extends StandardBehavioredGridSettings,
+    BCS extends StandardBehavioredColumnSettings,
+    SC extends SchemaServer.Column<BCS>
+> extends StandardCellPainter<BGS, BCS, SC> {
     config: StandardSliderCellPainter.Config;
 
     override paint(_prefillColor: string | undefined): number | undefined {

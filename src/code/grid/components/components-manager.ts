@@ -14,15 +14,15 @@ import { SubgridsManager } from './subgrid/subgrids-manager';
 import { ViewLayout } from './view/view-layout';
 
 /** @internal */
-export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     readonly canvasManager: CanvasManager<BGS>;
-    readonly focus: Focus<BGS, BCS>;
-    readonly selection: Selection<BGS, BCS>;
-    readonly columnsManager: ColumnsManager<BGS, BCS>;
-    readonly subgridsManager: SubgridsManager<BGS, BCS>;
-    readonly viewLayout: ViewLayout<BGS, BCS>;
-    readonly renderer: Renderer<BGS, BCS>;
-    readonly mouse: Mouse<BGS, BCS>;
+    readonly focus: Focus<BGS, BCS, SC>;
+    readonly selection: Selection<BGS, BCS, SC>;
+    readonly columnsManager: ColumnsManager<BGS, BCS, SC>;
+    readonly subgridsManager: SubgridsManager<BGS, BCS, SC>;
+    readonly viewLayout: ViewLayout<BGS, BCS, SC>;
+    readonly renderer: Renderer<BGS, BCS, SC>;
+    readonly mouse: Mouse<BGS, BCS, SC>;
 
     readonly horizontalScroller: Scroller<BGS>;
     readonly verticalScroller: Scroller<BGS>;
@@ -30,8 +30,8 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
     constructor(
         gridSettings: BGS,
         containerHtmlElement: HTMLElement,
-        schemaServer: SchemaServer<BCS>,
-        subgridDefinitions: Subgrid.Definition<BCS>[],
+        schemaServer: SchemaServer<BCS, SC>,
+        subgridDefinitions: Subgrid.Definition<BCS, SC>[],
         canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
         loadBuiltinFinbarStylesheet: boolean,
     ) {
@@ -47,7 +47,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             gridSettings,
         );
 
-        this.columnsManager = new ColumnsManager<BGS, BCS>(
+        this.columnsManager = new ColumnsManager<BGS, BCS, SC>(
             schemaServer,
             gridSettings,
         );
@@ -168,7 +168,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         this.subgridsManager.destroy();
     }
 
-    getValue(x: number, y: number, subgrid: Subgrid<BCS>) {
+    getValue(x: number, y: number, subgrid: Subgrid<BCS, SC>) {
         const column = this.columnsManager.getActiveColumn(x);
         const schemaColumn = column.schemaColumn;
         const dataServer = subgrid.dataServer;
@@ -185,7 +185,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param value - New cell data.
      * @param subgrid - `x` and `y` are _data cell coordinates_ in the given subgrid data model. If If omitted, `x` and `y` are _grid cell coordinates._
      */
-    setValue(x: number, y: number, value: unknown, subgrid: Subgrid<BCS>) {
+    setValue(x: number, y: number, value: unknown, subgrid: Subgrid<BCS, SC>) {
         const dataServer = subgrid.dataServer;
         if (dataServer.setValue === undefined) {
             throw new AssertError('BSV32220');

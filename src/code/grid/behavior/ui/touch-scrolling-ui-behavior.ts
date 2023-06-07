@@ -1,13 +1,14 @@
 
 import { ScrollDimension } from '../../components/view/scroll-dimension';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
+export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
 
     readonly typeName = TouchScrollingUiBehavior.typeName;
 
@@ -24,11 +25,11 @@ export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
         }
     }
 
-    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
         return cell;
     }
 
-    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
         return cell;
     }
 

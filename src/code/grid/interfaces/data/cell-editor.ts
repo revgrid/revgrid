@@ -1,11 +1,15 @@
 import { Rectangle } from '../../types-utils/rectangle';
+import { SchemaServer } from '../schema/schema-server';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { CellPainter } from './cell-painter';
 import { DataServer } from './data-server';
 import { ViewCell } from './view-cell';
 
 /** @public */
-export interface CellEditor<BCS extends BehavioredColumnSettings> extends CellPainter {
+export interface CellEditor<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends CellPainter {
+    /** Indicates if editor can only display data */
+    readonly readonly: boolean;
+
     /** If true, then CellPaint.paint() function should be used to paint cells - otherwise it can be ignored */
     readonly paintImplemented: boolean;
 
@@ -29,13 +33,15 @@ export interface CellEditor<BCS extends BehavioredColumnSettings> extends CellPa
     /** If true, editor wants to handle End key instead of grid */
     readonly wantEnd?: boolean;
 
-    // painting and positioning of control
-    /** Close the editor */
+    /** Provide the initial data to the editor. This is done after all events have been subscribed to - so editor can start running */
+    open(initialData: DataServer.DataValue): void;
+    /** Close the editor - returns data that was in editor or undefined if cancel specified */
     close(cancel: boolean): DataServer.DataValue | undefined;
-    /** Implement if editor wants to be notified if is removed from view (but still exists). Typically a HTML Input element editor would use this to hide itself */
-    hide?(): void;
-    /** Implement if editor paints itself (eg a HTML Input element) and only needs positioning */
-    setBounds?(bounds: Rectangle): void;
+
+    /** Implement if editor paints itself (eg a HTML Input element). If bounds is undefined, then editor is hidden */
+    setBounds?(bounds: Rectangle | undefined): void;
+    /** Implement if editor can be focused. */
+    focus?(): void;
 
     // UI events
     /** Implement if editor wants key down events */
@@ -44,18 +50,15 @@ export interface CellEditor<BCS extends BehavioredColumnSettings> extends CellPa
     keyUp?(event: KeyboardEvent): void;
 
     /** Implement if editor wants mouse click events */
-    click?(event: MouseEvent, cell: ViewCell<BCS> | undefined): void;
+    click?(event: MouseEvent, cell: ViewCell<BCS, SC> | undefined): void;
     /** Implement if editor wants mouse double click events */
-    dblClick?(event: MouseEvent, cell: ViewCell<BCS> | undefined): void;
+    dblClick?(event: MouseEvent, cell: ViewCell<BCS, SC> | undefined): void;
     /** Implement if editor wants mouse down events */
-    mouseDown?(event: MouseEvent, cell: ViewCell<BCS> | undefined): void;
+    mouseDown?(event: MouseEvent, cell: ViewCell<BCS, SC> | undefined): void;
     /** Implement if editor wants mouse up events */
-    mouseUp?(event: MouseEvent, cell: ViewCell<BCS> | undefined): void;
+    mouseUp?(event: MouseEvent, cell: ViewCell<BCS, SC> | undefined): void;
     /** Implement if editor wants wheel move events */
-    wheelMove?(event: WheelEvent, cell: ViewCell<BCS> | undefined): void;
-
-    /** Provide the initial data to the editor. This is done after all events have been subscribed to - so editor can start running */
-    initialise(initialData: DataServer.DataValue): void;
+    wheelMove?(event: WheelEvent, cell: ViewCell<BCS, SC> | undefined): void;
 
     /** Server data has changed since being provided to editor or pulled by editor */
     invalidateData?(): void;

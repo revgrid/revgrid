@@ -1,9 +1,10 @@
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class ClipboardUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
+export class ClipboardUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
     readonly typeName = ClipboardUiBehavior.typeName;
 
     override handleCopy(eventDetail: ClipboardEvent) {

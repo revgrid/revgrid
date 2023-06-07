@@ -1,10 +1,11 @@
 import { ViewCell } from '../../interfaces/data/view-cell';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 
-export class RenderActionQueue<BCS extends BehavioredColumnSettings> {
+export class RenderActionQueue<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     actionsQueuedEventer: RenderActioner.ActionsQueuedEventer;
 
     private _queuedActions: RenderAction[] = [];
@@ -103,7 +104,7 @@ export class RenderActionQueue<BCS extends BehavioredColumnSettings> {
         }
     }
 
-    invalidateViewCellRender(_cell: ViewCell<BCS>) {
+    invalidateViewCellRender(_cell: ViewCell<BCS, SC>) {
         this.beginChange();
         try {
             this.queuePaintAllAction();

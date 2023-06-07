@@ -1,6 +1,6 @@
 
 import {
-    IndexSignatureHack
+    IndexSignatureHack, SchemaServer
 } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardTextCellPainter } from './standard-text-cell-painter';
@@ -15,7 +15,11 @@ import { StandardTextCellPainter } from './standard-text-cell-painter';
  * Clipping bounds are not set here as this is also an expensive operation. Instead, we employ a number of strategies to truncate overflowing text and content.
  * @public
  */
-export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardTextCellPainter<BGS, BCS> {
+export class StandardHeaderTextCellPainter<
+    BGS extends StandardBehavioredGridSettings,
+    BCS extends StandardBehavioredColumnSettings,
+    SC extends SchemaServer.Column<BCS>
+> extends StandardTextCellPainter<BGS, BCS, SC> {
     textWrapping = false;
 
     override paint(prefillColor: string | undefined): number | undefined {

@@ -2,16 +2,17 @@ import { ColumnsManager } from '../../components/column/columns-manager';
 import { Selection } from '../../components/selection/selection';
 import { DataServer } from '../../interfaces/data/data-server';
 import { Column } from '../../interfaces/schema/column';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType } from '../../types-utils/types';
 
 /** @public */
-export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     constructor(
-        private readonly _selection: Selection<BGS, BCS>,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        private readonly _selection: Selection<BGS, BCS, SC>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
     ) {
 
     }
@@ -279,7 +280,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
      * * `string` - name of a column from the all column list
      * @internal
      */
-    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<BCS>[] {
+    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<BCS, SC>[] {
         const allColumns = this._columnsManager.allColumns;
         const activeColumns = this._columnsManager.activeColumns;
 
@@ -287,7 +288,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
             return activeColumns;
         } else {
             if (Array.isArray(hiddenColumns)) {
-                let columns: Column<BCS>[] = [];
+                let columns: Column<BCS, SC>[] = [];
                 hiddenColumns.forEach((index: number | string) => {
                     const key = typeof index === 'number' ? 'index' : 'name';
                     const column = allColumns.find((allColumn) => { return allColumn[key] === index; });

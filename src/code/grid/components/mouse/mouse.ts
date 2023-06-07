@@ -1,4 +1,5 @@
 import { ViewCell } from '../../interfaces/data/view-cell';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../../types-utils/point';
@@ -7,19 +8,19 @@ import { EventDetail } from '../event/event-detail';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     /** @internal */
-    cellEnteredEventer: Mouse.CellEnteredExitedEventer<BCS>;
+    cellEnteredEventer: Mouse.CellEnteredExitedEventer<BCS, SC>;
     /** @internal */
-    cellExitedEventer: Mouse.CellEnteredExitedEventer<BCS>;
+    cellExitedEventer: Mouse.CellEnteredExitedEventer<BCS, SC>;
     /** @internal */
-    viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer<BCS>;
+    viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer<BCS, SC>;
     /** @internal */
     private _activeDragType: EventDetail.DragTypeEnum | undefined;
     /** @internal */
     private _canvasOffsetPoint: Point | undefined;
     /** @internal */
-    private _hoverCell: ViewCell<BCS> | undefined;
+    private _hoverCell: ViewCell<BCS, SC> | undefined;
     /** @internal */
     private _operationCursorName: string | undefined; // gets priority over hover cell and location cursor
     /** @internal */
@@ -34,7 +35,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
     ) {
         this._viewLayout.cellPoolComputedEventerForMouse = () => this.processViewLayoutComputed();
     }
@@ -53,7 +54,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell<BCS> | undefined) {
+    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell<BCS, SC> | undefined) {
         this._canvasOffsetPoint = canvasOffsetPoint;
         this.updateHoverCell(cell, true);
     }
@@ -83,7 +84,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private processViewLayoutComputed() {
-        let newHoverCell: ViewCell<BCS> | undefined;
+        let newHoverCell: ViewCell<BCS, SC> | undefined;
         const canvasOffsetPoint = this._canvasOffsetPoint;
         if (canvasOffsetPoint === undefined) {
             newHoverCell = undefined;
@@ -95,7 +96,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private updateHoverCell(cell: ViewCell<BCS> | undefined, invalidateViewCellRender: boolean) {
+    private updateHoverCell(cell: ViewCell<BCS, SC> | undefined, invalidateViewCellRender: boolean) {
         const existingHoverCell = this._hoverCell;
         if (cell === undefined) {
             if (existingHoverCell !== undefined) {
@@ -214,8 +215,8 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 /** @public */
 export namespace Mouse {
     /** @internal */
-    export type CellEnteredExitedEventer<BCS extends BehavioredColumnSettings> = (this: void, cell: ViewCell<BCS>) => void;
-    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings> = (this: void, cell: ViewCell<BCS>) => void;
+    export type CellEnteredExitedEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, cell: ViewCell<BCS, SC>) => void;
+    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, cell: ViewCell<BCS, SC>) => void;
 
     /** @internal */
     export interface CursorNameAndTitleText {

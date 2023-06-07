@@ -2,6 +2,7 @@ import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { EventDetail } from '../../components/event/event-detail';
 import { CellEditor } from '../../interfaces/data/cell-editor';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { KeyboardEventKey } from '../../types-utils/html-types';
@@ -10,10 +11,10 @@ import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends UiBehavior<BGS, BCS> {
+export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
     readonly typeName = FocusScrollUiBehavior.typeName;
 
-    override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+    override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -26,7 +27,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         return super.handlePointerDown(event, hoverCell);
     }
 
-    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS> | null | undefined) {
+    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -194,7 +195,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         // }
     }
 
-    override handleWheelMove(event: WheelEvent, cell: LinedHoverCell<BCS> | null | undefined) {
+    override handleWheelMove(event: WheelEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
         const gridSettings = this.gridSettings;
         if (gridSettings.scrollingEnabled) {
             const deltaX = event.deltaX;
@@ -284,7 +285,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         }
     }
 
-    private checkDivertToEditor(eventDetail: EventDetail.Keyboard, wantProperty: keyof CellEditor<BCS>): boolean {
+    private checkDivertToEditor(eventDetail: EventDetail.Keyboard, wantProperty: keyof CellEditor<BCS, SC>): boolean {
         const editor = this.focus.editor;
         if (editor !== undefined && editor[wantProperty] && editor.keyDown !== undefined) {
             editor.keyDown(eventDetail);

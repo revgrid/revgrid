@@ -1,6 +1,6 @@
 import { Column, DataServer, SchemaServer, StandardBehavioredColumnSettings } from '..';
 import { MainRecord } from './main-record';
-import { SchemaServerImplementation } from './schema-adapter';
+import { SchemaServerImplementation } from './schema-server-implementation';
 
 export class MainDataServer implements DataServer<StandardBehavioredColumnSettings> {
     private readonly _data: MainRecord[] = [];
@@ -58,7 +58,7 @@ export class MainDataServer implements DataServer<StandardBehavioredColumnSettin
         }
     }
 
-    sort(column: Column<StandardBehavioredColumnSettings>) {
+    sort(column: Column<StandardBehavioredColumnSettings, SchemaServerImplementation.Column>) {
         this._notificationsClient.preReindex();
         try {
             const schemaColumn = column.schemaColumn as SchemaServerImplementation.Column;

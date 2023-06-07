@@ -14,8 +14,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _addToggleSelectionAreaModifierKey: ModifierKeyEnum;
     private _addToggleSelectionAreaModifierKeyDoesToggle: boolean;
     private _backgroundColor: GridSettings.Color;
-    private _borderWidth: number;
-    private _borderColor: string;
     private _color: GridSettings.Color;
     private _defaultColumnAutosizing: boolean;
     private _columnAutosizingMax: number | undefined;
@@ -61,11 +59,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _fixedLinesVWidth: number | undefined;
     private _fixedRowCount: number;
     private _gridRightAligned: boolean;
-    private _gridBorder: boolean | string;
-    private _gridBorderBottom: boolean | string;
-    private _gridBorderLeft: boolean | string;
-    private _gridBorderRight: boolean | string;
-    private _gridBorderTop: boolean | string;
     private _verticalGridLinesVisible: boolean;
     private _gridLinesH: boolean;
     private _gridLinesHColor: GridSettings.Color;
@@ -130,22 +123,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._backgroundColor) {
             this._backgroundColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.backgroundColor;
-            this.invalidateByType(invalidateType);
-        }
-    }
-    get borderWidth() { return this._borderWidth; }
-    set borderWidth(value: number) {
-        if (value !== this._borderWidth) {
-            this._borderWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.borderWidth;
-            this.invalidateByType(invalidateType);
-        }
-    }
-    get borderColor() { return this._borderColor; }
-    set borderColor(value: string) {
-        if (value !== this._borderColor) {
-            this._borderColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.borderColor;
             this.invalidateByType(invalidateType);
         }
     }
@@ -509,46 +486,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.invalidateByType(invalidateType);
         }
     }
-    get gridBorder() { return this._gridBorder; }
-    set gridBorder(value: boolean | string) {
-        if (value !== this._gridBorder) {
-            this._gridBorder = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.gridBorder;
-            this.invalidateByType(invalidateType);
-        }
-    }
-    get gridBorderBottom() { return this._gridBorderBottom; }
-    set gridBorderBottom(value: boolean | string) {
-        if (value !== this._gridBorderBottom) {
-            this._gridBorderBottom = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.gridBorderBottom;
-            this.invalidateByType(invalidateType);
-        }
-    }
-    get gridBorderLeft() { return this._gridBorderLeft; }
-    set gridBorderLeft(value: boolean | string) {
-        if (value !== this._gridBorderLeft) {
-            this._gridBorderLeft = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.gridBorderLeft;
-            this.invalidateByType(invalidateType);
-        }
-    }
-    get gridBorderRight() { return this._gridBorderRight; }
-    set gridBorderRight(value: boolean | string) {
-        if (value !== this._gridBorderRight) {
-            this._gridBorderRight = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.gridBorderRight;
-            this.invalidateByType(invalidateType);
-        }
-    }
-    get gridBorderTop() { return this._gridBorderTop; }
-    set gridBorderTop(value: boolean | string) {
-        if (value !== this._gridBorderTop) {
-            this._gridBorderTop = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.gridBorderTop;
-            this.invalidateByType(invalidateType);
-        }
-    }
     get verticalGridLinesVisible() { return this._verticalGridLinesVisible; }
     set verticalGridLinesVisible(value: boolean) {
         if (value !== this._verticalGridLinesVisible) {
@@ -900,12 +837,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                 case 'backgroundColor':
                     this._backgroundColor = settings.backgroundColor;
                     break;
-                case 'borderWidth':
-                    this._borderWidth = settings.borderWidth;
-                    break;
-                case 'borderColor':
-                    this._borderColor = settings.borderColor;
-                    break;
                 case 'color':
                     this._color = settings.color;
                     break;
@@ -1040,21 +971,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     break;
                 case 'gridRightAligned':
                     this._gridRightAligned = settings.gridRightAligned;
-                    break;
-                case 'gridBorder':
-                    this._gridBorder = settings.gridBorder;
-                    break;
-                case 'gridBorderBottom':
-                    this._gridBorderBottom = settings.gridBorderBottom;
-                    break;
-                case 'gridBorderLeft':
-                    this._gridBorderLeft = settings.gridBorderLeft;
-                    break;
-                case 'gridBorderRight':
-                    this._gridBorderRight = settings.gridBorderRight;
-                    break;
-                case 'gridBorderTop':
-                    this._gridBorderTop = settings.gridBorderTop;
                     break;
                 case 'verticalGridLinesVisible':
                     this._verticalGridLinesVisible = settings.verticalGridLinesVisible;

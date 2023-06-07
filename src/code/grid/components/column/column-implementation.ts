@@ -6,8 +6,8 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 
 /** @internal */
-export class ColumnImplementation<BCS extends BehavioredColumnSettings> implements Column<BCS> {
-    readonly schemaColumn: SchemaServer.Column<BCS>;
+export class ColumnImplementation<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> implements Column<BCS, SC> {
+    readonly schemaColumn: SC;
     readonly index: number; // always the same as SchemaColumn index
     readonly name: string;
 
@@ -28,7 +28,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings> implemen
      */
     /** @internal */
     constructor(
-        schemaColumn: SchemaServer.Column<BCS>,
+        schemaColumn: SC,
         private readonly _horizontalViewLayoutInvalidatedEventer: ColumnImplementation.HorizontalViewLayoutInvalidatedEventer,
     ) {
         this.index = schemaColumn.index;

@@ -7,6 +7,7 @@ import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
@@ -38,30 +39,30 @@ import { ServerNotificationBehavior } from './server-notification-behavior';
  * @abstract
  */
 /** @internal */
-export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
-    readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS>;
-    readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS>;
-    readonly eventBehavior: EventBehavior<BGS, BCS>;
-    readonly reindexBehavior: ReindexBehavior<BGS, BCS>;
-    readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS>;
-    readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS>;
-    readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS>;
+export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+    readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SC>;
+    readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SC>;
+    readonly eventBehavior: EventBehavior<BGS, BCS, SC>;
+    readonly reindexBehavior: ReindexBehavior<BGS, BCS, SC>;
+    readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SC>;
+    readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SC>;
+    readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SC>;
 
-    private readonly _serverNotificationBehavior: ServerNotificationBehavior<BGS, BCS>;
+    private readonly _serverNotificationBehavior: ServerNotificationBehavior<BGS, BCS, SC>;
 
     constructor(
         gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
-        columnsManager: ColumnsManager<BGS, BCS>,
-        subgridsManager: SubgridsManager<BGS, BCS>,
-        viewLayout: ViewLayout<BGS, BCS>,
-        focus: Focus<BGS, BCS>,
-        selection: Selection<BGS, BCS>,
-        mouse: Mouse<BGS, BCS>,
-        renderer: Renderer<BGS, BCS>,
+        columnsManager: ColumnsManager<BGS, BCS, SC>,
+        subgridsManager: SubgridsManager<BGS, BCS, SC>,
+        viewLayout: ViewLayout<BGS, BCS, SC>,
+        focus: Focus<BGS, BCS, SC>,
+        selection: Selection<BGS, BCS, SC>,
+        mouse: Mouse<BGS, BCS, SC>,
+        renderer: Renderer<BGS, BCS, SC>,
         horizontalScroller: Scroller<BGS>,
         verticalScroller: Scroller<BGS>,
-        descendantEventer: EventBehavior.DescendantEventer<BCS>,
+        descendantEventer: EventBehavior.DescendantEventer<BCS, SC>,
     ) {
         this.eventBehavior = new EventBehavior(
             gridSettings.eventDispatchEnabled,

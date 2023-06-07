@@ -1,5 +1,5 @@
 
-import { Rectangle } from '../../grid/grid-public-api';
+import { Rectangle, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -7,7 +7,11 @@ import { StandardCellPainter } from './standard-cell-painter';
  * Renders a bar chart sparkline, hence the name.
  * @public
  */
-export class StandardSparkBarCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardCellPainter<BGS, BCS> {
+export class StandardSparkBarCellPainter<
+    BGS extends StandardBehavioredGridSettings,
+    BCS extends StandardBehavioredColumnSettings,
+    SC extends SchemaServer.Column<BCS>
+> extends StandardCellPainter<BGS, BCS, SC> {
     config: StandardSparkBarCellPainter.Config;
 
     override paint(_prefillColor: string | undefined): number | undefined {

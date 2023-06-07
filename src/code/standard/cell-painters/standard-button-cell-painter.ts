@@ -1,5 +1,5 @@
 
-import { CellPainter, Rectangle } from '../../grid/grid-public-api';
+import { CellPainter, Rectangle, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -7,7 +7,11 @@ import { StandardCellPainter } from './standard-cell-painter';
  * The default cell rendering function for a button cell.
  * @public
  */
-export class StandardButtonCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardCellPainter<BGS, BCS> {
+export class StandardButtonCellPainter<
+    BGS extends StandardBehavioredGridSettings,
+    BCS extends StandardBehavioredColumnSettings,
+    SC extends SchemaServer.Column<BCS>
+> extends StandardCellPainter<BGS, BCS, SC> {
     config: StandardButtonCellPainter.Config;
 
     override paint(_prefillColor: string | undefined): number | undefined {

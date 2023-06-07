@@ -12,9 +12,9 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ReindexBehavior } from './reindex-behavior';
 
-export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
-    private readonly _schemaServer: SchemaServer<BCS>;
-    private readonly _subgrids: SubgridImplementation<BGS, BCS>[];
+export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+    private readonly _schemaServer: SchemaServer<BCS, SC>;
+    private readonly _subgrids: SubgridImplementation<BGS, BCS, SC>[];
     private readonly _mainDataServer: DataServer<BCS>;
 
     private _destroyed = false;
@@ -33,13 +33,13 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     constructor(
-        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS>,
-        private readonly _focus: Focus<BGS, BCS>,
-        private readonly _selection: Selection<BGS, BCS>,
-        private readonly _renderer: Renderer<BGS, BCS>,
-        private readonly _reindexStashManager: ReindexBehavior<BGS, BCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SC>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
+        private readonly _focus: Focus<BGS, BCS, SC>,
+        private readonly _selection: Selection<BGS, BCS, SC>,
+        private readonly _renderer: Renderer<BGS, BCS, SC>,
+        private readonly _reindexStashManager: ReindexBehavior<BGS, BCS, SC>,
     ) {
         this._schemaServer = this._columnsManager.schemaServer;
         this._subgrids = this._subgridsManager.subgridImplementations;
@@ -430,7 +430,10 @@ export namespace ServerNotificationBehavior {
     export type InvalidateCellEvent = (this: void, schemaColumnIndex: number, rowIndex: number) => void;
     export type PreReindexEvent = (this: void) => void;
     export type PostReindexEvent = (this: void) => void;
-    export type GridEvent<BCS extends BehavioredColumnSettings> = <T extends EventName<BCS>>(this: void, eventName: T, eventDetail: EventName.DetailMap<BCS>[T] | undefined) => void;
+    export type GridEvent<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = <T extends EventName<BCS, SC>>(this: void, eventName: T, eventDetail: EventName.DetailMap<BCS, SC>[T] | undefined) => void;
 
     export type SchemaUpdatedListener = (this: void) => void;
 }

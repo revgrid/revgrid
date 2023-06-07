@@ -10,8 +10,6 @@ export interface GridSettings {
     /** Specifies whether the addToggleSelectionAreaModifierKey toggles.  If if does not toggle, then it adds */
     readonly addToggleSelectionAreaModifierKeyDoesToggle: boolean;
     readonly backgroundColor: GridSettings.Color;
-    readonly borderWidth: number;
-    readonly borderColor: string;
     readonly color: GridSettings.Color;
     /** The widest the column will be auto-sized to. */
     readonly columnAutosizingMax: number | undefined;
@@ -109,11 +107,6 @@ export interface GridSettings {
      * So last column is always visible and the first one visible is dependent on the width of the canvas
      */
     readonly gridRightAligned: boolean;
-    readonly gridBorder: boolean | string;
-    readonly gridBorderBottom: boolean | string;
-    readonly gridBorderLeft: boolean | string;
-    readonly gridBorderRight: boolean | string;
-    readonly gridBorderTop: boolean | string;
     readonly verticalGridLinesVisible: boolean;
     /** Enable rendering of horizontal grid lines. */
     readonly gridLinesH: boolean;

@@ -1,7 +1,7 @@
 import { AssertError, BehavioredColumnSettings, SchemaServer } from '../../grid/grid-public-api';
 
 /** @public */
-export class RevSimpleSchemaServer<BCS extends BehavioredColumnSettings> implements SchemaServer<BCS> {
+export class RevSimpleSchemaServer<BCS extends BehavioredColumnSettings> implements SchemaServer<BCS, RevSimpleSchemaServer.Column<BCS>> {
     private _schemaCallbackListeners: SchemaServer.NotificationsClient<BCS>[] = [];
     private _columns = new Array<RevSimpleSchemaServer.Column<BCS>>();
 

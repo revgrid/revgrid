@@ -1,5 +1,5 @@
 
-import { Rectangle } from '../../grid/grid-public-api';
+import { Rectangle, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -8,7 +8,11 @@ import { StandardCellPainter } from './standard-cell-painter';
  * {@link http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR|Edward Tufte sparkline}
  * @public
  */
-export class StandardSparkLineCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings> extends StandardCellPainter<BGS, BCS> {
+export class StandardSparkLineCellPainter<
+    BGS extends StandardBehavioredGridSettings,
+    BCS extends StandardBehavioredColumnSettings,
+    SC extends SchemaServer.Column<BCS>
+> extends StandardCellPainter<BGS, BCS, SC> {
     config: StandardSparkLineCellPainter.Config;
 
     override paint(_prefillColor: string | undefined): number | undefined {

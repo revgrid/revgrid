@@ -1,4 +1,5 @@
 
+import { SchemaServer } from '../../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -25,15 +26,15 @@ import { GridPainter } from './grid-painter';
  *
  * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumns|paintCellsByColumns}.
  */
-export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends GridPainter<BGS, BCS> {
+export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends GridPainter<BGS, BCS, SC> {
     constructor(
         gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
-        subgridsManager: SubgridsManager<BGS, BCS>,
-        viewLayout: ViewLayout<BGS, BCS>,
-        focus: Focus<BGS, BCS>,
-        selection: Selection<BGS, BCS>,
-        mouse: Mouse<BGS, BCS>,
+        subgridsManager: SubgridsManager<BGS, BCS, SC>,
+        viewLayout: ViewLayout<BGS, BCS, SC>,
+        focus: Focus<BGS, BCS, SC>,
+        selection: Selection<BGS, BCS, SC>,
+        mouse: Mouse<BGS, BCS, SC>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(

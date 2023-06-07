@@ -11,41 +11,42 @@ import { ViewLayout } from '../../components/view/view-layout';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column } from '../../interfaces/schema/column';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../../types-utils/point';
 import { ListChangedTypeId } from '../../types-utils/types';
 
 /** @public */
-export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     /** @internal */
     uiKeyDownEventer: EventBehavior.UiKeyEventer;
     /** @internal */
     uiKeyUpEventer: EventBehavior.UiKeyEventer;
     /** @internal */
-    uiClickEventer: EventBehavior.UiMouseEventer<BCS>;
+    uiClickEventer: EventBehavior.UiMouseEventer<BCS, SC>;
     /** @internal */
-    uiDblClickEventer: EventBehavior.UiMouseEventer<BCS>;
+    uiDblClickEventer: EventBehavior.UiMouseEventer<BCS, SC>;
     /** @internal */
-    uiPointerDownEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerDownEventer: EventBehavior.UiPointerEventer<BCS, SC>;
     /** @internal */
-    uiPointerUpCancelEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerUpCancelEventer: EventBehavior.UiPointerEventer<BCS, SC>;
     /** @internal */
-    uiPointerMoveEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerMoveEventer: EventBehavior.UiPointerEventer<BCS, SC>;
     /** @internal */
-    uiPointerEnterEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerEnterEventer: EventBehavior.UiPointerEventer<BCS, SC>;
     /** @internal */
-    uiPointerLeaveOutEventer: EventBehavior.UiPointerEventer<BCS>;
+    uiPointerLeaveOutEventer: EventBehavior.UiPointerEventer<BCS, SC>;
     /** @internal */
-    uiPointerDragStartEventer: EventBehavior.UiPointerDragStartEventer<BCS>;
+    uiPointerDragStartEventer: EventBehavior.UiPointerDragStartEventer<BCS, SC>;
     /** @internal */
-    uiPointerDragEventer: EventBehavior.UiPointerDragEventer<BCS>;
+    uiPointerDragEventer: EventBehavior.UiPointerDragEventer<BCS, SC>;
     /** @internal */
-    uiPointerDragEndEventer: EventBehavior.UiPointerDragEventer<BCS>;
+    uiPointerDragEndEventer: EventBehavior.UiPointerDragEventer<BCS, SC>;
     /** @internal */
-    uiWheelMoveEventer: EventBehavior.UiWheelEventer<BCS>;
+    uiWheelMoveEventer: EventBehavior.UiWheelEventer<BCS, SC>;
     /** @internal */
-    uiContextMenuEventer: EventBehavior.UiMouseEventer<BCS>;
+    uiContextMenuEventer: EventBehavior.UiMouseEventer<BCS, SC>;
     /** @internal */
     uiTouchStartEventer: EventBehavior.UiTouchEventer;
     /** @internal */
@@ -70,23 +71,23 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout<BGS, BCS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
         /** @internal */
-        private readonly _focus: Focus<BGS, BCS>,
+        private readonly _focus: Focus<BGS, BCS, SC>,
         /** @internal */
-        private readonly _selection: Selection<BGS, BCS>,
+        private readonly _selection: Selection<BGS, BCS, SC>,
         /** @internal */
-        private readonly _mouse: Mouse<BGS, BCS>,
+        private readonly _mouse: Mouse<BGS, BCS, SC>,
         /** @internal */
-        private readonly _renderer: Renderer<BGS, BCS>,
+        private readonly _renderer: Renderer<BGS, BCS, SC>,
         /** @internal */
         private readonly _horizontalScroller: Scroller<BGS>,
         /** @internal */
         private readonly _verticalScroller: Scroller<BGS>,
         /** @internal */
-        private readonly _descendantEventer: EventBehavior.DescendantEventer<BCS>,
+        private readonly _descendantEventer: EventBehavior.DescendantEventer<BCS, SC>,
         /** @internal */
         private readonly _dispatchEventEventer: EventBehavior.DispatchEventEventer,
     ) {
@@ -155,11 +156,11 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    processColumnSortEvent(event: MouseEvent, cell: ViewCell<BCS>) {
+    processColumnSortEvent(event: MouseEvent, cell: ViewCell<BCS, SC>) {
         this._descendantEventer.columnSort(event, cell);
 
         if (this._dispatchEnabled) {
-            const hoverCell: LinedHoverCell<BCS> = {
+            const hoverCell: LinedHoverCell<BCS, SC> = {
                 viewCell: cell,
                 mouseOverLeftLine: false,
                 mouseOverTopLine: false,
@@ -197,7 +198,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processColumnsWidthChangedEvent(columns: Column<BCS>[], ui: boolean) {
+    private processColumnsWidthChangedEvent(columns: Column<BCS, SC>[], ui: boolean) {
         this._descendantEventer.columnsWidthChanged(columns, ui);
     }
 
@@ -525,7 +526,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processMouseEnteredCellEvent(cell: ViewCell<BCS>) {
+    private processMouseEnteredCellEvent(cell: ViewCell<BCS, SC>) {
         this._descendantEventer.mouseEnteredCell(cell);
 
         if (this._dispatchEnabled) {
@@ -534,7 +535,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processMouseExitedCellEvent(cell: ViewCell<BCS>) {
+    private processMouseExitedCellEvent(cell: ViewCell<BCS, SC>) {
         this._descendantEventer.mouseExitedCell(cell);
 
         if (this._dispatchEnabled) {
@@ -551,39 +552,39 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private dispatchCustomEvent<T extends EventName<BCS>>(
+    private dispatchCustomEvent<T extends EventName<BCS, SC>>(
         eventName: T,
         cancelable: boolean,
-        eventDetail: EventName.DetailMap<BCS>[T] | undefined,
+        eventDetail: EventName.DetailMap<BCS, SC>[T] | undefined,
     ): boolean {
         if (this._destroyed) {
             return false;
         } else {
-            const eventInit: CustomEventInit<EventName.DetailMap<BCS>[T]> = {
+            const eventInit: CustomEventInit<EventName.DetailMap<BCS, SC>[T]> = {
                 detail: eventDetail,
                 cancelable,
             };
 
-            const event = new CustomEvent<EventName.DetailMap<BCS>[T]>(eventName, eventInit);
+            const event = new CustomEvent<EventName.DetailMap<BCS, SC>[T]>(eventName, eventInit);
 
             return this._dispatchEventEventer(event);
         }
     }
 
     /** @internal */
-    private dispatchMouseHoverCellEvent<T extends EventName.MouseHoverCell>(eventName: T, event: MouseEvent | WheelEvent, cell: LinedHoverCell<BCS> | null | undefined) {
+    private dispatchMouseHoverCellEvent<T extends EventName.MouseHoverCell>(eventName: T, event: MouseEvent | WheelEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
         if (cell === null) {
             cell = undefined;
         } else {
             if (cell !== undefined) {
                 cell = {
-                    viewCell: Object.create(cell.viewCell) as ViewCell<BCS>,
+                    viewCell: Object.create(cell.viewCell) as ViewCell<BCS, SC>,
                     mouseOverLeftLine: cell.mouseOverLeftLine,
                     mouseOverTopLine: cell.mouseOverTopLine,
                 }
             }
         }
-        const detail = event as EventName.DetailMap<BCS>[T];
+        const detail = event as EventName.DetailMap<BCS, SC>[T];
         detail.revgridHoverCell = cell;
         return this.dispatchCustomEvent(eventName, false, detail);
     }
@@ -595,41 +596,41 @@ export namespace EventBehavior {
     export type DispatchEventEventer = (this: void, event: Event) => boolean;
 
     /** @internal */
-    export interface UiPointerDragStartResult<BCS extends BehavioredColumnSettings> {
+    export interface UiPointerDragStartResult<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
         readonly started: boolean;
-        readonly hoverCell: LinedHoverCell<BCS> | null | undefined;
+        readonly hoverCell: LinedHoverCell<BCS, SC> | null | undefined;
     }
 
     /** @internal */
-    export interface DescendantEventer<BCS extends BehavioredColumnSettings> {
+    export interface DescendantEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
         readonly allColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
         readonly columnsChanged: DescendantEventer.Signal;
-        readonly columnsWidthChanged: (this: void, columns: Column<BCS>[], ui: boolean) => void;
+        readonly columnsWidthChanged: (this: void, columns: Column<BCS, SC>[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: DescendantEventer.Signal;
-        readonly columnSort: (this: void, event: MouseEvent, cell: ViewCell<BCS>) => void;
+        readonly columnSort: (this: void, event: MouseEvent, cell: ViewCell<BCS, SC>) => void;
         readonly cellFocusChanged: DescendantEventer.CellFocusChanged;
         readonly selectionChanged: DescendantEventer.Signal;
         readonly focus: DescendantEventer.Focus;
         readonly blur: DescendantEventer.Focus;
         readonly keyDown: DescendantEventer.Key;
         readonly keyUp: DescendantEventer.Key;
-        readonly click: DescendantEventer.Mouse<BCS>;
-        readonly dblClick: DescendantEventer.Mouse<BCS>;
-        readonly pointerEnter: DescendantEventer.Pointer<BCS>;
-        readonly pointerDown: DescendantEventer.Pointer<BCS>;
-        readonly pointerUpCancel: DescendantEventer.Pointer<BCS>;
-        readonly pointerMove: DescendantEventer.Pointer<BCS>;
-        readonly pointerLeaveOut: DescendantEventer.Pointer<BCS>;
-        readonly wheelMove: DescendantEventer.Wheel<BCS>;
+        readonly click: DescendantEventer.Mouse<BCS, SC>;
+        readonly dblClick: DescendantEventer.Mouse<BCS, SC>;
+        readonly pointerEnter: DescendantEventer.Pointer<BCS, SC>;
+        readonly pointerDown: DescendantEventer.Pointer<BCS, SC>;
+        readonly pointerUpCancel: DescendantEventer.Pointer<BCS, SC>;
+        readonly pointerMove: DescendantEventer.Pointer<BCS, SC>;
+        readonly pointerLeaveOut: DescendantEventer.Pointer<BCS, SC>;
+        readonly wheelMove: DescendantEventer.Wheel<BCS, SC>;
         readonly dragStart: DescendantEventer.Drag;
-        readonly contextMenu: DescendantEventer.Mouse<BCS>;
-        readonly pointerDragStart: DescendantEventer.PointerDragStart<BCS>;
+        readonly contextMenu: DescendantEventer.Mouse<BCS, SC>;
+        readonly pointerDragStart: DescendantEventer.PointerDragStart<BCS, SC>;
         readonly pointerDrag: DescendantEventer.PointerDrag;
         readonly pointerDragEnd: DescendantEventer.PointerDrag;
         readonly rendered: DescendantEventer.Signal;
-        readonly mouseEnteredCell: DescendantEventer.ViewCellOnly<BCS>;
-        readonly mouseExitedCell: DescendantEventer.ViewCellOnly<BCS>;
+        readonly mouseEnteredCell: DescendantEventer.ViewCellOnly<BCS, SC>;
+        readonly mouseExitedCell: DescendantEventer.ViewCellOnly<BCS, SC>;
         readonly touchStart: DescendantEventer.Touch;
         readonly touchMove: DescendantEventer.Touch;
         readonly touchEnd: DescendantEventer.Touch;
@@ -646,15 +647,18 @@ export namespace EventBehavior {
         export type Signal = (this: void) => void;
         export type Focus = (this: void, event: FocusEvent) => void;
         export type Key = (this: void, event: EventDetail.Keyboard) => void;
-        export type Mouse<BCS extends BehavioredColumnSettings> = (this: void, event: MouseEvent, cell: LinedHoverCell<BCS> | null | undefined) => void;
-        export type Pointer<BCS extends BehavioredColumnSettings> = (this: void, event: PointerEvent, cell: LinedHoverCell<BCS> | null | undefined) => void;
+        export type Mouse<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, event: MouseEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) => void;
+        export type Pointer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, event: PointerEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) => void;
         export type PointerDrag = (this: void, event: PointerEvent) => void;
-        export type PointerDragStart<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent, cell: LinedHoverCell<BCS> | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
-        export type Wheel<BCS extends BehavioredColumnSettings> = (this: void, event: WheelEvent, cell: LinedHoverCell<BCS> | null | undefined) => void;
-        export type DragCell<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent, cell: LinedHoverCell<BCS> | null | undefined) => void;
+        export type PointerDragStart<
+            BCS extends BehavioredColumnSettings,
+            SC extends SchemaServer.Column<BCS>
+        > = (this: void, event: DragEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
+        export type Wheel<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, event: WheelEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) => void;
+        export type DragCell<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, event: DragEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) => void;
         export type Drag = (this: void, event: DragEvent) => void;
         export type Touch = (this: void, event: TouchEvent) => void;
-        export type ViewCellOnly<BCS extends BehavioredColumnSettings> = (this: void, cell: ViewCell<BCS>) => void;
+        export type ViewCellOnly<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, cell: ViewCell<BCS, SC>) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
         export type ScrollerAction = (this: void, event: EventDetail.ScrollerAction) => void;
         export type CellFocusChanged = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
@@ -663,17 +667,35 @@ export namespace EventBehavior {
     /** @internal */
     export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
     /** @internal */
-    export type UiMouseEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Mouse<BCS>) => LinedHoverCell<BCS> | null | undefined;
+    export type UiMouseEventer<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = (this: void, pointerEvent: EventDetail.Mouse<BCS, SC>) => LinedHoverCell<BCS, SC> | null | undefined;
     /** @internal */
-    export type UiPointerEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<BCS>) => LinedHoverCell<BCS> | null | undefined;
+    export type UiPointerEventer<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = (this: void, pointerEvent: EventDetail.Pointer<BCS, SC>) => LinedHoverCell<BCS, SC> | null | undefined;
     /** @internal */
-    export type UiPointerDragEventer<BCS extends BehavioredColumnSettings> = (this: void, pointerEvent: EventDetail.Pointer<BCS>) => void;
+    export type UiPointerDragEventer<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = (this: void, pointerEvent: EventDetail.Pointer<BCS, SC>) => void;
     /** @internal */
-    export type UiPointerDragStartEventer<BCS extends BehavioredColumnSettings> = (this: void, dragEvent: DragEvent) => UiPointerDragStartResult<BCS>;
+    export type UiPointerDragStartEventer<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = (this: void, dragEvent: DragEvent) => UiPointerDragStartResult<BCS, SC>;
     /** @internal */
-    export type UiWheelEventer<BCS extends BehavioredColumnSettings> = (this: void, wheelEvent: EventDetail.Wheel<BCS>) => LinedHoverCell<BCS> | null | undefined;
+    export type UiWheelEventer<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = (this: void, wheelEvent: EventDetail.Wheel<BCS, SC>) => LinedHoverCell<BCS, SC> | null | undefined;
     /** @internal */
-    export type UiDragEventer<BCS extends BehavioredColumnSettings> = (this: void, event: DragEvent) => LinedHoverCell<BCS> | null | undefined;
+    export type UiDragEventer<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = (this: void, event: DragEvent) => LinedHoverCell<BCS, SC> | null | undefined;
     /** @internal */
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;
     /** @internal */

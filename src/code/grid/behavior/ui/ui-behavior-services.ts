@@ -6,6 +6,7 @@ import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
+import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
@@ -19,7 +20,7 @@ import { RowPropertiesBehavior } from '../component/row-properties-behavior';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /** @public */
-export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> {
+export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
 
     /** @internal */
     constructor(
@@ -27,22 +28,22 @@ export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends 
         readonly containerHtmlElement: HTMLElement,
         readonly gridSettings: GridSettings,
         readonly canvasManager: CanvasManager<BGS>,
-        readonly selection: Selection<BGS, BCS>,
-        readonly focus: Focus<BGS, BCS>,
-        readonly columnsManager: ColumnsManager<BGS, BCS>,
-        readonly subgridsManager: SubgridsManager<BGS, BCS>,
-        readonly viewLayout: ViewLayout<BGS, BCS>,
-        readonly renderer: Renderer<BGS, BCS>,
+        readonly selection: Selection<BGS, BCS, SC>,
+        readonly focus: Focus<BGS, BCS, SC>,
+        readonly columnsManager: ColumnsManager<BGS, BCS, SC>,
+        readonly subgridsManager: SubgridsManager<BGS, BCS, SC>,
+        readonly viewLayout: ViewLayout<BGS, BCS, SC>,
+        readonly renderer: Renderer<BGS, BCS, SC>,
 
-        readonly mouse: Mouse<BGS, BCS>,
+        readonly mouse: Mouse<BGS, BCS, SC>,
 
-        readonly reindexBehavior: ReindexBehavior<BGS, BCS>,
-        readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS>,
-        readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS>,
-        readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS>,
-        readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS>,
-        readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS>,
-        readonly eventBehavior: EventBehavior<BGS, BCS>,
+        readonly reindexBehavior: ReindexBehavior<BGS, BCS, SC>,
+        readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SC>,
+        readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SC>,
+        readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SC>,
+        readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SC>,
+        readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SC>,
+        readonly eventBehavior: EventBehavior<BGS, BCS, SC>,
     ) {
 
     }
