@@ -32,7 +32,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         containerHtmlElement: HTMLElement,
         schemaServer: SchemaServer<BCS, SC>,
         subgridDefinitions: Subgrid.Definition<BCS, SC>[],
-        canvasContextAttributes: CanvasRenderingContext2DSettings | undefined,
+        canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         loadBuiltinFinbarStylesheet: boolean,
     ) {
         // this.gridSettings = new AbstractMergableGridSettings();
@@ -43,7 +43,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
 
         this.canvasManager = new CanvasManager(
             containerHtmlElement,
-            canvasContextAttributes,
+            canvasRenderingContext2DSettings,
             gridSettings,
         );
 
@@ -70,6 +70,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
 
             this.focus = new Focus(
                 gridSettings,
+                this.canvasManager,
                 this.subgridsManager.mainSubgrid,
                 this.columnsManager,
                 this.viewLayout,
@@ -168,11 +169,11 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         this.subgridsManager.destroy();
     }
 
-    getValue(x: number, y: number, subgrid: Subgrid<BCS, SC>) {
+    getViewValue(x: number, y: number, subgrid: Subgrid<BCS, SC>) {
         const column = this.columnsManager.getActiveColumn(x);
         const schemaColumn = column.schemaColumn;
         const dataServer = subgrid.dataServer;
-        return dataServer.getValue(schemaColumn, y);
+        return dataServer.getViewValue(schemaColumn, y);
     }
 
     /**
@@ -187,11 +188,11 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
      */
     setValue(x: number, y: number, value: unknown, subgrid: Subgrid<BCS, SC>) {
         const dataServer = subgrid.dataServer;
-        if (dataServer.setValue === undefined) {
+        if (dataServer.setEditValue === undefined) {
             throw new AssertError('BSV32220');
         } else {
             const column = this.columnsManager.getActiveColumn(x);
-            dataServer.setValue(column.schemaColumn, y, value);
+            dataServer.setEditValue(column.schemaColumn, y, value);
         }
     }
 }

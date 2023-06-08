@@ -170,7 +170,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SC exten
      * @returns '' if data value is undefined
      * @internal
      */
-    getValueFromDataRow(dataRow: DataServer.DataRow): DataServer.DataValue {
+    getValueFromDataRow(dataRow: DataServer.ViewRow): DataServer.ViewValue {
         if (Array.isArray(dataRow)) {
             return dataRow[this.schemaColumn.index];
         } else {

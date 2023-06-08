@@ -1,4 +1,4 @@
-import { Column, DataServer, SchemaServer, StandardBehavioredColumnSettings } from '..';
+import { Column, DataServer, StandardBehavioredColumnSettings } from '..';
 import { MainRecord } from './main-record';
 import { SchemaServerImplementation } from './schema-server-implementation';
 
@@ -30,19 +30,58 @@ export class MainDataServer implements DataServer<StandardBehavioredColumnSettin
         return this._data.length;
     }
 
-    getValue(columnSchema: SchemaServer.Column<StandardBehavioredColumnSettings>, rowIndex: number) {
+    getViewValue(columnSchema: SchemaServerImplementation.Column, rowIndex: number) {
         const record = this._data[rowIndex];
-        const fieldName = (columnSchema as SchemaServerImplementation.Column).name;
+        const fieldName = columnSchema.name;
+        return record[fieldName].toLocaleString();
+    }
+
+    getEditValue(columnSchema: SchemaServerImplementation.Column, rowIndex: number) {
+        const record = this._data[rowIndex];
+        const fieldName = columnSchema.name;
         return record[fieldName];
+    }
+
+    setEditValue(columnSchema: SchemaServerImplementation.Column, rowIndex: number, value: DataServer.EditValue) {
+        const record = this._data[rowIndex];
+        const fieldName = columnSchema.name;
+        switch (fieldName) {
+            case 'id':
+                record.id = value as number;
+                break;
+            case 'name':
+                record.name = value as string;
+                break;
+            case 'type':
+                record.type = value as string;
+                break;
+            case 'color':
+                record.color = value as string;
+                break;
+            case 'age':
+                record.age = value as number;
+                break;
+            case 'receiveDate':
+                record.receiveDate = value as Date;
+                break;
+            case 'favoriteFood':
+                record.favoriteFood = value as string;
+                break;
+            case 'restrictMovement':
+                record.restrictMovement = value as boolean;
+                break;
+            default:
+                throw new Error(`Unexpected field name: ${fieldName}`);
+        }
     }
 
     getRowId(rowIndex: number): number {
         return this._data[rowIndex].id;
     }
 
-    getTitleText(columnSchema: SchemaServer.Column<StandardBehavioredColumnSettings>, rowIndex: number) {
+    getTitleText(columnSchema: SchemaServerImplementation.Column, rowIndex: number) {
         const record = this._data[rowIndex];
-        const fieldName = (columnSchema as SchemaServerImplementation.Column).name;
+        const fieldName = columnSchema.name;
         const prefix = fieldName + ': '
         switch (fieldName) {
             case 'id': return prefix + record.id.toString();

@@ -12,7 +12,7 @@ export class RevRecordHeaderDataServer<BCS extends BehavioredColumnSettings> imp
         this._dataCallbackListener = value;
     }
 
-    getValue(schemaColumn: RevRecordField.SchemaColumn<BCS>, _rowCount: number): string {
+    getViewValue(schemaColumn: RevRecordField.SchemaColumn<BCS>, _rowCount: number): string {
         return schemaColumn.name;
     }
 

@@ -100,7 +100,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
         }
     }
 
-    private convertDataValueToString(value: DataServer.DataValue | string): string {
+    private convertDataValueToString(value: DataServer.ViewValue | string): string {
         switch (typeof value) {
             case 'string': return value;
             case 'number': return value.toString();
@@ -165,7 +165,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
 /** @public */
 export namespace RevSimpleAdapterSet {
     export interface DataRow extends RevSimpleMainDataServer.DataRow {
-        [columnName: string]: DataServer.DataValue | string; // can also have header
+        [columnName: string]: DataServer.ViewValue | string; // can also have header
     }
 }
 

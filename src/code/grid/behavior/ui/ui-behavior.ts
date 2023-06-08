@@ -1,13 +1,13 @@
 
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ColumnsManager } from '../../components/column/columns-manager';
-import { EventDetail } from '../../components/event/event-detail';
 import { Focus } from '../../components/focus/focus';
 import { Mouse } from '../../components/mouse/mouse';
 import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
+import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
@@ -119,18 +119,18 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handleKeyDown(eventDetail: EventDetail.Keyboard) {
+    handleKeyDown(event: KeyboardEvent, fromEditor: boolean) {
         if (this.next) {
-            this.next.handleKeyDown(eventDetail);
+            this.next.handleKeyDown(event, fromEditor);
         // } else {
         //     return true;
         }
     }
 
     /** @internal */
-    handleKeyUp(eventDetail: EventDetail.Keyboard) {
+    handleKeyUp(event: KeyboardEvent) {
         if (this.next) {
-            this.next.handleKeyUp(eventDetail);
+            this.next.handleKeyUp(event);
         }
     }
 

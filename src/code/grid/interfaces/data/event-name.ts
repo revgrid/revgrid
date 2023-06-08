@@ -1,8 +1,8 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { SchemaServer } from '../schema/schema-server';
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { EventDetail } from './event-detail';
+import { ViewCell } from './view-cell';
 
 /** @public */
 export type EventName<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = keyof EventName.DetailMap<BCS, SC>;
@@ -34,8 +34,8 @@ export namespace EventName {
         'rev-pointer-enter': EventDetail.Pointer<BCS, SC>;
         'rev-pointer-leave-out': EventDetail.Pointer<BCS, SC>;
         'rev-wheel-move': EventDetail.Wheel<BCS, SC>;
-        'rev-key-down': EventDetail.Keyboard;
-        'rev-key-up': EventDetail.Keyboard;
+        'rev-key-down': KeyboardEvent;
+        'rev-key-up': KeyboardEvent;
         'rev-filter-applied': undefined;
         'rev-cell-enter': ViewCell<BCS, SC>;
         'rev-cell-exit': ViewCell<BCS, SC>;

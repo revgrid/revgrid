@@ -1254,9 +1254,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      * Matrix of unformatted values of visible cells.
      */
     getVisibleCellMatrix(): Array<Array<unknown>> {
-        const rows = Array<DataServer.DataValue[]>(this._rows.length);
+        const rows = Array<DataServer.ViewValue[]>(this._rows.length);
         for (let y = 0; y < rows.length; ++y) {
-            rows[y] = Array<DataServer.DataValue>(this._columns.length);
+            rows[y] = Array<DataServer.ViewValue>(this._columns.length);
         }
 
         const pool = this.getAPool();
@@ -1266,7 +1266,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             const cell = pool[i];
             const x = cell.viewLayoutColumn.index;
             const y = cell.viewLayoutRow.index;
-            rows[y][x] = cell.value;
+            rows[y][x] = cell.viewValue;
         }
         return rows;
     }

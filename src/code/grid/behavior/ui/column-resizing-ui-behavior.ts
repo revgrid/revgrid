@@ -1,4 +1,4 @@
-import { EventDetail } from '../../components/event/event-detail';
+import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column, ColumnWidth } from '../../interfaces/schema/column';

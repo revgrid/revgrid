@@ -72,9 +72,9 @@ export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         let unknownUrl: unknown;
         const rowIndex = viewCell.viewLayoutRow.subgridRowIndex;
         const subgrid = viewCell.subgrid;
-        const dataRow = subgrid.getSingletonDataRow(rowIndex);
+        const dataRow = subgrid.getSingletonViewDataRow(rowIndex);
         const config = Object.create(viewCell.columnSettings, { dataRow: { value: dataRow } });
-        const value = subgrid.getValue(viewCell.viewLayoutColumn.column, rowIndex);
+        const value = subgrid.getViewValue(viewCell.viewLayoutColumn.column, rowIndex);
         const linkProp: [url: string, target: string] | ((this: void, cellEvent: unknown) => string) = ['', '']// viewCell.columnSettings.link;
 
         let linkPropTuple: [url: string, target: string] | undefined;
@@ -95,7 +95,7 @@ export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends
                     if (Array.isArray(dataRow)) {
                         throw new AssertError('CCFOL45455');
                     } else {
-                        unknownUrl = dataRow[link as keyof DataServer.ObjectDataRow];
+                        unknownUrl = dataRow[link as keyof DataServer.ObjectViewRow];
                     }
                 }
                 break;

@@ -1,12 +1,12 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ColumnsManager } from '../../components/column/columns-manager';
-import { EventDetail } from '../../components/event/event-detail';
 import { Focus } from '../../components/focus/focus';
 import { Mouse } from '../../components/mouse/mouse';
 import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
+import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
@@ -93,7 +93,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
 
         this._firstUiBehavior = this.createAndLinkUiBehaviors(customUiBehaviorDefinitions);
 
-        this._eventBehavior.uiKeyDownEventer = (event) => this.handleKeyDownEvent(event);
+        this._eventBehavior.uiKeyDownEventer = (event, fromEditor) => this.handleKeyDownEvent(event, fromEditor);
         this._eventBehavior.uiKeyUpEventer = (event) => this.handleKeyUpEvent(event);
         this._eventBehavior.uiClickEventer = (event) => this.handleClickEvent(event);
         this._eventBehavior.uiDblClickEventer = (event) => this.handleDblClickEvent(event);
@@ -139,9 +139,9 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param event - the event details
      * @internal
      */
-    private handleKeyDownEvent(eventDetail: EventDetail.Keyboard) {
+    private handleKeyDownEvent(eventDetail: KeyboardEvent, fromEditor: boolean) {
         if (this._enabled) {
-            this._firstUiBehavior.handleKeyDown(eventDetail);
+            this._firstUiBehavior.handleKeyDown(eventDetail, fromEditor);
         }
     }
 
@@ -150,9 +150,9 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param event - the event details
      * @internal
      */
-    private handleKeyUpEvent(eventDetail: EventDetail.Keyboard) {
+    private handleKeyUpEvent(event: KeyboardEvent) {
         if (this._enabled) {
-            this._firstUiBehavior.handleKeyUp(eventDetail);
+            this._firstUiBehavior.handleKeyUp(event);
         }
     }
 

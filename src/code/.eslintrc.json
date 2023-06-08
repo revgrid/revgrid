@@ -30,7 +30,6 @@
           "./src/code/grid/components/canvas/tsconfig.grid-components-canvas.json",
           "./src/code/grid/components/column/tsconfig.grid-components-column.json",
           "./src/code/grid/components/focus/tsconfig.grid-components-focus.json",
-          "./src/code/grid/components/event/tsconfig.grid-components-event.json",
           "./src/code/grid/components/mouse/tsconfig.grid-components-mouse.json",
           "./src/code/grid/components/renderer/tsconfig.grid-components-renderer.json",
           "./src/code/grid/components/renderer/grid-painter/tsconfig.grid-components-renderer-grid-painter.json",

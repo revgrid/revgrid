@@ -24,14 +24,14 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
 
     /** @internal */
     /** @internal */
-    private rowProxy: SubgridImplementation.DataRowProxy<BCS, SC>; // used if DataServer.getRowProperties not implemented
+    private _viewDataRowProxy: SubgridImplementation.ViewDataRowProxy<BCS, SC>; // used if DataServer.getRowProperties not implemented
     /** @internal */
     private readonly _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | null;
 
     private _dataNotificationsClient: DataServer.NotificationsClient;
 
     /** @internal */
-    private _columnsManagerBeforeCreateColumnsListener = () => this.rowProxy.updateSchema();
+    private _columnsManagerBeforeCreateColumnsListener = () => this._viewDataRowProxy.updateSchema();
 
     /** @internal */
     constructor(
@@ -73,7 +73,7 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
             }
         }
 
-        this.rowProxy = new SubgridImplementation.DataRowProxy(this.schemaServer, this.dataServer);
+        this._viewDataRowProxy = new SubgridImplementation.ViewDataRowProxy(this.schemaServer, this.dataServer);
 
         if (rowPropertiesPrototype === undefined) {
             this._rowPropertiesPrototype = null;
@@ -115,31 +115,23 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
         return false;
     }
 
-    getValue(column: Column<BCS, SC>, rowIndex: number): DataServer.DataValue {
-        return this.dataServer.getValue(column.schemaColumn, rowIndex);
-    }
-
-    setValue(column: Column<BCS, SC>, rowIndex: number, value: DataServer.DataValue) {
-        if (this.dataServer.setValue === undefined) {
-            throw new AssertError('SSV60009');
-        } else {
-            this.dataServer.setValue(column.schemaColumn, rowIndex, value);
-        }
+    getViewValue(column: Column<BCS, SC>, rowIndex: number): DataServer.ViewValue {
+        return this.dataServer.getViewValue(column.schemaColumn, rowIndex);
     }
 
     /**
      * Since this may return RowProxy, can only have one of these rows active at any time
      */
-    getSingletonDataRow(rowIndex: number) {
-        if (this.dataServer.getRow !== undefined) {
-            return this.dataServer.getRow(rowIndex);
+    getSingletonViewDataRow(rowIndex: number) {
+        if (this.dataServer.getViewRow !== undefined) {
+            return this.dataServer.getViewRow(rowIndex);
         } else {
-            this.rowProxy.____rowIndex = rowIndex;
-            return this.rowProxy;
+            this._viewDataRowProxy.____rowIndex = rowIndex;
+            return this._viewDataRowProxy;
         }
     }
 
-    getValueFromDataRowAtColumn(dataRow: DataServer.DataRow, column: Column<BCS, SC>) {
+    getViewValueFromDataRowAtColumn(dataRow: DataServer.ViewRow, column: Column<BCS, SC>) {
         if (Array.isArray(dataRow)) {
             return dataRow[column.schemaColumn.index];
         } else {
@@ -528,8 +520,8 @@ export namespace SubgridImplementation {
     export type Handle = number;
 
     /** @internal */
-    export class DataRowProxy<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-        [columnName: string]: DataServer.DataValue;
+    export class ViewDataRowProxy<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+        [columnName: string]: DataServer.ViewValue;
 
         ____rowIndex: number;
         ____columnNames: string[] = [];
@@ -554,13 +546,7 @@ export namespace SubgridImplementation {
                 Object.defineProperty(this, columnName, {
                     // enumerable: true, // is a real data field
                     configurable: true,
-                    get: () => { return this.dataServer.getValue(schemaColumn, this.____rowIndex); },
-                    set: (value: DataServer.DataValue) => {
-                        if (this.dataServer.setValue !== undefined) {
-                            this.dataServer.setValue(schemaColumn, this.____rowIndex, value);
-                        }
-                        return undefined;
-                    }
+                    get: () => { return this.dataServer.getViewValue(schemaColumn, this.____rowIndex); },
                 });
             }
         }

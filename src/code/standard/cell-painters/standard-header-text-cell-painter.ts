@@ -33,7 +33,7 @@ export class StandardHeaderTextCellPainter<
         const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
         const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
 
-        const value = this._dataServer.getValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
+        const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
         const valText = value as string;
 
         const subgrid = cell.subgrid;

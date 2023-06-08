@@ -140,7 +140,7 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
         }
     }
 
-    getValue(schemaColumn: RevRecordField.SchemaColumn<BCS>, rowIndex: number): DataServer.DataValue {
+    getViewValue(schemaColumn: RevRecordField.SchemaColumn<BCS>, rowIndex: number): DataServer.ViewValue {
         if (this._rowOrderReversed) {
             rowIndex = this.reverseRowIndex(rowIndex);
         }

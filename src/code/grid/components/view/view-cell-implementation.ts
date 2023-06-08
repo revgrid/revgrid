@@ -1,4 +1,3 @@
-import { DataServer } from '../../interfaces/data/data-server';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
@@ -47,11 +46,8 @@ export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS exte
     /**
      * The raw value of the cell, unformatted.
      */
-    get value() {
-        return this._subgrid.getValue(this._viewLayoutColumn.column, this._viewLayoutRow.subgridRowIndex);
-    }
-    set value(value: DataServer.DataValue) {
-        this._subgrid.setValue(this._viewLayoutColumn.column, this._viewLayoutRow.subgridRowIndex, value);
+    get viewValue() {
+        return this._subgrid.getViewValue(this._viewLayoutColumn.column, this._viewLayoutRow.subgridRowIndex);
     }
 
     /**

@@ -1,13 +1,13 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ColumnsManager } from '../../components/column/columns-manager';
-import { EventDetail } from '../../components/event/event-detail';
-import { EventName } from '../../components/event/event-name';
 import { Focus } from '../../components/focus/focus';
 import { Mouse } from '../../components/mouse/mouse';
 import { Renderer } from '../../components/renderer/renderer';
 import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
+import { EventDetail } from '../../interfaces/data/event-detail';
+import { EventName } from '../../interfaces/data/event-name';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column } from '../../interfaces/schema/column';
@@ -20,7 +20,7 @@ import { ListChangedTypeId } from '../../types-utils/types';
 /** @public */
 export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     /** @internal */
-    uiKeyDownEventer: EventBehavior.UiKeyEventer;
+    uiKeyDownEventer: EventBehavior.UiKeyDownEventer;
     /** @internal */
     uiKeyUpEventer: EventBehavior.UiKeyEventer;
     /** @internal */
@@ -97,7 +97,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
 
         this._canvasManager.focusEventer = (event) => this.processFocusEvent(event);
         this._canvasManager.blurEventer = (event) => this.processBlurEvent(event);
-        this._canvasManager.keyDownEventer = (event) => this.processKeyDownEvent(event);
+        this._canvasManager.keyDownEventer = (event) => this.processKeyDownEvent(event, false);
         this._canvasManager.keyUpEventer = (event) => this.processKeyUpEvent(event);
         this._canvasManager.clickEventer = (event) => this.processClickEvent(event);
         this._canvasManager.dblClickEventer = (event) => this.processDblClickEvent(event);
@@ -130,6 +130,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         this._viewLayout.verticalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processVerticalScrollViewportStartChangedEvent();
 
         this._focus.changedEventer = (oldPoint, newPoint) => this.processCellFocusChangedEvent(oldPoint, newPoint);
+        this._focus.editorKeyDownEventer = (event) => this.processKeyDownEvent(event, true);
         this._selection.changedEventerForEventBehavior = () => this.processSelectionChangedEvent();
 
         this._mouse.cellEnteredEventer = (cell) => this.processMouseEnteredCellEvent(cell);
@@ -240,10 +241,10 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processKeyDownEvent(event: EventDetail.Keyboard) {
-        this.uiKeyDownEventer(event);
+    private processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean) {
+        this.uiKeyDownEventer(event, fromEditor);
 
-        this._descendantEventer.keyDown(event);
+        this._descendantEventer.keyDown(event, fromEditor);
 
         if (this._dispatchEnabled) {
             this.dispatchCustomEvent('rev-key-down', false, event);
@@ -251,7 +252,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processKeyUpEvent(event: EventDetail.Keyboard) {
+    private processKeyUpEvent(event: KeyboardEvent) {
         this.uiKeyUpEventer(event);
 
         this._descendantEventer.keyUp(event);
@@ -613,7 +614,7 @@ export namespace EventBehavior {
         readonly selectionChanged: DescendantEventer.Signal;
         readonly focus: DescendantEventer.Focus;
         readonly blur: DescendantEventer.Focus;
-        readonly keyDown: DescendantEventer.Key;
+        readonly keyDown: DescendantEventer.KeyDown;
         readonly keyUp: DescendantEventer.Key;
         readonly click: DescendantEventer.Mouse<BCS, SC>;
         readonly dblClick: DescendantEventer.Mouse<BCS, SC>;
@@ -646,7 +647,8 @@ export namespace EventBehavior {
     export namespace DescendantEventer {
         export type Signal = (this: void) => void;
         export type Focus = (this: void, event: FocusEvent) => void;
-        export type Key = (this: void, event: EventDetail.Keyboard) => void;
+        export type Key = (this: void, event: KeyboardEvent) => void;
+        export type KeyDown = (this: void, event: KeyboardEvent, fromEditor: boolean) => void;
         export type Mouse<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, event: MouseEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) => void;
         export type Pointer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, event: PointerEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) => void;
         export type PointerDrag = (this: void, event: PointerEvent) => void;
@@ -665,7 +667,9 @@ export namespace EventBehavior {
     }
 
     /** @internal */
-    export type UiKeyEventer = (this: void, keyboardEvent: EventDetail.Keyboard) => void;
+    export type UiKeyEventer = (this: void, keyboardEvent: KeyboardEvent) => void;
+    /** @internal */
+    export type UiKeyDownEventer = (this: void, keyboardEvent: KeyboardEvent, fromEditor: boolean) => void;
     /** @internal */
     export type UiMouseEventer<
         BCS extends BehavioredColumnSettings,

@@ -7,7 +7,7 @@ import { BehavioredColumnSettings } from '../settings/behaviored-column-settings
  * @desc Hypergrid 3 data models have a minimal required interface, as outlined on the [Data Model API](https://github.com/fin-hypergrid/core/wiki/Data-Model-API) wiki page.
  *
  * #### TL;DR
- * The minimum interface is an object with just three methods: {@link DataServer#getRowCount getRowCount()} {@link DataServer#getSchema getSchema()} and {@link DataServer#getValue getValue(x, y)}.
+ * The minimum interface is an object with just three methods: {@link DataServer#getRowCount getRowCount()} {@link DataServer#getSchema getSchema()} and {@link DataServer#getViewValue getValue(x, y)}.
  */
 
  /** @public */
@@ -45,12 +45,12 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
      * @Summary Prefetch data
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
-     * Tells dataModel what cells will be needed by subsequent calls to {@link DataServer#getValue getValue()}. This helps remote or virtualized data models fetch and cache data. If your data model doesn't need to know this, don't implement it.
+     * Tells dataModel what cells will be needed by subsequent calls to {@link DataServer#getViewValue getValue()}. This helps remote or virtualized data models fetch and cache data. If your data model doesn't need to know this, don't implement it.
      * #### Parameters:
      * @param rectangles - Unordered list of rectangular regions of cells to fetch in a single (atomic) operation.
      * @param callback - Optional callback. If provided, implementation calls it with `false` on success (requested data fully fetched) or `true` on failure.
      */
-    fetchData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
+    fetchViewData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -59,7 +59,7 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
      * @param metadataFieldName - If provided, the output will include the row metadata object in a "hidden" field with this name.
      * @returns All the grid's data rows.
      */
-    getData?(metadataFieldName?: string): readonly DataServer.DataRow[];
+    getViewData?(metadataFieldName?: string): readonly DataServer.ViewRow[];
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -69,7 +69,7 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
      * The injected default implementation is an object of lazy getters.
      * @returns {number} The data row corresponding to the given `rowIndex`. If row does not exist, then throw error.
      */
-    getRow?(rowIndex: number): DataServer.DataRow;
+    getViewRow?(rowIndex: number): DataServer.ViewRow;
 
     /**
      * @returns The number of data rows currently contained in the model.
@@ -92,7 +92,15 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
      * @desc Get a cell's value given its column & row indexes.
      * @returns The member with the given schema field from the data row with the given `rowIndex`.
      */
-    getValue(schema: SchemaServer.Column<BCS>, rowIndex: number): DataServer.DataValue;
+    getViewValue(schema: SchemaServer.Column<BCS>, rowIndex: number): DataServer.ViewValue;
+
+    getEditValue?(schema: SchemaServer.Column<BCS>, rowIndex: number): DataServer.EditValue;
+    /**
+     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     *
+     * Set a cell's value given its column schema & row indexes and a new value.
+     */
+    setEditValue?(schema: SchemaServer.Column<BCS>, rowIndex: number, value: DataServer.EditValue): void;
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -122,14 +130,7 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
      * Update or blank a row in place, without deleting the row (and without affecting succeeding rows' indexes).
      * @param dataRow - if omitted or otherwise falsy, row renders as blank
      */
-    setRow?(rowIndex: number, dataRow?: DataServer.DataRow): void;
-
-    /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     *
-     * Set a cell's value given its column schema & row indexes and a new value.
-     */
-    setValue?(schema: SchemaServer.Column<BCS>, rowIndex: number, value: DataServer.DataValue): void;
+    setViewRow?(rowIndex: number, dataRow?: DataServer.ViewRow): void;
 
     /** Cursor to be displayed when mouse hovers over cell containing data point */
     getCursorName?(schema: SchemaServer.Column<BCS>, rowIndex: number): string;
@@ -142,7 +143,8 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
 /** @public */
 export namespace DataServer {
 
-    export type DataValue = unknown;
+    export type ViewValue = unknown; // Value displayed in grid
+    export type EditValue = unknown; // Value passed to or received from editor
 
     /**
      * @desc A data row representation using an object.
@@ -150,11 +152,11 @@ export namespace DataServer {
      * The property keys are the column names
      * All row objects should be congruent, meaning that each data row should have the same property keys.
      */
-    export interface ObjectDataRow {
-        [columnName: string]: DataValue;
+    export interface ObjectViewRow {
+        [columnName: string]: ViewValue;
     }
-    export type ArrayDataRow = DataValue[];
-    export type DataRow = ArrayDataRow | ObjectDataRow;
+    export type ArrayViewRow = ViewValue[];
+    export type ViewRow = ArrayViewRow | ObjectViewRow;
 
     export type Constructor<BCS extends BehavioredColumnSettings> = new () => DataServer<BCS>;
 

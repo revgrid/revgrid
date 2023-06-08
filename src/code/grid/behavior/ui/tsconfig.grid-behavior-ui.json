@@ -17,7 +17,6 @@
     { "path": "../../components/selection/tsconfig.grid-components-selection.json" },
     { "path": "../../components/focus/tsconfig.grid-components-focus.json" },
     { "path": "../../components/mouse/tsconfig.grid-components-mouse.json" },
-    { "path": "../../components/event/tsconfig.grid-components-event.json" },
     { "path": "../../components/view/tsconfig.grid-components-view.json" },
     { "path": "../../components/subgrid/tsconfig.grid-components-subgrid.json" },
     { "path": "../../components/column/tsconfig.grid-components-column.json" },

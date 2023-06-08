@@ -82,7 +82,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         if (focusCell === viewCell) { // does cell have focus
             const editor = focus.editor;
             if (editor !== undefined) { // is editor active
-                if (editor.paintImplemented) { // should editor be painted
+                if (editor.paint !== undefined) { // should editor be painted
                     return editor.paint(prefillColor);
                 } else {
                     return undefined; // Cell does not need painting while editor is active

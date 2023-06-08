@@ -24,7 +24,7 @@ export class RevSimpleHeaderDataServer<BCS extends BehavioredColumnSettings> imp
         return this._rowCount;
     }
 
-    getValue(schemaColumn: RevSimpleSchemaServer.Column<BCS>, rowIndex: number) {
+    getViewValue(schemaColumn: RevSimpleSchemaServer.Column<BCS>, rowIndex: number) {
         const headers = schemaColumn.headers;
         if (rowIndex >= headers.length) {
             return schemaColumn.name;

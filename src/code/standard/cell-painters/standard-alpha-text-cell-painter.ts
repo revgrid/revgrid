@@ -54,7 +54,7 @@ export class StandardAlphaTextCellPainter<
             ? gridSettings.selectionForegroundColor
             : columnSettings.color;
 
-        const value = this._dataServer.getValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
+        const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
         const valText = value as string;
 
         const fingerprint = cell.paintFingerprint as PaintFingerprint | undefined;

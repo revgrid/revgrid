@@ -1,5 +1,4 @@
 import { ColumnsManager } from '../../components/column/columns-manager';
-import { EventName } from '../../components/event/event-name';
 import { Focus } from '../../components/focus/focus';
 import { Renderer } from '../../components/renderer/renderer';
 import { Selection } from '../../components/selection/selection';
@@ -7,6 +6,7 @@ import { SubgridImplementation } from '../../components/subgrid/subgrid-implemen
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { DataServer } from '../../interfaces/data/data-server';
+import { EventName } from '../../interfaces/data/event-name';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';

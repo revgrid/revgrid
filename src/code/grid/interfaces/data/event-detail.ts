@@ -1,8 +1,7 @@
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { Point } from '../../types-utils/point';
-import { CanvasManager } from '../canvas/canvas-manager';
+import { SchemaServer } from '../schema/schema-server';
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { LinedHoverCell } from './hover-cell';
 
 /** @public */
 export namespace EventDetail {
@@ -32,8 +31,6 @@ export namespace EventDetail {
     export interface ColumnSort<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends MouseEvent {
         revgridHoverCell?: LinedHoverCell<BCS, SC>;
     }
-
-    export type Keyboard = CanvasManager.RevgridKeyboardEvent;
 
         // export interface EditorKeyboard extends Keyboard {
     //     readonly time: number;

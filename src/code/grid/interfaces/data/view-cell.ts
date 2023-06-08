@@ -12,7 +12,7 @@ export interface ViewCell<BCS extends BehavioredColumnSettings, SC extends Schem
     readonly viewLayoutColumn: ViewLayoutColumn<BCS, SC>;
     readonly viewLayoutRow: ViewLayoutRow<BCS, SC>;
 
-    readonly value: DataServer.DataValue;
+    readonly viewValue: DataServer.ViewValue;
 }
 
 /** @public */

@@ -41,7 +41,7 @@ export class RevSimpleMainDataServer<BCS extends BehavioredColumnSettings> imple
         }
     }
 
-    getRow(index: number) {
+    getViewRow(index: number) {
         return this._data[index];
     }
 
@@ -51,7 +51,7 @@ export class RevSimpleMainDataServer<BCS extends BehavioredColumnSettings> imple
      * _Note parameter order is the reverse of `addRow`._
      * @param dataRow - if omitted or otherwise falsy, row renders as blank
      */
-    setRow(index: number, dataRow: RevSimpleMainDataServer.DataRow) {
+    setViewRow(index: number, dataRow: RevSimpleMainDataServer.DataRow) {
         this._data[index] = dataRow || undefined;
         this._callbackListeners.forEach((listener) => listener.invalidateRow(index));
     }
@@ -121,7 +121,7 @@ export class RevSimpleMainDataServer<BCS extends BehavioredColumnSettings> imple
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
      */
-    getValue(schemaColumn: SchemaServer.Column<BCS>, y: number) {
+    getViewValue(schemaColumn: SchemaServer.Column<BCS>, y: number) {
         const row = this._data[y];
         if (!row) {
             return null;
@@ -132,7 +132,7 @@ export class RevSimpleMainDataServer<BCS extends BehavioredColumnSettings> imple
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
      */
-    setValue(schemaColumn: SchemaServer.Column<BCS>, y: number, value: unknown) {
+    setEditValue(schemaColumn: SchemaServer.Column<BCS>, y: number, value: unknown) {
         this._data[y][schemaColumn.name] = value;
         this._callbackListeners.forEach((listener) => listener.invalidateCell(schemaColumn.index, y));
     }
@@ -155,8 +155,8 @@ export class RevSimpleMainDataServer<BCS extends BehavioredColumnSettings> imple
 
 /** @public */
 export namespace RevSimpleMainDataServer {
-    export interface DataRow extends DataServer.ObjectDataRow {
-        [columnName: string]: DataServer.DataValue;
+    export interface DataRow extends DataServer.ObjectViewRow {
+        [columnName: string]: DataServer.ViewValue;
         __META?: MetaModel.RowMetadata;
     }
 }

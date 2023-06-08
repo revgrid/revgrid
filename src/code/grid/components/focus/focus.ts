@@ -8,12 +8,14 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
 import { AssertError } from '../../types-utils/revgrid-error';
+import { CanvasManager } from '../canvas/canvas-manager';
 import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
 export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SC>;
+    editorKeyDownEventer: Focus.EditorKeyDownEventer;
 
     /** @internal */
     changedEventer: Focus.ChangedEventer;
@@ -43,6 +45,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     constructor(
         /** @internal */
         private readonly _gridSettings: BGS,
+        /** @internal */
+        private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
         private readonly _mainSubgrid: MainSubgrid<BCS, SC>,
         /** @internal */
@@ -107,10 +111,13 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
             if (cell !== undefined) {
                 this._cell = cell;
+
+                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
+                    this.tryOpenEditor(undefined);
+                }
+
                 this.viewCellRenderInvalidatedEventer(cell);
             }
-
-            this.closeAndCheckTryOpenEditor(false);
 
             this.fireFocusChanged();
         }
@@ -139,10 +146,13 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
             if (cell !== undefined) {
                 this._cell = cell;
+
+                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
+                    this.tryOpenEditor(undefined);
+                }
+
                 this.viewCellRenderInvalidatedEventer(cell);
             }
-
-            this.closeAndCheckTryOpenEditor(false);
 
             this.fireFocusChanged();
         }
@@ -170,10 +180,13 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
             if (cell !== undefined) {
                 this._cell = cell;
+
+                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
+                    this.tryOpenEditor(undefined);
+                }
+
                 this.viewCellRenderInvalidatedEventer(cell);
             }
-
-            this.closeAndCheckTryOpenEditor(false);
 
             this.fireFocusChanged();
         }
@@ -203,10 +216,13 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
             if (cell !== undefined) {
                 this._cell = cell;
+
+                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
+                    this.tryOpenEditor(undefined);
+                }
+
                 this.viewCellRenderInvalidatedEventer(cell);
             }
-
-            this.closeAndCheckTryOpenEditor(false);
 
             this.fireFocusChanged();
         }
@@ -240,11 +256,12 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         );
     }
 
-    tryOpenEditor() {
+    /** if initialValue is undefined, will get data from server */
+    tryOpenEditor(initialValue: DataServer.ViewValue | undefined) {
         if (this._editor !== undefined) {
             return true;
         } else {
-            if (this.getCellEditorEventer === undefined) {
+            if (this.getCellEditorEventer === undefined || this.dataServer.getEditValue === undefined) {
                 return false;
             } else {
                 const focusedPoint = this._currentSubgridPoint;
@@ -254,28 +271,35 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                     const column = this._columnsManager.getActiveColumn(focusedPoint.x);
                     const schemaColumn = column.schemaColumn;
                     const subgridRowIndex = focusedPoint.y;
-                    const readonly = this.dataServer.setValue === undefined;
+                    const readonly = this.dataServer.setEditValue === undefined;
                     const cell = this._cell;
                     const editor = this.getCellEditorEventer(schemaColumn, subgridRowIndex, this.subgrid, readonly, cell);
                     if (editor === undefined) {
                         return false;
                     } else {
-                        editor.pullDataEventer = () => this.getFocusedDataValue();
+                        editor.pullValueEventer = () => this.getFocusedEditValue();
                         if (!readonly) {
-                            editor.pushDataEventer = (value) => this.setFocusedDataValue(value);
+                            editor.pushValueEventer = (value) => this.setFocusedEditValue(value);
                         }
                         editor.closedEventer = (value) => this.handleEditorClosed(value);
+                        editor.keyDownEventer = (event) => this.editorKeyDownEventer(event);
                         this._editor = editor;
-                        const initialValue = this.dataServer.getValue(schemaColumn, subgridRowIndex);
-                        editor.open(initialValue);
+                        let valueIsNew: boolean;
+                        if (initialValue === undefined) {
+                            initialValue = this.dataServer.getEditValue(schemaColumn, subgridRowIndex);
+                            valueIsNew = false;
+                        } else {
+                            valueIsNew = true;
+                        }
+                        editor.open(initialValue, valueIsNew);
 
                         if (cell !== undefined && editor.setBounds !== undefined) {
                             editor.setBounds(cell.bounds);
                         }
 
-                        if (editor.focus !== undefined) {
-                            editor.focus();
-                        }
+                        // if (editor.focus !== undefined) {
+                        //     editor.focus();
+                        // }
 
                         return true;
                     }
@@ -284,30 +308,60 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
-    /** Returns true editor was already opened or could be opend by key */
-    tryOpenEditorWithKey(_key: string) {
-        // not yet implemented
-        return this.editor !== undefined;
-    }
-
-    closeEditor(cancel: boolean) {
+    closeEditor(cancel: boolean, focusCanvas: boolean) {
         const editor = this._editor;
         if (editor !== undefined) {
             this._editor = undefined;
             const value = editor.close(cancel);
             this.finaliseEditor(editor, value);
+
+            if (this._cell !== undefined) {
+                this.viewCellRenderInvalidatedEventer(this._cell);
+            }
+
+            if (focusCanvas) {
+                this._canvasManager.canvasElement.focus();
+            }
         }
     }
 
-    /** @internal */
-    closeAndCheckTryOpenEditor(cancel: boolean) {
-        this.closeEditor(cancel);
-
-        const currentSubgridPoint = this._currentSubgridPoint;
-        if (currentSubgridPoint !== undefined) {
-            const column = this._columnsManager.getActiveColumn(currentSubgridPoint.x);
-            if (column.settings.editOnFocusCell) {
-                this.tryOpenEditor();
+    checkEditorWantsKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean {
+        const key = event.key;
+        const editor = this._editor;
+        if (editor === undefined) {
+            if (key === this._gridSettings.editKey) {
+                this.tryOpenEditor(undefined);
+                return true;
+            } else {
+                const cell = this._cell;
+                if (cell !== undefined && cell.columnSettings.editOnKeydown) {
+                    const isPrintableKey = event.key.length === 1 || event.key === 'Unidentified';
+                    if (!isPrintableKey) {
+                        return false;
+                    } else {
+                        return this.tryOpenEditor(key);
+                    }
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            const consumed = editor.checkConsumeKeyDownEvent(event, fromEditor);
+            if (consumed) {
+                return true;
+            } else {
+                switch (key) {
+                    case Focus.ActionKeyboardKey.Enter: {
+                        this.closeEditor(false, true);
+                        return true;
+                    }
+                    case Focus.ActionKeyboardKey.Escape: {
+                        this.closeEditor(true, true);
+                        return true;
+                    }
+                    default:
+                        return false;
+                }
             }
         }
     }
@@ -432,7 +486,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private handleEditorClosed(value: DataServer.DataValue | undefined) {
+    private handleEditorClosed(value: DataServer.ViewValue | undefined) {
         const editor = this._editor;
         if (editor !== undefined) {
             this._editor = undefined;
@@ -479,44 +533,45 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private finaliseEditor(editor: CellEditor<BCS, SC>, value: DataServer.DataValue | undefined) {
+    private finaliseEditor(editor: CellEditor<BCS, SC>, value: DataServer.ViewValue | undefined) {
         editor.closedEventer = undefined;
-        editor.pullDataEventer = undefined;
-        editor.pushDataEventer = undefined;
+        editor.pullValueEventer = undefined;
+        editor.pushValueEventer = undefined;
         if (!editor.readonly && value !== undefined) {
-            this.setFocusedDataValue(value);
+            this.setFocusedEditValue(value);
         }
     }
 
     /** @internal */
-    private getFocusedDataValue() {
+    private getFocusedEditValue() {
         const focusedPoint = this._currentSubgridPoint;
-        if (focusedPoint === undefined) {
+        if (focusedPoint === undefined || this.dataServer.getEditValue === undefined) {
             throw new AssertError('FGFDV17778');
         } else {
             const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-            return this.dataServer.getValue(column.schemaColumn, focusedPoint.y);
+            return this.dataServer.getEditValue(column.schemaColumn, focusedPoint.y);
         }
     }
 
     /** @internal */
-    private setFocusedDataValue(value: DataServer.DataValue) {
+    private setFocusedEditValue(value: DataServer.ViewValue) {
         const focusedPoint = this._currentSubgridPoint;
         if (focusedPoint === undefined) {
             throw new AssertError('FGFDVF17778');
         } else {
-            if (this.dataServer.setValue === undefined) {
+            if (this.dataServer.setEditValue === undefined) {
                 throw new AssertError('FGFDVS17778');
             } else {
                 const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-                return this.dataServer.setValue(column.schemaColumn, focusedPoint.y, value);
+                return this.dataServer.setEditValue(column.schemaColumn, focusedPoint.y, value);
             }
         }
     }
 
     /** @internal */
     private closeFocus() {
-        this.closeEditor(false);
+        // in future, there may be scenarios where focus is not transferred to canvas if editor is closed
+        this.closeEditor(false, true);
 
         const cell = this._cell;
         if (cell !== undefined) {
@@ -579,6 +634,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
 /** @public */
 export namespace Focus {
+    export type EditorKeyDownEventer = (this: void, event: KeyboardEvent) => void;
     export type GetCellEditorEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (
         this: void,
         schemaColumn: SC,
@@ -592,6 +648,42 @@ export namespace Focus {
     export type ChangedEventer = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
     /** @internal */
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, cell: ViewCell<BCS, SC>) => void;
+
+    export const enum ActionKeyboardKey {
+        Tab = 'Tab',
+        Escape = 'Escape',
+        Enter = 'Enter',
+        ArrowLeft = 'ArrowLeft',
+        ArrowRight = 'ArrowRight',
+        ArrowUp = 'ArrowUp',
+        ArrowDown = 'ArrowDown',
+        PageUp = 'PageUp',
+        PageDown = 'PageDown',
+        Home = 'Home',
+        End = 'End',
+    }
+
+    export function isNavActionKeyboardKey(key: string) {
+        const actionKey = key as ActionKeyboardKey;
+        switch (actionKey) {
+            case ActionKeyboardKey.Escape:
+            case ActionKeyboardKey.Enter:
+                return false;
+            case ActionKeyboardKey.Tab:
+            case ActionKeyboardKey.ArrowLeft:
+            case ActionKeyboardKey.ArrowRight:
+            case ActionKeyboardKey.ArrowUp:
+            case ActionKeyboardKey.ArrowDown:
+            case ActionKeyboardKey.PageUp:
+            case ActionKeyboardKey.PageDown:
+            case ActionKeyboardKey.Home:
+            case ActionKeyboardKey.End:
+                return true;
+            default:
+                actionKey satisfies never;
+                return false;
+        }
+    }
 
     /** @internal */
     export interface Stash {

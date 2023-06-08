@@ -1,25 +1,28 @@
 import { DataServer, Revgrid, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
-import { StandardInputEditor } from './standard-input-editor';
+import { StandardInputElementEditor } from './standard-input-element-editor';
 
 /** @public */
 export class StandardTextInputEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
     SC extends SchemaServer.Column<BCS>
-> extends StandardInputEditor<BGS, BCS, SC> {
+> extends StandardInputElementEditor<BGS, BCS, SC> {
     constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean) {
         super(grid, readonly, 'text');
-        this.inputElement.classList.add('revgrid-text-input-editor');
+        this.element.classList.add('revgrid-text-input-editor');
     }
 
-    override open(value: DataServer.DataValue) {
-        super.open(value);
-        this.inputElement.value = value as string;
+    override open(value: DataServer.ViewValue, valueIsNew: boolean) {
+        super.open(value, valueIsNew);
+        if (!valueIsNew) {
+            this.element.value = value as string;
+            this.selectAll();
+        }
     }
 
     override close(cancel: boolean) {
-        const value = (cancel || this.readonly) ? undefined : this.inputElement.value;
+        const value = (cancel || this.readonly) ? undefined : this.element.value;
         super.close(cancel);
         return value;
     }

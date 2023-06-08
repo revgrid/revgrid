@@ -14,7 +14,7 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SC extends Schema
     readonly metaModel: MetaModel | undefined;
 
     getRowCount(): number;
-    getSingletonDataRow(rowIndex: number): DataServer.DataRow;
+    getSingletonViewDataRow(rowIndex: number): DataServer.ViewRow;
 
     getDefaultRowHeight(): number;
 
@@ -29,10 +29,9 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SC extends Schema
 
     setRowProperty(y: number, key: string, isHeight: boolean, value: unknown): boolean;
 
-    getValue(column: Column<BCS, SC>, rowIndex: number): DataServer.DataValue;
-    setValue(column: Column<BCS, SC>, rowIndex: number, value: DataServer.DataValue): void;
+    getViewValue(column: Column<BCS, SC>, rowIndex: number): DataServer.ViewValue;
 
-    getValueFromDataRowAtColumn(dataRow: DataServer.DataRow, column: Column<BCS, SC>): DataServer.DataValue;
+    getViewValueFromDataRowAtColumn(dataRow: DataServer.ViewRow, column: Column<BCS, SC>): DataServer.ViewValue;
 
     getCellPainter(viewCell: DatalessViewCell<BCS, SC>): CellPainter;
 }

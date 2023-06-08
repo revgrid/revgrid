@@ -6,7 +6,7 @@ export class HeaderDataServer implements DataServer<StandardInMemoryBehavioredCo
         return 1;
     }
 
-    getValue(schemaColumn: SchemaServer.Column<StandardInMemoryBehavioredColumnSettings>) {
+    getViewValue(schemaColumn: SchemaServer.Column<StandardInMemoryBehavioredColumnSettings>) {
         return (schemaColumn as SchemaServerImplementation.Column).header;
     }
 

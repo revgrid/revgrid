@@ -1,10 +1,10 @@
+import { EventDetail } from '../../interfaces/data/event-detail';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../../types-utils/point';
 import { CanvasManager } from '../canvas/canvas-manager';
-import { EventDetail } from '../event/event-detail';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */

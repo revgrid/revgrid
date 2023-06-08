@@ -1,5 +1,6 @@
 
-import { EventDetail } from '../../components/event/event-detail';
+import { Focus } from '../../components/focus/focus';
+import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
@@ -36,7 +37,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
     private _lastRowStepScrollDragTime: number | undefined;
 
     override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
-        if (!event.altKey || isSecondaryMouseButton(event)) {
+        if (isSecondaryMouseButton(event)) {
             this.selection.clear();
             return super.handlePointerDown(event, hoverCell);
         } else {
@@ -57,7 +58,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
                     if (!viewCell.isScrollable) {
                         return super.handlePointerDown(event, hoverCell);
                     } else {
-                        selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, viewCell);
+                        selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, viewCell, event.altKey);
                         if (!selectSucceeded) {
                             return super.handlePointerDown(event, hoverCell);
                         } else {
@@ -129,7 +130,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
                             selectSucceeded = this.trySelectFromMouseDownInFixedColumn(event, viewCell);
                         } else {
                             if (viewCell.isMain) {
-                                selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, viewCell)
+                                selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, viewCell, true);
                             } else {
                                 selectSucceeded = false;
                             }
@@ -185,10 +186,9 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        const navKey = eventDetail.revgrid_navigateKey;
-        if (navKey !== undefined) {
-            if (GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, eventDetail)) {
+    override handleKeyDown(event: KeyboardEvent, fromEditor: boolean) {
+        if (Focus.isNavActionKeyboardKey(event.key)) {
+            if (GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event)) {
                 if (this.focusSelectBehavior.extendLastSelectionAreaAsCloseAsPossibleToFocus()) {
                     this.pingAutoScroll();
                 }
@@ -197,10 +197,10 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
                 this.focusSelectBehavior.selectOnlyFocusedCell(areaType);
             }
         }
-        super.handleKeyDown(eventDetail);
+        super.handleKeyDown(event, fromEditor);
     }
 
-    private trySelectFromMouseDownInScrollableMain(event: MouseEvent, cell: ViewCell<BCS, SC>) {
+    private trySelectFromMouseDownInScrollableMain(event: MouseEvent, cell: ViewCell<BCS, SC>, extendAddAllowed: boolean) {
         // const areaTypeSpecifier = GridSettings.getSelectionAreaTypeSpecifierFromEvent(this.gridSettings, event);
         const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
 
@@ -211,8 +211,8 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
             const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
             const selection = this.selection;
-            const addToggleModifier = GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
-            const extendModifier = GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
+            const addToggleModifier = extendAddAllowed && GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
+            const extendModifier = extendAddAllowed && GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
             const lastArea = this.selection.lastArea;
 
             if (extendModifier && !addToggleModifier) {

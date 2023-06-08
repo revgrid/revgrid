@@ -17,7 +17,6 @@ import { CssClassName } from '../../types-utils/html-types';
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Point } from '../../types-utils/point';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
-import { Writable } from '../../types-utils/types';
 
 /** @public */
 export class CanvasManager<BGS extends BehavioredGridSettings> {
@@ -59,9 +58,9 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     private _pointerDownState: CanvasManager.PointerDownState = CanvasManager.PointerDownState.NotDown;
     private _pointerDragInternal: boolean;
 
-    private _repeatKeyCount = 0;
-    private _repeatKey: string | undefined;
-    private _repeatKeyStartTime = 0;
+    // private _repeatKeyCount = 0;
+    // private _repeatKey: string | undefined;
+    // private _repeatKeyStartTime = 0;
 
     readonly instanceId = getNextInstanceId();
     readonly canvasContainerElement: HTMLElement;
@@ -122,6 +121,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
                 throw new UnreachableCaseError('CMPUCEL34440', this._pointerDownState);
         }
     };
+
     private pointerLeaveOutListener = (event: PointerEvent) => {
         // event.preventDefault(); // no mouse event
 
@@ -135,35 +135,35 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         if (this.hasFocus()) {
             this.checkPreventDefault(e);
 
-            const key = e.key;
+            // const key = e.key;
 
-            if (e.repeat) {
-                if (this._repeatKey === key) {
-                    this._repeatKeyCount++;
-                } else {
-                    this._repeatKey = key;
-                    this._repeatKeyStartTime = Date.now();
-                }
-            } else {
-                this._repeatKey = undefined;
-                this._repeatKeyCount = 0;
-                this._repeatKeyStartTime = 0;
-            }
+            // if (e.repeat) {
+            //     if (this._repeatKey === key) {
+            //         this._repeatKeyCount++;
+            //     } else {
+            //         this._repeatKey = key;
+            //         this._repeatKeyStartTime = Date.now();
+            //     }
+            // } else {
+            //     this._repeatKey = undefined;
+            //     this._repeatKeyCount = 0;
+            //     this._repeatKeyStartTime = 0;
+            // }
 
-            const eventDetail = this.createKeyboardEventDetail(e);
-            this.keyDownEventer(eventDetail);
+            // const eventDetail = this.createKeyboardEventDetail(e);
+            this.keyDownEventer(e);
         }
     }
     private keyUpEventListener = (e: KeyboardEvent) => {
         if (this.hasFocus()) {
             this.checkPreventDefault(e);
 
-            this._repeatKeyCount = 0;
-            this._repeatKey = undefined;
-            this._repeatKeyStartTime = 0;
+            // this._repeatKeyCount = 0;
+            // this._repeatKey = undefined;
+            // this._repeatKeyStartTime = 0;
 
-            const eventDetail = this.createKeyboardEventDetail(e);
-            this.keyUpEventer(eventDetail);
+            // const eventDetail = this.createKeyboardEventDetail(e);
+            this.keyUpEventer(e);
         }
     }
 
@@ -206,7 +206,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
 
     constructor(
         readonly containerElement: HTMLElement,
-        contextAttributes: CanvasRenderingContext2DSettings | undefined,
+        canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         private readonly _gridSettings: BGS,
     ) {
         // create and append the canvas
@@ -217,7 +217,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         this.canvasElement.style.outline = 'none';
         this.canvasElement.classList.add(CssClassName.gridElementCssClass);
 
-        this.gc = createCachedContext(this.canvasElement, contextAttributes);
+        this.gc = createCachedContext(this.canvasElement, canvasRenderingContext2DSettings);
 
         this.containerElement.appendChild(this.canvasElement);
 
@@ -641,31 +641,31 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         return this.canvasElement.getBoundingClientRect();
     }
 
-    private createKeyboardEventDetail(e: KeyboardEvent): CanvasManager.RevgridKeyboardEvent {
-        const keyboardDetail = e as CanvasManager.WritableEventDetailKeyboard;
-        keyboardDetail.revgrid_nowTime = Date.now();
-        keyboardDetail.revgrid_repeatCount = this._repeatKeyCount;
-        keyboardDetail.revgrid_repeatStartTime = this._repeatKeyStartTime;
+    // private createKeyboardEventDetail(e: KeyboardEvent): CanvasManager.RevgridKeyboardEvent {
+    //     const keyboardDetail = e as CanvasManager.WritableEventDetailKeyboard;
+    //     keyboardDetail.revgrid_nowTime = Date.now();
+    //     keyboardDetail.revgrid_repeatCount = this._repeatKeyCount;
+    //     keyboardDetail.revgrid_repeatStartTime = this._repeatKeyStartTime;
 
-        keyboardDetail.revgrid_navigateKey = this.createKeyboardNavigateKey(e.key);
+    //     keyboardDetail.revgrid_navigateKey = this.createKeyboardNavigateKey(e.key);
 
-        return keyboardDetail;
-    }
+    //     return keyboardDetail;
+    // }
 
-    private createKeyboardNavigateKey(code: string) {
-        switch (code) {
-            case 'ArrowLeft': return CanvasManager.Keyboard.NavigateKey.left;
-            case 'ArrowRight': return CanvasManager.Keyboard.NavigateKey.right;
-            case 'ArrowUp': return CanvasManager.Keyboard.NavigateKey.up;
-            case 'ArrowDown': return CanvasManager.Keyboard.NavigateKey.down;
-            case 'PageUp': return CanvasManager.Keyboard.NavigateKey.pageUp;
-            case 'PageDown': return CanvasManager.Keyboard.NavigateKey.pageDown;
-            case 'Home': return CanvasManager.Keyboard.NavigateKey.home;
-            case 'End': return CanvasManager.Keyboard.NavigateKey.end;
-            default:
-                return undefined;
-        }
-    }
+    // private createKeyboardNavigateKey(code: string) {
+    //     switch (code) {
+    //         case 'ArrowLeft': return CanvasManager.Keyboard.NavigateKey.left;
+    //         case 'ArrowRight': return CanvasManager.Keyboard.NavigateKey.right;
+    //         case 'ArrowUp': return CanvasManager.Keyboard.NavigateKey.up;
+    //         case 'ArrowDown': return CanvasManager.Keyboard.NavigateKey.down;
+    //         case 'PageUp': return CanvasManager.Keyboard.NavigateKey.pageUp;
+    //         case 'PageDown': return CanvasManager.Keyboard.NavigateKey.pageDown;
+    //         case 'Home': return CanvasManager.Keyboard.NavigateKey.home;
+    //         case 'End': return CanvasManager.Keyboard.NavigateKey.end;
+    //         default:
+    //             return undefined;
+    //     }
+    // }
 }
     // fixCurrentKeys(keyChar: string, keydown: boolean) {
     //     const index = this.currentKeys.indexOf(keyChar);
@@ -769,8 +769,11 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
 // }
 // restartResizeLoop();
 
-function createCachedContext(canvasElement: HTMLCanvasElement, contextAttributes: CanvasRenderingContext2DSettings | undefined) {
-    const canvasRenderingContext2D = canvasElement.getContext('2d', contextAttributes);
+function createCachedContext(
+    canvasElement: HTMLCanvasElement,
+    canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined // lookup getContextAttributes for more info
+) {
+    const canvasRenderingContext2D = canvasElement.getContext('2d', canvasRenderingContext2DSettings);
     // const props = {};
     // let values = {};
 
@@ -830,7 +833,7 @@ export namespace CanvasManager {
     export type PointerDragStartEventer = (this: void, event: DragEvent) => boolean | undefined; // internal (true), external (false), not started (undefined)
     export type PointerDragEventer = (this: void, event: PointerEvent, internal: boolean) => void;
     export type WheelEventer = (this: void, event: WheelEvent) => void;
-    export type KeyEventer = (this: void, event: RevgridKeyboardEvent) => void;
+    export type KeyEventer = (this: void, event: KeyboardEvent) => void;
     export type TouchEventer = (this: void, event: TouchEvent) => void;
     export type ClipboardEventer = (this: void, event: ClipboardEvent) => void;
     export type DragEventer = (this: void, event: DragEvent) => void;
@@ -842,38 +845,27 @@ export namespace CanvasManager {
         Dragging,
         IgnoreClickAfterDrag,
     }
-    export type WritableEventDetailKeyboard = Writable<RevgridKeyboardEvent>;
+    // export type WritableEventDetailKeyboard = Writable<RevgridKeyboardEvent>;
 
-    export interface RevgridKeyboardEvent extends KeyboardEvent {
-        readonly revgrid_nowTime: number;
-        readonly revgrid_repeatCount: number;
-        readonly revgrid_repeatStartTime: number;
-        readonly revgrid_navigateKey: Keyboard.NavigateKey | undefined;
-    }
+    // export interface RevgridKeyboardEvent extends KeyboardEvent {
+    //     readonly revgrid_nowTime: number;
+    //     readonly revgrid_repeatCount: number;
+    //     readonly revgrid_repeatStartTime: number;
+    //     readonly revgrid_navigateKey: Keyboard.NavigateKey | undefined;
+    // }
 
-    export namespace Keyboard {
-        export const enum NavigateKey {
-            left,
-            right,
-            up,
-            down,
-            pageUp,
-            pageDown,
-            home,
-            end,
-        }
-    }
-
-    export interface Box {
-        top: number;
-        right: number;
-        bottom: number;
-        left: number;
-        width: number;
-        height: number;
-        x: number;
-        y: number;
-    }
+    // export namespace Keyboard {
+    //     export const enum NavigateKey {
+    //         left,
+    //         right,
+    //         up,
+    //         down,
+    //         pageUp,
+    //         pageDown,
+    //         home,
+    //         end,
+    //     }
+    // }
 
     export const canvasElementIdBase = 'revgrid-canvas-';
 }

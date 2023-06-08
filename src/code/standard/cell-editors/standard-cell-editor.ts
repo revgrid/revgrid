@@ -6,11 +6,9 @@ export abstract class StandardCellEditor<
     BCS extends StandardBehavioredColumnSettings,
     SC extends SchemaServer.Column<BCS>
 > implements CellEditor<BCS, SC> {
-    pullDataEventer: CellEditor.PullDataEventer;
-    pushDataEventer: CellEditor.PushDataEventer;
+    pullValueEventer: CellEditor.PullDataEventer;
+    pushValueEventer: CellEditor.PushDataEventer;
     closedEventer: CellEditor.ClosedEventer;
-
-    readonly paintImplemented: boolean = false;
 
     // protected readonly _gridSettings: StandardAllGridSettings;
     // protected readonly _renderingContext: CachedCanvasRenderingContext2D;
@@ -24,10 +22,9 @@ export abstract class StandardCellEditor<
         // this._renderingContext = grid.canvasManager.gc;
     }
 
-    paint(_prefillColor: string | undefined): number | undefined {
-        return undefined;
-    }
+    abstract open(value: DataServer.ViewValue, valueIsNew: boolean): void;
+    abstract close(cancel: boolean): DataServer.ViewValue | undefined;
 
-    abstract open(value: DataServer.DataValue): void;
-    abstract close(cancel: boolean): DataServer.DataValue | undefined;
+    abstract consumeKeyDownEvent(event: KeyboardEvent): void;
+    abstract checkConsumeKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean;
 }

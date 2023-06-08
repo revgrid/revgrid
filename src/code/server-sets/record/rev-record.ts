@@ -50,5 +50,5 @@ export namespace RevRecord {
 
 /** @public */
 export interface RevRecordData extends RevRecord {
-    data: DataServer.DataRow;
+    data: DataServer.ViewRow;
 }

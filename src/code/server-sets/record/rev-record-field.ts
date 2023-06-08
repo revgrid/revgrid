@@ -10,7 +10,7 @@ export interface RevRecordField<BCS extends BehavioredColumnSettings> {
      * Retrieves the value of a field for display purposes
      * @param record - The record to compare to
      */
-    getValue(record: RevRecord): DataServer.DataValue;
+    getValue(record: RevRecord): DataServer.ViewValue;
 
     /**
      * Compares two records based on this field for sorting in ascending order

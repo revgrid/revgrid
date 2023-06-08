@@ -1,6 +1,5 @@
 
 // import { CellEditor } from '../../cell-editor/cell-editor';
-import { EventDetail } from '../../components/event/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
@@ -32,13 +31,13 @@ export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         return super.handleDblClick(event, cell);
     }
 
-    override handleKeyDown(eventDetail: EventDetail.Keyboard) {
+    override handleKeyDown(event: KeyboardEvent, fromEditor: boolean) {
         const cellEvent = this.focusScrollBehavior.getFocusedViewCell(false);
         if (cellEvent === undefined) {
-            super.handleKeyDown(eventDetail);
+            super.handleKeyDown(event, fromEditor);
         } else {
             // const keyboardEvent = eventDetail.primitiveEvent;
-            const keyboardEvent = eventDetail;
+            const keyboardEvent = event;
             if (cellEvent.columnSettings.editOnKeydown /*&& !grid.cellEditor*/) {
                 const char = keyboardEvent.key;
                 const isVisibleChar = char.length === 1 && !(keyboardEvent.metaKey || keyboardEvent.ctrlKey);
@@ -59,10 +58,10 @@ export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
                     //     keyboardEvent.preventDefault();
                     // }
                 } else {
-                    super.handleKeyDown(eventDetail);
+                    super.handleKeyDown(event, fromEditor);
                 }
             } else {
-                super.handleKeyDown(eventDetail);
+                super.handleKeyDown(event, fromEditor);
             }
         }
     }

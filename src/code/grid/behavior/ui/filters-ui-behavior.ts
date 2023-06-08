@@ -1,5 +1,4 @@
 
-import { EventDetail } from '../../components/event/event-detail';
 import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
@@ -22,7 +21,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
      *    * `'LEFT'` - Opens filter cell editor in previous filterable column; if nonesuch, selects first visible data cell under filter cell.
      *    * `'RIGHT'` - Opens filter cell editor in next filterable column; if nonesuch, selects first visible data cell under filter cell.
      */
-    override handleKeyDown(eventDetail: EventDetail.Keyboard) {
+    override handleKeyDown(event: KeyboardEvent, fromEditor: boolean) {
         const handled = false;
 
         // if (eventDetail.editor !== undefined) {
@@ -39,7 +38,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
 
         if (!handled) {
             if (this.next) {
-                this.next.handleKeyDown(eventDetail);
+                this.next.handleKeyDown(event, fromEditor);
             }
         }
     }

@@ -1,11 +1,9 @@
-import { CanvasManager } from '../../components/canvas/canvas-manager';
-import { EventDetail } from '../../components/event/event-detail';
-import { CellEditor } from '../../interfaces/data/cell-editor';
+import { Focus } from '../../components/focus/focus';
+import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { KeyboardEventKey } from '../../types-utils/html-types';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 import { UiBehavior } from './ui-behavior';
@@ -40,7 +38,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
                 return super.handleDblClick(event, hoverCell);
             } else {
                 if (viewCell.columnSettings.editOnDoubleClick && viewCell.subgrid.isMain && !viewCell.isFixed) {
-                    this.focus.tryOpenEditor();
+                    this.focus.tryOpenEditor(undefined);
                     return hoverCell;
                 } else {
                     return super.handleDblClick(event, hoverCell);
@@ -50,124 +48,65 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /**
-     * @param eventDetail - the event details
+     * @param event - the event details
      */
-    override handleKeyDown(eventDetail: EventDetail.Keyboard) {
-        const navigateKey = eventDetail.revgrid_navigateKey;
-        let consumedByEditor = false;
-        if (navigateKey !== undefined) {
-            switch (navigateKey) {
-                case CanvasManager.Keyboard.NavigateKey.left: {
-                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantLeftArrow');
-                    if (!consumedByEditor) {
-                        this.focusScrollBehavior.tryMoveFocusLeft();
-                    }
+    override handleKeyDown(event: KeyboardEvent, fromEditor: boolean) {
+        if (!this.focus.checkEditorWantsKeyDownEvent(event, fromEditor)) {
+            const key = event.key as Focus.ActionKeyboardKey;
+            switch (key) {
+                case Focus.ActionKeyboardKey.ArrowLeft:
+                    this.focusScrollBehavior.tryMoveFocusLeft();
                     break;
-                }
-                case CanvasManager.Keyboard.NavigateKey.right: {
-                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantRightArrow');
-                    if (!consumedByEditor) {
-                        this.focusScrollBehavior.tryMoveFocusRight();
-                    }
+                case Focus.ActionKeyboardKey.ArrowRight:
+                    this.focusScrollBehavior.tryMoveFocusRight();
                     break;
-                }
-                case CanvasManager.Keyboard.NavigateKey.up: {
-                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantUpArrow');
-                    if (!consumedByEditor) {
-                        this.focusScrollBehavior.tryMoveFocusUp();
-                    }
+                case Focus.ActionKeyboardKey.ArrowUp:
+                    this.focusScrollBehavior.tryMoveFocusUp();
                     break;
-                }
-                case CanvasManager.Keyboard.NavigateKey.down: {
-                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantDownArrow');
-                    if (!consumedByEditor) {
-                        this.focusScrollBehavior.tryMoveFocusDown();
-                    }
+                case Focus.ActionKeyboardKey.ArrowDown:
+                    this.focusScrollBehavior.tryMoveFocusDown();
                     break;
-                }
-                case CanvasManager.Keyboard.NavigateKey.pageUp: {
+                case Focus.ActionKeyboardKey.PageUp:
                     // If implementing focus driven paging, then use focusBehavior
-                    if (eventDetail.altKey) {
+                    if (event.altKey) {
                         this.focusScrollBehavior.tryPageFocusLeft();
                     } else {
                         this.focusScrollBehavior.tryPageFocusUp();
                     }
                     break;
-                }
-                case CanvasManager.Keyboard.NavigateKey.pageDown: {
+                case Focus.ActionKeyboardKey.PageDown:
                     // If implementing focus driven paging, then use focusBehavior
-                    if (eventDetail.altKey) {
+                    if (event.altKey) {
                         this.focusScrollBehavior.tryPageFocusRight();
                     } else {
                         this.focusScrollBehavior.tryPageFocusDown();
                     }
                     break;
-                }
-                case CanvasManager.Keyboard.NavigateKey.home: {
-                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantHome');
-                    if (!consumedByEditor) {
-                        if (eventDetail.ctrlKey) {
-                            this.focusScrollBehavior.moveFocusTop();
-                        } else {
-                            this.focusScrollBehavior.moveFocusFirstColumn();
-                        }
-                    }
-                    break;
-                }
-                case CanvasManager.Keyboard.NavigateKey.end: {
-                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantEnd');
-                    if (!consumedByEditor) {
-                        if (eventDetail.ctrlKey) {
-                            this.focusScrollBehavior.moveFocusBottom();
-                        } else {
-                            this.focusScrollBehavior.moveFocusLastColumn();
-                        }
-                    }
-                    break;
-                }
-                default:
-                    throw new UnreachableCaseError('FUBHKD33233', navigateKey);
-            }
-        } else {
-            const key = eventDetail.key;
-            switch (key) {
-                case KeyboardEventKey.Tab: {
-                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantTab');
-                    if (!consumedByEditor) {
-                        this.focusScrollBehavior.tryMoveFocusLeft();
-                    }
-                    break;
-                }
-                case KeyboardEventKey.Return: {
-                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantReturn');
-                    if (!consumedByEditor) {
-                        this.focusScrollBehavior.tryMoveFocusDown();
-                    }
-                    break;
-                }
-                case KeyboardEventKey.Escape: {
-                    consumedByEditor = this.checkDivertToEditor(eventDetail, 'wantEscape');
-                    if (!consumedByEditor) {
-                        this.focus.closeEditor(true);
-                    }
-                    break;
-                }
-                default: {
-                    if (key === this.gridSettings.editKey) {
-                        this.focus.tryOpenEditor();
-                        consumedByEditor = true;
+                case Focus.ActionKeyboardKey.Home:
+                    if (event.ctrlKey) {
+                        this.focusScrollBehavior.moveFocusTop();
                     } else {
-                        const cell = this.focus.cell;
-                        if (cell !== undefined && cell.columnSettings.editOnKeydown) {
-                            consumedByEditor = this.focus.tryOpenEditorWithKey(key);
-                        }
+                        this.focusScrollBehavior.moveFocusFirstColumn();
                     }
-                }
+                    break;
+                case Focus.ActionKeyboardKey.End:
+                    if (event.ctrlKey) {
+                        this.focusScrollBehavior.moveFocusBottom();
+                    } else {
+                        this.focusScrollBehavior.moveFocusLastColumn();
+                    }
+                    break;
+                case Focus.ActionKeyboardKey.Tab:
+                    this.focusScrollBehavior.tryMoveFocusRight();
+                    break;
+                case Focus.ActionKeyboardKey.Enter:
+                case Focus.ActionKeyboardKey.Escape:
+                    break;
+                default:
+                    key satisfies never;
             }
-        }
 
-        if (!consumedByEditor) {
-            super.handleKeyDown(eventDetail);
+            super.handleKeyDown(event, fromEditor);
         }
 
         // // STEP 1: Move the selection
@@ -282,16 +221,6 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
             case HorizontalWheelScrollingAllowed.Always: return true;
             case HorizontalWheelScrollingAllowed.CtrlKeyDown: return event.ctrlKey;
             default: throw new UnreachableCaseError('TSIHWCA82007', gridSettings.horizontalWheelScrollingAllowed);
-        }
-    }
-
-    private checkDivertToEditor(eventDetail: EventDetail.Keyboard, wantProperty: keyof CellEditor<BCS, SC>): boolean {
-        const editor = this.focus.editor;
-        if (editor !== undefined && editor[wantProperty] && editor.keyDown !== undefined) {
-            editor.keyDown(eventDetail);
-            return true;
-        } else {
-            return false;
         }
     }
 }

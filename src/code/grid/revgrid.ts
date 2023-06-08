@@ -10,7 +10,6 @@ import { UiBehaviorManager } from './behavior/ui/ui-behavior-manager';
 import { CanvasManager } from './components/canvas/canvas-manager';
 import { ColumnsManager } from './components/column/columns-manager';
 import { ComponentsManager } from './components/components-manager';
-import { EventDetail } from './components/event/event-detail';
 import { Focus } from './components/focus/focus';
 import { Mouse } from './components/mouse/mouse';
 import { GridPainter } from './components/renderer/grid-painter/grid-painter';
@@ -21,6 +20,7 @@ import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
 import { CellMetaSettings } from './interfaces/data/cell-meta-settings';
 import { DataServer } from './interfaces/data/data-server';
+import { EventDetail } from './interfaces/data/event-detail';
 import { LinedHoverCell } from './interfaces/data/hover-cell';
 import { MainSubgrid } from './interfaces/data/main-subgrid';
 import { MetaModel } from './interfaces/data/meta-model';
@@ -32,7 +32,7 @@ import { BehavioredColumnSettings } from './interfaces/settings/behaviored-colum
 import { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from './interfaces/settings/column-settings';
 import { CssClassName } from './types-utils/html-types';
-import { DateFormatter, Localization, NumberFormatter } from './types-utils/localization';
+import { Localization } from './types-utils/localization';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { AssertError } from './types-utils/revgrid-error';
@@ -189,7 +189,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.containerHtmlElement,
             schemaServer,
             definition.subgrids,
-            options.canvasContextAttributes,
+            options.canvasRenderingContext2DSettings,
             options.loadBuiltinFinbarStylesheet ?? true,
         );
 
@@ -493,11 +493,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @return The data row object at y index.
      * @param y - the row index of interest
      */
-    getSingletonDataRow(y: number, subgrid?: Subgrid<BCS, SC>): DataServer.DataRow {
+    getSingletonViewDataRow(y: number, subgrid?: Subgrid<BCS, SC>): DataServer.ViewRow {
         if (subgrid === undefined) {
-            return this.mainSubgrid.getSingletonDataRow(y);
+            return this.mainSubgrid.getSingletonViewDataRow(y);
         } else {
-            return subgrid.getSingletonDataRow(y);
+            return subgrid.getSingletonViewDataRow(y);
         }
     }
 
@@ -505,20 +505,20 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * Retrieve all data rows from the data model.
      * > Use with caution!
      */
-    getData(): readonly DataServer.DataRow[] {
+    getViewData(): readonly DataServer.ViewRow[] {
         const mainDataServer = this.mainDataServer;
-        if (mainDataServer.getData === undefined) {
+        if (mainDataServer.getViewData === undefined) {
             return [];
         } else {
-            return mainDataServer.getData();
+            return mainDataServer.getViewData();
         }
     }
 
-    getValue(x: number, y: number, subgrid?: Subgrid<BCS, SC>) {
+    getViewValue(x: number, y: number, subgrid?: Subgrid<BCS, SC>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this._componentsManager.getValue(x, y, subgrid);
+        return this._componentsManager.getViewValue(x, y, subgrid);
     }
 
     setValue(x: number, y: number, value: number, subgrid?: Subgrid<BCS, SC>) {
@@ -548,7 +548,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     private initContainer(container: string | HTMLElement | undefined, options: Revgrid.Options<BGS, BCS, SC>): HTMLElement {
         let resolvedContainer: HTMLElement;
         if (container === undefined) {
-            resolvedContainer = this.findOrCreateContainer(options.boundingRect);
+            resolvedContainer = this.findOrCreateContainer();
         } else {
             if (typeof container === 'string') {
                 const queriedContainer = document.querySelector(container);
@@ -571,7 +571,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             resolvedContainer.style.height = ''; // revert to stylesheet value
         }
 
-        this.setStyles(resolvedContainer, options?.edgeStyleValues, Revgrid.edgeStyleKeys);
         resolvedContainer.removeAttribute('tabindex');
 
         resolvedContainer.classList.add(CssClassName.gridContainerElementCssClass);
@@ -1238,11 +1237,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessKeyDown(_event: EventDetail.Keyboard) {
+    protected descendantProcessKeyDown(_event: KeyboardEvent, _fromEditor: boolean) {
         // for descendants
     }
 
-    protected descendantProcessKeyUp(_event: EventDetail.Keyboard) {
+    protected descendantProcessKeyUp(_event: KeyboardEvent) {
         // for descendants
     }
 
@@ -1814,13 +1813,12 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // End Scrolling mixin
 
     /** @internal */
-    private findOrCreateContainer(boundingRect: Revgrid.BoundingRectStyleValues | undefined) {
+    private findOrCreateContainer() {
         let div = document.getElementById(CssClassName.gridContainerElementCssIdBase);
 
         if (div === null || div.childElementCount > 0) {
             // is not found or being used.  Create a new container
             div = document.createElement('div');
-            this.setStyles(div, boundingRect, Revgrid.boundingRectStyleKeys);
             document.body.appendChild(div);
         }
 
@@ -1850,7 +1848,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             selectionChanged: () => this.descendantProcessSelectionChanged(),
             focus: () => this.descendantEventerFocus(),
             blur: () => this.descendantEventerBlur(),
-            keyDown: (event) => this.descendantProcessKeyDown(event),
+            keyDown: (event, fromEditor) => this.descendantProcessKeyDown(event, fromEditor),
             keyUp: (event) => this.descendantProcessKeyUp(event),
             click: (event, cell) => this.descendantProcessClick(event, cell),
             dblClick: (event, cell) => this.descendantProcessDblClick(event, cell),
@@ -1877,19 +1875,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             verticalScrollViewportStartChanged: () => this.descendantProcessVerticalScrollViewportStartChanged(),
             horizontalScrollerAction: (action) => this.descendantProcessHorizontalScrollerAction(action),
             verticalScrollerAction: (action) => this.descendantProcessVerticalScrollerAction(action),
-        }
-    }
-
-    /** @internal */
-    private setStyles<T extends Revgrid.EdgeStyleValues | Revgrid.BoundingRectStyleValues>(el: HTMLElement, style: T | undefined, keys: string[]) {
-        if (style !== undefined) {
-            const elStyle = el.style;
-            keys.forEach((key) => {
-                const value = style[key as keyof T]
-                if (value !== undefined) {
-                    elStyle.setProperty(key, value as string);
-                }
-            });
         }
     }
 }
@@ -1982,51 +1967,12 @@ export namespace Revgrid {
     }
 
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-		boundingRect?: BoundingRectStyleValues;
-		canvasContextAttributes?: CanvasRenderingContext2DSettings;
-		edgeStyleValues?: EdgeStyleValues;
+        /** Set alpha to false to speed up rendering if no colors use alpha channel */
+		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         /** Specifies whether to load builtin FinBar stylesheet. Default: true */
         loadBuiltinFinbarStylesheet?: boolean;
         customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS, SC>[];
 	}
-
-    export interface LocalizationOptions {
-        locale?: string;
-        numberOptions?: NumberFormatter.Options;
-        dateOptions?: DateFormatter.Options;
-    }
-
-    /**
-     * @name localization
-     * @summary Shared localization defaults for all grid instances.
-     * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
-     * @property locale - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@see https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
-     * @property numberOptions - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
-     * @property dateOptions - Options passed to `Intl.DateFormat` for creating the basic "date" localizer.
-     */
-    export namespace defaultLocalizationOptions {
-        export const locale = 'en-US';
-        export const numberOptions: NumberFormatter.Options = { maximumFractionDigits: 0 };
-        export const dateOptions: DateFormatter.Options = { };
-    }
-
-    export interface EdgeStyleValues {
-		top?: string;
-		right?: string;
-		bottom?: string;
-		left?: string;
-    }
-
-    export const edgeStyleKeys: Array<keyof EdgeStyleValues> = ['top', 'bottom', 'left', 'right'];
-
-	export interface BoundingRectStyleValues extends EdgeStyleValues
-	{
-		width?: string;
-		height?: string;
-		position?: string;
-	}
-
-    export const boundingRectStyleKeys: Array<keyof BoundingRectStyleValues> = [ ...edgeStyleKeys, 'width', 'height', 'position'];
 }
 
 // Begin Selection functions
