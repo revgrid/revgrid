@@ -2,7 +2,6 @@ import { EventDetail } from '../../interfaces/data/event-detail';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ScrollDimension } from '../view/scroll-dimension';
-import { cssInjector } from './css-injector';
 
 // Following is the sole style requirement for bar and thumb elements.
 // Maintained in code so not dependent being in stylesheet.
@@ -168,8 +167,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         deltaXFactor: number,
         deltaYFactor: number,
         classPrefix: string | undefined,
-        loadBuiltinCssStylesheet: boolean,
-        cssStylesheetReferenceElement: HTMLElement,
         private readonly _spaceAccomodatedScroller: Scroller<BGS> | undefined,
     ) {
         // make bound versions of all the mouse event handler
@@ -178,7 +175,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         const thumb = this._thumb;
         thumb.id = orientation + Scroller.thumbElementIdBase + instanceId.toString();
         thumb.classList.add('thumb');
-        thumb.style.position = 'absolute';
         thumb.onclick = bound.shortStop;
         thumb.onmouseover = bound.onmouseover;
         thumb.onmouseout = bound.onmouseout;
@@ -186,7 +182,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         this.bar = document.createElement('div');
         const bar = this.bar;
         bar.id = orientation + Scroller.barElementIdBase + instanceId.toString();
-        bar.style.position = 'absolute';
         bar.onmousedown = bound.onmousedown;
         bar.onclick = bound.onclick;
         bar.appendChild(thumb);
@@ -213,9 +208,9 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
         // this.normal = getNormal();
 
-        if (loadBuiltinCssStylesheet) {
-            cssInjector(cssFinBars, 'finbar-base', cssStylesheetReferenceElement);
-        }
+        // if (loadBuiltinCssStylesheet) {
+        //     cssInjector(cssFinBars, 'finbar-base', cssStylesheetReferenceElement);
+        // }
 
         this._scrollDimension.changedEventer = () => {
             this.resize();
@@ -759,7 +754,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 }
 
 export namespace Scroller {
-    export const defaultClassPrefix = 'finbar';
+    export const defaultClassPrefix = 'revgrid';
     export const barElementIdBase = '-revgrid-scroller-bar-';
     export const thumbElementIdBase = '-revgrid-scroller-thumb-';
 
@@ -967,8 +962,3 @@ interface LeadingTrailing {
     leading?: string; // left/top as pixel string
     trailing?: string; // right/bottom as pixel string
 }
-
-// definition inserted by gulpfile between following comments
-/* inject:css */
-const cssFinBars = 'div.finbar-horizontal,div.finbar-vertical{margin:3px}div.finbar-horizontal>.thumb,div.finbar-vertical>.thumb{background-color:#d3d3d3;-webkit-box-shadow:0 0 1px #000;-moz-box-shadow:0 0 1px #000;box-shadow:0 0 1px #000;border-radius:4px;margin:2px;opacity:.4;transition:opacity .5s}div.finbar-horizontal>.thumb.hover,div.finbar-vertical>.thumb.hover{opacity:1;transition:opacity .5s}div.finbar-vertical{top:0;bottom:0;right:0;width:11px}div.finbar-vertical>.thumb{top:0;right:0;width:7px}div.finbar-horizontal{left:0;right:0;bottom:0;height:11px}div.finbar-horizontal>.thumb{left:0;bottom:0;height:7px}';
-/* endinject */

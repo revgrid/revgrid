@@ -33,7 +33,6 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         schemaServer: SchemaServer<BCS, SC>,
         subgridDefinitions: Subgrid.Definition<BCS, SC>[],
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
-        loadBuiltinFinbarStylesheet: boolean,
     ) {
         // this.gridSettings = new AbstractMergableGridSettings();
         // this.gridSettings.loadDefaults();
@@ -106,8 +105,6 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 1,
                 gridSettings.wheelVFactor,
                 gridSettings.verticalScrollbarClassPrefix,
-                loadBuiltinFinbarStylesheet,
-                containerHtmlElement,
                 undefined,
             );
             containerHtmlElement.appendChild(this.verticalScroller.bar);
@@ -121,8 +118,6 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 gridSettings.wheelHFactor,
                 1,
                 gridSettings.horizontalScrollbarClassPrefix,
-                loadBuiltinFinbarStylesheet,
-                containerHtmlElement,
                 this.verticalScroller,
             );
             containerHtmlElement.appendChild(this.horizontalScroller.bar);

@@ -9,7 +9,6 @@
   "include": [
     "grid-public-api.ts",
     "revgrid.ts",
-    "template/*.ts",
   ],
 
   "references": [

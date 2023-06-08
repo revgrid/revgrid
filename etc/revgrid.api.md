@@ -2519,7 +2519,6 @@ export namespace Revgrid {
         canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         // (undocumented)
         customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS, SC>[];
-        loadBuiltinFinbarStylesheet?: boolean;
     }
 }
 

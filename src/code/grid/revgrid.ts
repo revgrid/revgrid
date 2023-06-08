@@ -190,7 +190,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             schemaServer,
             definition.subgrids,
             options.canvasRenderingContext2DSettings,
-            options.loadBuiltinFinbarStylesheet ?? true,
         );
 
         this.focus = this._componentsManager.focus;
@@ -1969,8 +1968,6 @@ export namespace Revgrid {
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
-        /** Specifies whether to load builtin FinBar stylesheet. Default: true */
-        loadBuiltinFinbarStylesheet?: boolean;
         customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS, SC>[];
 	}
 }
