@@ -33,12 +33,15 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SC extends Schema
 
     getViewValueFromDataRowAtColumn(dataRow: DataServer.ViewRow, column: Column<BCS, SC>): DataServer.ViewValue;
 
-    getCellPainter(viewCell: DatalessViewCell<BCS, SC>): CellPainter;
+    getCellPainter(viewCell: DatalessViewCell<BCS, SC>): CellPainter<BCS, SC>;
 }
 
 /** @public */
 export namespace Subgrid {
-    export type GetCellPainterEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, viewCell: DatalessViewCell<BCS, SC>) => CellPainter;
+    export type GetCellPainterEventer<
+        BCS extends BehavioredColumnSettings,
+        SC extends SchemaServer.Column<BCS>
+    > = (this: void, viewCell: DatalessViewCell<BCS, SC>) => CellPainter<BCS, SC>;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export import RoleEnum = DatalessSubgrid.RoleEnum;

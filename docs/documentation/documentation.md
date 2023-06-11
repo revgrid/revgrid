@@ -1,2 +1,0 @@
-# Hypegrid Documentation
-

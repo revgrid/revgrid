@@ -92,15 +92,15 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
      * @desc Get a cell's value given its column & row indexes.
      * @returns The member with the given schema field from the data row with the given `rowIndex`.
      */
-    getViewValue(schema: SchemaServer.Column<BCS>, rowIndex: number): DataServer.ViewValue;
+    getViewValue(schemaColumn: SchemaServer.Column<BCS>, rowIndex: number): DataServer.ViewValue;
 
-    getEditValue?(schema: SchemaServer.Column<BCS>, rowIndex: number): DataServer.EditValue;
+    getEditValue?(schemaColumn: SchemaServer.Column<BCS>, rowIndex: number): DataServer.EditValue;
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Set a cell's value given its column schema & row indexes and a new value.
      */
-    setEditValue?(schema: SchemaServer.Column<BCS>, rowIndex: number, value: DataServer.EditValue): void;
+    setEditValue?(schemaColumn: SchemaServer.Column<BCS>, rowIndex: number, value: DataServer.EditValue): void;
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._

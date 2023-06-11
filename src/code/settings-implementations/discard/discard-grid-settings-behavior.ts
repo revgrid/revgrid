@@ -10,5 +10,7 @@ export const discardGridSettingsBehavior: GridSettingsBehavior = {
     horizontalViewLayoutInvalidatedEventer: () => {},
     verticalViewLayoutInvalidatedEventer: () => {},
 
+    beginChange: () => {},
+    endChange: () => {},
     load: () => {},
 }

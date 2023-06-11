@@ -49,7 +49,7 @@ import { ViewCellImplementation } from './view-cell-implementation';
  */
 export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
     /** @internal */
-    invalidateDataEventer: ViewLayout.InvalidatedEventer;
+    layoutInvalidatedEventer: ViewLayout.LayoutInvalidatedEventer;
     /** @internal */
     columnsViewWidthsChangedEventer: ViewLayout.ColumnsViewWidthsChangedEventer;
     /** @internal */
@@ -145,10 +145,22 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
         private readonly _subgridsManager: SubgridsManager<BGS, BCS, SC>,
     ) {
-        this._gridSettings.viewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateAll(scrollDimensionAsWell)
-        this._gridSettings.horizontalViewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
-        this._gridSettings.verticalViewLayoutInvalidatedEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell)
-        this._canvasManager.resizedEventerForViewLayout = () => this.invalidateAll(true);
+        this._gridSettings.viewLayoutInvalidatedEventer = (scrollDimensionAsWell) => {
+            this.resetAllCellPaintFingerprints();
+            this.invalidateAll(scrollDimensionAsWell);
+        }
+        this._gridSettings.horizontalViewLayoutInvalidatedEventer = (scrollDimensionAsWell) => {
+            this.resetAllCellPaintFingerprints();
+            this.invalidateHorizontalAll(scrollDimensionAsWell);
+        }
+        this._gridSettings.verticalViewLayoutInvalidatedEventer = (scrollDimensionAsWell) => {
+            this.resetAllCellPaintFingerprints();
+            this.invalidateHorizontalAll(scrollDimensionAsWell);
+        }
+        this._canvasManager.resizedEventerForViewLayout = () => {
+            this.resetAllCellPaintFingerprints();
+            this.invalidateAll(true);
+        }
         this._columnsManager.activeColumnWidthOrOrderChangedEventer = () => this.invalidateHorizontalAll(true)
         this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvasManager, this._columnsManager);
         this._horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
@@ -477,7 +489,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 throw new UnreachableCaseError('VLI42220', action.dimension);
         }
 
-        this.invalidateDataEventer(action);
+        this.layoutInvalidatedEventer(action);
     }
 
     invalidateAll(scrollDimensionAsWell: boolean) {
@@ -1672,6 +1684,11 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
+    resetAllCellPaintFingerprints() {
+        this.resetPoolAllCellPaintFingerprints(this._columnRowOrderedCellPool);
+        this.resetPoolAllCellPaintFingerprints(this._rowColumnOrderedCellPool);
+    }
+
     resetAllCellPropertiesCaches() {
         this.resetPoolAllCellPropertiesCaches(this._columnRowOrderedCellPool);
         this.resetPoolAllCellPropertiesCaches(this._rowColumnOrderedCellPool);
@@ -2300,10 +2317,19 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     }
 
+    private resetPoolAllCellPaintFingerprints(pool: ViewCell<BCS, SC>[]) {
+        const cellCount = pool.length;
+        for (let i = 0; i < cellCount; i++) {
+            const cell = pool[i];
+            cell.paintFingerprint = undefined;
+        }
+    }
+
     private resetPoolAllCellPropertiesCaches(pool: ViewCell<BCS, SC>[]) {
         const cellCount = pool.length;
         for (let i = 0; i < cellCount; i++) {
             const cell = pool[i];
+            cell.paintFingerprint = undefined;
             cell.clearCellOwnProperties();
         }
     }
@@ -2312,7 +2338,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 export namespace ViewLayout {
     export type GetRowHeightEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, y: number, subgrid: Subgrid<BCS, SC> | undefined) => number;
     export type CheckNeedsShapeChangedEventer = (this: void) => void;
-    export type InvalidatedEventer = (this: void, action: InvalidateAction) => void;
+    export type LayoutInvalidatedEventer = (this: void, action: InvalidateAction) => void;
     export type ColumnsViewWidthsChangedEventer = (this: void) => void;
     export type CellPoolComputedEventer = (this: void) => void;
 

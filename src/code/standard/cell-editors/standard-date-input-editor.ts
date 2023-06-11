@@ -8,13 +8,13 @@ export class StandardDateInputEditor<
     BCS extends StandardBehavioredColumnSettings,
     SC extends SchemaServer.Column<BCS>
 > extends StandardInputElementEditor<BGS, BCS, SC> {
-    constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean) {
-        super(grid, readonly, 'date');
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>) {
+        super(grid, dataServer, 'date');
         this.element.classList.add('revgrid-date-input-editor');
     }
 
-    override open(value: DataServer.ViewValue, valueIsNew: boolean) {
-        super.open(value, valueIsNew);
+    override tryOpen(value: DataServer.ViewValue, valueIsNew: boolean) {
+        super.tryOpen(value, valueIsNew);
         this.element.value = value as string;
         if (!valueIsNew) {
             this.selectAll();

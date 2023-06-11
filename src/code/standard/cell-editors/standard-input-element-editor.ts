@@ -1,4 +1,4 @@
-import { CellEditor, DataServer, Focus, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardElementCellEditor } from './standard-element-cell-editor';
 
@@ -11,9 +11,9 @@ export abstract class StandardInputElementEditor<
 
     declare protected readonly element: HTMLInputElement;
 
-    constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean, inputType: string) {
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>, inputType: string) {
         const element = document.createElement('input') as HTMLInputElement;
-        super(grid, readonly, element);
+        super(grid, dataServer, element);
 
         element.type = inputType;
         element.style.borderStyle = 'none';
@@ -21,31 +21,31 @@ export abstract class StandardInputElementEditor<
         element.classList.add('revgrid-input-editor');
     }
 
-    override open(value: DataServer.ViewValue, valueIsNew: boolean) {
-        super.open(value, valueIsNew);
-        this.element.addEventListener('keydown', this.keyDownEventer);
+    override set readonly(value: boolean) {
+        super.readonly = value;
+        this.element.readOnly = value;
     }
 
-    override close(cancel: boolean) {
+    override tryOpen(viewCell: DatalessViewCell<BCS, SC>, keyDownEvent: KeyboardEvent | undefined, mouseEvent: MouseEvent | undefined) {
+        const result = super.tryOpen(viewCell, keyDownEvent, mouseEvent);
+        if (result) {
+            this.element.addEventListener('keydown', this.keyDownEventer);
+        }
+        return result;
+    }
+
+    override close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean) {
         this.element.removeEventListener('keydown', this.keyDownEventer);
-        super.close(cancel);
+        super.close(schemaColumn, subgridRowIndex, cancel);
     }
 
-    override consumeKeyDownEvent(event: KeyboardEvent) {
-        this.element.dispatchEvent(event);
-    }
-
-    override checkConsumeKeyDownEvent(event: KeyboardEvent, fromEditor: boolean) {
+    override checkConsumeKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SC, _subgridRowIndex: number) {
         if (fromEditor) {
             // Event was emitted by this editor.  Any key it can consume has effectively already been consumed
             return this.canConsumeKey(event.key);
         } else {
-            if (this.canConsumeKey(event.key)) {
-                this.consumeKeyDownEvent(event);
-                return true;
-            } else {
-                return false;
-            }
+            // Cannot dispatch an event from another element to an input element
+            return false;
         }
     }
 

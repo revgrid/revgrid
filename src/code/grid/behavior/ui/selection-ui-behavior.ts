@@ -544,7 +544,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         let stepped: boolean;
         if (actualStep) {
             this._lastColumnStepScrollDragTime = nowTime;
-            stepped = this.focusScrollBehavior.stepScrollColumn(directionCanvasOffsetX);
+            stepped = this.focusScrollBehavior.tryStepScrollColumn(directionCanvasOffsetX);
         } else {
             stepped = true; // dummy step
         }
@@ -587,7 +587,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         let stepped: boolean;
         if (actualStep) {
             this._lastRowStepScrollDragTime = nowTime;
-            stepped = this.focusScrollBehavior.stepScrollRow(directionCanvasOffsetY);
+            stepped = this.focusScrollBehavior.tryStepScrollRow(directionCanvasOffsetY);
         } else {
             stepped = true; // dummy step
         }

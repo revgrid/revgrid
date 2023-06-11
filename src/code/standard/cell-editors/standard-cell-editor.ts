@@ -1,4 +1,4 @@
-import { CellEditor, DataServer, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 
 export abstract class StandardCellEditor<
@@ -10,21 +10,47 @@ export abstract class StandardCellEditor<
     pushValueEventer: CellEditor.PushDataEventer;
     closedEventer: CellEditor.ClosedEventer;
 
-    // protected readonly _gridSettings: StandardAllGridSettings;
-    // protected readonly _renderingContext: CachedCanvasRenderingContext2D;
-    // protected _cell: ViewCell<BCS>;
-    // protected _columnSettings: StandardAllColumnSettings;
-    // protected _dataServer: DataServer<BCS>;
+    private _readonly: boolean;
 
-    constructor(protected readonly _grid: Revgrid<BGS, BCS, SC>, readonly readonly: boolean) {
-        // const grid = this._grid;
-        // this._gridSettings = grid.settings;
-        // this._renderingContext = grid.canvasManager.gc;
+    constructor(
+        protected readonly _grid: Revgrid<BGS, BCS, SC>,
+        protected readonly _dataServer: DataServer<BCS>,
+    ) {
     }
 
-    abstract open(value: DataServer.ViewValue, valueIsNew: boolean): void;
-    abstract close(cancel: boolean): DataServer.ViewValue | undefined;
+    get readonly() { return this._readonly; }
+    set readonly(value: boolean) {
+        this._readonly = value;
+    }
 
-    abstract consumeKeyDownEvent(event: KeyboardEvent): void;
-    abstract checkConsumeKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean;
+    abstract tryOpen(viewCell: DatalessViewCell<BCS, SC>, keyDownEvent: KeyboardEvent | undefined, clickEvent: MouseEvent | undefined): boolean;
+    abstract close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): DataServer.ViewValue | undefined;
+
+    abstract checkConsumeKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, schemaColumn: SC, subgridRowIndex: number): boolean;
+
+    protected isToggleKey(key: string) {
+        return key === Focus.ActionKeyboardKey.Enter || key === 'Space';
+    }
+
+    protected tryToggleBoolenValue(schemaColumn: SC, subgridRowIndex: number) {
+        const dataServer = this._dataServer;
+        if (dataServer.getEditValue === undefined || dataServer.setEditValue === undefined) {
+            return false;
+        } else {
+            const value = dataServer.getEditValue(schemaColumn, subgridRowIndex);
+            let newValue: boolean;
+            if (value === undefined) {
+                newValue = true;
+            } else {
+                if (typeof value !== 'boolean') {
+                    newValue = true;
+                } else {
+                    newValue = !value;
+                }
+            }
+            dataServer.setEditValue(schemaColumn, subgridRowIndex, newValue);
+
+            return true;
+        }
+    }
 }

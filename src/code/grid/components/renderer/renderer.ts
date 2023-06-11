@@ -96,8 +96,11 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
         this._renderActionQueue.actionsQueuedEventer = () => this._animator.dirty = true;
 
-        this._gridSettings.viewRenderInvalidatedEventer = () => this.invalidateViewRender();
-        this._viewLayout.invalidateDataEventer = (action) => this._renderActionQueue.processViewLayoutInvalidateAction(action);
+        this._gridSettings.viewRenderInvalidatedEventer = () => {
+            this._viewLayout.resetAllCellPaintFingerprints();
+            this.invalidateViewRender();
+        }
+        this._viewLayout.layoutInvalidatedEventer = (action) => this._renderActionQueue.processViewLayoutInvalidateAction(action);
         this._focus.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCellRender(cell)
         this._selection.changedEventerForRenderer = () => this.invalidateViewRender();
         this._mouse.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCellRender(cell);

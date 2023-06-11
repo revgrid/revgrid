@@ -28,6 +28,9 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         if (this.isXScrollabe(x) && this.isYScrollabe(y)) {
             this._viewLayout.ensureColumnRowAreInView(x, y, true)
             this._focus.setXY(x, y, cell, undefined, undefined);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -35,6 +38,9 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         if (this.isXScrollabe(x)) {
             this._viewLayout.ensureColumnIsInView(x, true)
             this._focus.setX(x, undefined, undefined);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -42,6 +48,9 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         if (this.isYScrollabe(y)) {
             this._viewLayout.ensureRowIsInView(y, true)
             this._focus.setY(y, undefined, undefined);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -49,7 +58,9 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         const currentFocusPoint = this._focus.currentSubgridPoint;
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x - 1;
-            this.tryFocusXAndEnsureInView(newX);
+            return this.tryFocusXAndEnsureInView(newX);
+        } else {
+            return false;
         }
     }
 
@@ -57,7 +68,9 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         const currentFocusPoint = this._focus.currentSubgridPoint;
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x + 1;
-            this.tryFocusXAndEnsureInView(newX);
+            return this.tryFocusXAndEnsureInView(newX);
+        } else {
+            return false;
         }
     }
 
@@ -65,7 +78,9 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         const currentFocusPoint = this._focus.currentSubgridPoint;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y - 1;
-            this.tryFocusYAndEnsureInView(newY);
+            return this.tryFocusYAndEnsureInView(newY);
+        } else {
+            return false;
         }
     }
 
@@ -73,28 +88,30 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         const currentFocusPoint = this._focus.currentSubgridPoint;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y + 1;
-            this.tryFocusYAndEnsureInView(newY);
+            return this.tryFocusYAndEnsureInView(newY);
+        } else {
+            return false;
         }
     }
 
-    moveFocusFirstColumn() {
+    tryFocusFirstColumn() {
         const newX = this._gridSettings.fixedColumnCount;
-        this.tryFocusYAndEnsureInView(newX);
+        return this.tryFocusYAndEnsureInView(newX);
     }
 
-    moveFocusLastColumn() {
+    tryFocusLastColumn() {
         const newX = this._columnsManager.activeColumnCount - 1;
-        this.tryFocusYAndEnsureInView(newX);
+        return this.tryFocusYAndEnsureInView(newX);
     }
 
-    moveFocusTop() {
+    tryFocusTop() {
         const newY = this._gridSettings.fixedRowCount;
-        this.tryFocusYAndEnsureInView(newY);
+        return this.tryFocusYAndEnsureInView(newY);
     }
 
-    moveFocusBottom() {
+    tryFocusBottom() {
         const newY = this._mainSubgrid.getRowCount() - 1;
-        this.tryFocusYAndEnsureInView(newY);
+        return this.tryFocusYAndEnsureInView(newY);
     }
 
     tryPageFocusLeft() {
@@ -201,72 +218,88 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     tryScrollLeft() {
         const activeColumnIndex = this._viewLayout.firstScrollableActiveColumnIndex;
         if (activeColumnIndex !== undefined) {
-            this._viewLayout.setColumnScrollAnchor(activeColumnIndex - 1, 0); // viewLayout will limit
+            return this._viewLayout.setColumnScrollAnchor(activeColumnIndex - 1, 0); // viewLayout will limit
+        } else {
+            return false;
         }
     }
 
     tryScrollRight() {
         const activeColumnIndex = this._viewLayout.firstScrollableActiveColumnIndex;
         if (activeColumnIndex !== undefined) {
-            this._viewLayout.setColumnScrollAnchor(activeColumnIndex + 1, 0); // viewLayout will limit
+            return this._viewLayout.setColumnScrollAnchor(activeColumnIndex + 1, 0); // viewLayout will limit
+        } else {
+            return false;
         }
     }
 
     tryScrollUp() {
         const rowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (rowIndex !== undefined) {
-            this._viewLayout.setRowScrollAnchor(rowIndex - 1, 0); // viewLayout will limit
+            return this._viewLayout.setRowScrollAnchor(rowIndex - 1, 0); // viewLayout will limit
+        } else {
+            return false;
         }
     }
 
     tryScrollDown() {
         const rowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (rowIndex !== undefined) {
-            this._viewLayout.setRowScrollAnchor(rowIndex + 1, 0); // viewLayout will limit
+            return this._viewLayout.setRowScrollAnchor(rowIndex + 1, 0); // viewLayout will limit
+        } else {
+            return false;
         }
     }
 
     scrollFirstColumn() {
-        this._viewLayout.setColumnScrollAnchor(this._gridSettings.fixedColumnCount, 0); // viewLayout will limit
+        return this._viewLayout.setColumnScrollAnchor(this._gridSettings.fixedColumnCount, 0); // viewLayout will limit
     }
 
     scrollLastColumn() {
-        this._viewLayout.setColumnScrollAnchor(this._columnsManager.activeColumnCount, 0); // viewLayout will limit
+        return this._viewLayout.setColumnScrollAnchor(this._columnsManager.activeColumnCount, 0); // viewLayout will limit
     }
 
     scrollTop() {
-        this._viewLayout.setRowScrollAnchor(this._gridSettings.fixedRowCount, 0);
+        return this._viewLayout.setRowScrollAnchor(this._gridSettings.fixedRowCount, 0);
     }
 
     scrollBottom() {
-        this._viewLayout.setRowScrollAnchor(this._mainSubgrid.getRowCount(), 0); // viewLayout will limit
+        return this._viewLayout.setRowScrollAnchor(this._mainSubgrid.getRowCount(), 0); // viewLayout will limit
     }
 
     tryScrollPageLeft() {
         const anchor = this._viewLayout.calculatePageLeftColumnAnchor();
         if (anchor !== undefined) {
-            this._viewLayout.setColumnScrollAnchor(anchor.index, anchor.offset);
+            return this._viewLayout.setColumnScrollAnchor(anchor.index, anchor.offset);
+        } else {
+            return false;
         }
     }
 
     tryScrollPageRight() {
         const anchor = this._viewLayout.calculatePageRightColumnAnchor();
         if (anchor !== undefined) {
-            this._viewLayout.setColumnScrollAnchor(anchor.index, anchor.offset);
+            return this._viewLayout.setColumnScrollAnchor(anchor.index, anchor.offset);
+        } else {
+            return false;
         }
     }
 
     tryScrollPageUp() {
         const anchor = this._viewLayout.calculatePageUpRowAnchor();
         if (anchor !== undefined) {
-            this._viewLayout.setRowScrollAnchor(anchor.index, anchor.offset);
+            return this._viewLayout.setRowScrollAnchor(anchor.index, anchor.offset);
+        } else {
+            return false;
         }
     }
 
     tryScrollPageDown() {
         const anchor = this._viewLayout.calculatePageDownRowAnchor();
         if (anchor !== undefined) {
-            this._viewLayout.setRowScrollAnchor(anchor.index, anchor.offset);
+            return this._viewLayout.setRowScrollAnchor(anchor.index, anchor.offset);
+        } else {
+            return false;
         }
     }
 
@@ -383,15 +416,15 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     //     }
     // }
 
-    stepScroll(directionCanvasOffsetX: number, directionCanvasOffsetY: number) {
-        let stepped = this.stepScrollColumn(directionCanvasOffsetX);
-        if (this.stepScrollRow(directionCanvasOffsetY)) {
+    tryStepScroll(directionCanvasOffsetX: number, directionCanvasOffsetY: number) {
+        let stepped = this.tryStepScrollColumn(directionCanvasOffsetX);
+        if (this.tryStepScrollRow(directionCanvasOffsetY)) {
             stepped = true;
         }
         return stepped;
     }
 
-    stepScrollColumn(directionCanvasOffsetX: number) {
+    tryStepScrollColumn(directionCanvasOffsetX: number) {
         const viewLayout = this._viewLayout;
         const scrollableBounds = viewLayout.scrollableCanvasBounds;
         if (scrollableBounds === undefined) {
@@ -440,7 +473,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    stepScrollRow(directionCanvasOffsetY: number) {
+    tryStepScrollRow(directionCanvasOffsetY: number) {
         const viewLayout = this._viewLayout;
         const scrollableBounds = viewLayout.scrollableCanvasBounds;
 

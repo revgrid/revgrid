@@ -1,5 +1,6 @@
 
 import {
+    DatalessViewCell,
     IndexSignatureHack, SchemaServer
 } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
@@ -22,11 +23,11 @@ export class StandardHeaderTextCellPainter<
 > extends StandardTextCellPainter<BGS, BCS, SC> {
     textWrapping = false;
 
-    override paint(prefillColor: string | undefined): number | undefined {
+    override paint(cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
-        const cell = this._cell;
 
-        const columnSettings = this._columnSettings;
+        const columnSettings = cell.columnSettings;
+        this.setColumnSettings(columnSettings);
 
         const gc = this._renderingContext;
         const selection = grid.selection;

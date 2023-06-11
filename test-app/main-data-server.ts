@@ -47,8 +47,7 @@ export class MainDataServer implements DataServer<StandardBehavioredColumnSettin
         const fieldName = columnSchema.name;
         switch (fieldName) {
             case 'id':
-                record.id = value as number;
-                break;
+                throw new Error('Id is not exported as a Schema Column');
             case 'name':
                 record.name = value as string;
                 break;
@@ -73,6 +72,7 @@ export class MainDataServer implements DataServer<StandardBehavioredColumnSettin
             default:
                 throw new Error(`Unexpected field name: ${fieldName}`);
         }
+        this._notificationsClient.invalidateCell(columnSchema.index, rowIndex);
     }
 
     getRowId(rowIndex: number): number {

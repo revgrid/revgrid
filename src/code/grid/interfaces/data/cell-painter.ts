@@ -1,4 +1,8 @@
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
+import { DatalessViewCell } from '../dataless/dataless-view-cell';
+import { SchemaServer } from '../schema/schema-server';
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { CellPossiblyPaintable } from './cell-possibly-paintable';
 
 /**
  * @desc Implementations of `CellPainter` are used to render the 2D graphics context within the bound of a cell.
@@ -7,13 +11,13 @@ import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-
  *
  * @public
  */
-export interface CellPainter {
+export interface CellPainter<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends CellPossiblyPaintable<BCS, SC> {
 
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
-    paint(prefillColor: string | undefined): number | undefined;
+    paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
 
 }
 

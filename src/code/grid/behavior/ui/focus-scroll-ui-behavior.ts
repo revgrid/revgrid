@@ -25,6 +25,22 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         return super.handlePointerDown(event, hoverCell);
     }
 
+    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
+        }
+        if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+            return super.handleClick(event, hoverCell);
+        } else {
+            const viewCell = hoverCell.viewCell;
+            if (this.focus.checkEditorWantsClickEvent(event, viewCell)) {
+                return hoverCell;
+            } else {
+                return super.handleClick(event, hoverCell);
+            }
+        }
+    }
+
     override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
@@ -38,7 +54,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
                 return super.handleDblClick(event, hoverCell);
             } else {
                 if (viewCell.columnSettings.editOnDoubleClick && viewCell.subgrid.isMain && !viewCell.isFixed) {
-                    this.focus.tryOpenEditor(undefined);
+                    this.focus.tryOpenEditor(viewCell);
                     return hoverCell;
                 } else {
                     return super.handleDblClick(event, hoverCell);
@@ -84,16 +100,16 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
                     break;
                 case Focus.ActionKeyboardKey.Home:
                     if (event.ctrlKey) {
-                        this.focusScrollBehavior.moveFocusTop();
+                        this.focusScrollBehavior.tryFocusTop();
                     } else {
-                        this.focusScrollBehavior.moveFocusFirstColumn();
+                        this.focusScrollBehavior.tryFocusFirstColumn();
                     }
                     break;
                 case Focus.ActionKeyboardKey.End:
                     if (event.ctrlKey) {
-                        this.focusScrollBehavior.moveFocusBottom();
+                        this.focusScrollBehavior.tryFocusBottom();
                     } else {
-                        this.focusScrollBehavior.moveFocusLastColumn();
+                        this.focusScrollBehavior.tryFocusLastColumn();
                     }
                     break;
                 case Focus.ActionKeyboardKey.Tab:
@@ -105,33 +121,8 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
                 default:
                     key satisfies never;
             }
-
             super.handleKeyDown(event, fromEditor);
         }
-
-        // // STEP 1: Move the selection
-        // if (handler) {
-        //     handler.call(this, eventDetail.primitiveEvent);
-
-        //     // STEP 2: Open the cell editor at the new position if `editable` AND edited cell had `editOnNextCell`
-        //     let cellEvent = grid.getFocusedCellEvent(true);
-        //     if (cellEvent !== undefined) {
-        //         if (cellEvent.columnProperties.editOnNextCell) {
-        //             grid.viewport.computeCellsBounds(); // moving selection may have auto-scrolled
-        //             cellEvent = grid.getFocusedCellEvent(false); // new cell
-        //             if (cellEvent !== undefined) {
-        //                 grid.editAt(cellEvent); // succeeds only if `editable`
-        //             }
-        //         }
-        //     }
-
-        //     // STEP 3: If editor not opened on new cell, take focus
-        //     if (!grid.cellEditor) {
-        //         grid.takeFocus();
-        //     }
-        // } else {
-        //     super.handleKeyDown(eventDetail);
-        // }
     }
 
     override handleWheelMove(event: WheelEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {

@@ -38,7 +38,7 @@ export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         } else {
             // const keyboardEvent = eventDetail.primitiveEvent;
             const keyboardEvent = event;
-            if (cellEvent.columnSettings.editOnKeydown /*&& !grid.cellEditor*/) {
+            if (cellEvent.columnSettings.editOnKeyDown /*&& !grid.cellEditor*/) {
                 const char = keyboardEvent.key;
                 const isVisibleChar = char.length === 1 && !(keyboardEvent.metaKey || keyboardEvent.ctrlKey);
                 const isDeleteChar = char === 'DELETE' || char === 'BACKSPACE';

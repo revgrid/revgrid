@@ -7,9 +7,9 @@ export class CachedCanvasRenderingContext2D {
     /** @internal */
     private readonly _conditionalsStack: CachedCanvasRenderingContext2D.ConditionalsStack = [];
     /** @internal */
-    private _fontMetrics: CachedCanvasRenderingContext2D.FontStringWidthMap = new Map<string, CachedCanvasRenderingContext2D.StringWidthMap>;
+    private _fontTextWidthMap: CachedCanvasRenderingContext2D.FontTextWidthMap = new Map<string, CachedCanvasRenderingContext2D.TextWidthMap>;
     /** @internal */
-    private _fontData: Record<string, CachedCanvasRenderingContext2D.TextHeight | undefined> = {}; // previously was global
+    private _fontTextHeightMap: CachedCanvasRenderingContext2D.FontTextHeightMap = new Map<string, CachedCanvasRenderingContext2D.TextHeightMap>;
 
     readonly cache: CachedCanvasRenderingContext2D.Cache;
 
@@ -161,10 +161,10 @@ export class CachedCanvasRenderingContext2D {
      */
     getTextWidth(text: string) {
         const font = this.cache.font;
-        let charMetrics = this._fontMetrics.get(font);
-        if (charMetrics === undefined) {
-            charMetrics = new Map<string, number>();
-            this._fontMetrics.set(font, charMetrics);
+        let textWidthMap = this._fontTextWidthMap.get(font);
+        if (textWidthMap === undefined) {
+            textWidthMap = new Map<string, number>();
+            this._fontTextWidthMap.set(font, textWidthMap);
         }
 
         const charCount = text.length
@@ -172,10 +172,10 @@ export class CachedCanvasRenderingContext2D {
         for (let i = 0; i < charCount; i++) {
             const char = text[i];
 
-            let charWidth = charMetrics.get(char);
+            let charWidth = textWidthMap.get(char);
             if (charWidth === undefined) {
                 charWidth = this.measureText(char).width;
-                charMetrics.set(char, charWidth);
+                textWidthMap.set(char, charWidth);
             }
             textWidth += charWidth;
         }
@@ -185,16 +185,16 @@ export class CachedCanvasRenderingContext2D {
 
     getCharWidth(char: string) {
         const font = this.cache.font;
-        let charMetrics = this._fontMetrics.get(font);
-        if (charMetrics === undefined) {
-            charMetrics = new Map<string, number>();
-            this._fontMetrics.set(font, charMetrics);
+        let textWidthMap = this._fontTextWidthMap.get(font);
+        if (textWidthMap === undefined) {
+            textWidthMap = new Map<string, number>();
+            this._fontTextWidthMap.set(font, textWidthMap);
         }
 
-        let charWidth = charMetrics.get(char);
+        let charWidth = textWidthMap.get(char);
         if (charWidth === undefined) {
             charWidth = this.measureText(char).width;
-            charMetrics.set(char, charWidth);
+            textWidthMap.set(char, charWidth);
         }
 
         return charWidth;
@@ -231,10 +231,10 @@ export class CachedCanvasRenderingContext2D {
 
         let ellipsisWidth: number | undefined;
         const font = this.cache.font;
-        let stringWidthsMap = this._fontMetrics.get(font);
+        let stringWidthsMap = this._fontTextWidthMap.get(font);
         if (stringWidthsMap === undefined) {
             stringWidthsMap = new Map<string, number>();
-            this._fontMetrics.set(font, stringWidthsMap);
+            this._fontTextWidthMap.set(font, stringWidthsMap);
             ellipsisWidth = this.measureText(CachedCanvasRenderingContext2D.ELLIPSIS).width;
             stringWidthsMap.set(CachedCanvasRenderingContext2D.ELLIPSIS, ellipsisWidth);
         } else {
@@ -343,59 +343,28 @@ export class CachedCanvasRenderingContext2D {
         };
     }
 
-    getTextHeight(font: string) {
-        let result = this._fontData[font];
-
-        if (result === undefined) {
-            const text = document.createElement('span');
-            text.textContent = 'Hg';
-            text.style.font = font;
-
-            const block = document.createElement('div');
-            block.style.display = 'inline-block';
-            block.style.width = '1px';
-            block.style.height = '0px';
-
-            const div = document.createElement('div');
-            div.appendChild(text);
-            div.appendChild(block);
-
-            div.style.position = 'absolute';
-            document.body.appendChild(div);
-
-            let ascent: number;
-            let descent: number;
-            let height: number;
-
-            try {
-
-                block.style.verticalAlign = 'baseline';
-
-                const blockRect = block.getBoundingClientRect();
-                const textRect = text.getBoundingClientRect();
-
-                ascent = blockRect.top - textRect.top;
-
-                block.style.verticalAlign = 'bottom';
-                height = blockRect.top - textRect.top;
-
-                descent = height - ascent;
-
-                result = {
-                    ascent,
-                    descent,
-                    height,
-                };
-
-            } finally {
-                document.body.removeChild(div);
-            }
-            if (result.height !== 0) {
-                this._fontData[font] = result;
-            }
+    getTextHeight(text: string) {
+        const font = this.cache.font;
+        let textHeightMap = this._fontTextHeightMap.get(font);
+        if (textHeightMap === undefined) {
+            textHeightMap = new Map<string, CachedCanvasRenderingContext2D.TextHeight>();
+            this._fontTextHeightMap.set(font, textHeightMap);
         }
 
-        return result;
+        let textHeight = textHeightMap.get(text);
+        if (textHeight === undefined) {
+            const textMetrics = this.measureText(text);
+            const ascent = textMetrics.actualBoundingBoxAscent;
+            const descent = textMetrics.actualBoundingBoxDescent;
+            textHeight = {
+                ascent,
+                descent,
+                height: ascent + descent,
+            }
+            textHeightMap.set(text, textHeight);
+        }
+
+        return textHeight;
     }
 
     clipSave(conditional: boolean, x: number, y: number, width: number, height: number) {
@@ -420,20 +389,22 @@ export namespace CachedCanvasRenderingContext2D {
     export const ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d.]+)\)))$/i
     export const ELLIPSIS = '\u2026' // The "…" (dot-dot-dot) character
 
-    export type StringWidthMap = Map<string, number>;
-    export type FontStringWidthMap = Map<string, StringWidthMap>;
+    export type TextWidthMap = Map<string, number>;
+    export type FontTextWidthMap = Map<string, TextWidthMap>;
+
+    export interface TextHeight {
+        ascent: number;
+        height: number;
+        descent: number;
+    }
+    export type TextHeightMap = Map<string, TextHeight>;
+    export type FontTextHeightMap = Map<string, TextHeightMap>;
 
     export interface TruncatedTextWidth {
         /** `undefined` if it fits; truncated version of provided `string` if it does not. */
         text: string | undefined,
         /** Width of provided `text` if it fits; width of truncated string if it does not. */
         textWidth: number
-    }
-
-    export interface TextHeight {
-        ascent: number;
-        height: number;
-        descent: number;
     }
 
     export type Conditional = boolean | undefined;

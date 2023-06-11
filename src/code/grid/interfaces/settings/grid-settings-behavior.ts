@@ -13,6 +13,8 @@ export interface GridSettingsBehavior {
     /** @internal */
     verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
 
+    beginChange(): void;
+    endChange(): void;
     load(settings: GridSettings): void;
 }
 

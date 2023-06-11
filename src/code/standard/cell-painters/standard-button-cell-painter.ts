@@ -1,5 +1,5 @@
 
-import { CellPainter, Rectangle, SchemaServer } from '../../grid/grid-public-api';
+import { CellPainter, DatalessViewCell, Rectangle, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -14,7 +14,7 @@ export class StandardButtonCellPainter<
 > extends StandardCellPainter<BGS, BCS, SC> {
     config: StandardButtonCellPainter.Config;
 
-    override paint(_prefillColor: string | undefined): number | undefined {
+    override paint(cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined {
         const gc = this._renderingContext;
         const config = this.config;
 

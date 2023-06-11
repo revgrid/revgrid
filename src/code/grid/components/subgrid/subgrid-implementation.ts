@@ -143,7 +143,7 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
         return this.dataServer.getRowCount();
     }
 
-    getCellPainter(viewCell: DatalessViewCell<BCS, SC>): CellPainter {
+    getCellPainter(viewCell: DatalessViewCell<BCS, SC>): CellPainter<BCS, SC> {
         return this._getCellPainterEventer(viewCell);
     }
 

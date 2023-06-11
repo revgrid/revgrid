@@ -1,5 +1,5 @@
 import { Rectangle, SchemaServer } from '../../grid/grid-public-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
+import { StandardAllColumnSettings, StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
 /** @public */
@@ -8,15 +8,11 @@ export abstract class StandardTextCellPainter<
     BCS extends StandardBehavioredColumnSettings,
     SC extends SchemaServer.Column<BCS>
 > extends StandardCellPainter<BGS, BCS, SC> {
-/* [SIZE NOTE] (11/1/2018): Always call `drawImage` with explicit width and height overload.
- * Possible browser bug: Although 3rd and 4th parameters to `drawImage` are optional,
- * when image data derived from SVG source, some browsers (e.g., Chrome 70) implementation
- * of `drawImage` only respects _implicit_ `width` x `height` specified in the root <svg>
- * element `width` & `height` attributes. Otherwise, image is copied into canvas using its
- * `naturalWidth` x `naturalHeight`. That is, _explict_ settings of `width` & `height`
- * (i.e, via property assignment, calling setAttribute, or in `new Image` call) have no
- * effect on `drawImage` in the case of SVGs on these browsers.
- */
+    protected _columnSettings: StandardAllColumnSettings;
+
+    setColumnSettings(value: StandardAllColumnSettings) {
+        this._columnSettings = value;
+    }
 
 /**
  * @summary Renders single line text.

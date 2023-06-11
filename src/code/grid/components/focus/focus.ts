@@ -113,7 +113,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 this._cell = cell;
 
                 if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditor(undefined);
+                    this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
                 }
 
                 this.viewCellRenderInvalidatedEventer(cell);
@@ -148,7 +148,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 this._cell = cell;
 
                 if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditor(undefined);
+                    this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
                 }
 
                 this.viewCellRenderInvalidatedEventer(cell);
@@ -182,7 +182,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 this._cell = cell;
 
                 if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditor(undefined);
+                    this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
                 }
 
                 this.viewCellRenderInvalidatedEventer(cell);
@@ -218,7 +218,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 this._cell = cell;
 
                 if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditor(undefined);
+                    this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
                 }
 
                 this.viewCellRenderInvalidatedEventer(cell);
@@ -256,111 +256,101 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         );
     }
 
-    /** if initialValue is undefined, will get data from server */
-    tryOpenEditor(initialValue: DataServer.ViewValue | undefined) {
-        if (this._editor !== undefined) {
-            return true;
+    tryOpenEditor(cell: ViewCell<BCS, SC>) {
+        if (cell !== this._cell) {
+            // Can only open editor at Focused cell
+            throw new AssertError('FTOE34349');
         } else {
-            if (this.getCellEditorEventer === undefined || this.dataServer.getEditValue === undefined) {
-                return false;
-            } else {
-                const focusedPoint = this._currentSubgridPoint;
-                if (focusedPoint === undefined) {
-                    throw new AssertError('FTOE17778');
-                } else {
-                    const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-                    const schemaColumn = column.schemaColumn;
-                    const subgridRowIndex = focusedPoint.y;
-                    const readonly = this.dataServer.setEditValue === undefined;
-                    const cell = this._cell;
-                    const editor = this.getCellEditorEventer(schemaColumn, subgridRowIndex, this.subgrid, readonly, cell);
-                    if (editor === undefined) {
-                        return false;
-                    } else {
-                        editor.pullValueEventer = () => this.getFocusedEditValue();
-                        if (!readonly) {
-                            editor.pushValueEventer = (value) => this.setFocusedEditValue(value);
-                        }
-                        editor.closedEventer = (value) => this.handleEditorClosed(value);
-                        editor.keyDownEventer = (event) => this.editorKeyDownEventer(event);
-                        this._editor = editor;
-                        let valueIsNew: boolean;
-                        if (initialValue === undefined) {
-                            initialValue = this.dataServer.getEditValue(schemaColumn, subgridRowIndex);
-                            valueIsNew = false;
-                        } else {
-                            valueIsNew = true;
-                        }
-                        editor.open(initialValue, valueIsNew);
-
-                        if (cell !== undefined && editor.setBounds !== undefined) {
-                            editor.setBounds(cell.bounds);
-                        }
-
-                        // if (editor.focus !== undefined) {
-                        //     editor.focus();
-                        // }
-
-                        return true;
-                    }
-                }
-            }
+            return this.tryOpenEditorAtFocusedCell(cell, undefined, undefined)
         }
     }
 
     closeEditor(cancel: boolean, focusCanvas: boolean) {
         const editor = this._editor;
         if (editor !== undefined) {
-            this._editor = undefined;
-            const value = editor.close(cancel);
-            this.finaliseEditor(editor, value);
+            const focusedPoint = this._currentSubgridPoint;
+            if (focusedPoint === undefined) {
+                throw new AssertError('FCE11198');
+            } else {
+                const column = this._columnsManager.getActiveColumn(focusedPoint.x);
+                this._editor = undefined;
+                editor.close(column.schemaColumn, focusedPoint.y, cancel);
+                this.finaliseEditor(editor);
 
-            if (this._cell !== undefined) {
-                this.viewCellRenderInvalidatedEventer(this._cell);
-            }
+                if (this._cell !== undefined) {
+                    this.viewCellRenderInvalidatedEventer(this._cell);
+                }
 
-            if (focusCanvas) {
-                this._canvasManager.canvasElement.focus();
+                if (focusCanvas) {
+                    this._canvasManager.canvasElement.focus();
+                }
             }
         }
     }
 
     checkEditorWantsKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean {
-        const key = event.key;
         const editor = this._editor;
         if (editor === undefined) {
-            if (key === this._gridSettings.editKey) {
-                this.tryOpenEditor(undefined);
-                return true;
+            const cell = this._cell;
+            if (cell === undefined) {
+                return false; // cannot open editor if focused cell is not visible
             } else {
-                const cell = this._cell;
-                if (cell !== undefined && cell.columnSettings.editOnKeydown) {
-                    const isPrintableKey = event.key.length === 1 || event.key === 'Unidentified';
-                    if (!isPrintableKey) {
+                const key = event.key;
+                if (key === this._gridSettings.editKey) {
+                    return this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
+                } else {
+                    if (!cell.columnSettings.editOnKeyDown) {
                         return false;
                     } else {
-                        return this.tryOpenEditor(key);
+                        return this.tryOpenEditorAtFocusedCell(cell, event, undefined);
                     }
-                } else {
-                    return false;
                 }
             }
         } else {
-            const consumed = editor.checkConsumeKeyDownEvent(event, fromEditor);
-            if (consumed) {
-                return true;
+            const key = event.key;
+            const focusPoint = this._currentSubgridPoint;
+            if (focusPoint === undefined) {
+                throw new AssertError('FCEWKDE98887');
             } else {
-                switch (key) {
-                    case Focus.ActionKeyboardKey.Enter: {
-                        this.closeEditor(false, true);
-                        return true;
+                const column = this._columnsManager.getActiveColumn(focusPoint.x);
+                const subgridRowIndex = focusPoint.y;
+                const consumed = editor.checkConsumeKeyDownEvent(event, fromEditor, column.schemaColumn, subgridRowIndex);
+                if (consumed) {
+                    return true;
+                } else {
+                    switch (key) {
+                        case Focus.ActionKeyboardKey.Enter: {
+                            this.closeEditor(false, true);
+                            return true;
+                        }
+                        case Focus.ActionKeyboardKey.Escape: {
+                            this.closeEditor(true, true);
+                            return true;
+                        }
+                        default:
+                            return false;
                     }
-                    case Focus.ActionKeyboardKey.Escape: {
-                        this.closeEditor(true, true);
-                        return true;
-                    }
-                    default:
-                        return false;
+                }
+            }
+        }
+    }
+
+    checkEditorWantsClickEvent(event: MouseEvent, focusedCell: ViewCell<BCS, SC>): boolean {
+        if (focusedCell !== this._cell) {
+            throw new AssertError('FCEWCE59572');
+        } else {
+            const editor = this._editor;
+            if (editor === undefined) {
+                if (!focusedCell.columnSettings.editOnClick) {
+                    return false;
+                } else {
+                    return this.tryOpenEditorAtFocusedCell(focusedCell, undefined, event);
+                }
+            } else {
+                if (editor.checkConsumeClickEvent === undefined) {
+                    return false;
+                } else {
+                    return editor.checkConsumeClickEvent(event, focusedCell);
                 }
             }
         }
@@ -533,13 +523,54 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private finaliseEditor(editor: CellEditor<BCS, SC>, value: DataServer.ViewValue | undefined) {
-        editor.closedEventer = undefined;
+    private tryOpenEditorAtFocusedCell(focusedCell: ViewCell<BCS, SC>, keyDownEvent: KeyboardEvent | undefined, clickEvent: MouseEvent | undefined) {
+        if (this._editor !== undefined) {
+            return true;
+        } else {
+            if (this.getCellEditorEventer === undefined || this.dataServer.getEditValue === undefined) {
+                return false;
+            } else {
+                const focusedPoint = this._currentSubgridPoint;
+                if (focusedPoint === undefined) {
+                    throw new AssertError('FTOE17778');
+                } else {
+                    const column = this._columnsManager.getActiveColumn(focusedPoint.x);
+                    const schemaColumn = column.schemaColumn;
+                    const subgridRowIndex = focusedPoint.y;
+                    const readonly = this.dataServer.setEditValue === undefined;
+                    const editor = this.getCellEditorEventer(schemaColumn, subgridRowIndex, this.subgrid, readonly, focusedCell);
+                    if (editor === undefined) {
+                        return false;
+                    } else {
+                        editor.pullValueEventer = () => this.getFocusedEditValue();
+                        if (!readonly) {
+                            editor.pushValueEventer = (value) => this.setFocusedEditValue(value);
+                        }
+                        editor.keyDownEventer = (event) => this.editorKeyDownEventer(event);
+                        editor.closedEventer = (value) => this.handleEditorClosed(value);
+                        this._editor = editor;
+                        if (!editor.tryOpen(focusedCell, keyDownEvent, clickEvent)) {
+                            this.finaliseEditor(editor)
+                            this._editor = undefined;
+                        }
+
+                        if (focusedCell !== undefined && editor.setBounds !== undefined) {
+                            editor.setBounds(focusedCell.bounds);
+                        }
+
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    /** @internal */
+    private finaliseEditor(editor: CellEditor<BCS, SC>) {
         editor.pullValueEventer = undefined;
         editor.pushValueEventer = undefined;
-        if (!editor.readonly && value !== undefined) {
-            this.setFocusedEditValue(value);
-        }
+        editor.keyDownEventer = undefined;
+        editor.closedEventer = undefined;
     }
 
     /** @internal */

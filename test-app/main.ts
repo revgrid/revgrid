@@ -5,6 +5,7 @@ import {
     HalignEnum,
     Revgrid,
     StandardAlphaTextCellPainter,
+    StandardCellPainter,
     StandardHeaderTextCellPainter,
     StandardInMemoryBehavioredColumnSettings,
     StandardInMemoryBehavioredGridSettings,
@@ -35,10 +36,13 @@ export class Main {
     private readonly _gridHostElement: HTMLElement;
 
     private _gridSettings = new StandardInMemoryBehavioredGridSettings();
-    private _mainDataServer: MainDataServer;
+    private _schemaServer: SchemaServerImplementation;
     private _headerDataServer: HeaderDataServer;
-    private _mainCellPainter: StandardAlphaTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
+    private _mainDataServer: MainDataServer;
     private _headerCellPainter: StandardHeaderTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
+    private _textCellPainter: StandardAlphaTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
+    private _checkboxCellPainter: StandardCheckboxCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
+    private _textInputEditor: StandardTextInputEditor<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
 
     private _grid: Revgrid<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
 
@@ -169,12 +173,12 @@ export class Main {
         gridSettings.eventDispatchEnabled = true;
 
 
-        const schemaServer = new SchemaServerImplementation();
+        this._schemaServer = new SchemaServerImplementation();
         this._mainDataServer = new MainDataServer();
         this._headerDataServer = new HeaderDataServer();
 
         const definition: Revgrid.Definition<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column> = {
-            schemaServer,
+            schemaServer: this._schemaServer,
             subgrids: [
                 {
                     role: 'header',
@@ -191,16 +195,24 @@ export class Main {
 
         this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings);
 
-        this._mainCellPainter = new StandardAlphaTextCellPainter<
+        this._textCellPainter = new StandardAlphaTextCellPainter<
             StandardInMemoryBehavioredGridSettings,
             StandardInMemoryBehavioredColumnSettings,
             SchemaServerImplementation.Column
         >(this._grid, this._mainDataServer);
+
         this._headerCellPainter = new StandardHeaderTextCellPainter<
             StandardInMemoryBehavioredGridSettings,
             StandardInMemoryBehavioredColumnSettings,
             SchemaServerImplementation.Column
         >(this._grid, this._headerDataServer);
+
+        this._textInputEditor = new StandardTextInputEditor<
+            StandardInMemoryBehavioredGridSettings,
+            StandardInMemoryBehavioredColumnSettings,
+            SchemaServerImplementation.Column
+        >(this._grid, this._mainDataServer);
+
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();
         this._cellPaddingTextboxElement.value = this._grid.settings.cellPadding.toString();
@@ -258,8 +270,19 @@ export class Main {
     }
 
     private getMainCellPainter(viewCell: DatalessViewCell<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>) {
-        this._mainCellPainter.setCell(viewCell);
-        return this._mainCellPainter;
+        let cellPainter: StandardCellPainter<
+            StandardInMemoryBehavioredGridSettings,
+            StandardInMemoryBehavioredColumnSettings,
+            SchemaServerImplementation.Column
+        >;
+
+        if (viewCell.viewLayoutColumn.column.schemaColumn === this._schemaServer.restrictMovementSchemaColumn) {
+            cellPainter = this._checkboxCellPainter;
+        } else {
+            cellPainter = this._textCellPainter;
+        }
+        cellPainter.setCell(viewCell);
+        return cellPainter;
     }
 
     private getHeaderCellPainter(viewCell: DatalessViewCell<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>) {
@@ -269,17 +292,25 @@ export class Main {
 
     private getCellEditor(
         schemaColumn: SchemaServerImplementation.Column,
-        subgridRowIndex: number,
-        subgrid: Subgrid<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>,
+        _subgridRowIndex: number,
+        _subgrid: Subgrid<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>,
         readonly: boolean,
-        viewCell: ViewCell<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column> | undefined
+        _viewCell: ViewCell<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column> | undefined
     ): CellEditor<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column> | undefined {
-        return this.tryCreateEditor(schemaColumn.name, readonly);
+        return this.tryGetCellEditor(schemaColumn.name, readonly);
     }
 
-    private tryCreateEditor(columnName: keyof MainRecord, readonly: boolean) {
+    private tryGetCellEditor(columnName: keyof MainRecord, readonly: boolean) {
+        const editor = this.tryCreateCellEditor(columnName);
+        if (editor !== undefined) {
+            editor.readonly = readonly;
+        }
+        return editor;
+    }
+
+    private tryCreateCellEditor(columnName: keyof MainRecord) {
         switch (columnName) {
-            case 'favoriteFood': return new StandardTextInputEditor(this._grid, readonly);
+            case 'favoriteFood': return this._textInputEditor;
             default: return undefined;
         }
     }

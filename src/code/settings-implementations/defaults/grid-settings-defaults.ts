@@ -243,23 +243,13 @@ export const gridSettingsDefaults: Required<GridSettings> = {
     /* CELL EDITING */
 
     editable: false,
+    editKey: 'F2',
 
+    editOnClick: true,
     /**
      * Edit cell on double-click rather than single-click.
      */
-    editOnDoubleClick: true,
-
-    /**
-     * Grid-level property.
-     * When user presses a "printable" keyboard character _or_ BACKSPACE _or_ DELETE:
-     * 1. Activate cell editor on current cell (i.e., origin of most recent selection).
-     * 2. If cell editor is a text editor:
-     *    1. Replace current value with the character the user typed; or
-     *    2. Clear it on BACKSPACE, DELETE, or other invalid character (_e.g._ when user types a letter but the cell editor only accepts digits).
-     *
-     * > In invoked, user has the option to back out by pressing the ESCAPE key.
-     */
-    editOnKeydown: true,
+    editOnDoubleClick: false,
 
     /**
      * @summary Open cell editor when cell selected via keyboard navigation.
@@ -270,9 +260,17 @@ export const gridSettingsDefaults: Required<GridSettings> = {
      * Generally set at the grid level. If set at the column (or cell) level, note that the property pertains to the cell navigated _to,_ not the cell navigated _away from._
      */
     editOnFocusCell: false,
-
-    editKey: 'F2',
-
+    /**
+     * Grid-level property.
+     * When user presses a "printable" keyboard character _or_ BACKSPACE _or_ DELETE:
+     * 1. Activate cell editor on current cell (i.e., origin of most recent selection).
+     * 2. If cell editor is a text editor:
+     *    1. Replace current value with the character the user typed; or
+     *    2. Clear it on BACKSPACE, DELETE, or other invalid character (_e.g._ when user types a letter but the cell editor only accepts digits).
+     *
+     * > In invoked, user has the option to back out by pressing the ESCAPE key.
+     */
+    editOnKeyDown: true,
 
     /* COLUMN SORTING */
 

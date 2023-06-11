@@ -35,22 +35,16 @@ export interface GridSettings {
     readonly defaultColumnWidth: number;
     readonly defaultUiBehaviorTypeNames: string[];
     readonly editable: boolean;
-    /** Edit cell on double-click rather than single-click. */
-    readonly editOnDoubleClick: boolean;
-    readonly editOnKeydown: boolean;
     /** Keyboard event key for editing a cell */
     readonly editKey: string;
-    /** Open cell editor when cell selected via keyboard navigation. */
+    /** Open cell editor for cell when clicked by mouse */
+    readonly editOnClick: boolean;
+    /** Open cell editor for cell when double clicked by mouse */
+    readonly editOnDoubleClick: boolean;
+    /** Open cell editor for cell when cell gains focus */
     readonly editOnFocusCell: boolean;
-    /** Name of a cell editor. */
-    // /** Emit events arising from SchemaModel and DataModel callbacks */
-    // emitModelEvents: boolean;
-    /** @summary Re-render grid at maximum speed.
-     * @desc In this mode:
-     * * The "dirty" flag, set by calling `grid.repaint()`, is ignored.
-     * * `grid.getCanvas().currentFPS` is a measure of the number times the grid is being re-rendered each second.
-     * * The Hypergrid renderer gobbles up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). For this reason, we emphatically advise against shipping applications using this mode.
-     */
+    /** Open cell editor for cell when cell focus and certain keys are pushed down */
+    readonly editOnKeyDown: boolean;
     readonly enableContinuousRepaint: boolean;
     /** Modifier key that indicates a UI action should extend the selection area */
     readonly extendLastSelectionAreaModifierKey: ModifierKeyEnum;

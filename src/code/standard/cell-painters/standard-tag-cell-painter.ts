@@ -1,5 +1,5 @@
 
-import { SchemaServer } from '../../grid/grid-public-api';
+import { DatalessViewCell, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -10,7 +10,7 @@ export class StandardTagCellPainter<
     SC extends SchemaServer.Column<BCS>
 > extends StandardCellPainter<BGS, BCS, SC> {
 
-    override paint(_prefillColor: string | undefined): number | undefined {
+    override paint(_cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined {
         // const gc = this._renderingContext;
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {

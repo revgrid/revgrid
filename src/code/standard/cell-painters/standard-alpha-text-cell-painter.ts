@@ -1,5 +1,6 @@
 
 import {
+    DatalessViewCell,
     IndexSignatureHack,
     Rectangle,
     SchemaServer
@@ -23,12 +24,12 @@ export class StandardAlphaTextCellPainter<
     SC extends SchemaServer.Column<BCS>
 > extends StandardTextCellPainter<BGS, BCS, SC> {
 
-    override paint(prefillColor: string | undefined): number | undefined {
+    override paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
-        const cell = this._cell;
 
         const gridSettings = this._gridSettings;
-        const columnSettings = this._columnSettings;
+        const columnSettings = cell.columnSettings;
+        this.setColumnSettings(columnSettings);
 
         const gc = this._renderingContext;
         const selection = grid.selection;

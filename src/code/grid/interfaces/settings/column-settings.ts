@@ -9,9 +9,10 @@ export type ColumnSettings = Pick<GridSettings,
     'defaultColumnAutosizing' |
     'defaultColumnWidth' |
     'editable' |
-    'editOnKeydown' |
-    'editOnFocusCell' |
+    'editOnClick' |
     'editOnDoubleClick' |
+    'editOnFocusCell' |
+    'editOnKeyDown' |
     'filterable' |
     'maximumColumnWidth' |
     'minimumColumnWidth' |

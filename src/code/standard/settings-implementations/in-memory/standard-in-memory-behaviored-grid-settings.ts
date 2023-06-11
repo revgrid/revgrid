@@ -32,145 +32,187 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
     get cellPadding() { return this._cellPadding; }
     set cellPadding(value: number) {
         if (value !== this._cellPadding) {
+            this.beginChange();
             this._cellPadding = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get cellFocusedBorderColor() { return this._cellFocusedBorderColor; }
     set cellFocusedBorderColor(value: GridSettings.Color) {
         if (value !== this._cellFocusedBorderColor) {
+            this.beginChange();
             this._cellFocusedBorderColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get cellHoverBackgroundColor() { return this._cellHoverBackgroundColor; }
     set cellHoverBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._cellHoverBackgroundColor) {
+            this.beginChange();
             this._cellHoverBackgroundColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get columnHoverBackgroundColor() { return this._columnHoverBackgroundColor; }
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHoverBackgroundColor) {
+            this.beginChange();
             this._columnHoverBackgroundColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get columnHeaderFont() { return this._columnHeaderFont; }
     set columnHeaderFont(value: string) {
         if (value !== this._columnHeaderFont) {
+            this.beginChange();
             this._columnHeaderFont = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get columnHeaderHorizontalAlign() { return this._columnHeaderHorizontalAlign; }
     set columnHeaderHorizontalAlign(value: Halign) {
         if (value !== this._columnHeaderHorizontalAlign) {
+            this.beginChange();
             this._columnHeaderHorizontalAlign = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get columnHeaderBackgroundColor() { return this._columnHeaderBackgroundColor; }
     set columnHeaderBackgroundColor(value: GridSettings.Color) {
         if (value !== this._columnHeaderBackgroundColor) {
+            this.beginChange();
             this._columnHeaderBackgroundColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get columnHeaderForegroundColor() { return this._columnHeaderForegroundColor; }
     set columnHeaderForegroundColor(value: GridSettings.Color) {
         if (value !== this._columnHeaderForegroundColor) {
+            this.beginChange();
             this._columnHeaderForegroundColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get columnHeaderSelectionFont() { return this._columnHeaderSelectionFont; }
     set columnHeaderSelectionFont(value: string) {
         if (value !== this._columnHeaderSelectionFont) {
+            this.beginChange();
             this._columnHeaderSelectionFont = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get columnHeaderSelectionBackgroundColor() { return this._columnHeaderSelectionBackgroundColor; }
     set columnHeaderSelectionBackgroundColor(value: GridSettings.Color) {
         if (value !== this._columnHeaderSelectionBackgroundColor) {
+            this.beginChange();
             this._columnHeaderSelectionBackgroundColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get columnHeaderSelectionForegroundColor() { return this._columnHeaderSelectionForegroundColor; }
     set columnHeaderSelectionForegroundColor(value: GridSettings.Color) {
         if (value !== this._columnHeaderSelectionForegroundColor) {
+            this.beginChange();
             this._columnHeaderSelectionForegroundColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get rowHoverBackgroundColor() { return this._rowHoverBackgroundColor; }
     set rowHoverBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._rowHoverBackgroundColor) {
+            this.beginChange();
             this._rowHoverBackgroundColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get selectionFont() { return this._selectionFont; }
     set selectionFont(value: GridSettings.Color) {
         if (value !== this._selectionFont) {
+            this.beginChange();
             this._selectionFont = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get selectionBackgroundColor() { return this._selectionBackgroundColor; }
     set selectionBackgroundColor(value: GridSettings.Color) {
         if (value !== this._selectionBackgroundColor) {
+            this.beginChange();
             this._selectionBackgroundColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get selectionForegroundColor() { return this._selectionForegroundColor; }
     set selectionForegroundColor(value: GridSettings.Color) {
         if (value !== this._selectionForegroundColor) {
+            this.beginChange();
             this._selectionForegroundColor = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get horizontalAlign() { return this._horizontalAlign; }
     set horizontalAlign(value: Halign) {
         if (value !== this._horizontalAlign) {
+            this.beginChange();
             this._horizontalAlign = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get verticalOffset() { return this._verticalOffset; }
     set verticalOffset(value: number) {
         if (value !== this._verticalOffset) {
+            this.beginChange();
             this._verticalOffset = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get font() { return this._font; }
     set font(value: string) {
         if (value !== this._font) {
+            this.beginChange();
             this._font = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get textTruncateType() { return this._textTruncateType; }
     set textTruncateType(value: TextTruncateType | undefined) {
         if (value !== this._textTruncateType) {
+            this.beginChange();
             this._textTruncateType = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
     get textStrikeThrough() { return this._textStrikeThrough; }
     set textStrikeThrough(value: boolean) {
         if (value !== this._textStrikeThrough) {
+            this.beginChange();
             this._textStrikeThrough = value;
             this.invalidateViewRender();
+            this.endChange();
         }
     }
 
     override load(settings: StandardAllGridSettings) {
+        this.beginChange();
+
         super.load(settings);
 
         for (const key in settings) {
@@ -243,5 +285,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
                 }
             }
         }
+
+        this.endChange();
     }
 }

@@ -2,12 +2,13 @@ import {
     AssertError,
     GridSettingChangeInvalidateType,
     GridSettingChangeInvalidateTypeId,
+    GridSettings,
     GridSettingsBehavior,
     UnreachableCaseError
 } from '../../grid/grid-public-api';
 
 /** @public */
-export class InMemoryBehavioredSettings {
+export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior {
     /** @internal */
     viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer;
     /** @internal */
@@ -42,6 +43,8 @@ export class InMemoryBehavioredSettings {
             }
         }
     }
+
+    abstract load(settings: GridSettings): void;
 
     /** @internal */
     protected invalidateViewRender() {

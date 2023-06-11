@@ -83,14 +83,14 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
             const editor = focus.editor;
             if (editor !== undefined) { // is editor active
                 if (editor.paint !== undefined) { // should editor be painted
-                    return editor.paint(prefillColor);
+                    return editor.paint(viewCell, prefillColor);
                 } else {
                     return undefined; // Cell does not need painting while editor is active
                 }
             }
         }
         const cellPainter = viewCell.subgrid.getCellPainter(viewCell);
-        return cellPainter.paint(prefillColor);
+        return cellPainter.paint(viewCell, prefillColor);
     }
 
     paintErrorCell(err: Error, vc: ViewLayoutColumn<BCS, SC>, vr: ViewLayoutRow<BCS, SC>) {

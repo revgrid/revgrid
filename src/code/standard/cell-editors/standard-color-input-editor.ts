@@ -8,13 +8,13 @@ export class StandardColorInputEditor<
     BCS extends StandardBehavioredColumnSettings,
     SC extends SchemaServer.Column<BCS>
 > extends StandardInputElementEditor<BGS, BCS, SC> {
-    constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean) {
-        super(grid, readonly, 'color');
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>) {
+        super(grid, dataServer, 'color');
         this.element.classList.add('revgrid-color-input-editor');
     }
 
-    override open(value: DataServer.ViewValue, valueIsNew: boolean) {
-        super.open(value, valueIsNew);
+    override tryOpen(value: DataServer.ViewValue, valueIsNew: boolean) {
+        super.tryOpen(value, valueIsNew);
         this.element.value = value as string;
         if (!valueIsNew) {
             this.selectAll();
