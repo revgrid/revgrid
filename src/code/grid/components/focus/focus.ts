@@ -314,7 +314,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             } else {
                 const column = this._columnsManager.getActiveColumn(focusPoint.x);
                 const subgridRowIndex = focusPoint.y;
-                const consumed = editor.checkConsumeKeyDownEvent(event, fromEditor, column.schemaColumn, subgridRowIndex);
+                const consumed = editor.processKeyDownEvent(event, fromEditor, column.schemaColumn, subgridRowIndex);
                 if (consumed) {
                     return true;
                 } else {
@@ -347,10 +347,27 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                     return this.tryOpenEditorAtFocusedCell(focusedCell, undefined, event);
                 }
             } else {
-                if (editor.checkConsumeClickEvent === undefined) {
+                if (editor.processClickEvent === undefined) {
                     return false;
                 } else {
-                    return editor.checkConsumeClickEvent(event, focusedCell);
+                    return editor.processClickEvent(event, focusedCell);
+                }
+            }
+        }
+    }
+
+    checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: ViewCell<BCS, SC>): CellEditor.PointerLocationInfo | undefined {
+        if (focusedCell !== this._cell) {
+            throw new AssertError('FCEWCE59572');
+        } else {
+            const editor = this._editor;
+            if (editor === undefined) {
+                return undefined;
+            } else {
+                if (editor.processPointerMoveEvent === undefined) {
+                    return undefined;
+                } else {
+                    return editor.processPointerMoveEvent(event, focusedCell);
                 }
             }
         }
@@ -480,7 +497,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         const editor = this._editor;
         if (editor !== undefined) {
             this._editor = undefined;
-            this.finaliseEditor(editor, value);
+            this.finaliseEditor(editor);
         }
     }
 

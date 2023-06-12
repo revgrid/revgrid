@@ -1,4 +1,6 @@
-export interface UiBehaviorSharedState {
+import { CellEditor } from '../../interfaces/data/cell-editor';
+
+export interface UiBehaviorSharedState extends CellEditor.PointerLocationInfo {
     locationCursorName: string | undefined;
     locationTitleText: string | undefined;
 }

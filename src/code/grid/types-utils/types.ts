@@ -24,7 +24,6 @@ export const enum TextTruncateType {
 }
 
 /** @public */
-
 export const enum HorizontalWheelScrollingAllowed {
     Never,
     Always,
@@ -55,22 +54,6 @@ export type ListChangedEventHandler = (
 ) => void;
 
 /** @public */
-export type UiableListChangedEventHandler = (
-    this: void,
-    typeId: ListChangedTypeId,
-    index: number,
-    count: number,
-    targetIndex: number | undefined,
-    ui: boolean
-) => void;
-
-/** @public */
-export interface ColumnNameWidth {
-    name: string;
-    width: number | undefined;
-}
-
-/** @public */
 export const enum SelectionAreaType {
     Rectangle,
     Column,
@@ -89,3 +72,20 @@ export const enum SelectionAreaTypeSpecifier {
 
 /** @public */
 export type IndexSignatureHack<T> = { [K in keyof T]: IndexSignatureHack<T[K]> };
+
+/** @public */
+export type UiableListChangedEventHandler = (
+    this: void,
+    typeId: ListChangedTypeId,
+    index: number,
+    count: number,
+    targetIndex: number | undefined,
+    ui: boolean
+) => void;
+
+/** @public */
+export interface ColumnNameWidth {
+    name: string;
+    width: number | undefined;
+}
+

@@ -15,7 +15,7 @@ export abstract class StandardElementCellEditor<
         element.style.position = 'absolute';
     }
 
-    override tryOpen(_viewCell: DatalessViewCell<BCS, SC>, _keyDownEvent: KeyboardEvent | undefined, _mouseEvent: MouseEvent | undefined) {
+    override tryOpen(_viewCell: DatalessViewCell<BCS, SC>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         this._grid.canvasManager.containerElement.appendChild(this.element);
         this.element.focus();
         return true;

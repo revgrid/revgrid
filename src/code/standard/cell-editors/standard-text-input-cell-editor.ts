@@ -1,24 +1,24 @@
-import { DataServer, DatalessViewCell, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { AssertError, DataServer, DatalessViewCell, Revgrid, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
-import { StandardInputElementEditor } from './standard-input-element-editor';
+import { StandardInputElementCellEditor } from './standard-input-element-cell-editor';
 
 /** @public */
-export class StandardTextInputEditor<
+export class StandardTextInputCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
     SC extends SchemaServer.Column<BCS>
-> extends StandardInputElementEditor<BGS, BCS, SC> {
+> extends StandardInputElementCellEditor<BGS, BCS, SC> {
     constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>) {
         super(grid, dataServer, 'text');
         this.element.classList.add('revgrid-text-input-editor');
     }
 
-    override tryOpen(cell: DatalessViewCell<BCS, SC>, keyDownEvent: KeyboardEvent | undefined, _mouseEvent: MouseEvent | undefined) {
+    override tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined) {
             return false;
         } else {
-            const key = keyDownEvent !== undefined ? keyDownEvent.key : undefined;
+            const key = openingKeyDownEvent !== undefined ? openingKeyDownEvent.key : undefined;
             if (key !== undefined) {
                 // trying to open from key down event
                 const isPrintableKey = key.length === 1 || key === 'Unidentified';
@@ -27,13 +27,17 @@ export class StandardTextInputEditor<
                 }
             }
 
-            const result = super.tryOpen(cell, keyDownEvent, _mouseEvent);
+            const result = super.tryOpen(cell, openingKeyDownEvent, _openingClickEvent);
 
-            if (result && key !== undefined) {
-                // was opened by keyboard
+            if (result && key === undefined) {
+                // was not opened by keyboard
                 const value = dataServer.getEditValue(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
-                this.element.value = value as string;
-                this.selectAll();
+                if (typeof value !== 'string') {
+                    throw new AssertError('STIETO41112', typeof value);
+                } else {
+                    this.element.value = value;
+                    this.selectAll();
+                }
             }
 
             return result;

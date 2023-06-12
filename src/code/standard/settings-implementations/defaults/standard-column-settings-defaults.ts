@@ -19,4 +19,5 @@ export const standardColumnSettingsDefaults: Required<StandardColumnSettings> = 
     font: standardGridSettingsDefaults.font,
     textTruncateType: standardGridSettingsDefaults.textTruncateType,
     textStrikeThrough: standardGridSettingsDefaults.textStrikeThrough,
+    editorClickCursorName: standardGridSettingsDefaults.editorClickCursorName,
 }

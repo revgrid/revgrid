@@ -36,4 +36,7 @@ export interface StandardGridSettings {
     textTruncateType: TextTruncateType | undefined;
     /** Display cell font with strike-through line drawn over it. */
     textStrikeThrough: boolean;
+
+    /** Cursor to display when editor can be clicked */
+    editorClickCursorName: string | undefined;
 }

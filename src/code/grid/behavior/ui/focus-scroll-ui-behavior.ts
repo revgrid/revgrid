@@ -25,6 +25,33 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         return super.handlePointerDown(event, hoverCell);
     }
 
+    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+        if (hoverCell === undefined) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
+        }
+        if (hoverCell !== null && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+            const viewCell = hoverCell.viewCell;
+            if (viewCell === this.focus.cell) {
+                const editorPointerLocationInfo = this.focus.checkEditorProcessPointerMoveEvent(event, viewCell);
+                if (editorPointerLocationInfo !== undefined) {
+                    const sharedState = this.sharedState;
+
+                    const editorCursorName = editorPointerLocationInfo.locationCursorName;
+                    if (editorCursorName !== undefined && sharedState.locationCursorName === undefined) {
+                        sharedState.locationCursorName = editorCursorName;
+                    }
+
+                    const locationTitleText = editorPointerLocationInfo.locationTitleText;
+                    if (locationTitleText !== undefined && sharedState.locationTitleText === undefined) {
+                        sharedState.locationTitleText = locationTitleText;
+                    }
+                }
+            }
+        }
+        return super.handlePointerMove(event, hoverCell);
+    }
+
+
     override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
@@ -33,10 +60,14 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
             return super.handleClick(event, hoverCell);
         } else {
             const viewCell = hoverCell.viewCell;
-            if (this.focus.checkEditorWantsClickEvent(event, viewCell)) {
-                return hoverCell;
-            } else {
+            if (viewCell !== this.focus.cell) {
                 return super.handleClick(event, hoverCell);
+            } else {
+                if (!this.focus.checkEditorWantsClickEvent(event, viewCell)) {
+                    return super.handleClick(event, hoverCell);
+                } else {
+                    return hoverCell;
+                }
             }
         }
     }

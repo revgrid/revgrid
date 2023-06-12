@@ -2,7 +2,7 @@ import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaServer 
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardElementCellEditor } from './standard-element-cell-editor';
 
-export abstract class StandardInputElementEditor<
+export abstract class StandardInputElementCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
     SC extends SchemaServer.Column<BCS>
@@ -26,8 +26,8 @@ export abstract class StandardInputElementEditor<
         this.element.readOnly = value;
     }
 
-    override tryOpen(viewCell: DatalessViewCell<BCS, SC>, keyDownEvent: KeyboardEvent | undefined, mouseEvent: MouseEvent | undefined) {
-        const result = super.tryOpen(viewCell, keyDownEvent, mouseEvent);
+    override tryOpen(viewCell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
+        const result = super.tryOpen(viewCell, openingKeyDownEvent, openingClickEvent);
         if (result) {
             this.element.addEventListener('keydown', this.keyDownEventer);
         }
@@ -39,7 +39,7 @@ export abstract class StandardInputElementEditor<
         super.close(schemaColumn, subgridRowIndex, cancel);
     }
 
-    override checkConsumeKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SC, _subgridRowIndex: number) {
+    override processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SC, _subgridRowIndex: number) {
         if (fromEditor) {
             // Event was emitted by this editor.  Any key it can consume has effectively already been consumed
             return this.canConsumeKey(event.key);

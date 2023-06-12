@@ -4,10 +4,10 @@ import {
     TextTruncateType
 } from '../../../grid/grid-public-api';
 import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { StandardAllGridSettings, StandardGridSettings } from '../../settings/standard-settings-public-api';
+import { StandardAllGridSettings, StandardBehavioredGridSettings, StandardGridSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings {
+export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
     private _cellPadding: number;
     private _cellFocusedBorderColor: GridSettings.Color;
     private _cellHoverBackgroundColor: GridSettings.Color | undefined;
@@ -28,6 +28,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
     private _font: string;
     private _textTruncateType: TextTruncateType | undefined;
     private _textStrikeThrough: boolean;
+    private _editorClickCursorName: string | undefined;
 
     get cellPadding() { return this._cellPadding; }
     set cellPadding(value: number) {
@@ -209,6 +210,14 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
+    get editorClickCursorName() { return this._editorClickCursorName; }
+    set editorClickCursorName(value: string | undefined) {
+        if (value !== this._editorClickCursorName) {
+            this.beginChange();
+            this._editorClickCursorName = value;
+            this.endChange();
+        }
+    }
 
     override load(settings: StandardAllGridSettings) {
         this.beginChange();
@@ -278,6 +287,9 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
                     break;
                 case 'textStrikeThrough':
                     this._textStrikeThrough = settings.textStrikeThrough;
+                    break;
+                case 'editorClickCursorName':
+                    this._editorClickCursorName = settings.editorClickCursorName;
                     break;
 
                 default: {

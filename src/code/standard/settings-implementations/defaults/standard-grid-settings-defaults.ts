@@ -30,4 +30,6 @@ export const standardGridSettingsDefaults: Required<StandardGridSettings> = {
     font: '13px Tahoma, Geneva, sans-serif',
     textTruncateType: TextTruncateType.WithEllipsis,
     textStrikeThrough: false,
+
+    editorClickCursorName: 'pointer',
 }

@@ -68,7 +68,7 @@ export class CachedCanvasRenderingContext2D {
     // (undocumented)
     getImageData(sx: number, sy: number, sw: number, sh: number): ImageData;
     // (undocumented)
-    getTextHeight(font: string): CachedCanvasRenderingContext2D.TextHeight;
+    getTextHeight(text: string): CachedCanvasRenderingContext2D.TextHeight;
     getTextWidth(text: string): number;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     getTextWidthTruncated(this: CachedCanvasRenderingContext2D, text: string, width: number, truncateType: TextTruncateType | undefined, abort: boolean, truncateFromEnd: boolean): CachedCanvasRenderingContext2D.TruncatedTextWidth;
@@ -207,9 +207,9 @@ export namespace CachedCanvasRenderingContext2D {
     // (undocumented)
     export type ConditionalsStack = Conditional[];
     // (undocumented)
-    export type FontStringWidthMap = Map<string, StringWidthMap>;
+    export type FontTextHeightMap = Map<string, TextHeightMap>;
     // (undocumented)
-    export type StringWidthMap = Map<string, number>;
+    export type FontTextWidthMap = Map<string, TextWidthMap>;
     // (undocumented)
     export interface TextHeight {
         // (undocumented)
@@ -220,42 +220,33 @@ export namespace CachedCanvasRenderingContext2D {
         height: number;
     }
     // (undocumented)
+    export type TextHeightMap = Map<string, TextHeight>;
+    // (undocumented)
+    export type TextWidthMap = Map<string, number>;
+    // (undocumented)
     export interface TruncatedTextWidth {
         text: string | undefined;
         textWidth: number;
     }
 }
 
+// Warning: (ae-forgotten-export) The symbol "CellPossiblyPaintable" needs to be exported by the entry point public-api.d.ts
+//
 // @public (undocumented)
-export interface CellEditor<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-    checkConsumeKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean;
-    click?(event: MouseEvent, cell: ViewCell<BCS, SC> | undefined): void;
-    close(cancel: boolean): DataServer.ViewValue | undefined;
+export interface CellEditor<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends CellPossiblyPaintable<BCS, SC> {
+    close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): void;
     closedEventer?: CellEditor.ClosedEventer;
-    dblClick?(event: MouseEvent, cell: ViewCell<BCS, SC> | undefined): void;
     focus?(): void;
     invalidateValue?(): void;
-    keyDown?(event: KeyboardEvent): void;
     keyDownEventer?: CellEditor.KeyDownEventer;
-    keyUp?(event: KeyboardEvent): void;
-    mouseDown?(event: MouseEvent, cell: ViewCell<BCS, SC> | undefined): void;
-    mouseUp?(event: MouseEvent, cell: ViewCell<BCS, SC> | undefined): void;
-    open(initialValue: DataServer.ViewValue, valueIsNew: boolean): void;
-    paint?(prefillColor: string | undefined): number | undefined;
+    processClickEvent?(event: MouseEvent, viewCell: DatalessViewCell<BCS, SC>): boolean;
+    processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, schemaColumn: SC, subgridRowIndex: number): boolean;
+    processPointerMoveEvent?(event: PointerEvent, viewCell: DatalessViewCell<BCS, SC>): CellEditor.PointerLocationInfo | undefined;
     pullValueEventer?: CellEditor.PullDataEventer;
     pushValueEventer?: CellEditor.PushDataEventer;
-    readonly readonly: boolean;
+    readonly: boolean;
     setBounds?(bounds: Rectangle | undefined): void;
-    readonly wantDownArrow?: boolean;
-    readonly wantEnd?: boolean;
-    readonly wantEscape?: boolean;
-    readonly wantHome?: boolean;
-    readonly wantLeftArrow?: boolean;
-    readonly wantReturn?: boolean;
-    readonly wantRightArrow?: boolean;
-    readonly wantTab?: boolean;
-    readonly wantUpArrow?: boolean;
-    wheelMove?(event: WheelEvent, cell: ViewCell<BCS, SC> | undefined): void;
+    tryOpen(viewCell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -265,6 +256,13 @@ export namespace CellEditor {
     // (undocumented)
     export type KeyDownEventer = (this: void, event: KeyboardEvent) => void;
     // (undocumented)
+    export interface PointerLocationInfo {
+        // (undocumented)
+        locationCursorName: string | undefined;
+        // (undocumented)
+        locationTitleText: string | undefined;
+    }
+    // (undocumented)
     export type PullDataEventer = (this: void) => DataServer.ViewValue;
     // (undocumented)
     export type PushDataEventer = (this: void, value: DataServer.ViewValue) => void;
@@ -273,9 +271,9 @@ export namespace CellEditor {
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 //
 // @public
-export interface CellPainter {
+export interface CellPainter<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends CellPossiblyPaintable<BCS, SC> {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    paint(prefillColor: string | undefined): number | undefined;
+    paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -314,7 +312,7 @@ export interface ColumnNameWidth {
 }
 
 // @public (undocumented)
-export type ColumnSettings = Pick<GridSettings, 'backgroundColor' | 'color' | 'columnAutosizingMax' | 'columnClip' | 'defaultColumnAutosizing' | 'defaultColumnWidth' | 'editable' | 'editOnKeydown' | 'editOnFocusCell' | 'editOnDoubleClick' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'mouseSortOnDoubleClick' | 'mouseSortable'>;
+export type ColumnSettings = Pick<GridSettings, 'backgroundColor' | 'color' | 'columnAutosizingMax' | 'columnClip' | 'defaultColumnAutosizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'mouseSortOnDoubleClick' | 'mouseSortable'>;
 
 // @public (undocumented)
 export interface ColumnSettingsBehavior {
@@ -603,7 +601,7 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
     fetchViewData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
     getCursorName?(schema: SchemaServer.Column<BCS>, rowIndex: number): string;
     // (undocumented)
-    getEditValue?(schema: SchemaServer.Column<BCS>, rowIndex: number): DataServer.EditValue;
+    getEditValue?(schemaColumn: SchemaServer.Column<BCS>, rowIndex: number): DataServer.EditValue;
     // (undocumented)
     getRowCount(): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -618,9 +616,9 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
     // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     getViewRow?(rowIndex: number): DataServer.ViewRow;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    getViewValue(schema: SchemaServer.Column<BCS>, rowIndex: number): DataServer.ViewValue;
+    getViewValue(schemaColumn: SchemaServer.Column<BCS>, rowIndex: number): DataServer.ViewValue;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    setEditValue?(schema: SchemaServer.Column<BCS>, rowIndex: number, value: DataServer.EditValue): void;
+    setEditValue?(schemaColumn: SchemaServer.Column<BCS>, rowIndex: number, value: DataServer.EditValue): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setViewRow?(rowIndex: number, dataRow?: DataServer.ViewRow): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -949,6 +947,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // @internal (undocumented)
     changedEventer: Focus.ChangedEventer;
     // (undocumented)
+    checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: ViewCell<BCS, SC>): CellEditor.PointerLocationInfo | undefined;
+    // (undocumented)
+    checkEditorWantsClickEvent(event: MouseEvent, focusedCell: ViewCell<BCS, SC>): boolean;
+    // (undocumented)
     checkEditorWantsKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean;
     // (undocumented)
     clear(): void;
@@ -1000,7 +1002,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     setY(subgridRowIndex: number, cell: ViewCell<BCS, SC> | undefined, canvasY: number | undefined): void;
     // (undocumented)
     readonly subgrid: Subgrid<BCS, SC>;
-    tryOpenEditor(initialValue: DataServer.ViewValue | undefined): boolean;
+    // (undocumented)
+    tryOpenEditor(cell: ViewCell<BCS, SC>): boolean;
     // @internal (undocumented)
     viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer<BCS, SC>;
 }
@@ -1135,12 +1138,11 @@ export interface GridSettings {
     // (undocumented)
     readonly editable: boolean;
     readonly editKey: string;
+    readonly editOnClick: boolean;
     readonly editOnDoubleClick: boolean;
     readonly editOnFocusCell: boolean;
+    readonly editOnKeyDown: boolean;
     // (undocumented)
-    readonly editOnKeydown: boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     readonly enableContinuousRepaint: boolean;
     readonly eventDispatchEnabled: boolean;
     readonly extendLastSelectionAreaModifierKey: ModifierKeyEnum;
@@ -1276,6 +1278,10 @@ export namespace GridSettings {
 
 // @public (undocumented)
 export interface GridSettingsBehavior {
+    // (undocumented)
+    beginChange(): void;
+    // (undocumented)
+    endChange(): void;
     // @internal (undocumented)
     horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
     // (undocumented)
@@ -1442,6 +1448,7 @@ export namespace InexclusiveRectangle {
 //
 // @public (undocumented)
 export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings implements BehavioredColumnSettings {
+    constructor(gridSettings: AllGridSettings);
     // (undocumented)
     get backgroundColor(): string;
     set backgroundColor(value: string);
@@ -1464,17 +1471,22 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     get editable(): boolean;
     set editable(value: boolean);
     // (undocumented)
+    get editOnClick(): boolean;
+    set editOnClick(value: boolean);
+    // (undocumented)
     get editOnDoubleClick(): boolean;
     set editOnDoubleClick(value: boolean);
     // (undocumented)
     get editOnFocusCell(): boolean;
     set editOnFocusCell(value: boolean);
     // (undocumented)
-    get editOnKeydown(): boolean;
-    set editOnKeydown(value: boolean);
+    get editOnKeyDown(): boolean;
+    set editOnKeyDown(value: boolean);
     // (undocumented)
     get filterable(): boolean;
     set filterable(value: boolean);
+    // (undocumented)
+    readonly gridSettings: AllGridSettings;
     // (undocumented)
     load(settings: ColumnSettings): void;
     // (undocumented)
@@ -1569,14 +1581,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get editKey(): string;
     set editKey(value: string);
     // (undocumented)
+    get editOnClick(): boolean;
+    set editOnClick(value: boolean);
+    // (undocumented)
     get editOnDoubleClick(): boolean;
     set editOnDoubleClick(value: boolean);
     // (undocumented)
     get editOnFocusCell(): boolean;
     set editOnFocusCell(value: boolean);
     // (undocumented)
-    get editOnKeydown(): boolean;
-    set editOnKeydown(value: boolean);
+    get editOnKeyDown(): boolean;
+    set editOnKeyDown(value: boolean);
     // (undocumented)
     get enableContinuousRepaint(): boolean;
     set enableContinuousRepaint(value: boolean);
@@ -2016,6 +2031,8 @@ export interface Rectangle {
 
 // @public (undocumented)
 export namespace Rectangle {
+    // (undocumented)
+    export function containsXY(rectangle: Rectangle, x: number, y: number): boolean;
     // (undocumented)
     export function isEqual(left: Rectangle, right: Rectangle): boolean;
 }
@@ -3164,7 +3181,7 @@ export const standardAllGridSettingsDefaults: StandardAllGridSettings;
 // @public
 export class StandardAlphaTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardTextCellPainter<BGS, BCS, SC> {
     // (undocumented)
-    paint(prefillColor: string | undefined): number | undefined;
+    paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3180,7 +3197,7 @@ export class StandardButtonCellPainter<BGS extends StandardBehavioredGridSetting
     // (undocumented)
     config: StandardButtonCellPainter.Config;
     // (undocumented)
-    paint(_prefillColor: string | undefined): number | undefined;
+    paint(cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3199,12 +3216,8 @@ export namespace StandardButtonCellPainter {
 }
 
 // @public (undocumented)
-export abstract class StandardCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> implements CellPainter {
+export abstract class StandardCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> implements CellPainter<BCS, SC> {
     constructor(_grid: Revgrid<BGS, BCS, SC>, _dataServer: DataServer<BCS>);
-    // (undocumented)
-    protected _cell: DatalessViewCell<BCS, SC>;
-    // (undocumented)
-    protected _columnSettings: StandardAllColumnSettings;
     // (undocumented)
     protected readonly _dataServer: DataServer<BCS>;
     // (undocumented)
@@ -3212,37 +3225,86 @@ export abstract class StandardCellPainter<BGS extends StandardBehavioredGridSett
     // (undocumented)
     protected readonly _gridSettings: StandardAllGridSettings;
     // (undocumented)
-    abstract paint(prefillColor: string | undefined): number | undefined;
+    abstract paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
     // (undocumented)
     protected readonly _renderingContext: CachedCanvasRenderingContext2D;
-    // (undocumented)
-    setCell(value: DatalessViewCell<BCS, SC>): void;
 }
 
-// Warning: (ae-forgotten-export) The symbol "StandardInputElementEditor" needs to be exported by the entry point public-api.d.ts
+// Warning: (ae-forgotten-export) The symbol "StandardPaintCellEditor" needs to be exported by the entry point public-api.d.ts
 //
 // @public (undocumented)
-export class StandardColorInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementEditor<BGS, BCS, SC> {
-    constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean);
+export class StandardCheckboxCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardPaintCellEditor<BGS, BCS, SC> {
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>);
     // (undocumented)
-    close(cancel: boolean): string | undefined;
+    close(_schemaColumn: SC, _subgridRowIndex: number, _cancel: boolean): void;
     // (undocumented)
-    open(value: DataServer.ViewValue, valueIsNew: boolean): void;
+    _painter: StandardCheckboxCellPainter<BGS, BCS, SC>;
+    // (undocumented)
+    processClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SC>): boolean;
+    // (undocumented)
+    processKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, schemaColumn: SC, subgridRowIndex: number): boolean;
+    // (undocumented)
+    processPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SC>): CellEditor.PointerLocationInfo | undefined;
+    // (undocumented)
+    tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+}
+
+// @public
+export class StandardCheckboxCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardCellPainter<BGS, BCS, SC> {
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>, _editable: boolean);
+    // (undocumented)
+    get boxBounds(): Rectangle | undefined;
+    // (undocumented)
+    paint(cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
-export type StandardColumnSettings = Pick<StandardGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'horizontalAlign' | 'verticalOffset' | 'font' | 'textTruncateType' | 'textStrikeThrough'>;
+export namespace StandardCheckboxCellPainter {
+    const // (undocumented)
+    typeName = "Checkbox";
+    const // (undocumented)
+    minimumBoxSideLength = 5;
+    const // (undocumented)
+    badlyRenderedCrossEvenBoxSideLengths: number[];
+    const // (undocumented)
+    valueNotBooleanChar = "!";
+    // (undocumented)
+    export interface Config {
+        // (undocumented)
+        backgroundColor: string;
+        // (undocumented)
+        bounds: Rectangle;
+        // (undocumented)
+        foregroundColor: string;
+        // (undocumented)
+        value: boolean;
+    }
+}
+
+// Warning: (ae-forgotten-export) The symbol "StandardInputElementCellEditor" needs to be exported by the entry point public-api.d.ts
+//
+// @public (undocumented)
+export class StandardColorInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementCellEditor<BGS, BCS, SC> {
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>);
+    // (undocumented)
+    close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): void;
+    // (undocumented)
+    tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+}
+
+// @public (undocumented)
+export type StandardColumnSettings = Pick<StandardGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'horizontalAlign' | 'verticalOffset' | 'font' | 'textTruncateType' | 'textStrikeThrough' | 'editorClickCursorName'>;
 
 // @public (undocumented)
 export const standardColumnSettingsDefaults: Required<StandardColumnSettings>;
 
 // @public (undocumented)
-export class StandardDateInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementEditor<BGS, BCS, SC> {
-    constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean);
+export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementCellEditor<BGS, BCS, SC> {
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>);
     // (undocumented)
-    close(cancel: boolean): string | undefined;
+    close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    open(value: DataServer.ViewValue, valueIsNew: boolean): void;
+    tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -3267,6 +3329,7 @@ export interface StandardGridSettings {
     columnHeaderSelectionForegroundColor: GridSettings.Color;
     // (undocumented)
     columnHoverBackgroundColor: GridSettings.Color | undefined;
+    editorClickCursorName: string | undefined;
     // (undocumented)
     font: string;
     horizontalAlign: Halign;
@@ -3291,13 +3354,14 @@ export const standardGridSettingsDefaults: Required<StandardGridSettings>;
 // @public
 export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardTextCellPainter<BGS, BCS, SC> {
     // (undocumented)
-    paint(prefillColor: string | undefined): number | undefined;
+    paint(cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined;
     // (undocumented)
     textWrapping: boolean;
 }
 
 // @public (undocumented)
-export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehavioredColumnSettings {
+export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
+    constructor(gridSettings: StandardAllGridSettings);
     // (undocumented)
     get cellFocusedBorderColor(): GridSettings.Color;
     set cellFocusedBorderColor(value: GridSettings.Color);
@@ -3332,8 +3396,13 @@ export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehaviored
     get columnHoverBackgroundColor(): GridSettings.Color | undefined;
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
+    get editorClickCursorName(): string | undefined;
+    set editorClickCursorName(value: string | undefined);
+    // (undocumented)
     get font(): string;
     set font(value: string);
+    // (undocumented)
+    gridSettings: StandardAllGridSettings;
     // (undocumented)
     get horizontalAlign(): Halign;
     set horizontalAlign(value: Halign);
@@ -3351,7 +3420,7 @@ export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehaviored
 }
 
 // @public (undocumented)
-export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings {
+export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
     // (undocumented)
     get cellFocusedBorderColor(): GridSettings.Color;
     set cellFocusedBorderColor(value: GridSettings.Color);
@@ -3385,6 +3454,9 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
     // (undocumented)
     get columnHoverBackgroundColor(): GridSettings.Color | undefined;
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get editorClickCursorName(): string | undefined;
+    set editorClickCursorName(value: string | undefined);
     // (undocumented)
     get font(): string;
     set font(value: string);
@@ -3417,21 +3489,25 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
 }
 
 // @public (undocumented)
-export class StandardNumberInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementEditor<BGS, BCS, SC> {
-    constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean);
+export class StandardNumberInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementCellEditor<BGS, BCS, SC> {
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>);
     // (undocumented)
-    close(cancel: boolean): string | undefined;
+    close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    open(value: DataServer.ViewValue, valueIsNew: boolean): void;
+    tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
-export class StandardRangeInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementEditor<BGS, BCS, SC> {
-    constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean);
+export class StandardRangeInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementCellEditor<BGS, BCS, SC> {
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>);
     // (undocumented)
-    close(cancel: boolean): string | undefined;
+    close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    open(value: DataServer.ViewValue, valueIsNew: boolean): void;
+    tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+}
+
+// @public (undocumented)
+export class StandardRevgrid extends Revgrid<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServer.Column<StandardInMemoryBehavioredColumnSettings>> {
 }
 
 // @public
@@ -3439,7 +3515,7 @@ export class StandardSliderCellPainter<BGS extends StandardBehavioredGridSetting
     // (undocumented)
     config: StandardSliderCellPainter.Config;
     // (undocumented)
-    paint(_prefillColor: string | undefined): number | undefined;
+    paint(_cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3464,7 +3540,7 @@ export class StandardSparkBarCellPainter<BGS extends StandardBehavioredGridSetti
     // (undocumented)
     config: StandardSparkBarCellPainter.Config;
     // (undocumented)
-    paint(_prefillColor: string | undefined): number | undefined;
+    paint(_cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3493,7 +3569,7 @@ export class StandardSparkLineCellPainter<BGS extends StandardBehavioredGridSett
     // (undocumented)
     config: StandardSparkLineCellPainter.Config;
     // (undocumented)
-    paint(_prefillColor: string | undefined): number | undefined;
+    paint(_cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3522,7 +3598,7 @@ export namespace StandardSparkLineCellPainter {
 // @public (undocumented)
 export class StandardTagCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardCellPainter<BGS, BCS, SC> {
     // (undocumented)
-    paint(_prefillColor: string | undefined): number | undefined;
+    paint(_cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3543,6 +3619,8 @@ export abstract class StandardTextCellPainter<BGS extends StandardBehavioredGrid
     // (undocumented)
     protected checkPaintBorder(bounds: Rectangle, borderColor: string | undefined): void;
     // (undocumented)
+    protected _columnSettings: StandardAllColumnSettings;
+    // (undocumented)
     protected decorateText(): void;
     // (undocumented)
     protected findLines(words: string[], width: number): string[];
@@ -3551,18 +3629,20 @@ export abstract class StandardTextCellPainter<BGS extends StandardBehavioredGrid
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     protected renderSingleLineText(bounds: Rectangle, val: string, leftPadding: number, rightPadding: number): number;
     // (undocumented)
+    setColumnSettings(value: StandardAllColumnSettings): void;
+    // (undocumented)
     protected strikeThrough(text: string, x: number, y: number, thickness: number): void;
     // (undocumented)
     protected underline(text: string, x: number, y: number, thickness: number): void;
 }
 
 // @public (undocumented)
-export class StandardTextInputEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementEditor<BGS, BCS, SC> {
-    constructor(grid: Revgrid<BGS, BCS, SC>, readonly: boolean);
+export class StandardTextInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardInputElementCellEditor<BGS, BCS, SC> {
+    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>);
     // (undocumented)
-    close(cancel: boolean): string | undefined;
+    close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    open(value: DataServer.ViewValue, valueIsNew: boolean): void;
+    tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -3570,7 +3650,7 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SC extends Schema
     // (undocumented)
     readonly dataServer: DataServer<BCS>;
     // (undocumented)
-    getCellPainter(viewCell: DatalessViewCell<BCS, SC>): CellPainter;
+    getCellPainter(viewCell: DatalessViewCell<BCS, SC>): CellPainter<BCS, SC>;
     // (undocumented)
     getDefaultRowHeight(): number;
     // (undocumented)
@@ -3624,7 +3704,7 @@ export namespace Subgrid {
     import RoleEnum = DatalessSubgrid.RoleEnum;
     import Role = DatalessSubgrid.Role;
     // (undocumented)
-    export type GetCellPainterEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, viewCell: DatalessViewCell<BCS, SC>) => CellPainter;
+    export type GetCellPainterEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, viewCell: DatalessViewCell<BCS, SC>) => CellPainter<BCS, SC>;
 }
 
 // @public (undocumented)

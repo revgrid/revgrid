@@ -23,10 +23,10 @@ export abstract class StandardCellEditor<
         this._readonly = value;
     }
 
-    abstract tryOpen(viewCell: DatalessViewCell<BCS, SC>, keyDownEvent: KeyboardEvent | undefined, clickEvent: MouseEvent | undefined): boolean;
-    abstract close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): DataServer.ViewValue | undefined;
+    abstract tryOpen(viewCell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    abstract close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): void;
 
-    abstract checkConsumeKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, schemaColumn: SC, subgridRowIndex: number): boolean;
+    abstract processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, schemaColumn: SC, subgridRowIndex: number): boolean;
 
     protected isToggleKey(key: string) {
         return key === Focus.ActionKeyboardKey.Enter || key === 'Space';

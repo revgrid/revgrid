@@ -1,27 +1,32 @@
 import { BehavioredColumnSettings, ColumnSettings, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
+import { AllGridSettings } from '../../grid/interfaces/settings/all-grid-settings';
 import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */
 export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings implements BehavioredColumnSettings {
-    private _backgroundColor: string;
-    private _color: string;
-    private _columnAutosizingMax: number | undefined;
-    private _columnClip: boolean | undefined;
-    private _defaultColumnAutosizing: boolean;
-    private _defaultColumnWidth: number;
-    private _editable: boolean;
-    private _editOnClick: boolean;
-    private _editOnDoubleClick: boolean;
-    private _editOnFocusCell: boolean;
-    private _editOnKeydown: boolean;
-    private _filterable: boolean;
-    private _maximumColumnWidth: number | undefined;
-    private _minimumColumnWidth: number;
-    private _resizeColumnInPlace: boolean;
-    private _mouseSortOnDoubleClick: boolean;
-    private _mouseSortable: boolean;
+    private _backgroundColor: string | undefined;
+    private _color: string | undefined;
+    private _columnAutosizingMax: number | undefined | null;
+    private _columnClip: boolean | undefined | null;
+    private _defaultColumnAutosizing: boolean | undefined;
+    private _defaultColumnWidth: number | undefined;
+    private _editable: boolean | undefined;
+    private _editOnClick: boolean | undefined;
+    private _editOnDoubleClick: boolean | undefined;
+    private _editOnFocusCell: boolean | undefined;
+    private _editOnKeyDown: boolean | undefined;
+    private _filterable: boolean | undefined;
+    private _maximumColumnWidth: number | undefined | null;
+    private _minimumColumnWidth: number | undefined;
+    private _resizeColumnInPlace: boolean | undefined;
+    private _mouseSortOnDoubleClick: boolean | undefined;
+    private _mouseSortable: boolean | undefined;
 
-    get backgroundColor() { return this._backgroundColor; }
+    constructor(readonly gridSettings: AllGridSettings) {
+        super();
+    }
+
+    get backgroundColor() { return this._backgroundColor !== undefined ? this._backgroundColor : this.gridSettings.backgroundColor; }
     set backgroundColor(value: string) {
         if (value !== this._backgroundColor) {
             this.beginChange();
@@ -32,7 +37,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get color() { return this._color; }
+    get color() { return this._color !== undefined ? this._color : this.gridSettings.color; }
     set color(value: string) {
         if (value !== this._color) {
             this.beginChange();
@@ -43,29 +48,49 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get columnAutosizingMax() { return this._columnAutosizingMax; }
+    get columnAutosizingMax() {
+        if (this._columnAutosizingMax === null) {
+            return undefined;
+        } else {
+            return this._columnAutosizingMax !== undefined ? this._columnAutosizingMax : this.gridSettings.columnAutosizingMax;
+        }
+    }
     set columnAutosizingMax(value: number | undefined) {
         if (value !== this._columnAutosizingMax) {
             this.beginChange();
-            this._columnAutosizingMax = value;
+            if (this._columnAutosizingMax === undefined) {
+                this._columnAutosizingMax = null;
+            } else {
+                this._columnAutosizingMax = value;
+            }
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnAutosizingMax;
             this.invalidateByType(invalidateType);
             this.endChange();
         }
     }
 
-    get columnClip() { return this._columnClip; }
+    get columnClip() {
+        if (this._columnClip === null) {
+            return undefined;
+        } else {
+            return this._columnClip !== undefined ? this._columnClip : this.gridSettings.columnClip;
+        }
+    }
     set columnClip(value: boolean | undefined) {
         if (value !== this._columnClip) {
             this.beginChange();
-            this._columnClip = value;
+            if (this._columnClip === undefined) {
+                this._columnClip = null;
+            } else {
+                this._columnClip = value;
+            }
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnClip;
             this.invalidateByType(invalidateType);
             this.endChange();
         }
     }
 
-    get defaultColumnAutosizing() { return this._defaultColumnAutosizing; }
+    get defaultColumnAutosizing() { return this._defaultColumnAutosizing !== undefined ? this._defaultColumnAutosizing : this.gridSettings.defaultColumnAutosizing; }
     set defaultColumnAutosizing(value: boolean) {
         if (value !== this._defaultColumnAutosizing) {
             this.beginChange();
@@ -76,7 +101,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get defaultColumnWidth() { return this._defaultColumnWidth; }
+    get defaultColumnWidth() { return this._defaultColumnWidth !== undefined ? this._defaultColumnWidth : this.gridSettings.defaultColumnWidth; }
     set defaultColumnWidth(value: number) {
         if (value !== this._defaultColumnWidth) {
             this.beginChange();
@@ -87,7 +112,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get editable() { return this._editable; }
+    get editable() { return this._editable !== undefined ? this._editable : this.gridSettings.editable; }
     set editable(value: boolean) {
         if (value !== this._editable) {
             this.beginChange();
@@ -98,7 +123,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get editOnClick() { return this._editOnClick; }
+    get editOnClick() { return this._editOnClick !== undefined ? this._editOnClick : this.gridSettings.editOnClick; }
     set editOnClick(value: boolean) {
         if (value !== this._editOnClick) {
             this.beginChange();
@@ -109,7 +134,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get editOnDoubleClick() { return this._editOnDoubleClick; }
+    get editOnDoubleClick() { return this._editOnDoubleClick !== undefined ? this._editOnDoubleClick : this.gridSettings.editOnDoubleClick; }
     set editOnDoubleClick(value: boolean) {
         if (value !== this._editOnDoubleClick) {
             this.beginChange();
@@ -120,7 +145,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get editOnFocusCell() { return this._editOnFocusCell; }
+    get editOnFocusCell() { return this._editOnFocusCell !== undefined ? this._editOnFocusCell : this.gridSettings.editOnFocusCell; }
     set editOnFocusCell(value: boolean) {
         if (value !== this._editOnFocusCell) {
             this.beginChange();
@@ -131,18 +156,18 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get editOnKeyDown() { return this._editOnKeydown; }
+    get editOnKeyDown() { return this._editOnKeyDown !== undefined ? this._editOnKeyDown : this.gridSettings.editOnKeyDown; }
     set editOnKeyDown(value: boolean) {
-        if (value !== this._editOnKeydown) {
+        if (value !== this._editOnKeyDown) {
             this.beginChange();
-            this._editOnKeydown = value;
+            this._editOnKeyDown = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnKeyDown;
             this.invalidateByType(invalidateType);
             this.endChange();
         }
     }
 
-    get filterable() { return this._filterable; }
+    get filterable() { return this._filterable !== undefined ? this._filterable : this.gridSettings.filterable; }
     set filterable(value: boolean) {
         if (value !== this._filterable) {
             this.beginChange();
@@ -153,18 +178,28 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get maximumColumnWidth() { return this._maximumColumnWidth; }
+    get maximumColumnWidth() {
+        if (this._maximumColumnWidth === null) {
+            return undefined;
+        } else {
+            return this._maximumColumnWidth !== undefined ? this._maximumColumnWidth : this.gridSettings.maximumColumnWidth;
+        }
+    }
     set maximumColumnWidth(value: number | undefined) {
         if (value !== this._maximumColumnWidth) {
             this.beginChange();
-            this._maximumColumnWidth = value;
+            if (this._maximumColumnWidth === undefined) {
+                this._maximumColumnWidth = null;
+            } else {
+                this._maximumColumnWidth = value;
+            }
             const invalidateType = gridSettingChangeInvalidateTypeIds.maximumColumnWidth;
             this.invalidateByType(invalidateType);
             this.endChange();
         }
     }
 
-    get minimumColumnWidth() { return this._minimumColumnWidth; }
+    get minimumColumnWidth() { return this._minimumColumnWidth !== undefined ? this._minimumColumnWidth : this.gridSettings.minimumColumnWidth; }
     set minimumColumnWidth(value: number) {
         if (value !== this._minimumColumnWidth) {
             this.beginChange();
@@ -175,7 +210,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get resizeColumnInPlace() { return this._resizeColumnInPlace; }
+    get resizeColumnInPlace() { return this._resizeColumnInPlace !== undefined ? this._resizeColumnInPlace : this.gridSettings.resizeColumnInPlace; }
     set resizeColumnInPlace(value: boolean) {
         if (value !== this._resizeColumnInPlace) {
             this.beginChange();
@@ -186,7 +221,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get mouseSortOnDoubleClick() { return this._mouseSortOnDoubleClick; }
+    get mouseSortOnDoubleClick() { return this._mouseSortOnDoubleClick !== undefined ? this._mouseSortOnDoubleClick : this.gridSettings.mouseSortOnDoubleClick; }
     set mouseSortOnDoubleClick(value: boolean) {
         if (value !== this._mouseSortOnDoubleClick) {
             this.beginChange();
@@ -197,7 +232,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get mouseSortable() { return this._mouseSortable; }
+    get mouseSortable() { return this._mouseSortable !== undefined ? this._mouseSortable : this.gridSettings.mouseSortable; }
     set mouseSortable(value: boolean) {
         if (value !== this._mouseSortable) {
             this.beginChange();
@@ -246,7 +281,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                     this._editOnFocusCell = settings.editOnFocusCell;
                     break;
                 case 'editOnKeyDown':
-                    this._editOnKeydown = settings.editOnKeyDown;
+                    this._editOnKeyDown = settings.editOnKeyDown;
                     break;
                 case 'filterable':
                     this._filterable = settings.filterable;

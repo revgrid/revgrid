@@ -1,4 +1,4 @@
-import { SchemaServer, StandardInMemoryBehavioredColumnSettings, standardAllColumnSettingsDefaults } from '..';
+import { SchemaServer, StandardAllGridSettings, StandardInMemoryBehavioredColumnSettings, standardAllColumnSettingsDefaults } from '..';
 import { MainRecord } from './main-record';
 
 export class SchemaServerImplementation implements SchemaServer<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column> {
@@ -14,14 +14,14 @@ export class SchemaServerImplementation implements SchemaServer<StandardInMemory
 
     private notificationsClient: SchemaServer.NotificationsClient<StandardInMemoryBehavioredColumnSettings>;
 
-    constructor() {
+    constructor(gridSettings: StandardAllGridSettings) {
         const nameHeaders = SchemaServerImplementation.columnNameHeaders;
         const columnCount = nameHeaders.length;
         const schema = new Array<SchemaServerImplementation.Column>(columnCount);
         for (let i = 0; i < columnCount; i++) {
             const nameHeader = nameHeaders[i];
             const name = nameHeader.name;
-            const settings = new StandardInMemoryBehavioredColumnSettings();
+            const settings = new StandardInMemoryBehavioredColumnSettings(gridSettings);
             settings.load(standardAllColumnSettingsDefaults);
             const column: SchemaServerImplementation.Column = {
                 name,

@@ -6,10 +6,12 @@ import {
     Revgrid,
     StandardAlphaTextCellPainter,
     StandardCellPainter,
+    StandardCheckboxCellEditor,
+    StandardCheckboxCellPainter,
     StandardHeaderTextCellPainter,
     StandardInMemoryBehavioredColumnSettings,
     StandardInMemoryBehavioredGridSettings,
-    StandardTextInputEditor,
+    StandardTextInputCellEditor,
     Subgrid,
     ViewCell,
     gridSettingsDefaults,
@@ -42,7 +44,8 @@ export class Main {
     private _headerCellPainter: StandardHeaderTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
     private _textCellPainter: StandardAlphaTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
     private _checkboxCellPainter: StandardCheckboxCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
-    private _textInputEditor: StandardTextInputEditor<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
+    private _textInputEditor: StandardTextInputCellEditor<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
+    private _checkboxEditor: StandardCheckboxCellEditor<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
 
     private _grid: Revgrid<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>;
 
@@ -173,7 +176,7 @@ export class Main {
         gridSettings.eventDispatchEnabled = true;
 
 
-        this._schemaServer = new SchemaServerImplementation();
+        this._schemaServer = new SchemaServerImplementation(gridSettings);
         this._mainDataServer = new MainDataServer();
         this._headerDataServer = new HeaderDataServer();
 
@@ -195,19 +198,25 @@ export class Main {
 
         this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings);
 
-        this._textCellPainter = new StandardAlphaTextCellPainter<
-            StandardInMemoryBehavioredGridSettings,
-            StandardInMemoryBehavioredColumnSettings,
-            SchemaServerImplementation.Column
-        >(this._grid, this._mainDataServer);
-
         this._headerCellPainter = new StandardHeaderTextCellPainter<
             StandardInMemoryBehavioredGridSettings,
             StandardInMemoryBehavioredColumnSettings,
             SchemaServerImplementation.Column
         >(this._grid, this._headerDataServer);
 
-        this._textInputEditor = new StandardTextInputEditor<
+        this._textCellPainter = new StandardAlphaTextCellPainter<
+            StandardInMemoryBehavioredGridSettings,
+            StandardInMemoryBehavioredColumnSettings,
+            SchemaServerImplementation.Column
+        >(this._grid, this._mainDataServer);
+
+        this._checkboxCellPainter = new StandardCheckboxCellPainter<
+            StandardInMemoryBehavioredGridSettings,
+            StandardInMemoryBehavioredColumnSettings,
+            SchemaServerImplementation.Column
+        >(this._grid, this._mainDataServer, false);
+
+        this._textInputEditor = new StandardTextInputCellEditor<
             StandardInMemoryBehavioredGridSettings,
             StandardInMemoryBehavioredColumnSettings,
             SchemaServerImplementation.Column
@@ -281,12 +290,10 @@ export class Main {
         } else {
             cellPainter = this._textCellPainter;
         }
-        cellPainter.setCell(viewCell);
         return cellPainter;
     }
 
     private getHeaderCellPainter(viewCell: DatalessViewCell<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column>) {
-        this._headerCellPainter.setCell(viewCell);
         return this._headerCellPainter;
     }
 
@@ -311,6 +318,7 @@ export class Main {
     private tryCreateCellEditor(columnName: keyof MainRecord) {
         switch (columnName) {
             case 'favoriteFood': return this._textInputEditor;
+            case 'restrictMovement': return this._checkboxEditor;
             default: return undefined;
         }
     }
