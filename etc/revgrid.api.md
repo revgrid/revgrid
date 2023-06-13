@@ -3227,6 +3227,8 @@ export abstract class StandardCellPainter<BGS extends StandardBehavioredGridSett
     // (undocumented)
     abstract paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
     // (undocumented)
+    protected paintBorder(bounds: Rectangle, borderColor: string): void;
+    // (undocumented)
     protected readonly _renderingContext: CachedCanvasRenderingContext2D;
 }
 
@@ -3310,7 +3312,7 @@ export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSetti
 // @public (undocumented)
 export interface StandardGridSettings {
     // (undocumented)
-    cellFocusedBorderColor: GridSettings.Color;
+    cellFocusedBorderColor: GridSettings.Color | undefined;
     // (undocumented)
     cellHoverBackgroundColor: GridSettings.Color | undefined;
     cellPadding: number;
@@ -3363,8 +3365,8 @@ export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSet
 export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
     constructor(gridSettings: StandardAllGridSettings);
     // (undocumented)
-    get cellFocusedBorderColor(): GridSettings.Color;
-    set cellFocusedBorderColor(value: GridSettings.Color);
+    get cellFocusedBorderColor(): GridSettings.Color | undefined;
+    set cellFocusedBorderColor(value: GridSettings.Color | undefined);
     // (undocumented)
     get cellHoverBackgroundColor(): GridSettings.Color | undefined;
     set cellHoverBackgroundColor(value: GridSettings.Color | undefined);
@@ -3422,8 +3424,8 @@ export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehaviored
 // @public (undocumented)
 export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
     // (undocumented)
-    get cellFocusedBorderColor(): GridSettings.Color;
-    set cellFocusedBorderColor(value: GridSettings.Color);
+    get cellFocusedBorderColor(): GridSettings.Color | undefined;
+    set cellFocusedBorderColor(value: GridSettings.Color | undefined);
     // (undocumented)
     get cellHoverBackgroundColor(): GridSettings.Color | undefined;
     set cellHoverBackgroundColor(value: GridSettings.Color | undefined);
@@ -3616,8 +3618,6 @@ export namespace StandardTagCellPainter {
 
 // @public (undocumented)
 export abstract class StandardTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardCellPainter<BGS, BCS, SC> {
-    // (undocumented)
-    protected checkPaintBorder(bounds: Rectangle, borderColor: string | undefined): void;
     // (undocumented)
     protected _columnSettings: StandardAllColumnSettings;
     // (undocumented)

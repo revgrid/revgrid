@@ -30,6 +30,20 @@ export class StandardCheckboxCellPainter<
         // const config = this.config; // remove this
 
         const bounds = cell.bounds;
+
+        const borderColor = columnSettings.cellFocusedBorderColor;
+        if (borderColor !== undefined) {
+            const subgrid = cell.subgrid;
+            if (subgrid.isMain) {
+                const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
+                const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
+                const cellFocused = this._grid.focus.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
+                if (cellFocused) {
+                    this.paintBorder(bounds, borderColor);
+                }
+            }
+        }
+
         const boundsX = bounds.x;
         const boundsY = bounds.y;
         const boundsWidth = bounds.width;
@@ -48,7 +62,7 @@ export class StandardCheckboxCellPainter<
             const gc = this._renderingContext;
 
             const emWidth = gc.getEmWidth();
-            let idealBoxSideLength = Math.ceil(emWidth);
+            let idealBoxSideLength = Math.ceil(0.7 * emWidth);
             if (StandardCheckboxCellPainter.badlyRenderedCrossEvenBoxSideLengths.includes(idealBoxSideLength)) {
                 // avoid small even side lengths as not enough resolution to get a nice cross
                 idealBoxSideLength++;
@@ -86,8 +100,9 @@ export class StandardCheckboxCellPainter<
             gc.cache.lineWidth = emphasizableLineWidth;
 
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
-            const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
-            if (value === undefined) {
+            const viewValue = this._dataServer.getViewValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
+            const booleanValue = this.convertViewValueToBoolean(viewValue);
+            if (booleanValue === undefined) {
                 // draw box
                 gc.strokeRect(leftX, topY, boxSizeLength, boxSizeLength);
 
@@ -109,7 +124,7 @@ export class StandardCheckboxCellPainter<
             } else {
                 const rightX = centerX + halfBoxSizeLength;
                 const bottomY = centerY + halfBoxSizeLength;
-                if (typeof value !== 'boolean') {
+                if (typeof booleanValue === null) {
                     // Draw a char representing error
                     const charWidth = Math.ceil(gc.getCharWidth(StandardCheckboxCellPainter.valueNotBooleanChar));
                     const charTextHeight = gc.getTextHeight(StandardCheckboxCellPainter.valueNotBooleanChar);
@@ -169,7 +184,7 @@ export class StandardCheckboxCellPainter<
                 } else {
                     // draw box
                     gc.strokeRect(leftX, topY, boxSizeLength, boxSizeLength);
-                    if (value) {
+                    if (booleanValue) {
                         // draw cross
                         gc.cache.lineWidth = 1;
                         gc.beginPath();
@@ -177,8 +192,8 @@ export class StandardCheckboxCellPainter<
                         gc.lineTo(rightX, bottomY);
                         gc.stroke();
                         gc.beginPath();
-                        gc.moveTo(leftX, topY);
-                        gc.lineTo(rightX, bottomY);
+                        gc.moveTo(rightX, topY);
+                        gc.lineTo(leftX, bottomY);
                         gc.stroke();
                     }
 
@@ -192,6 +207,59 @@ export class StandardCheckboxCellPainter<
                     return boxSizeLength;
                 }
             }
+        }
+    }
+
+    private convertViewValueToBoolean(value: unknown) {
+        switch (typeof value) {
+            case 'string': {
+                if (value === '') {
+                    return undefined;
+                } else {
+                    const trimmedLowerCaseBoolStr = value.trim().toLowerCase();
+                    if (
+                        trimmedLowerCaseBoolStr === 'true' ||
+                        trimmedLowerCaseBoolStr === '1' ||
+                        trimmedLowerCaseBoolStr === 'yes'
+                    ) {
+                        return true;
+                    } else {
+                        if (
+                            trimmedLowerCaseBoolStr === 'false' ||
+                            trimmedLowerCaseBoolStr === '0' ||
+                            trimmedLowerCaseBoolStr === 'no'
+                        ) {
+                            return false;
+                        } else {
+                            return null;
+                        }
+                    }
+                }
+            }
+            case 'number':
+            case 'bigint':
+                if (value === 0) {
+                    return false;
+                } else {
+                    if (value === 1) {
+                        return true;
+                    } else {
+                        return null;
+                    }
+                }
+            case 'boolean':
+                return value;
+            case 'symbol':
+                return null;
+            case 'undefined':
+                return undefined;
+            case 'object':
+                return value === null ? undefined : null;
+            case 'function':
+                return null;
+            default:
+                // typeof value satisfies never
+                return null;
         }
     }
 }

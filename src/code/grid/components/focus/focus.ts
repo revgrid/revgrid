@@ -299,10 +299,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 if (key === this._gridSettings.editKey) {
                     return this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
                 } else {
-                    if (!cell.columnSettings.editOnKeyDown) {
-                        return false;
-                    } else {
+                    if (cell.columnSettings.editOnKeyDown) {
                         return this.tryOpenEditorAtFocusedCell(cell, event, undefined);
+                    } else {
+                        return false;
                     }
                 }
             }
@@ -569,13 +569,16 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                         if (!editor.tryOpen(focusedCell, keyDownEvent, clickEvent)) {
                             this.finaliseEditor(editor)
                             this._editor = undefined;
-                        }
+                            return false;
+                        } else {
+                            if (editor.setBounds !== undefined) {
+                                editor.setBounds(focusedCell.bounds);
+                            } else {
+                                this.viewCellRenderInvalidatedEventer(focusedCell);
+                            }
 
-                        if (focusedCell !== undefined && editor.setBounds !== undefined) {
-                            editor.setBounds(focusedCell.bounds);
+                            return true;
                         }
-
-                        return true;
                     }
                 }
             }

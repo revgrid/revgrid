@@ -219,18 +219,6 @@ export abstract class StandardTextCellPainter<
         gc.lineTo(x + textWidth, y);
     }
 
-    protected checkPaintBorder(bounds: Rectangle, borderColor: string | undefined) {
-        // paint border if required
-        if (borderColor !== undefined) {
-            const gc = this._renderingContext;
-            gc.beginPath();
-            gc.cache.strokeStyle = borderColor;
-            gc.cache.lineDash = [1, 2];
-            gc.strokeRect(bounds.x + 0.5, bounds.y + 0.5, bounds.width - 2, bounds.height - 2);
-            gc.cache.lineDash = [];
-        }
-    }
-
     protected decorateText() {
         // if (isMainSubgrid) {
         //     if (settings.link) {

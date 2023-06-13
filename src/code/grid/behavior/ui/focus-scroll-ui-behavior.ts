@@ -159,11 +159,11 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
     override handleWheelMove(event: WheelEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
         const gridSettings = this.gridSettings;
         if (gridSettings.scrollingEnabled) {
-            const deltaX = event.deltaX;
-            const deltaY = event.deltaY;
+            const viewLayout = this.viewLayout;
 
-            if (deltaX) {
-                if (this.isHorizontalWheelScrollingAllowed(event)) {
+            if (viewLayout.horizontalScrollDimension.overflowed && this.isHorizontalWheelScrollingAllowed(event)) {
+                const deltaX = event.deltaX;
+                if (deltaX !== 0) {
                     if (gridSettings.scrollHorizontallySmoothly) {
                         this.viewLayout.scrollHorizontalViewportBy(deltaX);
                     } else {
@@ -171,9 +171,13 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
                     }
                 }
             }
-            if (deltaY) {
-                this.viewLayout.scrollRowsBy(Math.sign(deltaY)); // Update when Vertical scrolling improved
-                // grid.scrollVBy(Math.sign(deltaY));
+
+            if (viewLayout.verticalScrollDimension.overflowed) {
+                const deltaY = event.deltaY;
+                if (deltaY !== 0) {
+                    this.viewLayout.scrollRowsBy(Math.sign(deltaY)); // Update when Vertical scrolling improved
+                    // grid.scrollVBy(Math.sign(deltaY));
+                }
             }
         }
         return cell;

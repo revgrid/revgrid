@@ -137,12 +137,12 @@ export class StandardAlphaTextCellPainter<
             same = same && fingerprint !== undefined && hoverColor === fingerprint.layerColors[layerColorIndex++];
         }
 
-        const cellFocused = isMainSubgrid && grid.focus.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
-        let borderColor: string | undefined;
-        if (cellFocused) {
-            borderColor = columnSettings.cellFocusedBorderColor;
-        } else {
-            borderColor = undefined;
+        let borderColor = columnSettings.cellFocusedBorderColor;
+        if (borderColor !== undefined) {
+            const cellFocused = isMainSubgrid && grid.focus.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
+            if (!cellFocused) {
+                borderColor = undefined;
+            }
         }
         same &&= fingerprint !== undefined && fingerprint.borderColor === borderColor;
 
@@ -165,7 +165,9 @@ export class StandardAlphaTextCellPainter<
             const rightPadding = columnSettings.cellPadding;
 
             this.paintLayerColors(bounds, layerColors, firstColorIsFill);
-            this.checkPaintBorder(bounds, borderColor);
+            if (borderColor !== undefined) {
+                this.paintBorder(bounds, borderColor);
+            }
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;

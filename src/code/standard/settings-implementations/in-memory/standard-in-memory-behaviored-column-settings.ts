@@ -11,7 +11,7 @@ export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehaviored
     declare gridSettings: StandardAllGridSettings;
 
     private _cellPadding: number | undefined;
-    private _cellFocusedBorderColor: GridSettings.Color | undefined;
+    private _cellFocusedBorderColor: GridSettings.Color | undefined | null;
     private _cellHoverBackgroundColor: GridSettings.Color | undefined | null;
     private _columnHoverBackgroundColor: GridSettings.Color | undefined | null;
     private _columnHeaderFont: string | undefined;
@@ -41,11 +41,21 @@ export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehaviored
             this.endChange();
         }
     }
-    get cellFocusedBorderColor() { return this._cellFocusedBorderColor !== undefined ? this._cellFocusedBorderColor : this.gridSettings.cellFocusedBorderColor; }
-    set cellFocusedBorderColor(value: GridSettings.Color) {
+    get cellFocusedBorderColor() {
+        if (this._cellFocusedBorderColor === null) {
+            return undefined;
+        } else {
+            return this._cellFocusedBorderColor !== undefined ? this._cellFocusedBorderColor : this.gridSettings.cellFocusedBorderColor;
+        }
+    }
+    set cellFocusedBorderColor(value: GridSettings.Color | undefined) {
         if (value !== this._cellFocusedBorderColor) {
             this.beginChange();
-            this._cellFocusedBorderColor = value;
+            if (value === undefined) {
+                this._cellHoverBackgroundColor = null;
+            } else {
+                this._cellFocusedBorderColor = value;
+            }
             this.invalidateViewRender();
             this.endChange();
         }

@@ -29,7 +29,7 @@ export abstract class StandardCellEditor<
     abstract processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, schemaColumn: SC, subgridRowIndex: number): boolean;
 
     protected isToggleKey(key: string) {
-        return key === Focus.ActionKeyboardKey.Enter || key === 'Space';
+        return key === Focus.ActionKeyboardKey.Enter || key === ' ';
     }
 
     protected tryToggleBoolenValue(schemaColumn: SC, subgridRowIndex: number) {

@@ -4,7 +4,7 @@ import { GridSettings, Halign, TextTruncateType } from '../../grid/grid-public-a
 export interface StandardGridSettings {
     /** Padding to left and right of cell content */
     cellPadding: number;
-    cellFocusedBorderColor: GridSettings.Color;
+    cellFocusedBorderColor: GridSettings.Color | undefined;
     cellHoverBackgroundColor: GridSettings.Color | undefined;
 
     columnHoverBackgroundColor: GridSettings.Color | undefined;

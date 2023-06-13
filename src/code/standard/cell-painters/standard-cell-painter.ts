@@ -1,4 +1,4 @@
-import { CachedCanvasRenderingContext2D, CellPainter, DataServer, DatalessViewCell, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { CachedCanvasRenderingContext2D, CellPainter, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaServer } from '../../grid/grid-public-api';
 import { StandardAllGridSettings, StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 
 /** @public */
@@ -20,4 +20,13 @@ export abstract class StandardCellPainter<
     }
 
     abstract paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
+
+    protected paintBorder(bounds: Rectangle, borderColor: string) {
+        const gc = this._renderingContext;
+        gc.beginPath();
+        gc.cache.strokeStyle = borderColor;
+        gc.cache.lineDash = [1, 2];
+        gc.strokeRect(bounds.x + 0.5, bounds.y + 0.5, bounds.width - 2, bounds.height - 2);
+        gc.cache.lineDash = [];
+    }
 }

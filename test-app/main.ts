@@ -221,6 +221,11 @@ export class Main {
             StandardInMemoryBehavioredColumnSettings,
             SchemaServerImplementation.Column
         >(this._grid, this._mainDataServer);
+        this._checkboxEditor = new StandardCheckboxCellEditor<
+            StandardInMemoryBehavioredGridSettings,
+            StandardInMemoryBehavioredColumnSettings,
+            SchemaServerImplementation.Column
+        >(this._grid, this._mainDataServer);
 
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();

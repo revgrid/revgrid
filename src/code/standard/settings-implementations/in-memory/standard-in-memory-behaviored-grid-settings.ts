@@ -9,7 +9,7 @@ import { StandardAllGridSettings, StandardBehavioredGridSettings, StandardGridSe
 /** @public */
 export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
     private _cellPadding: number;
-    private _cellFocusedBorderColor: GridSettings.Color;
+    private _cellFocusedBorderColor: GridSettings.Color | undefined;
     private _cellHoverBackgroundColor: GridSettings.Color | undefined;
     private _columnHoverBackgroundColor: GridSettings.Color | undefined;
     private _columnHeaderFont: string;
@@ -40,7 +40,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get cellFocusedBorderColor() { return this._cellFocusedBorderColor; }
-    set cellFocusedBorderColor(value: GridSettings.Color) {
+    set cellFocusedBorderColor(value: GridSettings.Color | undefined) {
         if (value !== this._cellFocusedBorderColor) {
             this.beginChange();
             this._cellFocusedBorderColor = value;

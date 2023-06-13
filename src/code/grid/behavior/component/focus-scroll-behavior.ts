@@ -134,10 +134,13 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     tryPageFocusUp() {
         const anchor = this._viewLayout.calculatePageUpRowAnchor();
-        if (anchor !== undefined) {
+        if (anchor === undefined) {
+            return false;
+        } else {
             const rowIndex = anchor.index;
             this._viewLayout.setRowScrollAnchor(rowIndex, anchor.offset);
             this._focus.setY(rowIndex, undefined, undefined);
+            return true;
         }
     }
 
