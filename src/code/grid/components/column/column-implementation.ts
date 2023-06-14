@@ -12,7 +12,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SC exten
     readonly name: string;
 
     /** @internal */
-    maxPaintWidth: number | undefined;
+    preferredWidth: number | undefined;
 
     /** @internal */
     private _width: number;
@@ -106,8 +106,8 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SC exten
         return changed;
     }
 
-    getMaxPaintWidth() {
-        return this.maxPaintWidth;
+    getPreferredWidth() {
+        return this.preferredWidth;
     }
 
     /** @internal */
@@ -117,38 +117,38 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SC exten
         } else {
             const settings = this._settings;
 
-            let preferredWidth: number;
+            let newWidth: number;
             if (!settings.defaultColumnAutosizing) {
-                preferredWidth = settings.defaultColumnWidth;
+                newWidth = settings.defaultColumnWidth;
             } else {
-                const maxPaintWidth = this.maxPaintWidth;
-                if (maxPaintWidth === undefined) {
+                const preferredWidth = this.preferredWidth;
+                if (preferredWidth === undefined) {
                     return false;
                 } else {
                     if (widenOnly) {
-                        const existingPreferredWidth = this._width;
-                        if (existingPreferredWidth !== undefined && existingPreferredWidth >= maxPaintWidth) {
+                        const oldWidth = this._width;
+                        if (oldWidth !== undefined && oldWidth >= preferredWidth) {
                             return false;
                         } else {
-                            preferredWidth = maxPaintWidth;
+                            newWidth = preferredWidth;
                         }
                     } else {
-                        preferredWidth = maxPaintWidth;
+                        newWidth = preferredWidth;
                     }
 
                     const columnAutosizingMax = settings.columnAutosizingMax;
                     if (columnAutosizingMax !== undefined) {
-                        if (preferredWidth > columnAutosizingMax) {
-                            preferredWidth = columnAutosizingMax;
+                        if (newWidth > columnAutosizingMax) {
+                            newWidth = columnAutosizingMax;
                         }
                     }
                 }
             }
 
-            if (preferredWidth === this._width) {
+            if (newWidth === this._width) {
                 return false;
             } else {
-                this._width = preferredWidth;
+                this._width = newWidth;
                 return true;
             }
         }

@@ -21,12 +21,18 @@ export abstract class StandardCellPainter<
 
     abstract paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
 
-    protected paintBorder(bounds: Rectangle, borderColor: string) {
-        const gc = this._renderingContext;
-        gc.beginPath();
-        gc.cache.strokeStyle = borderColor;
-        gc.cache.lineDash = [1, 2];
-        gc.strokeRect(bounds.x + 0.5, bounds.y + 0.5, bounds.width - 2, bounds.height - 2);
-        gc.cache.lineDash = [];
+    protected tryPaintBorder(bounds: Rectangle, borderColor: string | undefined, focus: boolean) {
+        if (borderColor !== undefined) {
+            const gc = this._renderingContext;
+            gc.beginPath();
+            gc.cache.strokeStyle = borderColor;
+            if (focus) {
+                gc.cache.lineDash = [1, 1];
+            }
+            gc.strokeRect(bounds.x + 0.5, bounds.y + 0.5, bounds.width - 1, bounds.height - 1);
+            if (focus) {
+                gc.cache.lineDash = [];
+            }
+        }
     }
 }

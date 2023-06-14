@@ -378,7 +378,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         const oldHeight = this._bounds.height;
         let imageData: ImageData | undefined;
         if (oldWidth > 0 && oldHeight > 0) {
-            imageData = this.gc.getImageData(0, 0, oldWidth * this._devicePixelRatio, oldHeight * this._devicePixelRatio);
+           imageData = this.gc.getImageData(0, 0, oldWidth * this._devicePixelRatio, oldHeight * this._devicePixelRatio);
         }
 
         this._containerWidth = containerRect.width;
@@ -393,6 +393,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
         const ratio = (this._gridSettings.useHiDPI && window.devicePixelRatio !== undefined) ? window.devicePixelRatio : 1;
 
+        const ratioChanged = ratio !== this._devicePixelRatio;
         this._devicePixelRatio = ratio;
         // this._devicePixelRatio = ratio *= this.bodyZoomFactor;
 
@@ -402,7 +403,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         this.canvasElement.style.width = width + 'px';
         this.canvasElement.style.height = height + 'px';
 
-        if (imageData !== undefined) {
+        if (imageData !== undefined && !ratioChanged) {
             this.gc.putImageData(imageData, 0, 0);
         }
 

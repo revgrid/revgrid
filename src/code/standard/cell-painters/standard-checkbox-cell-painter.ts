@@ -1,5 +1,5 @@
 
-import { DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { DataServer, DatalessViewCell, IndexSignatureHack, Rectangle, Revgrid, SchemaServer } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -13,8 +13,6 @@ export class StandardCheckboxCellPainter<
     SC extends SchemaServer.Column<BCS>
 > extends StandardCellPainter<BGS, BCS, SC> {
 
-    private _boxBounds: Rectangle | undefined;
-
     constructor(
         grid: Revgrid<BGS, BCS, SC>,
         dataServer: DataServer<BCS>,
@@ -23,193 +21,321 @@ export class StandardCheckboxCellPainter<
         super(grid, dataServer);
     }
 
-    get boxBounds() { return this._boxBounds; }
-
-    override paint(cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined {
+    override paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined {
         const columnSettings = cell.columnSettings;
         // const config = this.config; // remove this
 
         const bounds = cell.bounds;
 
-        const borderColor = columnSettings.cellFocusedBorderColor;
-        if (borderColor !== undefined) {
-            const subgrid = cell.subgrid;
-            if (subgrid.isMain) {
-                const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
-                const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
-                const cellFocused = this._grid.focus.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
-                if (cellFocused) {
-                    this.paintBorder(bounds, borderColor);
+        const boundsX = bounds.x;
+        const boundsY = bounds.y;
+        const boundsHeight = bounds.height;
+
+        const sumOfResolvedLeftRightPadding = this.calculateSumOfResolvedLeftRightPadding(cell.columnSettings);
+
+        const {
+            maxBoxBoundsWidth,
+            maxBoxBoundsHeight,
+            maxBoxSideLength,
+            maxBoxWidth,
+            boxSideLength,
+            boxLineWidth,
+            idealBoxSideLength,
+        } = this.calculateBox(bounds.width, boundsHeight, sumOfResolvedLeftRightPadding);
+
+        if (maxBoxSideLength < StandardCheckboxCellPainter.minimumBoxSideLength) {
+            this.saveUndefinedFingerprint(cell);
+        } else {
+            const pixelCenterBoundsX = boundsX + maxBoxBoundsWidth / 2; // since maxBoxBoundsWidth is always odd, this will always be at center of pixel
+            const pixelCenterBoundsY = boundsY + maxBoxBoundsHeight / 2; // since maxBoxBoundsHeight is always odd, this will always be at center of pixel
+            const pixelCenterBoxSizeLength = boxSideLength - boxLineWidth; // when drawing, length is between center of lines
+            const pixelCenterHalfBoxSizeLength = pixelCenterBoxSizeLength / 2;
+            const pixelCenterBoxLeftX = pixelCenterBoundsX - pixelCenterHalfBoxSizeLength;
+            const pixelCenterBoxTopY = pixelCenterBoundsY - pixelCenterHalfBoxSizeLength;
+
+            const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
+            const viewLayoutColumn = cell.viewLayoutColumn;
+            const booleanValue = this.calculateBooleanValue(viewLayoutColumn.column.schemaColumn, subgridRowIndex);
+            const backgroundColor = prefillColor !== undefined ? prefillColor : columnSettings.backgroundColor;
+            let borderColor = columnSettings.cellFocusedBorderColor;
+            if (borderColor !== undefined) {
+                const subgrid = cell.subgrid;
+                if (subgrid.isMain) {
+                    const activeColumnIndex = viewLayoutColumn.activeColumnIndex;
+                    const cellFocused = this._grid.focus.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
+                    if (!cellFocused) {
+                        borderColor = undefined;
+                    }
+                }
+            }
+
+            const color = columnSettings.color;
+            const gc = this._renderingContext;
+
+            if (booleanValue === undefined) {
+                const paintFingerprint: StandardCheckboxCellPainter.PaintFingerprint = {
+                    value: booleanValue,
+                    backgroundColor,
+                    borderColor,
+                    color,
+                    boxLineWidth,
+                    boxSideLength,
+                    errorFont: undefined,
+                };
+                if (!this.checkSameAndAlwaysSavePaintFingerprint(cell, paintFingerprint)) {
+                    this.tryPaintBorder(bounds, borderColor, true);
+                    // draw box
+                    gc.cache.strokeStyle = color;
+                    gc.cache.lineWidth = boxLineWidth;
+                    gc.strokeRect(pixelCenterBoxLeftX, pixelCenterBoxTopY, pixelCenterBoxSizeLength, pixelCenterBoxSizeLength);
+
+                    // draw dash
+                    gc.cache.lineWidth = 1;
+                    gc.beginPath();
+                    gc.moveTo(pixelCenterBoundsX - pixelCenterHalfBoxSizeLength, pixelCenterBoundsY);
+                    gc.lineTo(pixelCenterBoundsX + pixelCenterHalfBoxSizeLength, pixelCenterBoundsY);
+                    gc.stroke();
+                }
+            } else {
+                const pixelCenterBoxRightX = pixelCenterBoundsX + pixelCenterHalfBoxSizeLength;
+                const pixelCenterBoxBottomY = pixelCenterBoundsY + pixelCenterHalfBoxSizeLength;
+
+                if (typeof booleanValue === null) {
+                    const font = columnSettings.font;
+                    gc.cache.font = font;
+                    const charWidth = Math.ceil(gc.getCharWidth(StandardCheckboxCellPainter.valueNotBooleanChar));
+                    const charTextHeight = gc.getTextHeight(StandardCheckboxCellPainter.valueNotBooleanChar);
+                    const ascent = charTextHeight.ascent;
+                    const halfBoundsHeight = boundsHeight / 2;
+                    const descent = charTextHeight.descent;
+                    if (charWidth > maxBoxWidth || ascent > halfBoundsHeight || descent > halfBoundsHeight) { // make sure it fits
+                        this.saveUndefinedFingerprint(cell);
+                    } else {
+                        const charTopY = pixelCenterBoundsY + ascent;
+                        const lineTopY = Math.min(pixelCenterBoxTopY, charTopY);
+                        const lineBottomY = Math.max(pixelCenterBoxBottomY, pixelCenterBoundsY - descent);
+
+                        let verticalBoxLength: number | undefined;
+                        if (boxSideLength <= charWidth + 2) {
+                            // No room to draw box. Just draw the character
+                            verticalBoxLength = undefined; // flag only character drawn
+                        }
+
+                        const paintFingerprint: StandardCheckboxCellPainter.PaintFingerprint = {
+                            value: booleanValue,
+                            backgroundColor,
+                            borderColor,
+                            color,
+                            boxLineWidth,
+                            boxSideLength: verticalBoxLength,
+                            errorFont: font,
+                        };
+                        if (!this.checkSameAndAlwaysSavePaintFingerprint(cell, paintFingerprint)) {
+                            // Draw a char representing error
+                            gc.cache.strokeStyle = color;
+                            gc.cache.textBaseline = 'middle';
+                            gc.cache.textAlign = 'center';
+                            gc.fillText(StandardCheckboxCellPainter.valueNotBooleanChar, pixelCenterBoundsX, pixelCenterBoundsY);
+
+                            if (verticalBoxLength !== undefined) {
+                                // Draw 2 vertical lines either side of character in the same place that the vertical lines in the box would be
+                                gc.cache.lineWidth = boxLineWidth;
+                                gc.beginPath();
+                                gc.moveTo(pixelCenterBoxLeftX, lineTopY);
+                                gc.lineTo(pixelCenterBoxLeftX, lineBottomY);
+                                gc.stroke();
+                                gc.beginPath();
+                                gc.moveTo(pixelCenterBoxRightX, lineTopY);
+                                gc.lineTo(pixelCenterBoxRightX, lineBottomY);
+                                gc.stroke();
+                            }
+                        }
+                    }
+                } else {
+                    const paintFingerprint: StandardCheckboxCellPainter.PaintFingerprint = {
+                        value: booleanValue,
+                        backgroundColor,
+                        borderColor,
+                        color,
+                        boxLineWidth,
+                        boxSideLength,
+                        errorFont: undefined,
+                    };
+                    if (!this.checkSameAndAlwaysSavePaintFingerprint(cell, paintFingerprint)) {
+                        this.tryPaintBorder(bounds, borderColor, true);
+                        // draw box
+                        gc.cache.strokeStyle = color;
+                        gc.cache.lineWidth = boxLineWidth;
+                        gc.strokeRect(pixelCenterBoxLeftX, pixelCenterBoxTopY, pixelCenterBoxSizeLength, pixelCenterBoxSizeLength);
+                        if (booleanValue) {
+                            // draw cross
+                            gc.cache.lineWidth = 1;
+                            gc.beginPath();
+                            gc.moveTo(pixelCenterBoxLeftX, pixelCenterBoxTopY);
+                            gc.lineTo(pixelCenterBoxRightX, pixelCenterBoxBottomY);
+                            gc.stroke();
+                            gc.beginPath();
+                            gc.moveTo(pixelCenterBoxRightX, pixelCenterBoxTopY);
+                            gc.lineTo(pixelCenterBoxLeftX, pixelCenterBoxBottomY);
+                            gc.stroke();
+                        }
+                    }
                 }
             }
         }
 
-        const boundsX = bounds.x;
-        const boundsY = bounds.y;
-        const boundsWidth = bounds.width;
-        const boundsHeight = bounds.height;
+        return idealBoxSideLength + sumOfResolvedLeftRightPadding;
+    }
 
-        const settingsCellPadding = columnSettings.cellPadding;
-        const resolvedCellPadding = settingsCellPadding === 0 ? 1 : settingsCellPadding;
-        const maxWidth = boundsWidth - 2 * resolvedCellPadding;
-        const maxHeight = boundsHeight - 2;
-        const minMaxWidthHeight = Math.min(maxWidth, maxHeight);
+    calculateClickBox(cell: DatalessViewCell<BCS, SC>): Rectangle | undefined {
+        const columnSettings = cell.columnSettings;
+        const sumOfResolvedLeftRightPadding = this.calculateSumOfResolvedLeftRightPadding(columnSettings);
 
-        if (minMaxWidthHeight < StandardCheckboxCellPainter.minimumBoxSideLength) {
-            this._boxBounds = undefined;
+        const bounds = cell.bounds;
+        const {
+            maxBoxBoundsWidth,
+            maxBoxBoundsHeight,
+            maxBoxSideLength,
+            maxBoxWidth,
+            boxSideLength,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            boxLineWidth,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            idealBoxSideLength,
+        } = this.calculateBox(bounds.width, bounds.height, sumOfResolvedLeftRightPadding);
+
+        if (maxBoxSideLength < StandardCheckboxCellPainter.minimumBoxSideLength) {
             return undefined;
         } else {
-            const gc = this._renderingContext;
-
-            const emWidth = gc.getEmWidth();
-            let idealBoxSideLength = Math.ceil(0.7 * emWidth);
-            if (StandardCheckboxCellPainter.badlyRenderedCrossEvenBoxSideLengths.includes(idealBoxSideLength)) {
-                // avoid small even side lengths as not enough resolution to get a nice cross
-                idealBoxSideLength++;
-            }
-            if (idealBoxSideLength < StandardCheckboxCellPainter.minimumBoxSideLength) {
-                idealBoxSideLength = StandardCheckboxCellPainter.minimumBoxSideLength;
-            }
-
-            const editable = this._editable;
-            let boxSizeLength: number | undefined;
-            let emphasizableLineWidth = 1;
-            if (editable) {
-                const editableIdealBoxSideLength = idealBoxSideLength + 2;
-                if (editableIdealBoxSideLength <= minMaxWidthHeight) {
-                    boxSizeLength = editableIdealBoxSideLength;
-                    emphasizableLineWidth = 2;
-                }
-            }
-
-            if (boxSizeLength === undefined) {
-                // either did not want emphasize or emphasize did not fit
-                if (idealBoxSideLength <= minMaxWidthHeight) {
-                    boxSizeLength = idealBoxSideLength;
-                } else {
-                    boxSizeLength = minMaxWidthHeight;
-                }
-            }
-
-            const centerX = boundsX + boundsWidth / 2;
-            const centerY = boundsY + boundsHeight / 2;
-            const halfBoxSizeLength = boxSizeLength / 2;
-            const leftX = centerX - halfBoxSizeLength;
-            const topY = centerY - halfBoxSizeLength;
-            gc.cache.strokeStyle = columnSettings.color;
-            gc.cache.lineWidth = emphasizableLineWidth;
-
-            const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
-            const viewValue = this._dataServer.getViewValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
-            const booleanValue = this.convertViewValueToBoolean(viewValue);
+            const booleanValue = this.calculateBooleanValue(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
+            const centerBoundsX = bounds.x + maxBoxBoundsWidth / 2;
+            const centerBoundsY = bounds.y + maxBoxBoundsHeight / 2;
+            const halfBoxSideLength = boxSideLength / 2;
+            const boxLeftX = centerBoundsX - halfBoxSideLength;
+            const boxTopY = centerBoundsY - halfBoxSideLength;
             if (booleanValue === undefined) {
-                // draw box
-                gc.strokeRect(leftX, topY, boxSizeLength, boxSizeLength);
-
-                // draw dash
-                gc.cache.lineWidth = 1;
-                gc.beginPath();
-                gc.moveTo(centerX - halfBoxSizeLength, centerY);
-                gc.lineTo(centerX + halfBoxSizeLength, centerY);
-                gc.stroke();
-
-                this._boxBounds = {
-                    x: leftX,
-                    y: topY,
-                    width: boxSizeLength,
-                    height: boxSizeLength,
+                return {
+                    x: boxLeftX,
+                    y: boxTopY,
+                    width: boxSideLength,
+                    height: boxSideLength,
                 }
-
-                return boxSizeLength;
             } else {
-                const rightX = centerX + halfBoxSizeLength;
-                const bottomY = centerY + halfBoxSizeLength;
                 if (typeof booleanValue === null) {
-                    // Draw a char representing error
+                    const gc = this._renderingContext;
+                    const font = columnSettings.font;
+                    gc.cache.font = font;
                     const charWidth = Math.ceil(gc.getCharWidth(StandardCheckboxCellPainter.valueNotBooleanChar));
                     const charTextHeight = gc.getTextHeight(StandardCheckboxCellPainter.valueNotBooleanChar);
                     const ascent = charTextHeight.ascent;
-                    const halfMaxHeight = maxHeight / 2;
+                    const halfBoundsHeight = bounds.height / 2;
                     const descent = charTextHeight.descent;
-                    if (charWidth > maxWidth || ascent > halfMaxHeight || descent > halfMaxHeight) { // make sure it fits
-                        this._boxBounds = undefined;
+                    if (charWidth > maxBoxWidth || ascent > halfBoundsHeight || descent > halfBoundsHeight) { // make sure it fits
                         return undefined;
                     } else {
-                        gc.cache.font = columnSettings.font;
-                        gc.cache.textBaseline = 'middle';
-                        gc.cache.textAlign = 'center';
-                        gc.fillText(StandardCheckboxCellPainter.valueNotBooleanChar, centerX, centerY);
-
-                        const halfCharWidth = charWidth / 2;
-                        const charLeftX = centerX - halfCharWidth;
-                        const charTopY = centerY + ascent;
-                        const charHeight = charTextHeight.height;
-
-                        // If room, draw 2 vertical lines either side of character in the same place that the vertical lines in the box would be
-                        if (boxSizeLength <= charWidth + 2) {
-                            this._boxBounds = {
+                        const charTopY = centerBoundsY + ascent;
+                        if (boxSideLength <= charWidth + 2) {
+                            // No room for box - can only click on character
+                            const halfCharWidth = charWidth / 2;
+                            const charLeftX = centerBoundsX - halfCharWidth;
+                            const charHeight = ascent + descent;
+                            return {
                                 x: charLeftX,
                                 y: charTopY,
                                 width: charWidth,
                                 height: charHeight,
                             }
-
-                            return charWidth;
                         } else {
-                            const boxBoundsTopY = Math.min(topY, charTopY);
-                            const boxBoundsBottomY = Math.max(bottomY, centerY - descent);
-
-
-                            gc.cache.lineWidth = emphasizableLineWidth;
-                            gc.cache.strokeStyle = columnSettings.color;
-                            gc.beginPath();
-                            gc.moveTo(leftX, boxBoundsTopY);
-                            gc.lineTo(leftX, boxBoundsBottomY);
-                            gc.stroke();
-                            gc.beginPath();
-                            gc.moveTo(rightX, boxBoundsTopY);
-                            gc.lineTo(rightX, boxBoundsBottomY);
-                            gc.stroke();
-
-                            this._boxBounds = {
-                                x: leftX,
+                            const topY = Math.min(boxTopY, charTopY);
+                            const maxDescent = Math.max(halfBoxSideLength, descent);
+                            const height = centerBoundsY + maxDescent - topY;
+                            return {
+                                x: boxLeftX,
                                 y: topY,
-                                width: boxSizeLength,
-                                height: boxBoundsBottomY - boxBoundsTopY,
-                            }
-
-                            return boxSizeLength;
+                                width: boxSideLength,
+                                height: height,
+                            };
                         }
                     }
                 } else {
-                    // draw box
-                    gc.strokeRect(leftX, topY, boxSizeLength, boxSizeLength);
-                    if (booleanValue) {
-                        // draw cross
-                        gc.cache.lineWidth = 1;
-                        gc.beginPath();
-                        gc.moveTo(leftX, topY);
-                        gc.lineTo(rightX, bottomY);
-                        gc.stroke();
-                        gc.beginPath();
-                        gc.moveTo(rightX, topY);
-                        gc.lineTo(leftX, bottomY);
-                        gc.stroke();
-                    }
-
-                    this._boxBounds = {
-                        x: leftX,
-                        y: topY,
-                        width: boxSizeLength,
-                        height: boxSizeLength,
-                    }
-
-                    return boxSizeLength;
+                    return {
+                        x: boxLeftX,
+                        y: boxTopY,
+                        width: boxSideLength,
+                        height: boxSideLength,
+                    };
                 }
             }
         }
     }
 
+    private calculateBox(boundsWidth: number, boundsHeight: number, sumOfResolvedLeftRightPadding: number): BoxDetails {
+        let maxBoxBoundsWidth = boundsWidth;
+        if (maxBoxBoundsWidth % 2 === 0) {
+            maxBoxBoundsWidth--; // make sure odd width
+        }
+        let maxBoxBoundsHeight = boundsHeight;
+        if (maxBoxBoundsHeight % 2 === 0) {
+            maxBoxBoundsHeight--; // make sure odd height
+        }
+
+        const maxBoxWidth = maxBoxBoundsWidth - sumOfResolvedLeftRightPadding;
+        const maxBoxHeight = maxBoxBoundsHeight - 2;
+        const maxBoxSideLength = Math.min(maxBoxWidth, maxBoxHeight);
+
+        const emWidth = this._renderingContext.getEmWidth();
+        let idealNonEditableBoxSideLength = Math.ceil(0.7 * emWidth);
+        if (idealNonEditableBoxSideLength % 2 === 0) {
+            idealNonEditableBoxSideLength++; // make sure odd length
+        }
+        if (idealNonEditableBoxSideLength < StandardCheckboxCellPainter.minimumBoxSideLength) {
+            idealNonEditableBoxSideLength = StandardCheckboxCellPainter.minimumBoxSideLength;
+        }
+
+        const editable = this._editable;
+        let idealBoxSideLength: number; // this is the preferred content width
+        let boxSideLength: number | undefined;
+        let boxLineWidth = 1;
+        if (editable) {
+            idealBoxSideLength = idealNonEditableBoxSideLength + 2;
+            if (idealBoxSideLength <= maxBoxSideLength) {
+                boxSideLength = idealBoxSideLength;
+                boxLineWidth = 2;
+            }
+        } else {
+            idealBoxSideLength = idealNonEditableBoxSideLength;
+        }
+
+        if (boxSideLength === undefined) {
+            // either did not want emphasize or emphasize did not fit
+            if (idealNonEditableBoxSideLength <= maxBoxSideLength) {
+                boxSideLength = idealNonEditableBoxSideLength;
+            } else {
+                boxSideLength = maxBoxSideLength;
+            }
+        }
+
+        return {
+            maxBoxBoundsWidth,
+            maxBoxBoundsHeight,
+            maxBoxSideLength,
+            maxBoxWidth,
+            boxSideLength,
+            boxLineWidth,
+            idealBoxSideLength,
+        }
+    }
+
+    private calculateSumOfResolvedLeftRightPadding(columnSettings: StandardBehavioredColumnSettings) {
+        const settingsCellPadding = columnSettings.cellPadding;
+        const resolvedCellPadding = settingsCellPadding === 0 ? 1 : settingsCellPadding;
+        return 2 * resolvedCellPadding;
+    }
+
+    private calculateBooleanValue(schemaColumn: SchemaServer.Column<BCS>, subgridRowIndex: number) {
+        const viewValue = this._dataServer.getViewValue(schemaColumn, subgridRowIndex);
+        return this.convertViewValueToBoolean(viewValue);
+    }
     private convertViewValueToBoolean(value: unknown) {
         switch (typeof value) {
             case 'string': {
@@ -262,14 +388,55 @@ export class StandardCheckboxCellPainter<
                 return null;
         }
     }
+
+    private saveUndefinedFingerprint(cell: DatalessViewCell<BCS, SC>) {
+        cell.paintFingerprint = undefined;
+    }
+
+    private checkSameAndAlwaysSavePaintFingerprint(cell: DatalessViewCell<BCS, SC>, fingerprint: StandardCheckboxCellPainter.PaintFingerprint) {
+        const oldFingerprint = cell.paintFingerprint as StandardCheckboxCellPainter.PaintFingerprint | undefined;
+        let same: boolean;
+        if (oldFingerprint === undefined) {
+            same = false;
+        } else {
+            same = StandardCheckboxCellPainter.PaintFingerprint.same(oldFingerprint, fingerprint);
+        }
+        cell.paintFingerprint = fingerprint;
+        return same;
+    }
 }
 
 /** @public */
 export namespace StandardCheckboxCellPainter {
     export const typeName = 'Checkbox';
     export const minimumBoxSideLength = 5; // pixels
-    export const badlyRenderedCrossEvenBoxSideLengths = [6];
     export const valueNotBooleanChar = '!';
+
+    export interface PaintFingerprintInterface {
+        readonly value: boolean | undefined |null;
+        readonly backgroundColor: string;
+        readonly color: string;
+        readonly borderColor: string | undefined;
+        readonly boxLineWidth: number;
+        readonly boxSideLength: number | undefined;
+        readonly errorFont: string | undefined;
+    }
+
+    export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
+
+    export namespace PaintFingerprint {
+        export function same(left: PaintFingerprint, right: PaintFingerprint) {
+            return (
+                left.value === right.value &&
+                left.backgroundColor === right.backgroundColor &&
+                left.color === right.color &&
+                left.borderColor === right.borderColor &&
+                left.boxLineWidth === right.boxLineWidth &&
+                left.boxSideLength === right.boxSideLength &&
+                left.errorFont === right.errorFont
+            );
+        }
+    }
 
     export interface Config {
         value: boolean;
@@ -277,4 +444,14 @@ export namespace StandardCheckboxCellPainter {
         backgroundColor: string;
         foregroundColor: string;
     }
+}
+
+interface BoxDetails {
+    maxBoxBoundsWidth: number,
+    maxBoxBoundsHeight: number,
+    maxBoxSideLength: number,
+    maxBoxWidth: number,
+    boxSideLength: number,
+    boxLineWidth: number,
+    idealBoxSideLength: number,
 }

@@ -13,7 +13,7 @@ export interface Column<BCS extends BehavioredColumnSettings, SC extends SchemaS
 
     readonly settings: BCS;
 
-    maxPaintWidth: number | undefined;
+    preferredWidth: number | undefined;
 
     setWidth(width: number | undefined): boolean;
     checkColumnAutosizing(widenOnly: boolean): boolean;

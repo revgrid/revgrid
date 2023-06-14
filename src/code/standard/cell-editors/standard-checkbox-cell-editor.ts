@@ -50,7 +50,7 @@ export class StandardCheckboxCellEditor<
     }
 
     processClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SC>) {
-        const boxBounds = this._painter.boxBounds;
+        const boxBounds = this._painter.calculateClickBox(viewCell);
         if (boxBounds === undefined) {
             return false;
         } else {
@@ -65,7 +65,7 @@ export class StandardCheckboxCellEditor<
     }
 
     processPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SC>): CellEditor.PointerLocationInfo | undefined {
-        const boxBounds = this._painter.boxBounds;
+        const boxBounds = this._painter.calculateClickBox(viewCell);
         if (boxBounds === undefined) {
             return undefined;
         } else {

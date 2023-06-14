@@ -100,7 +100,7 @@ export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends
             for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                 const vc = viewLayoutColumns[columnIndex];
 
-                let maxPaintWidth: number | undefined;
+                let columnPreferredWidth: number | undefined;
 
                 // Optionally clip to visible portion of column to prevent text from overflowing to right.
                 const columnClip = vc.column.settings.columnClip;
@@ -112,12 +112,12 @@ export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends
 
                     try {
                         // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
-                        const paintWidth = this.paintCell(cell, undefined);
-                        if (paintWidth !== undefined) {
-                            if (maxPaintWidth === undefined) {
-                                maxPaintWidth = paintWidth;
+                        const preferredWidth = this.paintCell(cell, undefined);
+                        if (preferredWidth !== undefined) {
+                            if (columnPreferredWidth === undefined) {
+                                columnPreferredWidth = preferredWidth;
                             } else {
-                                maxPaintWidth = Math.max(maxPaintWidth, paintWidth);
+                                columnPreferredWidth = Math.max(columnPreferredWidth, preferredWidth);
                             }
                         }
                     } catch (e) {
@@ -127,8 +127,8 @@ export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends
 
                 gc.clipRestore();
 
-                if (maxPaintWidth !== undefined) {
-                    vc.column.maxPaintWidth = Math.ceil(maxPaintWidth);
+                if (columnPreferredWidth !== undefined) {
+                    vc.column.preferredWidth = Math.ceil(columnPreferredWidth);
                 }
             }
 

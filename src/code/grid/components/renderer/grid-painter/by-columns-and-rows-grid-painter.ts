@@ -119,7 +119,7 @@ export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS
                 const columnClip = vc.column.settings.columnClip;
                 gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
-                let maxPaintWidth: number | undefined;
+                let columnPreferredPaintWidth: number | undefined;
                 // For each row of each subgrid (of each column)...
                 for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
                     // if (!pool[p].disabled) {
@@ -128,12 +128,12 @@ export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS
                         const viewCell = pool[cellEvent++];
 
                         try {
-                            const paintWidth = this.paintCell(viewCell, prefillColor);
-                            if (paintWidth !== undefined) {
-                                if (maxPaintWidth === undefined) {
-                                    maxPaintWidth = paintWidth;
+                            const preferredPaintWidth = this.paintCell(viewCell, prefillColor);
+                            if (preferredPaintWidth !== undefined) {
+                                if (columnPreferredPaintWidth === undefined) {
+                                    columnPreferredPaintWidth = preferredPaintWidth;
                                 } else {
-                                    maxPaintWidth = Math.max(maxPaintWidth, paintWidth);
+                                    columnPreferredPaintWidth = Math.max(columnPreferredPaintWidth, preferredPaintWidth);
                                 }
                             }
                         } catch (e) {
@@ -144,8 +144,8 @@ export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS
 
                 gc.clipRestore();
 
-                if (maxPaintWidth !== undefined) {
-                    vc.column.maxPaintWidth = Math.ceil(maxPaintWidth);
+                if (columnPreferredPaintWidth !== undefined) {
+                    vc.column.preferredWidth = Math.ceil(columnPreferredPaintWidth);
                 }
             }
 

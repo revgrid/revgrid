@@ -63,7 +63,7 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
         const rowCount = viewLayoutRows.length;
         const lastColumnIndex = columnCount - 1;
         const pool = viewLayout.getRowColumnOrderedCellPool(); // must match algorithm below and computationInvalid above
-        const maxPaintWidths = new Array<number | undefined>(columnCount);
+        const columnPreferredWidths = new Array<number | undefined>(columnCount);
         // columnClip,
         // clipToGrid,
         let firstVisibleColumnLeft: number;
@@ -128,13 +128,13 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
                 gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
                 try {
-                    const paintWidth = this.paintCell(viewCell, prefillColor);
-                    if (paintWidth !== undefined) {
-                        const previousColumnMaxPaintWidth = maxPaintWidths[columnIndex];
+                    const preferredWidth = this.paintCell(viewCell, prefillColor);
+                    if (preferredWidth !== undefined) {
+                        const previousColumnMaxPaintWidth = columnPreferredWidths[columnIndex];
                         if (previousColumnMaxPaintWidth === undefined) {
-                            maxPaintWidths[columnIndex] = paintWidth;
+                            columnPreferredWidths[columnIndex] = preferredWidth;
                         } else {
-                            maxPaintWidths[columnIndex] = Math.max(previousColumnMaxPaintWidth, paintWidth);
+                            columnPreferredWidths[columnIndex] = Math.max(previousColumnMaxPaintWidth, preferredWidth);
                         }
                     }
                 } catch (e) {
@@ -149,9 +149,9 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
 
         for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
             const vc = viewLayoutColumns[columnIndex];
-            const maxPaintWidth = maxPaintWidths[columnIndex];
-            if (maxPaintWidth !== undefined) {
-                vc.column.maxPaintWidth = Math.ceil(maxPaintWidth);
+            const columnPreferredWidth = columnPreferredWidths[columnIndex];
+            if (columnPreferredWidth !== undefined) {
+                vc.column.preferredWidth = Math.ceil(columnPreferredWidth);
             }
         }
     }

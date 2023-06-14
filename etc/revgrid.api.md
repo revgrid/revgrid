@@ -290,9 +290,9 @@ export interface Column<BCS extends BehavioredColumnSettings, SC extends SchemaS
     // (undocumented)
     loadSettings(settings: ColumnSettings): void;
     // (undocumented)
-    maxPaintWidth: number | undefined;
-    // (undocumented)
     readonly name: string;
+    // (undocumented)
+    preferredWidth: number | undefined;
     // (undocumented)
     readonly schemaColumn: SC;
     // (undocumented)
@@ -3227,9 +3227,9 @@ export abstract class StandardCellPainter<BGS extends StandardBehavioredGridSett
     // (undocumented)
     abstract paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
     // (undocumented)
-    protected paintBorder(bounds: Rectangle, borderColor: string): void;
-    // (undocumented)
     protected readonly _renderingContext: CachedCanvasRenderingContext2D;
+    // (undocumented)
+    protected tryPaintBorder(bounds: Rectangle, borderColor: string | undefined, focus: boolean): void;
 }
 
 // Warning: (ae-forgotten-export) The symbol "StandardPaintCellEditor" needs to be exported by the entry point public-api.d.ts
@@ -3255,9 +3255,9 @@ export class StandardCheckboxCellEditor<BGS extends StandardBehavioredGridSettin
 export class StandardCheckboxCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends StandardCellPainter<BGS, BCS, SC> {
     constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>, _editable: boolean);
     // (undocumented)
-    get boxBounds(): Rectangle | undefined;
+    calculateClickBox(cell: DatalessViewCell<BCS, SC>): Rectangle | undefined;
     // (undocumented)
-    paint(cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined;
+    paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -3266,8 +3266,6 @@ export namespace StandardCheckboxCellPainter {
     typeName = "Checkbox";
     const // (undocumented)
     minimumBoxSideLength = 5;
-    const // (undocumented)
-    badlyRenderedCrossEvenBoxSideLengths: number[];
     const // (undocumented)
     valueNotBooleanChar = "!";
     // (undocumented)
@@ -3280,6 +3278,30 @@ export namespace StandardCheckboxCellPainter {
         foregroundColor: string;
         // (undocumented)
         value: boolean;
+    }
+    // (undocumented)
+    export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
+    // (undocumented)
+    export namespace PaintFingerprint {
+        // (undocumented)
+        export function same(left: PaintFingerprint, right: PaintFingerprint): boolean;
+    }
+    // (undocumented)
+    export interface PaintFingerprintInterface {
+        // (undocumented)
+        readonly backgroundColor: string;
+        // (undocumented)
+        readonly borderColor: string | undefined;
+        // (undocumented)
+        readonly boxLineWidth: number;
+        // (undocumented)
+        readonly boxSideLength: number | undefined;
+        // (undocumented)
+        readonly color: string;
+        // (undocumented)
+        readonly errorFont: string | undefined;
+        // (undocumented)
+        readonly value: boolean | undefined | null;
     }
 }
 

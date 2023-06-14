@@ -257,13 +257,13 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                     if (event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
                         column.setWidth(undefined); // make autosizing
                     } else {
-                        const maxWidth = column.maxPaintWidth;
+                        const preferredWidth = column.preferredWidth;
                         if (event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
-                            if (maxWidth !== undefined && column.width < maxWidth) {
-                                column.setWidth(maxWidth);
+                            if (preferredWidth !== undefined && column.width < preferredWidth) {
+                                column.setWidth(preferredWidth);
                             }
                         } else {
-                            column.setWidth(maxWidth);
+                            column.setWidth(preferredWidth);
                         }
                     }
 

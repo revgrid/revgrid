@@ -100,18 +100,18 @@ export class ByColumnsDiscreteGridPainter<BGS extends BehavioredGridSettings, BC
             const columnClip = vc.column.settings.columnClip;
             gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
 
-            let maxPaintWidth: number | undefined;
+            let columnPreferredWidth: number | undefined;
             // For each row of each subgrid (of each column)...
             for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
                 const viewCell = pool[cellIndex++]; // next cell down the column (make sure the correct pool is used above)
 
                 try {
-                    const paintWidth = this.paintCell(viewCell, prefillColor);
-                    if (paintWidth !== undefined) {
-                        if (maxPaintWidth === undefined) {
-                            maxPaintWidth = paintWidth;
+                    const preferredWidth = this.paintCell(viewCell, prefillColor);
+                    if (preferredWidth !== undefined) {
+                        if (columnPreferredWidth === undefined) {
+                            columnPreferredWidth = preferredWidth;
                         } else {
-                            maxPaintWidth = Math.max(maxPaintWidth, paintWidth);
+                            columnPreferredWidth = Math.max(columnPreferredWidth, preferredWidth);
                         }
                     }
                 } catch (e) {
@@ -121,8 +121,8 @@ export class ByColumnsDiscreteGridPainter<BGS extends BehavioredGridSettings, BC
 
             gc.clipRestore();
 
-            if (maxPaintWidth !== undefined) {
-                vc.column.maxPaintWidth = Math.ceil(maxPaintWidth);
+            if (columnPreferredWidth !== undefined) {
+                vc.column.preferredWidth = Math.ceil(columnPreferredWidth);
             }
         }
 
