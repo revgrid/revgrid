@@ -129,7 +129,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         this._viewLayout.horizontalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processHorizontalScrollViewportStartChangedEvent();
         this._viewLayout.verticalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processVerticalScrollViewportStartChangedEvent();
 
-        this._focus.changedEventer = (oldPoint, newPoint) => this.processCellFocusChangedEvent(oldPoint, newPoint);
+        this._focus.changedEventer = (newPoint, oldPoint) => this.processCellFocusChangedEvent(newPoint, oldPoint);
         this._focus.editorKeyDownEventer = (event) => this.processKeyDownEvent(event, true);
         this._selection.changedEventerForEventBehavior = () => this.processSelectionChangedEvent();
 
@@ -482,8 +482,8 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processCellFocusChangedEvent(oldPoint: Point | undefined, newPoint: Point | undefined) {
-        this._descendantEventer.cellFocusChanged(oldPoint, newPoint);
+    private processCellFocusChangedEvent(newPoint: Point | undefined, oldPoint: Point | undefined) {
+        this._descendantEventer.cellFocusChanged(newPoint, oldPoint);
 
         if (this._dispatchEnabled) {
             const detail: EventDetail.CellFocusChanged = {

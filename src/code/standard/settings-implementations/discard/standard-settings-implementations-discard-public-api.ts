@@ -1,3 +1,3 @@
-export { standardDiscardDefaultBehavioredColumnSettings } from './discard-default-behaviored-column-settings';
-export { standardDiscardDefaultBehavioredGridSettings } from './discard-default-behaviored-grid-settings';
+export { standardDiscardDefaultBehavioredColumnSettings } from './standard-discard-default-behaviored-column-settings';
+export { standardDiscardDefaultBehavioredGridSettings } from './standard-discard-default-behaviored-grid-settings';
 

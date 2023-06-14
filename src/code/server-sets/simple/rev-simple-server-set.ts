@@ -26,7 +26,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
      * should be stripped from data and included in header. If less than 0, then there should be one header row and the header values
      * should be derived from column names in data.
      */
-    setData(data: RevSimpleAdapterSet.DataRow[] | (() => RevSimpleAdapterSet.DataRow[]), headerRowCount = -1) {
+    setData(data: RevSimpleServerSet.DataRow[] | (() => RevSimpleServerSet.DataRow[]), headerRowCount = -1) {
         if (data === undefined) {
             return;
         } else {
@@ -65,7 +65,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
     }
 
     private extractSchemaAndHeadersFromData(
-        rows: RevSimpleAdapterSet.DataRow[],
+        rows: RevSimpleServerSet.DataRow[],
         headerRowCount: number
     ): ExtractSchemaAndHeadersFromDataResult<BCS> {
         const { rows: headerRows, sourceCount: initialSourceCount } = this.getInitialDefinedRows(rows, headerRowCount);
@@ -114,7 +114,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
         }
 }
 
-    private calculateSchemaFromData(dataRows: RevSimpleAdapterSet.DataRow[], keyIsHeader: boolean): RevSimpleSchemaServer.Column<BCS>[] {
+    private calculateSchemaFromData(dataRows: RevSimpleServerSet.DataRow[], keyIsHeader: boolean): RevSimpleSchemaServer.Column<BCS>[] {
         const { rows } = this.getInitialDefinedRows(dataRows, 1);
         if (rows.length === 0) {
             return [];
@@ -136,8 +136,8 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
      * @returns The initial rows (up to maxCount) and the number of source rows these covered (may be more
      * than max count if some rows are undefined).
      */
-    getInitialDefinedRows(sourceRows: readonly RevSimpleAdapterSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult {
-        const rows = new Array<RevSimpleAdapterSet.DataRow>(maxCount);
+    getInitialDefinedRows(sourceRows: readonly RevSimpleServerSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult {
+        const rows = new Array<RevSimpleServerSet.DataRow>(maxCount);
 
         const sourceCount = sourceRows.length;
         let initialCount = 0;
@@ -163,7 +163,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
 }
 
 /** @public */
-export namespace RevSimpleAdapterSet {
+export namespace RevSimpleServerSet {
     export interface DataRow extends RevSimpleMainDataServer.DataRow {
         [columnName: string]: DataServer.ViewValue | string; // can also have header
     }
@@ -171,10 +171,10 @@ export namespace RevSimpleAdapterSet {
 
 interface ExtractSchemaAndHeadersFromDataResult<BCS extends BehavioredColumnSettings> {
     schema: RevSimpleSchemaServer.Column<BCS>[];
-    dataRows: RevSimpleAdapterSet.DataRow[];
+    dataRows: RevSimpleServerSet.DataRow[];
 }
 
 interface GetInitialDefinedRowsResult {
-    rows: RevSimpleAdapterSet.DataRow[];
+    rows: RevSimpleServerSet.DataRow[];
     sourceCount: number;
 }

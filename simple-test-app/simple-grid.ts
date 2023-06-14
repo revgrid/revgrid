@@ -1,69 +1,75 @@
 import {
-    GridSettings,
-    RevSimpleHeaderDataServer,
+    DatalessSubgrid,
+    DatalessViewCell,
+    LinedHoverCell,
+    Point,
     RevSimpleSchemaServer,
     RevSimpleServerSet,
     Revgrid,
-    ViewCell
-} from "..";
+    StandardAlphaTextCellPainter,
+    StandardBehavioredColumnSettings,
+    StandardBehavioredGridSettings,
+    StandardHeaderTextCellPainter,
+    standardDiscardDefaultBehavioredGridSettings
+} from '..';
 
-export class SimpleGrid extends Revgrid {
-    private _lastNotifiedFocusedRowIndex: number | undefined;
+export class SimpleGrid extends Revgrid<
+        StandardBehavioredGridSettings,
+        StandardBehavioredColumnSettings,
+        RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>
+    > {
 
-    private _rowFocusEventer: SimpleGrid.RowFocusEventer | undefined;
-    private _rowFocusClickEventer: SimpleGrid.RowFocusClickEventer | undefined;
-    private _rowFocusDblClickEventer: SimpleGrid.RowFocusDblClickEventer | undefined;
+    cellFocusEventer: SimpleGrid.CellFocusEventer | undefined;
+    clickEventer: SimpleGrid.RowFocusClickEventer | undefined;
+    dblClickEventer: SimpleGrid.RowFocusDblClickEventer | undefined;
 
-    private readonly _serverSet: RevSimpleServerSet;
+    private readonly _serverSet: RevSimpleServerSet<StandardBehavioredColumnSettings>;
 
-    private readonly _selectionChangedListener: (event: CustomEvent<SelectionDetail>) => void;
-    private readonly _clickListener: (event: CustomEvent<ViewCell>) => void;
-    private readonly _dblClickListener: (event: CustomEvent<ViewCell>) => void;
+    private readonly _headerCellPainter: StandardHeaderTextCellPainter<
+        StandardBehavioredGridSettings, StandardBehavioredColumnSettings,
+        RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>
+    >;
+    private readonly _textCellPainter: StandardAlphaTextCellPainter<
+        StandardBehavioredGridSettings,
+        StandardBehavioredColumnSettings,
+        RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>
+    >;
 
     constructor(
         gridElement: HTMLElement,
-        gridSettings: Partial<GridSettings>,
+        gridSettings: StandardBehavioredGridSettings,
     ) {
-        const adapterSet = new RevSimpleServerSet();
+        const serverSet = new RevSimpleServerSet(standardDiscardDefaultBehavioredGridSettings);
 
-        const headerDataServer = adapterSet.headerDataServer;
-        const mainDataServer = adapterSet.mainDataServer;
+        const headerDataServer = serverSet.headerDataServer;
+        const mainDataServer = serverSet.mainDataServer;
 
-        const adapterSetConfig: Revgrid.Definition = {
-            schemaServer: adapterSet.schemaServer,
+        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>> = {
+            schemaServer: serverSet.schemaServer,
             subgrids: [
                 {
-                    role: Subgrid.RoleEnum.header,
-                    dataServer: adapterSet.headerDataServer,
+                    role: DatalessSubgrid.RoleEnum.header,
+                    dataServer: headerDataServer,
+                    getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
                 },
                 {
-                    role: Subgrid.RoleEnum.main,
-                    dataServer: adapterSet.mainDataServer,
+                    role: DatalessSubgrid.RoleEnum.main,
+                    dataServer: mainDataServer,
+                    getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
                 }
             ],
         };
 
-        const options: Revgrid.Options = {
-            gridSettings,
-            loadBuiltinFinbarStylesheet: false,
-        };
+        super(gridElement, definition, gridSettings);
 
-        super(gridElement, adapterSetConfig, options);
+        this._serverSet = serverSet;
 
-        this._serverSet = adapterSet;
-
-        headerDataServer.cellPainter.setGrid(this);
-        mainDataServer.cellPainter.setGrid(this);
-
-        this._selectionChangedListener = (event: CustomEvent<SelectionDetail>) => this.handleHypegridSelectionChanged(event);
-        this._clickListener = (event: CustomEvent<ViewCell>) => this.handleGridClickEvent(event);
-        this._dblClickListener = (event: CustomEvent<ViewCell>) => this.handleGridDblClickEvent(event);
-
-        this.allowEvents(true);
+        this._headerCellPainter = new StandardHeaderTextCellPainter(this, headerDataServer);
+        this._textCellPainter = new StandardAlphaTextCellPainter(this, mainDataServer);
     }
 
-    get schemaServer(): RevSimpleSchemaServer { return this._serverSet.schemaServer; }
-    get headerAdapter(): RevSimpleHeaderDataServer { return this._serverSet.headerDataServer; }
+    get schemaServer() { return this._serverSet.schemaServer; }
+    get headerAdapter() { return this._serverSet.headerDataServer; }
 
     get fieldCount(): number { return this.schemaServer.getSchema().length; }
 
@@ -73,42 +79,47 @@ export class SimpleGrid extends Revgrid {
         return this.headerAdapter.getRowCount();
     }
 
-    protected descendantProcessFocusChanged() {
-
-    }
-    get rowFocusEventer(): SimpleGrid.RowFocusEventer | undefined { return this._rowFocusEventer; }
-    set rowFocusEventer(value: SimpleGrid.RowFocusEventer | undefined) {
-        if (this._rowFocusEventer !== undefined) {
-            this.removeEventListener('rev-selection-changed', this._selectionChangedListener)
-        }
-        this._rowFocusEventer = value;
-
-        if (this._rowFocusEventer !== undefined) {
-            this.addEventListener('rev-selection-changed', this._selectionChangedListener);
+    protected override descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined) {
+        if (this.cellFocusEventer !== undefined) {
+            this.cellFocusEventer(oldPoint, newPoint);
         }
     }
 
-    get rowFocusClickEventer(): SimpleGrid.RowFocusClickEventer | undefined { return this._rowFocusClickEventer; }
-    set rowFocusClickEventer(value: SimpleGrid.RowFocusClickEventer | undefined) {
-        if (this._rowFocusClickEventer !== undefined) {
-            this.removeEventListener('rev-click', this._clickListener)
-        }
-        this._rowFocusClickEventer = value;
-
-        if (this._rowFocusClickEventer !== undefined) {
-            this.addEventListener('rev-click', this._clickListener);
+    protected override descendantProcessClick(
+        event: MouseEvent,
+        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>> | null | undefined
+    ) {
+        if (this.clickEventer !== undefined) {
+            if (hoverCell !== null) {
+                if (hoverCell === undefined) {
+                    hoverCell = this.viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                }
+                if (hoverCell !== undefined) {
+                    if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
+                        const viewCell = hoverCell.viewCell;
+                        this.clickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
+                    }
+                }
+            }
         }
     }
 
-    get rowFocusDblClickEventer(): SimpleGrid.RowFocusDblClickEventer | undefined { return this._rowFocusDblClickEventer; }
-    set rowFocusDblClickEventer(value: SimpleGrid.RowFocusDblClickEventer | undefined) {
-        if (this._rowFocusDblClickEventer !== undefined) {
-            this.removeEventListener('rev-double-click', this._dblClickListener)
-        }
-        this._rowFocusDblClickEventer = value;
-
-        if (this._rowFocusDblClickEventer !== undefined) {
-            this.addEventListener('rev-double-click', this._dblClickListener);
+    protected override descendantProcessDblClick(
+        event: MouseEvent,
+        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>> | null | undefined
+    ) {
+        if (this.dblClickEventer !== undefined) {
+            if (hoverCell !== null) {
+                if (hoverCell === undefined) {
+                    hoverCell = this.viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                }
+                if (hoverCell !== undefined) {
+                    if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
+                        const viewCell = hoverCell.viewCell;
+                        this.dblClickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
+                    }
+                }
+            }
         }
     }
 
@@ -116,63 +127,17 @@ export class SimpleGrid extends Revgrid {
         this._serverSet.setData(data, headerRowCount)
     }
 
-    private handleGridClickEvent(event: CustomEvent<ViewCell>): void {
-        const gridY = event.detail.gridCell.y;
-        if (gridY !== 0) { // Skip clicks to the column headers
-            if (this._rowFocusClickEventer !== undefined) {
-                const rowIndex = event.detail.dataCell.y;
-                if (rowIndex === undefined) {
-                    throw new Error('HandleGridClickEvent');
-                } else {
-                    const columnIndex = event.detail.dataCell.x;
-                    this._rowFocusClickEventer(columnIndex, rowIndex);
-                }
-            }
-        }
+    private getHeaderCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>>) {
+        return this._headerCellPainter;
     }
 
-    private handleGridDblClickEvent(event: CustomEvent<ViewCell>): void {
-        if (event.detail.gridCell.y !== 0) { // Skip clicks to the column headers
-            if (this._rowFocusClickEventer !== undefined) {
-                const rowIndex = event.detail.dataCell.y;
-                if (rowIndex === undefined) {
-                    throw new Error('handleGridDblClickEvent');
-                } else {
-                    this._rowFocusClickEventer(event.detail.dataCell.x, rowIndex);
-                }
-            }
-        }
-    }
-
-    private handleHypegridSelectionChanged(event: CustomEvent<SelectionDetail>) {
-        const rectangles = event.detail.getSelectedRectangles();
-
-        if (rectangles.length === 0) {
-            if (this._lastNotifiedFocusedRowIndex !== undefined) {
-                const oldSelectedRowIndex = this._lastNotifiedFocusedRowIndex;
-                this._lastNotifiedFocusedRowIndex = undefined;
-                const rowFocusEventer = this.rowFocusEventer;
-                if (rowFocusEventer !== undefined) {
-                    rowFocusEventer(undefined, oldSelectedRowIndex);
-                }
-            }
-        } else {
-            const rectangle = rectangles[0];
-            const rowIndex = rectangle.firstSelectedCell.y;
-            if (rowIndex !== this._lastNotifiedFocusedRowIndex) {
-                const oldFocusedRowIndex = this._lastNotifiedFocusedRowIndex;
-                this._lastNotifiedFocusedRowIndex = rowIndex;
-                const rowFocusEventer= this.rowFocusEventer;
-                if (rowFocusEventer !== undefined) {
-                    rowFocusEventer(rowIndex, oldFocusedRowIndex);
-                }
-            }
-        }
+    private getMainCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>>) {
+        return this._textCellPainter;
     }
 }
 
 export namespace SimpleGrid {
-    export type RowFocusEventer = (this: void, newRowIndex: number | undefined, oldRowIndex: number | undefined) => void;
+    export type CellFocusEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
     export type RowFocusClickEventer = (this: void, columnIndex: number, rowIndex: number) => void;
     export type RowFocusDblClickEventer = (this: void, columnIndex: number, rowIndex: number) => void;
 }

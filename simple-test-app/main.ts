@@ -1,4 +1,4 @@
-import { GridProperties, RevSimpleAdapterSet } from "..";
+import { Point, RevSimpleServerSet, StandardBehavioredGridSettings, standardDiscardDefaultBehavioredGridSettings } from '..';
 import { SimpleGrid } from './simple-grid';
 
 export class Main {
@@ -34,31 +34,30 @@ export class Main {
     }
 
     private createGrid(hostElement: HTMLElement) {
-        const gridProperties: Partial<GridProperties> = {
-            renderFalsy: true,
-            autoSelectRows: false,
-            singleRowSelectionMode: false,
-            columnSelection: false,
-            rowSelection: false,
-            restoreColumnSelections: false,
-            multipleSelections: false,
-            sortOnDoubleClick: false,
+        const gridSettings: StandardBehavioredGridSettings = {
+            ...standardDiscardDefaultBehavioredGridSettings,
+            mouseColumnSelection: false,
+            mouseRowSelection: false,
+            multipleSelectionAreas: false,
+            mouseSortOnDoubleClick: false,
         };
 
-        const grid = new SimpleGrid(hostElement, gridProperties);
+        const grid = new SimpleGrid(hostElement, gridSettings);
 
-        grid.rowFocusEventer = (newRecordIndex, oldRecordIndex) => this.handleRowFocus(newRecordIndex, oldRecordIndex)
-        grid.rowFocusClickEventer = (columnIndex, recordIndex) => this.handleRowFocusClick(columnIndex, recordIndex);
-        grid.rowFocusDblClickEventer = (columnIndex, recordIndex) => this.handleRecordFocusDblClick(columnIndex, recordIndex);
+        grid.cellFocusEventer = (newPoint, oldPoint) => this.handleCellFocusEvent(newPoint, oldPoint)
+        grid.clickEventer = (columnIndex, recordIndex) => this.handleCellClickEvent(columnIndex, recordIndex);
+        grid.dblClickEventer = (columnIndex, recordIndex) => this.handleRecordFocusDblClick(columnIndex, recordIndex);
+
+        grid.allowEvents(true);
 
         return grid;
     }
 
-    private handleRowFocus(newRowIndex: number | undefined, oldRowIndex: number | undefined): void {
-        console.log(`Focus for Record: New: ${newRowIndex} Old: ${oldRowIndex}`);
+    private handleCellFocusEvent(newPoint: Point | undefined, oldPoint: Point | undefined): void {
+        console.log(`Focus change: New: ${newPoint === undefined ? '-' : `(${newPoint.x}, ${newPoint.y})`}  Old: ${oldPoint === undefined ? '-' : `(${oldPoint.x}, ${oldPoint.y})`}`);
     }
 
-    private handleRowFocusClick(columnIndex: number, rowIndex: number): void {
+    private handleCellClickEvent(columnIndex: number, rowIndex: number): void {
         console.log(`Click for Record ${rowIndex} column ${columnIndex}`);
     }
 
@@ -76,7 +75,7 @@ export class Main {
     }
 
     private loadPets() {
-        interface Pet extends RevSimpleAdapterSet.DataRow {
+        interface Pet extends RevSimpleServerSet.DataRow {
             name: string;
             type: string;
             color: string;
@@ -138,7 +137,7 @@ export class Main {
     }
 
     private loadMany() {
-        interface Row extends RevSimpleAdapterSet.DataRow {
+        interface Row extends RevSimpleServerSet.DataRow {
             StrCol: string;
             NumberCol: number;
             BoolCol: boolean;

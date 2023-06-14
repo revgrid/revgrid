@@ -536,7 +536,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private fireFocusChanged() {
-        this.changedEventer(this._previousSubgridPoint, this._currentSubgridPoint);
+        this.changedEventer(this._currentSubgridPoint, this._previousSubgridPoint);
     }
 
     /** @internal */
@@ -696,7 +696,7 @@ export namespace Focus {
     ) => CellEditor<BCS, SC> | undefined;
 
     /** @internal */
-    export type ChangedEventer = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
+    export type ChangedEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
     /** @internal */
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, cell: ViewCell<BCS, SC>) => void;
 

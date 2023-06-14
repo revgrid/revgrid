@@ -1036,7 +1036,7 @@ export namespace Focus {
         Tab = "Tab"
     }
     // @internal (undocumented)
-    export type ChangedEventer = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
+    export type ChangedEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
     // (undocumented)
     export type EditorKeyDownEventer = (this: void, event: KeyboardEvent) => void;
     // (undocumented)
@@ -2240,7 +2240,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined): void;
     // (undocumented)
-    protected descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined): void;
+    protected descendantProcessCellFocusChanged(newPoint: Point | undefined, oldPoint: Point | undefined): void;
     // (undocumented)
     protected descendantProcessClick(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS, SC> | null | undefined): void;
     // (undocumented)
@@ -3080,15 +3080,23 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
     constructor(_columnSettings: BCS);
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (ae-forgotten-export) The symbol "GetInitialDefinedRowsResult" needs to be exported by the entry point public-api.d.ts
-    getInitialDefinedRows(sourceRows: readonly RevSimpleAdapterSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult;
+    getInitialDefinedRows(sourceRows: readonly RevSimpleServerSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult;
     // (undocumented)
     get headerDataServer(): RevSimpleHeaderDataServer<BCS>;
     // (undocumented)
     get mainDataServer(): RevSimpleMainDataServer<BCS>;
     // (undocumented)
     get schemaServer(): RevSimpleSchemaServer<BCS>;
-    // Warning: (ae-forgotten-export) The symbol "RevSimpleAdapterSet" needs to be exported by the entry point public-api.d.ts
-    setData(data: RevSimpleAdapterSet.DataRow[] | (() => RevSimpleAdapterSet.DataRow[]), headerRowCount?: number): void;
+    setData(data: RevSimpleServerSet.DataRow[] | (() => RevSimpleServerSet.DataRow[]), headerRowCount?: number): void;
+}
+
+// @public (undocumented)
+export namespace RevSimpleServerSet {
+    // (undocumented)
+    export interface DataRow extends RevSimpleMainDataServer.DataRow {
+        // (undocumented)
+        [columnName: string]: DataServer.ViewValue | string;
+    }
 }
 
 // @public (undocumented)
@@ -3330,6 +3338,12 @@ export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSetti
     // (undocumented)
     tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
+
+// @public (undocumented)
+export const standardDiscardDefaultBehavioredColumnSettings: StandardBehavioredColumnSettings;
+
+// @public (undocumented)
+export const standardDiscardDefaultBehavioredGridSettings: StandardBehavioredGridSettings;
 
 // @public (undocumented)
 export interface StandardGridSettings {

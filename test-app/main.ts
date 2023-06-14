@@ -1,5 +1,6 @@
 import {
     CellEditor,
+    DatalessSubgrid,
     DatalessViewCell,
     EventDetail,
     HalignEnum,
@@ -184,12 +185,12 @@ export class Main {
             schemaServer: this._schemaServer,
             subgrids: [
                 {
-                    role: 'header',
+                    role: DatalessSubgrid.RoleEnum.header,
                     dataServer: this._headerDataServer,
                     getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
                 },
                 {
-                    role: 'main',
+                    role: DatalessSubgrid.RoleEnum.main,
                     dataServer: this._mainDataServer,
                     getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
                 }
@@ -198,34 +199,11 @@ export class Main {
 
         this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings);
 
-        this._headerCellPainter = new StandardHeaderTextCellPainter<
-            StandardInMemoryBehavioredGridSettings,
-            StandardInMemoryBehavioredColumnSettings,
-            SchemaServerImplementation.Column
-        >(this._grid, this._headerDataServer);
-
-        this._textCellPainter = new StandardAlphaTextCellPainter<
-            StandardInMemoryBehavioredGridSettings,
-            StandardInMemoryBehavioredColumnSettings,
-            SchemaServerImplementation.Column
-        >(this._grid, this._mainDataServer);
-
-        this._checkboxCellPainter = new StandardCheckboxCellPainter<
-            StandardInMemoryBehavioredGridSettings,
-            StandardInMemoryBehavioredColumnSettings,
-            SchemaServerImplementation.Column
-        >(this._grid, this._mainDataServer, false);
-
-        this._textInputEditor = new StandardTextInputCellEditor<
-            StandardInMemoryBehavioredGridSettings,
-            StandardInMemoryBehavioredColumnSettings,
-            SchemaServerImplementation.Column
-        >(this._grid, this._mainDataServer);
-        this._checkboxEditor = new StandardCheckboxCellEditor<
-            StandardInMemoryBehavioredGridSettings,
-            StandardInMemoryBehavioredColumnSettings,
-            SchemaServerImplementation.Column
-        >(this._grid, this._mainDataServer);
+        this._headerCellPainter = new StandardHeaderTextCellPainter(this._grid, this._headerDataServer);
+        this._textCellPainter = new StandardAlphaTextCellPainter(this._grid, this._mainDataServer);
+        this._checkboxCellPainter = new StandardCheckboxCellPainter(this._grid, this._mainDataServer, false);
+        this._textInputEditor = new StandardTextInputCellEditor(this._grid, this._mainDataServer);
+        this._checkboxEditor = new StandardCheckboxCellEditor(this._grid, this._mainDataServer);
 
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();

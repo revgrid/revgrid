@@ -1196,7 +1196,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.viewLayout.invalidateAll(true);
     }
 
-    protected descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined) {
+    protected descendantProcessCellFocusChanged(newPoint: Point | undefined, oldPoint: Point | undefined) {
         // for descendants
     }
 
@@ -1843,7 +1843,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
             columnsViewWidthsChanged: () => this.descendantProcessColumnsViewWidthsChanged(),
             columnSort: (event, cell) => this.descendantProcessColumnSort(event, cell),
-            cellFocusChanged: (oldPoint, newPoint) => this.descendantProcessCellFocusChanged(oldPoint, newPoint),
+            cellFocusChanged: (newPoint, oldPoint) => this.descendantProcessCellFocusChanged(newPoint, oldPoint),
             selectionChanged: () => this.descendantProcessSelectionChanged(),
             focus: () => this.descendantEventerFocus(),
             blur: () => this.descendantEventerBlur(),
