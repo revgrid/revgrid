@@ -1219,9 +1219,9 @@ export interface GridSettings {
     readonly rowResize: boolean;
     readonly rowStripes: GridSettings.RowStripe[] | undefined;
     // (undocumented)
-    readonly scrollbarHoverOff: string;
+    readonly scrollerThumbColor: string;
     // (undocumented)
-    readonly scrollbarHoverOver: string;
+    readonly scrollerThumbReducedVisibilityOpacity: number;
     readonly scrollHorizontallySmoothly: boolean;
     // (undocumented)
     readonly scrollingEnabled: boolean;
@@ -1733,11 +1733,11 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get rowStripes(): GridSettings.RowStripe[] | undefined;
     set rowStripes(value: GridSettings.RowStripe[] | undefined);
     // (undocumented)
-    get scrollbarHoverOff(): string;
-    set scrollbarHoverOff(value: string);
+    get scrollerThumbColor(): string;
+    set scrollerThumbColor(value: string);
     // (undocumented)
-    get scrollbarHoverOver(): string;
-    set scrollbarHoverOver(value: string);
+    get scrollerThumbReducedVisibilityOpacity(): number;
+    set scrollerThumbReducedVisibilityOpacity(value: number);
     // (undocumented)
     get scrollHorizontallySmoothly(): boolean;
     set scrollHorizontallySmoothly(value: boolean);

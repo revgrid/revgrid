@@ -86,8 +86,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _rowResize: boolean;
     private _rowStripes: GridSettings.RowStripe[] | undefined;
     private _scrollHorizontallySmoothly: boolean;
-    private _scrollbarHoverOver: string;
-    private _scrollbarHoverOff: string;
+    private _scrollerThumbColor: string;
+    private _scrollerThumbReducedVisibilityOpacity: number;
     private _scrollingEnabled: boolean;
     private _secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
     private _secondarySelectionAreaType: SelectionAreaType;
@@ -853,22 +853,22 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
-    get scrollbarHoverOver() { return this._scrollbarHoverOver; }
-    set scrollbarHoverOver(value: string) {
-        if (value !== this._scrollbarHoverOver) {
+    get scrollerThumbColor() { return this._scrollerThumbColor; }
+    set scrollerThumbColor(value: string) {
+        if (value !== this._scrollerThumbColor) {
             this.beginChange();
-            this._scrollbarHoverOver = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollbarHoverOver;
+            this._scrollerThumbColor = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollerThumbColor;
             this.invalidateByType(invalidateType);
             this.endChange();
         }
     }
-    get scrollbarHoverOff() { return this._scrollbarHoverOff; }
-    set scrollbarHoverOff(value: string) {
-        if (value !== this._scrollbarHoverOff) {
+    get scrollerThumbReducedVisibilityOpacity() { return this._scrollerThumbReducedVisibilityOpacity; }
+    set scrollerThumbReducedVisibilityOpacity(value: number) {
+        if (value !== this._scrollerThumbReducedVisibilityOpacity) {
             this.beginChange();
-            this._scrollbarHoverOff = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollbarHoverOff;
+            this._scrollerThumbReducedVisibilityOpacity = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollerThumbReducedVisibilityOpacity;
             this.invalidateByType(invalidateType);
             this.endChange();
         }
@@ -1243,14 +1243,14 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                 case 'rowStripes':
                     this._rowStripes = settings.rowStripes;
                     break;
+                case 'scrollerThumbColor':
+                    this._scrollerThumbColor = settings.scrollerThumbColor;
+                    break;
+                case 'scrollerThumbReducedVisibilityOpacity':
+                    this._scrollerThumbReducedVisibilityOpacity = settings.scrollerThumbReducedVisibilityOpacity;
+                    break;
                 case 'scrollHorizontallySmoothly':
                     this._scrollHorizontallySmoothly = settings.scrollHorizontallySmoothly;
-                    break;
-                case 'scrollbarHoverOver':
-                    this._scrollbarHoverOver = settings.scrollbarHoverOver;
-                    break;
-                case 'scrollbarHoverOff':
-                    this._scrollbarHoverOff = settings.scrollbarHoverOff;
                     break;
                 case 'scrollingEnabled':
                     this._scrollingEnabled = settings.scrollingEnabled;

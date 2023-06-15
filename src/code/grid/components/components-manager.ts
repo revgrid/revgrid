@@ -97,6 +97,8 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.verticalScroller = new Scroller(
+                gridSettings,
+                containerHtmlElement,
                 this.viewLayout.verticalScrollDimension,
                 this.canvasManager.instanceId,
                 false,
@@ -107,9 +109,10 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 gridSettings.verticalScrollbarClassPrefix,
                 undefined,
             );
-            containerHtmlElement.appendChild(this.verticalScroller.bar);
 
             this.horizontalScroller = new Scroller(
+                gridSettings,
+                containerHtmlElement,
                 this.viewLayout.horizontalScrollDimension,
                 this.canvasManager.instanceId,
                 false,
@@ -120,7 +123,6 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 gridSettings.horizontalScrollbarClassPrefix,
                 this.verticalScroller,
             );
-            containerHtmlElement.appendChild(this.horizontalScroller.bar);
         }
     }
 

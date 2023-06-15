@@ -1,11 +1,14 @@
 import {
-    RevRecordField, RevRecordValueRecentChangeTypeId
+    DataServer,
+    RevRecordField,
+    RevRecordValueRecentChangeTypeId,
+    StandardInMemoryBehavioredColumnSettings
 } from '..';
 import { RecordStore } from './record-store';
 
-export abstract class GridField implements RevRecordField {
-    constructor(readonly name: string, public heading: string) {}
-    abstract getValue(record: RecordStore.Record): DataServer.DataValue;
+export abstract class GridField implements RevRecordField<StandardInMemoryBehavioredColumnSettings> {
+    constructor(readonly name: string, readonly columnSettings: StandardInMemoryBehavioredColumnSettings, public heading: string) {}
+    abstract getValue(record: RecordStore.Record): DataServer.ViewValue;
     abstract modifyValue(record: RecordStore.Record): RevRecordValueRecentChangeTypeId | undefined;
 }
 
@@ -14,7 +17,7 @@ export class RecordIndexGridField extends GridField {
         super('RecIndex', 'Index');
     }
 
-    getValue(record: RecordStore.Record): DataServer.DataValue {
+    getValue(record: RecordStore.Record): DataServer.ViewValue {
         return record.index;
     }
 
@@ -28,7 +31,7 @@ export class IntValGridField extends GridField {
         super('IntVal', 'Int');
     }
 
-    getValue(record: RecordStore.Record): DataServer.DataValue {
+    getValue(record: RecordStore.Record): DataServer.ViewValue {
         return record.data[RecordStore.Record.Data.intValIndex];
     }
 

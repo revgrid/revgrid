@@ -614,7 +614,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
                 if (event === undefined) {
                     throw new AssertError('CMSPDSR68201');
                 } else {
-                    this.canvasElement.setPointerCapture(event.pointerId)
+                    this.canvasElement.setPointerCapture(event.pointerId);
                 }
                 break;
             default:

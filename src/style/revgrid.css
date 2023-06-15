@@ -1,46 +1,25 @@
-.revgrid-container {
-    position: absolute;
-}
 .revgrid-container > .revgrid-horizontal,
 .revgrid-container > .revgrid-vertical {
-    position: absolute;
     margin: 3px;
 }
 .revgrid-container > .revgrid-horizontal > .thumb,
 .revgrid-container > .revgrid-vertical > .thumb {
-    position: absolute;
-    background-color: #d3d3d3;
     box-shadow: 0 0 1px #000;
     border-radius: 4px;
     margin: 2px;
-    opacity: 0.4;
-    transition: opacity 0.5s;
-}
-.revgrid-container > .revgrid-horizontal > .thumb.hover,
-.revgrid-container > .revgrid-vertical > .thumb.hover {
-    position: absolute;
-    opacity: 1;
     transition: opacity 0.5s;
 }
 .revgrid-container > .revgrid-vertical {
-    top: 0;
-    bottom: 0;
-    right: 0;
     width: 11px;
 }
 .revgrid-container > .revgrid-vertical > .thumb {
-    top: 0;
     right: 0;
     width: 7px;
 }
 .revgrid-container > .revgrid-horizontal {
-    left: 0;
-    right: 0;
-    bottom: 0;
     height: 11px;
 }
 .revgrid-container > .revgrid-horizontal > .thumb {
-    left: 0;
     bottom: 0;
     height: 7px;
 }

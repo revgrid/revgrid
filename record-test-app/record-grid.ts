@@ -1,12 +1,9 @@
 import { RecordGridSettings } from 'record-grid-settings';
 import {
-    AdapterSetConfig,
-    CellEvent,
     CellPainter,
     EventDetail,
-    GridProperties,
+    GridSettings,
     ListChangedTypeId,
-    Revgrid,
     RevRecordCellAdapter,
     RevRecordField,
     RevRecordFieldAdapter,
@@ -15,7 +12,9 @@ import {
     RevRecordIndex,
     RevRecordMainAdapter,
     RevRecordStore,
-    SubgridInterface,
+    Revgrid,
+    StandardInMemoryBehavioredColumnSettings,
+    StandardInMemoryBehavioredGridSettings,
     UnreachableCaseError
 } from "..";
 import {
@@ -30,7 +29,11 @@ import {
 } from './grid-field';
 import { RecordHeaderAdapter } from './record-header-adapter';
 
-export class RecordGrid extends Revgrid {
+export class RecordGrid extends Revgrid<
+        StandardInMemoryBehavioredGridSettings,
+        StandardInMemoryBehavioredColumnSettings,
+        RevRecordField.SchemaColumn<StandardInMemoryBehavioredColumnSettings>
+    > {
     fieldSortedEventer: RecordGrid.FieldSortedEventer | undefined;
     columnWidthChangedEventer: RecordGrid.ColumnWidthChangedEventer | undefined;
 
@@ -59,7 +62,7 @@ export class RecordGrid extends Revgrid {
         gridElement: HTMLElement,
         recordStore: RevRecordStore,
         mainCellPainter: CellPainter,
-        gridSettings: Partial<GridProperties>,
+        gridSettings: Partial<GridSettings>,
     ) {
         const fieldAdapter = new RevRecordFieldAdapter();
         const mainRecordAdapter = new RevRecordMainAdapter(fieldAdapter, recordStore);
@@ -67,7 +70,7 @@ export class RecordGrid extends Revgrid {
 
         const recordCellAdapter = new RevRecordCellAdapter(mainRecordAdapter, mainCellPainter);
 
-        const adapterSetConfig: AdapterSetConfig = {
+        const definition: Revgrid.Definition<StandardInMemoryBehavioredColumnSettings, RevRecordField.SchemaColumn<StandardInMemoryBehavioredColumnSettings>> = {
             schemaServer: fieldAdapter,
             subgrids: [
                 {
@@ -83,12 +86,7 @@ export class RecordGrid extends Revgrid {
             ],
         };
 
-        const options: Revgrid.Options = {
-            gridSettings,
-            loadBuiltinFinbarStylesheet: false,
-        };
-
-        super(gridElement, adapterSetConfig, options);
+        super(gridElement, definition);
 
         this._fieldAdapter = fieldAdapter;
         this._headerRecordAdapter = headerRecordAdapter;
@@ -465,8 +463,8 @@ export class RecordGrid extends Revgrid {
         super.processAllColumnListChanged(typeId, index, count, targetIndex);
     }
 
-    private createGridPropertiesFromSettings(settings: Partial<RecordGridSettings>): Partial<GridProperties> {
-        const properties: Partial<GridProperties> = {};
+    private createGridPropertiesFromSettings(settings: Partial<RecordGridSettings>): Partial<GridSettings> {
+        const properties: Partial<GridSettings> = {};
 
         if (settings.fontFamily !== undefined) {
             if (settings.fontSize !== undefined) {

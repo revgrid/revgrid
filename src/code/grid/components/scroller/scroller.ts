@@ -1,6 +1,6 @@
 import { EventDetail } from '../../interfaces/data/event-detail';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { ScrollDimension } from '../view/scroll-dimension';
 
 // Following is the sole style requirement for bar and thumb elements.
@@ -79,7 +79,12 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     // private container: HTMLElement;
     // private content: HTMLElement;
 
-    private _dragging: boolean;
+    private _pointerOverThumb = false;
+    private _temporaryThumbFullVisibilityTimePeriod: number | undefined; // milliseconds
+    private _temporaryThumbFullVisibilityTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    private _dragging = false;
+    private _dragged = false;
+    private _thumbVisibilityState = ThumbVisibilityState.Reduced;
     /**
      * Wheel metric normalization, applied equally to all three axes.
      *
@@ -89,16 +94,15 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      */
     // normal: number;
 
-    private _bound: Scroller.Bound = {
-        shortStop: (event: MouseEvent) => this.shortStop(event),
-        onwheel: (event: WheelEvent) => this.onwheel(event),
-        onclick: (event: MouseEvent) => this.onclick(event),
-        onmouseover: () => this.onmouseover(),
-        onmouseout: () => this.onmouseout(),
-        onmousedown: (event: MouseEvent) => this.onmousedown(event),
-        onmousemove: (event: MouseEvent) => this.onmousemove(event),
-        onmouseup: (event: MouseEvent) => this.onmouseup(event),
-    }
+    private readonly _containerWheelListener = (event: WheelEvent) => this.handleContainerWheelEvent(event);
+    private readonly _barClickListener = (event: MouseEvent) => this.handleBarClickEvent(event);
+    private readonly _thumbClickListener = (event: MouseEvent) => this.handleThumbClickEvent(event);
+    private readonly _thumbPointerEnterListener = () => this.handleThumbPointerEnterEvent();
+    private readonly _thumbPointerLeaveListener = () => this.handleThumbPointerLeaveEvent();
+    private readonly _thumbTransitionEndListener = () => this.handleThumbTransitionEndEvent();
+    private readonly _barPointerDownListener = (event: PointerEvent) => this.handleBarPointerDownEvent(event);
+    private readonly _barPointerMoveListener = (event: PointerEvent) => this.handleBarPointerMoveEvent(event);
+    private readonly _barPointerUpListener = (event: PointerEvent) => this.handleBarPointerUpEvent(event);
 
     /**
      * @name increment
@@ -159,6 +163,8 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      * @param options - Options object. See the type definition for member details.
      */
     constructor(
+        private readonly _gridSettings: BGS,
+        private readonly _containerHtmlElement: HTMLElement, // Revgrid container element
         private readonly _scrollDimension: ScrollDimension<BGS>,
         instanceId: number,
         private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
@@ -169,24 +175,39 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         classPrefix: string | undefined,
         private readonly _spaceAccomodatedScroller: Scroller<BGS> | undefined,
     ) {
-        // make bound versions of all the mouse event handler
-        const bound = this._bound;
+        this._orientationHash = orientationHashes[this.orientation];
+
         this._thumb = document.createElement('div');
         const thumb = this._thumb;
-        thumb.id = orientation + Scroller.thumbElementIdBase + instanceId.toString();
+        thumb.id = orientation + Scroller.thumbElementIdBase + instanceId.toString(10);
+        thumb.style.position = 'absolute';
+        thumb.style.backgroundColor = this._gridSettings.scrollerThumbColor;
+        thumb.style.opacity = this._gridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
+
         thumb.classList.add('thumb');
-        thumb.onclick = bound.shortStop;
-        thumb.onmouseover = bound.onmouseover;
-        thumb.onmouseout = bound.onmouseout;
+        thumb.addEventListener('click', this._thumbClickListener);
+        thumb.addEventListener('pointerenter', this._thumbPointerEnterListener);
+        thumb.addEventListener('pointerleave', this._thumbPointerLeaveListener);
+        thumb.addEventListener('transitionend', this._thumbTransitionEndListener);
 
         this.bar = document.createElement('div');
         const bar = this.bar;
         bar.id = orientation + Scroller.barElementIdBase + instanceId.toString();
-        bar.onmousedown = bound.onmousedown;
-        bar.onclick = bound.onclick;
+        bar.style.position = 'absolute';
+        if (orientation === 'vertical' && this._gridSettings.gridRightAligned) {
+            this.setBeforeInsideOffset(0);
+        } else {
+            this.setAfterInsideOffset(0);
+        }
+        const leadingKey = this._orientationHash['leading'];
+        bar.style.setProperty(leadingKey, '0');
+        const trailingKey = this._orientationHash['trailing'];
+        bar.style.setProperty(trailingKey, '0');
+        bar.addEventListener('pointerdown', this._barPointerDownListener);
+        bar.addEventListener('click', this._barClickListener);
         bar.appendChild(thumb);
-        bar.addEventListener('wheel', bound.onwheel);
 
+        this._containerHtmlElement.addEventListener('wheel', this._containerWheelListener);
         // presets
         this.orientation = orientation;
         if (classPrefix === undefined || classPrefix === '') {
@@ -194,7 +215,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         } else {
             this._classPrefix = classPrefix;
         }
-        this._orientationHash = orientationHashes[this.orientation];
         bar.classList.add(`${this._classPrefix}-${orientation}`);
         this._deltaProp = this._orientationHash.delta;
         this.increment = 1;
@@ -228,6 +248,27 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         if (this._spaceAccomodatedScroller !== undefined) {
             this._spaceAccomodatedScroller.visibilityChangedEventer = () => this.adjustLeadingTrailingForSpaceAccomodatedScroller();
         }
+
+        this._containerHtmlElement.appendChild(bar);
+    }
+
+    /**
+     * @summary Remove the scrollbar.
+     * @desc Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
+     */
+    destroy() {
+        this._containerHtmlElement.removeEventListener('wheel', this._containerWheelListener);
+
+        this.bar.removeEventListener('click', this._barClickListener);
+        this.bar.removeEventListener('pointerdown', this._barPointerDownListener);
+        this._thumb.removeEventListener('click', this._thumbClickListener);
+        this._thumb.removeEventListener('pointerenter', this._thumbPointerEnterListener);
+        this._thumb.removeEventListener('pointerleave', this._thumbPointerLeaveListener);
+        this._thumb.removeEventListener('transitionend', this._thumbTransitionEndListener);
+
+        this.cancelTemporaryThumbFullVisibilityTimeout();
+
+        this.bar.remove();
     }
 
     get trailing() { return this._trailing; }
@@ -364,6 +405,32 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         return computedStyle[this._orientationHash.thickness];
     }
 
+    setBeforeInsideOffset(offset: number) {
+        if (this.orientation === 'horizontal') {
+            this.bar.style.bottom = '';
+            this.bar.style.top = offset + 'px';
+        } else {
+            this.bar.style.right = '';
+            this.bar.style.left = offset + 'px';
+        }
+    }
+
+    setAfterInsideOffset(offset: number) {
+        if (this.orientation === 'horizontal') {
+            this.bar.style.top = '';
+            this.bar.style.bottom = offset + 'px';
+        } else {
+            this.bar.style.left = '';
+            this.bar.style.right = offset + 'px';
+        }
+    }
+
+    temporarilyGiveThumbFullVisibility(timePeriod: number) {
+        this.cancelTemporaryThumbFullVisibilityTimeout();
+        this._temporaryThumbFullVisibilityTimePeriod = timePeriod;
+        this.updateThumbVisibility();
+    }
+
     // scrollBy(delta: number) {
     //     const viewportStart = this._scrollDimension.viewportStart;
     //     if (viewportStart !== undefined) {
@@ -398,31 +465,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     //     //console.log('scroll: ' + scroll);
     //     this.content.style[this.oh.leading] = -scroll + 'px';
     // }
-
-    /**
-     * @summary Remove the scrollbar.
-     * @desc Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
-     */
-    destroy() {
-        this.bar.onmousedown = null;
-        this.removeEventListener('mousemove');
-        this.removeEventListener('mouseup');
-
-        const parentElement = this.bar.parentElement;
-        if (parentElement === null) {
-            throw new AssertError('F11122');
-        } else {
-            parentElement.removeEventListener('wheel', this._bound.onwheel);
-
-            this.bar.onclick = null;
-            this._thumb.onclick = null;
-            this._thumb.onmouseover = null;
-            this._thumb.ontransitionend = null;
-            this._thumb.onmouseout = null;
-
-            this.bar.remove();
-        }
-    }
 
     /**
      * @summary Recalculate thumb position.
@@ -554,22 +596,14 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         }
 
 
-        this._thumbMarginLeading = thumbMarginLeading; // used in mousedown
+        this._thumbMarginLeading = thumbMarginLeading; // used in pointerdown
     }
 
-    private addEventListener(evtName: string) {
-        window.addEventListener(evtName, this._bound['on' + evtName]);
-    }
-
-    private removeEventListener(evtName: string) {
-        window.removeEventListener(evtName, this._bound['on' + evtName]);
-    }
-
-    private shortStop(evt: MouseEvent) {
+    private handleThumbClickEvent(evt: MouseEvent) {
         evt.stopPropagation();
     }
 
-    private onwheel(evt: WheelEvent) {
+    private handleContainerWheelEvent(evt: WheelEvent) {
         const index = this.index;
         if (index !== undefined) {
             this.index = index + evt[this._deltaProp] * this[this._deltaProp + 'Factor'] /* * this.normal */;
@@ -578,77 +612,90 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         }
     }
 
-    private onclick(evt: MouseEvent) {
-        const index = this.index;
-        if (index !== undefined) {
-            const thumbBox = this._thumb.getBoundingClientRect();
-            const goingUp = evt[this._orientationHash.coordinate] < thumbBox[this._orientationHash.leading];
+    private handleBarClickEvent(evt: MouseEvent) {
+        if (!this._dragged) {
+            this._dragged = false;
+            const index = this.index;
+            if (index !== undefined) {
+                const thumbBox = this._thumb.getBoundingClientRect();
+                const goingUp = evt[this._orientationHash.coordinate] < thumbBox[this._orientationHash.leading];
 
 
-            let actionType: EventDetail.ScrollerAction.Type;
-            if (goingUp) {
-                if (evt.altKey) {
-                    actionType = EventDetail.ScrollerAction.Type.StepBack;
+                let actionType: EventDetail.ScrollerAction.Type;
+                if (goingUp) {
+                    if (evt.altKey) {
+                        actionType = EventDetail.ScrollerAction.Type.StepBack;
+                    } else {
+                        actionType = EventDetail.ScrollerAction.Type.PageBack;
+                    }
                 } else {
-                    actionType = EventDetail.ScrollerAction.Type.PageBack;
+                    if (evt.altKey) {
+                        actionType = EventDetail.ScrollerAction.Type.StepForward;
+                    } else {
+                        actionType = EventDetail.ScrollerAction.Type.PageForward;
+                    }
                 }
-            } else {
-                if (evt.altKey) {
-                    actionType = EventDetail.ScrollerAction.Type.StepForward;
-                } else {
-                    actionType = EventDetail.ScrollerAction.Type.PageForward;
-                }
+                const action: EventDetail.ScrollerAction = {
+                    type: actionType,
+                    viewportStart: undefined,
+                };
+
+                this.actionEventer(action);
+
+                // make the thumb glow momentarily
+                const temporaryThumbFullVisibilityTimePeriod = this.isThumbVisibilityTransitionSpecified() ? 0 : 300;
+                this.temporarilyGiveThumbFullVisibility(temporaryThumbFullVisibilityTimePeriod);
+
+                evt.stopPropagation();
             }
-            const action: EventDetail.ScrollerAction = {
-                type: actionType,
-                viewportStart: undefined,
-            };
-
-            this.actionEventer(action);
-
-            // make the thumb glow momentarily
-            this._thumb.classList.add('hover');
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            const self = this;
-            this._thumb.addEventListener('transitionend', function waitForIt() {
-                this.removeEventListener('transitionend', waitForIt);
-                self._bound.onmouseup(evt);
-            });
-
-            evt.stopPropagation();
         }
     }
 
-    private onmouseover() {
+    private handleThumbPointerEnterEvent() {
         this._thumb.classList.add('hover');
+        this._pointerOverThumb = true;
+        this.updateThumbVisibility();
     }
 
-    private onmouseout() {
-        if (!this._dragging) {
-            this._thumb.classList.remove('hover');
+    private handleThumbPointerLeaveEvent() {
+        this._thumb.classList.remove('hover');
+        this._pointerOverThumb = false;
+        this.updateThumbVisibility();
+    }
+
+    private handleThumbTransitionEndEvent() {
+        if (this._thumbVisibilityState === ThumbVisibilityState.ToFullTransitioning) {
+            this._thumbVisibilityState = ThumbVisibilityState.Full;
+            this.updateThumbVisibility();
         }
     }
 
-    private onmousedown(evt: MouseEvent) {
+    private handleBarPointerDownEvent(event: PointerEvent) {
         const thumbBox = this._thumb.getBoundingClientRect();
-        this._pinOffset = evt[this._orientationHash.axis] - thumbBox[this._orientationHash.leading] + this.bar.getBoundingClientRect()[this._orientationHash.leading] + this._thumbMarginLeading;
+        this._pinOffset = event[this._orientationHash.axis] - thumbBox[this._orientationHash.leading] + this.bar.getBoundingClientRect()[this._orientationHash.leading] + this._thumbMarginLeading;
         document.documentElement.style.cursor = 'default';
 
-        this._dragging = true;
+        this.bar.addEventListener('pointermove', this._barPointerMoveListener);
+        this.bar.addEventListener('pointerup', this._barPointerUpListener);
+        this.bar.setPointerCapture(event.pointerId);
 
-        this.addEventListener('mousemove');
-        this.addEventListener('mouseup');
+        this._dragging = false;
+        this._dragged = false;
+        this.updateThumbVisibility();
 
-        evt.stopPropagation();
-        evt.preventDefault();
+        event.stopPropagation();
+        event.preventDefault();
     }
 
-    private onmousemove(evt: MouseEvent) {
-        if (!(evt.buttons & 1)) {
-            // mouse button may have been released without `onmouseup` triggering (see
-            window.dispatchEvent(new MouseEvent('mouseup', evt));
-            return;
-        }
+    private handleBarPointerMoveEvent(evt: PointerEvent) {
+        this._dragging = true;
+        this.updateThumbVisibility();
+
+        // if (!(evt.buttons & 1)) {
+        //     // mouse button may have been released without `onmouseup` triggering (see
+        //     window.dispatchEvent(new MouseEvent('mouseup', evt));
+        //     return;
+        // }
 
         let thumbPosition: number | undefined;
         let possiblyFractionalViewportStart: number;
@@ -697,26 +744,31 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         evt.preventDefault();
     }
 
-    private onmouseup(evt: MouseEvent) {
-        this.removeEventListener('mousemove');
-        this.removeEventListener('mouseup');
+    private handleBarPointerUpEvent(event: PointerEvent) {
+        this.bar.removeEventListener('pointermove', this._barPointerMoveListener);
+        this.bar.removeEventListener('pointerup', this._barPointerUpListener);
+        this.bar.releasePointerCapture(event.pointerId);
 
-        this._dragging = false;
+        if (this._dragging) {
+            this._dragging = false;
+            this._dragged = true;
+            this.updateThumbVisibility();
+        }
 
         document.documentElement.style.cursor = 'auto';
 
         const thumbBox = this._thumb.getBoundingClientRect();
         if (
-            thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
-            thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom
+            thumbBox.left <= event.clientX && event.clientX <= thumbBox.right &&
+            thumbBox.top <= event.clientY && event.clientY <= thumbBox.bottom
         ) {
-            this._bound.onmouseover(evt);
+            // this.handleThumbPointerEnterEvent();
         } else {
-            this._bound.onmouseout(evt);
+            // this.handleThumbPointerLeaveEvent();
         }
 
-        evt.stopPropagation();
-        evt.preventDefault();
+        event.stopPropagation();
+        event.preventDefault();
     }
 
     private adjustLeadingTrailingForSpaceAccomodatedScroller() {
@@ -749,6 +801,66 @@ export class Scroller<BGS extends BehavioredGridSettings> {
                 }
                 return leadingTrailing;
             }
+        }
+    }
+
+    private updateThumbVisibility() {
+        switch (this._thumbVisibilityState) {
+            case ThumbVisibilityState.Reduced: {
+                if (this.wantThumbFullVisibility()) {
+                    this._thumb.style.opacity = '1';
+                    if (this.isThumbVisibilityTransitionSpecified()) {
+                        this._thumbVisibilityState = ThumbVisibilityState.ToFullTransitioning;
+                    } else {
+                        this._thumbVisibilityState = ThumbVisibilityState.Full;
+                        this.updateThumbVisibility(); // check for temporary
+                    }
+                }
+                break;
+            }
+            case ThumbVisibilityState.ToFullTransitioning: {
+                break;
+            }
+            case ThumbVisibilityState.Full: {
+                if (this.wantThumbFullVisibility()) {
+                    if (this._temporaryThumbFullVisibilityTimePeriod !== undefined && this._temporaryThumbFullVisibilityTimeoutId === undefined) {
+                        this._temporaryThumbFullVisibilityTimeoutId = setTimeout(
+                            () => this.handleTemporaryThumbFullVisibilityTimeout(),
+                            this._temporaryThumbFullVisibilityTimePeriod
+                        );
+                    }
+                } else {
+                    this._thumb.style.opacity = this._gridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
+                    this._thumbVisibilityState = ThumbVisibilityState.Reduced;
+                }
+                break;
+            }
+            default:
+                throw new UnreachableCaseError('SUTV55509', this._thumbVisibilityState);
+        }
+    }
+
+    private wantThumbFullVisibility() {
+        return (
+            this._pointerOverThumb ||
+            this._dragging ||
+            this._temporaryThumbFullVisibilityTimePeriod !== undefined
+        );
+    }
+
+    private isThumbVisibilityTransitionSpecified() {
+        return this._thumb.style.transition.includes('opacity');
+    }
+
+    private handleTemporaryThumbFullVisibilityTimeout() {
+        this._temporaryThumbFullVisibilityTimePeriod = undefined;
+        this.updateThumbVisibility();
+    }
+
+    private cancelTemporaryThumbFullVisibilityTimeout() {
+        if (this._temporaryThumbFullVisibilityTimeoutId !== undefined) {
+            clearTimeout(this._temporaryThumbFullVisibilityTimeoutId);
+            this._temporaryThumbFullVisibilityTimeoutId = undefined;
         }
     }
 }
@@ -798,24 +910,6 @@ export namespace Scroller {
     export interface Paging {
         up: (this: void, index: number) => number | undefined;
         down: (this: void, index: number) => number | undefined;
-    }
-
-    export interface TestPanelItem {
-        mousedown: Element;
-        mousemove: Element;
-        mouseup: Element;
-        index: Element;
-    }
-
-    export interface Bound {
-        shortStop: (this: void, evt: MouseEvent) => void;
-        onwheel: (this: void, evt: WheelEvent) => void;
-        onclick: (this: void, evt: MouseEvent) => void;
-        onmouseover: (this: void, evt: MouseEvent) => void;
-        onmouseout: (this: void, evt: MouseEvent) => void;
-        onmousedown: (this: void, evt: MouseEvent) => void;
-        onmousemove: (this: void, evt: MouseEvent) => void;
-        onmouseup: (this: void, evt: MouseEvent) => void;
     }
 
     export type BarStyles = Record<string, string>;
@@ -961,4 +1055,10 @@ const orientationHashes: OrientationHashes = {
 interface LeadingTrailing {
     leading?: string; // left/top as pixel string
     trailing?: string; // right/bottom as pixel string
+}
+
+export const enum ThumbVisibilityState {
+    Reduced,
+    ToFullTransitioning,
+    Full,
 }

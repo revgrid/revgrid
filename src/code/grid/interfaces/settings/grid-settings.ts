@@ -144,10 +144,12 @@ export interface GridSettings {
     readonly rowResize: boolean;
     /** Repeating pattern of property overrides for grid rows. */
     readonly rowStripes: GridSettings.RowStripe[] | undefined;
+    readonly scrollerThumbColor: string;
+    readonly scrollerThumbReducedVisibilityOpacity: number;
+        // thumb.style.backgroundColor = this._gridSettings.scrollerThumbColor;
+        // thumb.style.opacity = this._gridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
     /** Anchor column does not need to align with edge of grid */
     readonly scrollHorizontallySmoothly: boolean;
-    readonly scrollbarHoverOver: string;
-    readonly scrollbarHoverOff: string;
     readonly scrollingEnabled: boolean;
     /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a Selection. */
     readonly secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;

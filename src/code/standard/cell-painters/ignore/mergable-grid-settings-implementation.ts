@@ -336,15 +336,15 @@ export abstract class MergableGridSettingsImplementation implements GridSettings
     /** Repeating pattern of property overrides for grid rows. */
     get rowStripes() { return this._raw.rowStripes; }
     set rowStripes(value: GridSettings.RowStripe[] | undefined) { this._raw.rowStripes = value; }
+    get scrollerThumbColor() { return this._raw.scrollerThumbColor; }
+    set scrollerThumbColor(value: string) { this._raw.scrollerThumbColor = value; }
+    get scrollerThumbReducedVisibilityOpacity() { return this._raw.scrollerThumbReducedVisibilityOpacity; }
+    set scrollerThumbReducedVisibilityOpacity(value: number) { this._raw.scrollerThumbReducedVisibilityOpacity = value; }
     get scrollHorizontallySmoothly() { return this._raw.scrollHorizontallySmoothly; }
     set scrollHorizontallySmoothly(value: boolean) {
         this._raw.scrollHorizontallySmoothly = value;
         this.horizontalViewLayoutInvalidatedEventer(true);
     }
-    get scrollbarHoverOver() { return this._raw.scrollbarHoverOver; }
-    set scrollbarHoverOver(value: string) { this._raw.scrollbarHoverOver = value; }
-    get scrollbarHoverOff() { return this._raw.scrollbarHoverOff; }
-    set scrollbarHoverOff(value: string) { this._raw.scrollbarHoverOff = value; }
     get scrollingEnabled() { return this._raw.scrollingEnabled; }
     set scrollingEnabled(value: boolean) { this._raw.scrollingEnabled = value; }
     get secondarySelectionAreaType() { return this._raw.secondarySelectionAreaType; }
