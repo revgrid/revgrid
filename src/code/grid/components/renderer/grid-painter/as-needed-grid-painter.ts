@@ -36,17 +36,17 @@ import { GridPainter } from './grid-painter';
  * @this {ViewLayout}
  * @param {CanvasManager.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
-export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends GridPainter<BGS, BCS, SC> {
+export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends GridPainter<BGS, BCS, SF> {
     // private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
     constructor(
         gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
-        subgridsManager: SubgridsManager<BGS, BCS, SC>,
-        viewLayout: ViewLayout<BGS, BCS, SC>,
-        focus: Focus<BGS, BCS, SC>,
-        selection: Selection<BGS, BCS, SC>,
-        mouse: Mouse<BGS, BCS, SC>,
+        subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        viewLayout: ViewLayout<BGS, BCS, SF>,
+        focus: Focus<BGS, BCS, SF>,
+        selection: Selection<BGS, BCS, SF>,
+        mouse: Mouse<BGS, BCS, SF>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(

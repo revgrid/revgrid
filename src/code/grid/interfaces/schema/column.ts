@@ -3,11 +3,8 @@ import { ColumnSettings } from '../settings/column-settings';
 import { SchemaServer } from './schema-server';
 
 /** @public */
-export interface Column<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-    readonly schemaColumn: SC;
-    /** Always the same as SchemaColumn index */
-    readonly index: number;
-    readonly name: string;
+export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    readonly field: SF;
 
     readonly width: number;
 
@@ -22,7 +19,7 @@ export interface Column<BCS extends BehavioredColumnSettings, SC extends SchemaS
 }
 
 /** @public */
-export interface ColumnWidth<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-    column: Column<BCS, SC>;
+export interface ColumnWidth<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    column: Column<BCS, SF>;
     width: number | undefined;
 }

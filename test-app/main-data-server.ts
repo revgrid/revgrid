@@ -2,7 +2,7 @@ import { Column, DataServer, StandardBehavioredColumnSettings } from '..';
 import { MainRecord } from './main-record';
 import { SchemaServerImplementation } from './schema-server-implementation';
 
-export class MainDataServer implements DataServer<StandardBehavioredColumnSettings> {
+export class MainDataServer implements DataServer<SchemaServerImplementation.Field> {
     private readonly _data: MainRecord[] = [];
     private _fishCreateCount = 0;
     private _notificationsClient: DataServer.NotificationsClient;
@@ -30,21 +30,21 @@ export class MainDataServer implements DataServer<StandardBehavioredColumnSettin
         return this._data.length;
     }
 
-    getViewValue(columnSchema: SchemaServerImplementation.Column, rowIndex: number) {
+    getViewValue(field: SchemaServerImplementation.Field, rowIndex: number) {
         const record = this._data[rowIndex];
-        const fieldName = columnSchema.name;
+        const fieldName = field.name;
         return record[fieldName].toLocaleString();
     }
 
-    getEditValue(columnSchema: SchemaServerImplementation.Column, rowIndex: number) {
+    getEditValue(field: SchemaServerImplementation.Field, rowIndex: number) {
         const record = this._data[rowIndex];
-        const fieldName = columnSchema.name;
+        const fieldName = field.name;
         return record[fieldName];
     }
 
-    setEditValue(columnSchema: SchemaServerImplementation.Column, rowIndex: number, value: DataServer.EditValue) {
+    setEditValue(field: SchemaServerImplementation.Field, rowIndex: number, value: DataServer.EditValue) {
         const record = this._data[rowIndex];
-        const fieldName = columnSchema.name;
+        const fieldName = field.name;
         switch (fieldName) {
             case 'id':
                 throw new Error('Id is not exported as a Schema Column');
@@ -72,16 +72,16 @@ export class MainDataServer implements DataServer<StandardBehavioredColumnSettin
             default:
                 throw new Error(`Unexpected field name: ${fieldName}`);
         }
-        this._notificationsClient.invalidateCell(columnSchema.index, rowIndex);
+        this._notificationsClient.invalidateCell(field.index, rowIndex);
     }
 
     getRowId(rowIndex: number): number {
         return this._data[rowIndex].id;
     }
 
-    getTitleText(columnSchema: SchemaServerImplementation.Column, rowIndex: number) {
+    getTitleText(field: SchemaServerImplementation.Field, rowIndex: number) {
         const record = this._data[rowIndex];
-        const fieldName = columnSchema.name;
+        const fieldName = field.name;
         const prefix = fieldName + ': '
         switch (fieldName) {
             case 'id': return prefix + record.id.toString();
@@ -97,11 +97,11 @@ export class MainDataServer implements DataServer<StandardBehavioredColumnSettin
         }
     }
 
-    sort(column: Column<StandardBehavioredColumnSettings, SchemaServerImplementation.Column>) {
+    sort(column: Column<StandardBehavioredColumnSettings, SchemaServerImplementation.Field>) {
         this._notificationsClient.preReindex();
         try {
-            const schemaColumn = column.schemaColumn as SchemaServerImplementation.Column;
-            this._data.sort((left: MainRecord, right: MainRecord) => MainRecord.compareField(schemaColumn.name, left, right));
+            const field = column.field;
+            this._data.sort((left: MainRecord, right: MainRecord) => MainRecord.compareField(field.name, left, right));
             this._notificationsClient.invalidateAll();
         } finally {
             this._notificationsClient.postReindex();

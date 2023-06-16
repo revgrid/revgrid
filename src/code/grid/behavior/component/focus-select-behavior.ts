@@ -9,13 +9,13 @@ import { AssertError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
 import { SelectionAreaType } from '../../types-utils/types';
 
-export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     constructor(
         private readonly _gridSettings: BGS,
-        private readonly _selection: Selection<BGS, BCS, SC>,
-        private readonly _focus: Focus<BGS, BCS, SC>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
-        private readonly _checkFocusEventer: FocusSelectBehavior.CheckFocusEventer<BCS, SC>,
+        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _focus: Focus<BGS, BCS, SF>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        private readonly _checkFocusEventer: FocusSelectBehavior.CheckFocusEventer<BCS, SF>,
     ) {
     }
 
@@ -41,7 +41,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         this._selection.selectColumns(activeColumnIndex, rowIndex, 1, 1, this._focus.subgrid);
     }
 
-    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SC>) {
+    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
         const selection = this._selection;
         const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
         selection.beginChange();
@@ -53,23 +53,23 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    selectToggleRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SC>) {
+    selectToggleRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
         const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectToggleRow(columnIndex, subgridRowIndex, subgrid);
     }
 
-    selectAddRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SC>) {
+    selectAddRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
         const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectRows(columnIndex, subgridRowIndex, 1, 1, subgrid);
     }
 
-    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>) {
+    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
         const area = this._selection.selectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
 
-    focusSelectOnlyCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType) {
+    focusSelectOnlyCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType) {
         this._selection.selectOnlyCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
         this._checkFocusEventer(activeColumnIndex, subgridRowIndex, subgrid);
     }
@@ -81,24 +81,24 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
             const viewLayoutRows = this._viewLayout.rows;
             if (viewLayoutRowIndex < viewLayoutRows.length) {
                 const vr = this._viewLayout.rows[viewLayoutRowIndex];
-                this.focusSelectOnlyCell(vc.activeColumnIndex, vr.subgridRowIndex, vr.subgrid as Subgrid<BCS, SC>, areaType);
+                this.focusSelectOnlyCell(vc.activeColumnIndex, vr.subgridRowIndex, vr.subgrid as Subgrid<BCS, SF>, areaType);
             }
         }
     }
 
-    focusReplaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType) {
+    focusReplaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType) {
         const area = this._selection.replaceLastArea(inexclusiveX, inexclusiveY, width, height, subgrid, areaType);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
 
-    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SC>) {
+    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
         const area = this._selection.replaceLastAreaWithRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
 
-    focusSelectAddCell(x: number, y: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType) {
+    focusSelectAddCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType) {
         this._selection.selectCell(x, y, subgrid, areaType);
 
         if (subgrid === this._focus.subgrid) {
@@ -106,7 +106,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    focusSelectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType): boolean {
+    focusSelectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): boolean {
         const added = this._selection.selectToggleCell(originX, originY, subgrid, areaType);
         if (added) {
             this._checkFocusEventer(originX, originY, subgrid);
@@ -168,6 +168,6 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
 export namespace FocusSelectBehavior {
     export type CheckFocusEventer<
         BCS extends BehavioredColumnSettings,
-        SC extends SchemaServer.Column<BCS>
-    > = (this: void, activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SC>) => void;
+        SF extends SchemaServer.Field
+    > = (this: void, activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) => void;
 }

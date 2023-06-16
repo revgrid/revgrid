@@ -1,27 +1,27 @@
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 
 /** @public */
-export interface SchemaServer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<BCS>): void;
-    unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<BCS>): void;
+export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<SF>): void;
+    unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<SF>): void;
 
     /**
      * @desc Get list of columns. The order of the columns in the list defines the column indexes.
      *
      * On initial call and again whenever the schema changes, the data model must dispatch the `hypegrid-schema-loaded` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
      */
-    getSchema(): readonly SC[];
+    getFields(): readonly SF[];
+    getFieldColumnSettings(field: SF): BCS;
 }
 
 /** @public */
 export namespace SchemaServer {
-    export interface Column<BCS extends BehavioredColumnSettings> {
+    export interface Field {
         name: string;
         index: number;
-        settings: BCS;
     }
 
-    export interface NotificationsClient<BCS extends BehavioredColumnSettings> {
+    export interface NotificationsClient<SF extends SchemaServer.Field> {
         beginChange: (this: void) => void;
         endChange: (this: void) => void;
         /**
@@ -31,15 +31,15 @@ export namespace SchemaServer {
          * ```
          * This event is not cancelable.
          */
-        columnsInserted: (this: void, columnIndex: number, columnCount: number) => void;
-        columnsDeleted: (this: void, columnIndex: number, columnCount: number) => void;
-        allColumnsDeleted: (this: void) => void;
+        fieldsInserted: (this: void, columnIndex: number, columnCount: number) => void;
+        fieldsDeleted: (this: void, columnIndex: number, columnCount: number) => void;
+        allFieldsDeleted: (this: void) => void;
         /** Try to use columnsInserted, columnsDeleted, allColumnsDeleted instead of schemaChanged. These provide better optimisations and control of selection. */
         schemaChanged: (this: void) => void;
-        getActiveSchemaColumns: (this: void) => readonly SchemaServer.Column<BCS>[];
+        getActiveSchemaFields: (this: void) => readonly SF[];
     }
 
-    export type Constructor<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = new() => SchemaServer<BCS, SC>;
+    export type Constructor<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = new() => SchemaServer<BCS, SF>;
 
     // /**
     //  * @summary Generates an array of columns (proper schema) from an array of Column and string.

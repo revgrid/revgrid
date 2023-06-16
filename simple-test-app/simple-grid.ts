@@ -9,43 +9,46 @@ import {
     StandardAlphaTextCellPainter,
     StandardBehavioredColumnSettings,
     StandardBehavioredGridSettings,
-    StandardHeaderTextCellPainter,
-    standardReadonlyDefaultBehavioredGridSettings
+    StandardHeaderTextCellPainter
 } from '..';
 
 export class SimpleGrid extends Revgrid<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>
+        RevSimpleSchemaServer.Field
     > {
 
     cellFocusEventer: SimpleGrid.CellFocusEventer | undefined;
     clickEventer: SimpleGrid.RowFocusClickEventer | undefined;
     dblClickEventer: SimpleGrid.RowFocusDblClickEventer | undefined;
 
-    private readonly _serverSet: RevSimpleServerSet<StandardBehavioredColumnSettings>;
+    private readonly _serverSet: RevSimpleServerSet;
 
     private readonly _headerCellPainter: StandardHeaderTextCellPainter<
         StandardBehavioredGridSettings, StandardBehavioredColumnSettings,
-        RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>
+        RevSimpleSchemaServer.Field
     >;
     private readonly _textCellPainter: StandardAlphaTextCellPainter<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>
+        RevSimpleSchemaServer.Field
     >;
 
     constructor(
         gridElement: HTMLElement,
         gridSettings: StandardBehavioredGridSettings,
     ) {
-        const serverSet = new RevSimpleServerSet(standardReadonlyDefaultBehavioredGridSettings);
+        const serverSet = new RevSimpleServerSet();
+        const schemaServer = serverSet.schemaServer;
+        schemaServer.getFieldColumnSettingsEventer = (field) => {
+
+        }
 
         const headerDataServer = serverSet.headerDataServer;
         const mainDataServer = serverSet.mainDataServer;
 
         const definition: Revgrid.Definition<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>> = {
-            schemaServer: serverSet.schemaServer,
+            schemaServer: schemaServer,
             subgrids: [
                 {
                     role: DatalessSubgrid.RoleEnum.header,

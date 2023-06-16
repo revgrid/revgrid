@@ -12,7 +12,7 @@ import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> implements Subgrid<BCS, SC> {
+export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> implements Subgrid<BCS, SF> {
     readonly isMain: boolean = false;
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
@@ -24,7 +24,7 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
 
     /** @internal */
     /** @internal */
-    private _viewDataRowProxy: SubgridImplementation.ViewDataRowProxy<BCS, SC>; // used if DataServer.getRowProperties not implemented
+    private _viewDataRowProxy: SubgridImplementation.ViewDataRowProxy<BCS, SF>; // used if DataServer.getRowProperties not implemented
     /** @internal */
     private readonly _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | null;
 
@@ -38,18 +38,18 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
         /** @internal */
         protected readonly _gridSettings: GridSettings,
         /** @internal */
-        protected readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
+        protected readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
         /** @internal */
         public readonly handle: SubgridImplementation.Handle,
         public readonly role: Subgrid.Role,
-        public readonly schemaServer: SchemaServer<BCS, SC>,
-        public readonly dataServer: DataServer<BCS>,
+        public readonly schemaServer: SchemaServer<BCS, SF>,
+        public readonly dataServer: DataServer<SF>,
         public readonly metaModel: MetaModel | undefined,
         public readonly selectable: boolean,
         public readonly defaultRowHeight: number | undefined,
         public readonly rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
-        private readonly _getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SC>,
+        private readonly _getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
     ) {
         switch (role) {
             case 'main':
@@ -115,8 +115,8 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
         return false;
     }
 
-    getViewValue(column: Column<BCS, SC>, rowIndex: number): DataServer.ViewValue {
-        return this.dataServer.getViewValue(column.schemaColumn, rowIndex);
+    getViewValue(column: Column<BCS, SF>, rowIndex: number): DataServer.ViewValue {
+        return this.dataServer.getViewValue(column.field, rowIndex);
     }
 
     /**
@@ -131,11 +131,11 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
         }
     }
 
-    getViewValueFromDataRowAtColumn(dataRow: DataServer.ViewRow, column: Column<BCS, SC>) {
+    getViewValueFromDataRowAtColumn(dataRow: DataServer.ViewRow, column: Column<BCS, SF>) {
         if (Array.isArray(dataRow)) {
-            return dataRow[column.schemaColumn.index];
+            return dataRow[column.field.index];
         } else {
-            return dataRow[column.name];
+            return dataRow[column.field.name];
         }
     }
 
@@ -143,7 +143,7 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
         return this.dataServer.getRowCount();
     }
 
-    getCellPainter(viewCell: DatalessViewCell<BCS, SC>): CellPainter<BCS, SC> {
+    getCellPainter(viewCell: DatalessViewCell<BCS, SF>): CellPainter<BCS, SF> {
         return this._getCellPainterEventer(viewCell);
     }
 
@@ -520,33 +520,33 @@ export namespace SubgridImplementation {
     export type Handle = number;
 
     /** @internal */
-    export class ViewDataRowProxy<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-        [columnName: string]: DataServer.ViewValue;
+    export class ViewDataRowProxy<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+        [fieldName: string]: DataServer.ViewValue;
 
         ____rowIndex: number;
-        ____columnNames: string[] = [];
+        ____fieldNames: string[] = [];
 
-        constructor(readonly schemaServer: SchemaServer<BCS, SC>, readonly dataServer: DataServer<BCS>) {
+        constructor(readonly schemaServer: SchemaServer<BCS, SF>, readonly dataServer: DataServer<SF>) {
             this.updateSchema(); // is this necessary? If we do not always get the "rev-schema-loaded" event then it is necessary
         }
 
         updateSchema() {
-            const existingCount = this.____columnNames.length;
+            const existingCount = this.____fieldNames.length;
             for (let i = 0; i < existingCount; i++) {
-                const columnName = this.____columnNames[i];
-                delete this[columnName];
+                const fieldName = this.____fieldNames[i];
+                delete this[fieldName];
             }
-            const schema = this.schemaServer.getSchema();
-            const newCount = schema.length;
-            this.____columnNames.length = newCount;
+            const fields = this.schemaServer.getFields();
+            const newCount = fields.length;
+            this.____fieldNames.length = newCount;
             for (let i = 0; i < newCount; i++) {
-                const schemaColumn = schema[i]; // variable for closure
-                const columnName = schemaColumn.name;
-                this.____columnNames[i] = columnName;
-                Object.defineProperty(this, columnName, {
+                const field = fields[i]; // variable for closure
+                const fieldName = field.name;
+                this.____fieldNames[i] = fieldName;
+                Object.defineProperty(this, fieldName, {
                     // enumerable: true, // is a real data field
                     configurable: true,
-                    get: () => { return this.dataServer.getViewValue(schemaColumn, this.____rowIndex); },
+                    get: () => { return this.dataServer.getViewValue(field, this.____rowIndex); },
                 });
             }
         }

@@ -7,7 +7,9 @@ import {
 import { RecordStore } from './record-store';
 
 export abstract class GridField implements RevRecordField<StandardInMemoryBehavioredColumnSettings> {
-    constructor(readonly name: string, readonly columnSettings: StandardInMemoryBehavioredColumnSettings, public heading: string) {}
+    index = -1;
+
+    constructor(readonly name: string, readonly settings: StandardInMemoryBehavioredColumnSettings, public heading: string) {}
     abstract getValue(record: RecordStore.Record): DataServer.ViewValue;
     abstract modifyValue(record: RecordStore.Record): RevRecordValueRecentChangeTypeId | undefined;
 }

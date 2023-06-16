@@ -1,9 +1,9 @@
 
-import { AssertError, BehavioredColumnSettings, DataServer } from '../../grid/grid-public-api';
+import { AssertError, DataServer } from '../../grid/grid-public-api';
 import { RevSimpleSchemaServer } from './rev-simple-schema-server';
 
 /** @public */
-export class RevSimpleHeaderDataServer<BCS extends BehavioredColumnSettings> implements DataServer<BCS> {
+export class RevSimpleHeaderDataServer<SF extends RevSimpleSchemaServer.Field> implements DataServer<SF> {
     private _rowCount = 0;
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
@@ -24,10 +24,10 @@ export class RevSimpleHeaderDataServer<BCS extends BehavioredColumnSettings> imp
         return this._rowCount;
     }
 
-    getViewValue(schemaColumn: RevSimpleSchemaServer.Column<BCS>, rowIndex: number) {
-        const headers = schemaColumn.headers;
+    getViewValue(field: SF, rowIndex: number) {
+        const headers = field.headers;
         if (rowIndex >= headers.length) {
-            return schemaColumn.name;
+            return field.name;
         } else {
             return headers[rowIndex];
         }

@@ -5,6 +5,6 @@ import { StandardInMemoryBehavioredColumnSettings, StandardInMemoryBehavioredGri
 export class StandardRevgrid extends Revgrid<
     StandardInMemoryBehavioredGridSettings,
     StandardInMemoryBehavioredColumnSettings,
-    SchemaServer.Column<StandardInMemoryBehavioredColumnSettings>
+    SchemaServer.Field
 > {
 }

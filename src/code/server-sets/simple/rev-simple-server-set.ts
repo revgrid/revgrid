@@ -1,22 +1,13 @@
-import { AssertError, BehavioredColumnSettings, DataServer } from '../../grid/grid-public-api';
+import { AssertError, DataServer } from '../../grid/grid-public-api';
 import { RevSimpleHeaderDataServer } from './rev-simple-header-data-server';
 import { RevSimpleMainDataServer } from './rev-simple-main-data-server';
 import { RevSimpleSchemaServer } from './rev-simple-schema-server';
 
 /** @public */
-export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
-    private _schemaServer = new RevSimpleSchemaServer<BCS>();
-    private _mainDataServer = new RevSimpleMainDataServer<BCS>();
-    private _headerDataServer = new RevSimpleHeaderDataServer<BCS>();
-
-    get schemaServer() { return this._schemaServer; }
-    get mainDataServer() { return this._mainDataServer; }
-    get headerDataServer() { return this._headerDataServer; }
-
-    constructor(private readonly _columnSettings: BCS) {
-
-    }
-
+export class RevSimpleServerSet {
+    readonly schemaServer = new RevSimpleSchemaServer();
+    readonly mainDataServer = new RevSimpleMainDataServer();
+    readonly headerDataServer = new RevSimpleHeaderDataServer();
 
     /**
      * Establish new data and schema.
@@ -35,7 +26,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
             if (!Array.isArray(dataRows)) {
                 throw new AssertError('BSD73766', 'Expected data to be an array of data row objects');
             } else {
-                let schema: RevSimpleSchemaServer.Column<BCS>[];
+                let schema: RevSimpleSchemaServer.Field[];
                 if (headerRowCount < 0) {
                     schema = this.calculateSchemaFromData(dataRows, true);
                 } else {
@@ -52,13 +43,13 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
                     headerRowCount = schema[0].headers.length;
                 }
 
-                this._mainDataServer.beginDataChange();
+                this.mainDataServer.beginDataChange();
                 try {
-                    this._schemaServer.reset(schema);
-                    this._headerDataServer.reset(headerRowCount);
-                    this._mainDataServer.reset(dataRows);
+                    this.schemaServer.reset(schema);
+                    this.headerDataServer.reset(headerRowCount);
+                    this.mainDataServer.reset(dataRows);
                 } finally {
-                    this._mainDataServer.endDataChange();
+                    this.mainDataServer.endDataChange();
                 }
             }
         }
@@ -67,7 +58,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
     private extractSchemaAndHeadersFromData(
         rows: RevSimpleServerSet.DataRow[],
         headerRowCount: number
-    ): ExtractSchemaAndHeadersFromDataResult<BCS> {
+    ): ExtractSchemaAndHeadersFromDataResult {
         const { rows: headerRows, sourceCount: initialSourceCount } = this.getInitialDefinedRows(rows, headerRowCount);
         const headerCount = headerRows.length;
         if (headerCount === 0) {
@@ -81,7 +72,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
             const columnKeys = Object.keys(firstHeaderRow);
 
             const columnCount = columnKeys.length;
-            const schema = new Array<RevSimpleSchemaServer.Column<BCS>>(columnCount);
+            const schema = new Array<RevSimpleSchemaServer.Field>(columnCount);
             for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                 const columnKey = columnKeys[columnIndex];
                 const columnHeaders = new Array<string>(headerCount);
@@ -90,7 +81,7 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
                     const header = this.convertDataValueToString(row[columnKey]);
                     columnHeaders[rowIndex] = header;
                 }
-                schema[columnIndex] = { name: columnKey, index: columnIndex, headers: columnHeaders, settings: this._columnSettings };
+                schema[columnIndex] = { name: columnKey, index: columnIndex, headers: columnHeaders };
             }
 
             return {
@@ -114,16 +105,15 @@ export class RevSimpleServerSet<BCS extends BehavioredColumnSettings> {
         }
 }
 
-    private calculateSchemaFromData(dataRows: RevSimpleServerSet.DataRow[], keyIsHeader: boolean): RevSimpleSchemaServer.Column<BCS>[] {
+    private calculateSchemaFromData(dataRows: RevSimpleServerSet.DataRow[], keyIsHeader: boolean): RevSimpleSchemaServer.Field[] {
         const { rows } = this.getInitialDefinedRows(dataRows, 1);
         if (rows.length === 0) {
             return [];
         } else {
             const row = rows[0];
-            const result = Object.keys(row).map((key, index) => ({
+            const result: RevSimpleSchemaServer.Field[] = Object.keys(row).map((key, index) => ({
                 name: key,
                 index,
-                settings: this._columnSettings,
                 headers: keyIsHeader ? [key] : []
             }));
             return result;
@@ -169,8 +159,8 @@ export namespace RevSimpleServerSet {
     }
 }
 
-interface ExtractSchemaAndHeadersFromDataResult<BCS extends BehavioredColumnSettings> {
-    schema: RevSimpleSchemaServer.Column<BCS>[];
+interface ExtractSchemaAndHeadersFromDataResult {
+    schema: RevSimpleSchemaServer.Field[];
     dataRows: RevSimpleServerSet.DataRow[];
 }
 

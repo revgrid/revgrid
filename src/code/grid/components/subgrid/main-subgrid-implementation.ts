@@ -8,8 +8,8 @@ import { SubgridImplementation } from './subgrid-implementation';
 export class MainSubgridImplementation<
     BGS extends BehavioredGridSettings,
     BCS extends BehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends SubgridImplementation<BGS, BCS, SC> implements MainSubgrid<BCS, SC> {
+    SF extends SchemaServer.Field
+> extends SubgridImplementation<BGS, BCS, SF> implements MainSubgrid<BCS, SF> {
     override get fixedRowCount() { return this._gridSettings.fixedRowCount; }
 
     override isRowFixed(rowIndex: number): boolean {

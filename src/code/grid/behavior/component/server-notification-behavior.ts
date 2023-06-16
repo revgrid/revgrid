@@ -6,40 +6,39 @@ import { SubgridImplementation } from '../../components/subgrid/subgrid-implemen
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { DataServer } from '../../interfaces/data/data-server';
-import { EventName } from '../../interfaces/data/event-name';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ReindexBehavior } from './reindex-behavior';
 
-export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-    private readonly _schemaServer: SchemaServer<BCS, SC>;
-    private readonly _subgrids: SubgridImplementation<BGS, BCS, SC>[];
-    private readonly _mainDataServer: DataServer<BCS>;
+export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    private readonly _schemaServer: SchemaServer<BCS, SF>;
+    private readonly _subgrids: SubgridImplementation<BGS, BCS, SF>[];
+    private readonly _mainDataServer: DataServer<SF>;
 
     private _destroyed = false;
     private _notificationsEnabled = false;
     private _schemaNotificationsSubscribed = false;
 
     /** @internal */
-    private readonly schemaServerNotificationsClient: SchemaServer.NotificationsClient<BCS> = {
+    private readonly schemaServerNotificationsClient: SchemaServer.NotificationsClient<SF> = {
         beginChange: () => this.handleBeginSchemaChange(),
         endChange: () => this.handleEndSchemaChange(),
-        columnsInserted: (columnIndex, columnCount) => this.handleColumnsInserted(columnIndex, columnCount),
-        columnsDeleted: (columnIndex, columnCount) => this.handleColumnsDeleted(columnIndex, columnCount),
-        allColumnsDeleted: () => this.handleAllColumnsDeleted(),
+        fieldsInserted: (columnIndex, columnCount) => this.handleFieldsInserted(columnIndex, columnCount),
+        fieldsDeleted: (columnIndex, columnCount) => this.handleFieldsDeleted(columnIndex, columnCount),
+        allFieldsDeleted: () => this.handleAllFieldsDeleted(),
         schemaChanged: () => this.handleSchemaChanged(),
-        getActiveSchemaColumns: () => this.handleGetActiveSchemaColumns(),
+        getActiveSchemaFields: () => this.handleGetActiveSchemaFields(),
     }
 
     constructor(
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SC>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
-        private readonly _focus: Focus<BGS, BCS, SC>,
-        private readonly _selection: Selection<BGS, BCS, SC>,
-        private readonly _renderer: Renderer<BGS, BCS, SC>,
-        private readonly _reindexStashManager: ReindexBehavior<BGS, BCS, SC>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        private readonly _focus: Focus<BGS, BCS, SF>,
+        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _renderer: Renderer<BGS, BCS, SF>,
+        private readonly _reindexStashManager: ReindexBehavior<BGS, BCS, SF>,
     ) {
         this._schemaServer = this._columnsManager.schemaServer;
         this._subgrids = this._subgridsManager.subgridImplementations;
@@ -142,7 +141,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleColumnsInserted(index: number, count: number) {
+    private handleFieldsInserted(index: number, count: number) {
         if (!this._destroyed) {
             this.beginSchemaChange();
             try {
@@ -158,7 +157,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleColumnsDeleted(index: number, count: number) {
+    private handleFieldsDeleted(index: number, count: number) {
         if (!this._destroyed) {
             this.beginSchemaChange();
             try {
@@ -167,7 +166,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
                 const nextRange = index + count;
                 for (let i = index; i < nextRange; i++) {
                     // In the future, should consolidate into activeIndex ranges instead of doing individually
-                    const activeIndex = this._columnsManager.getActiveColumnIndexByAllIndex(i);
+                    const activeIndex = this._columnsManager.getActiveColumnIndexByFieldIndex(i);
                     if (activeIndex >= 0) {
                         this._focus.adjustForColumnsDeleted(activeIndex, 1);
                         this._selection.adjustForColumnsDeleted(activeIndex, 1);
@@ -181,7 +180,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleAllColumnsDeleted() {
+    private handleAllFieldsDeleted() {
         if (!this._destroyed) {
             this.beginSchemaChange();
             try {
@@ -213,11 +212,11 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleGetActiveSchemaColumns() {
+    private handleGetActiveSchemaFields() {
         if (this._destroyed) {
             return [];
         } else {
-            return this._columnsManager.activeColumns.map((column) => column.schemaColumn);
+            return this._columnsManager.activeColumns.map((column) => column.field);
         }
     }
 
@@ -236,7 +235,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateAll(dataServer: DataServer<BCS>) {
+    private handleInvalidateAll(dataServer: DataServer<SF>) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateAllData();
@@ -244,7 +243,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateRows(_dataServer: DataServer<BCS>, rowIndex: number, count: number) {
+    private handleInvalidateRows(_dataServer: DataServer<SF>, rowIndex: number, count: number) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataRows(rowIndex, count);
@@ -252,7 +251,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateRow(_dataServer: DataServer<BCS>, rowIndex: number) {
+    private handleInvalidateRow(_dataServer: DataServer<SF>, rowIndex: number) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataRow(rowIndex);
@@ -260,7 +259,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateRowColumns(_dataServer: DataServer<BCS>, rowIndex: number, _schemaColumnIndex: number, _columnCount: number) {
+    private handleInvalidateRowColumns(_dataServer: DataServer<SF>, rowIndex: number, _schemaColumnIndex: number, _columnCount: number) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataRow(rowIndex); // this should be improved to use this._renderer.invalidateRowColumns()
@@ -268,7 +267,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateRowCells(_dataServer: DataServer<BCS>, rowIndex: number, schemaColumnIndexes: number[]) {
+    private handleInvalidateRowCells(_dataServer: DataServer<SF>, rowIndex: number, schemaColumnIndexes: number[]) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataRowCells(rowIndex, schemaColumnIndexes);
@@ -276,7 +275,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateCell(_dataServer: DataServer<BCS>, schemaColumnIndex: number, rowIndex: number) {
+    private handleInvalidateCell(_dataServer: DataServer<SF>, schemaColumnIndex: number, rowIndex: number) {
         if (!this._destroyed) {
             this._renderer.modelUpdated();
             this._renderer.invalidateDataCell(schemaColumnIndex, rowIndex);
@@ -284,7 +283,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsInserted(dataServer: DataServer<BCS>, index: number, count: number) {
+    private handleRowsInserted(dataServer: DataServer<SF>, index: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -299,7 +298,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsDeleted(dataServer: DataServer<BCS>, index: number, count: number) {
+    private handleRowsDeleted(dataServer: DataServer<SF>, index: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -314,7 +313,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleAllRowsDeleted(dataServer: DataServer<BCS>) {
+    private handleAllRowsDeleted(dataServer: DataServer<SF>) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -331,7 +330,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsMoved(dataServer: DataServer<BCS>, oldRowIndex: number, newRowIndex: number, rowCount: number) {
+    private handleRowsMoved(dataServer: DataServer<SF>, oldRowIndex: number, newRowIndex: number, rowCount: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -346,7 +345,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsLoaded(dataServer: DataServer<BCS>) {
+    private handleRowsLoaded(dataServer: DataServer<SF>) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -401,39 +400,4 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         this._renderer.endChange();
     }
 
-}
-
-export namespace ServerNotificationBehavior {
-    export type BeginSchemaChangeEvent = (this: void) => void;
-    export type EndSchemaChangeEvent = (this: void) => void;
-
-    export type ColumnsInsertedEvent = (this: void, columnIndex: number, columnCount: number) => void;
-    export type ColumnsDeletedEvent = (this: void, columnIndex: number, columnCount: number) => void;
-    export type AllColumnsDeletedEvent = () => void;
-    export type SchemaChangedEvent = (this: void) => void;
-    export type GetSchemaColumnEvent<BCS extends BehavioredColumnSettings> = (this: void, index: number) => SchemaServer.Column<BCS>;
-    export type GetActiveSchemaColumnsEvent<BCS extends BehavioredColumnSettings> = (this: void) => SchemaServer.Column<BCS>[];
-
-    export type BeginDataChangeEvent = (this: void) => void;
-    export type EndDataChangeEvent = (this: void) => void;
-
-    export type RowsInsertedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>, rowIndex: number, rowCount: number) => void;
-    export type RowsDeletedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>, rowIndex: number, rowCount: number) => void;
-    export type AllRowsDeletedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>) => void;
-    export type RowsLoadedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>) => void;
-    export type RowsMovedEvent<BCS extends BehavioredColumnSettings> = (this: void, dataModel: DataServer<BCS>, oldRowIndex: number, newRowIndex: number, rowCount: number) => void;
-    export type InvalidateAllEvent = (this: void) => void;
-    export type InvalidateRowsEvent = (this: void, rowIndex: number, count: number) => void;
-    export type InvalidateRowEvent = (this: void, rowIndex: number) => void;
-    export type InvalidateRowColumnsEvent = (this: void, rowIndex: number, schemaColumnIndex: number, columnCount: number) => void;
-    export type InvalidateRowCellsEvent = (this: void, rowIndex: number, schemaColumnIndexes: number[]) => void;
-    export type InvalidateCellEvent = (this: void, schemaColumnIndex: number, rowIndex: number) => void;
-    export type PreReindexEvent = (this: void) => void;
-    export type PostReindexEvent = (this: void) => void;
-    export type GridEvent<
-        BCS extends BehavioredColumnSettings,
-        SC extends SchemaServer.Column<BCS>
-    > = <T extends EventName<BCS, SC>>(this: void, eventName: T, eventDetail: EventName.DetailMap<BCS, SC>[T] | undefined) => void;
-
-    export type SchemaUpdatedListener = (this: void) => void;
 }

@@ -36,34 +36,34 @@ import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /** @internal */
-export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-    private readonly _uiBehaviorFactory = new UiBehaviorFactory<BGS, BCS, SC>();
-    private readonly _uiBehaviorMap = new Map<string, UiBehavior<BGS, BCS, SC>>();
+export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    private readonly _uiBehaviorFactory = new UiBehaviorFactory<BGS, BCS, SF>();
+    private readonly _uiBehaviorMap = new Map<string, UiBehavior<BGS, BCS, SF>>();
     private readonly _sharedState: UiBehaviorSharedState; // Will be initialised in constructor
-    private readonly _services: UiBehaviorServices<BGS, BCS, SC>;
+    private readonly _services: UiBehaviorServices<BGS, BCS, SF>;
 
-    private _firstUiBehavior: UiBehavior<BGS, BCS, SC>;
+    private _firstUiBehavior: UiBehavior<BGS, BCS, SF>;
     private _enabled = false;
 
     constructor(
         containerHtmlElement: HTMLElement,
         private readonly _gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
-        focus: Focus<BGS, BCS, SC>,
-        selection: Selection<BGS, BCS, SC>,
-        columnsManager: ColumnsManager<BGS, BCS, SC>,
-        subgridsManager: SubgridsManager<BGS, BCS, SC>,
-        viewLayout: ViewLayout<BGS, BCS, SC>,
-        renderer: Renderer<BGS, BCS, SC>,
-        private readonly _mouse: Mouse<BGS, BCS, SC>,
-        focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SC>,
-        selectionBehavior: FocusSelectBehavior<BGS, BCS, SC>,
-        rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SC>,
-        cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SC>,
-        dataExtractBehavior: DataExtractBehavior<BGS, BCS, SC>,
-        reindexBehavior: ReindexBehavior<BGS, BCS, SC>,
-        private readonly _eventBehavior: EventBehavior<BGS, BCS, SC>,
-        customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<BGS, BCS, SC>[] | undefined,
+        focus: Focus<BGS, BCS, SF>,
+        selection: Selection<BGS, BCS, SF>,
+        columnsManager: ColumnsManager<BGS, BCS, SF>,
+        subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        viewLayout: ViewLayout<BGS, BCS, SF>,
+        renderer: Renderer<BGS, BCS, SF>,
+        private readonly _mouse: Mouse<BGS, BCS, SF>,
+        focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>,
+        selectionBehavior: FocusSelectBehavior<BGS, BCS, SF>,
+        rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>,
+        cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>,
+        dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>,
+        reindexBehavior: ReindexBehavior<BGS, BCS, SF>,
+        private readonly _eventBehavior: EventBehavior<BGS, BCS, SF>,
+        customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<BGS, BCS, SF>[] | undefined,
     ) {
         this._sharedState = {
             locationCursorName: undefined,
@@ -115,7 +115,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
         this._eventBehavior.uiVerticalScrollerActionEventer = (event) => this.handleVerticalScrollerActionEvent(event);
     }
 
-    load(customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<BGS, BCS, SC>[] | undefined) {
+    load(customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<BGS, BCS, SF>[] | undefined) {
         this._firstUiBehavior = this.createAndLinkUiBehaviors(customUiBehaviorDefinitions);
         return this._firstUiBehavior;
     }
@@ -161,7 +161,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param event - the event details
      * @internal
      */
-    private handlePointerMoveEvent(event: PointerEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handlePointerMoveEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             this._sharedState.locationCursorName = undefined;
             this._sharedState.locationTitleText = undefined;
@@ -178,7 +178,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param event - the event details
      * @internal
      */
-    private handleClickEvent(event: MouseEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handleClickEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleClick(event, undefined);
             return cell;
@@ -191,7 +191,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @desc delegate handling tap to the feature chain of responsibility
      * @internal
      */
-    private handleContextMenuEvent(event: MouseEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handleContextMenuEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleContextMenu(event, undefined);
             return cell;
@@ -204,7 +204,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @desc delegate handling wheel moved to the feature chain of responsibility
      * @internal
      */
-    private handleWheelMovedEvent(event: WheelEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handleWheelMovedEvent(event: WheelEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handleWheelMove(event, undefined);
             return cell;
@@ -218,7 +218,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param event - the event details
      * @internal
      */
-    private handlePointerUpCancelEvent(event: PointerEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handlePointerUpCancelEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerUpCancel(event, undefined);
             return cell;
@@ -227,7 +227,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    private handlePointerDragStartEvent(event: DragEvent): EventBehavior.UiPointerDragStartResult<BCS, SC> {
+    private handlePointerDragStartEvent(event: DragEvent): EventBehavior.UiPointerDragStartResult<BCS, SF> {
         if (this._enabled) {
             return this._firstUiBehavior.handlePointerDragStart(event, undefined);
         } else {
@@ -238,7 +238,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    private handlePointerDragEvent(event: PointerEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handlePointerDragEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerDrag(event, undefined);
             return cell;
@@ -247,7 +247,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    private handlePointerDragEndEvent(event: PointerEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handlePointerDragEndEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerDragEnd(event, undefined);
             return cell;
@@ -261,7 +261,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param event - the event details
      * @internal
      */
-    private handleDblClickEvent(event: MouseEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handleDblClickEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             this._sharedState.locationCursorName = undefined;
             this._sharedState.locationTitleText = undefined;
@@ -277,7 +277,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param event - the event details
      * @internal
      */
-    private handlePointerDownEvent(event: PointerEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handlePointerDownEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerDown(event, undefined);
             return cell;
@@ -290,7 +290,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handlePointerEnterEvent(event: PointerEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handlePointerEnterEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerEnter(event, undefined);
             return cell;
@@ -303,7 +303,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handlePointerLeaveOutEvent(event: PointerEvent): LinedHoverCell<BCS, SC> | null | undefined {
+    private handlePointerLeaveOutEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiBehavior.handlePointerLeaveOut(event, undefined);
             return cell;
@@ -364,7 +364,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    private createAndLinkUiBehaviors(customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<BGS, BCS, SC>[] | undefined) {
+    private createAndLinkUiBehaviors(customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<BGS, BCS, SF>[] | undefined) {
         /**
          * @summary Controller chain of command.
          * @desc Each feature is linked to the next feature.
@@ -395,7 +395,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
 
         const typeNames = this._gridSettings.defaultUiBehaviorTypeNames;
         const maxCount = typeNames.length;
-        const uiBehaviors = new Array<UiBehavior<BGS, BCS, SC>>(maxCount);
+        const uiBehaviors = new Array<UiBehavior<BGS, BCS, SF>>(maxCount);
         let count = 0;
         for (let i = 0; i < maxCount; i++) {
             const name = typeNames[i];

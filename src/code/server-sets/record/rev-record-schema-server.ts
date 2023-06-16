@@ -1,63 +1,56 @@
 import { BehavioredColumnSettings, ListChangedEventHandler, ListChangedTypeId, SchemaServer } from '../../grid/grid-public-api';
 import { RevRecordSchemaError, RevRecordUnexpectedUndefinedError } from './rev-record-error';
 import { RevRecordField } from './rev-record-field';
-import { RevRecordStore } from './rev-record-store';
 import { RevRecordFieldIndex } from './rev-record-types';
 
 /** @public */
-export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> implements SchemaServer<BCS, RevRecordField.SchemaColumn<BCS>> {
+export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF extends RevRecordField> implements SchemaServer<BCS, SF> {
+    getFieldColumnSettingsEventer: RevRecordSchemaServer.GetFieldColumnSettingsEventer<BCS, SF>;
+
     /** @internal */
     fieldListChangedEventer: ListChangedEventHandler | undefined;
 
-    private readonly _schema: RevRecordField.SchemaColumn<BCS>[] = [];
-    private readonly _fields: RevRecordField<BCS>[] = [];
-    private readonly _fieldNameLookup = new Map<string, RevRecordField<BCS>>();
-    private readonly _fieldIndexLookup = new Map<RevRecordField<BCS>, RevRecordFieldIndex>();
+    private readonly _fields: SF[] = [];
+    private readonly _fieldNameLookup = new Map<string, SF>();
+    private readonly _fieldIndexLookup = new Map<SF, RevRecordFieldIndex>();
     private readonly _fieldValueDependsOnRecordIndexFieldIndexes: RevRecordFieldIndex[] = [];
     private readonly _fieldValueDependsOnRowIndexFieldIndexes: RevRecordFieldIndex[] = [];
 
-    private _callbackListener: SchemaServer.NotificationsClient<BCS>;
+    private _callbackListener: SchemaServer.NotificationsClient<SF>;
     /** @deprecated removed when RecordStore is removed from this class */
     private _recordStoreEventersSet = false;
 
-    get schema(): readonly RevRecordField.SchemaColumn<BCS>[] { return this._schema }
+    get schema(): readonly SF[] { return this._fields; }
+    get fields(): readonly SF[] { return this._fields; }
     get fieldCount(): number { return this._fields.length; }
-    get fields(): readonly RevRecordField<BCS>[] { return this._fields; }
 
-    constructor(
-        /** @deprecated use Field functions directly from this class */
-        private readonly _recordStore?: RevRecordStore) {
-    }
-
-    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<BCS>): void {
+    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<SF>): void {
         this._callbackListener = value;
     }
 
-    addField(field: RevRecordField<BCS>, header: string): RevRecordField.SchemaColumn<BCS> {
-        return this.internalAddField(field, header, false);
+    addField(field: SF): SF {
+        return this.internalAddField(field, false);
     }
 
-    addFields(addFields: readonly RevRecordField<BCS>[]): RevRecordFieldIndex {
+    addFields(addFields: readonly SF[]): RevRecordFieldIndex {
         const addCount = addFields.length;
         if (addCount <= 0) {
             throw new RevRecordSchemaError('FSMAF26774', 'No fields provided');
         } else {
-
-            let firstIndex: RevRecordFieldIndex;
+            const firstField = addFields[0];
             this.beginChange();
             try {
-                const firstField = addFields[0];
-                firstIndex = this.internalAddField(firstField, firstField.name, false).index;
 
-                for (let index = 1; index < addCount; index++) {
+                for (let index = 0; index < addCount; index++) {
                     const field = addFields[index];
-                    this.internalAddField(field, field.name, false);
+                    this.internalAddField(field, false);
                 }
 
             } finally {
                 this.endChange();
             }
 
+            const firstIndex = firstField.index;
             if (this.fieldListChangedEventer !== undefined) {
                 this.fieldListChangedEventer(ListChangedTypeId.Insert, firstIndex, addCount, undefined);
             }
@@ -66,7 +59,11 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
         }
     }
 
-    setFields(fields: readonly RevRecordField<BCS>[]): void {
+    getFieldColumnSettings(field: SF): BCS {
+        return this.getFieldColumnSettingsEventer(field);
+    }
+
+    setFields(fields: readonly SF[]): void {
         const oldCount = this._fields.length;
         let clearNeeded: boolean;
         if (oldCount === 0) {
@@ -113,15 +110,15 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
         this._callbackListener.endChange();
     }
 
-    getActiveSchemaColumns(): readonly RevRecordField.SchemaColumn<BCS>[] {
-        return this._callbackListener.getActiveSchemaColumns() as RevRecordField.SchemaColumn<BCS>[];
+    getActiveSchemaColumns(): readonly SF[] {
+        return this._callbackListener.getActiveSchemaFields();
     }
 
     getColumnCount(): number {
         return this._fields.length;
     }
 
-    getField(fieldIndex: RevRecordFieldIndex): RevRecordField<BCS> {
+    getField(fieldIndex: RevRecordFieldIndex): SF {
         if (fieldIndex < 0 || fieldIndex >= this._fields.length) {
             throw new RevRecordSchemaError('FSMGF74330', 'Field Index out of range');
         } else {
@@ -129,7 +126,7 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
         }
     }
 
-    getFieldByName(fieldName: string): RevRecordField<BCS> {
+    getFieldByName(fieldName: string): SF {
         const field = this._fieldNameLookup.get(fieldName);
 
         if (field === undefined) {
@@ -139,7 +136,7 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
         }
     }
 
-    getFieldIndex(field: RevRecordField<BCS>): RevRecordFieldIndex {
+    getFieldIndex(field: SF): RevRecordFieldIndex {
         const fieldIndex = this._fieldIndexLookup.get(field);
 
         if (fieldIndex === undefined) {
@@ -167,7 +164,7 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
         return this._fields.map((field) => field.name);
     }
 
-    getFilteredFields(filterCallback: (field: RevRecordField<BCS>) => boolean): RevRecordField<BCS>[] {
+    getFilteredFields(filterCallback: (field: SF) => boolean): SF[] {
         return this._fields.filter((field) => filterCallback(field));
     }
 
@@ -175,8 +172,8 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
         return this._fieldValueDependsOnRecordIndexFieldIndexes;
     }
 
-    getSchema(): readonly RevRecordField.SchemaColumn<BCS>[] {
-        return this._schema;
+    getFields(): readonly SF[] {
+        return this._fields;
     }
 
     hasField(name: string): boolean {
@@ -184,7 +181,7 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
     }
 
     reset(): void {
-        if (this._schema.length > 0) {
+        if (this._fields.length > 0) {
             this.internalClearFields();
         }
     }
@@ -195,17 +192,17 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
         this._fieldIndexLookup.clear();
         this._fieldValueDependsOnRecordIndexFieldIndexes.length = 0;
         this._fieldValueDependsOnRowIndexFieldIndexes.length = 0;
-        this._schema.length = 0;
-        this._callbackListener.allColumnsDeleted();
+        this._fields.length = 0;
+        this._callbackListener.allFieldsDeleted();
     }
 
     private internalAddField(
-        field: RevRecordField<BCS>,
-        header: string,
+        field: SF,
         notifyFieldListChange: boolean
-    ): RevRecordField.SchemaColumn<BCS> {
+    ): SF {
         const fieldIndex = this._fields.length;
 
+        field.index = fieldIndex;
         this._fieldIndexLookup.set(field, fieldIndex);
         this._fieldNameLookup.set(field.name, field);
         this._fields.push(field);
@@ -222,22 +219,19 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings> impleme
             }
         }
 
-        // Update Hypergrid Schema
-        const schemaColumn: RevRecordField.SchemaColumn<BCS> = {
-            name: field.name,
-            index: fieldIndex,
-            settings: field.columnSettings,
-            field,
-        };
+        this._fields.push(field);
 
-        this._schema.push(schemaColumn);
-
-        this._callbackListener.columnsInserted(fieldIndex, 1);
+        this._callbackListener.fieldsInserted(fieldIndex, 1);
 
         if (notifyFieldListChange && this.fieldListChangedEventer !== undefined) {
             this.fieldListChangedEventer(ListChangedTypeId.Insert, fieldIndex, 1, undefined);
         }
 
-        return schemaColumn;
+        return field;
     }
+}
+
+/** @public */
+export namespace RevRecordSchemaServer {
+    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevRecordField> = (this: void, field: SF) => BCS;
 }

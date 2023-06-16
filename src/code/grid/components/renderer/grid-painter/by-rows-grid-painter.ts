@@ -26,15 +26,15 @@ import { GridPainter } from './grid-painter';
  *
  * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumns|paintCellsByColumns}.
  */
-export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends GridPainter<BGS, BCS, SC> {
+export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends GridPainter<BGS, BCS, SF> {
     constructor(
         gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
-        subgridsManager: SubgridsManager<BGS, BCS, SC>,
-        viewLayout: ViewLayout<BGS, BCS, SC>,
-        focus: Focus<BGS, BCS, SC>,
-        selection: Selection<BGS, BCS, SC>,
-        mouse: Mouse<BGS, BCS, SC>,
+        subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        viewLayout: ViewLayout<BGS, BCS, SF>,
+        focus: Focus<BGS, BCS, SF>,
+        selection: Selection<BGS, BCS, SF>,
+        mouse: Mouse<BGS, BCS, SF>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         super(

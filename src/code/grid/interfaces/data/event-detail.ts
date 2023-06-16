@@ -16,20 +16,20 @@ export namespace EventDetail {
         readonly newPoint: Point | undefined;
     }
 
-    export interface Mouse<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends MouseEvent {
-        revgridHoverCell?: LinedHoverCell<BCS, SC>;
+    export interface Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends MouseEvent {
+        revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
-    export interface Pointer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends PointerEvent, Mouse<BCS, SC> {
-        revgridHoverCell?: LinedHoverCell<BCS, SC>;
+    export interface Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends PointerEvent, Mouse<BCS, SF> {
+        revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
-    export interface Wheel<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends WheelEvent {
-        revgridHoverCell?: LinedHoverCell<BCS, SC>;
+    export interface Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends WheelEvent {
+        revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
-    export interface ColumnSort<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends MouseEvent {
-        revgridHoverCell?: LinedHoverCell<BCS, SC>;
+    export interface ColumnSort<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends MouseEvent {
+        revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
         // export interface EditorKeyboard extends Keyboard {

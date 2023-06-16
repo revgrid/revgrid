@@ -10,15 +10,15 @@ import {
 /** @public */
 export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior {
     /** @internal */
-    viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer;
+    viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer | undefined;
     /** @internal */
-    viewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
+    viewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
+    horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
+    verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    resizeEventer: GridSettingsBehavior.ResizeEventer;
+    resizeEventer: GridSettingsBehavior.ResizeEventer | undefined;
 
     /** @internal */
     private _beginChangeCount = 0;
@@ -78,28 +78,44 @@ export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior
                 case GridSettingChangeInvalidateTypeId.None:
                     break;
                 case GridSettingChangeInvalidateTypeId.ViewRender:
-                    this.viewRenderInvalidatedEventer();
+                    if (this.viewRenderInvalidatedEventer !== undefined) {
+                        this.viewRenderInvalidatedEventer();
+                    }
                     break;
                 case GridSettingChangeInvalidateTypeId.HorizontalViewLayout:
-                    this.horizontalViewLayoutInvalidatedEventer(false);
+                    if (this.horizontalViewLayoutInvalidatedEventer !== undefined) {
+                        this.horizontalViewLayoutInvalidatedEventer(false);
+                    }
                     break;
                 case GridSettingChangeInvalidateTypeId.VerticalViewLayout:
-                    this.verticalViewLayoutInvalidatedEventer(false);
+                    if (this.verticalViewLayoutInvalidatedEventer !== undefined) {
+                        this.verticalViewLayoutInvalidatedEventer(false);
+                    }
                     break;
                 case GridSettingChangeInvalidateTypeId.ViewLayout:
-                    this.viewLayoutInvalidatedEventer(false);
+                    if (this.viewLayoutInvalidatedEventer !== undefined) {
+                        this.viewLayoutInvalidatedEventer(false);
+                    }
                     break;
                 case GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension:
-                    this.horizontalViewLayoutInvalidatedEventer(true);
+                    if (this.horizontalViewLayoutInvalidatedEventer !== undefined) {
+                        this.horizontalViewLayoutInvalidatedEventer(true);
+                    }
                     break;
                 case GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension:
-                    this.verticalViewLayoutInvalidatedEventer(true);
+                    if (this.verticalViewLayoutInvalidatedEventer !== undefined) {
+                        this.verticalViewLayoutInvalidatedEventer(true);
+                    }
                     break;
                 case GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension:
-                    this.viewLayoutInvalidatedEventer(true);
+                    if (this.viewLayoutInvalidatedEventer !== undefined) {
+                        this.viewLayoutInvalidatedEventer(true);
+                    }
                     break;
                 case GridSettingChangeInvalidateTypeId.Resize:
-                    this.resizeEventer();
+                    if (this.resizeEventer !== undefined) {
+                        this.resizeEventer();
+                    }
                     break;
                 default:
                     throw new UnreachableCaseError('IMDMGSIBT43332', invalidateType);

@@ -5,7 +5,7 @@ import { AssertError } from '../../types-utils/revgrid-error';
 import { ViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 
-export class RenderActionQueue<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     actionsQueuedEventer: RenderActioner.ActionsQueuedEventer;
 
     private _queuedActions: RenderAction[] = [];
@@ -104,7 +104,7 @@ export class RenderActionQueue<BCS extends BehavioredColumnSettings, SC extends 
         }
     }
 
-    invalidateViewCellRender(_cell: ViewCell<BCS, SC>) {
+    invalidateViewCellRender(_cell: ViewCell<BCS, SF>) {
         this.beginChange();
         try {
             this.queuePaintAllAction();

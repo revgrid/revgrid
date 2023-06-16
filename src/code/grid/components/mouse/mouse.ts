@@ -8,19 +8,19 @@ import { CanvasManager } from '../canvas/canvas-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     /** @internal */
-    cellEnteredEventer: Mouse.CellEnteredExitedEventer<BCS, SC>;
+    cellEnteredEventer: Mouse.CellEnteredExitedEventer<BCS, SF>;
     /** @internal */
-    cellExitedEventer: Mouse.CellEnteredExitedEventer<BCS, SC>;
+    cellExitedEventer: Mouse.CellEnteredExitedEventer<BCS, SF>;
     /** @internal */
-    viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer<BCS, SC>;
+    viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer<BCS, SF>;
     /** @internal */
     private _activeDragType: EventDetail.DragTypeEnum | undefined;
     /** @internal */
     private _canvasOffsetPoint: Point | undefined;
     /** @internal */
-    private _hoverCell: ViewCell<BCS, SC> | undefined;
+    private _hoverCell: ViewCell<BCS, SF> | undefined;
     /** @internal */
     private _operationCursorName: string | undefined; // gets priority over hover cell and location cursor
     /** @internal */
@@ -35,7 +35,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
     ) {
         this._viewLayout.cellPoolComputedEventerForMouse = () => this.processViewLayoutComputed();
     }
@@ -54,7 +54,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell<BCS, SC> | undefined) {
+    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell<BCS, SF> | undefined) {
         this._canvasOffsetPoint = canvasOffsetPoint;
         this.updateHoverCell(cell, true);
     }
@@ -84,7 +84,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private processViewLayoutComputed() {
-        let newHoverCell: ViewCell<BCS, SC> | undefined;
+        let newHoverCell: ViewCell<BCS, SF> | undefined;
         const canvasOffsetPoint = this._canvasOffsetPoint;
         if (canvasOffsetPoint === undefined) {
             newHoverCell = undefined;
@@ -96,7 +96,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private updateHoverCell(cell: ViewCell<BCS, SC> | undefined, invalidateViewCellRender: boolean) {
+    private updateHoverCell(cell: ViewCell<BCS, SF> | undefined, invalidateViewCellRender: boolean) {
         const existingHoverCell = this._hoverCell;
         if (cell === undefined) {
             if (existingHoverCell !== undefined) {
@@ -191,7 +191,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             if (dataServer.getCursorName === undefined) {
                 return undefined;
             } else {
-                return dataServer.getCursorName(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
+                return dataServer.getCursorName(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
             }
         }
     }
@@ -206,7 +206,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             if (dataServer.getTitleText === undefined) {
                 return '';
             } else {
-                return dataServer.getTitleText(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
+                return dataServer.getTitleText(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
             }
         }
     }
@@ -215,8 +215,8 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 /** @public */
 export namespace Mouse {
     /** @internal */
-    export type CellEnteredExitedEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, cell: ViewCell<BCS, SC>) => void;
-    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, cell: ViewCell<BCS, SC>) => void;
+    export type CellEnteredExitedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, cell: ViewCell<BCS, SF>) => void;
+    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, cell: ViewCell<BCS, SF>) => void;
 
     /** @internal */
     export interface CursorNameAndTitleText {

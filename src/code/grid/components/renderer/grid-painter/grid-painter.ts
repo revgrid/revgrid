@@ -13,7 +13,7 @@ import { Selection } from '../../selection/selection';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
-export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     protected _renderingContext: CachedCanvasRenderingContext2D;
 
     private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
@@ -31,11 +31,11 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
     constructor(
         protected readonly gridSettings: BGS,
         protected readonly canvasManager: CanvasManager<BGS>,
-        protected readonly subgridsManager: SubgridsManager<BGS, BCS, SC>,
-        protected readonly viewLayout: ViewLayout<BGS, BCS, SC>,
-        protected readonly focus: Focus<BGS, BCS, SC>,
-        protected readonly selection: Selection<BGS, BCS, SC>,
-        protected readonly mouse: Mouse<BGS, BCS, SC>,
+        protected readonly subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        protected readonly viewLayout: ViewLayout<BGS, BCS, SF>,
+        protected readonly focus: Focus<BGS, BCS, SF>,
+        protected readonly selection: Selection<BGS, BCS, SF>,
+        protected readonly mouse: Mouse<BGS, BCS, SF>,
         protected readonly repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
         public readonly key: string,
         public readonly partial: boolean,
@@ -51,7 +51,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         this._columnRebundlingRequired = true;
     }
 
-    getColumnBundles(viewLayoutColumns: ViewLayoutColumn<BCS, SC>[]) {
+    getColumnBundles(viewLayoutColumns: ViewLayoutColumn<BCS, SF>[]) {
         if (this._columnBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._columnRebundlingRequired) {
             this._columnBundles = this.calculateColumnBundles(viewLayoutColumns);
 
@@ -61,7 +61,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         return this._columnBundles;
     }
 
-    getRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<BCS, SC>[]) {
+    getRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<BCS, SF>[]) {
         if (this._rowBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._rowRebundlingRequired) {
             this._rowBundlesAndPrefixColors = this.calculateRowBundlesAndPrefillColors(viewLayoutRows);
 
@@ -74,7 +74,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
     abstract paintCells(): void;
 
     protected paintCell(
-        viewCell: ViewCell<BCS, SC>,
+        viewCell: ViewCell<BCS, SF>,
         prefillColor: string | undefined,
     ): number | undefined {
         const focus = this.focus;
@@ -93,7 +93,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         return cellPainter.paint(viewCell, prefillColor);
     }
 
-    paintErrorCell(err: Error, vc: ViewLayoutColumn<BCS, SC>, vr: ViewLayoutRow<BCS, SC>) {
+    paintErrorCell(err: Error, vc: ViewLayoutColumn<BCS, SF>, vr: ViewLayoutRow<BCS, SF>) {
         const gc = this._renderingContext;
         const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
 
@@ -284,8 +284,8 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
                     // selection needs scrollable data
                     return undefined;
                 } else {
-                    let vc: ViewLayoutColumn<BCS, SC>;
-                    let vr: ViewLayoutRow<BCS, SC>;
+                    let vc: ViewLayoutColumn<BCS, SF>;
+                    let vr: ViewLayoutRow<BCS, SF>;
                     const lastScrollableColumn = columns[columnCount - 1]; // last column in scrollable section
                     const lastScrollableRow = rows[rowCount - 1]; // last row in scrollable data section
                     const firstScrollableColumn = columns[firstScrollableColumnIndex];
@@ -353,7 +353,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         }
     }
 
-    private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn<BCS, SC>[]): GridPainter.ColumnBundle[] {
+    private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn<BCS, SF>[]): GridPainter.ColumnBundle[] {
         const gridProps = this.gridSettings;
         const columnCount = viewLayoutColumns.length;
 
@@ -387,7 +387,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         return bundles;
     }
 
-    private calculateRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<BCS, SC>[]): GridPainter.RowBundlesAndPrefillColors | undefined {
+    private calculateRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<BCS, SF>[]): GridPainter.RowBundlesAndPrefillColors | undefined {
         const gridProps = this.gridSettings;
         const stripes = gridProps.rowStripes;
         if (stripes === undefined) {
@@ -468,16 +468,16 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
 export namespace GridPainter {
     export type ResetAllGridPaintersRequiredEventer = (this: void, blackList: string[]) => void;
     export type RepaintAllRequiredEventer = (this: void) => void;
-    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = new(
+    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = new(
         gridProperties: BGS,
         canvasManager: CanvasManager<BGS>,
-        subgridsManager: SubgridsManager<BGS, BCS, SC>,
-        viewLayout: ViewLayout<BGS, BCS, SC>,
-        focus: Focus<BGS, BCS, SC>,
-        selection: Selection<BGS, BCS, SC>,
-        mouse: Mouse<BGS, BCS, SC>,
+        subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        viewLayout: ViewLayout<BGS, BCS, SF>,
+        focus: Focus<BGS, BCS, SF>,
+        selection: Selection<BGS, BCS, SF>,
+        mouse: Mouse<BGS, BCS, SF>,
         repaintAllRequired: RepaintAllRequiredEventer,
-    ) => GridPainter<BGS, BCS, SC>;
+    ) => GridPainter<BGS, BCS, SF>;
 
     export interface ColumnBundle {
         backgroundColor: string;

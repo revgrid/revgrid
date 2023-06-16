@@ -8,11 +8,11 @@ import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = HoverUiBehavior.typeName;
 
-    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
@@ -26,7 +26,7 @@ export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
         return super.handlePointerMove(event, hoverCell);
     }
 
-    override handlePointerEnter(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerEnter(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         const canvasOffsetPoint: Point = {
             x: event.offsetX,
             y: event.offsetY,
@@ -40,12 +40,12 @@ export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
         return super.handlePointerEnter(event, hoverCell);
     }
 
-    override handlePointerLeaveOut(event: PointerEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerLeaveOut(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         this.mouse.setMouseCanvasOffset(undefined, undefined);
         return super.handlePointerLeaveOut(event, cell);
     }
 
-    private getViewCellFromHoverCell(cell: LinedHoverCell<BCS, SC> | null): ViewCell<BCS, SC> | undefined {
+    private getViewCellFromHoverCell(cell: LinedHoverCell<BCS, SF> | null): ViewCell<BCS, SF> | undefined {
         if (cell === null) {
             return undefined;
         } else {

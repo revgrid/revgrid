@@ -5,13 +5,13 @@ import { StandardCellEditor } from './standard-cell-editor';
 export abstract class StandardPaintCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends StandardCellEditor<BGS, BCS, SC> implements CellPainter<BCS, SC> {
-    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>, protected readonly _painter: CellPainter<BCS, SC>) {
+    SF extends SchemaServer.Field
+> extends StandardCellEditor<BGS, BCS, SF> implements CellPainter<BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, protected readonly _painter: CellPainter<BCS, SF>) {
         super(grid, dataServer);
     }
 
-    paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined) {
+    paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined) {
         return this._painter.paint(cell, prefillColor);
     }
 }

@@ -9,10 +9,10 @@ import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-err
 import { SelectionAreaType } from '../../types-utils/types';
 
 /** @public */
-export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     constructor(
-        private readonly _selection: Selection<BGS, BCS, SC>,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
+        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
     ) {
 
     }
@@ -89,7 +89,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
 
             for (let c = 0; c < colCount; c++) {
                 const column = columnsManager.getActiveColumn(c);
-                row[column.name] = dataServer.getViewValue(column.schemaColumn, topSelectedRow);
+                row[column.field.name] = dataServer.getViewValue(column.field, topSelectedRow);
             }
 
             return row;
@@ -108,7 +108,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
             const subgrid = this.getDefinedSubgrid();
             for (let c = 0, C = columns.length; c < C; c++) {
                 const column = columns[c];
-                const rows = result[column.name] = new Array(selectedRowIndexes.length);
+                const rows = result[column.field.name] = new Array(selectedRowIndexes.length);
                 selectedRowIndexes.forEach( (selectedRowIndex, j) => {
                     const dataRow = subgrid.getSingletonViewDataRow(selectedRowIndex); // should always exist
                     rows[j] = subgrid.getViewValueFromDataRowAtColumn(dataRow, column);
@@ -180,7 +180,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
 
             selectedColumnIndexes.forEach((selectedColumnIndex) => {
                 const column = columnsManager.getActiveColumn(selectedColumnIndex);
-                const values = result[column.name] = new Array<DataServer.ViewValue>(rowCount);
+                const values = result[column.field.name] = new Array<DataServer.ViewValue>(rowCount);
 
                 for (let r = 0; r < rowCount; r++) {
                     const dataRow = subgrid.getSingletonViewDataRow(r); // should always exist;
@@ -208,7 +208,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
 
                     for (let c = 0, x = selectionRect.topLeft.x; c < colCount; c++, x++) {
                         const column = columnsManager.getActiveColumn(x);
-                        const values = columns[column.name] = new Array<DataServer.ViewValue>(rowCount);
+                        const values = columns[column.field.name] = new Array<DataServer.ViewValue>(rowCount);
 
                         for (let r = 0, y = selectionRect.topLeft.y; r < rowCount; r++, y++) {
                             const dataRow = subgrid.getSingletonViewDataRow(y); // should always exist;
@@ -276,11 +276,11 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
      * `false or undefined` - Active column list
      * `true` - All column list
      * `Array` - Active column list with listed columns prefixed as needed (when not already in the list). Each item in the array may be either:
-     * * `number` - index into all column list
-     * * `string` - name of a column from the all column list
+     * * `number` - field index
+     * * `string` - field name
      * @internal
      */
-    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<BCS, SC>[] {
+    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<BCS, SF>[] {
         const allColumns = this._columnsManager.allColumns;
         const activeColumns = this._columnsManager.activeColumns;
 
@@ -288,10 +288,15 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
             return activeColumns;
         } else {
             if (Array.isArray(hiddenColumns)) {
-                let columns: Column<BCS, SC>[] = [];
-                hiddenColumns.forEach((index: number | string) => {
-                    const key = typeof index === 'number' ? 'index' : 'name';
-                    const column = allColumns.find((allColumn) => { return allColumn[key] === index; });
+                let columns: Column<BCS, SF>[] = [];
+                hiddenColumns.forEach((fieldIndexOrName) => {
+                    let activeColumnIndex: number;
+                    if (typeof fieldIndexOrName === 'number') {
+                        activeColumnIndex = this._columnsManager.getActiveColumnIndexByFieldIndex(fieldIndexOrName);
+                    } else {
+                        activeColumnIndex = this._columnsManager.getActiveColumnIndexByFieldName(fieldIndexOrName);
+                    }
+                    const column = this._columnsManager.getActiveColumn(activeColumnIndex);
                     if (column !== undefined) {
                         if (activeColumns.indexOf(column) < 0) {
                             columns.push(column);

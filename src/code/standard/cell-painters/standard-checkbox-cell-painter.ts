@@ -10,18 +10,18 @@ import { StandardCellPainter } from './standard-cell-painter';
 export class StandardCheckboxCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends StandardCellPainter<BGS, BCS, SC> {
+    SF extends SchemaServer.Field
+> extends StandardCellPainter<BGS, BCS, SF> {
 
     constructor(
-        grid: Revgrid<BGS, BCS, SC>,
-        dataServer: DataServer<BCS>,
+        grid: Revgrid<BGS, BCS, SF>,
+        dataServer: DataServer<SF>,
         private readonly _editable: boolean,
     ) {
         super(grid, dataServer);
     }
 
-    override paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined {
+    override paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
         const columnSettings = cell.columnSettings;
         // const config = this.config; // remove this
 
@@ -55,7 +55,7 @@ export class StandardCheckboxCellPainter<
 
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
             const viewLayoutColumn = cell.viewLayoutColumn;
-            const booleanValue = this.calculateBooleanValue(viewLayoutColumn.column.schemaColumn, subgridRowIndex);
+            const booleanValue = this.calculateBooleanValue(viewLayoutColumn.column.field, subgridRowIndex);
             const backgroundColor = prefillColor !== undefined ? prefillColor : columnSettings.backgroundColor;
             let borderColor = columnSettings.cellFocusedBorderColor;
             if (borderColor !== undefined) {
@@ -187,7 +187,7 @@ export class StandardCheckboxCellPainter<
         return idealBoxSideLength + sumOfResolvedLeftRightPadding;
     }
 
-    calculateClickBox(cell: DatalessViewCell<BCS, SC>): Rectangle | undefined {
+    calculateClickBox(cell: DatalessViewCell<BCS, SF>): Rectangle | undefined {
         const columnSettings = cell.columnSettings;
         const sumOfResolvedLeftRightPadding = this.calculateSumOfResolvedLeftRightPadding(columnSettings);
 
@@ -207,7 +207,7 @@ export class StandardCheckboxCellPainter<
         if (maxBoxSideLength < StandardCheckboxCellPainter.minimumBoxSideLength) {
             return undefined;
         } else {
-            const booleanValue = this.calculateBooleanValue(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
+            const booleanValue = this.calculateBooleanValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
             const centerBoundsX = bounds.x + maxBoxBoundsWidth / 2;
             const centerBoundsY = bounds.y + maxBoxBoundsHeight / 2;
             const halfBoxSideLength = boxSideLength / 2;
@@ -332,8 +332,8 @@ export class StandardCheckboxCellPainter<
         return 2 * resolvedCellPadding;
     }
 
-    private calculateBooleanValue(schemaColumn: SchemaServer.Column<BCS>, subgridRowIndex: number) {
-        const viewValue = this._dataServer.getViewValue(schemaColumn, subgridRowIndex);
+    private calculateBooleanValue(schemaField: SF, subgridRowIndex: number) {
+        const viewValue = this._dataServer.getViewValue(schemaField, subgridRowIndex);
         return this.convertViewValueToBoolean(viewValue);
     }
     private convertViewValueToBoolean(value: unknown) {
@@ -389,11 +389,11 @@ export class StandardCheckboxCellPainter<
         }
     }
 
-    private saveUndefinedFingerprint(cell: DatalessViewCell<BCS, SC>) {
+    private saveUndefinedFingerprint(cell: DatalessViewCell<BCS, SF>) {
         cell.paintFingerprint = undefined;
     }
 
-    private checkSameAndAlwaysSavePaintFingerprint(cell: DatalessViewCell<BCS, SC>, fingerprint: StandardCheckboxCellPainter.PaintFingerprint) {
+    private checkSameAndAlwaysSavePaintFingerprint(cell: DatalessViewCell<BCS, SF>, fingerprint: StandardCheckboxCellPainter.PaintFingerprint) {
         const oldFingerprint = cell.paintFingerprint as StandardCheckboxCellPainter.PaintFingerprint | undefined;
         let same: boolean;
         if (oldFingerprint === undefined) {

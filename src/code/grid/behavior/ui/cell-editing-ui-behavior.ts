@@ -7,11 +7,11 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UiBehavior } from './ui-behavior';
 
-export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = CellEditingUiBehavior.typeName;
 
-    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -21,7 +21,7 @@ export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         return super.handleClick(event, hoverCell);
     }
 
-    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
+    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -66,7 +66,7 @@ export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         }
     }
 
-    edit(cell: ViewCell<BCS, SC> | null, onDoubleClick: boolean) {
+    edit(cell: ViewCell<BCS, SF> | null, onDoubleClick: boolean) {
         if (
             cell !== null &&
             cell.isMain &&

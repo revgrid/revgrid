@@ -78,7 +78,7 @@ export namespace MetaModel {
     export type CellOwnProperties = Record<string, CellOwnProperty>;
 
     export interface CellOwnPropertiesRowMetadata {
-        [columnName: string]: CellOwnProperties;
+        [fieldName: string]: CellOwnProperties;
     }
 
     export interface RowPropertiesRowMetadata {

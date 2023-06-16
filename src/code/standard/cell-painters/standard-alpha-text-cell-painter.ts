@@ -21,10 +21,10 @@ import { StandardTextCellPainter } from './standard-text-cell-painter';
 export class StandardAlphaTextCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends StandardTextCellPainter<BGS, BCS, SC> {
+    SF extends SchemaServer.Field
+> extends StandardTextCellPainter<BGS, BCS, SF> {
 
-    override paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined {
+    override paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
 
         const gridSettings = this._gridSettings;
@@ -55,7 +55,7 @@ export class StandardAlphaTextCellPainter<
             ? gridSettings.selectionForegroundColor
             : columnSettings.color;
 
-        const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
+        const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.field, subgridRowIndex);
         const valText = value as string;
 
         const fingerprint = cell.paintFingerprint as PaintFingerprint | undefined;

@@ -18,19 +18,19 @@ interface Action {
 }
 
 /** @internal */
-interface MoveAction<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends Action {
+interface MoveAction<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
-    source: ViewLayoutColumn<BCS, SC>;
-    target: ViewLayoutColumn<BCS, SC>;
+    source: ViewLayoutColumn<BCS, SF>;
+    target: ViewLayoutColumn<BCS, SF>;
 }
 
 /** @internal */
-interface ScrollAction<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends Action {
+interface ScrollAction<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends Action {
     type: DragActionType.Scroll;
     toRight: boolean;
     mouseOffGrid: boolean; // only considers left and right off grid
-    source: ViewLayoutColumn<BCS, SC>;
+    source: ViewLayoutColumn<BCS, SF>;
 }
 
 /** @internal */
@@ -39,18 +39,18 @@ interface NoAction extends Action {
 }
 
 /** @internal */
-type ColumnDragAction<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = MoveAction<BCS, SC> | ScrollAction<BCS, SC> | NoAction
+type ColumnDragAction<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = MoveAction<BCS, SF> | ScrollAction<BCS, SF> | NoAction
 
 /** @internal */
-export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
     readonly typeName = ColumnMovingUiBehavior.typeName;
 
     private _dragOverlay: HTMLCanvasElement | undefined;
-    private _dragColumn: ViewLayoutColumn<BCS, SC> | undefined;
+    private _dragColumn: ViewLayoutColumn<BCS, SF> | undefined;
     private _scrolling = false;
     private _scrollVelocity = 0;
 
-    override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (!this.gridSettings.columnsReorderable) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
@@ -91,7 +91,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerDragEnd(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         const dragColumn = this._dragColumn;
         if (dragColumn === undefined) {
             return super.handlePointerDragEnd(event, cell);
@@ -113,7 +113,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         }
     }
 
-    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (this.gridSettings.columnsReorderable) {
@@ -133,7 +133,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         return super.handlePointerMove(event, hoverCell);
     }
 
-    override handlePointerDrag(event: PointerEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
 
         // if (event.isColumnFixed) {
         //     super.handleMouseDrag(grid, event);
@@ -156,7 +156,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         }
     }
 
-    private scroll(action: ScrollAction<BCS, SC>) {
+    private scroll(action: ScrollAction<BCS, SF>) {
         this._scrollVelocity = action.toRight ? 1 : -1;
 
         if (!this._scrolling) {
@@ -170,7 +170,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         this._scrollVelocity = 0;
     }
 
-    private beginGridScrolling(action: ScrollAction<BCS, SC>) {
+    private beginGridScrolling(action: ScrollAction<BCS, SF>) {
         setTimeout(() => {
             if (!this._scrolling) {
                 return;
@@ -185,7 +185,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         400);
     }
 
-    private render(dragAction: ColumnDragAction<BCS, SC> | undefined) {
+    private render(dragAction: ColumnDragAction<BCS, SF> | undefined) {
         const dragColumn = this._dragColumn;
         if (dragColumn !== undefined) {
             const dragOverlay = this._dragOverlay;
@@ -224,7 +224,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         }
     }
 
-    private endDragColumn(dragAction: ColumnDragAction<BCS, SC>) {
+    private endDragColumn(dragAction: ColumnDragAction<BCS, SF>) {
         switch (dragAction.type) {
             case DragActionType.Scroll:
                 if (this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid) {
@@ -242,7 +242,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         this.eventBehavior.processColumnsChangedEvent();
     }
 
-    private getDragAction(event: MouseEvent, dragColumn: ViewLayoutColumn<BCS, SC>): ColumnDragAction<BCS, SC> {
+    private getDragAction(event: MouseEvent, dragColumn: ViewLayoutColumn<BCS, SF>): ColumnDragAction<BCS, SF> {
         const firstScrollableColumnViewLeft = this.viewLayout.scrollableCanvasLeft;
         if (firstScrollableColumnViewLeft === undefined) {
             return {

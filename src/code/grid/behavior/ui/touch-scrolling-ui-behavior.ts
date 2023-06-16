@@ -8,7 +8,7 @@ import { Rectangle } from '../../types-utils/rectangle';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = TouchScrollingUiBehavior.typeName;
 
@@ -25,11 +25,11 @@ export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
         }
     }
 
-    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         return cell;
     }
 
-    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         return cell;
     }
 

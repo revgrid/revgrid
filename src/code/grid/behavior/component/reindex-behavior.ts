@@ -5,14 +5,14 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 
-export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     private _requestNestCount = 0;
     private _focusStash: Focus.Stash | undefined;
-    private _selectionStash: Selection.Stash<BCS, SC> | undefined;
+    private _selectionStash: Selection.Stash<BCS, SF> | undefined;
 
     constructor(
-        private readonly _focus: Focus<BGS, BCS, SC>,
-        private readonly _selection: Selection<BGS, BCS, SC>,
+        private readonly _focus: Focus<BGS, BCS, SF>,
+        private readonly _selection: Selection<BGS, BCS, SF>,
     ) {
 
     }

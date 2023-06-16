@@ -6,14 +6,14 @@ import { StandardInputElementCellEditor } from './standard-input-element-cell-ed
 export class StandardNumberInputCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends StandardInputElementCellEditor<BGS, BCS, SC> {
-    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>) {
+    SF extends SchemaServer.Field
+> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
         super(grid, dataServer, 'number');
         this.element.classList.add('revgrid-number-input-editor');
     }
 
-    override tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
+    override tryOpen(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined) {
             return false;
@@ -31,7 +31,7 @@ export class StandardNumberInputCellEditor<
 
             if (result && key === undefined) {
                 // was not opened by keyboard
-                const value = dataServer.getEditValue(cell.viewLayoutColumn.column.schemaColumn, cell.viewLayoutRow.subgridRowIndex);
+                const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
                 if (typeof value !== 'number') {
                     throw new AssertError('SNIETO41112', typeof value);
                 } else {
@@ -44,10 +44,10 @@ export class StandardNumberInputCellEditor<
         }
     }
 
-    override close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean) {
+    override close(field: SF, subgridRowIndex: number, cancel: boolean) {
         if (!cancel && !this.readonly && this._dataServer.setEditValue !== undefined) {
-            this._dataServer.setEditValue(schemaColumn, subgridRowIndex, this.element.valueAsNumber);
+            this._dataServer.setEditValue(field, subgridRowIndex, this.element.valueAsNumber);
         }
-        super.close(schemaColumn, subgridRowIndex, cancel);
+        super.close(field, subgridRowIndex, cancel);
     }
 }

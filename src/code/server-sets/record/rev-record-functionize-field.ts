@@ -4,15 +4,13 @@ import { RevRecordField } from './rev-record-field';
 /** Provides access to a field
  * @public
  */
-export abstract class RevRecordFunctionizeField<BCS extends BehavioredColumnSettings> implements RevRecordField<BCS> {
-    constructor(readonly name: string, readonly settings: BCS) {
+export abstract class RevRecordFunctionizeField<BCS extends BehavioredColumnSettings> implements RevRecordField {
+    constructor(readonly name: string, readonly index: number, readonly settings: BCS) {
     }
 
-    getValue: (this: void, record: never) => unknown;
+    getViewValue: (this: void, record: never) => unknown;
     compare: (this: void, left: never, right: never) => number;
     compareDesc: (this: void, left: never, right: never) => number;
-
-    columnSettings: BCS;
 }
 
 /**
@@ -22,14 +20,15 @@ export abstract class RevRecordFunctionizeField<BCS extends BehavioredColumnSett
 export class RevRecordSimpleFunctionizeField<BCS extends BehavioredColumnSettings, Record> extends RevRecordFunctionizeField<BCS> {
     constructor(
         name: string,
+        index: number,
         settings: BCS,
         value: (record: Record) => unknown,
         compare?: (left: Record, right: Record) => number,
         compareDesc?: (left: Record, right: Record) => number
     ) {
-        super(name, settings);
+        super(name, index, settings);
 
-        this.getValue = value;
+        this.getViewValue = value;
 
         if (compare !== undefined) {
             this.compare = compare;
@@ -50,12 +49,13 @@ export class RevRecordSimpleFunctionizeField<BCS extends BehavioredColumnSetting
 export class RevRecordNumericFunctionizeField<BCS extends BehavioredColumnSettings, Record> extends RevRecordFunctionizeField<BCS> {
     constructor(
         name: string,
+        index: number,
         settings: BCS,
         value: (record: Record) => number,
     ) {
-        super(name, settings);
+        super(name, index, settings);
 
-        this.getValue = value;
+        this.getViewValue = value;
 
         this.compare = (left: Record, right: Record) => value(right) - value(left);
         this.compareDesc = (left: Record, right: Record) => value(left) - value(right);
@@ -69,13 +69,14 @@ export class RevRecordNumericFunctionizeField<BCS extends BehavioredColumnSettin
 export class RevRecordStringFunctionizeField<BCS extends BehavioredColumnSettings, Record> extends RevRecordFunctionizeField<BCS> {
     constructor(
         name: string,
+        index: number,
         settings: BCS,
         value: (record: Record) => string,
         options?: Intl.CollatorOptions
     ) {
-        super(name, settings);
+        super(name, index, settings);
 
-        this.getValue = value;
+        this.getViewValue = value;
 
         this.compare = (left: Record, right: Record) => value(right).localeCompare(value(left), undefined, options);
         this.compareDesc = (left: Record, right: Record) => value(left).localeCompare(value(right), undefined, options);
@@ -89,13 +90,14 @@ export class RevRecordStringFunctionizeField<BCS extends BehavioredColumnSetting
 export class RevRecordDateFunctionizeField<BCS extends BehavioredColumnSettings, Record> extends RevRecordFunctionizeField<BCS> {
     constructor(
         name: string,
+        index: number,
         settings: BCS,
         value: (record: Record) => Date,
         /*options?: Intl.CollatorOptions*/
     ) {
-        super(name, settings);
+        super(name, index, settings);
 
-        this.getValue = value;
+        this.getViewValue = value;
 
         this.compare = (left: Record, right: Record) => value(right).getTime() - value(left).getTime();
         this.compareDesc = (left: Record, right: Record) => value(left).getTime() - value(right).getTime();

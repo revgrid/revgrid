@@ -1,8 +1,8 @@
-import { BehavioredColumnSettings, DataServer } from '../../grid/grid-public-api';
+import { DataServer } from '../../grid/grid-public-api';
 import { RevRecordField } from './rev-record-field';
 
 /** @public */
-export class RevRecordHeaderDataServer<BCS extends BehavioredColumnSettings> implements DataServer<BCS> {
+export class RevRecordHeaderDataServer<SF extends RevRecordField> implements DataServer<SF> {
     private _dataCallbackListener: DataServer.NotificationsClient;
 
     constructor(private _rowCount = 1) {
@@ -12,8 +12,8 @@ export class RevRecordHeaderDataServer<BCS extends BehavioredColumnSettings> imp
         this._dataCallbackListener = value;
     }
 
-    getViewValue(schemaColumn: RevRecordField.SchemaColumn<BCS>, _rowCount: number): string {
-        return schemaColumn.name;
+    getViewValue(field: SF, _rowCount: number): string {
+        return field.name;
     }
 
     getRowCount() {

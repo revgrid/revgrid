@@ -8,11 +8,11 @@ import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = CellClickUiBehavior.typeName;
 
-    override handlePointerMove(event: PointerEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (cell === undefined) {
@@ -30,7 +30,7 @@ export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         return super.handlePointerMove(event, cell);
     }
 
-    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -67,7 +67,7 @@ export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends
      * | `null` | `grid.windowOpen` failed to open a window |
      * | _otherwise_ | A `window` reference returned by a successful call to `grid.windowOpen`. |
      */
-    openLink(viewCell: ViewCell<BCS, SC>): boolean | null | undefined | Window {
+    openLink(viewCell: ViewCell<BCS, SF>): boolean | null | undefined | Window {
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
         const rowIndex = viewCell.viewLayoutRow.subgridRowIndex;

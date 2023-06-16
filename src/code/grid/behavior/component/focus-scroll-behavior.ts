@@ -11,20 +11,20 @@ import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 
-export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-    private readonly _mainSubgrid: MainSubgrid<BCS, SC>;
+export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    private readonly _mainSubgrid: MainSubgrid<BCS, SF>;
 
     constructor(
         private readonly _gridSettings: BGS,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SC>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
-        private readonly _focus: Focus<BGS, BCS, SC>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        private readonly _focus: Focus<BGS, BCS, SF>,
     ) {
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
     }
 
-    tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<BCS, SC> | undefined) {
+    tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<BCS, SF> | undefined) {
         if (this.isXScrollabe(x) && this.isYScrollabe(y)) {
             this._viewLayout.ensureColumnRowAreInView(x, y, true)
             this._focus.setXY(x, y, cell, undefined, undefined);
@@ -170,7 +170,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     // probably can get rid of this with a bit more cleanup
-    getFocusedViewCell(useAllCells: boolean): ViewCell<BCS, SC> | undefined {
+    getFocusedViewCell(useAllCells: boolean): ViewCell<BCS, SF> | undefined {
         const focusedPoint = this._focus.currentSubgridPoint;
         if (focusedPoint === undefined) {
             return undefined;
@@ -181,7 +181,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
                 // When expanding selections larger than the view, the origin/corner
                 // points may not be rendered and would normally fail to reset cell's position.
                 // Mock column and row objects for this.reset() to use:
-                const vc: ViewLayoutColumn<BCS, SC> = {
+                const vc: ViewLayoutColumn<BCS, SF> = {
                     column: this._columnsManager.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
                     activeColumnIndex: gridX,
                     index: -1,
@@ -189,7 +189,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
                     rightPlus1: -1,
                     width: -1,
                 };
-                const vr: ViewLayoutRow<BCS, SC> = {
+                const vr: ViewLayoutRow<BCS, SF> = {
                     subgridRowIndex: dataY,
                     index: -1,
                     subgrid: this._subgridsManager.mainSubgrid,

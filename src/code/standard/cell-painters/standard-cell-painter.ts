@@ -5,21 +5,21 @@ import { StandardAllGridSettings, StandardBehavioredColumnSettings, StandardBeha
 export abstract class StandardCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> implements CellPainter<BCS, SC> {
+    SF extends SchemaServer.Field
+> implements CellPainter<BCS, SF> {
     protected readonly _gridSettings: StandardAllGridSettings;
     protected readonly _renderingContext: CachedCanvasRenderingContext2D;
 
     constructor(
-        protected readonly _grid: Revgrid<BGS, BCS, SC>,
-        protected readonly _dataServer: DataServer<BCS>,
+        protected readonly _grid: Revgrid<BGS, BCS, SF>,
+        protected readonly _dataServer: DataServer<SF>,
     ) {
         const grid = this._grid;
         this._gridSettings = grid.settings;
         this._renderingContext = grid.canvasManager.gc;
     }
 
-    abstract paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
+    abstract paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 
     protected tryPaintBorder(bounds: Rectangle, borderColor: string | undefined, focus: boolean) {
         if (borderColor !== undefined) {

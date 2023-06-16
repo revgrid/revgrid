@@ -7,10 +7,10 @@ import { StandardCellPainter } from './standard-cell-painter';
 export class StandardTagCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends StandardCellPainter<BGS, BCS, SC> {
+    SF extends SchemaServer.Field
+> extends StandardCellPainter<BGS, BCS, SF> {
 
-    override paint(_cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined {
+    override paint(_cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         // const gc = this._renderingContext;
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {

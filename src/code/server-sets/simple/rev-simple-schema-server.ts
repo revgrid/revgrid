@@ -1,15 +1,17 @@
 import { AssertError, BehavioredColumnSettings, SchemaServer } from '../../grid/grid-public-api';
 
 /** @public */
-export class RevSimpleSchemaServer<BCS extends BehavioredColumnSettings> implements SchemaServer<BCS, RevSimpleSchemaServer.Column<BCS>> {
-    private _schemaCallbackListeners: SchemaServer.NotificationsClient<BCS>[] = [];
-    private _columns = new Array<RevSimpleSchemaServer.Column<BCS>>();
+export class RevSimpleSchemaServer<BCS extends BehavioredColumnSettings, SF extends RevSimpleSchemaServer.Field> implements SchemaServer<BCS, SF> {
+    getFieldColumnSettingsEventer: RevSimpleSchemaServer.GetFieldColumnSettingsEventer<BCS, SF>;
 
-    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<BCS>) {
+    private _schemaCallbackListeners: SchemaServer.NotificationsClient<SF>[] = [];
+    private _fields = new Array<SF>();
+
+    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>) {
         this._schemaCallbackListeners.push(listener)
     }
 
-    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<BCS>) {
+    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>) {
         const idx = this._schemaCallbackListeners.findIndex((element) => element === listener);
         if (idx < 0) {
             throw new AssertError('LMDMRSCL91364', 'LocalMainSchemaModel: SchemaCallbackListener not found');
@@ -18,9 +20,9 @@ export class RevSimpleSchemaServer<BCS extends BehavioredColumnSettings> impleme
         }
     }
 
-    reset(schema?: RevSimpleSchemaServer.Column<BCS>[]) {
+    reset(schema?: SF[]) {
         if (schema !== undefined) {
-            this._columns = schema;
+            this._fields = schema;
         }
         this._schemaCallbackListeners.forEach((listener) => listener.schemaChanged());
     }
@@ -28,19 +30,25 @@ export class RevSimpleSchemaServer<BCS extends BehavioredColumnSettings> impleme
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getSchema}
      */
-    getSchema(): readonly RevSimpleSchemaServer.Column<BCS>[] {
-        return this._columns;
+    getFields(): readonly SF[] {
+        return this._fields;
     }
 
-    setSchema(schema: RevSimpleSchemaServer.Column<BCS>[]) {
-        this._columns = schema;
+    setSchema(schema: SF[]) {
+        this._fields = schema;
         this._schemaCallbackListeners.forEach((listener) => listener.schemaChanged());
+    }
+
+    getFieldColumnSettings(field: SF): BCS {
+        return this.getFieldColumnSettingsEventer(field);
     }
 }
 
 /** @public */
 export namespace RevSimpleSchemaServer {
-    export interface Column<BCS extends BehavioredColumnSettings> extends SchemaServer.Column<BCS> {
+    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends Field> = (this: void, field: SF) => BCS;
+
+    export interface Field extends SchemaServer.Field {
         headers: string[];
     }
 }

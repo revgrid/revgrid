@@ -10,11 +10,11 @@ import { StandardCellPainter } from './standard-cell-painter';
 export class StandardButtonCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends StandardCellPainter<BGS, BCS, SC> {
+    SF extends SchemaServer.Field
+> extends StandardCellPainter<BGS, BCS, SF> {
     config: StandardButtonCellPainter.Config;
 
-    override paint(cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined {
+    override paint(cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         const gc = this._renderingContext;
         const config = this.config;
 

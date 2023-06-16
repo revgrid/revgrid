@@ -4,7 +4,7 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class ClipboardUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class ClipboardUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
     readonly typeName = ClipboardUiBehavior.typeName;
 
     override handleCopy(eventDetail: ClipboardEvent) {

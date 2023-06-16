@@ -20,7 +20,7 @@ import { RowPropertiesBehavior } from '../component/row-properties-behavior';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /** @public */
-export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
 
     /** @internal */
     constructor(
@@ -28,22 +28,22 @@ export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends 
         readonly containerHtmlElement: HTMLElement,
         readonly gridSettings: GridSettings,
         readonly canvasManager: CanvasManager<BGS>,
-        readonly selection: Selection<BGS, BCS, SC>,
-        readonly focus: Focus<BGS, BCS, SC>,
-        readonly columnsManager: ColumnsManager<BGS, BCS, SC>,
-        readonly subgridsManager: SubgridsManager<BGS, BCS, SC>,
-        readonly viewLayout: ViewLayout<BGS, BCS, SC>,
-        readonly renderer: Renderer<BGS, BCS, SC>,
+        readonly selection: Selection<BGS, BCS, SF>,
+        readonly focus: Focus<BGS, BCS, SF>,
+        readonly columnsManager: ColumnsManager<BGS, BCS, SF>,
+        readonly subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        readonly viewLayout: ViewLayout<BGS, BCS, SF>,
+        readonly renderer: Renderer<BGS, BCS, SF>,
 
-        readonly mouse: Mouse<BGS, BCS, SC>,
+        readonly mouse: Mouse<BGS, BCS, SF>,
 
-        readonly reindexBehavior: ReindexBehavior<BGS, BCS, SC>,
-        readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SC>,
-        readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SC>,
-        readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SC>,
-        readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SC>,
-        readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SC>,
-        readonly eventBehavior: EventBehavior<BGS, BCS, SC>,
+        readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>,
+        readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>,
+        readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>,
+        readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>,
+        readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>,
+        readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>,
+        readonly eventBehavior: EventBehavior<BGS, BCS, SF>,
     ) {
 
     }

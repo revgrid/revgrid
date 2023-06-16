@@ -1,6 +1,5 @@
 import { Rectangle } from '../../types-utils/rectangle';
 import { SchemaServer } from '../schema/schema-server';
-import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 // import { Hypergrid } from '../Hypergrid';
 
 /**
@@ -11,7 +10,7 @@ import { BehavioredColumnSettings } from '../settings/behaviored-column-settings
  */
 
  /** @public */
-export interface DataServer<BCS extends BehavioredColumnSettings> {
+export interface DataServer<SF extends SchemaServer.Field> {
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link DataServer#dispatchEvent dispatchEvent}, {@link DataServer#removeListener removeListener}, and {@link DataServer#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
@@ -92,15 +91,15 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
      * @desc Get a cell's value given its column & row indexes.
      * @returns The member with the given schema field from the data row with the given `rowIndex`.
      */
-    getViewValue(schemaColumn: SchemaServer.Column<BCS>, rowIndex: number): DataServer.ViewValue;
+    getViewValue(field: SF, rowIndex: number): DataServer.ViewValue;
 
-    getEditValue?(schemaColumn: SchemaServer.Column<BCS>, rowIndex: number): DataServer.EditValue;
+    getEditValue?(field: SF, rowIndex: number): DataServer.EditValue;
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Set a cell's value given its column schema & row indexes and a new value.
      */
-    setEditValue?(schemaColumn: SchemaServer.Column<BCS>, rowIndex: number, value: DataServer.EditValue): void;
+    setEditValue?(field: SF, rowIndex: number, value: DataServer.EditValue): void;
 
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -133,10 +132,10 @@ export interface DataServer<BCS extends BehavioredColumnSettings> {
     setViewRow?(rowIndex: number, dataRow?: DataServer.ViewRow): void;
 
     /** Cursor to be displayed when mouse hovers over cell containing data point */
-    getCursorName?(schema: SchemaServer.Column<BCS>, rowIndex: number): string;
+    getCursorName?(field: SF, rowIndex: number): string;
 
     /** Title text to be displayed when mouse hovers over cell containing data point */
-    getTitleText?(schema: SchemaServer.Column<BCS>, rowIndex: number): string;
+    getTitleText?(field: SF, rowIndex: number): string;
 }
 
 
@@ -153,12 +152,12 @@ export namespace DataServer {
      * All row objects should be congruent, meaning that each data row should have the same property keys.
      */
     export interface ObjectViewRow {
-        [columnName: string]: ViewValue;
+        [fieldName: string]: ViewValue;
     }
     export type ArrayViewRow = ViewValue[];
     export type ViewRow = ArrayViewRow | ObjectViewRow;
 
-    export type Constructor<BCS extends BehavioredColumnSettings> = new () => DataServer<BCS>;
+    export type Constructor<SF extends SchemaServer.Field> = new () => DataServer<SF>;
 
     /**
      * Besides `type`, your event object can contain other event details.
@@ -178,9 +177,9 @@ export namespace DataServer {
         invalidateAll: (this: void) => void;
         invalidateRows: (this: void, rowIndex: number, count: number) => void;
         invalidateRow: (this: void, rowIndex: number) => void;
-        invalidateRowColumns: (this: void, rowIndex: number, schemaColumnIndex: number, columnCount: number) => void;
-        invalidateRowCells: (this: void, rowIndex: number, schemaColumnIndexes: number[]) => void;
-        invalidateCell: (this: void, schemaColumnIndex: number, rowIndex: number) => void;
+        invalidateRowColumns: (this: void, rowIndex: number, fieldIndex: number, columnCount: number) => void;
+        invalidateRowCells: (this: void, rowIndex: number, fieldIndexes: number[]) => void;
+        invalidateCell: (this: void, fieldIndex: number, rowIndex: number) => void;
 
         /**
          * @desc The data models should trigger this event immediately before data model remaps the rows.

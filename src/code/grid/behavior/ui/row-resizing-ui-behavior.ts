@@ -7,7 +7,7 @@ import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = RowResizingUiBehavior.typeName;
 
@@ -39,7 +39,7 @@ export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
      * @desc return the width/height of the row/column of interest
      * @param index - the row/column index of interest
      */
-    private getAreaSize(index: number, subgrid: Subgrid<BCS, SC>): number {
+    private getAreaSize(index: number, subgrid: Subgrid<BCS, SF>): number {
         return subgrid.getRowHeight(index);
     }
 
@@ -48,7 +48,7 @@ export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
      * @param index - the row/column index of interest
      * @param value - the width/height to set to
      */
-    private setAreaSize(index: number, value: number, subgrid: Subgrid<BCS, SC>) {
+    private setAreaSize(index: number, value: number, subgrid: Subgrid<BCS, SF>) {
         this.rowPropertiesBehavior.setRowHeight(index, value, subgrid);
     }
 

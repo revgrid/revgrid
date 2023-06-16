@@ -6,11 +6,11 @@ import { CanvasManager } from '../canvas/canvas-manager';
 import { ColumnsManager } from '../column/columns-manager';
 import { ScrollDimension } from './scroll-dimension';
 
-export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends ScrollDimension<BGS> {
+export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends ScrollDimension<BGS> {
     constructor(
         private readonly _gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
     ) {
         super(
             HorizontalVertical.Horizontal,

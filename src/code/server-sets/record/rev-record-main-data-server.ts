@@ -11,7 +11,7 @@ import { RevRecordStore } from './rev-record-store';
 import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
 /** @public */
-export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> implements DataServer<BCS>, RevRecordStore.RecordsEventers {
+export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
     readonly mainDataModel = true;
 
     private readonly _recordRowBindingKey = Symbol();
@@ -75,7 +75,7 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
     set valueChangedRecentDuration(value: number) { this._recentChanges.valueChangedRecentDuration = value; }
 
     constructor(
-        private readonly _fieldAdapter: RevRecordSchemaServer<BCS>,
+        private readonly _schemaServer: RevRecordSchemaServer<BCS, SF>,
         private readonly _recordStore: RevRecordStore,
     ) {
         this._recordRowMap = new RevRecordRowMap(this._recordRowBindingKey);
@@ -86,11 +86,11 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
                 expiredCellPositions, expiredCellCount, expiredRowIndexes, expiredRowCount
             )
         );
-        this._fieldAdapter.fieldListChangedEventer = (typeId, index, count) => this.processFieldListChangedEvent(typeId, index, count);
+        this._schemaServer.fieldListChangedEventer = (typeId, index, count) => this.processFieldListChangedEvent(typeId, index, count);
     }
 
     destroy() {
-        this._fieldAdapter.fieldListChangedEventer = undefined;
+        this._schemaServer.fieldListChangedEventer = undefined;
         this._recentChanges.destroy();
     }
 
@@ -140,17 +140,14 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
         }
     }
 
-    getViewValue(schemaColumn: RevRecordField.SchemaColumn<BCS>, rowIndex: number): DataServer.ViewValue {
+    getViewValue(field: SF, rowIndex: number): DataServer.ViewValue {
         if (this._rowOrderReversed) {
             rowIndex = this.reverseRowIndex(rowIndex);
         }
 
         const record = this._recordRowMap.getRecordFromRowIndex(rowIndex);
 
-        const fieldName = schemaColumn.name;
-        const field = this._fieldAdapter.getFieldByName(fieldName);
-
-        return field.getValue(record);
+        return field.getViewValue(record);
     }
 
     allRecordsDeleted(): void {
@@ -195,8 +192,8 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
         }
     }
 
-    getFieldSortAscending(field: RevRecordFieldIndex | RevRecordField<BCS>): boolean | undefined {
-        const fieldIndex = typeof field === 'number' ? field : this._fieldAdapter.getFieldIndex(field);
+    getFieldSortAscending(field: RevRecordFieldIndex | SF): boolean | undefined {
+        const fieldIndex = typeof field === 'number' ? field : this._schemaServer.getFieldIndex(field);
 
         for (let Index = 0; Index < this._sortFieldSpecifiers.length; Index++) {
             if (this._sortFieldSpecifiers[Index].fieldIndex === fieldIndex) {
@@ -207,8 +204,8 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
         return undefined;
     }
 
-    getFieldSortPriority(field: RevRecordFieldIndex | RevRecordField<BCS>): number | undefined {
-        const fieldIndex = typeof field === 'number' ? field : this._fieldAdapter.getFieldIndex(field);
+    getFieldSortPriority(field: RevRecordFieldIndex | SF): number | undefined {
+        const fieldIndex = typeof field === 'number' ? field : this._schemaServer.getFieldIndex(field);
 
         for (let index = 0; index < this._sortFieldSpecifiers.length; index++) {
             if (this._sortFieldSpecifiers[index].fieldIndex === fieldIndex) {
@@ -411,7 +408,7 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
         try {
             // Locate and remove the corresponding Row
             const rowIndex = this._recordRowMap.removeRecord(recordIndex);
-            const recordIndexFieldIndexes = this._fieldAdapter.getFieldValueDependsOnRecordIndexFieldIndexes();
+            const recordIndexFieldIndexes = this._schemaServer.getFieldValueDependsOnRecordIndexFieldIndexes();
 
             if (rowIndex === undefined) {
                 // We didn't change any visible rows, since they were filtered, but their indexes may have changed, so invalidate
@@ -471,7 +468,7 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
 
                     this._recordRowMap.removeRecordsButNotRows(recordIndex, count); // rows will be deleted below
 
-                    const recordIndexFieldIndexes = this._fieldAdapter.getFieldValueDependsOnRecordIndexFieldIndexes();
+                    const recordIndexFieldIndexes = this._schemaServer.getFieldValueDependsOnRecordIndexFieldIndexes();
 
                     if (toBeDeletedDefinedRowCount === 0) {
                         // We didn't change any visible rows, since they were filtered, but their indexes may have changed, so invalidate
@@ -1028,7 +1025,7 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
     }
 
     private getComparerFromSpecifier(specifier: RevRecordMainDataServer.SortFieldSpecifier): RevRecordMainDataServer.SpecifierComparer | undefined {
-        const field = this._fieldAdapter.fields[specifier.fieldIndex];
+        const field = this._schemaServer.fields[specifier.fieldIndex];
         let comparer: RevRecordMainDataServer.SpecifierComparer | undefined;
 
         const compareDefined = field.compare !== undefined;
@@ -1039,13 +1036,13 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
             if (compareDefined) {
                 comparer = (left, right) => {
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    return this._fieldAdapter.fields[specifier.fieldIndex].compare!(left.record, right.record);
+                    return this._schemaServer.fields[specifier.fieldIndex].compare!(left.record, right.record);
                 };
             } else {
                 if (compareDescDefined) {
                     comparer = (left, right) => {
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        return this._fieldAdapter.fields[specifier.fieldIndex].compareDesc!(left.record, right.record);
+                        return this._schemaServer.fields[specifier.fieldIndex].compareDesc!(left.record, right.record);
                     };
                     specifier.ascending = false;
                 } else {
@@ -1057,13 +1054,13 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings> imple
             if (compareDescDefined) {
                 comparer = (left, right) => {
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    return this._fieldAdapter.fields[specifier.fieldIndex].compareDesc!(left.record, right.record);
+                    return this._schemaServer.fields[specifier.fieldIndex].compareDesc!(left.record, right.record);
                 };
             } else {
                 if (compareDefined) {
                     comparer = (left, right) => {
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        return this._fieldAdapter.fields[specifier.fieldIndex].compare!(left.record, right.record);
+                        return this._schemaServer.fields[specifier.fieldIndex].compare!(left.record, right.record);
                     };
                     specifier.ascending = true;
                 } else {

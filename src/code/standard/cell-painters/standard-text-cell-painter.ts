@@ -6,8 +6,8 @@ import { StandardCellPainter } from './standard-cell-painter';
 export abstract class StandardTextCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends StandardCellPainter<BGS, BCS, SC> {
+    SF extends SchemaServer.Field
+> extends StandardCellPainter<BGS, BCS, SF> {
     protected _columnSettings: StandardAllColumnSettings;
 
     setColumnSettings(value: StandardAllColumnSettings) {

@@ -7,11 +7,11 @@ import { CanvasManager } from '../canvas/canvas-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ScrollDimension } from './scroll-dimension';
 
-export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends ScrollDimension<BGS> {
+export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends ScrollDimension<BGS> {
     constructor(
         private readonly _gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SC>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
     ) {
         super(
             HorizontalVertical.Vertical,

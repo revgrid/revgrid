@@ -8,9 +8,9 @@ import { DataServer } from './data-server';
 import { MetaModel } from './meta-model';
 
 /** @public */
-export interface Subgrid<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends DatalessSubgrid {
-    readonly schemaServer: SchemaServer<BCS, SC>;
-    readonly dataServer: DataServer<BCS>;
+export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends DatalessSubgrid {
+    readonly schemaServer: SchemaServer<BCS, SF>;
+    readonly dataServer: DataServer<SF>;
     readonly metaModel: MetaModel | undefined;
 
     getRowCount(): number;
@@ -29,34 +29,34 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SC extends Schema
 
     setRowProperty(y: number, key: string, isHeight: boolean, value: unknown): boolean;
 
-    getViewValue(column: Column<BCS, SC>, rowIndex: number): DataServer.ViewValue;
+    getViewValue(column: Column<BCS, SF>, rowIndex: number): DataServer.ViewValue;
 
-    getViewValueFromDataRowAtColumn(dataRow: DataServer.ViewRow, column: Column<BCS, SC>): DataServer.ViewValue;
+    getViewValueFromDataRowAtColumn(dataRow: DataServer.ViewRow, column: Column<BCS, SF>): DataServer.ViewValue;
 
-    getCellPainter(viewCell: DatalessViewCell<BCS, SC>): CellPainter<BCS, SC>;
+    getCellPainter(viewCell: DatalessViewCell<BCS, SF>): CellPainter<BCS, SF>;
 }
 
 /** @public */
 export namespace Subgrid {
     export type GetCellPainterEventer<
         BCS extends BehavioredColumnSettings,
-        SC extends SchemaServer.Column<BCS>
-    > = (this: void, viewCell: DatalessViewCell<BCS, SC>) => CellPainter<BCS, SC>;
+        SF extends SchemaServer.Field
+    > = (this: void, viewCell: DatalessViewCell<BCS, SF>) => CellPainter<BCS, SF>;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export import RoleEnum = DatalessSubgrid.RoleEnum;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export import Role = DatalessSubgrid.Role;
 
-    export interface Definition<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+    export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
         /** defaults to main */
         role?: DatalessSubgrid.Role;
-        dataServer: DataServer<BCS> | DataServer.Constructor<BCS>;
+        dataServer: DataServer<SF> | DataServer.Constructor<SF>;
         metaModel?: MetaModel | MetaModel.Constructor;
         selectable?: boolean;
         defaultRowHeight?: number;
         rowPropertiesCanSpecifyRowHeight?: boolean;
         rowPropertiesPrototype?: MetaModel.RowPropertiesPrototype;
-        getCellPainterEventer: GetCellPainterEventer<BCS, SC>;
+        getCellPainterEventer: GetCellPainterEventer<BCS, SF>;
     }
 }

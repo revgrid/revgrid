@@ -18,12 +18,12 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 /** @public */
-export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     /** @internal */
     renderedEventer: Renderer.RenderedEventer;
 
     /** @internal */
-    private readonly _gridPainterRepository: GridPainterRepository<BGS, BCS, SC>;
+    private readonly _gridPainterRepository: GridPainterRepository<BGS, BCS, SF>;
     /** @internal */
     private readonly _animator: Animation.Animator;
     /** @internal */
@@ -43,9 +43,9 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private _destroyed = false;
 
     /** @internal */
-    private _gridPainter: GridPainter<BGS, BCS, SC>;
+    private _gridPainter: GridPainter<BGS, BCS, SF>;
     /** @internal */
-    private _allGridPainter: GridPainter<BGS, BCS, SC> | undefined;
+    private _allGridPainter: GridPainter<BGS, BCS, SF> | undefined;
 
     /** @internal */
     private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
@@ -57,17 +57,17 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         /** @internal */
         private readonly _canvasEx: CanvasManager<BGS>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
         /** @internal */
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SC>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         /** @internal */
-        private readonly _focus: Focus<BGS, BCS, SC>,
+        private readonly _focus: Focus<BGS, BCS, SF>,
         /** @internal */
-        private readonly _selection: Selection<BGS, BCS, SC>,
+        private readonly _selection: Selection<BGS, BCS, SF>,
         /** @internal */
-        private readonly _mouse: Mouse<BGS, BCS, SC>,
+        private readonly _mouse: Mouse<BGS, BCS, SF>,
     ) {
         this._gridPainterRepository = new GridPainterRepository(
             this._gridSettings,
@@ -122,7 +122,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SC>) {
+    registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>) {
         this._gridPainterRepository.register(key, constructor);
     }
 
@@ -203,7 +203,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    invalidateViewCellRender(cell: ViewCell<BCS, SC>) {
+    invalidateViewCellRender(cell: ViewCell<BCS, SF>) {
         this._renderActionQueue.invalidateViewCellRender(cell);
     }
 

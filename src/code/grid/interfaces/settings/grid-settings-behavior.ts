@@ -5,13 +5,13 @@ export interface GridSettingsBehavior {
     /** @internal */
     resizeEventer: GridSettingsBehavior.ResizeEventer | undefined;
     /** @internal */
-    viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer;
+    viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer | undefined;
     /** @internal */
-    viewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
+    viewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
+    horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
+    verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
 
     beginChange(): void;
     endChange(): void;

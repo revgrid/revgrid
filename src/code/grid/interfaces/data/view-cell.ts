@@ -7,10 +7,10 @@ import { Subgrid } from './subgrid';
 import { ViewLayoutRow } from './view-layout-row';
 
 /** @public */
-export interface ViewCell<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends DatalessViewCell<BCS, SC> {
-    readonly subgrid: Subgrid<BCS, SC>;
-    readonly viewLayoutColumn: ViewLayoutColumn<BCS, SC>;
-    readonly viewLayoutRow: ViewLayoutRow<BCS, SC>;
+export interface ViewCell<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends DatalessViewCell<BCS, SF> {
+    readonly subgrid: Subgrid<BCS, SF>;
+    readonly viewLayoutColumn: ViewLayoutColumn<BCS, SF>;
+    readonly viewLayoutRow: ViewLayoutRow<BCS, SF>;
 
     readonly viewValue: DataServer.ViewValue;
 }

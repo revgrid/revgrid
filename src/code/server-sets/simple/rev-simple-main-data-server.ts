@@ -1,7 +1,8 @@
-import { AssertError, BehavioredColumnSettings, DataServer, MetaModel, SchemaServer } from '../../grid/grid-public-api';
+import { AssertError, DataServer, MetaModel } from '../../grid/grid-public-api';
+import { RevSimpleSchemaServer } from './rev-simple-schema-server';
 
 /** @public */
-export class RevSimpleMainDataServer<BCS extends BehavioredColumnSettings> implements DataServer<BCS> {
+export class RevSimpleMainDataServer<SF extends RevSimpleSchemaServer.Field> implements DataServer<SF> {
     private _data: RevSimpleMainDataServer.DataRow[] = [];
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
@@ -121,20 +122,20 @@ export class RevSimpleMainDataServer<BCS extends BehavioredColumnSettings> imple
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
      */
-    getViewValue(schemaColumn: SchemaServer.Column<BCS>, y: number) {
+    getViewValue(field: SF, y: number) {
         const row = this._data[y];
         if (!row) {
             return null;
         }
-        return row[schemaColumn.name];
+        return row[field.name];
     }
 
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
      */
-    setEditValue(schemaColumn: SchemaServer.Column<BCS>, y: number, value: unknown) {
-        this._data[y][schemaColumn.name] = value;
-        this._callbackListeners.forEach((listener) => listener.invalidateCell(schemaColumn.index, y));
+    setEditValue(field: SF, y: number, value: unknown) {
+        this._data[y][field.name] = value;
+        this._callbackListeners.forEach((listener) => listener.invalidateCell(field.index, y));
     }
 
     /**

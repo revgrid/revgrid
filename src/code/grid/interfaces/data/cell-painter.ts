@@ -11,13 +11,13 @@ import { CellPossiblyPaintable } from './cell-possibly-paintable';
  *
  * @public
  */
-export interface CellPainter<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends CellPossiblyPaintable<BCS, SC> {
+export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends CellPossiblyPaintable<BCS, SF> {
 
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
-    paint(cell: DatalessViewCell<BCS, SC>, prefillColor: string | undefined): number | undefined;
+    paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 
 }
 

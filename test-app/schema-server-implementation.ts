@@ -1,32 +1,32 @@
 import { SchemaServer, StandardAllGridSettings, StandardInMemoryBehavioredColumnSettings, standardAllColumnSettingsDefaults } from '..';
 import { MainRecord } from './main-record';
 
-export class SchemaServerImplementation implements SchemaServer<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Column> {
-    private readonly _schema: SchemaServerImplementation.Column[];
+export class SchemaServerImplementation implements SchemaServer<StandardInMemoryBehavioredColumnSettings, SchemaServerImplementation.Field> {
+    private readonly _schema: SchemaServerImplementation.Field[];
 
-    readonly nameSchemaColumn: SchemaServerImplementation.Column;
-    readonly typeSchemaColumn: SchemaServerImplementation.Column;
-    readonly colorSchemaColumn: SchemaServerImplementation.Column;
-    readonly ageSchemaColumn: SchemaServerImplementation.Column;
-    readonly receiveDateSchemaColumn: SchemaServerImplementation.Column;
-    readonly favoriteFoodSchemaColumn: SchemaServerImplementation.Column;
-    readonly restrictMovementSchemaColumn: SchemaServerImplementation.Column;
+    readonly nameSchemaSchemaField: SchemaServerImplementation.Field;
+    readonly typeSchemaSchemaField: SchemaServerImplementation.Field;
+    readonly colorSchemaSchemaField: SchemaServerImplementation.Field;
+    readonly ageSchemaSchemaField: SchemaServerImplementation.Field;
+    readonly receiveDateSchemaField: SchemaServerImplementation.Field;
+    readonly favoriteFoodSchemaField: SchemaServerImplementation.Field;
+    readonly restrictMovementSchemaField: SchemaServerImplementation.Field;
 
-    private notificationsClient: SchemaServer.NotificationsClient<StandardInMemoryBehavioredColumnSettings>;
+    private notificationsClient: SchemaServer.NotificationsClient<SchemaServerImplementation.Field>;
 
     constructor(gridSettings: StandardAllGridSettings) {
         const nameHeaders = SchemaServerImplementation.columnNameHeaders;
         const columnCount = nameHeaders.length;
-        const schema = new Array<SchemaServerImplementation.Column>(columnCount);
+        const schema = new Array<SchemaServerImplementation.Field>(columnCount);
         for (let i = 0; i < columnCount; i++) {
             const nameHeader = nameHeaders[i];
             const name = nameHeader.name;
-            const settings = new StandardInMemoryBehavioredColumnSettings(gridSettings);
-            settings.load(standardAllColumnSettingsDefaults);
-            const column: SchemaServerImplementation.Column = {
+            const columnSettings = new StandardInMemoryBehavioredColumnSettings(gridSettings);
+            columnSettings.load(standardAllColumnSettingsDefaults);
+            const field: SchemaServerImplementation.Field = {
                 name,
                 index: i,
-                settings,
+                columnSettings,
                 header: nameHeader.header,
             };
 
@@ -34,41 +34,45 @@ export class SchemaServerImplementation implements SchemaServer<StandardInMemory
                 case 'id':
                     throw new Error('Id field is not exported as a schema column')
                 case 'name':
-                    this.nameSchemaColumn = column;
+                    this.nameSchemaSchemaField = field;
                     break;
                 case 'type':
-                    this.typeSchemaColumn = column;
+                    this.typeSchemaSchemaField = field;
                     break;
                 case 'color':
-                    this.colorSchemaColumn = column;
+                    this.colorSchemaSchemaField = field;
                     break;
                 case 'age':
-                    this.ageSchemaColumn = column;
+                    this.ageSchemaSchemaField = field;
                     break;
                 case 'receiveDate':
-                    this.receiveDateSchemaColumn = column;
+                    this.receiveDateSchemaField = field;
                     break;
                 case 'favoriteFood':
-                    this.favoriteFoodSchemaColumn = column;
+                    this.favoriteFoodSchemaField = field;
                     break;
                 case 'restrictMovement':
-                    this.restrictMovementSchemaColumn = column;
+                    this.restrictMovementSchemaField = field;
                     break;
                 default:
                     name satisfies never;
             }
 
-            schema[i] = column;
+            schema[i] = field;
         }
 
         this._schema = schema;
     }
 
-    getSchema() {
+    getFields() {
         return this._schema;
     }
 
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<StandardInMemoryBehavioredColumnSettings>) {
+    getFieldColumnSettings(field: SchemaServerImplementation.Field): StandardInMemoryBehavioredColumnSettings {
+        return field.columnSettings;
+    }
+
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<SchemaServerImplementation.Field>) {
         this.notificationsClient = client;
 
         this.notificationsClient.schemaChanged();
@@ -76,9 +80,9 @@ export class SchemaServerImplementation implements SchemaServer<StandardInMemory
 }
 
 export namespace SchemaServerImplementation {
-    export interface Column extends SchemaServer.Column<StandardInMemoryBehavioredColumnSettings> {
+    export interface Field extends SchemaServer.Field {
         name: keyof MainRecord;
-        settings: StandardInMemoryBehavioredColumnSettings;
+        columnSettings: StandardInMemoryBehavioredColumnSettings;
         header: string;
     }
 

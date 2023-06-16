@@ -13,17 +13,17 @@ import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-    getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SC>;
+export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF>;
     editorKeyDownEventer: Focus.EditorKeyDownEventer;
 
     /** @internal */
     changedEventer: Focus.ChangedEventer;
     /** @internal */
-    viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer<BCS, SC>;
+    viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer<BCS, SF>;
 
-    readonly subgrid: Subgrid<BCS, SC>;
-    readonly dataServer: DataServer<BCS>;
+    readonly subgrid: Subgrid<BCS, SF>;
+    readonly dataServer: DataServer<SF>;
 
     /** @internal */
     private _currentSubgridPoint: Point | undefined;
@@ -37,9 +37,9 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     private _canvasY: number | undefined;
 
     /** @internal */
-    private _editor: CellEditor<BCS, SC> | undefined;
+    private _editor: CellEditor<BCS, SF> | undefined;
     /** @internal */
-    private _cell: ViewCell<BCS, SC> | undefined;
+    private _cell: ViewCell<BCS, SF> | undefined;
 
     /** @internal */
     constructor(
@@ -48,11 +48,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
-        private readonly _mainSubgrid: MainSubgrid<BCS, SC>,
+        private readonly _mainSubgrid: MainSubgrid<BCS, SF>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>,
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
     ) {
         this.subgrid = this._mainSubgrid;
         this.dataServer = this.subgrid.dataServer;
@@ -83,7 +83,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         this._currentSubgridPoint = undefined;
     }
 
-    set(newFocusPoint: Point, cell: ViewCell<BCS, SC> | undefined, canvasPoint: PartialPoint | undefined) {
+    set(newFocusPoint: Point, cell: ViewCell<BCS, SF> | undefined, canvasPoint: PartialPoint | undefined) {
         const newFocusX = newFocusPoint.x;
         const newFocusY = newFocusPoint.y;
         const currentSubgridPoint = this._currentSubgridPoint;
@@ -123,7 +123,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
-    setX(activeColumnIndex: number, cell: ViewCell<BCS, SC> | undefined, canvasX: number | undefined) {
+    setX(activeColumnIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasX: number | undefined) {
         const currentSubgridPoint = this._currentSubgridPoint;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex) {
@@ -158,7 +158,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
-    setY(subgridRowIndex: number, cell: ViewCell<BCS, SC> | undefined, canvasY: number | undefined) {
+    setY(subgridRowIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasY: number | undefined) {
         const currentSubgridPoint = this._currentSubgridPoint;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.y !== subgridRowIndex) {
@@ -192,7 +192,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
-    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell<BCS, SC> | undefined, canvasX: number | undefined, canvasY: number | undefined) {
+    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined) {
         const currentSubgridPoint = this._currentSubgridPoint;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex || currentSubgridPoint.y !== subgridRowIndex) {
@@ -232,7 +232,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         return this._currentSubgridPoint !== undefined && activeColumnIndex === this._currentSubgridPoint.x;
     }
 
-    isSubgridRowFocused(subgridRowIndex: number, subgrid: Subgrid<BCS, SC>) {
+    isSubgridRowFocused(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
         return subgrid === this._mainSubgrid && this.isMainSubgridRowFocused(subgridRowIndex);
     }
 
@@ -240,11 +240,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         return this._currentSubgridPoint !== undefined && mainSubgridRowIndex === this._currentSubgridPoint.y;
     }
 
-    isCellFocused(cell: ViewCell<BCS, SC>) {
+    isCellFocused(cell: ViewCell<BCS, SF>) {
         return cell === this._cell;
     }
 
-    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SC>) {
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
         return subgrid === this._mainSubgrid && this.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
     }
 
@@ -256,7 +256,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         );
     }
 
-    tryOpenEditor(cell: ViewCell<BCS, SC>) {
+    tryOpenEditor(cell: ViewCell<BCS, SF>) {
         if (cell !== this._cell) {
             // Can only open editor at Focused cell
             throw new AssertError('FTOE34349');
@@ -274,7 +274,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             } else {
                 const column = this._columnsManager.getActiveColumn(focusedPoint.x);
                 this._editor = undefined;
-                editor.close(column.schemaColumn, focusedPoint.y, cancel);
+                editor.close(column.field, focusedPoint.y, cancel);
                 this.finaliseEditor(editor);
 
                 if (this._cell !== undefined) {
@@ -314,7 +314,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             } else {
                 const column = this._columnsManager.getActiveColumn(focusPoint.x);
                 const subgridRowIndex = focusPoint.y;
-                const consumed = editor.processKeyDownEvent(event, fromEditor, column.schemaColumn, subgridRowIndex);
+                const consumed = editor.processKeyDownEvent(event, fromEditor, column.field, subgridRowIndex);
                 if (consumed) {
                     return true;
                 } else {
@@ -335,7 +335,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
-    checkEditorWantsClickEvent(event: MouseEvent, focusedCell: ViewCell<BCS, SC>): boolean {
+    checkEditorWantsClickEvent(event: MouseEvent, focusedCell: ViewCell<BCS, SF>): boolean {
         if (focusedCell !== this._cell) {
             throw new AssertError('FCEWCE59572');
         } else {
@@ -356,7 +356,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
-    checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: ViewCell<BCS, SC>): CellEditor.PointerLocationInfo | undefined {
+    checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: ViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined {
         if (focusedCell !== this._cell) {
             throw new AssertError('FCEWCE59572');
         } else {
@@ -374,7 +374,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS>) {
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 Point.adjustForYRangeInserted(this._currentSubgridPoint, rowIndex, rowCount);
@@ -388,7 +388,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS>) {
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 const positionInDeletionRange = Point.adjustForYRangeDeleted(this._currentSubgridPoint, rowIndex, rowCount);
@@ -408,7 +408,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<BCS>) {
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<SF>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._currentSubgridPoint !== undefined) {
                 Point.adjustForYRangeMoved(this._currentSubgridPoint, oldRowIndex, newRowIndex, count);
@@ -540,7 +540,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private tryOpenEditorAtFocusedCell(focusedCell: ViewCell<BCS, SC>, keyDownEvent: KeyboardEvent | undefined, clickEvent: MouseEvent | undefined) {
+    private tryOpenEditorAtFocusedCell(focusedCell: ViewCell<BCS, SF>, keyDownEvent: KeyboardEvent | undefined, clickEvent: MouseEvent | undefined) {
         if (this._editor !== undefined) {
             return true;
         } else {
@@ -552,10 +552,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                     throw new AssertError('FTOE17778');
                 } else {
                     const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-                    const schemaColumn = column.schemaColumn;
+                    const field = column.field;
                     const subgridRowIndex = focusedPoint.y;
                     const readonly = this.dataServer.setEditValue === undefined;
-                    const editor = this.getCellEditorEventer(schemaColumn, subgridRowIndex, this.subgrid, readonly, focusedCell);
+                    const editor = this.getCellEditorEventer(field, subgridRowIndex, this.subgrid, readonly, focusedCell);
                     if (editor === undefined) {
                         return false;
                     } else {
@@ -586,7 +586,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private finaliseEditor(editor: CellEditor<BCS, SC>) {
+    private finaliseEditor(editor: CellEditor<BCS, SF>) {
         editor.pullValueEventer = undefined;
         editor.pushValueEventer = undefined;
         editor.keyDownEventer = undefined;
@@ -600,7 +600,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             throw new AssertError('FGFDV17778');
         } else {
             const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-            return this.dataServer.getEditValue(column.schemaColumn, focusedPoint.y);
+            return this.dataServer.getEditValue(column.field, focusedPoint.y);
         }
     }
 
@@ -614,7 +614,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 throw new AssertError('FGFDVS17778');
             } else {
                 const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-                return this.dataServer.setEditValue(column.schemaColumn, focusedPoint.y, value);
+                return this.dataServer.setEditValue(column.field, focusedPoint.y, value);
             }
         }
     }
@@ -638,7 +638,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             return undefined;
         } else {
             return {
-                columnName: this._columnsManager.getActiveColumn(point.x).name,
+                fieldName: this._columnsManager.getActiveColumn(point.x).field.name,
                 rowId: dataServer.getRowIdFromIndex(point.y),
             };
         }
@@ -646,8 +646,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private createPointFromStash(stashPoint: Focus.Stash.Point): Point | undefined {
-        const { columnName, rowId: stashedRowId } = stashPoint;
-        const activeColumnIndex = this._columnsManager.getActiveColumnIndexByName(columnName);
+        const { fieldName, rowId: stashedRowId } = stashPoint;
+        const activeColumnIndex = this._columnsManager.getActiveColumnIndexByFieldName(fieldName);
         if (activeColumnIndex < 0) {
             return undefined;
         } else {
@@ -686,19 +686,19 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 /** @public */
 export namespace Focus {
     export type EditorKeyDownEventer = (this: void, event: KeyboardEvent) => void;
-    export type GetCellEditorEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (
+    export type GetCellEditorEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (
         this: void,
-        schemaColumn: SC,
+        field: SF,
         subgridRowIndex: number,
-        subgrid: Subgrid<BCS, SC>,
+        subgrid: Subgrid<BCS, SF>,
         readonly: boolean,
-        cell: ViewCell<BCS, SC> | undefined
-    ) => CellEditor<BCS, SC> | undefined;
+        cell: ViewCell<BCS, SF> | undefined
+    ) => CellEditor<BCS, SF> | undefined;
 
     /** @internal */
     export type ChangedEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
     /** @internal */
-    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, cell: ViewCell<BCS, SC>) => void;
+    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, cell: ViewCell<BCS, SF>) => void;
 
     export const enum ActionKeyboardKey {
         Tab = 'Tab',
@@ -745,7 +745,7 @@ export namespace Focus {
     /** @internal */
     export namespace Stash {
         export interface Point {
-            readonly columnName: string;
+            readonly fieldName: string;
             readonly rowId: unknown;
         }
     }

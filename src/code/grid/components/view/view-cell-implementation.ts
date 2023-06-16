@@ -11,7 +11,7 @@ import { Rectangle } from '../../types-utils/rectangle';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> implements ViewCell<BCS, SC> {
+export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> implements ViewCell<BCS, SF> {
     /** Set by some Grid Painters to record out cell was painted. If fingerprint is same on successive repaints of cell, then
      * cell does not need to be repainted
      * @internal
@@ -21,11 +21,11 @@ export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS exte
     cellOwnProperties: MetaModel.CellOwnProperties | undefined; // only get via CellPropertiesBehavior
 
     /** @internal */
-    private _subgrid: Subgrid<BCS, SC>;
+    private _subgrid: Subgrid<BCS, SF>;
     /** @internal */
-    private _viewLayoutColumn: ViewLayoutColumn<BCS, SC>;
+    private _viewLayoutColumn: ViewLayoutColumn<BCS, SF>;
     /** @internal */
-    private _viewLayoutRow: ViewLayoutRow<BCS, SC>;
+    private _viewLayoutRow: ViewLayoutRow<BCS, SF>;
 
     // caches
     /** @internal */
@@ -36,7 +36,7 @@ export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS exte
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SC>) {
+        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>) {
     }
 
     get subgrid() { return this._subgrid; }
@@ -218,7 +218,7 @@ export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS exte
 
     /** special method for use by renderer which reuses cellEvent object for performance reasons
      * @internal */
-    reset(viewLayoutColumn: ViewLayoutColumn<BCS, SC>, viewLayoutRow: ViewLayoutRow<BCS, SC>) {
+    reset(viewLayoutColumn: ViewLayoutColumn<BCS, SF>, viewLayoutRow: ViewLayoutRow<BCS, SF>) {
         // getter caches
         this._columnSettings = undefined;
         this.cellOwnProperties = undefined;
@@ -242,7 +242,7 @@ export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS exte
      * @returns Visibility.
      * @internal
      */
-    resetGridXY(vc: ViewLayoutColumn<BCS, SC> | undefined, vr: ViewLayoutRow<BCS, SC> | undefined) {
+    resetGridXY(vc: ViewLayoutColumn<BCS, SF> | undefined, vr: ViewLayoutRow<BCS, SF> | undefined) {
         if (vc === undefined) {
             return false;
         } else {

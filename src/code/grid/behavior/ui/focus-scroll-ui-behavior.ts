@@ -9,10 +9,10 @@ import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
     readonly typeName = FocusScrollUiBehavior.typeName;
 
-    override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -25,7 +25,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         return super.handlePointerDown(event, hoverCell);
     }
 
-    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -52,7 +52,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
     }
 
 
-    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -72,7 +72,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         }
     }
 
-    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -156,7 +156,7 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         }
     }
 
-    override handleWheelMove(event: WheelEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handleWheelMove(event: WheelEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         const gridSettings = this.gridSettings;
         if (gridSettings.scrollingEnabled) {
             const viewLayout = this.viewLayout;

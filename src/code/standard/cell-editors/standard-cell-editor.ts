@@ -4,8 +4,8 @@ import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from
 export abstract class StandardCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> implements CellEditor<BCS, SC> {
+    SF extends SchemaServer.Field
+> implements CellEditor<BCS, SF> {
     pullValueEventer: CellEditor.PullDataEventer;
     pushValueEventer: CellEditor.PushDataEventer;
     closedEventer: CellEditor.ClosedEventer;
@@ -13,8 +13,8 @@ export abstract class StandardCellEditor<
     private _readonly: boolean;
 
     constructor(
-        protected readonly _grid: Revgrid<BGS, BCS, SC>,
-        protected readonly _dataServer: DataServer<BCS>,
+        protected readonly _grid: Revgrid<BGS, BCS, SF>,
+        protected readonly _dataServer: DataServer<SF>,
     ) {
     }
 
@@ -23,21 +23,21 @@ export abstract class StandardCellEditor<
         this._readonly = value;
     }
 
-    abstract tryOpen(viewCell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
-    abstract close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean): void;
+    abstract tryOpen(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    abstract close(field: SF, subgridRowIndex: number, cancel: boolean): void;
 
-    abstract processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, schemaColumn: SC, subgridRowIndex: number): boolean;
+    abstract processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
 
     protected isToggleKey(key: string) {
         return key === Focus.ActionKeyboardKey.Enter || key === ' ';
     }
 
-    protected tryToggleBoolenValue(schemaColumn: SC, subgridRowIndex: number) {
+    protected tryToggleBoolenValue(field: SF, subgridRowIndex: number) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined || dataServer.setEditValue === undefined) {
             return false;
         } else {
-            const value = dataServer.getEditValue(schemaColumn, subgridRowIndex);
+            const value = dataServer.getEditValue(field, subgridRowIndex);
             let newValue: boolean;
             if (value === undefined) {
                 newValue = true;
@@ -48,7 +48,7 @@ export abstract class StandardCellEditor<
                     newValue = !value;
                 }
             }
-            dataServer.setEditValue(schemaColumn, subgridRowIndex, newValue);
+            dataServer.setEditValue(field, subgridRowIndex, newValue);
 
             return true;
         }

@@ -16,7 +16,7 @@ import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = SelectionUiBehavior.typeName;
 
@@ -36,7 +36,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
     private _lastColumnStepScrollDragTime: number | undefined;
     private _lastRowStepScrollDragTime: number | undefined;
 
-    override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (isSecondaryMouseButton(event)) {
             this.selection.clear();
             return super.handlePointerDown(event, hoverCell);
@@ -70,7 +70,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
+    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
         if (!event.altKey || isSecondaryMouseButton(event)) {
             return super.handleClick(event, hoverCell);
         } else {
@@ -105,7 +105,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (!event.altKey || isSecondaryMouseButton(event)) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
@@ -156,7 +156,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    override handlePointerDrag(event: PointerEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (this._activeDragType === undefined) {
             return super.handlePointerDrag(event, cell);
         } else {
@@ -176,7 +176,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: LinedHoverCell<BCS, SC> | null | undefined): LinedHoverCell<BCS, SC> | null | undefined {
+    override handlePointerDragEnd(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._activeDragType === undefined) {
             return super.handlePointerDragEnd(event, cell);
         } else {
@@ -200,14 +200,14 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         super.handleKeyDown(event, fromEditor);
     }
 
-    private trySelectFromMouseDownInScrollableMain(event: MouseEvent, cell: ViewCell<BCS, SC>, extendAddAllowed: boolean) {
+    private trySelectFromMouseDownInScrollableMain(event: MouseEvent, cell: ViewCell<BCS, SF>, extendAddAllowed: boolean) {
         // const areaTypeSpecifier = GridSettings.getSelectionAreaTypeSpecifierFromEvent(this.gridSettings, event);
         const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
 
         if (!GridSettings.isMouseSelectionAllowed(this.gridSettings, areaType)) {
             return false;
         } else {
-            const subgrid = cell.subgrid as Subgrid<BCS, SC>;
+            const subgrid = cell.subgrid as Subgrid<BCS, SF>;
             const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
             const selection = this.selection;
@@ -247,7 +247,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    private trySelectFromMouseDownInHeaderOrFixedRow(event: MouseEvent, cell: ViewCell<BCS, SC>) {
+    private trySelectFromMouseDownInHeaderOrFixedRow(event: MouseEvent, cell: ViewCell<BCS, SF>) {
         if (!this.gridSettings.mouseColumnSelection) {
             return false;
         } else {
@@ -291,7 +291,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    private trySelectFromMouseDownInFixedColumn(event: MouseEvent, cell: ViewCell<BCS, SC>) {
+    private trySelectFromMouseDownInFixedColumn(event: MouseEvent, cell: ViewCell<BCS, SF>) {
         if (!this.gridSettings.mouseRowSelection) {
             return false;
         } else {
@@ -339,13 +339,13 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
      * @desc Handle a mousedrag selection.
      * @param keys - array of the keys that are currently pressed down
      */
-    private tryUpdateLastSelectionArea(cell: ViewCell<BCS, SC>) {
+    private tryUpdateLastSelectionArea(cell: ViewCell<BCS, SF>) {
         const selection = this.selection;
         const lastArea = selection.lastArea;
         if (lastArea === undefined) {
             throw new AssertError('SUBULSA54455');
         } else {
-            const subgrid = cell.subgrid as Subgrid<BCS, SC>;
+            const subgrid = cell.subgrid as Subgrid<BCS, SF>;
             // let updatePossible: boolean;
 
             // switch (lastArea.areaType) {
@@ -594,7 +594,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         return stepped;
     }
 
-    private selectOnlyCell(originX: number, originY: number, subgrid: Subgrid<BCS, SC>, areaType: SelectionAreaType) {
+    private selectOnlyCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType) {
         let lastActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
 
@@ -665,9 +665,9 @@ export namespace SelectionUiBehavior {
 
     export const scheduleStepScrollDragTickInterval = 20;
 
-    export interface ExtendSelectOrigin<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+    export interface ExtendSelectOrigin<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
         readonly areaType: SelectionAreaType,
-        readonly subgrid: Subgrid<BCS, SC>;
+        readonly subgrid: Subgrid<BCS, SF>;
         readonly point: Point;
     }
 

@@ -5,13 +5,13 @@ import { StandardElementCellEditor } from './standard-element-cell-editor';
 export abstract class StandardInputElementCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends StandardElementCellEditor<BGS, BCS, SC> {
+    SF extends SchemaServer.Field
+> extends StandardElementCellEditor<BGS, BCS, SF> {
     keyDownEventer: CellEditor.KeyDownEventer;
 
     declare protected readonly element: HTMLInputElement;
 
-    constructor(grid: Revgrid<BGS, BCS, SC>, dataServer: DataServer<BCS>, inputType: string) {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, inputType: string) {
         const element = document.createElement('input') as HTMLInputElement;
         super(grid, dataServer, element);
 
@@ -26,7 +26,7 @@ export abstract class StandardInputElementCellEditor<
         this.element.readOnly = value;
     }
 
-    override tryOpen(viewCell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
+    override tryOpen(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
         const result = super.tryOpen(viewCell, openingKeyDownEvent, openingClickEvent);
         if (result) {
             this.element.addEventListener('keydown', this.keyDownEventer);
@@ -34,12 +34,12 @@ export abstract class StandardInputElementCellEditor<
         return result;
     }
 
-    override close(schemaColumn: SC, subgridRowIndex: number, cancel: boolean) {
+    override close(field: SF, subgridRowIndex: number, cancel: boolean) {
         this.element.removeEventListener('keydown', this.keyDownEventer);
-        super.close(schemaColumn, subgridRowIndex, cancel);
+        super.close(field, subgridRowIndex, cancel);
     }
 
-    override processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SC, _subgridRowIndex: number) {
+    override processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _subgridRowIndex: number) {
         if (fromEditor) {
             // Event was emitted by this editor.  Any key it can consume has effectively already been consumed
             return this.canConsumeKey(event.key);

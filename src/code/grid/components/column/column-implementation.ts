@@ -6,10 +6,8 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 
 /** @internal */
-export class ColumnImplementation<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> implements Column<BCS, SC> {
-    readonly schemaColumn: SC;
-    readonly index: number; // always the same as SchemaColumn index
-    readonly name: string;
+export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> implements Column<BCS, SF> {
+    readonly field: SF;
 
     /** @internal */
     preferredWidth: number | undefined;
@@ -28,13 +26,12 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SC exten
      */
     /** @internal */
     constructor(
-        schemaColumn: SC,
+        field: SF,
+        columnSettings: BCS,
         private readonly _horizontalViewLayoutInvalidatedEventer: ColumnImplementation.HorizontalViewLayoutInvalidatedEventer,
     ) {
-        this.index = schemaColumn.index;
-        this.name = schemaColumn.name
-        this.schemaColumn = schemaColumn;
-        this._settings = schemaColumn.settings;
+        this.field = field;
+        this._settings = columnSettings;
         this._width = this._settings.defaultColumnWidth;
         this._autosizing = this._settings.defaultColumnAutosizing;
     }
@@ -172,9 +169,9 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SC exten
      */
     getValueFromDataRow(dataRow: DataServer.ViewRow): DataServer.ViewValue {
         if (Array.isArray(dataRow)) {
-            return dataRow[this.schemaColumn.index];
+            return dataRow[this.field.index];
         } else {
-            return dataRow[this.name];
+            return dataRow[this.field.name];
         }
     }
 

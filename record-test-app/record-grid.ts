@@ -27,12 +27,12 @@ import {
     StatusIdValGridField,
     StrValGridField
 } from './grid-field';
-import { RecordHeaderAdapter } from './record-header-adapter';
+import { HeaderDataServer } from './header-data-server';
 
 export class RecordGrid extends Revgrid<
         StandardInMemoryBehavioredGridSettings,
         StandardInMemoryBehavioredColumnSettings,
-        RevRecordField.SchemaColumn<StandardInMemoryBehavioredColumnSettings>
+        RevRecordField<StandardInMemoryBehavioredColumnSettings>
     > {
     fieldSortedEventer: RecordGrid.FieldSortedEventer | undefined;
     columnWidthChangedEventer: RecordGrid.ColumnWidthChangedEventer | undefined;
@@ -66,7 +66,7 @@ export class RecordGrid extends Revgrid<
     ) {
         const fieldAdapter = new RevRecordFieldAdapter();
         const mainRecordAdapter = new RevRecordMainAdapter(fieldAdapter, recordStore);
-        const headerRecordAdapter = new RecordHeaderAdapter();
+        const headerRecordAdapter = new HeaderDataServer();
 
         const recordCellAdapter = new RevRecordCellAdapter(mainRecordAdapter, mainCellPainter);
 
@@ -198,7 +198,7 @@ export class RecordGrid extends Revgrid<
     getFieldVisible(field: RevRecordFieldIndex | RevRecordField): boolean {
         const fieldIndex = typeof field === 'number' ? field : this.getFieldIndex(field);
         const activeColumns = this.getActiveColumns();
-        return activeColumns.findIndex(column => (column.schemaColumn as RevRecordField.SchemaColumn).index === fieldIndex) !== -1;
+        return activeColumns.findIndex(column => column.field.index === fieldIndex) !== -1;
     }
 
     getHeaderPlusFixedLineHeight(): number {
@@ -212,7 +212,7 @@ export class RecordGrid extends Revgrid<
     }
 
     getVisibleFields(): RevRecordFieldIndex[] {
-        return this.getActiveColumns().map(column => (column.schemaColumn as RevRecordField.SchemaColumn).index);
+        return this.getActiveColumns().map(column => column.field.index);
     }
 
     isIntValGridField(field: GridField) {
@@ -319,7 +319,7 @@ export class RecordGrid extends Revgrid<
 
     override fireSyntheticColumnSortEvent(eventDetail: EventDetail.ColumnSort): boolean {
         const column = eventDetail.column;
-        const fieldIndex = column.schemaColumn.index;
+        const fieldIndex = column.field.index;
 
         this._mainRecordAdapter.sortBy(fieldIndex);
 

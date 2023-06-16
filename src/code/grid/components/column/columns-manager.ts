@@ -4,11 +4,11 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
-import { ColumnNameWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
+import { ColumnFieldNameAndWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
+export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     /** @internal */
     activeColumnWidthOrOrderChangedEventer: ColumnsManager.ActiveColumnWidthOrOrderChangedEventer;
 
@@ -19,11 +19,11 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     /** @internal */
     activeColumnListChangedEventer: UiableListChangedEventer;
     /** @internal */
-    columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer<BCS, SC>;
+    columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer<BCS, SF>;
     /** @internal */
-    private _activeColumns = new Array<Column<BCS, SC>>();
+    private readonly _activeColumns = new Array<Column<BCS, SF>>();
     /** @internal */
-    private _allColumns = new Array<Column<BCS, SC>>(); // always in same order as Schema
+    private readonly _allColumns = new Array<Column<BCS, SF>>(); // always in same order as Schema
 
     /** @internal */
     private _beginSchemaChangeCount = 0;
@@ -35,7 +35,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
     /** @internal */
     constructor(
-        readonly schemaServer: SchemaServer<BCS, SC>,
+        readonly schemaServer: SchemaServer<BCS, SF>,
         private readonly _gridSettings: BGS,
     ) {
     }
@@ -60,7 +60,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
     /** @internal */
     getSchema() {
-        return this.schemaServer.getSchema();
+        return this.schemaServer.getFields();
     }
 
     /** @internal */
@@ -145,8 +145,8 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /** @internal */
-    getActiveColumn(x: number) {
-        return this._activeColumns[x];
+    getActiveColumn(index: number) {
+        return this._activeColumns[index];
     }
 
     /**
@@ -154,8 +154,8 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
      * @returns The grid index of the column or -1 if column not in grid (hidden).
      * @internal
      */
-    getActiveColumnIndexByName(name: string) {
-        return this._activeColumns.findIndex((column) => { return column.name === name; });
+    getActiveColumnIndexByFieldName(name: string) {
+        return this._activeColumns.findIndex((column) => { return column.field.name === name; });
     }
 
     /**
@@ -163,8 +163,8 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
      * @returns The grid index of the column or -1 if column not in grid (hidden).
      * @internal
      */
-    getActiveColumnIndexByAllIndex(allIndex: number) {
-        return this._activeColumns.findIndex((column) => { return column.index === allIndex; });
+    getActiveColumnIndexByFieldIndex(fieldIndex: number) {
+        return this._activeColumns.findIndex((column) => { return column.field.index === fieldIndex; });
     }
 
     /** @internal */
@@ -173,9 +173,10 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /** @internal */
-    newColumn(schemaColumn: SC): Column<BCS, SC> {
+    newColumn(field: SF, columnSettings: BCS): Column<BCS, SF> {
         return new ColumnImplementation(
-            schemaColumn,
+            field,
+            columnSettings,
             () => this.invalidateHorizontalViewLayoutEventer(true),
         );
     }
@@ -184,23 +185,24 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     createColumns() {
         this._beforeCreateColumnsListeners.forEach((listener) => listener());
 
-        const schema = this.schemaServer.getSchema();
+        const fields = this.schemaServer.getFields();
 
         this.clearColumns();
 
-        const count = schema.length;
+        const count = fields.length;
         this._activeColumns.length = count;
         this._allColumns.length = count;
 
         for (let i = 0; i < count; i++) {
-            const schemaColumn = schema[i];
-            const column = this.newColumn(schemaColumn);
+            const field = fields[i];
+            const columnSettings = this.schemaServer.getFieldColumnSettings(field);
+            const column = this.newColumn(field, columnSettings);
             this._activeColumns[i] = column;
-            const allIndex = column.index;
-            if (this._allColumns[allIndex] !== undefined) {
-                throw new Error(`ColumnsManager.createColumns: Duplicate column index ${allIndex}`);
+            const fieldIndex = field.index;
+            if (this._allColumns[fieldIndex] !== undefined) {
+                throw new Error(`ColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
             } else {
-                this._allColumns[allIndex] = column;
+                this._allColumns[fieldIndex] = column;
             }
         }
 
@@ -210,35 +212,35 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /** @internal */
-    createDummyColumn(): Column<BCS, SC> {
-        const dummySettings: BCS = {} as BCS;
-        const schemaColumn: SC = {
-            index: -1,
+    createDummyColumn(): Column<BCS, SF> {
+        const dummyColumnSettings: BCS = {} as BCS;
+        const field: SF = {
             name: '',
-            settings: dummySettings,
-        } as SC;
+            index: -1,
+        } as SF;
         return new ColumnImplementation(
-            schemaColumn,
+            field,
+            dummyColumnSettings,
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             () => {},
         );
     }
 
     /** @internal */
-    getActiveColumnWidth(x: number) {
-        const column = this.getActiveColumn(x);
+    getActiveColumnWidth(index: number) {
+        const column = this._activeColumns[index];
         return column !== undefined ? column.width : 0;
     }
 
     /** @internal */
-    getActiveColumnRoundedWidth(x: number) {
-        const column = this.getActiveColumn(x);
+    getActiveColumnRoundedWidth(index: number) {
+        const column = this._activeColumns[index];
         return column !== undefined ? Math.round(column.width) : 0;
     }
 
     /** @internal */
-    getActiveColumnCeilWidth(x: number) {
-        const column = this.getActiveColumn(x);
+    getActiveColumnCeilWidth(index: number) {
+        const column = this._activeColumns[index];
         return column !== undefined ? Math.ceil(column.width) : 0;
     }
 
@@ -267,11 +269,11 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
      * @param columnOrIndex - The column or active column index.
      * @internal
      */
-    setActiveColumnWidth(columnOrIndex: Column<BCS, SC> | number, width: number | undefined, ui: boolean) {
-        let column: Column<BCS, SC>
+    setActiveColumnWidth(columnOrIndex: Column<BCS, SF> | number, width: number | undefined, ui: boolean) {
+        let column: Column<BCS, SF>
         if (typeof columnOrIndex === 'number') {
             if (columnOrIndex >= 0) {
-                column = this.getActiveColumn(columnOrIndex);
+                column = this._activeColumns[columnOrIndex];
             } else {
                 throw new Error(`Behavior.setColumnWidth: Invalid column number ${columnOrIndex}`);
             }
@@ -289,8 +291,8 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /** @internal */
-    setColumnWidths(columnWidths: ColumnWidth<BCS, SC>[], ui: boolean) {
-        const changedColumns = new Array<Column<BCS, SC>>(columnWidths.length);
+    setColumnWidths(columnWidths: ColumnWidth<BCS, SF>[], ui: boolean) {
+        const changedColumns = new Array<Column<BCS, SF>>(columnWidths.length);
         let changedColumnsCount = 0;
         for (const columnWidth of columnWidths) {
             const { column, width } = columnWidth;
@@ -308,14 +310,14 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /** @internal */
-    setColumnWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean) {
-        const changedColumns = new Array<Column<BCS, SC>>(columnNameWidths.length);
+    setColumnWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndWidth[], ui: boolean) {
+        const changedColumns = new Array<Column<BCS, SF>>(columnFieldNameAndWidths.length);
         let changedColumnsCount = 0;
-        for (const columnNameWidth of columnNameWidths) {
-            const { name, width } = columnNameWidth;
-            const column = this._allColumns.find((aColumn) => aColumn.name === name)
+        for (const fieldNameAndWidth of columnFieldNameAndWidths) {
+            const { fieldName, width } = fieldNameAndWidth;
+            const column = this._allColumns.find((aColumn) => aColumn.field.name === fieldName)
             if (column === undefined) {
-                throw new Error(`Behavior.setColumnWidthsByName: Column name not found: ${name}`);
+                throw new Error(`Behavior.setColumnWidthsByName: Column name not found: ${fieldName}`);
             } else {
                 if (column.setWidth(width)) {
                     changedColumns[changedColumnsCount++] = column;
@@ -410,7 +412,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         const activeColumns = this._activeColumns;
         const sourceColumnList = isActiveColumnIndexes ? activeColumns : this._allColumns;
 
-        let newColumns: Column<BCS, SC>[];
+        let newColumns: Column<BCS, SF>[];
         if (columnIndexOrIndices === undefined) {
             newColumns = sourceColumnList;
         } else {
@@ -447,15 +449,15 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         }
     }
 
-    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnNameWidth[], ui: boolean) {
+    setActiveColumnsAndWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndWidth[], ui: boolean) {
         const activeColumns = this._activeColumns;
-        const count = columnNameWidths.length;
+        const count = columnFieldNameAndWidths.length;
         activeColumns.length = count;
         for (let i = 0; i < count; i++) {
-            const { name, width } = columnNameWidths[i];
-            const column = this._allColumns.find((aColumn) => aColumn.name === name)
+            const { fieldName, width } = columnFieldNameAndWidths[i];
+            const column = this._allColumns.find((aColumn) => aColumn.field.name === fieldName)
             if (column === undefined) {
-                throw new Error(`Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${name}`);
+                throw new Error(`Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${fieldName}`);
             } else {
                 activeColumns[i] = column;
                 column.setWidth(width);
@@ -481,17 +483,17 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /** @internal */
-    setActiveColumns(columnNameOrAllIndexArray: readonly (Column<BCS, SC> | string | number)[]) {
-        const newActiveCount = columnNameOrAllIndexArray.length;
-        const newActiveColumns = new Array<Column<BCS, SC>>(newActiveCount);
+    setActiveColumns(columnFieldNameOrAllIndexArray: readonly (Column<BCS, SF> | string | number)[]) {
+        const newActiveCount = columnFieldNameOrAllIndexArray.length;
+        const newActiveColumns = new Array<Column<BCS, SF>>(newActiveCount);
         for (let i = 0; i < newActiveCount; i++) {
-            const columnNameOrAllIndex = columnNameOrAllIndexArray[i];
-            let column: Column<BCS, SC>;
+            const columnNameOrAllIndex = columnFieldNameOrAllIndexArray[i];
+            let column: Column<BCS, SF>;
             if (typeof columnNameOrAllIndex === 'number') {
                 column = this._allColumns[columnNameOrAllIndex];
             } else {
                 if (typeof columnNameOrAllIndex === 'string') {
-                    const foundColumn = this._allColumns.find((aColumn) => aColumn.name === columnNameOrAllIndex);
+                    const foundColumn = this._allColumns.find((aColumn) => aColumn.field.name === columnNameOrAllIndex);
                     if (foundColumn === undefined) {
                         throw new Error(`ColumnsManager.setActiveColumns: Column with name not found: ${columnNameOrAllIndex}`);
                     } else {
@@ -516,8 +518,8 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
      * @return The properties for a specific column.
      * @internal
      */
-    getActiveColumnProperties(activeColumnIndex: number): ColumnSettings | undefined {
-        const column = this.getActiveColumn(activeColumnIndex);
+    getActiveColumnSettings(activeColumnIndex: number): ColumnSettings | undefined {
+        const column = this._activeColumns[activeColumnIndex];
         return column?.settings;
     }
 
@@ -526,15 +528,14 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
      * @return The properties for a specific column.
      * @internal
      */
-    setColumnProperties(allX: number, properties: ColumnSettings): ColumnSettings {
+    setColumnSettings(allX: number, settings: ColumnSettings): ColumnSettings {
         const column = this.getAllColumn(allX);
         if (column === undefined) {
             throw 'Expected column.';
         }
 
         // column.clearProperties(); // needs implementation
-        column.settings.load(properties);
-        this.invalidateHorizontalViewLayoutEventer(true); // true in case width affected
+        column.settings.load(settings);
         return column.settings;
     }
 
@@ -637,12 +638,12 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /** @internal */
-    get allColumns(): readonly Column<BCS, SC>[] {
+    get allColumns(): readonly Column<BCS, SF>[] {
         return this._allColumns;
     }
 
     /** @internal */
-    get activeColumns(): readonly Column<BCS, SC>[] {
+    get activeColumns(): readonly Column<BCS, SF>[] {
         return this._activeColumns;
     }
 
@@ -651,14 +652,14 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         // this does not look right
         const visible = this._activeColumns;
         const all = this._allColumns;
-        const hidden = new Array<Column<BCS, SC>>();
+        const hidden = new Array<Column<BCS, SF>>();
         for (let i = 0; i < all.length; i++) {
             if (visible.indexOf(all[i]) === -1) {
                 hidden.push(all[i]);
             }
         }
         hidden.sort((a, b) => {
-            return a.name < b.name ? 1 : 0; // previously was header
+            return a.field.name < b.field.name ? 1 : 0;
         });
         return hidden;
     }
@@ -668,7 +669,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 export namespace ColumnsManager {
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
     export type ActiveColumnWidthOrOrderChangedEventer = (this: void) => void;
-    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> = (this: void, columns: Column<BCS, SC>[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

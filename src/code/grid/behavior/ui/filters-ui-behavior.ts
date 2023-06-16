@@ -8,7 +8,7 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> extends UiBehavior<BGS, BCS, SC> {
+export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = FiltersUiBehavior.typeName;
 
@@ -43,18 +43,18 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    handleLEFT(cellEvent: ViewCell<BCS, SC>) {
+    handleLEFT(cellEvent: ViewCell<BCS, SF>) {
         this.moveLaterally(cellEvent, -1);
     }
 
-    handleRIGHT(cellEvent: ViewCell<BCS, SC>) {
+    handleRIGHT(cellEvent: ViewCell<BCS, SF>) {
         this.moveLaterally(cellEvent, +1);
     }
 
     handleUP = this.moveDown;
     handleDOWN = this.moveDown;
 
-    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === undefined) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -66,7 +66,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SC> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (cell === undefined) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -78,7 +78,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         }
     }
 
-    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS, SC>, deltaX: number) {
+    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS, SF>, deltaX: number) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         let gridX = cellEvent.viewLayoutColumn.index;
         const gridY = cellEvent.viewLayoutRow.index;
@@ -101,7 +101,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         this.moveDown(moveDownCellEvent);
     }
 
-    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS, SC>) {
+    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS, SF>) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         const gridX = cellEvent.viewLayoutColumn.index;
 

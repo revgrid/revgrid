@@ -16,26 +16,26 @@ import { ByColumnsGridPainter } from './by-columns-grid-painter';
 import { ByRowsGridPainter } from './by-rows-grid-painter';
 import { GridPainter } from './grid-painter';
 
-export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SC extends SchemaServer.Column<BCS>> {
-    private constructorRegistry = new Registry<GridPainter.Constructor<BGS, BCS, SC>>();
-    private cache = new Map<string, GridPainter<BGS, BCS, SC>>();
+export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    private constructorRegistry = new Registry<GridPainter.Constructor<BGS, BCS, SF>>();
+    private cache = new Map<string, GridPainter<BGS, BCS, SF>>();
 
     constructor(
         private readonly _gridSettings: BGS,
         private readonly _canvasEx: CanvasManager<BGS>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SC>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SC>,
-        private readonly _focus: Focus<BGS, BCS, SC>,
-        private readonly _selection: Selection<BGS, BCS, SC>,
-        private readonly _mouse: Mouse<BGS, BCS, SC>,
+        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        private readonly _focus: Focus<BGS, BCS, SF>,
+        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _mouse: Mouse<BGS, BCS, SF>,
         private readonly _repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
         // preregister the standard grid painters
-        this.constructorRegistry.register(AsNeededGridPainter.key, AsNeededGridPainter<BGS, BCS, SC>);
-        this.constructorRegistry.register(ByColumnsGridPainter.key, ByColumnsGridPainter<BGS, BCS, SC>);
-        this.constructorRegistry.register(ByColumnsDiscreteGridPainter.key, ByColumnsDiscreteGridPainter<BGS, BCS, SC>);
-        this.constructorRegistry.register(ByColumnsAndRowsGridPainter.key, ByColumnsAndRowsGridPainter<BGS, BCS, SC>);
-        this.constructorRegistry.register(ByRowsGridPainter.key, ByRowsGridPainter<BGS, BCS, SC>);
+        this.constructorRegistry.register(AsNeededGridPainter.key, AsNeededGridPainter<BGS, BCS, SF>);
+        this.constructorRegistry.register(ByColumnsGridPainter.key, ByColumnsGridPainter<BGS, BCS, SF>);
+        this.constructorRegistry.register(ByColumnsDiscreteGridPainter.key, ByColumnsDiscreteGridPainter<BGS, BCS, SF>);
+        this.constructorRegistry.register(ByColumnsAndRowsGridPainter.key, ByColumnsAndRowsGridPainter<BGS, BCS, SF>);
+        this.constructorRegistry.register(ByRowsGridPainter.key, ByRowsGridPainter<BGS, BCS, SF>);
     }
 
     get(key: string) {
@@ -69,7 +69,7 @@ export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS exten
         return this.cache.values();
     }
 
-    register(key: string, constructor: GridPainter.Constructor<BGS, BCS, SC>) {
+    register(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>) {
         this.constructorRegistry.register(key, constructor);
     }
 }

@@ -19,11 +19,11 @@ import { StandardTextCellPainter } from './standard-text-cell-painter';
 export class StandardHeaderTextCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SC extends SchemaServer.Column<BCS>
-> extends StandardTextCellPainter<BGS, BCS, SC> {
+    SF extends SchemaServer.Field
+> extends StandardTextCellPainter<BGS, BCS, SF> {
     textWrapping = false;
 
-    override paint(cell: DatalessViewCell<BCS, SC>, _prefillColor: string | undefined): number | undefined {
+    override paint(cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
 
         const columnSettings = cell.columnSettings;
@@ -34,7 +34,7 @@ export class StandardHeaderTextCellPainter<
         const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
         const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
 
-        const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.schemaColumn, subgridRowIndex);
+        const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.field, subgridRowIndex);
         const valText = value as string;
 
         const subgrid = cell.subgrid;

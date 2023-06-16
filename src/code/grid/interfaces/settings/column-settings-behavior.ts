@@ -1,15 +1,7 @@
 import { ColumnSettings } from './column-settings';
+import { GridSettingsBehavior } from './grid-settings-behavior';
 
 /** @public */
-export interface ColumnSettingsBehavior {
-    /** @internal */
-    viewRenderInvalidatedEventer: ColumnSettingsBehavior.ViewRenderInvalidatedEventer;
-
-    load(properties: ColumnSettings): void;
-}
-
-/** @public */
-export namespace ColumnSettingsBehavior {
-    /** @internal */
-    export type ViewRenderInvalidatedEventer = (this: void) => void;
+export interface ColumnSettingsBehavior extends GridSettingsBehavior {
+    load(settings: ColumnSettings): void;
 }
