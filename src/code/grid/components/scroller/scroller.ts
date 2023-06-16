@@ -94,6 +94,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      */
     // normal: number;
 
+    private readonly _settingsChangedListener = () => this.applySettings();
     private readonly _containerWheelListener = (event: WheelEvent) => this.handleContainerWheelEvent(event);
     private readonly _barClickListener = (event: MouseEvent) => this.handleBarClickEvent(event);
     private readonly _thumbClickListener = (event: MouseEvent) => this.handleThumbClickEvent(event);
@@ -177,12 +178,10 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     ) {
         this._orientationHash = orientationHashes[this.orientation];
 
-        this._thumb = document.createElement('div');
-        const thumb = this._thumb;
+        const thumb = document.createElement('div');
+        this._thumb = thumb;
         thumb.id = orientation + Scroller.thumbElementIdBase + instanceId.toString(10);
         thumb.style.position = 'absolute';
-        thumb.style.backgroundColor = this._gridSettings.scrollerThumbColor;
-        thumb.style.opacity = this._gridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
 
         thumb.classList.add('thumb');
         thumb.addEventListener('click', this._thumbClickListener);
@@ -190,15 +189,10 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         thumb.addEventListener('pointerleave', this._thumbPointerLeaveListener);
         thumb.addEventListener('transitionend', this._thumbTransitionEndListener);
 
-        this.bar = document.createElement('div');
-        const bar = this.bar;
+        const bar = document.createElement('div');
+        this.bar = bar;
         bar.id = orientation + Scroller.barElementIdBase + instanceId.toString();
         bar.style.position = 'absolute';
-        if (orientation === 'vertical' && this._gridSettings.gridRightAligned) {
-            this.setBeforeInsideOffset(0);
-        } else {
-            this.setAfterInsideOffset(0);
-        }
         const leadingKey = this._orientationHash['leading'];
         bar.style.setProperty(leadingKey, '0');
         const trailingKey = this._orientationHash['trailing'];
@@ -206,6 +200,8 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         bar.addEventListener('pointerdown', this._barPointerDownListener);
         bar.addEventListener('click', this._barClickListener);
         bar.appendChild(thumb);
+
+        this.applySettings();
 
         this._containerHtmlElement.addEventListener('wheel', this._containerWheelListener);
         // presets
@@ -231,6 +227,8 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         // if (loadBuiltinCssStylesheet) {
         //     cssInjector(cssFinBars, 'finbar-base', cssStylesheetReferenceElement);
         // }
+
+        this._gridSettings.subscribeChangedEvent(this._settingsChangedListener);
 
         this._scrollDimension.changedEventer = () => {
             this.resize();
@@ -259,6 +257,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     destroy() {
         this._containerHtmlElement.removeEventListener('wheel', this._containerWheelListener);
 
+        this._gridSettings.unsubscribeChangedEvent(this._settingsChangedListener);
         this.bar.removeEventListener('click', this._barClickListener);
         this.bar.removeEventListener('pointerdown', this._barPointerDownListener);
         this._thumb.removeEventListener('click', this._thumbClickListener);
@@ -430,6 +429,12 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         this._temporaryThumbFullVisibilityTimePeriod = timePeriod;
         this.updateThumbVisibility();
     }
+
+    private applySettings() {
+        this._thumb.style.backgroundColor = this._gridSettings.scrollerThumbColor;
+        this._thumb.style.opacity = this._gridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
+    }
+
 
     // scrollBy(delta: number) {
     //     const viewportStart = this._scrollDimension.viewportStart;

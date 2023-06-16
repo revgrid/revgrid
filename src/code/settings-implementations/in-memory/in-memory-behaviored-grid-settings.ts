@@ -1,5 +1,6 @@
 import {
     BehavioredGridSettings,
+    GridSettingChangeInvalidateTypeId,
     GridSettings,
     Halign,
     HorizontalWheelScrollingAllowed,
@@ -109,7 +110,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._addToggleSelectionAreaModifierKey = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKey;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -119,7 +120,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._addToggleSelectionAreaModifierKeyDoesToggle = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKeyDoesToggle;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -129,7 +130,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._backgroundColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.backgroundColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -139,7 +140,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._color = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.color;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -149,7 +150,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._defaultColumnAutosizing = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnAutosizing;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -159,7 +160,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnAutosizingMax = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnAutosizingMax;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -169,7 +170,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnClip = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnClip;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -179,7 +180,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnMoveDragPossibleCursorName = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragPossibleCursorName;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -189,7 +190,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnMoveDragPossibleTitleText = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragPossibleTitleText;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -199,7 +200,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnMoveDragActiveCursorName = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragActiveCursorName;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -209,7 +210,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnMoveDragActiveTitleText = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragActiveTitleText;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -219,7 +220,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnResizeDragPossibleCursorName = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragPossibleCursorName;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -229,7 +230,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnResizeDragPossibleTitleText = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragPossibleTitleText;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -239,7 +240,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnResizeDragActiveCursorName = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragActiveCursorName;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -249,7 +250,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnResizeDragActiveTitleText = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragActiveTitleText;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -259,7 +260,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnSortPossibleCursorName = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnSortPossibleCursorName;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -269,7 +270,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnSortPossibleTitleText = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnSortPossibleTitleText;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -279,7 +280,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnsReorderable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnsReorderable;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -289,7 +290,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnsReorderableHideable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnsReorderableHideable;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -299,7 +300,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._defaultRowHeight = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.defaultRowHeight;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -309,7 +310,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._defaultColumnWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -319,7 +320,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._defaultUiBehaviorTypeNames = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.defaultUiBehaviorTypeNames;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -329,7 +330,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._editable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editable;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -339,7 +340,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._editKey = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editKey;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -349,7 +350,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._editOnClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnClick;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -359,7 +360,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._editOnDoubleClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnDoubleClick;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -369,7 +370,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._editOnFocusCell = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnFocusCell;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -379,7 +380,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._editOnKeyDown = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnKeyDown;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -389,7 +390,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._enableContinuousRepaint = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.enableContinuousRepaint;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -399,7 +400,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._extendLastSelectionAreaModifierKey = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.extendLastSelectionAreaModifierKey;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -409,7 +410,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._eventDispatchEnabled = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.eventDispatchEnabled;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -419,7 +420,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterable;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -429,7 +430,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterBackgroundColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterBackgroundColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -439,7 +440,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterBackgroundSelectionColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterBackgroundSelectionColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -449,7 +450,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -459,7 +460,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterEditor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterEditor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -469,7 +470,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterFont = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterFont;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -479,7 +480,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterForegroundSelectionColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterForegroundSelectionColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -489,7 +490,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterHalign = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterHalign;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -499,7 +500,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterCellPainter = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterCellPainter;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -509,7 +510,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._fixedColumnCount = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.fixedColumnCount;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -519,7 +520,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._fixedLinesHColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.fixedLinesHColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -529,7 +530,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._fixedLinesHEdge = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.fixedLinesHEdge;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -539,7 +540,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._fixedLinesHWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.fixedLinesHWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -549,7 +550,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._fixedLinesVColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.fixedLinesVColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -559,7 +560,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._fixedLinesVEdge = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.fixedLinesVEdge;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -569,7 +570,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._fixedLinesVWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.fixedLinesVWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -579,7 +580,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._fixedRowCount = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.fixedRowCount;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -589,7 +590,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._gridRightAligned = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.gridRightAligned;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -599,7 +600,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._verticalGridLinesVisible = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.verticalGridLinesVisible;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -609,7 +610,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._gridLinesH = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.gridLinesH;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -619,7 +620,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._gridLinesHColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.gridLinesHColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -629,7 +630,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._gridLinesHWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.gridLinesHWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -639,7 +640,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._horizontalGridLinesVisible = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalGridLinesVisible;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -649,7 +650,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._gridLinesV = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.gridLinesV;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -659,7 +660,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._gridLinesVColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.gridLinesVColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -669,7 +670,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._gridLinesVWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.gridLinesVWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -679,7 +680,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._horizontalWheelScrollingAllowed = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalWheelScrollingAllowed;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -689,7 +690,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._horizontalScrollbarClassPrefix = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalScrollbarClassPrefix;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -699,7 +700,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._minimumColumnWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.minimumColumnWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -709,7 +710,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._maximumColumnWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.maximumColumnWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -719,7 +720,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._visibleColumnWidthAdjust = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.visibleColumnWidthAdjust;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -729,7 +730,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._mouseRectangleSelection = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.mouseRectangleSelection;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -739,7 +740,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._mouseColumnSelection = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.mouseColumnSelection;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -749,7 +750,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._mouseRowSelection = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.mouseRowSelection;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -759,7 +760,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._multipleSelectionAreas = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.multipleSelectionAreas;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -769,7 +770,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._primarySelectionAreaType = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.primarySelectionAreaType;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -779,7 +780,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._repaintImmediately = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.repaintImmediately;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -789,7 +790,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._repaintFramesPerSecond = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.repaintFramesPerSecond;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -799,7 +800,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._resizeColumnInPlace = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.resizeColumnInPlace;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -809,7 +810,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._resizedEventDebounceExtendedWhenPossible = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.resizedEventDebounceExtendedWhenPossible;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -819,7 +820,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._resizedEventDebounceInterval = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.resizedEventDebounceInterval;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -829,7 +830,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._rowResize = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.rowResize;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -839,7 +840,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._rowStripes = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.rowStripes;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -849,7 +850,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._scrollHorizontallySmoothly = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.scrollHorizontallySmoothly;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -859,7 +860,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._scrollerThumbColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.scrollerThumbColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -869,7 +870,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._scrollerThumbReducedVisibilityOpacity = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.scrollerThumbReducedVisibilityOpacity;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -879,7 +880,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._scrollingEnabled = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.scrollingEnabled;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -889,7 +890,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._secondarySelectionAreaTypeSpecifierModifierKey = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.secondarySelectionAreaTypeSpecifierModifierKey;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -899,7 +900,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._secondarySelectionAreaType = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.secondarySelectionAreaType;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -909,7 +910,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._selectionExtendDragActiveCursorName = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.selectionExtendDragActiveCursorName;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -919,7 +920,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._selectionExtendDragActiveTitleText = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.selectionExtendDragActiveTitleText;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -929,7 +930,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._selectionRegionOutlineColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.selectionRegionOutlineColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -939,7 +940,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._selectionRegionOverlayColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.selectionRegionOverlayColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -949,7 +950,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._showFilterRow = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.showFilterRow;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -959,7 +960,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._mouseSortOnDoubleClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.mouseSortOnDoubleClick;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -969,7 +970,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._mouseSortable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.mouseSortable;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -979,7 +980,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._useHiDPI = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.useHiDPI;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -989,7 +990,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._verticalScrollbarClassPrefix = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.verticalScrollbarClassPrefix;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -999,7 +1000,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._wheelHFactor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.wheelHFactor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -1009,7 +1010,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._wheelVFactor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.wheelVFactor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -1300,6 +1301,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                 }
             }
         }
+
+        this.notifyChanged(GridSettingChangeInvalidateTypeId.Resize);
 
         this.endChange();
     }

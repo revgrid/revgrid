@@ -1,4 +1,4 @@
-import { Point, RevSimpleServerSet, StandardBehavioredGridSettings, standardDiscardDefaultBehavioredGridSettings } from '..';
+import { Point, RevSimpleServerSet, StandardBehavioredGridSettings, standardReadonlyDefaultBehavioredGridSettings } from '..';
 import { SimpleGrid } from './simple-grid';
 
 export class Main {
@@ -35,7 +35,7 @@ export class Main {
 
     private createGrid(hostElement: HTMLElement) {
         const gridSettings: StandardBehavioredGridSettings = {
-            ...standardDiscardDefaultBehavioredGridSettings,
+            ...standardReadonlyDefaultBehavioredGridSettings,
             mouseColumnSelection: false,
             mouseRowSelection: false,
             multipleSelectionAreas: false,

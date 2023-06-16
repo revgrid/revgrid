@@ -1,4 +1,5 @@
 import {
+    GridSettingChangeInvalidateTypeId,
     GridSettings,
     Halign,
     TextTruncateType
@@ -35,7 +36,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._cellPadding) {
             this.beginChange();
             this._cellPadding = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -44,7 +45,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._cellFocusedBorderColor) {
             this.beginChange();
             this._cellFocusedBorderColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -53,7 +54,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._cellHoverBackgroundColor) {
             this.beginChange();
             this._cellHoverBackgroundColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -62,7 +63,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._columnHoverBackgroundColor) {
             this.beginChange();
             this._columnHoverBackgroundColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -71,7 +72,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._columnHeaderFont) {
             this.beginChange();
             this._columnHeaderFont = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -80,7 +81,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
             this._columnHeaderHorizontalAlign = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -89,7 +90,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._columnHeaderBackgroundColor) {
             this.beginChange();
             this._columnHeaderBackgroundColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -98,7 +99,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._columnHeaderForegroundColor) {
             this.beginChange();
             this._columnHeaderForegroundColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -107,7 +108,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._columnHeaderSelectionFont) {
             this.beginChange();
             this._columnHeaderSelectionFont = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -116,7 +117,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._columnHeaderSelectionBackgroundColor) {
             this.beginChange();
             this._columnHeaderSelectionBackgroundColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -125,7 +126,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._columnHeaderSelectionForegroundColor) {
             this.beginChange();
             this._columnHeaderSelectionForegroundColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -134,7 +135,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._rowHoverBackgroundColor) {
             this.beginChange();
             this._rowHoverBackgroundColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -143,7 +144,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._selectionFont) {
             this.beginChange();
             this._selectionFont = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -152,7 +153,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._selectionBackgroundColor) {
             this.beginChange();
             this._selectionBackgroundColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -161,7 +162,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._selectionForegroundColor) {
             this.beginChange();
             this._selectionForegroundColor = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -170,7 +171,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._horizontalAlign) {
             this.beginChange();
             this._horizontalAlign = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -179,7 +180,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._verticalOffset) {
             this.beginChange();
             this._verticalOffset = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -188,7 +189,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._font) {
             this.beginChange();
             this._font = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -197,7 +198,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._textTruncateType) {
             this.beginChange();
             this._textTruncateType = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -206,7 +207,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._textStrikeThrough) {
             this.beginChange();
             this._textStrikeThrough = value;
-            this.invalidateViewRender();
+            this.notifyChangedViewRender();
             this.endChange();
         }
     }
@@ -215,6 +216,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
         if (value !== this._editorClickCursorName) {
             this.beginChange();
             this._editorClickCursorName = value;
+            this.notifyChanged(GridSettingChangeInvalidateTypeId.None);
             this.endChange();
         }
     }

@@ -16,10 +16,15 @@ export interface GridSettingsBehavior {
     beginChange(): void;
     endChange(): void;
     load(settings: GridSettings): void;
+
+    subscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler): void;
+    unsubscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler): void;
 }
 
 /** @public */
 export namespace GridSettingsBehavior {
+    export type ChangedEventHandler = (this: void) => void;
+
     /** @internal */
     export type ResizeEventer = (this: void) => void;
     /** @internal */

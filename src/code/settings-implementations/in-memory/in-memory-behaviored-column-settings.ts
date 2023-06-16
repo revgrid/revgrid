@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, ColumnSettings, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, ColumnSettings, GridSettingChangeInvalidateTypeId, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
 import { AllGridSettings } from '../../grid/interfaces/settings/all-grid-settings';
 import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
@@ -32,7 +32,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._backgroundColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.backgroundColor;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -43,7 +43,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._color = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.color;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -64,7 +64,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                 this._columnAutosizingMax = value;
             }
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnAutosizingMax;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -85,7 +85,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                 this._columnClip = value;
             }
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnClip;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -96,7 +96,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._defaultColumnAutosizing = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnAutosizing;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -107,7 +107,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._defaultColumnWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -118,7 +118,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editable;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -129,7 +129,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editOnClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnClick;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -140,7 +140,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editOnDoubleClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnDoubleClick;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -151,7 +151,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editOnFocusCell = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnFocusCell;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -162,7 +162,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editOnKeyDown = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnKeyDown;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -173,7 +173,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._filterable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterable;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -194,7 +194,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                 this._maximumColumnWidth = value;
             }
             const invalidateType = gridSettingChangeInvalidateTypeIds.maximumColumnWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -205,7 +205,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._minimumColumnWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.minimumColumnWidth;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -216,7 +216,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._resizeColumnInPlace = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.resizeColumnInPlace;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -227,7 +227,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._mouseSortOnDoubleClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.mouseSortOnDoubleClick;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -238,7 +238,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._mouseSortable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.mouseSortable;
-            this.invalidateByType(invalidateType);
+            this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
@@ -307,6 +307,8 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                 }
             }
         }
+
+        this.notifyChanged(GridSettingChangeInvalidateTypeId.Resize);
 
         this.endChange();
     }

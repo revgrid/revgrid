@@ -10,7 +10,7 @@ import {
     StandardBehavioredColumnSettings,
     StandardBehavioredGridSettings,
     StandardHeaderTextCellPainter,
-    standardDiscardDefaultBehavioredGridSettings
+    standardReadonlyDefaultBehavioredGridSettings
 } from '..';
 
 export class SimpleGrid extends Revgrid<
@@ -39,7 +39,7 @@ export class SimpleGrid extends Revgrid<
         gridElement: HTMLElement,
         gridSettings: StandardBehavioredGridSettings,
     ) {
-        const serverSet = new RevSimpleServerSet(standardDiscardDefaultBehavioredGridSettings);
+        const serverSet = new RevSimpleServerSet(standardReadonlyDefaultBehavioredGridSettings);
 
         const headerDataServer = serverSet.headerDataServer;
         const mainDataServer = serverSet.mainDataServer;

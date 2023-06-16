@@ -691,18 +691,6 @@ export namespace DataServer {
 }
 
 // @public (undocumented)
-export const discardColumnSettingsBehavior: ColumnSettingsBehavior;
-
-// @public (undocumented)
-export const discardDefaultBehavioredColumnSettings: BehavioredColumnSettings;
-
-// @public (undocumented)
-export const discardDefaultBehavioredGridSettings: BehavioredGridSettings;
-
-// @public (undocumented)
-export const discardGridSettingsBehavior: GridSettingsBehavior;
-
-// @public (undocumented)
 export namespace EventDetail {
     // (undocumented)
     export interface CellDataInvalidated {
@@ -1288,6 +1276,10 @@ export interface GridSettingsBehavior {
     load(settings: GridSettings): void;
     // @internal (undocumented)
     resizeEventer: GridSettingsBehavior.ResizeEventer | undefined;
+    // (undocumented)
+    subscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler): void;
+    // (undocumented)
+    unsubscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler): void;
     // @internal (undocumented)
     verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer;
     // @internal (undocumented)
@@ -1298,6 +1290,8 @@ export interface GridSettingsBehavior {
 
 // @public (undocumented)
 export namespace GridSettingsBehavior {
+    // (undocumented)
+    export type ChangedEventHandler = (this: void) => void;
     // @internal (undocumented)
     export type ResizeEventer = (this: void) => void;
     // @internal (undocumented)
@@ -2016,6 +2010,18 @@ export namespace Point {
     // (undocumented)
     export function plusXY(referencePoint: Point, offsetX?: number, offsetY?: number): Point;
 }
+
+// @public (undocumented)
+export const readonlyColumnSettingsBehavior: ColumnSettingsBehavior;
+
+// @public (undocumented)
+export const readonlyDefaultBehavioredColumnSettings: BehavioredColumnSettings;
+
+// @public (undocumented)
+export const readonlyDefaultBehavioredGridSettings: BehavioredGridSettings;
+
+// @public (undocumented)
+export const readonlyGridSettingsBehavior: GridSettingsBehavior;
 
 // @public (undocumented)
 export interface Rectangle {
@@ -3340,12 +3346,6 @@ export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSetti
 }
 
 // @public (undocumented)
-export const standardDiscardDefaultBehavioredColumnSettings: StandardBehavioredColumnSettings;
-
-// @public (undocumented)
-export const standardDiscardDefaultBehavioredGridSettings: StandardBehavioredGridSettings;
-
-// @public (undocumented)
 export interface StandardGridSettings {
     // (undocumented)
     cellFocusedBorderColor: GridSettings.Color | undefined;
@@ -3543,6 +3543,12 @@ export class StandardRangeInputCellEditor<BGS extends StandardBehavioredGridSett
     // (undocumented)
     tryOpen(cell: DatalessViewCell<BCS, SC>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
+
+// @public (undocumented)
+export const standardReadonlyDefaultBehavioredColumnSettings: StandardBehavioredColumnSettings;
+
+// @public (undocumented)
+export const standardReadonlyDefaultBehavioredGridSettings: StandardBehavioredGridSettings;
 
 // @public (undocumented)
 export class StandardRevgrid extends Revgrid<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaServer.Column<StandardInMemoryBehavioredColumnSettings>> {

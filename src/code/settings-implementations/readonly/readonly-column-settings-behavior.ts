@@ -2,7 +2,7 @@
 import { ColumnSettingsBehavior } from '../../grid/grid-public-api';
 
 /** @public */
-export const discardColumnSettingsBehavior: ColumnSettingsBehavior = {
+export const readonlyColumnSettingsBehavior: ColumnSettingsBehavior = {
     viewRenderInvalidatedEventer: () => {},
 
     load: () => {},

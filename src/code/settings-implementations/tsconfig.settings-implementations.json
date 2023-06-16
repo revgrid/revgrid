@@ -11,7 +11,7 @@
   ],
 
   "references": [
-    { "path": "./discard/tsconfig.settings-implementations-discard.json" },
+    { "path": "./readonly/tsconfig.settings-implementations-readonly.json" },
     { "path": "./in-memory/tsconfig.settings-implementations-in-memory.json" },
   ]
 }

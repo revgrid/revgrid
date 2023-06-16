@@ -3,7 +3,7 @@
 import { GridSettingsBehavior } from '../../grid/grid-public-api';
 
 /** @public */
-export const discardGridSettingsBehavior: GridSettingsBehavior = {
+export const readonlyGridSettingsBehavior: GridSettingsBehavior = {
     resizeEventer: () => {},
     viewRenderInvalidatedEventer: () => {},
     viewLayoutInvalidatedEventer: () => {},
@@ -13,4 +13,7 @@ export const discardGridSettingsBehavior: GridSettingsBehavior = {
     beginChange: () => {},
     endChange: () => {},
     load: () => {},
+
+    subscribeChangedEvent: () => {},
+    unsubscribeChangedEvent: () => {},
 }

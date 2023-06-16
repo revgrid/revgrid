@@ -1,9 +1,9 @@
 import { BehavioredGridSettings } from '../../grid/grid-public-api';
 import { gridSettingsDefaults } from '../defaults/settings-implementations-defaults-public-api';
-import { discardGridSettingsBehavior } from './discard-grid-settings-behavior';
+import { readonlyGridSettingsBehavior } from './readonly-grid-settings-behavior';
 
 /** @public */
-export const discardDefaultBehavioredGridSettings: BehavioredGridSettings = {
+export const readonlyDefaultBehavioredGridSettings: BehavioredGridSettings = {
     ...gridSettingsDefaults,
-    ...discardGridSettingsBehavior,
+    ...readonlyGridSettingsBehavior,
 }

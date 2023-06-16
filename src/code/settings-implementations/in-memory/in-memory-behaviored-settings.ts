@@ -24,6 +24,9 @@ export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior
     private _beginChangeCount = 0;
     /** @internal */
     private _beginChangeInvalidateType: GridSettingChangeInvalidateTypeId | undefined;
+    /** @internal */
+    private _changedEventHandlers =  new Array<GridSettingsBehavior.ChangedEventHandler>();
+
 
     beginChange() {
         if (this._beginChangeCount++ === 0) {
@@ -34,7 +37,7 @@ export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior
     endChange() {
         if (--this._beginChangeCount === 0) {
             if (this._beginChangeInvalidateType !== undefined) {
-                this.invalidateByType(this._beginChangeInvalidateType);
+                this.notifyChanged(this._beginChangeInvalidateType);
                 this._beginChangeInvalidateType = undefined;
             }
         } else {
@@ -44,16 +47,33 @@ export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior
         }
     }
 
+    subscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler) {
+        this._changedEventHandlers.push(handler);
+    }
+
+    unsubscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler) {
+        const index = this._changedEventHandlers.indexOf(handler);
+        if (index < 0) {
+            throw new AssertError('IMBSUCE23445');
+        } else {
+            this._changedEventHandlers.splice(index, 1);
+        }
+    }
+
     abstract load(settings: GridSettings): void;
 
     /** @internal */
-    protected invalidateViewRender() {
-        this.invalidateByType(GridSettingChangeInvalidateTypeId.ViewRender);
+    protected notifyChangedViewRender() {
+        this.notifyChanged(GridSettingChangeInvalidateTypeId.ViewRender);
     }
 
     /** @internal */
-    protected invalidateByType(invalidateType: GridSettingChangeInvalidateTypeId) {
+    protected notifyChanged(invalidateType: GridSettingChangeInvalidateTypeId) {
         if (this._beginChangeCount === 0) {
+            for (const handler of this._changedEventHandlers) {
+                handler();
+            }
+
             switch (invalidateType) {
                 case GridSettingChangeInvalidateTypeId.None:
                     break;
