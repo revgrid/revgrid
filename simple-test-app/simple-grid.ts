@@ -3,8 +3,8 @@ import {
     DatalessViewCell,
     LinedHoverCell,
     Point,
-    RevSimpleSchemaServer,
-    RevSimpleServerSet,
+    RevDataRowArraySchemaServer,
+    RevDataRowArrayServerSet,
     Revgrid,
     StandardAlphaTextCellPainter,
     StandardBehavioredColumnSettings,
@@ -15,40 +15,40 @@ import {
 export class SimpleGrid extends Revgrid<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        RevSimpleSchemaServer.Field
+        RevDataRowArraySchemaServer.Field
     > {
 
     cellFocusEventer: SimpleGrid.CellFocusEventer | undefined;
     clickEventer: SimpleGrid.RowFocusClickEventer | undefined;
     dblClickEventer: SimpleGrid.RowFocusDblClickEventer | undefined;
 
-    private readonly _serverSet: RevSimpleServerSet;
+    private readonly _serverSet: RevDataRowArrayServerSet<StandardBehavioredColumnSettings>;
 
     private readonly _headerCellPainter: StandardHeaderTextCellPainter<
-        StandardBehavioredGridSettings, StandardBehavioredColumnSettings,
-        RevSimpleSchemaServer.Field
+        StandardBehavioredGridSettings,
+        StandardBehavioredColumnSettings,
+        RevDataRowArraySchemaServer.Field
     >;
     private readonly _textCellPainter: StandardAlphaTextCellPainter<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        RevSimpleSchemaServer.Field
+        RevDataRowArraySchemaServer.Field
     >;
 
     constructor(
         gridElement: HTMLElement,
         gridSettings: StandardBehavioredGridSettings,
     ) {
-        const serverSet = new RevSimpleServerSet();
+        const serverSet = new RevDataRowArrayServerSet<StandardBehavioredColumnSettings>();
         const schemaServer = serverSet.schemaServer;
-        schemaServer.getFieldColumnSettingsEventer = (field) => {
-
-        }
+        // just use the grid settings for each column
+        schemaServer.getFieldColumnSettingsEventer = (field) => gridSettings;
 
         const headerDataServer = serverSet.headerDataServer;
         const mainDataServer = serverSet.mainDataServer;
 
-        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>> = {
-            schemaServer: schemaServer,
+        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field> = {
+            schemaServer,
             subgrids: [
                 {
                     role: DatalessSubgrid.RoleEnum.header,
@@ -74,7 +74,7 @@ export class SimpleGrid extends Revgrid<
     get schemaServer() { return this._serverSet.schemaServer; }
     get headerAdapter() { return this._serverSet.headerDataServer; }
 
-    get fieldCount(): number { return this.schemaServer.getSchema().length; }
+    get fieldCount(): number { return this.schemaServer.getFields().length; }
 
     get columnCount(): number { return this.activeColumnCount; }
 
@@ -90,7 +90,7 @@ export class SimpleGrid extends Revgrid<
 
     protected override descendantProcessClick(
         event: MouseEvent,
-        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>> | null | undefined
+        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field> | null | undefined
     ) {
         if (this.clickEventer !== undefined) {
             if (hoverCell !== null) {
@@ -109,7 +109,7 @@ export class SimpleGrid extends Revgrid<
 
     protected override descendantProcessDblClick(
         event: MouseEvent,
-        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>> | null | undefined
+        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field> | null | undefined
     ) {
         if (this.dblClickEventer !== undefined) {
             if (hoverCell !== null) {
@@ -126,15 +126,15 @@ export class SimpleGrid extends Revgrid<
         }
     }
 
-    setData(data: RevSimpleServerSet.DataRow[], headerRowCount = -1): void {
+    setData(data: RevDataRowArrayServerSet.DataRow[], headerRowCount = -1): void {
         this._serverSet.setData(data, headerRowCount)
     }
 
-    private getHeaderCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>>) {
+    private getHeaderCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field>) {
         return this._headerCellPainter;
     }
 
-    private getMainCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevSimpleSchemaServer.Column<StandardBehavioredColumnSettings>>) {
+    private getMainCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field>) {
         return this._textCellPainter;
     }
 }

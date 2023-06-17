@@ -8,7 +8,7 @@
         "project": [
           "./src/code/tsconfig.code.json",
           "./src/code/server-sets/record/tsconfig.server-sets-record.json",
-          "./src/code/server-sets/simple/tsconfig.server-sets-simple.json",
+          "./src/code/server-sets/data-row-array/tsconfig.server-sets-data-row-array.json",
           "./src/code/server-sets/tsconfig.server-sets.json",
           "./src/code/standard/cell-editors/tsconfig.standard-cell-editors.json",
           "./src/code/standard/cell-editors/effects/tsconfig.standard-cell-editors-effects.json",

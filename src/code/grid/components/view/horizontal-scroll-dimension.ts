@@ -39,7 +39,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         this.ensureValidOutsideAnimationFrame();
 
         const gridProperties = this._gridSettings;
-        const gridLinesVWidth = gridProperties.gridLinesVWidth;
+        const gridLinesVWidth = gridProperties.verticalGridLinesWidth;
         let index: number;
         let offset: number;
 
@@ -192,7 +192,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
             return 0;
         } else {
             const fixedColumnsWidth = this._columnsManager.calculateFixedColumnsWidth();
-            const fixedLinesVWidth = gridSettings.fixedLinesVWidth ?? gridSettings.gridLinesVWidth;
+            const fixedLinesVWidth = gridSettings.verticalFixedLineWidth ?? gridSettings.verticalGridLinesWidth;
             return  fixedColumnsWidth + fixedLinesVWidth;
         }
     }
@@ -216,7 +216,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
             let rightAnchorLimitIndex: number;
             let rightAnchorLimitOffset: number;
 
-            const gridLinesVWidth = this._gridSettings.gridLinesVWidth;
+            const gridLinesVWidth = this._gridSettings.verticalGridLinesWidth;
             if (gridRightAligned) {
                 rightAnchorLimitIndex = columnCount - 1;
                 rightAnchorLimitOffset = 0;
@@ -341,7 +341,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
     }
 
     private calculateActiveNonFixedColumnsWidth() {
-        const gridLinesVWidth = this._gridSettings.gridLinesVWidth;
+        const gridLinesVWidth = this._gridSettings.verticalGridLinesWidth;
         const columnCount = this._columnsManager.activeColumnCount;
         const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         let result = 0;
@@ -369,7 +369,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         const columnCount = this._columnsManager.activeColumnCount;
         const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         const gridProps = this._gridSettings;
-        const gridLinesVWidth = gridProps.gridLinesVWidth;
+        const gridLinesVWidth = gridProps.verticalGridLinesWidth;
         const gridRightAligned = gridProps.gridRightAligned;
         const scrollHorizontallySmoothly = gridProps.scrollHorizontallySmoothly;
 

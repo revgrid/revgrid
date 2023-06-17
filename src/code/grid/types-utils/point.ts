@@ -278,8 +278,8 @@ export type WritablePoint = Writable<Point>
 export namespace WritablePoint {
     export function create(x: number, y: number): WritablePoint {
         return {
-            x: Number(x) ?? 0,
-            y: Number(y) ?? 0
+            x,
+            y
         }
     }
 }

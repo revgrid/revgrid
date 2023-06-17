@@ -175,7 +175,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
             subgridCount++;
         }
         if (subgridCount > 1) {
-            height += (subgridCount - 1) * this._gridSettings.gridLinesHWidth
+            height += (subgridCount - 1) * this._gridSettings.horizontalGridLinesWidth
         }
         return height;
     }
@@ -212,9 +212,9 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
         if (preSubgridCountPlusFixedRowCount > 0) {
             // Add grid lines between pre subgrids and fixed rows and add grid line after last of these
             const gridSettings = this._gridSettings;
-            const gridLinesHWidth = gridSettings.gridLinesHWidth;
+            const gridLinesHWidth = gridSettings.horizontalGridLinesWidth;
             height += (preSubgridCountPlusFixedRowCount - 1) * gridLinesHWidth;
-            const fixedLinesHWidth = gridSettings.fixedLinesHWidth;
+            const fixedLinesHWidth = gridSettings.horizontalFixedLineWidth;
             height += fixedLinesHWidth === undefined ? gridLinesHWidth : fixedLinesHWidth;
         }
 
@@ -251,7 +251,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
         }
 
         if (subgridCount > 1) {
-            height += subgridCount * this._gridSettings.gridLinesHWidth; // includes gridline before these subgrids
+            height += subgridCount * this._gridSettings.horizontalGridLinesWidth; // includes gridline before these subgrids
         }
 
         return height;
@@ -280,13 +280,13 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
         }
 
         if (footerSubgridCount > 1) {
-            footersHeight += (footerSubgridCount - 1) * this._gridSettings.gridLinesHWidth;
+            footersHeight += (footerSubgridCount - 1) * this._gridSettings.horizontalGridLinesWidth;
         }
 
         let allPostMainSubgridsHeight = footersHeight + othersHeight;
         const allPostMainSubgridCount = footerSubgridCount + otherSubgridCount;
         if (allPostMainSubgridCount > 1) {
-            allPostMainSubgridsHeight += (allPostMainSubgridCount - 1) * this._gridSettings.gridLinesHWidth
+            allPostMainSubgridsHeight += (allPostMainSubgridCount - 1) * this._gridSettings.horizontalGridLinesWidth
         }
 
         return {
@@ -312,14 +312,14 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
             }
         }
         if (footerSubgridCount > 1) {
-            summariesHeight += (footerSubgridCount - 1) * this._gridSettings.gridLinesHWidth
+            summariesHeight += (footerSubgridCount - 1) * this._gridSettings.horizontalGridLinesWidth
         }
         if (summarySubgridCount > 1) {
-            footersHeight += (summarySubgridCount - 1) * this._gridSettings.gridLinesHWidth
+            footersHeight += (summarySubgridCount - 1) * this._gridSettings.horizontalGridLinesWidth
         }
         let summariesPlusFootersHeight = summariesHeight + footersHeight;
         if (summariesHeight > 0 && footersHeight > 0) {
-            summariesPlusFootersHeight += this._gridSettings.gridLinesHWidth;
+            summariesPlusFootersHeight += this._gridSettings.horizontalGridLinesWidth;
         }
         return {
             summariesHeight,

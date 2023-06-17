@@ -121,9 +121,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
     }
 
     enable() {
-        if (this._firstUiBehavior !== undefined) {
-            this._enabled = true;
-        }
+        this._enabled = true;
     }
 
     disable() {

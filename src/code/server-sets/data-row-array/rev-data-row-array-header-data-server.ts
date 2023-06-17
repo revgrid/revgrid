@@ -1,9 +1,9 @@
 
 import { AssertError, DataServer } from '../../grid/grid-public-api';
-import { RevSimpleSchemaServer } from './rev-simple-schema-server';
+import { RevDataRowArraySchemaServer } from './rev-data-row-array-schema-server';
 
 /** @public */
-export class RevSimpleHeaderDataServer<SF extends RevSimpleSchemaServer.Field> implements DataServer<SF> {
+export class RevDataRowArrayHeaderDataServer<SF extends RevDataRowArraySchemaServer.Field> implements DataServer<SF> {
     private _rowCount = 0;
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 

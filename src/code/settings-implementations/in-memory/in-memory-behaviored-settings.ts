@@ -62,12 +62,10 @@ export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior
 
     abstract load(settings: GridSettings): void;
 
-    /** @internal */
     protected notifyChangedViewRender() {
         this.notifyChanged(GridSettingChangeInvalidateTypeId.ViewRender);
     }
 
-    /** @internal */
     protected notifyChanged(invalidateType: GridSettingChangeInvalidateTypeId) {
         if (this._beginChangeCount === 0) {
             for (const handler of this._changedEventHandlers) {

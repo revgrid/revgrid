@@ -92,7 +92,7 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
                 start = fixedRowCount;
                 size = subgridRowCount - start;
                 const mainRowHeight = mainSubgrid.getDefaultRowHeight();
-                const gridLinesHWidth = this._gridSettings.gridLinesHWidth;
+                const gridLinesHWidth = this._gridSettings.horizontalGridLinesWidth;
                 // Rearrangement of scrollableHeight = (viewportSize - 1) * (mainRowHeight + gridLinesHWidth) + mainRowHeight
                 const possiblyFractionalViewportSize = (scrollableHeight - mainRowHeight) / (mainRowHeight + gridLinesHWidth) + 1;
                 viewportSize = Math.floor(possiblyFractionalViewportSize);

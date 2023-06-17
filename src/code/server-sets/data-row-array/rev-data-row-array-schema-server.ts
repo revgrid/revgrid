@@ -1,8 +1,8 @@
 import { AssertError, BehavioredColumnSettings, SchemaServer } from '../../grid/grid-public-api';
 
 /** @public */
-export class RevSimpleSchemaServer<BCS extends BehavioredColumnSettings, SF extends RevSimpleSchemaServer.Field> implements SchemaServer<BCS, SF> {
-    getFieldColumnSettingsEventer: RevSimpleSchemaServer.GetFieldColumnSettingsEventer<BCS, SF>;
+export class RevDataRowArraySchemaServer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaServer.Field> implements SchemaServer<BCS, SF> {
+    getFieldColumnSettingsEventer: RevDataRowArraySchemaServer.GetFieldColumnSettingsEventer<BCS, SF>;
 
     private _schemaCallbackListeners: SchemaServer.NotificationsClient<SF>[] = [];
     private _fields = new Array<SF>();
@@ -45,7 +45,7 @@ export class RevSimpleSchemaServer<BCS extends BehavioredColumnSettings, SF exte
 }
 
 /** @public */
-export namespace RevSimpleSchemaServer {
+export namespace RevDataRowArraySchemaServer {
     export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends Field> = (this: void, field: SF) => BCS;
 
     export interface Field extends SchemaServer.Field {

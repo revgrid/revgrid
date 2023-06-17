@@ -1,4 +1,4 @@
-import { Point, RevSimpleServerSet, StandardBehavioredGridSettings, standardReadonlyDefaultBehavioredGridSettings } from '..';
+import { Point, RevDataRowArrayServerSet, StandardBehavioredGridSettings, standardReadonlyDefaultBehavioredGridSettings } from '..';
 import { SimpleGrid } from './simple-grid';
 
 export class Main {
@@ -39,7 +39,6 @@ export class Main {
             mouseColumnSelection: false,
             mouseRowSelection: false,
             multipleSelectionAreas: false,
-            mouseSortOnDoubleClick: false,
         };
 
         const grid = new SimpleGrid(hostElement, gridSettings);
@@ -75,7 +74,7 @@ export class Main {
     }
 
     private loadPets() {
-        interface Pet extends RevSimpleServerSet.DataRow {
+        interface Pet extends RevDataRowArrayServerSet.DataRow {
             name: string;
             type: string;
             color: string;
@@ -137,7 +136,7 @@ export class Main {
     }
 
     private loadMany() {
-        interface Row extends RevSimpleServerSet.DataRow {
+        interface Row extends RevDataRowArrayServerSet.DataRow {
             StrCol: string;
             NumberCol: number;
             BoolCol: boolean;

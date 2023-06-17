@@ -1,8 +1,8 @@
-import { DataServer } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, DataServer } from '../../grid/grid-public-api';
 import { RevRecordField } from './rev-record-field';
 
 /** @public */
-export class RevRecordHeaderDataServer<SF extends RevRecordField> implements DataServer<SF> {
+export class RevRecordHeaderDataServer<BCS extends BehavioredColumnSettings, SF extends RevRecordField<BCS>> implements DataServer<SF> {
     private _dataCallbackListener: DataServer.NotificationsClient;
 
     constructor(private _rowCount = 1) {

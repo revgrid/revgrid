@@ -1,5 +1,5 @@
 import { CachedCanvasRenderingContext2D, CellPainter, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaServer } from '../../grid/grid-public-api';
-import { StandardAllGridSettings, StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
+import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 
 /** @public */
 export abstract class StandardCellPainter<
@@ -7,7 +7,7 @@ export abstract class StandardCellPainter<
     BCS extends StandardBehavioredColumnSettings,
     SF extends SchemaServer.Field
 > implements CellPainter<BCS, SF> {
-    protected readonly _gridSettings: StandardAllGridSettings;
+    protected readonly _gridSettings: BGS;
     protected readonly _renderingContext: CachedCanvasRenderingContext2D;
 
     constructor(

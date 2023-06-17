@@ -17,8 +17,8 @@ export type ColumnSettings = Pick<GridSettings,
     'maximumColumnWidth' |
     'minimumColumnWidth' |
     'resizeColumnInPlace' |
-    'mouseSortOnDoubleClick' |
-    'mouseSortable'
+    'sortOnDoubleClick' |
+    'sortOnClick'
 >
 
 // export interface ColumnSettings extends ColumnSettings.HeaderFilter, ColumnSettings.Header, ColumnSettings.Filter {

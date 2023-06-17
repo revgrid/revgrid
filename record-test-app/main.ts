@@ -1,14 +1,14 @@
 import {
     defaultGridProperties,
-    GridProperties,
+    GridSettings,
     RevRecordFieldIndex,
     RevRecordIndex,
-    RevRecordMainAdapter
+    RevRecordMainDataServer
 } from '..';
+import { AppCellPainter } from './app-cell-painter';
 import { RecordGrid } from './record-grid';
 import { RecordGridSettings } from './record-grid-settings';
 import { RecordStore } from './record-store';
-import { TestCellPainter } from './test-cell-painter';
 
 export class Main {
     private readonly _gridHostElement: HTMLElement;
@@ -18,7 +18,7 @@ export class Main {
     // private readonly _mainRecordAdapter: RevRecordMainAdapter;
 
     private readonly _recordStore: RecordStore;
-    private readonly _mainCellPainter: TestCellPainter;
+    private readonly _mainCellPainter: AppCellPainter;
     private readonly _grid: RecordGrid;
     private readonly _settings: RecordGridSettings = { ...defaultGridSettings };
     private readonly _debugEnabled = true;
@@ -381,7 +381,7 @@ export class Main {
         this._gridHostElement = gridHostElement;
 
         this._recordStore = new RecordStore();
-        this._mainCellPainter = new TestCellPainter(this._settings);
+        this._mainCellPainter = new AppCellPainter(this._settings);
 
         this._grid = this.createGrid(gridHostElement);
 
@@ -775,7 +775,7 @@ export class Main {
     }
 
     private createGrid(hostElement: HTMLElement) {
-        const gridProperties: Partial<GridProperties> = {
+        const gridSettings: Partial<GridSettings> = {
             renderFalsy: true,
             autoSelectRows: false,
             singleRowSelectionMode: false,
@@ -791,7 +791,7 @@ export class Main {
             hostElement,
             this._recordStore,
             this._mainCellPainter,
-            gridProperties,
+            gridSettings,
         );
 
         grid.setRecentDurations(
@@ -1050,7 +1050,7 @@ export class Main {
         }
     }
 
-    private createFilterCallbackClosure(): RevRecordMainAdapter.RecordFilterCallback {
+    private createFilterCallbackClosure(): RevRecordMainDataServer.RecordFilterCallback {
         const threshold = this._integerFilterValue; // make sure current value is kept in closure
 
         return (value) => (value as RecordStore.Record).data[RecordStore.Record.Data.intValIndex] > threshold;

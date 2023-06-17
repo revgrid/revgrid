@@ -1,13 +1,13 @@
-import { AssertError, DataServer } from '../../grid/grid-public-api';
-import { RevSimpleHeaderDataServer } from './rev-simple-header-data-server';
-import { RevSimpleMainDataServer } from './rev-simple-main-data-server';
-import { RevSimpleSchemaServer } from './rev-simple-schema-server';
+import { AssertError, BehavioredColumnSettings, DataServer } from '../../grid/grid-public-api';
+import { RevDataRowArrayHeaderDataServer } from './rev-data-row-array-header-data-server';
+import { RevDataRowArrayMainDataServer } from './rev-data-row-array-main-data-server';
+import { RevDataRowArraySchemaServer } from './rev-data-row-array-schema-server';
 
 /** @public */
-export class RevSimpleServerSet {
-    readonly schemaServer = new RevSimpleSchemaServer();
-    readonly mainDataServer = new RevSimpleMainDataServer();
-    readonly headerDataServer = new RevSimpleHeaderDataServer();
+export class RevDataRowArrayServerSet<BCS extends BehavioredColumnSettings> {
+    readonly schemaServer = new RevDataRowArraySchemaServer<BCS, RevDataRowArraySchemaServer.Field>();
+    readonly mainDataServer = new RevDataRowArrayMainDataServer<RevDataRowArraySchemaServer.Field>();
+    readonly headerDataServer = new RevDataRowArrayHeaderDataServer<RevDataRowArraySchemaServer.Field>();
 
     /**
      * Establish new data and schema.
@@ -17,7 +17,7 @@ export class RevSimpleServerSet {
      * should be stripped from data and included in header. If less than 0, then there should be one header row and the header values
      * should be derived from column names in data.
      */
-    setData(data: RevSimpleServerSet.DataRow[] | (() => RevSimpleServerSet.DataRow[]), headerRowCount = -1) {
+    setData(data: RevDataRowArrayServerSet.DataRow[] | (() => RevDataRowArrayServerSet.DataRow[]), headerRowCount = -1) {
         if (data === undefined) {
             return;
         } else {
@@ -26,7 +26,7 @@ export class RevSimpleServerSet {
             if (!Array.isArray(dataRows)) {
                 throw new AssertError('BSD73766', 'Expected data to be an array of data row objects');
             } else {
-                let schema: RevSimpleSchemaServer.Field[];
+                let schema: RevDataRowArraySchemaServer.Field[];
                 if (headerRowCount < 0) {
                     schema = this.calculateSchemaFromData(dataRows, true);
                 } else {
@@ -56,7 +56,7 @@ export class RevSimpleServerSet {
     }
 
     private extractSchemaAndHeadersFromData(
-        rows: RevSimpleServerSet.DataRow[],
+        rows: RevDataRowArrayServerSet.DataRow[],
         headerRowCount: number
     ): ExtractSchemaAndHeadersFromDataResult {
         const { rows: headerRows, sourceCount: initialSourceCount } = this.getInitialDefinedRows(rows, headerRowCount);
@@ -69,19 +69,19 @@ export class RevSimpleServerSet {
         } else {
             rows.splice(0, initialSourceCount);
             const firstHeaderRow = headerRows[0];
-            const columnKeys = Object.keys(firstHeaderRow);
+            const fieldKeys = Object.keys(firstHeaderRow);
 
-            const columnCount = columnKeys.length;
-            const schema = new Array<RevSimpleSchemaServer.Field>(columnCount);
-            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                const columnKey = columnKeys[columnIndex];
+            const fieldCount = fieldKeys.length;
+            const schema = new Array<RevDataRowArraySchemaServer.Field>(fieldCount);
+            for (let fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
+                const columnKey = fieldKeys[fieldIndex];
                 const columnHeaders = new Array<string>(headerCount);
                 for (let rowIndex = 0; rowIndex < headerCount; rowIndex++) {
                     const row = headerRows[rowIndex];
                     const header = this.convertDataValueToString(row[columnKey]);
                     columnHeaders[rowIndex] = header;
                 }
-                schema[columnIndex] = { name: columnKey, index: columnIndex, headers: columnHeaders };
+                schema[fieldIndex] = { name: columnKey, index: fieldIndex, headers: columnHeaders };
             }
 
             return {
@@ -105,13 +105,13 @@ export class RevSimpleServerSet {
         }
 }
 
-    private calculateSchemaFromData(dataRows: RevSimpleServerSet.DataRow[], keyIsHeader: boolean): RevSimpleSchemaServer.Field[] {
+    private calculateSchemaFromData(dataRows: RevDataRowArrayServerSet.DataRow[], keyIsHeader: boolean): RevDataRowArraySchemaServer.Field[] {
         const { rows } = this.getInitialDefinedRows(dataRows, 1);
         if (rows.length === 0) {
             return [];
         } else {
             const row = rows[0];
-            const result: RevSimpleSchemaServer.Field[] = Object.keys(row).map((key, index) => ({
+            const result: RevDataRowArraySchemaServer.Field[] = Object.keys(row).map((key, index) => ({
                 name: key,
                 index,
                 headers: keyIsHeader ? [key] : []
@@ -126,8 +126,8 @@ export class RevSimpleServerSet {
      * @returns The initial rows (up to maxCount) and the number of source rows these covered (may be more
      * than max count if some rows are undefined).
      */
-    getInitialDefinedRows(sourceRows: readonly RevSimpleServerSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult {
-        const rows = new Array<RevSimpleServerSet.DataRow>(maxCount);
+    getInitialDefinedRows(sourceRows: readonly RevDataRowArrayServerSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult {
+        const rows = new Array<RevDataRowArrayServerSet.DataRow>(maxCount);
 
         const sourceCount = sourceRows.length;
         let initialCount = 0;
@@ -153,18 +153,18 @@ export class RevSimpleServerSet {
 }
 
 /** @public */
-export namespace RevSimpleServerSet {
-    export interface DataRow extends RevSimpleMainDataServer.DataRow {
-        [columnName: string]: DataServer.ViewValue | string; // can also have header
+export namespace RevDataRowArrayServerSet {
+    export interface DataRow extends RevDataRowArrayMainDataServer.DataRow {
+        [fieldName: string]: DataServer.ViewValue | string; // can also have header
     }
 }
 
 interface ExtractSchemaAndHeadersFromDataResult {
-    schema: RevSimpleSchemaServer.Field[];
-    dataRows: RevSimpleServerSet.DataRow[];
+    schema: RevDataRowArraySchemaServer.Field[];
+    dataRows: RevDataRowArrayServerSet.DataRow[];
 }
 
 interface GetInitialDefinedRowsResult {
-    rows: RevSimpleServerSet.DataRow[];
+    rows: RevDataRowArrayServerSet.DataRow[];
     sourceCount: number;
 }

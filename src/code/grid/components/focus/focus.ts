@@ -14,7 +14,7 @@ import { ViewLayout } from '../view/view-layout';
 
 /** @public */
 export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
-    getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF>;
+    getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF> | undefined;
     editorKeyDownEventer: Focus.EditorKeyDownEventer;
 
     /** @internal */

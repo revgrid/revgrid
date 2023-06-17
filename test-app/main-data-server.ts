@@ -1,8 +1,8 @@
 import { Column, DataServer, StandardBehavioredColumnSettings } from '..';
+import { AppSchemaServer } from './app-schema-server';
 import { MainRecord } from './main-record';
-import { SchemaServerImplementation } from './schema-server-implementation';
 
-export class MainDataServer implements DataServer<SchemaServerImplementation.Field> {
+export class MainDataServer implements DataServer<AppSchemaServer.Field> {
     private readonly _data: MainRecord[] = [];
     private _fishCreateCount = 0;
     private _notificationsClient: DataServer.NotificationsClient;
@@ -30,19 +30,19 @@ export class MainDataServer implements DataServer<SchemaServerImplementation.Fie
         return this._data.length;
     }
 
-    getViewValue(field: SchemaServerImplementation.Field, rowIndex: number) {
+    getViewValue(field: AppSchemaServer.Field, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = field.name;
         return record[fieldName].toLocaleString();
     }
 
-    getEditValue(field: SchemaServerImplementation.Field, rowIndex: number) {
+    getEditValue(field: AppSchemaServer.Field, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = field.name;
         return record[fieldName];
     }
 
-    setEditValue(field: SchemaServerImplementation.Field, rowIndex: number, value: DataServer.EditValue) {
+    setEditValue(field: AppSchemaServer.Field, rowIndex: number, value: DataServer.EditValue) {
         const record = this._data[rowIndex];
         const fieldName = field.name;
         switch (fieldName) {
@@ -79,7 +79,7 @@ export class MainDataServer implements DataServer<SchemaServerImplementation.Fie
         return this._data[rowIndex].id;
     }
 
-    getTitleText(field: SchemaServerImplementation.Field, rowIndex: number) {
+    getTitleText(field: AppSchemaServer.Field, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = field.name;
         const prefix = fieldName + ': '
@@ -97,7 +97,7 @@ export class MainDataServer implements DataServer<SchemaServerImplementation.Fie
         }
     }
 
-    sort(column: Column<StandardBehavioredColumnSettings, SchemaServerImplementation.Field>) {
+    sort(column: Column<StandardBehavioredColumnSettings, AppSchemaServer.Field>) {
         this._notificationsClient.preReindex();
         try {
             const field = column.field;

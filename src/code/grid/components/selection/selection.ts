@@ -989,11 +989,10 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
             return undefined;
         } else {
             const dataServer = subgrid.dataServer;
-            const getRowIdFromIndexFtn = dataServer.getRowIdFromIndex;
-            if (getRowIdFromIndexFtn === undefined) {
+            if (dataServer.getRowIdFromIndex === undefined) {
                 return undefined;
             } else {
-                const boundGetRowIdFromIndexFtn = getRowIdFromIndexFtn.bind(dataServer);
+                const boundGetRowIdFromIndexFtn = dataServer.getRowIdFromIndex.bind(dataServer);
                 const selectedRowIndices = this.getRowIndices();
                 return selectedRowIndices.map( (selectedRowIndex) => boundGetRowIdFromIndexFtn(selectedRowIndex) );
             }
@@ -1083,7 +1082,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
 
                 const indexValues = new Array<number>(fieldNameCount);
                 let indexValueCount = 0;
-                for (const fieldName in fieldNames) {
+                for (const fieldName of fieldNames) {
                     const activeColumnIndex = columnsManager.getActiveColumnIndexByFieldName(fieldName);
                     if (activeColumnIndex >= 0) {
                         indexValues[indexValueCount++] = activeColumnIndex;

@@ -4,9 +4,7 @@ import { RevRecordField } from './rev-record-field';
 import { RevRecordFieldIndex } from './rev-record-types';
 
 /** @public */
-export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF extends RevRecordField> implements SchemaServer<BCS, SF> {
-    getFieldColumnSettingsEventer: RevRecordSchemaServer.GetFieldColumnSettingsEventer<BCS, SF>;
-
+export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF extends RevRecordField<BCS>> implements SchemaServer<BCS, SF> {
     /** @internal */
     fieldListChangedEventer: ListChangedEventHandler | undefined;
 
@@ -17,8 +15,6 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
     private readonly _fieldValueDependsOnRowIndexFieldIndexes: RevRecordFieldIndex[] = [];
 
     private _callbackListener: SchemaServer.NotificationsClient<SF>;
-    /** @deprecated removed when RecordStore is removed from this class */
-    private _recordStoreEventersSet = false;
 
     get schema(): readonly SF[] { return this._fields; }
     get fields(): readonly SF[] { return this._fields; }
@@ -60,7 +56,7 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
     }
 
     getFieldColumnSettings(field: SF): BCS {
-        return this.getFieldColumnSettingsEventer(field);
+        return field.columnSettings;
     }
 
     setFields(fields: readonly SF[]): void {
@@ -233,5 +229,5 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
 
 /** @public */
 export namespace RevRecordSchemaServer {
-    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevRecordField> = (this: void, field: SF) => BCS;
+    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevRecordField<BCS>> = (this: void, field: SF) => BCS;
 }

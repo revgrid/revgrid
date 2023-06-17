@@ -407,20 +407,20 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     setBeforeInsideOffset(offset: number) {
         if (this.orientation === 'horizontal') {
             this.bar.style.bottom = '';
-            this.bar.style.top = offset + 'px';
+            this.bar.style.top = offset.toString(10) + 'px';
         } else {
             this.bar.style.right = '';
-            this.bar.style.left = offset + 'px';
+            this.bar.style.left = offset.toString(10) + 'px';
         }
     }
 
     setAfterInsideOffset(offset: number) {
         if (this.orientation === 'horizontal') {
             this.bar.style.top = '';
-            this.bar.style.bottom = offset + 'px';
+            this.bar.style.bottom = offset.toString(10) + 'px';
         } else {
             this.bar.style.left = '';
-            this.bar.style.right = offset + 'px';
+            this.bar.style.right = offset.toString(10) + 'px';
         }
     }
 
@@ -562,7 +562,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
             } else {
                 thumbPosition = (viewportStart - this._scrollDimension.start) * this._thumbScaling;
             }
-            this._thumb.style[this._orientationHash.leading] = thumbPosition + 'px';
+            this._thumb.style[this._orientationHash.leading] = thumbPosition.toString(10) + 'px';
             // this._currentThumbPosition = thumbPosition;
         }
     }
@@ -583,7 +583,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         if (this._scrollDimension.overflowed === true) {
             this._thumbScaling = barSize / this._scrollDimension.size;
             const thumbSize = Math.max(20, barSize * this._scrollDimension.viewportSize / this._scrollDimension.size);
-            this._thumb.style[oh.size] = thumbSize + 'px';
+            this._thumb.style[oh.size] = thumbSize.toString(10) + 'px';
             this._thumbMax = barSize - thumbSize - thumbMargins;
             if (oldHidden) {
                 this.bar.style.visibility = 'visible';

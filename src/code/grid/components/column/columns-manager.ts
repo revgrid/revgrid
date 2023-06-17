@@ -259,7 +259,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
                 total += columnWidth;
             }
 
-            total += (count - 1) * this._gridSettings.gridLinesVWidth;
+            total += (count - 1) * this._gridSettings.verticalGridLinesWidth;
 
             return total;
         }

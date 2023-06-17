@@ -1265,7 +1265,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /**
      * Matrix of unformatted values of visible cells.
      */
-    getVisibleCellMatrix(): Array<Array<unknown>> {
+    getVisibleCellMatrix(): unknown[][] {
         const rows = Array<DataServer.ViewValue[]>(this._rows.length);
         for (let y = 0; y < rows.length; ++y) {
             rows[y] = Array<DataServer.ViewValue>(this._columns.length);
@@ -1742,7 +1742,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     private calculateScrollableViewLeftUsingDimensionStart() {
         const dimensionStart = this._horizontalScrollDimension.start;
-        const gridLinesVWidth = this._gridSettings.gridLinesVWidth;
+        const gridLinesVWidth = this._gridSettings.verticalGridLinesWidth;
         const columnCount = this._columnsManager.activeColumnCount;
         const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
@@ -1763,7 +1763,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     private calculateScrollableViewRightUsingDimensionFinish() {
         const dimensionFinish = this._horizontalScrollDimension.finish;
 
-        const gridLinesVWidth = this._gridSettings.gridLinesVWidth;
+        const gridLinesVWidth = this._gridSettings.verticalGridLinesWidth;
         const columnCount = this._columnsManager.activeColumnCount;
         const fixedColumnCount = this._columnsManager.getFixedColumnCount();
         const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
@@ -1817,7 +1817,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             const gridSettings = this._gridSettings;
             const gridRightAligned = gridSettings.gridRightAligned;
             const visibleColumnWidthAdjust = gridSettings.visibleColumnWidthAdjust;
-            const gridLinesVWidth = gridSettings.gridLinesVWidth;
+            const gridLinesVWidth = gridSettings.verticalGridLinesWidth;
 
             const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
             const columnScrollAnchorOffset = this._columnScrollAnchorOffset;
@@ -1829,10 +1829,10 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             } else {
                 let fixedWidthV: number;
 
-                if (gridSettings.fixedLinesVWidth === undefined) {
+                if (gridSettings.verticalFixedLineWidth === undefined) {
                     fixedWidthV = gridLinesVWidth;
                 } else {
-                    fixedWidthV = gridSettings.fixedLinesVWidth;
+                    fixedWidthV = gridSettings.verticalFixedLineWidth;
                 }
 
                 const gridBounds = this._canvasManager.bounds;
@@ -2064,7 +2064,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     private computeVertical(withinAnimationFrame: boolean) {
         const gridSettings = this._gridSettings;
         const fixedRowCount = this._gridSettings.fixedRowCount;
-        const gridLinesHWidth = gridSettings.gridLinesHWidth;
+        const gridLinesHWidth = gridSettings.horizontalGridLinesWidth;
 
         const gridBounds = this._canvasManager.bounds;
         const gridHeight = gridBounds.height; // horizontal pixel loop limit
@@ -2081,11 +2081,11 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         let fixedGapH: number;
         let fixedOverlapH: number;
 
-        if (gridSettings.fixedLinesHWidth === undefined) {
+        if (gridSettings.horizontalFixedLineWidth === undefined) {
             fixedGapH = gridLinesHWidth;
             fixedOverlapH = 0;
         } else {
-            const fixedWidthH = Math.max(gridSettings.fixedLinesHWidth, gridLinesHWidth);
+            const fixedWidthH = Math.max(gridSettings.horizontalFixedLineWidth, gridLinesHWidth);
             fixedGapH = fixedWidthH; // hangover from borderBox
             fixedOverlapH = fixedGapH - fixedWidthH;
         }

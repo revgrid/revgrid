@@ -1,5 +1,4 @@
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -48,9 +47,12 @@ export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS ext
             }
             if (hoverCell !== null && LinedHoverCell.isMouseOverLine(hoverCell)) {
                 const viewCell = hoverCell.viewCell;
-                if (this.canSortWithCell(viewCell)) {
-                    sharedState.locationCursorName = this.gridSettings.columnSortPossibleCursorName;
-                    sharedState.locationTitleText = this.gridSettings.columnSortPossibleTitleText;
+                if (viewCell.isHeaderOrRowFixed) {
+                    const columnSettings = viewCell.columnSettings;
+                    if (columnSettings.sortOnClick || columnSettings.sortOnDoubleClick) {
+                        sharedState.locationCursorName = this.gridSettings.columnSortPossibleCursorName;
+                        sharedState.locationTitleText = this.gridSettings.columnSortPossibleTitleText;
+                    }
                 }
             }
         }
@@ -63,20 +65,17 @@ export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS ext
             return false;
         } else {
             const viewCell = hoverCell.viewCell;
-            if (this.canSortWithCell(viewCell) && viewCell.columnSettings.mouseSortOnDoubleClick === dblClick) {
+            const columnSettings = viewCell.columnSettings;
+            if (
+                viewCell.isHeaderOrRowFixed &&
+                (dblClick ? columnSettings.sortOnDoubleClick : columnSettings.sortOnClick)
+            ) {
                 this.eventBehavior.processColumnSortEvent(event, viewCell);
                 return true;
             } else {
                 return false;
             }
         }
-    }
-
-    private canSortWithCell(cell: ViewCell<BCS, SF>): boolean {
-        return (
-            cell.isHeaderOrRowFixed &&
-            cell.columnSettings.mouseSortable
-        );
     }
 }
 

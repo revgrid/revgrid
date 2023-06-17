@@ -74,6 +74,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
 
     get settings() { return this._settings; }
     get width() { return this._width; }
+    get autosizing() { return this._autosizing; }
 
     setWidth(width: number | undefined) {
         let changed: boolean;
@@ -124,7 +125,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
                 } else {
                     if (widenOnly) {
                         const oldWidth = this._width;
-                        if (oldWidth !== undefined && oldWidth >= preferredWidth) {
+                        if (oldWidth >= preferredWidth) {
                             return false;
                         } else {
                             newWidth = preferredWidth;

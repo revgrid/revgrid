@@ -734,7 +734,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     calculateActiveColumnsWidth() {
-        const lineWidth = this.settings.gridLinesVWidth;
+        const lineWidth = this.settings.verticalGridLinesWidth;
         const columnsManager = this._columnsManager;
         const activeColumnCount = columnsManager.activeColumnCount;
         const fixedColumnCount = this.columnsManager.getFixedColumnCount();
@@ -745,7 +745,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
             if (i > 0) {
                 if (i === fixedColumnCount && i !== 0) {
-                    const fixedLineWidth = this.settings.fixedLinesVWidth ?? lineWidth;
+                    const fixedLineWidth = this.settings.verticalFixedLineWidth ?? lineWidth;
                     width += fixedLineWidth;
                 } else {
                     width += lineWidth;
@@ -757,7 +757,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     calculateActiveNonFixedColumnsWidth() {
-        const gridLinesVWidth = this.settings.gridLinesVWidth;
+        const gridLinesVWidth = this.settings.verticalGridLinesWidth;
         const columnCount = this.activeColumnCount;
         const fixedColumnCount = this.columnsManager.getFixedColumnCount();
         let result = 0;
@@ -792,7 +792,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             let rightAnchorLimitIndex: number;
             let rightAnchorLimitOffset: number;
 
-            const gridLinesVWidth = this.settings.gridLinesVWidth;
+            const gridLinesVWidth = this.settings.verticalGridLinesWidth;
             if (gridRightAligned) {
                 rightAnchorLimitIndex = columnCount - 1;
                 rightAnchorLimitOffset = 0;
@@ -889,7 +889,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         if (activeIndex < fixedColumnCount) {
             throw new AssertError('HGCSL89933');
         } else {
-            const gridLinesVWidth = this.settings.gridLinesVWidth;
+            const gridLinesVWidth = this.settings.verticalGridLinesWidth;
             let result = 0;
             for (let i = fixedColumnCount; i < activeIndex; i++) {
                 result += this.getActiveColumnWidth(i);
@@ -1032,7 +1032,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /**
      * @returns Objects with the values that were just rendered.
      */
-    getRenderedData(): Array<Array<unknown>> {
+    getRenderedData() {
         return this.viewLayout.getVisibleCellMatrix();
     }
 

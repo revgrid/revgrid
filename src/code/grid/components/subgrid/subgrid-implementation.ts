@@ -255,7 +255,7 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
                 height = rowCount * this.getDefaultRowHeight();
             }
 
-            height += rowCount + this._gridSettings.gridLinesHWidth;
+            height += rowCount + this._gridSettings.horizontalGridLinesWidth;
             return height;
         }
     }
@@ -269,11 +269,11 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
 
         if (value !== undefined) {
             if (properties === undefined) {
-                const createdProperties = Object.create(this._rowPropertiesPrototype);
+                const createdProperties = Object.create(this._rowPropertiesPrototype) as MetaModel.RowProperties;
                 if (createdProperties === null) {
                     throw new AssertError('RPBSRP99441');
                 } else {
-                    properties = createdProperties as MetaModel.RowProperties;
+                    properties = createdProperties;
                 }
             }
             properties[key as keyof MetaModel.RowProperties] = value;

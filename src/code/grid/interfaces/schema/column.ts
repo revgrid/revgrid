@@ -7,6 +7,7 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaS
     readonly field: SF;
 
     readonly width: number;
+    readonly autosizing: boolean;
 
     readonly settings: BCS;
 

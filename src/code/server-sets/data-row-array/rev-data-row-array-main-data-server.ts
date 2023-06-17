@@ -1,9 +1,9 @@
 import { AssertError, DataServer, MetaModel } from '../../grid/grid-public-api';
-import { RevSimpleSchemaServer } from './rev-simple-schema-server';
+import { RevDataRowArraySchemaServer } from './rev-data-row-array-schema-server';
 
 /** @public */
-export class RevSimpleMainDataServer<SF extends RevSimpleSchemaServer.Field> implements DataServer<SF> {
-    private _data: RevSimpleMainDataServer.DataRow[] = [];
+export class RevDataRowArrayMainDataServer<SF extends RevDataRowArraySchemaServer.Field> implements DataServer<SF> {
+    private _data: RevDataRowArrayMainDataServer.DataRow[] = [];
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
     subscribeDataNotifications(listener: DataServer.NotificationsClient) {
@@ -27,7 +27,7 @@ export class RevSimpleMainDataServer<SF extends RevSimpleSchemaServer.Field> imp
         this._callbackListeners.forEach((listener) => listener.endChange());
     }
 
-    reset(data?: RevSimpleMainDataServer.DataRow[]) {
+    reset(data?: RevDataRowArrayMainDataServer.DataRow[]) {
         if (data === undefined) {
             this.invalidateAll();
         } else {
@@ -52,7 +52,7 @@ export class RevSimpleMainDataServer<SF extends RevSimpleSchemaServer.Field> imp
      * _Note parameter order is the reverse of `addRow`._
      * @param dataRow - if omitted or otherwise falsy, row renders as blank
      */
-    setViewRow(index: number, dataRow: RevSimpleMainDataServer.DataRow) {
+    setViewRow(index: number, dataRow: RevDataRowArrayMainDataServer.DataRow) {
         this._data[index] = dataRow || undefined;
         this._callbackListeners.forEach((listener) => listener.invalidateRow(index));
     }
@@ -83,15 +83,15 @@ export class RevSimpleMainDataServer<SF extends RevSimpleSchemaServer.Field> imp
      * _Note parameter order is the reverse of `setRow`._
      * @param index - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
      */
-    addRow(dataRow: RevSimpleMainDataServer.DataRow): void;
-    addRow(index: number, dataRow: RevSimpleMainDataServer.DataRow): void;
-    addRow(indexOrDataRow: number | RevSimpleMainDataServer.DataRow, dataRowOrUndefined?: RevSimpleMainDataServer.DataRow): void {
+    addRow(dataRow: RevDataRowArrayMainDataServer.DataRow): void;
+    addRow(index: number, dataRow: RevDataRowArrayMainDataServer.DataRow): void;
+    addRow(indexOrDataRow: number | RevDataRowArrayMainDataServer.DataRow, dataRowOrUndefined?: RevDataRowArrayMainDataServer.DataRow): void {
         const rowCount = this.getRowCount();
         let index: number;
-        let dataRow: RevSimpleMainDataServer.DataRow;
+        let dataRow: RevDataRowArrayMainDataServer.DataRow;
         if (typeof indexOrDataRow === 'number') {
             index = indexOrDataRow;
-            dataRow = dataRowOrUndefined as RevSimpleMainDataServer.DataRow;
+            dataRow = dataRowOrUndefined as RevDataRowArrayMainDataServer.DataRow;
         } else {
             index = rowCount;
             dataRow = indexOrDataRow;
@@ -155,9 +155,9 @@ export class RevSimpleMainDataServer<SF extends RevSimpleSchemaServer.Field> imp
  */
 
 /** @public */
-export namespace RevSimpleMainDataServer {
+export namespace RevDataRowArrayMainDataServer {
     export interface DataRow extends DataServer.ObjectViewRow {
-        [columnName: string]: DataServer.ViewValue;
+        [fieldName: string]: DataServer.ViewValue;
         __META?: MetaModel.RowMetadata;
     }
 }

@@ -179,7 +179,7 @@ export namespace RecordStore {
             index: 0,
             data: [
                 31,
-                "Thirtyone",
+                'Thirtyone',
                 62.3,
                 new Date(2010, 2, 23),
                 TDataItemStatusId.dsError
@@ -189,7 +189,7 @@ export namespace RecordStore {
             index: 1,
             data: [
                 0,
-                "Zero",
+                'Zero',
                 1246.356,
                 new Date(1850, 1, 19),
                 TDataItemStatusId.dsInactive
@@ -199,7 +199,7 @@ export namespace RecordStore {
             index: 2,
             data: [
                 900,
-                "Nine Hundred",
+                'Nine Hundred',
                 899.99,
                 new Date(2040, 11, 1),
                 TDataItemStatusId.dsNotSynchronised
@@ -209,7 +209,7 @@ export namespace RecordStore {
             index: 3,
             data: [
                 -80,
-                "Minus Eighty",
+                'Minus Eighty',
                 -8345.5,
                 new Date(2010, 2, 23),
                 TDataItemStatusId.dsOffline
@@ -219,7 +219,7 @@ export namespace RecordStore {
             index: 4,
             data: [
                 1345987,
-                "Big",
+                'Big',
                 12e6,
                 new Date(1950, 6, 6),
                 TDataItemStatusId.dsSynchronised

@@ -151,9 +151,7 @@ export namespace DataServer {
      * The property keys are the column names
      * All row objects should be congruent, meaning that each data row should have the same property keys.
      */
-    export interface ObjectViewRow {
-        [fieldName: string]: ViewValue;
-    }
+    export type ObjectViewRow = Record<string, ViewValue>;
     export type ArrayViewRow = ViewValue[];
     export type ViewRow = ArrayViewRow | ObjectViewRow;
 

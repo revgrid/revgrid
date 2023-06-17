@@ -89,13 +89,13 @@ export const gridSettingsDefaults: Required<GridSettings> = {
     verticalScrollbarClassPrefix: '',
     horizontalScrollbarClassPrefix: '',
 
-    gridLinesH: true,
-    gridLinesHWidth: 1,
-    gridLinesHColor: 'rgb(199, 199, 199)',
+    horizontalGridLinesEnabled: true,
+    horizontalGridLinesWidth: 1,
+    horizontalGridLinesColor: 'rgb(199, 199, 199)',
 
-    gridLinesV: true,
-    gridLinesVWidth: 1,
-    gridLinesVColor: 'rgb(199, 199, 199)',
+    verticalGridLinesEnabled: true,
+    verticalGridLinesWidth: 1,
+    verticalGridLinesColor: 'rgb(199, 199, 199)',
 
     /**
      * When {@link module:defaults.gridLinesV} is truthy, determines if lines render in the column headers area.
@@ -111,12 +111,12 @@ export const gridSettingsDefaults: Required<GridSettings> = {
      */
     horizontalGridLinesVisible: true,
     gridRightAligned: false,
-    fixedLinesHWidth: 2,
-    fixedLinesHEdge: undefined,
-    fixedLinesHColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesHColor} default
-    fixedLinesVWidth: 2,
-    fixedLinesVEdge: undefined,
-    fixedLinesVColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesVColor} default
+    horizontalFixedLineWidth: 2,
+    horizontalFixedLineEdgeWidth: undefined,
+    horizontalFixedLineColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesHColor} default
+    verticalFixedLineWidth: 2,
+    verticalFixedLineEdgeWidth: undefined,
+    verticalFixedLineColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesVColor} default
     defaultRowHeight: 14,
 
     /**
@@ -281,8 +281,8 @@ export const gridSettingsDefaults: Required<GridSettings> = {
      * @default
      * @type {boolean}
      */
-    mouseSortable: true,
-    mouseSortOnDoubleClick: false,
+    sortOnClick: true,
+    sortOnDoubleClick: false,
 
     multipleSelectionAreas: false,
     enableContinuousRepaint: false,

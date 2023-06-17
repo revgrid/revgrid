@@ -1,12 +1,12 @@
 import { DataServer } from '..';
-import { SchemaServerImplementation } from './schema-server-implementation';
+import { AppSchemaServer } from './app-schema-server';
 
-export class HeaderDataServer implements DataServer<SchemaServerImplementation.Field> {
+export class HeaderDataServer implements DataServer<AppSchemaServer.Field> {
     getRowCount() {
         return 1;
     }
 
-    getViewValue(field: SchemaServerImplementation.Field) {
+    getViewValue(field: AppSchemaServer.Field) {
         return field.header;
     }
 

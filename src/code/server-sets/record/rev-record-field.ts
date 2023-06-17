@@ -1,16 +1,21 @@
-import { DataServer, SchemaServer } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, DataServer, SchemaServer } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 
 /** Provides access to a field
  * @public
  */
-export interface RevRecordField extends SchemaServer.Field {
+export interface RevRecordField<BCS extends BehavioredColumnSettings> extends SchemaServer.Field {
     readonly name: string;
-    /**
-     * Retrieves the value of a field for display purposes
-     * @param record - The record to compare to
-     */
+    readonly columnSettings: BCS;
+
+    /** Retrieves the value of a field for display purposes */
     getViewValue(record: RevRecord): DataServer.ViewValue;
+
+    /** Retrieves the value of a field for edit purposes */
+    getEditValue(record: RevRecord): DataServer.EditValue;
+
+    /** Set the value of a field */
+    setEditValue(record: RevRecord, value: DataServer.EditValue): void;
 
     /**
      * Compares two records based on this field for sorting in ascending order

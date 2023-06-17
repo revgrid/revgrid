@@ -18,6 +18,6 @@ export const columnSettingsDefaults: Required<ColumnSettings> = {
     minimumColumnWidth: gridSettingsDefaults.minimumColumnWidth,
     maximumColumnWidth: gridSettingsDefaults.maximumColumnWidth,
     resizeColumnInPlace: gridSettingsDefaults.resizeColumnInPlace,
-    mouseSortable: gridSettingsDefaults.mouseSortable,
-    mouseSortOnDoubleClick: gridSettingsDefaults.mouseSortOnDoubleClick,
+    sortOnClick: gridSettingsDefaults.sortOnClick,
+    sortOnDoubleClick: gridSettingsDefaults.sortOnDoubleClick,
 };

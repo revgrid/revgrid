@@ -6,10 +6,6 @@ import { SelectionArea } from './selection-area';
 export class SelectionRectangle extends FirstCornerRectangle implements SelectionArea {
     readonly areaType = SelectionAreaType.Rectangle;
 
-    constructor(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number) {
-        super(firstInexclusiveX, firstInexclusiveY, width, height);
-    }
-
     override createCopy() {
         const { x, y, width, height } = FirstCornerRectangle.calculateXYWidthHeightForCorner(this.x, this.y, this.width, this.height, this.firstCorner);
         return new SelectionRectangle(x, y, width, height);

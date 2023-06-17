@@ -65,23 +65,23 @@ export interface GridSettings {
     /**
      * Define this property to style rule lines between fixed & scolling rows differently from {@link module:defaults.gridLinesHColor}.
      */
-    readonly fixedLinesHColor: GridSettings.Color;
+    readonly horizontalFixedLineColor: GridSettings.Color;
     /**
      * Define this property to render just the edges of the lines between non-scrollable rows & scrollable rows, creating a double-line effect.
      * The value is the thickness of the edges.
      * Undefined means no edge effect
      * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesHWidth fixedLinesHWidth} to `3`.
      */
-    readonly fixedLinesHEdge: number | undefined;
+    readonly horizontalFixedLineEdgeWidth: number | undefined;
     /**
      * Define this property to style rule lines between non-scrollable rows and scrollable rows differently from {@link module:defaults.gridLinesHWidth gridLinesHWidth}.
      * Undefine it to show normal grid line in that position.
      */
-    readonly fixedLinesHWidth: number | undefined;
+    readonly horizontalFixedLineWidth: number | undefined;
     /**
      * Define this property to style rule lines between fixed & scolling columns differently from {@link module:defaults.gridLinesVColor}.
      */
-    readonly fixedLinesVColor: GridSettings.Color;
+    readonly verticalFixedLineColor: GridSettings.Color;
     /**
      * Define this property to render just the edges of the lines between fixed & scrolling columns, creating a double-line effect.
      * The value is the thickness of the edges.
@@ -89,12 +89,12 @@ export interface GridSettings {
      * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesVWidth fixedLinesVWidth} to `3`.
      * {@link module:defaults.fixedLinesVWidth}
      */
-    readonly fixedLinesVEdge: number | undefined;
+    readonly verticalFixedLineEdgeWidth: number | undefined;
     /**
      * Define this property to style rule lines between non-scrollable columns and scrollable columns differently from {@link module:defaults.gridLinesVWidth gridLinesVWidth}.
      * Undefine it to show normal grid line in that position.
      */
-    readonly fixedLinesVWidth: number | undefined;
+    readonly verticalFixedLineWidth: number | undefined;
     readonly fixedRowCount: number;
     /**
      * Instead of visible columns starting from left side of canvas, they end at the right side of canvas
@@ -103,18 +103,18 @@ export interface GridSettings {
     readonly gridRightAligned: boolean;
     readonly verticalGridLinesVisible: boolean;
     /** Enable rendering of horizontal grid lines. */
-    readonly gridLinesH: boolean;
+    readonly horizontalGridLinesEnabled: boolean;
     /** Color of horizontal grid lines. */
-    readonly gridLinesHColor: GridSettings.Color;
+    readonly horizontalGridLinesColor: GridSettings.Color;
     /** Thickness of horizontal grid lines (pixels). */
-    readonly gridLinesHWidth: number;
+    readonly horizontalGridLinesWidth: number;
     readonly horizontalGridLinesVisible: boolean;
     /** Enable rendering of vertical grid lines. */
-    readonly gridLinesV: boolean;
+    readonly verticalGridLinesEnabled: boolean;
     /** Color of vertical grid lines. */
-    readonly gridLinesVColor: GridSettings.Color;
+    readonly verticalGridLinesColor: GridSettings.Color;
     /** Thickness of vertical grid lines (pixels). */
-    readonly gridLinesVWidth: number;
+    readonly verticalGridLinesWidth: number;
     readonly horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
     readonly horizontalScrollbarClassPrefix: string;
     readonly minimumColumnWidth: number;
@@ -163,9 +163,9 @@ export interface GridSettings {
     readonly selectionRegionOverlayColor: GridSettings.Color;
     readonly showFilterRow: boolean;
     /** Sort column on double-click rather than single-click. */
-    readonly mouseSortOnDoubleClick: boolean;
+    readonly sortOnDoubleClick: boolean;
     /** Column can be sorted with mouse click on column header */
-    readonly mouseSortable: boolean;
+    readonly sortOnClick: boolean;
     readonly useHiDPI: boolean;
     readonly verticalScrollbarClassPrefix: string;
     readonly wheelHFactor: number;

@@ -1,7 +1,7 @@
 import { GridSettings, RevRecordSysTick } from '..';
 
 /** @public */
-export interface RecordGridSettings {
+export interface RecordGridSettings extends  {
     /** The font family to use for all cells */
     fontFamily: string;
     /** The font size to use for all cells except heading */

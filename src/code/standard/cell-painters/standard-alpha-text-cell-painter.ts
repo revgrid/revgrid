@@ -161,8 +161,7 @@ export class StandardAlphaTextCellPainter<
             return undefined;
         } else {
             const bounds = cell.bounds;
-            const leftPadding = columnSettings.cellPadding;
-            const rightPadding = columnSettings.cellPadding;
+            const cellPadding = columnSettings.cellPadding;
 
             this.paintLayerColors(bounds, layerColors, firstColorIsFill);
             if (borderColor !== undefined) {
@@ -171,7 +170,7 @@ export class StandardAlphaTextCellPainter<
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
-            return this.renderSingleLineText(bounds, valText, leftPadding, rightPadding);
+            return this.renderSingleLineText(bounds, valText, cellPadding, cellPadding);
         }
     }
 

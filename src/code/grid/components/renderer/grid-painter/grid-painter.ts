@@ -129,12 +129,12 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
             const lastVisibleColumnRight = viewLayoutColumns[lastColumnIndex].rightPlus1;
             const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
             const viewHeight = viewLayoutRows[lastRowIndex].bottomPlus1;
-            const gridLinesVColor = gridSettings.gridLinesVColor;
-            const gridLinesHColor = gridSettings.gridLinesHColor;
+            const gridLinesVColor = gridSettings.verticalGridLinesColor;
+            const gridLinesHColor = gridSettings.horizontalGridLinesColor;
             // const borderBox = gridProps.boxSizing === 'border-box';
 
-            if (gridSettings.gridLinesV && gridSettings.verticalGridLinesVisible) {
-                const gridLinesVWidth = gridSettings.gridLinesVWidth;
+            if (gridSettings.verticalGridLinesEnabled && gridSettings.verticalGridLinesVisible) {
+                const gridLinesVWidth = gridSettings.verticalGridLinesWidth;
                 const preMainRowCount = this.subgridsManager.calculatePreMainRowCount();
                 const lastPreMainRow = viewLayoutRows[preMainRowCount - 1]; // any header rows?
                 const firstDataRow = viewLayoutRows[preMainRowCount]; // any data rows?
@@ -164,8 +164,8 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
                 }
             }
 
-            if (gridSettings.gridLinesH && gridSettings.horizontalGridLinesVisible) {
-                const gridLinesHWidth = gridSettings.gridLinesHWidth;
+            if (gridSettings.horizontalGridLinesEnabled && gridSettings.horizontalGridLinesVisible) {
+                const gridLinesHWidth = gridSettings.horizontalGridLinesWidth;
                 const width = lastVisibleColumnRight - firstVisibleColumnLeft;
 
                 gc.cache.fillStyle = gridLinesHColor;
@@ -180,11 +180,11 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
 
             // draw fixed rule lines over grid rule lines
 
-            if (gridSettings.fixedLinesHWidth !== undefined) {
+            if (gridSettings.horizontalFixedLineWidth !== undefined) {
                 const rowGap = viewLayoutRows.gap;
                 if (rowGap !== undefined) {
-                    gc.cache.fillStyle = gridSettings.fixedLinesHColor || gridLinesHColor;
-                    const edgeWidth = gridSettings.fixedLinesHEdge;
+                    gc.cache.fillStyle = gridSettings.horizontalFixedLineColor || gridLinesHColor;
+                    const edgeWidth = gridSettings.horizontalFixedLineEdgeWidth;
                     if (edgeWidth !== undefined) {
                         gc.fillRect(firstVisibleColumnLeft, rowGap.top, viewWidth, edgeWidth);
                         gc.fillRect(firstVisibleColumnLeft, rowGap.bottom - edgeWidth, viewWidth, edgeWidth);
@@ -194,11 +194,11 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
                 }
             }
 
-            if (gridSettings.fixedLinesVWidth !== undefined) {
+            if (gridSettings.verticalFixedLineWidth !== undefined) {
                 const columnGap = viewLayoutColumns.gap;
                 if (columnGap !== undefined) {
-                    gc.cache.fillStyle = gridSettings.fixedLinesVColor || gridLinesVColor;
-                    const edgeWidth = gridSettings.fixedLinesVEdge;
+                    gc.cache.fillStyle = gridSettings.verticalFixedLineColor || gridLinesVColor;
+                    const edgeWidth = gridSettings.verticalFixedLineEdgeWidth;
                     if (edgeWidth !== undefined) {
                         gc.fillRect(columnGap.left, 0, edgeWidth, viewHeight);
                         gc.fillRect(columnGap.rightPlus1 - edgeWidth, 0, edgeWidth, viewHeight);

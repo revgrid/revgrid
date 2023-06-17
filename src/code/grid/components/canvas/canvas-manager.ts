@@ -391,7 +391,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         this._flooredContainerHeight = height;
 
         // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
-        const ratio = (this._gridSettings.useHiDPI && window.devicePixelRatio !== undefined) ? window.devicePixelRatio : 1;
+        const ratio = this._gridSettings.useHiDPI ? window.devicePixelRatio : 1;
 
         const ratioChanged = ratio !== this._devicePixelRatio;
         this._devicePixelRatio = ratio;
@@ -400,8 +400,8 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         this.canvasElement.width = Math.floor(width * ratio);
         this.canvasElement.height = Math.floor(height * ratio);
 
-        this.canvasElement.style.width = width + 'px';
-        this.canvasElement.style.height = height + 'px';
+        this.canvasElement.style.width = width.toString(10) + 'px';
+        this.canvasElement.style.height = height.toString(10) + 'px';
 
         if (imageData !== undefined && !ratioChanged) {
             this.gc.putImageData(imageData, 0, 0);

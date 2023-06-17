@@ -11,7 +11,7 @@ import { RevRecordStore } from './rev-record-store';
 import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
 /** @public */
-export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
+export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF extends RevRecordField<BCS>> implements DataServer<SF>, RevRecordStore.RecordsEventers {
     readonly mainDataModel = true;
 
     private readonly _recordRowBindingKey = Symbol();
@@ -148,6 +148,26 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF ex
         const record = this._recordRowMap.getRecordFromRowIndex(rowIndex);
 
         return field.getViewValue(record);
+    }
+
+    getEditValue(field: SF, rowIndex: number): DataServer.EditValue {
+        if (this._rowOrderReversed) {
+            rowIndex = this.reverseRowIndex(rowIndex);
+        }
+
+        const record = this._recordRowMap.getRecordFromRowIndex(rowIndex);
+
+        return field.getEditValue(record);
+    }
+
+    setEditValue(field: SF, rowIndex: number, value: DataServer.EditValue) {
+        if (this._rowOrderReversed) {
+            rowIndex = this.reverseRowIndex(rowIndex);
+        }
+
+        const record = this._recordRowMap.getRecordFromRowIndex(rowIndex);
+
+        return field.setEditValue(record, value);
     }
 
     allRecordsDeleted(): void {

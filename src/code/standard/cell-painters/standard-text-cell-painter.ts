@@ -1,5 +1,5 @@
 import { Rectangle, SchemaServer } from '../../grid/grid-public-api';
-import { StandardAllColumnSettings, StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
+import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
 /** @public */
@@ -8,9 +8,9 @@ export abstract class StandardTextCellPainter<
     BCS extends StandardBehavioredColumnSettings,
     SF extends SchemaServer.Field
 > extends StandardCellPainter<BGS, BCS, SF> {
-    protected _columnSettings: StandardAllColumnSettings;
+    protected _columnSettings: BCS;
 
-    setColumnSettings(value: StandardAllColumnSettings) {
+    setColumnSettings(value: BCS) {
         this._columnSettings = value;
     }
 

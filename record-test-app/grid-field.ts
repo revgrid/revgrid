@@ -2,25 +2,33 @@ import {
     DataServer,
     RevRecordField,
     RevRecordValueRecentChangeTypeId,
-    StandardInMemoryBehavioredColumnSettings
+    StandardBehavioredColumnSettings,
 } from '..';
 import { RecordStore } from './record-store';
 
-export abstract class GridField implements RevRecordField<StandardInMemoryBehavioredColumnSettings> {
+export abstract class GridField implements RevRecordField<StandardBehavioredColumnSettings> {
     index = -1;
 
-    constructor(readonly name: string, readonly settings: StandardInMemoryBehavioredColumnSettings, public heading: string) {}
-    abstract getValue(record: RecordStore.Record): DataServer.ViewValue;
+    constructor(readonly name: string, public heading: string, readonly columnSettings: StandardBehavioredColumnSettings) {}
+    getViewValue(record: RecordStore.Record): DataServer.ViewValue {
+        return this.getEditValue(record);
+    }
+    abstract getEditValue(record: RecordStore.Record): DataServer.EditValue;
+    abstract setEditValue(record: RecordStore.Record, value: DataServer.EditValue): void;
     abstract modifyValue(record: RecordStore.Record): RevRecordValueRecentChangeTypeId | undefined;
 }
 
 export class RecordIndexGridField extends GridField {
-    constructor() {
-        super('RecIndex', 'Index');
+    constructor(columnSettings: StandardBehavioredColumnSettings) {
+        super('RecIndex', 'Index', columnSettings);
     }
 
-    getValue(record: RecordStore.Record): DataServer.ViewValue {
+    getEditValue(record: RecordStore.Record): DataServer.EditValue {
         return record.index;
+    }
+
+    setEditValue(record: RecordStore.Record, value: DataServer.EditValue) {
+        throw new Error('Cannot modify index value');
     }
 
     override modifyValue(): RevRecordValueRecentChangeTypeId | undefined {
@@ -29,12 +37,16 @@ export class RecordIndexGridField extends GridField {
 }
 
 export class IntValGridField extends GridField {
-    constructor() {
-        super('IntVal', 'Int');
+    constructor(columnSettings: StandardBehavioredColumnSettings) {
+        super('IntVal', 'Int', columnSettings);
     }
 
-    getValue(record: RecordStore.Record): DataServer.ViewValue {
+    getEditValue(record: RecordStore.Record): DataServer.EditValue {
         return record.data[RecordStore.Record.Data.intValIndex];
+    }
+
+    setEditValue(record: RecordStore.Record, value: DataServer.EditValue) {
+        record.data[RecordStore.Record.Data.intValIndex] = value as number;
     }
 
     compare(left: RecordStore.Record, right: RecordStore.Record): number {
@@ -59,12 +71,16 @@ export class IntValGridField extends GridField {
 }
 
 export class StrValGridField extends GridField {
-    constructor() {
-        super('fiStrVal', 'Str');
+    constructor(columnSettings: StandardBehavioredColumnSettings) {
+        super('fiStrVal', 'Str', columnSettings);
     }
 
-    getValue(record: RecordStore.Record): DataServer.DataValue {
+    getEditValue(record: RecordStore.Record): DataServer.EditValue {
         return record.data[RecordStore.Record.Data.strValIndex];
+    }
+
+    setEditValue(record: RecordStore.Record, value: DataServer.EditValue) {
+        record.data[RecordStore.Record.Data.strValIndex] = value as string;
     }
 
     compare(left: RecordStore.Record, right: RecordStore.Record): number {
@@ -88,12 +104,16 @@ export class StrValGridField extends GridField {
 }
 
 export class NumberValGridField extends GridField {
-    constructor() {
-        super('fiDblVal', 'Number');
+    constructor(columnSettings: StandardBehavioredColumnSettings) {
+        super('fiDblVal', 'Number', columnSettings);
     }
 
-    getValue(record: RecordStore.Record): DataServer.DataValue {
+    getEditValue(record: RecordStore.Record): DataServer.EditValue {
         return record.data[RecordStore.Record.Data.numberValIndex];
+    }
+
+    setEditValue(record: RecordStore.Record, value: DataServer.EditValue) {
+        record.data[RecordStore.Record.Data.numberValIndex] = value as number;
     }
 
     compare(left: RecordStore.Record, right: RecordStore.Record): number {
@@ -118,12 +138,16 @@ export class NumberValGridField extends GridField {
 }
 
 export class DateValGridField extends GridField {
-    constructor() {
-        super('fiDateVal', 'Date');
+    constructor(columnSettings: StandardBehavioredColumnSettings) {
+        super('fiDateVal', 'Date', columnSettings);
     }
 
-    getValue(record: RecordStore.Record): DataServer.DataValue {
+    getEditValue(record: RecordStore.Record): DataServer.EditValue {
         return record.data[RecordStore.Record.Data.dateValIndex];
+    }
+
+    setEditValue(record: RecordStore.Record, value: DataServer.EditValue) {
+        record.data[RecordStore.Record.Data.dateValIndex] = value as Date;
     }
 
     compare(left: RecordStore.Record, right: RecordStore.Record): number {
@@ -148,12 +172,16 @@ export class DateValGridField extends GridField {
 }
 
 export class StatusIdValGridField extends GridField {
-    constructor() {
-        super('fiStatusIdVal', 'StatusId');
+    constructor(columnSettings: StandardBehavioredColumnSettings) {
+        super('fiStatusIdVal', 'StatusId', columnSettings);
     }
 
-    getValue(record: RecordStore.Record): DataServer.DataValue {
+    getEditValue(record: RecordStore.Record): DataServer.EditValue {
         return record.data[RecordStore.Record.Data.statusIdIndex];
+    }
+
+    setEditValue(record: RecordStore.Record, value: DataServer.EditValue) {
+        record.data[RecordStore.Record.Data.statusIdIndex] = value as number;
     }
 
     compare(left: RecordStore.Record, right: RecordStore.Record): number {
@@ -177,12 +205,16 @@ export class StatusIdValGridField extends GridField {
 }
 
 export class HiddenStrValGridField extends GridField {
-    constructor() {
-        super('fiHidden', 'Hidden');
+    constructor(columnSettings: StandardBehavioredColumnSettings) {
+        super('fiHidden', 'Hidden', columnSettings);
     }
 
-    getValue(record: RecordStore.Record): DataServer.DataValue {
+    getEditValue(record: RecordStore.Record): DataServer.EditValue {
         return record.data[RecordStore.Record.Data.strValIndex];
+    }
+
+    setEditValue(record: RecordStore.Record, value: DataServer.EditValue) {
+        record.data[RecordStore.Record.Data.strValIndex] = value as string;
     }
 
     compare(left: RecordStore.Record, right: RecordStore.Record): number {

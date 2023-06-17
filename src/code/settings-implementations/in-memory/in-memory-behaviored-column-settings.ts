@@ -19,8 +19,8 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     private _maximumColumnWidth: number | undefined | null;
     private _minimumColumnWidth: number | undefined;
     private _resizeColumnInPlace: boolean | undefined;
-    private _mouseSortOnDoubleClick: boolean | undefined;
-    private _mouseSortable: boolean | undefined;
+    private _sortOnDoubleClick: boolean | undefined;
+    private _sortOnClick: boolean | undefined;
 
     constructor(readonly gridSettings: AllGridSettings) {
         super();
@@ -221,23 +221,23 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get mouseSortOnDoubleClick() { return this._mouseSortOnDoubleClick !== undefined ? this._mouseSortOnDoubleClick : this.gridSettings.mouseSortOnDoubleClick; }
-    set mouseSortOnDoubleClick(value: boolean) {
-        if (value !== this._mouseSortOnDoubleClick) {
+    get sortOnDoubleClick() { return this._sortOnDoubleClick !== undefined ? this._sortOnDoubleClick : this.gridSettings.sortOnDoubleClick; }
+    set sortOnDoubleClick(value: boolean) {
+        if (value !== this._sortOnDoubleClick) {
             this.beginChange();
-            this._mouseSortOnDoubleClick = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseSortOnDoubleClick;
+            this._sortOnDoubleClick = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.sortOnDoubleClick;
             this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
 
-    get mouseSortable() { return this._mouseSortable !== undefined ? this._mouseSortable : this.gridSettings.mouseSortable; }
-    set mouseSortable(value: boolean) {
-        if (value !== this._mouseSortable) {
+    get sortOnClick() { return this._sortOnClick !== undefined ? this._sortOnClick : this.gridSettings.sortOnClick; }
+    set sortOnClick(value: boolean) {
+        if (value !== this._sortOnClick) {
             this.beginChange();
-            this._mouseSortable = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseSortable;
+            this._sortOnClick = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.sortOnClick;
             this.notifyChanged(invalidateType);
             this.endChange();
         }
@@ -295,11 +295,11 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                 case 'resizeColumnInPlace':
                     this._resizeColumnInPlace = settings.resizeColumnInPlace;
                     break;
-                case 'mouseSortOnDoubleClick':
-                    this._mouseSortOnDoubleClick = settings.mouseSortOnDoubleClick;
+                case 'sortOnDoubleClick':
+                    this._sortOnDoubleClick = settings.sortOnDoubleClick;
                     break;
-                case 'mouseSortable':
-                    this._mouseSortable = settings.mouseSortable;
+                case 'sortOnClick':
+                    this._sortOnClick = settings.sortOnClick;
                     break;
 
                 default: {

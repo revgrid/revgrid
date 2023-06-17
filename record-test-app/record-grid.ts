@@ -1,22 +1,20 @@
-import { RecordGridSettings } from 'record-grid-settings';
 import {
     CellPainter,
+    DatalessSubgrid,
     EventDetail,
     GridSettings,
     ListChangedTypeId,
-    RevRecordCellAdapter,
     RevRecordField,
-    RevRecordFieldAdapter,
     RevRecordFieldIndex,
-    RevRecordHeaderAdapter,
     RevRecordIndex,
-    RevRecordMainAdapter,
+    RevRecordMainDataServer,
+    RevRecordSchemaServer,
     RevRecordStore,
     Revgrid,
-    StandardInMemoryBehavioredColumnSettings,
-    StandardInMemoryBehavioredGridSettings,
     UnreachableCaseError
-} from "..";
+} from '..';
+import { AppBehavioredColumnSettings } from './app-behaviored-column-settings';
+import { AppBehavioredGridSettings } from './app-behaviored-grid-settings';
 import {
     DateValGridField,
     GridField,
@@ -30,9 +28,9 @@ import {
 import { HeaderDataServer } from './header-data-server';
 
 export class RecordGrid extends Revgrid<
-        StandardInMemoryBehavioredGridSettings,
-        StandardInMemoryBehavioredColumnSettings,
-        RevRecordField<StandardInMemoryBehavioredColumnSettings>
+        AppBehavioredGridSettings,
+        AppBehavioredColumnSettings,
+        GridField
     > {
     fieldSortedEventer: RecordGrid.FieldSortedEventer | undefined;
     columnWidthChangedEventer: RecordGrid.ColumnWidthChangedEventer | undefined;
@@ -46,9 +44,9 @@ export class RecordGrid extends Revgrid<
 
     private _lastNotifiedFocusedRecordIndex: number | undefined;
 
-    private readonly _fieldAdapter: RevRecordFieldAdapter;
-    private readonly _headerRecordAdapter: RevRecordHeaderAdapter;
-    private readonly _mainRecordAdapter: RevRecordMainAdapter;
+    private readonly _schemaServer: RevRecordSchemaServer<AppBehavioredColumnSettings, GridField>;
+    private readonly _headerDataServer: HeaderDataServer;
+    private readonly _mainDataServer: RevRecordMainDataServer<AppBehavioredColumnSettings, GridField>;
 
     private readonly _recordIndexGridField = new RecordIndexGridField();
     private readonly _hiddenStrValGridField = new HiddenStrValGridField();
@@ -62,25 +60,25 @@ export class RecordGrid extends Revgrid<
         gridElement: HTMLElement,
         recordStore: RevRecordStore,
         mainCellPainter: CellPainter,
-        gridSettings: Partial<GridSettings>,
+        gridSettings: GridSettings,
     ) {
-        const fieldAdapter = new RevRecordFieldAdapter();
-        const mainRecordAdapter = new RevRecordMainAdapter(fieldAdapter, recordStore);
-        const headerRecordAdapter = new HeaderDataServer();
+        const schemaServer = new RevRecordSchemaServer<AppBehavioredColumnSettings, GridField>();
+        const mainDataServer = new RevRecordMainDataServer<AppBehavioredColumnSettings, GridField>(schemaServer, recordStore);
+        const headerDataServer = new HeaderDataServer();
 
-        const recordCellAdapter = new RevRecordCellAdapter(mainRecordAdapter, mainCellPainter);
+        const recordCellAdapter = new RevRecordCellAdapter(mainDataServer, mainCellPainter);
 
-        const definition: Revgrid.Definition<StandardInMemoryBehavioredColumnSettings, RevRecordField.SchemaColumn<StandardInMemoryBehavioredColumnSettings>> = {
-            schemaServer: fieldAdapter,
+        const definition: Revgrid.Definition<StandardInMemoryBehavioredColumnSettings, GridField> = {
+            schemaServer: schemaServer,
             subgrids: [
                 {
-                    role: SubgridInterface.RoleEnum.header,
-                    dataServer: headerRecordAdapter,
+                    role: DatalessSubgrid.RoleEnum.header,
+                    dataServer: headerDataServer,
                     cellModel: header
                 },
                 {
-                    role: SubgridInterface.RoleEnum.main,
-                    dataServer: mainRecordAdapter,
+                    role: DatalessSubgrid.RoleEnum.main,
+                    dataServer: mainDataServer,
                     cellModel: recordCellAdapter,
                 }
             ],
@@ -88,33 +86,33 @@ export class RecordGrid extends Revgrid<
 
         super(gridElement, definition);
 
-        this._fieldAdapter = fieldAdapter;
-        this._headerRecordAdapter = headerRecordAdapter;
-        this._mainRecordAdapter = mainRecordAdapter;
+        this._schemaServer = schemaServer;
+        this._headerDataServer = headerDataServer;
+        this._mainDataServer = mainDataServer;
 
         this.allowEvents(true);
 
         this.addFieldsToAdapter();
     }
 
-    get fieldCount(): number { return this._fieldAdapter.fieldCount; }
+    get fieldCount(): number { return this._schemaServer.fieldCount; }
 
     get strValGridField() { return this._strValGridField; }
     get hiddenStrValGridField() { return this._hiddenStrValGridField; }
 
-    get sortable(): boolean { return this.properties.sortable; }
-    set sortable(value: boolean) { this.properties.sortable = value; }
+    get sortable(): boolean { return this.settings.mouseSortable; }
+    set sortable(value: boolean) { this.settings.mouseSortable = value; }
 
     get columnCount(): number { return this.activeColumnCount; }
 
-    get continuousFiltering(): boolean { return this._mainRecordAdapter.continuousFiltering; }
-    set continuousFiltering(value: boolean) { this._mainRecordAdapter.continuousFiltering = value}
+    get continuousFiltering(): boolean { return this._mainDataServer.continuousFiltering; }
+    set continuousFiltering(value: boolean) { this._mainDataServer.continuousFiltering = value}
 
-    get filterCallback(): RevRecordMainAdapter.RecordFilterCallback | undefined { return this._mainRecordAdapter.filterCallback; }
-    set filterCallback(value: RevRecordMainAdapter.RecordFilterCallback | undefined) { this._mainRecordAdapter.filterCallback = value}
+    get filterCallback(): RevRecordMainDataServer.RecordFilterCallback | undefined { return this._mainDataServer.filterCallback; }
+    set filterCallback(value: RevRecordMainDataServer.RecordFilterCallback | undefined) { this._mainDataServer.filterCallback = value}
 
-    get rowOrderReversed(): boolean { return this._mainRecordAdapter.rowOrderReversed; }
-    set rowOrderReversed(value: boolean) { this._mainRecordAdapter.rowOrderReversed = value}
+    get rowOrderReversed(): boolean { return this._mainDataServer.rowOrderReversed; }
+    set rowOrderReversed(value: boolean) { this._mainDataServer.rowOrderReversed = value}
 
     // get fieldCount(): number { return this._fieldAdapter.fieldCount; }
 
@@ -125,7 +123,7 @@ export class RecordGrid extends Revgrid<
             return undefined;
         } else {
             const rowIndex = rectangles[0].firstSelectedCell.y;
-            return this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex)
+            return this._mainDataServer.getRecordIndexFromRowIndex(rowIndex)
         }
     }
 
@@ -133,7 +131,7 @@ export class RecordGrid extends Revgrid<
         if (recordIndex === undefined) {
             this.clearSelection();
         } else {
-            const rowIndex = this._mainRecordAdapter.getRowIndexFromRecordIndex(recordIndex);
+            const rowIndex = this._mainDataServer.getRowIndexFromRecordIndex(recordIndex);
 
             if (rowIndex === undefined) {
                 this.clearSelection();
@@ -144,14 +142,14 @@ export class RecordGrid extends Revgrid<
     }
 
     get headerRowCount(): number {
-        return this._headerRecordAdapter.getRowCount();
+        return this._headerDataServer.getRowCount();
     }
 
-    get isFiltered(): boolean { return this._mainRecordAdapter.isFiltered; }
-    get sortColumns(): number { return this._mainRecordAdapter.sortColumnCount; }
+    get isFiltered(): boolean { return this._mainDataServer.isFiltered; }
+    get sortColumns(): number { return this._mainDataServer.sortColumnCount; }
 
-    get gridRightAligned(): boolean { return this.properties.gridRightAligned; }
-    get rowHeight(): number { return this.properties.defaultRowHeight; }
+    get gridRightAligned(): boolean { return this.settings.gridRightAligned; }
+    get rowHeight(): number { return this.settings.defaultRowHeight; }
 
     get rowRecIndices(): number[] {
         return [];
@@ -159,40 +157,40 @@ export class RecordGrid extends Revgrid<
     }
 
     setRecentDurations(allChanged: number, recordInserted: number, recordUpdated: number, valueChanged: number): void {
-        this._mainRecordAdapter.allChangedRecentDuration = allChanged;
-        this._mainRecordAdapter.recordInsertedRecentDuration = recordInserted;
-        this._mainRecordAdapter.recordUpdatedRecentDuration = recordUpdated;
-        this._mainRecordAdapter.valueChangedRecentDuration = valueChanged;
+        this._mainDataServer.allChangedRecentDuration = allChanged;
+        this._mainDataServer.recordInsertedRecentDuration = recordInserted;
+        this._mainDataServer.recordUpdatedRecentDuration = recordUpdated;
+        this._mainDataServer.valueChangedRecentDuration = valueChanged;
     }
 
     autoSizeColumnWidth(columnIndex: number): void {
-        this.autosizeColumn(columnIndex);
+        this.autoSizeColumnWidth(columnIndex);
     }
 
     autoSizeFieldColumnWidth(field: RevRecordField): void {
-        const fieldIndex = this._fieldAdapter.getFieldIndex(field);
+        const fieldIndex = this._schemaServer.getFieldIndex(field);
         const columnIndex = this.getActiveColumnIndexUsingFieldIndex(fieldIndex);
 
         if (columnIndex < 0) {
             throw new RangeError('Field is not visible');
         }
 
-        this.autosizeColumn(columnIndex);
+        this.autoSizeColumnWidth(columnIndex);
     }
 
     getField(fieldIdx: number) {
-        return this._fieldAdapter.getField(fieldIdx) as GridField;
+        return this._schemaServer.getField(fieldIdx) as GridField;
     }
 
-    getFieldIndex(field: RevRecordField): RevRecordFieldIndex {
-        return this._fieldAdapter.getFieldIndex(field);
+    getFieldIndex(field: GridField): RevRecordFieldIndex {
+        return this._schemaServer.getFieldIndex(field);
     }
 
-    getFieldWidth(field: RevRecordFieldIndex | RevRecordField): number | undefined {
+    getFieldWidth(field: RevRecordFieldIndex | GridField): number | undefined {
         const fieldIndex = typeof field === 'number' ? field : this.getFieldIndex(field);
-        const columnProperties = this.getAllColumn(fieldIndex).properties;
+        const column = this.getAllColumn(fieldIndex);
 
-        return !columnProperties.columnAutosized ? columnProperties.width : undefined;
+        return column.autosizing ? undefined : column.width;
     }
 
     getFieldVisible(field: RevRecordFieldIndex | RevRecordField): boolean {
@@ -237,14 +235,14 @@ export class RecordGrid extends Revgrid<
         const fromColumnIndex = this.getActiveColumnIndexUsingFieldIndex(fieldIndex);
 
         if (fromColumnIndex < 0) {
-            throw new Error(`Move Field Error: ${fieldIndex}, ${this._fieldAdapter.getField(fieldIndex).name}`);
+            throw new Error(`Move Field Error: ${fieldIndex}, ${this._schemaServer.getField(fieldIndex).name}`);
         }
 
         this.moveActiveColumn(fromColumnIndex, toColumnIndex);
     }
 
     recordToRowIndex(recordIndex: RevRecordIndex): number {
-        const rowIndex = this._mainRecordAdapter.getRowIndexFromRecordIndex(recordIndex);
+        const rowIndex = this._mainDataServer.getRowIndexFromRecordIndex(recordIndex);
         if (rowIndex === undefined) {
             throw new Error(`RecordToRowIndex ${recordIndex}`);
         } else {
@@ -259,7 +257,7 @@ export class RecordGrid extends Revgrid<
     }
 
     rowToRecordIndex(rowIndex: number): number {
-        const recIdx = this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex);
+        const recIdx = this._mainDataServer.getRecordIndexFromRowIndex(rowIndex);
         if (recIdx === undefined) {
             throw new Error(`RowToRecordIndex ${rowIndex}`);
         } else {
@@ -270,7 +268,7 @@ export class RecordGrid extends Revgrid<
     setFieldHeading(field: GridField, heading: string): void {
         field.heading = heading;
         const fieldIndex = this.getFieldIndex(field);
-        this._headerRecordAdapter.invalidateCell(fieldIndex);
+        this._headerDataServer.invalidateCell(fieldIndex);
     }
 
     setFieldsVisible(fields: (RevRecordFieldIndex | RevRecordField)[], visible: boolean): void {
@@ -321,7 +319,7 @@ export class RecordGrid extends Revgrid<
         const column = eventDetail.column;
         const fieldIndex = column.field.index;
 
-        this._mainRecordAdapter.sortBy(fieldIndex);
+        this._mainDataServer.sortBy(fieldIndex);
 
         return super.fireSyntheticColumnSortEvent(eventDetail);
     }
@@ -331,7 +329,7 @@ export class RecordGrid extends Revgrid<
         if (gridY !== 0) { // Skip clicks to the column headers
             if (this.recordFocusClickEventer !== undefined) {
                 const rowIndex = event.dataCell.y;
-                const recordIndex = this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex);
+                const recordIndex = this._mainDataServer.getRecordIndexFromRowIndex(rowIndex);
                 if (recordIndex === undefined) {
                     throw new Error('fireSyntheticClickEvent');
                 } else {
@@ -357,7 +355,7 @@ export class RecordGrid extends Revgrid<
         if (event.gridCell.y !== 0) { // Skip clicks to the column headers
             if (this.recordFocusDblClickEventer !== undefined) {
                 const rowIndex = event.dataCell.y;
-                const recordIndex = this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex);
+                const recordIndex = this._mainDataServer.getRecordIndexFromRowIndex(rowIndex);
                 if (recordIndex === undefined) {
                     throw new Error('handleGridDblClickEvent');
                 } else {
@@ -384,7 +382,7 @@ export class RecordGrid extends Revgrid<
         } else {
             const rectangle = rectangles[0];
             const rowIndex = rectangle.firstSelectedCell.y;
-            const newFocusedRecordIndex = this._mainRecordAdapter.getRecordIndexFromRowIndex(rowIndex);
+            const newFocusedRecordIndex = this._mainDataServer.getRecordIndexFromRowIndex(rowIndex);
             if (newFocusedRecordIndex !== this._lastNotifiedFocusedRecordIndex) {
                 const oldFocusedRecordIndex = this._lastNotifiedFocusedRecordIndex;
                 this._lastNotifiedFocusedRecordIndex = newFocusedRecordIndex;
@@ -545,7 +543,7 @@ export class RecordGrid extends Revgrid<
     }
 
     private addFieldsToAdapter() {
-        this._fieldAdapter.addFields([
+        this._schemaServer.addFields([
             this._recordIndexGridField,
             this._hiddenStrValGridField,
             this._intValGridField,
