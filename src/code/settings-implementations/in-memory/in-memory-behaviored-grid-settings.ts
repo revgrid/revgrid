@@ -16,8 +16,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _addToggleSelectionAreaModifierKeyDoesToggle: boolean;
     private _backgroundColor: GridSettings.Color;
     private _color: GridSettings.Color;
-    private _defaultColumnAutosizing: boolean;
-    private _columnAutosizingMax: number | undefined;
+    private _defaultColumnAutoSizing: boolean;
+    private _columnAutoSizingMax: number | undefined;
     private _columnClip: boolean | undefined;
     private _columnMoveDragPossibleCursorName: string | undefined;
     private _columnMoveDragPossibleTitleText: string | undefined;
@@ -144,22 +144,22 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
-    get defaultColumnAutosizing() { return this._defaultColumnAutosizing; }
-    set defaultColumnAutosizing(value: boolean) {
-        if (value !== this._defaultColumnAutosizing) {
+    get defaultColumnAutoSizing() { return this._defaultColumnAutoSizing; }
+    set defaultColumnAutoSizing(value: boolean) {
+        if (value !== this._defaultColumnAutoSizing) {
             this.beginChange();
-            this._defaultColumnAutosizing = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnAutosizing;
+            this._defaultColumnAutoSizing = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnAutoSizing;
             this.notifyChanged(invalidateType);
             this.endChange();
         }
     }
-    get columnAutosizingMax() { return this._columnAutosizingMax; }
-    set columnAutosizingMax(value: number | undefined) {
-        if (value !== this._columnAutosizingMax) {
+    get columnAutoSizingMax() { return this._columnAutoSizingMax; }
+    set columnAutoSizingMax(value: number | undefined) {
+        if (value !== this._columnAutoSizingMax) {
             this.beginChange();
-            this._columnAutosizingMax = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnAutosizingMax;
+            this._columnAutoSizingMax = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.columnAutoSizingMax;
             this.notifyChanged(invalidateType);
             this.endChange();
         }
@@ -1034,11 +1034,11 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                 case 'color':
                     this._color = settings.color;
                     break;
-                case 'defaultColumnAutosizing':
-                    this._defaultColumnAutosizing = settings.defaultColumnAutosizing;
+                case 'defaultColumnAutoSizing':
+                    this._defaultColumnAutoSizing = settings.defaultColumnAutoSizing;
                     break;
-                case 'columnAutosizingMax':
-                    this._columnAutosizingMax = settings.columnAutosizingMax;
+                case 'columnAutoSizingMax':
+                    this._columnAutoSizingMax = settings.columnAutoSizingMax;
                     break;
                 case 'columnClip':
                     this._columnClip = settings.columnClip;

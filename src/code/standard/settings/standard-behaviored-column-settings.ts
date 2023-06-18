@@ -1,7 +1,7 @@
-import { ColumnSettingsBehavior } from '../../grid/interfaces/settings/column-settings-behavior';
 import { StandardAllColumnSettings } from './standard-all-column-settings';
+import { StandardColumnSettingsBehavior } from './standard-column-settings-behavior';
 
 /** @public */
-export interface StandardBehavioredColumnSettings extends StandardAllColumnSettings, ColumnSettingsBehavior {
+export interface StandardBehavioredColumnSettings extends StandardAllColumnSettings, StandardColumnSettingsBehavior {
 }
 

@@ -5,22 +5,22 @@ import { SchemaServer } from './schema-server';
 /** @public */
 export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     readonly field: SF;
-
-    readonly width: number;
-    readonly autosizing: boolean;
-
     readonly settings: BCS;
 
+    autoSizing: boolean;
+    width: number;
     preferredWidth: number | undefined;
 
-    setWidth(width: number | undefined): boolean;
-    checkColumnAutosizing(widenOnly: boolean): boolean;
+    setAutoSizing(value: boolean): boolean;
+    setWidth(width: number, ui: boolean): boolean;
+    checkAutoSizing(widenOnly: boolean): boolean;
+    autoSize(widenOnly: boolean): boolean;
 
     loadSettings(settings: ColumnSettings): void;
 }
 
 /** @public */
-export interface ColumnWidth<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export interface ColumnAutoSizeableWidth<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     column: Column<BCS, SF>;
     width: number | undefined;
 }

@@ -1,15 +1,15 @@
-import { GridSettings, RevRecordSysTick } from '..';
+import { GridSettings } from '..';
 
 /** @public */
 export interface AppGridSettings {
-    /** The highlight duration when all values/records are changed. 0 to disable*/
-    allChangedRecentDuration: RevRecordSysTick.Span;
-    /** The highlight duration for added values. 0 to disable*/
-    recordInsertedRecentDuration: RevRecordSysTick.Span;
-    /** The highlight duration for updated records. 0 to disable*/
-    recordUpdatedRecentDuration: RevRecordSysTick.Span;
-    /** The highlight duration for changed values. 0 to disable */
-    valueChangedRecentDuration: RevRecordSysTick.Span;
+    // /** The highlight duration when all values/records are changed. 0 to disable*/
+    // allChangedRecentDuration: RevRecordSysTick.Span;
+    // /** The highlight duration for added values. 0 to disable*/
+    // recordInsertedRecentDuration: RevRecordSysTick.Span;
+    // /** The highlight duration for updated records. 0 to disable*/
+    // recordUpdatedRecentDuration: RevRecordSysTick.Span;
+    // /** The highlight duration for changed values. 0 to disable */
+    // valueChangedRecentDuration: RevRecordSysTick.Span;
 
     focusedRowBorderWidth: number;
 

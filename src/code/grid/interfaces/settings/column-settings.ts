@@ -4,9 +4,9 @@ import { GridSettings } from './grid-settings';
 export type ColumnSettings = Pick<GridSettings,
     'backgroundColor' |
     'color' |
-    'columnAutosizingMax' |
+    'columnAutoSizingMax' |
     'columnClip' |
-    'defaultColumnAutosizing' |
+    'defaultColumnAutoSizing' |
     'defaultColumnWidth' |
     'editable' |
     'editOnClick' |
@@ -29,7 +29,7 @@ export type ColumnSettings = Pick<GridSettings,
 
 //     // Grid overrides
 //     backgroundColor: GridSettings.Color;
-//     columnAutosizingMax: number | undefined;
+//     columnAutoSizingMax: number | undefined;
 //     columnClip: boolean | undefined;
 //     editOnKeydown: boolean;
 //     editOnFocusCell: boolean;
@@ -59,7 +59,7 @@ export type ColumnSettings = Pick<GridSettings,
 //     readonly cellPainter: string;
 
 
-//     columnAutosizing: boolean;
+//     columnAutoSizing: boolean;
 //     width: number;
 // }
 /** @public */
@@ -76,8 +76,8 @@ export type ColumnSettings = Pick<GridSettings,
 //     export interface Header extends HeaderFilter {
 //         format: string | undefined;
 //         foregroundSelectionFont: string;
-//         // autosizing: boolean | undefined;
-//         // autosizingMax: number | undefined;
+//         // autoSizing: boolean | undefined;
+//         // autoSizingMax: number | undefined;
 //     }
 
 //     export interface Filter extends HeaderFilter {

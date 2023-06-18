@@ -26,7 +26,7 @@ import { MainSubgrid } from './interfaces/data/main-subgrid';
 import { MetaModel } from './interfaces/data/meta-model';
 import { Subgrid } from './interfaces/data/subgrid';
 import { ViewCell } from './interfaces/data/view-cell';
-import { Column, ColumnWidth } from './interfaces/schema/column';
+import { Column, ColumnAutoSizeableWidth } from './interfaces/schema/column';
 import { SchemaServer } from './interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
@@ -36,7 +36,7 @@ import { Localization } from './types-utils/localization';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { AssertError } from './types-utils/revgrid-error';
-import { ColumnFieldNameAndWidth, ListChangedTypeId, SelectionAreaType } from './types-utils/types';
+import { ColumnFieldNameAndAutoSizableWidth, ListChangedTypeId, SelectionAreaType } from './types-utils/types';
 
 /** @public */
 export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
@@ -86,7 +86,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /** @internal */
     get columnsManager() { return this._columnsManager; }
-    get allColumns(): readonly Column<BCS, SF>[] { return this._columnsManager.allColumns; }
+    get fieldColumns(): readonly Column<BCS, SF>[] { return this._columnsManager.fieldColumns; }
     get activeColumns(): readonly Column<BCS, SF>[] { return this._columnsManager.activeColumns; }
 
 
@@ -631,14 +631,14 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     getAllColumn(allX: number) {
-        return this._columnsManager.getAllColumn(allX);
+        return this._columnsManager.getFieldColumn(allX);
     }
 
     /**
      * @returns A copy of the all columns array by passing the params to `Array.prototype.slice`.
      */
-    getAllColumns(begin?: number, end?: number): Column<BCS, SF>[] {
-        const columns = this._columnsManager.allColumns;
+    getFieldColumnRange(begin?: number, end?: number): Column<BCS, SF>[] {
+        const columns = this._columnsManager.fieldColumns;
         return columns.slice(begin, end);
     }
 
@@ -655,7 +655,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._columnsManager.getHiddenColumns();
     }
 
-    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnFieldNameAndWidth[]) {
+    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]) {
         this._columnsManager.setActiveColumnsAndWidthsByFieldName(columnNameWidths, false);
     }
 
@@ -711,22 +711,51 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._columnsManager.moveColumnAfter(sourceIndex, targetIndex, ui);
     }
 
-    setActiveColumns(columnNameOrAllIndexArray: readonly (Column<BCS, SF> | string | number)[]) {
-        this._columnsManager.setActiveColumns(columnNameOrAllIndexArray);
+    setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]) {
+        const fieldColumns = this._columnsManager.fieldColumns;
+        const newActiveCount = columnFieldNameOrFieldIndexArray.length;
+        const newActiveColumns = new Array<Column<BCS, SF>>(newActiveCount);
+        for (let i = 0; i < newActiveCount; i++) {
+            const columnFieldNameOrFieldIndex = columnFieldNameOrFieldIndexArray[i];
+            let column: Column<BCS, SF>;
+            if (typeof columnFieldNameOrFieldIndex === 'number') {
+                column = fieldColumns[columnFieldNameOrFieldIndex];
+            } else {
+                if (typeof columnFieldNameOrFieldIndex === 'string') {
+                    const foundColumn = fieldColumns.find((aColumn) => aColumn.field.name === columnFieldNameOrFieldIndex);
+                    if (foundColumn === undefined) {
+                        throw new Error(`ColumnsManager.setActiveColumns: Column with name not found: ${columnFieldNameOrFieldIndex}`);
+                    } else {
+                        column = foundColumn;
+                    }
+                } else {
+                    column = columnFieldNameOrFieldIndex;
+                }
+            }
+
+            newActiveColumns[i] = column;
+        }
+        this._columnsManager.setActiveColumns(newActiveColumns);
     }
 
-    /** @deprecated use setActiveColumns()*/
-    setColumnOrder(allColumnIndexes: readonly number[]) {
-        this.setActiveColumns(allColumnIndexes);
+    autoSizeAllColumns(widenOnly: boolean) {
+        this._columnsManager.autoSizeAllColumns(widenOnly);
     }
 
-    /** @deprecated use setActiveColumns()*/
-    setColumnOrderByName(allColumnNames: readonly string[]) {
-        this.setActiveColumns(allColumnNames);
-    }
-
-    autosizeAllColumns(widenOnly: boolean) {
-        this._columnsManager.autosizeAllColumns(widenOnly);
+    autoSizeFieldColumn(fieldNameOrIndex: string | number, widenOnly: boolean) {
+        const fieldColumns = this._columnsManager.fieldColumns;
+        let column: Column<BCS, SF>;
+        if (typeof fieldNameOrIndex === 'number') {
+            column = fieldColumns[fieldNameOrIndex];
+        } else {
+            const foundColumn = fieldColumns.find((aColumn) => aColumn.field.name === fieldNameOrIndex);
+            if (foundColumn === undefined) {
+                throw new Error(`ColumnsManager.setActiveColumns: Column with name not found: ${fieldNameOrIndex}`);
+            } else {
+                column = foundColumn;
+            }
+        }
+        column.autoSize(widenOnly);
     }
 
     setColumnScrollAnchor(index: number, offset: number) {
@@ -910,8 +939,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._columnsManager.getActiveColumn(activeIndex);
     }
 
-    getActiveColumnIndexByAllIndex(allIndex: number) {
-        return this._columnsManager.getActiveColumnIndexByFieldIndex(allIndex);
+    getActiveColumnIndexByFieldIndex(fieldIndex: number) {
+        return this._columnsManager.getActiveColumnIndexByFieldIndex(fieldIndex);
     }
 
     /**
@@ -925,18 +954,29 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /**
      * @desc Set the width of the given column.
      * @param columnIndex - The untranslated column index.
-     * @param columnWidth - The width in pixels.
+     * @param width - The width in pixels.
      * @return column if width changed otherwise undefined
      */
-    setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, columnWidth: number) {
-        return this._columnsManager.setActiveColumnWidth(columnOrIndex, columnWidth, false);
+    setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, width: number, ui: boolean) {
+        let column: Column<BCS, SF>
+        if (typeof columnOrIndex === 'number') {
+            if (columnOrIndex >= 0) {
+                column = this._columnsManager.getActiveColumn(columnOrIndex);
+            } else {
+                throw new Error(`Behavior.setColumnWidth: Invalid column number ${columnOrIndex}`);
+            }
+        } else {
+            column = columnOrIndex;
+        }
+
+        column.setWidth(width, ui);
     }
 
-    setColumnWidths(columnWidths: ColumnWidth<BCS, SF>[]) {
+    setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[]) {
         return this._columnsManager.setColumnWidths(columnWidths, false);
     }
 
-    setColumnWidthsByName(columnNameWidths: ColumnFieldNameAndWidth[]) {
+    setColumnWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]) {
         return this._columnsManager.setColumnWidthsByFieldName(columnNameWidths, false);
     }
 
@@ -1116,7 +1156,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @param x - Omit for all columns.
      */
     clearAllCellProperties(x?: number) {
-        const column = x === undefined ? undefined : this._columnsManager.getAllColumn(x);
+        const column = x === undefined ? undefined : this._columnsManager.getFieldColumn(x);
         this._cellPropertiesBehavior.clearAllCellProperties(column)
     }
 
@@ -1197,15 +1237,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
+    protected descendantProcessFieldColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
         // for descendants
     }
 
     protected descendantProcessActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean) {
-        // for descendants
-    }
-
-    protected descendantProcessColumnsChanged() {
         // for descendants
     }
 
@@ -1359,7 +1395,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         } else {
             // xOrCellEvent is x
             if (y !== undefined && subgrid !== undefined) {
-                const column = this._columnsManager.getAllColumn(allXOrRenderedCell);
+                const column = this._columnsManager.getFieldColumn(allXOrRenderedCell);
                 return this._cellPropertiesBehavior.getCellOwnProperties(column, y, subgrid);
             } else {
                 return undefined;
@@ -1382,7 +1418,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     getCellProperties(allX: number, y: number, subgrid: Subgrid<BCS, SF>): CellMetaSettings {
-        const column = this._columnsManager.getAllColumn(allX);
+        const column = this._columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
     }
 
@@ -1407,7 +1443,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         key: string | T,
         subgrid: Subgrid<BCS, SF>
     ): MetaModel.CellOwnProperty | ColumnSettings[T] {
-        const column = this._columnsManager.getAllColumn(allX);
+        const column = this._columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.getCellProperty(column, y, key, subgrid);
     }
 
@@ -1423,7 +1459,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._cellPropertiesBehavior.setCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
-        const column = this._columnsManager.getAllColumn(allX);
+        const column = this._columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.setCellOwnProperties(column, y, properties, subgrid);
     }
 
@@ -1439,7 +1475,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._cellPropertiesBehavior.addCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
-        const column = this._columnsManager.getAllColumn(allX);
+        const column = this._columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.addCellOwnProperties(column, y, properties, subgrid);
     }
 
@@ -1478,7 +1514,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             value = keyOrValue;
         } else {
             optionalCell = undefined;
-            column = this._columnsManager.getAllColumn(allXOrCell);
+            column = this._columnsManager.getFieldColumn(allXOrCell);
             dataY = yOrKey as number;
             key = keyOrValue as string;
         }
@@ -1830,9 +1866,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /** @internal */
     private createDescendantEventer(): EventBehavior.DescendantEventer<BCS, SF> {
         return {
-            allColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessAllColumnListChanged(typeId, index, count, targetIndex),
+            fieldColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessFieldColumnListChanged(typeId, index, count, targetIndex),
             activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
-            columnsChanged: () => this.descendantProcessColumnsChanged(),
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
             columnsViewWidthsChanged: () => this.descendantProcessColumnsViewWidthsChanged(),
             columnSort: (event, cell) => this.descendantProcessColumnSort(event, cell),

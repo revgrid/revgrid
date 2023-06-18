@@ -252,7 +252,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
             return false;
         } else {
             const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
-            const focusPoint = this.focus.currentSubgridPoint;
+            const focusPoint = this.focus.current;
             const subgridRowIndex = focusPoint === undefined ? 0 : focusPoint.y;
             const subgrid = this.focus.subgrid;
             const addToggleModifier = GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
@@ -297,7 +297,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         } else {
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
             const subgrid = this.focus.subgrid;
-            const focusPoint = this.focus.currentSubgridPoint;
+            const focusPoint = this.focus.current;
             const cellActiveColumnIndex = focusPoint === undefined ? 0 : focusPoint.x;
             const addToggleModifier = GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
             const extendModifier = GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);

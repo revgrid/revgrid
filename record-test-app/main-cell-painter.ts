@@ -1,20 +1,31 @@
 import {
     CellPainter,
     DatalessViewCell,
+    RevRecordMainDataServer,
     RevRecordRecentChangeTypeId,
     RevRecordValueRecentChangeTypeId,
     StandardBehavioredColumnSettings,
     StandardTextCellPainter,
-    UnreachableCaseError,
-} from '../dist/types/public-api';
+    UnreachableCaseError
+} from '..';
 import { AppBehavioredGridSettings } from './app-behaviored-grid-settings';
 import { GridField } from './grid-field';
+import { RecordGrid } from './record-grid';
 
-export class AppCellPainter extends StandardTextCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField> implements
-    CellPainter<StandardBehavioredColumnSettings, GridField> {
+export class MainCellPainter
+    extends StandardTextCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>
+    implements CellPainter<StandardBehavioredColumnSettings, GridField> {
 
-    getValueRecentChangeTypeIdEventer: AppCellPainter.GetValueRecentChangeTypeIdEventer;
-    getRecordRecentChangeTypeIdEventer: AppCellPainter.GetRecordRecentChangeTypeIdEventer;
+    protected declare readonly _dataServer: RevRecordMainDataServer<StandardBehavioredColumnSettings, GridField>;
+
+    constructor (
+        grid: RecordGrid,
+        dataServer: RevRecordMainDataServer<StandardBehavioredColumnSettings, GridField>,
+        private readonly _getValueRecentChangeTypeIdEventer: AppCellPainter.GetValueRecentChangeTypeIdEventer,
+        private readonly _getRecordRecentChangeTypeIdEventer: AppCellPainter.GetRecordRecentChangeTypeIdEventer,
+    ) {
+        super(grid, dataServer);
+    }
 
     paint(cell: DatalessViewCell<StandardBehavioredColumnSettings, GridField>, prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
@@ -56,7 +67,7 @@ export class AppCellPainter extends StandardTextCellPainter<AppBehavioredGridSet
         const foreText = this._dataServer.getViewValue(field, subgridRowIndex) as string;
         const foreFont = gridSettings.font;
         let internalBorderRowOnly: boolean;
-        const valueRecentChangeTypeId = this.getValueRecentChangeTypeIdEventer(field, subgridRowIndex);
+        const valueRecentChangeTypeId = this._getValueRecentChangeTypeIdEventer(field, subgridRowIndex);
 
         let internalBorderColor: string | undefined;
         if (valueRecentChangeTypeId !== undefined) {
@@ -75,7 +86,7 @@ export class AppCellPainter extends StandardTextCellPainter<AppBehavioredGridSet
                     throw new UnreachableCaseError('TCPPRVCTU02775', valueRecentChangeTypeId);
             }
         } else {
-            const rowRecentChangeTypeId = this.getRecordRecentChangeTypeIdEventer(subgridRowIndex);
+            const rowRecentChangeTypeId = this._getRecordRecentChangeTypeIdEventer(subgridRowIndex);
             if (rowRecentChangeTypeId !== undefined) {
                 internalBorderRowOnly = true;
 

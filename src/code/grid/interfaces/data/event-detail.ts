@@ -5,12 +5,6 @@ import { LinedHoverCell } from './hover-cell';
 
 /** @public */
 export namespace EventDetail {
-    export interface Resize {
-        readonly time: number;
-        readonly width: number,
-        readonly height: number,
-    }
-
     export interface CellFocusChanged {
         readonly oldPoint: Point | undefined;
         readonly newPoint: Point | undefined;

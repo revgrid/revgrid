@@ -101,7 +101,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
     getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataServer.ViewRow {
         const selectedRowIndexes = this._selection.getRowIndices();
         const selectedRowIndexesCount = selectedRowIndexes.length;
-        const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
+        const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
         const result: DataServer.ViewRow = {};
 
         if (selectedRowIndexesCount >= 0) {
@@ -122,7 +122,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
     getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataServer.ViewValue>> {
         const selectedRowIndexes = this._selection.getRowIndices();
         const selectedRowIndexesCount = selectedRowIndexes.length;
-        const columns = this.getActiveAllOrSpecifiedColumns(hiddenColumns);
+        const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
         const columnCount = columns.length;
         const result = new Array<Array<DataServer.ViewValue>>(columnCount);
 
@@ -280,8 +280,8 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
      * * `string` - field name
      * @internal
      */
-    private getActiveAllOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<BCS, SF>[] {
-        const allColumns = this._columnsManager.allColumns;
+    private getActiveFieldOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<BCS, SF>[] {
+        const fieldColumns = this._columnsManager.fieldColumns;
         const activeColumns = this._columnsManager.activeColumns;
 
         if (hiddenColumns === undefined) {
@@ -306,7 +306,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
                 columns = columns.concat(activeColumns);
                 return columns;
             } else {
-                return hiddenColumns ? allColumns : activeColumns;
+                return hiddenColumns ? fieldColumns : activeColumns;
             }
         }
     }

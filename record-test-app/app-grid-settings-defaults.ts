@@ -2,10 +2,10 @@ import { AppGridSettings } from './app-grid-settings';
 
 /** @public */
 export const appGridSettingsDefaults: AppGridSettings = {
-    allChangedRecentDuration: 250,
-    recordInsertedRecentDuration: 1000,
-    recordUpdatedRecentDuration: 1000,
-    valueChangedRecentDuration: 1000,
+    // allChangedRecentDuration: 250,
+    // recordInsertedRecentDuration: 1000,
+    // recordUpdatedRecentDuration: 1000,
+    // valueChangedRecentDuration: 1000,
 
     focusedRowBorderWidth: 1,
 

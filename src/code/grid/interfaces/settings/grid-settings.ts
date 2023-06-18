@@ -12,7 +12,7 @@ export interface GridSettings {
     readonly backgroundColor: GridSettings.Color;
     readonly color: GridSettings.Color;
     /** The widest the column will be auto-sized to. */
-    readonly columnAutosizingMax: number | undefined;
+    readonly columnAutoSizingMax: number | undefined;
     /** Set up a clipping region around each column before painting cells. */
     readonly columnClip: boolean | undefined;
     readonly columnMoveDragPossibleCursorName: string | undefined;
@@ -31,7 +31,7 @@ export interface GridSettings {
     readonly columnsReorderableHideable: boolean;
     readonly defaultRowHeight: number;
     /** Whether to automatically expand column width to accommodate widest rendered value. */
-    readonly defaultColumnAutosizing: boolean;
+    readonly defaultColumnAutoSizing: boolean;
     readonly defaultColumnWidth: number;
     readonly defaultUiBehaviorTypeNames: string[];
     readonly editable: boolean;

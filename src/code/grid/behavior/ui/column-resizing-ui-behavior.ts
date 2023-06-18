@@ -1,7 +1,7 @@
 import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { Column, ColumnWidth } from '../../interfaces/schema/column';
+import { Column, ColumnAutoSizeableWidth } from '../../interfaces/schema/column';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -42,7 +42,7 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
             const dragWidth = this._dragStartWidth + delta;
             const inPlaceAdjacentWidth = this._inPlaceAdjacentStartWidth - delta;
             if (!this._inPlaceAdjacentColumn) { // nextColumn et al instance vars defined when resizeColumnInPlace (by handleMouseDown)
-                this.columnsManager.setActiveColumnWidth(this._dragColumn, dragWidth, true);
+                this._dragColumn.setWidth(dragWidth, true)
             } else {
                 const np = this._inPlaceAdjacentColumn.settings;
                 const dp = this._dragColumn.settings;
@@ -53,7 +53,7 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                     0 > delta && delta >= -(this._dragStartWidth - dp.minimumColumnWidth) &&
                     (np.maximumColumnWidth === undefined || inPlaceAdjacentWidth < np.maximumColumnWidth)
                 ) {
-                    const columnWidths: ColumnWidth<BCS, SF>[] = [
+                    const columnWidths: ColumnAutoSizeableWidth<BCS, SF>[] = [
                         { column: this._dragColumn, width: dragWidth },
                         { column: this._inPlaceAdjacentColumn, width: inPlaceAdjacentWidth },
                     ];
@@ -255,15 +255,19 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                     }
                     const column = viewLayoutColumn.column;
                     if (event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
-                        column.setWidth(undefined); // make autosizing
+                        column.autoSizing = true;
                     } else {
                         const preferredWidth = column.preferredWidth;
                         if (event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
                             if (preferredWidth !== undefined && column.width < preferredWidth) {
-                                column.setWidth(preferredWidth);
+                                column.setWidth(preferredWidth, true);
                             }
                         } else {
-                            column.setWidth(preferredWidth);
+                            if (preferredWidth === undefined) {
+                                column.setAutoSizing(true);
+                            } else {
+                                column.setWidth(preferredWidth, true);
+                            }
                         }
                     }
 

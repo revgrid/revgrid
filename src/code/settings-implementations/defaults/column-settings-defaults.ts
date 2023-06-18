@@ -5,8 +5,8 @@ import { gridSettingsDefaults } from './grid-settings-defaults';
 export const columnSettingsDefaults: Required<ColumnSettings> = {
     color: gridSettingsDefaults.color,
     backgroundColor: gridSettingsDefaults.backgroundColor,
-    defaultColumnAutosizing: gridSettingsDefaults.defaultColumnAutosizing,
-    columnAutosizingMax: gridSettingsDefaults.columnAutosizingMax,
+    defaultColumnAutoSizing: gridSettingsDefaults.defaultColumnAutoSizing,
+    columnAutoSizingMax: gridSettingsDefaults.columnAutoSizingMax,
     columnClip: gridSettingsDefaults.columnClip,
     defaultColumnWidth: gridSettingsDefaults.defaultColumnWidth,
     editable: gridSettingsDefaults.editable,

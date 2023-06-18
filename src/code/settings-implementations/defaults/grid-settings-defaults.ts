@@ -121,7 +121,7 @@ export const gridSettingsDefaults: Required<GridSettings> = {
 
     /**
      * This default column width is used when `width` property is undefined.
-     * (`width` is defined on column creation unless {@link module:defaults.columnAutosizing columnAutosizing} has been set to `false`.)
+     * (`width` is defined on column creation unless {@link module:defaults.columnAutoSizing columnAutoSizing} has been set to `false`.)
      * @default
      * @type {number}
      */
@@ -213,15 +213,15 @@ export const gridSettingsDefaults: Required<GridSettings> = {
      * 1. On each grid render, for all visible columns:
      *    1. The cell renderer reports back the width of each rendered cell contents.
      *    2. The largest value for each column is saved (in `props.preferredWidth`).
-     * 2. At the conclusion of the grid render, the renderer calls `grid.gridRenderedNotification`, which calls `grid.behavior.checkColumnAutosizing`, which for all columns for which `props.columnAutosizing` is truthy, determines if the column needs to be widened subject to the following conditions:
-     *    1. If user has not already manually set column width (`props.columnAutosized` is still falsy)
+     * 2. At the conclusion of the grid render, the renderer calls `grid.gridRenderedNotification`, which calls `grid.behavior.checkColumnAutoSizing`, which for all columns for which `props.columnAutoSizing` is truthy, determines if the column needs to be widened subject to the following conditions:
+     *    1. If user has not already manually set column width (`props.columnAutoSized` is still falsy)
      *    2. If render width > current width (`props.preferredWidths > props.width`)
-     *    3. If column's max autosizing width is defined and it's greater than render width (`props.peferredWidths < props.columnAutosizingMax`)
+     *    3. If column's max autoSizing width is defined and it's greater than render width (`props.peferredWidths < props.columnAutoSizingMax`)
      * 3. If any column width has changed, re-shape the grid with the new column widths and re-render it. As this typically happens before the next monitor refresh, user only sees the final result.
      * @default
      * @type {boolean}
      */
-    defaultColumnAutosizing: true,
+    defaultColumnAutoSizing: true,
 
     /**
      * @summary The widest the column will be auto-sized to.
@@ -231,7 +231,7 @@ export const gridSettingsDefaults: Required<GridSettings> = {
      * @default
      * @type {number}
      */
-    columnAutosizingMax: 400,
+    columnAutoSizingMax: 400,
 
     /**
      * @default

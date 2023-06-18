@@ -117,7 +117,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         this._canvasManager.copyEventer = (event) => this.processCopyEvent(event);
         this._canvasManager.dragStartEventer = (event) => this.processDragStartEvent(event);
 
-        this._columnsManager.allColumnListChangedEventer = (typeId, index, count, targetIndex) => this.processAllColumnListChangedEvent(
+        this._columnsManager.fieldColumnListChangedEventer = (typeId, index, count, targetIndex) => this.processFieldColumnListChangedEvent(
             typeId, index, count, targetIndex
         );
         this._columnsManager.activeColumnListChangedEventer = (typeId, index, count, targetIndex, ui) => this.processActiveColumnListChangedEvent(
@@ -148,15 +148,6 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    processColumnsChangedEvent() {
-        this._descendantEventer.columnsChanged();
-
-        if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-column-changed-event', false, undefined);
-        }
-    }
-
-    /** @internal */
     processColumnSortEvent(event: MouseEvent, cell: ViewCell<BCS, SF>) {
         this._descendantEventer.columnSort(event, cell);
 
@@ -175,21 +166,15 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         this._descendantEventer.resized();
 
         if (this._dispatchEnabled) {
-            const detail: EventDetail.Resize = {
-                time: Date.now(),
-                width: this._canvasManager.flooredContainerWidth,
-                height: this._canvasManager.flooredContainerHeight
-            };
-
-            this.dispatchCustomEvent('rev-grid-resized', false, detail);
+            this.dispatchCustomEvent('rev-grid-resized', false, undefined);
         }
     }
 
     /** @internal */
-    private processAllColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
-        this._descendantEventer.allColumnListChanged(typeId, index, count, targetIndex);
+    private processFieldColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
+        this._descendantEventer.fieldColumnListChanged(typeId, index, count, targetIndex);
         if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-columns-created', false, undefined);
+            this.dispatchCustomEvent('rev-field-column-list-changed', false, undefined);
         }
     }
 
@@ -604,9 +589,8 @@ export namespace EventBehavior {
 
     /** @internal */
     export interface DescendantEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
-        readonly allColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
+        readonly fieldColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
-        readonly columnsChanged: DescendantEventer.Signal;
         readonly columnsWidthChanged: (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: DescendantEventer.Signal;
         readonly columnSort: (this: void, event: MouseEvent, cell: ViewCell<BCS, SF>) => void;

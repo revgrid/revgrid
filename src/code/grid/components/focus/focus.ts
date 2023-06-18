@@ -26,9 +26,9 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     readonly dataServer: DataServer<SF>;
 
     /** @internal */
-    private _currentSubgridPoint: Point | undefined;
+    private _current: Point | undefined;
     /** @internal */
-    private _previousSubgridPoint: Point | undefined;
+    private _previous: Point | undefined;
 
     // Optionally track position in canvas where focus is.  Used to assist with paging
     /** @internal */
@@ -59,11 +59,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         this._viewLayout.cellPoolComputedEventerForFocus = () => this.handleCellPoolComputedEvent();
     }
 
-    get currentSubgridX() { return this._currentSubgridPoint === undefined ? undefined : this._currentSubgridPoint.x; }
-    get currentSubgridY() { return this._currentSubgridPoint === undefined ? undefined : this._currentSubgridPoint.y; }
+    get currentX() { return this._current === undefined ? undefined : this._current.x; }
+    get currentY() { return this._current === undefined ? undefined : this._current.y; }
 
-    get currentSubgridPoint() { return this._currentSubgridPoint; }
-    get previousSubgridPoint() { return this._previousSubgridPoint; }
+    get current() { return this._current; }
+    get previous() { return this._previous; }
 
     get canvasX() { return this._canvasX; }
     get canvasY() { return this._canvasY; }
@@ -79,19 +79,19 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     clear() {
         this.closeFocus();
-        this._previousSubgridPoint = this.currentSubgridPoint;
-        this._currentSubgridPoint = undefined;
+        this._previous = this._current;
+        this._current = undefined;
     }
 
     set(newFocusPoint: Point, cell: ViewCell<BCS, SF> | undefined, canvasPoint: PartialPoint | undefined) {
         const newFocusX = newFocusPoint.x;
         const newFocusY = newFocusPoint.y;
-        const currentSubgridPoint = this._currentSubgridPoint;
+        const currentSubgridPoint = this._current;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.x !== newFocusX || currentSubgridPoint.y !== newFocusY) {
             this.closeFocus();
-            this._previousSubgridPoint = currentSubgridPoint;
-            this._currentSubgridPoint = newFocusPoint;
+            this._previous = currentSubgridPoint;
+            this._current = newFocusPoint;
 
             if (canvasPoint !== undefined) {
                 const canvasX = canvasPoint.x;
@@ -124,14 +124,14 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     setX(activeColumnIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasX: number | undefined) {
-        const currentSubgridPoint = this._currentSubgridPoint;
+        const currentSubgridPoint = this._current;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex) {
             this.closeFocus();
-            this._previousSubgridPoint = currentSubgridPoint;
+            this._previous = currentSubgridPoint;
             const y = currentFocusDefined ? currentSubgridPoint.y : this._gridSettings.fixedRowCount;
 
-            this._currentSubgridPoint = {
+            this._current = {
                 x: activeColumnIndex,
                 y,
             };
@@ -159,13 +159,13 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     setY(subgridRowIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasY: number | undefined) {
-        const currentSubgridPoint = this._currentSubgridPoint;
+        const currentSubgridPoint = this._current;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.y !== subgridRowIndex) {
             this.closeFocus();
-            this._previousSubgridPoint = currentSubgridPoint;
+            this._previous = currentSubgridPoint;
             const x = currentFocusDefined ? currentSubgridPoint.x : this._gridSettings.fixedColumnCount;
-            this._currentSubgridPoint = {
+            this._current = {
                 x,
                 y: subgridRowIndex,
             };
@@ -193,12 +193,12 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined) {
-        const currentSubgridPoint = this._currentSubgridPoint;
+        const currentSubgridPoint = this._current;
         const currentFocusDefined = currentSubgridPoint !== undefined;
         if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex || currentSubgridPoint.y !== subgridRowIndex) {
             this.closeFocus();
-            this._previousSubgridPoint = currentSubgridPoint;
-            this._currentSubgridPoint = {
+            this._previous = currentSubgridPoint;
+            this._current = {
                 x: activeColumnIndex,
                 y: subgridRowIndex,
             };
@@ -229,7 +229,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     isActiveColumnFocused(activeColumnIndex: number) {
-        return this._currentSubgridPoint !== undefined && activeColumnIndex === this._currentSubgridPoint.x;
+        return this._current !== undefined && activeColumnIndex === this._current.x;
     }
 
     isSubgridRowFocused(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
@@ -237,7 +237,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     isMainSubgridRowFocused(mainSubgridRowIndex: number) {
-        return this._currentSubgridPoint !== undefined && mainSubgridRowIndex === this._currentSubgridPoint.y;
+        return this._current !== undefined && mainSubgridRowIndex === this._current.y;
     }
 
     isCellFocused(cell: ViewCell<BCS, SF>) {
@@ -250,9 +250,9 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     isMainSubgridGridPointFocused(activeColumnIndex: number, mainSubgridRowIndex: number) {
         return (
-            this._currentSubgridPoint !== undefined &&
-            activeColumnIndex === this._currentSubgridPoint.x &&
-            mainSubgridRowIndex === this._currentSubgridPoint.y
+            this._current !== undefined &&
+            activeColumnIndex === this._current.x &&
+            mainSubgridRowIndex === this._current.y
         );
     }
 
@@ -268,7 +268,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     closeEditor(cancel: boolean, focusCanvas: boolean) {
         const editor = this._editor;
         if (editor !== undefined) {
-            const focusedPoint = this._currentSubgridPoint;
+            const focusedPoint = this._current;
             if (focusedPoint === undefined) {
                 throw new AssertError('FCE11198');
             } else {
@@ -308,7 +308,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             }
         } else {
             const key = event.key;
-            const focusPoint = this._currentSubgridPoint;
+            const focusPoint = this._current;
             if (focusPoint === undefined) {
                 throw new AssertError('FCEWKDE98887');
             } else {
@@ -376,11 +376,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         if (dataServer === this._mainSubgrid.dataServer) {
-            if (this._currentSubgridPoint !== undefined) {
-                Point.adjustForYRangeInserted(this._currentSubgridPoint, rowIndex, rowCount);
+            if (this._current !== undefined) {
+                Point.adjustForYRangeInserted(this._current, rowIndex, rowCount);
             }
-            if (this._previousSubgridPoint !== undefined) {
-                Point.adjustForYRangeInserted(this._previousSubgridPoint, rowIndex, rowCount);
+            if (this._previous !== undefined) {
+                Point.adjustForYRangeInserted(this._previous, rowIndex, rowCount);
             }
 
             this._canvasY = undefined;
@@ -390,16 +390,16 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         if (dataServer === this._mainSubgrid.dataServer) {
-            if (this._currentSubgridPoint !== undefined) {
-                const positionInDeletionRange = Point.adjustForYRangeDeleted(this._currentSubgridPoint, rowIndex, rowCount);
+            if (this._current !== undefined) {
+                const positionInDeletionRange = Point.adjustForYRangeDeleted(this._current, rowIndex, rowCount);
                 if (positionInDeletionRange !== undefined) {
-                    this._currentSubgridPoint = undefined;
+                    this._current = undefined;
                 }
             }
-            if (this._previousSubgridPoint !== undefined) {
-                const positionInDeletionRange = Point.adjustForYRangeDeleted(this._previousSubgridPoint, rowIndex, rowCount);
+            if (this._previous !== undefined) {
+                const positionInDeletionRange = Point.adjustForYRangeDeleted(this._previous, rowIndex, rowCount);
                 if (positionInDeletionRange !== undefined) {
-                    this._previousSubgridPoint = undefined;
+                    this._previous = undefined;
                 }
             }
 
@@ -410,11 +410,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<SF>) {
         if (dataServer === this._mainSubgrid.dataServer) {
-            if (this._currentSubgridPoint !== undefined) {
-                Point.adjustForYRangeMoved(this._currentSubgridPoint, oldRowIndex, newRowIndex, count);
+            if (this._current !== undefined) {
+                Point.adjustForYRangeMoved(this._current, oldRowIndex, newRowIndex, count);
             }
-            if (this._previousSubgridPoint !== undefined) {
-                Point.adjustForYRangeMoved(this._previousSubgridPoint, oldRowIndex, newRowIndex, count);
+            if (this._previous !== undefined) {
+                Point.adjustForYRangeMoved(this._previous, oldRowIndex, newRowIndex, count);
             }
 
             this._canvasY = undefined;
@@ -423,11 +423,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     adjustForColumnsInserted(columnIndex: number, columnCount: number) {
-        if (this._currentSubgridPoint !== undefined) {
-            Point.adjustForXRangeInserted(this._currentSubgridPoint, columnIndex, columnCount);
+        if (this._current !== undefined) {
+            Point.adjustForXRangeInserted(this._current, columnIndex, columnCount);
         }
-        if (this._previousSubgridPoint !== undefined) {
-            Point.adjustForXRangeInserted(this._previousSubgridPoint, columnIndex, columnCount);
+        if (this._previous !== undefined) {
+            Point.adjustForXRangeInserted(this._previous, columnIndex, columnCount);
         }
 
         this._canvasX = undefined;
@@ -435,16 +435,16 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     adjustForColumnsDeleted(columnIndex: number, columnCount: number) {
-        if (this._currentSubgridPoint !== undefined) {
-            const positionInDeletionRange = Point.adjustForXRangeDeleted(this._currentSubgridPoint, columnIndex, columnCount);
+        if (this._current !== undefined) {
+            const positionInDeletionRange = Point.adjustForXRangeDeleted(this._current, columnIndex, columnCount);
             if (positionInDeletionRange !== undefined) {
-                this._currentSubgridPoint = undefined;
+                this._current = undefined;
             }
         }
-        if (this._previousSubgridPoint !== undefined) {
-            const positionInDeletionRange = Point.adjustForXRangeDeleted(this._previousSubgridPoint, columnIndex, columnCount);
+        if (this._previous !== undefined) {
+            const positionInDeletionRange = Point.adjustForXRangeDeleted(this._previous, columnIndex, columnCount);
             if (positionInDeletionRange !== undefined) {
-                this._previousSubgridPoint = undefined;
+                this._previous = undefined;
             }
         }
 
@@ -453,11 +453,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     adjustForColumnsMoved(oldColumnIndex: number, newColumnIndex: number, count: number) {
-        if (this._currentSubgridPoint !== undefined) {
-            Point.adjustForXRangeMoved(this._currentSubgridPoint, oldColumnIndex, newColumnIndex, count);
+        if (this._current !== undefined) {
+            Point.adjustForXRangeMoved(this._current, oldColumnIndex, newColumnIndex, count);
         }
-        if (this._previousSubgridPoint !== undefined) {
-            Point.adjustForXRangeMoved(this._previousSubgridPoint, oldColumnIndex, newColumnIndex, count);
+        if (this._previous !== undefined) {
+            Point.adjustForXRangeMoved(this._previous, oldColumnIndex, newColumnIndex, count);
         }
 
         this._canvasX = undefined;
@@ -466,12 +466,12 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     createStash(): Focus.Stash {
         let currentStashPoint: Focus.Stash.Point | undefined;
-        if (this._currentSubgridPoint !== undefined) {
-            currentStashPoint = this.createStashPoint(this._currentSubgridPoint);
+        if (this._current !== undefined) {
+            currentStashPoint = this.createStashPoint(this._current);
         }
         let previousStashPoint: Focus.Stash.Point | undefined;
-        if (this._previousSubgridPoint !== undefined) {
-            previousStashPoint = this.createStashPoint(this._previousSubgridPoint);
+        if (this._previous !== undefined) {
+            previousStashPoint = this.createStashPoint(this._previous);
         }
 
         return {
@@ -485,10 +485,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         this.clear();
 
         if (stash.current !== undefined) {
-            this._currentSubgridPoint = this.createPointFromStash(stash.current);
+            this._current = this.createPointFromStash(stash.current);
         }
         if (stash.previous !== undefined) {
-            this._previousSubgridPoint = this.createPointFromStash(stash.previous);
+            this._previous = this.createPointFromStash(stash.previous);
         }
     }
 
@@ -504,7 +504,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     private handleCellPoolComputedEvent() {
         // Called within Request Animation Frame. Do not call any external code.
-        const focusPoint = this._currentSubgridPoint;
+        const focusPoint = this._current;
         if (focusPoint !== undefined) {
             const cell = this._viewLayout.findCellAtGridPoint(focusPoint.x, focusPoint.y, this.subgrid, false);
             const editor = this._editor;
@@ -536,7 +536,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private fireFocusChanged() {
-        this.changedEventer(this._currentSubgridPoint, this._previousSubgridPoint);
+        this.changedEventer(this._current, this._previous);
     }
 
     /** @internal */
@@ -547,7 +547,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             if (this.getCellEditorEventer === undefined || this.dataServer.getEditValue === undefined) {
                 return false;
             } else {
-                const focusedPoint = this._currentSubgridPoint;
+                const focusedPoint = this._current;
                 if (focusedPoint === undefined) {
                     throw new AssertError('FTOE17778');
                 } else {
@@ -595,7 +595,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private getFocusedEditValue() {
-        const focusedPoint = this._currentSubgridPoint;
+        const focusedPoint = this._current;
         if (focusedPoint === undefined || this.dataServer.getEditValue === undefined) {
             throw new AssertError('FGFDV17778');
         } else {
@@ -606,7 +606,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private setFocusedEditValue(value: DataServer.ViewValue) {
-        const focusedPoint = this._currentSubgridPoint;
+        const focusedPoint = this._current;
         if (focusedPoint === undefined) {
             throw new AssertError('FGFDVF17778');
         } else {

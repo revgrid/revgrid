@@ -6,9 +6,9 @@ import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings implements BehavioredColumnSettings {
     private _backgroundColor: string | undefined;
     private _color: string | undefined;
-    private _columnAutosizingMax: number | undefined | null;
+    private _columnAutoSizingMax: number | undefined | null;
     private _columnClip: boolean | undefined | null;
-    private _defaultColumnAutosizing: boolean | undefined;
+    private _defaultColumnAutoSizing: boolean | undefined;
     private _defaultColumnWidth: number | undefined;
     private _editable: boolean | undefined;
     private _editOnClick: boolean | undefined;
@@ -48,22 +48,22 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get columnAutosizingMax() {
-        if (this._columnAutosizingMax === null) {
+    get columnAutoSizingMax() {
+        if (this._columnAutoSizingMax === null) {
             return undefined;
         } else {
-            return this._columnAutosizingMax !== undefined ? this._columnAutosizingMax : this.gridSettings.columnAutosizingMax;
+            return this._columnAutoSizingMax !== undefined ? this._columnAutoSizingMax : this.gridSettings.columnAutoSizingMax;
         }
     }
-    set columnAutosizingMax(value: number | undefined) {
-        if (value !== this._columnAutosizingMax) {
+    set columnAutoSizingMax(value: number | undefined) {
+        if (value !== this._columnAutoSizingMax) {
             this.beginChange();
-            if (this._columnAutosizingMax === undefined) {
-                this._columnAutosizingMax = null;
+            if (this._columnAutoSizingMax === undefined) {
+                this._columnAutoSizingMax = null;
             } else {
-                this._columnAutosizingMax = value;
+                this._columnAutoSizingMax = value;
             }
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnAutosizingMax;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.columnAutoSizingMax;
             this.notifyChanged(invalidateType);
             this.endChange();
         }
@@ -90,12 +90,12 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    get defaultColumnAutosizing() { return this._defaultColumnAutosizing !== undefined ? this._defaultColumnAutosizing : this.gridSettings.defaultColumnAutosizing; }
-    set defaultColumnAutosizing(value: boolean) {
-        if (value !== this._defaultColumnAutosizing) {
+    get defaultColumnAutoSizing() { return this._defaultColumnAutoSizing !== undefined ? this._defaultColumnAutoSizing : this.gridSettings.defaultColumnAutoSizing; }
+    set defaultColumnAutoSizing(value: boolean) {
+        if (value !== this._defaultColumnAutoSizing) {
             this.beginChange();
-            this._defaultColumnAutosizing = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnAutosizing;
+            this._defaultColumnAutoSizing = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnAutoSizing;
             this.notifyChanged(invalidateType);
             this.endChange();
         }
@@ -256,14 +256,14 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                 case 'color':
                     this._color = settings.color;
                     break;
-                case 'columnAutosizingMax':
-                    this._columnAutosizingMax = settings.columnAutosizingMax;
+                case 'columnAutoSizingMax':
+                    this._columnAutoSizingMax = settings.columnAutoSizingMax;
                     break;
                 case 'columnClip':
                     this._columnClip = settings.columnClip;
                     break;
-                case 'defaultColumnAutosizing':
-                    this._defaultColumnAutosizing = settings.defaultColumnAutosizing;
+                case 'defaultColumnAutoSizing':
+                    this._defaultColumnAutoSizing = settings.defaultColumnAutoSizing;
                     break;
                 case 'defaultColumnWidth':
                     this._defaultColumnWidth = settings.defaultColumnWidth;

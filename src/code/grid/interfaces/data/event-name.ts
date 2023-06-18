@@ -43,7 +43,7 @@ export namespace EventName {
         'rev-dbl-click': EventDetail.Pointer<BCS, SF>;
         'rev-columns-view-widths-changed': undefined;
         'rev-grid-rendered': EventDetail.Grid;
-        'rev-grid-resized': EventDetail.Resize;
+        'rev-grid-resized': undefined;
         'rev-touch-start': TouchEvent;
         'rev-touch-move': TouchEvent;
         'rev-touch-end': TouchEvent;
@@ -51,8 +51,7 @@ export namespace EventName {
         'rev-vertical-scroll-viewport-changed': undefined;
         'rev-horizontal-scroller-action': EventDetail.ScrollerAction;
         'rev-vertical-scroller-action': EventDetail.ScrollerAction;
-        'rev-column-changed-event': undefined;
-        'rev-columns-created': undefined;
+        'rev-field-column-list-changed': undefined;
     }
 
     export type MouseHoverCell =

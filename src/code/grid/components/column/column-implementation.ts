@@ -9,92 +9,68 @@ import { ColumnSettings } from '../../interfaces/settings/column-settings';
 export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> implements Column<BCS, SF> {
     readonly field: SF;
 
-    /** @internal */
     preferredWidth: number | undefined;
 
-    /** @internal */
     private _width: number;
-    /** @internal */
-    private _autosizing: boolean;
-    /** @internal */
+    private _autoSizing: boolean;
     private _settings: BCS;
 
-    /** @summary Create a new `Column` object.
-     * @param columnSchema.header - Displayed in column headers. If not defined, name is used.
-     * @param columnSchema.calculator - Define to make a computed column.
-     * @param columnSchema.type - For possible data model use. (Not used in core.)
-     */
-    /** @internal */
     constructor(
         field: SF,
         columnSettings: BCS,
+        private readonly _widthChangedEventer: ColumnImplementation.WidthChangedEventer<BCS, SF>,
         private readonly _horizontalViewLayoutInvalidatedEventer: ColumnImplementation.HorizontalViewLayoutInvalidatedEventer,
     ) {
         this.field = field;
         this._settings = columnSettings;
         this._width = this._settings.defaultColumnWidth;
-        this._autosizing = this._settings.defaultColumnAutosizing;
+        this._autoSizing = this._settings.defaultColumnAutoSizing;
     }
-
-    // mixIn: overrider.mixIn,
-
-    /**
-     * @summary Get or set the text of the column's header.
-     * @desc The _header_ is the label at the top of the column.
-     *
-     * Setting the header updates both:
-     * * the `schema` (aka, header) array in the underlying data source; and
-     * * the filter.
-     * @type {string}
-     */
-    // set header(header: string) {
-    //     this.schemaColumn.header = header;
-    // }
-    // get header() {
-    //     return this.schemaColumn.header;
-    // }
-
-    /**
-     * @summary Get or set the computed column's calculator function.
-     * @desc Setting the value here updates the calculator in the data model schema.
-     *
-     * The results of the new calculations will appear in the column cells on the next repaint.
-     * @type {string}
-     */
-    // set calculator(calculator: SchemaServer.Column.Calculator) {
-    //     calculator = this.resolveCalculator(calculator);
-    //     if (calculator !== this.schemaColumn.calculator) {
-    //         this.schemaColumn.calculator = calculator;
-    //         this.grid.reindex();
-    //     }
-    // }
-    // get calculator() {
-    //     return this.schemaColumn.calculator;
-    // }
 
     get settings() { return this._settings; }
     get width() { return this._width; }
-    get autosizing() { return this._autosizing; }
+    set width(value: number) {
+        this.setWidthAndPossiblyNotify(value, true, true);
+    }
+    get autoSizing() { return this._autoSizing; }
+    set autoSizing(value: boolean) {
+        this.setAutoSizing(value);
+    }
 
-    setWidth(width: number | undefined) {
+    setWidth(width: number, ui: boolean) {
+        return this.setWidthAndPossiblyNotify(width, ui, true);
+    }
+
+    setWidthAndPossiblyNotify(width: number, ui: boolean, notify: boolean) {
         let changed: boolean;
 
-        if (width === undefined) {
-            if (this._autosizing) {
-                changed = false;
-            } else {
-                this._autosizing = true;
-                changed = true;
-            }
+        width = Math.ceil(Math.min(Math.max(this._settings.minimumColumnWidth, width), this._settings.maximumColumnWidth ?? Infinity));
+        if (!this._autoSizing && width === this._width) {
+            changed = false;
         } else {
-            width = Math.ceil(Math.min(Math.max(this._settings.minimumColumnWidth, width), this._settings.maximumColumnWidth ?? Infinity));
-            if (!this._autosizing && width === this._width) {
-                changed = false;
-            } else {
-                this._width = width;
-                this._autosizing = false;
-                changed = true;
+            this._width = width;
+            this._autoSizing = false;
+            changed = true;
+        }
+
+        if (changed) {
+            this._horizontalViewLayoutInvalidatedEventer();
+            if (notify) {
+                this._widthChangedEventer(this, ui);
             }
+        }
+
+        return changed;
+    }
+
+    setAutoSizing(value: boolean) {
+        let changed: boolean;
+
+        if (value === this._autoSizing) {
+            changed = false;
+        } else {
+            this._autoSizing = value;
+            changed = true;
         }
 
         if (changed) {
@@ -104,57 +80,48 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
         return changed;
     }
 
-    getPreferredWidth() {
-        return this.preferredWidth;
-    }
-
-    /** @internal */
-    checkColumnAutosizing(widenOnly: boolean) {
-        if (!this._autosizing) {
-            return false;
+    checkAutoSizing(widenOnly: boolean) {
+        if (this._autoSizing) {
+            return this.autoSize(widenOnly);
         } else {
-            const settings = this._settings;
-
-            let newWidth: number;
-            if (!settings.defaultColumnAutosizing) {
-                newWidth = settings.defaultColumnWidth;
-            } else {
-                const preferredWidth = this.preferredWidth;
-                if (preferredWidth === undefined) {
-                    return false;
-                } else {
-                    if (widenOnly) {
-                        const oldWidth = this._width;
-                        if (oldWidth >= preferredWidth) {
-                            return false;
-                        } else {
-                            newWidth = preferredWidth;
-                        }
-                    } else {
-                        newWidth = preferredWidth;
-                    }
-
-                    const columnAutosizingMax = settings.columnAutosizingMax;
-                    if (columnAutosizingMax !== undefined) {
-                        if (newWidth > columnAutosizingMax) {
-                            newWidth = columnAutosizingMax;
-                        }
-                    }
-                }
-            }
-
-            if (newWidth === this._width) {
-                return false;
-            } else {
-                this._width = newWidth;
-                return true;
-            }
+            return false;
         }
     }
 
-    // set properties(properties) {
-    //     this.addProperties(properties, true);
-    // }
+    autoSize(widenOnly: boolean) {
+        const settings = this._settings;
+
+        let newWidth: number;
+        const preferredWidth = this.preferredWidth;
+        if (preferredWidth === undefined) {
+            return false;
+        } else {
+            if (widenOnly) {
+                const oldWidth = this._width;
+                if (oldWidth >= preferredWidth) {
+                    return false;
+                } else {
+                    newWidth = preferredWidth;
+                }
+            } else {
+                newWidth = preferredWidth;
+            }
+
+            const autoSizingMax = settings.columnAutoSizingMax;
+            if (autoSizingMax !== undefined) {
+                if (newWidth > autoSizingMax) {
+                    newWidth = autoSizingMax;
+                }
+            }
+        }
+
+        if (newWidth === this._width) {
+            return false;
+        } else {
+            this._width = newWidth;
+            return true;
+        }
+    }
 
     /**
      * @desc Amend properties for this hypergrid only.
@@ -166,7 +133,6 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
 
     /**
      * @returns '' if data value is undefined
-     * @internal
      */
     getValueFromDataRow(dataRow: DataServer.ViewRow): DataServer.ViewValue {
         if (Array.isArray(dataRow)) {
@@ -175,73 +141,9 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
             return dataRow[this.field.name];
         }
     }
-
-
-    /**
-     * Copy a properties collection to this column's properties object.
-     *
-     * When a value is `undefined` or `null`, the property is deleted except when a setter or non-configurable in which case it's set to `undefined`.
-     * @param properties - Properties to copy to column's properties object. If `undefined`, this call is a no-op.
-     * @param settingState - Clear column's properties object before copying properties.
-     */
-    /** This method is provided because some grid renderer optimizations require that the grid renderer be informed when column colors change. Due to performance concerns, they cannot take the time to figure it out for themselves. Along the same lines, making the property a getter/setter (in columnProperties.js), though doable, might present performance concerns as this property is possibly the most accessed of all column properties.
-     * @param color
-     */
-    /** @internal */
-    // setBackgroundColor(color: string) {
-    //     if (this.properties.backgroundColor !== color) {
-    //         this.properties.backgroundColor = color;
-    //         this.grid.renderer.rebundleGridRenderers();
-    //     }
-    // }
-
-    /**
-     * @summary Get a new cell editor.
-     * @desc The cell editor to use must be registered with the key in the cell's `editor` property.
-     *
-     * The cell's `format` property is mixed into the provided cellEvent for possible overriding by developer's override of {@link DataServer.prototype.getCellEditorAt} before being used by {@link CellEditor} to parse and format the cell value.
-     *
-     * @returns Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return from `fireRequestCellEdit`.
-     */
-    /** @internal */
-    // getCellEditorAt(cellEvent: CellEvent) {
-    //     const columnIndex = this.index;
-    //     const rowIndex = cellEvent.gridCell.y;
-    //     const editorName = cellEvent.columnProperties.editor;
-
-    //     // I do not think this is needed
-    //     // const options = Object.create(cellEvent, {
-    //     //         format: {
-    //     //             // `options.format` is a copy of the cell's `format` property which is:
-    //     //             // 1. Subject to adjustment by the `getCellEditorAt` override.
-    //     //             // 2. Then used by the cell editor to reference the registered localizer (defaults to 'string' localizer)
-    //     //             writable: true,
-    //     //             enumerable: true, // so cell editor will copy it to self
-    //     //             value: cellEvent.columnProperties.format
-    //     //         }
-    //     //     });
-
-    //     if (editorName === undefined) {
-    //         return undefined;
-    //     } else {
-    //         const cellEditor = cellEvent.subgrid.getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
-
-    //         if (cellEditor && !cellEditor.grid) {
-    //             // cell editor returned but not fully instantiated (aborted by falsy return from fireRequestCellEdit)
-    //             return undefined;
-    //         } else {
-    //             return cellEditor;
-    //         }
-    //     }
-    // }
-
-    /** @internal */
-    // getFormatter() {
-    //     const localizerName = this.properties.format;
-    //     return this.grid.localization.get(localizerName).format;
-    // }
 }
 
 export namespace ColumnImplementation {
+    export type WidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, column: ColumnImplementation<BCS, SF>, ui: boolean) => void;
     export type HorizontalViewLayoutInvalidatedEventer = (this: void) => void;
 }

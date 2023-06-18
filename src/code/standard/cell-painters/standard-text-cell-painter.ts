@@ -97,7 +97,7 @@ export abstract class StandardTextCellPainter<
 
         const rightHaligned = halign === 'right';
         const truncateWidth = width - rightPadding - leftPadding;
-        if (settings.defaultColumnAutosizing) {
+        if (settings.defaultColumnAutoSizing) {
             const truncatedResult = gc.getTextWidthTruncated(val, truncateWidth, settings.textTruncateType, false, rightHaligned);
             minWidth = truncatedResult.textWidth;
             val = truncatedResult.text ?? val;

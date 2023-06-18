@@ -55,7 +55,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     tryMoveFocusLeft() {
-        const currentFocusPoint = this._focus.currentSubgridPoint;
+        const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x - 1;
             return this.tryFocusXAndEnsureInView(newX);
@@ -65,7 +65,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     tryMoveFocusRight() {
-        const currentFocusPoint = this._focus.currentSubgridPoint;
+        const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x + 1;
             return this.tryFocusXAndEnsureInView(newX);
@@ -75,7 +75,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     tryMoveFocusUp() {
-        const currentFocusPoint = this._focus.currentSubgridPoint;
+        const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y - 1;
             return this.tryFocusYAndEnsureInView(newY);
@@ -85,7 +85,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     tryMoveFocusDown() {
-        const currentFocusPoint = this._focus.currentSubgridPoint;
+        const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y + 1;
             return this.tryFocusYAndEnsureInView(newY);
@@ -145,7 +145,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     tryPageFocusDown() {
-        let focusY = this._focus.currentSubgridY;
+        let focusY = this._focus.currentY;
         if (focusY === undefined) {
             focusY = this._viewLayout.lastScrollableSubgridRowIndex;
         }
@@ -171,7 +171,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     // probably can get rid of this with a bit more cleanup
     getFocusedViewCell(useAllCells: boolean): ViewCell<BCS, SF> | undefined {
-        const focusedPoint = this._focus.currentSubgridPoint;
+        const focusedPoint = this._focus.current;
         if (focusedPoint === undefined) {
             return undefined;
         } else {
@@ -182,7 +182,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
                 // points may not be rendered and would normally fail to reset cell's position.
                 // Mock column and row objects for this.reset() to use:
                 const vc: ViewLayoutColumn<BCS, SF> = {
-                    column: this._columnsManager.getAllColumn(gridX), // pick any valid column (gridX will always index a valid column)
+                    column: this._columnsManager.getFieldColumn(gridX), // pick any valid column (gridX will always index a valid column)
                     activeColumnIndex: gridX,
                     index: -1,
                     left: -1,

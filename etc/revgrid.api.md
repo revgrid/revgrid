@@ -285,9 +285,11 @@ export namespace CellPainter {
 // @public (undocumented)
 export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     // (undocumented)
-    readonly autosizing: boolean;
+    autoSize(widenOnly: boolean): boolean;
     // (undocumented)
-    checkColumnAutosizing(widenOnly: boolean): boolean;
+    autoSizing: boolean;
+    // (undocumented)
+    checkAutoSizing(widenOnly: boolean): boolean;
     // (undocumented)
     readonly field: SF;
     // (undocumented)
@@ -295,15 +297,17 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaS
     // (undocumented)
     preferredWidth: number | undefined;
     // (undocumented)
+    setAutoSizing(value: boolean): boolean;
+    // (undocumented)
     readonly settings: BCS;
     // (undocumented)
-    setWidth(width: number | undefined): boolean;
+    setWidth(width: number, ui: boolean): boolean;
     // (undocumented)
-    readonly width: number;
+    width: number;
 }
 
 // @public (undocumented)
-export interface ColumnFieldNameAndWidth {
+export interface ColumnFieldNameAndAutoSizableWidth {
     // (undocumented)
     fieldName: string;
     // (undocumented)
@@ -311,7 +315,7 @@ export interface ColumnFieldNameAndWidth {
 }
 
 // @public (undocumented)
-export type ColumnSettings = Pick<GridSettings, 'backgroundColor' | 'color' | 'columnAutosizingMax' | 'columnClip' | 'defaultColumnAutosizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
+export type ColumnSettings = Pick<GridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
 
 // @public (undocumented)
 export interface ColumnSettingsBehavior extends GridSettingsBehavior {
@@ -336,22 +340,16 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     activeColumnWidthOrOrderChangedEventer: ColumnsManager.ActiveColumnWidthOrOrderChangedEventer;
     // @internal (undocumented)
     addBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener): void;
-    // (undocumented)
-    get allColumnCount(): number;
-    // @internal (undocumented)
-    allColumnListChangedEventer: ListChangedEventHandler;
-    // @internal (undocumented)
-    get allColumns(): readonly Column<BCS, SF>[];
     // @internal (undocumented)
     allSchemaColumnsDeleted(): void;
     // @internal (undocumented)
-    autosizeAllColumns(widenOnly: boolean): void;
+    autoSizeAllColumns(widenOnly: boolean): void;
     // @internal (undocumented)
     beginSchemaChange(): void;
     // (undocumented)
     calculateFixedColumnsWidth(): number;
     // @internal (undocumented)
-    checkColumnAutosizing(widenOnly: boolean, withinAnimationFrame: boolean): boolean;
+    checkColumnAutoSizing(widenOnly: boolean, withinAnimationFrame: boolean): boolean;
     // @internal (undocumented)
     clearColumns(): void;
     // @internal (undocumented)
@@ -362,6 +360,12 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     createDummyColumn(): Column<BCS, SF>;
     // @internal (undocumented)
     endSchemaChange(): void;
+    // (undocumented)
+    get fieldColumnCount(): number;
+    // @internal (undocumented)
+    fieldColumnListChangedEventer: ListChangedEventHandler;
+    // @internal (undocumented)
+    get fieldColumns(): readonly Column<BCS, SF>[];
     // @internal (undocumented)
     getActiveColumn(index: number): Column<BCS, SF>;
     // @internal (undocumented)
@@ -379,7 +383,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     // @internal (undocumented)
     getActiveColumnWidth(index: number): number;
     // @internal (undocumented)
-    getAllColumn(allX: number): Column<BCS, SF>;
+    getFieldColumn(fieldIndex: number): Column<BCS, SF>;
     // (undocumented)
     getFixedColumnCount(): number;
     // @internal (undocumented)
@@ -424,21 +428,19 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     // (undocumented)
     readonly schemaServer: SchemaServer<BCS, SF>;
     // @internal (undocumented)
-    setActiveColumns(columnFieldNameOrAllIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
+    setActiveColumns(columnArray: readonly Column<BCS, SF>[]): void;
     // (undocumented)
-    setActiveColumnsAndWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndWidth[], ui: boolean): void;
-    // @internal (undocumented)
-    setActiveColumnWidth(columnOrIndex: Column<BCS, SF> | number, width: number | undefined, ui: boolean): Column<BCS, SF> | undefined;
+    setActiveColumnsAndWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndAutoSizableWidth[], ui: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     //
     // @internal (undocumented)
     setColumnSettings(allX: number, settings: ColumnSettings): ColumnSettings;
-    // Warning: (ae-forgotten-export) The symbol "ColumnWidth" needs to be exported by the entry point public-api.d.ts
+    // Warning: (ae-forgotten-export) The symbol "ColumnAutoSizeableWidth" needs to be exported by the entry point public-api.d.ts
     //
     // @internal (undocumented)
-    setColumnWidths(columnWidths: ColumnWidth<BCS, SF>[], ui: boolean): boolean;
+    setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[], ui: boolean): boolean;
     // @internal (undocumented)
-    setColumnWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndWidth[], ui: boolean): boolean;
+    setColumnWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndAutoSizableWidth[], ui: boolean): boolean;
     // (undocumented)
     showColumns(allColumnIndexesOrIsActiveColumnIndexes: boolean | number | number[], referenceIndexOrColumnIndexes?: number | number[], allowDuplicateColumnsOrReferenceIndex?: boolean | number, allowDuplicateColumns?: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -732,15 +734,6 @@ export namespace EventDetail {
         revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
     // (undocumented)
-    export interface Resize {
-        // (undocumented)
-        readonly height: number;
-        // (undocumented)
-        readonly time: number;
-        // (undocumented)
-        readonly width: number;
-    }
-    // (undocumented)
     export interface RowCellsDataInvalidated {
         // (undocumented)
         readonly rowIndex: number;
@@ -815,11 +808,7 @@ export namespace EventName {
         // (undocumented)
         'rev-click': EventDetail.Pointer<BCS, SF>;
         // (undocumented)
-        'rev-column-changed-event': undefined;
-        // (undocumented)
         'rev-column-sort': EventDetail.ColumnSort<BCS, SF>;
-        // (undocumented)
-        'rev-columns-created': undefined;
         // (undocumented)
         'rev-columns-view-widths-changed': undefined;
         // (undocumented)
@@ -847,11 +836,13 @@ export namespace EventName {
         // (undocumented)
         'rev-dbl-click': EventDetail.Pointer<BCS, SF>;
         // (undocumented)
+        'rev-field-column-list-changed': undefined;
+        // (undocumented)
         'rev-filter-applied': undefined;
         // (undocumented)
         'rev-grid-rendered': EventDetail.Grid;
         // (undocumented)
-        'rev-grid-resized': EventDetail.Resize;
+        'rev-grid-resized': undefined;
         // (undocumented)
         'rev-horizontal-scroll-viewport-changed': undefined;
         // (undocumented)
@@ -935,11 +926,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // @internal (undocumented)
     createStash(): Focus.Stash;
     // (undocumented)
-    get currentSubgridPoint(): Point | undefined;
+    get current(): Point | undefined;
     // (undocumented)
-    get currentSubgridX(): number | undefined;
+    get currentX(): number | undefined;
     // (undocumented)
-    get currentSubgridY(): number | undefined;
+    get currentY(): number | undefined;
     // (undocumented)
     readonly dataServer: DataServer<SF>;
     // (undocumented)
@@ -961,7 +952,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // (undocumented)
     isSubgridRowFocused(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>): boolean;
     // (undocumented)
-    get previousSubgridPoint(): Point | undefined;
+    get previous(): Point | undefined;
     // @internal (undocumented)
     reset(): void;
     // @internal (undocumented)
@@ -1080,7 +1071,7 @@ export interface GridSettings {
     readonly backgroundColor: GridSettings.Color;
     // (undocumented)
     readonly color: GridSettings.Color;
-    readonly columnAutosizingMax: number | undefined;
+    readonly columnAutoSizingMax: number | undefined;
     readonly columnClip: boolean | undefined;
     // (undocumented)
     readonly columnMoveDragActiveCursorName: string | undefined;
@@ -1104,7 +1095,7 @@ export interface GridSettings {
     readonly columnSortPossibleTitleText: string | undefined;
     readonly columnsReorderable: boolean;
     readonly columnsReorderableHideable: boolean;
-    readonly defaultColumnAutosizing: boolean;
+    readonly defaultColumnAutoSizing: boolean;
     // (undocumented)
     readonly defaultColumnWidth: number;
     // (undocumented)
@@ -1438,14 +1429,14 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     get color(): string;
     set color(value: string);
     // (undocumented)
-    get columnAutosizingMax(): number | undefined;
-    set columnAutosizingMax(value: number | undefined);
+    get columnAutoSizingMax(): number | undefined;
+    set columnAutoSizingMax(value: number | undefined);
     // (undocumented)
     get columnClip(): boolean | undefined;
     set columnClip(value: boolean | undefined);
     // (undocumented)
-    get defaultColumnAutosizing(): boolean;
-    set defaultColumnAutosizing(value: boolean);
+    get defaultColumnAutoSizing(): boolean;
+    set defaultColumnAutoSizing(value: boolean);
     // (undocumented)
     get defaultColumnWidth(): number;
     set defaultColumnWidth(value: number);
@@ -1503,8 +1494,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get color(): GridSettings.Color;
     set color(value: GridSettings.Color);
     // (undocumented)
-    get columnAutosizingMax(): number | undefined;
-    set columnAutosizingMax(value: number | undefined);
+    get columnAutoSizingMax(): number | undefined;
+    set columnAutoSizingMax(value: number | undefined);
     // (undocumented)
     get columnClip(): boolean | undefined;
     set columnClip(value: boolean | undefined);
@@ -1545,8 +1536,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get columnsReorderableHideable(): boolean;
     set columnsReorderableHideable(value: boolean);
     // (undocumented)
-    get defaultColumnAutosizing(): boolean;
-    set defaultColumnAutosizing(value: boolean);
+    get defaultColumnAutoSizing(): boolean;
+    set defaultColumnAutoSizing(value: boolean);
     // (undocumented)
     get defaultColumnWidth(): number;
     set defaultColumnWidth(value: number);
@@ -2000,6 +1991,9 @@ export namespace Point {
 }
 
 // @public (undocumented)
+export const readonlyColumnSettingsBehavior: ColumnSettingsBehavior;
+
+// @public (undocumented)
 export const readonlyDefaultBehavioredColumnSettings: BehavioredColumnSettings;
 
 // @public (undocumented)
@@ -2297,11 +2291,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addEventListener(eventName: string, listener: CanvasManager.EventListener): void;
     // (undocumented)
-    get allColumns(): readonly Column<BCS, SF>[];
-    // (undocumented)
     allowEvents(allow: boolean): void;
     // (undocumented)
-    autosizeAllColumns(widenOnly: boolean): void;
+    autoSizeAllColumns(widenOnly: boolean): void;
+    // (undocumented)
+    autoSizeFieldColumn(fieldNameOrIndex: string | number, widenOnly: boolean): void;
     beginSelectionChange(): void;
     // (undocumented)
     calculateActiveColumnsWidth(): number;
@@ -2338,13 +2332,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean): void;
     // (undocumented)
-    protected descendantProcessAllColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined): void;
-    // (undocumented)
     protected descendantProcessCellFocusChanged(newPoint: Point | undefined, oldPoint: Point | undefined): void;
     // (undocumented)
     protected descendantProcessClick(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS, SF> | null | undefined): void;
-    // (undocumented)
-    protected descendantProcessColumnsChanged(): void;
     // (undocumented)
     protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell<BCS, SF>): void;
     // (undocumented)
@@ -2359,6 +2349,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     protected descendantProcessDblClick(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS, SF> | null | undefined): void;
     // (undocumented)
     protected descendantProcessDragStart(_event: DragEvent): void;
+    // (undocumented)
+    protected descendantProcessFieldColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined): void;
     // (undocumented)
     protected descendantProcessHorizontalScrollerAction(_event: EventDetail.ScrollerAction): void;
     // (undocumented)
@@ -2410,6 +2402,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     destroyed: boolean;
     endSelectionChange(): void;
     // (undocumented)
+    get fieldColumns(): readonly Column<BCS, SF>[];
+    // (undocumented)
     get fixedColumnsViewWidth(): number;
     // (undocumented)
     readonly focus: Focus<BGS, BCS, SF>;
@@ -2418,15 +2412,13 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     getActiveColumn(activeIndex: number): Column<BCS, SF>;
     // (undocumented)
-    getActiveColumnIndexByAllIndex(allIndex: number): number;
+    getActiveColumnIndexByFieldIndex(fieldIndex: number): number;
     // (undocumented)
     getActiveColumns(begin?: number, end?: number): Column<BCS, SF>[];
     // (undocumented)
     getActiveColumnWidth(activeIndex: number): number;
     // (undocumented)
     getAllColumn(allX: number): Column<BCS, SF>;
-    // (undocumented)
-    getAllColumns(begin?: number, end?: number): Column<BCS, SF>[];
     // (undocumented)
     getBoundsOfCell(gridCell: Point): Rectangle;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -2454,6 +2446,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getColumnProperties(activeColumnIndex: number): ColumnSettings | undefined;
     // (undocumented)
     getColumnScrollableLeft(activeIndex: number): number;
+    // (undocumented)
+    getFieldColumnRange(begin?: number, end?: number): Column<BCS, SF>[];
     // (undocumented)
     getFocusedViewCell(useAllCells: boolean): ViewCell<BCS, SF> | undefined;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -2569,12 +2563,12 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType?: SelectionAreaType): void;
     // (undocumented)
-    setActiveColumns(columnNameOrAllIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
+    setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
     // (undocumented)
-    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnFieldNameAndWidth[]): void;
+    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, columnWidth: number): Column<BCS, SF> | undefined;
+    setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, width: number, ui: boolean): void;
     // (undocumented)
     setAttribute(attribute: string, value: string): void;
     // (undocumented)
@@ -2586,10 +2580,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     setCellProperty(cell: ViewCell<BCS, SF>, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
     // (undocumented)
     setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
-    // @deprecated (undocumented)
-    setColumnOrder(allColumnIndexes: readonly number[]): void;
-    // @deprecated (undocumented)
-    setColumnOrderByName(allColumnNames: readonly string[]): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     //
     // (undocumented)
@@ -2597,9 +2587,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     setColumnScrollAnchor(index: number, offset: number): boolean;
     // (undocumented)
-    setColumnWidths(columnWidths: ColumnWidth<BCS, SF>[]): boolean;
+    setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[]): boolean;
     // (undocumented)
-    setColumnWidthsByName(columnNameWidths: ColumnFieldNameAndWidth[]): boolean;
+    setColumnWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
@@ -3193,11 +3183,11 @@ export class StandardAlphaTextCellPainter<BGS extends StandardBehavioredGridSett
 }
 
 // @public (undocumented)
-export interface StandardBehavioredColumnSettings extends StandardAllColumnSettings, ColumnSettingsBehavior {
+export interface StandardBehavioredColumnSettings extends StandardAllColumnSettings, StandardColumnSettingsBehavior {
 }
 
 // @public (undocumented)
-export interface StandardBehavioredGridSettings extends StandardAllGridSettings, GridSettingsBehavior {
+export interface StandardBehavioredGridSettings extends StandardAllGridSettings, StandardGridSettingsBehavior {
 }
 
 // @public
@@ -3328,6 +3318,12 @@ export class StandardColorInputCellEditor<BGS extends StandardBehavioredGridSett
 export type StandardColumnSettings = Pick<StandardGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'horizontalAlign' | 'verticalOffset' | 'font' | 'textTruncateType' | 'textStrikeThrough' | 'editorClickCursorName'>;
 
 // @public (undocumented)
+export interface StandardColumnSettingsBehavior extends ColumnSettingsBehavior {
+    // (undocumented)
+    load(settings: StandardAllColumnSettings): void;
+}
+
+// @public (undocumented)
 export const standardColumnSettingsDefaults: Required<StandardColumnSettings>;
 
 // @public (undocumented)
@@ -3374,6 +3370,12 @@ export interface StandardGridSettings {
     // (undocumented)
     textTruncateType: TextTruncateType | undefined;
     verticalOffset: number;
+}
+
+// @public (undocumented)
+export interface StandardGridSettingsBehavior extends GridSettingsBehavior {
+    // (undocumented)
+    load(settings: StandardAllGridSettings): void;
 }
 
 // @public (undocumented)

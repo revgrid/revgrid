@@ -21,7 +21,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     selectOnlyColumn(activeColumnIndex: number) {
         const selection = this._selection;
-        const rowIndex = this._focus.currentSubgridY ?? this._gridSettings.fixedRowCount;
+        const rowIndex = this._focus.currentY ?? this._gridSettings.fixedRowCount;
         selection.beginChange();
         try {
             selection.clear();
@@ -32,18 +32,18 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     selectToggleColumn(activeColumnIndex: number) {
-        const rowIndex = this._focus.currentSubgridY ?? this._gridSettings.fixedRowCount;
+        const rowIndex = this._focus.currentY ?? this._gridSettings.fixedRowCount;
         this._selection.selectToggleColumn(activeColumnIndex, rowIndex, this._focus.subgrid);
     }
 
     selectAddColumn(activeColumnIndex: number) {
-        const rowIndex = this._focus.currentSubgridY ?? this._gridSettings.fixedRowCount;
+        const rowIndex = this._focus.currentY ?? this._gridSettings.fixedRowCount;
         this._selection.selectColumns(activeColumnIndex, rowIndex, 1, 1, this._focus.subgrid);
     }
 
     selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
         const selection = this._selection;
-        const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
+        const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         selection.beginChange();
         try {
             selection.clear();
@@ -54,12 +54,12 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     selectToggleRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
-        const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
+        const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectToggleRow(columnIndex, subgridRowIndex, subgrid);
     }
 
     selectAddRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
-        const columnIndex = this._focus.currentSubgridX ?? this._gridSettings.fixedColumnCount;
+        const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectRows(columnIndex, subgridRowIndex, 1, 1, subgrid);
     }
 
@@ -115,7 +115,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     selectOnlyFocusedCell(areaType: SelectionAreaType) {
-        const focusPoint = this._focus.currentSubgridPoint;
+        const focusPoint = this._focus.current;
         if (focusPoint !== undefined) {
             const focusX = focusPoint.x;
             const focusY = focusPoint.y;
@@ -124,7 +124,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     extendLastSelectionAreaAsCloseAsPossibleToFocus() {
-        const focusPoint = this._focus.currentSubgridPoint;
+        const focusPoint = this._focus.current;
         if (focusPoint === undefined) {
             return false;
         } else {

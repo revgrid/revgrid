@@ -84,7 +84,7 @@ export type UiableListChangedEventHandler = (
 ) => void;
 
 /** @public */
-export interface ColumnFieldNameAndWidth {
+export interface ColumnFieldNameAndAutoSizableWidth {
     fieldName: string;
     width: number | undefined;
 }

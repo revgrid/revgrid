@@ -371,7 +371,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         // before end-of-thread so user sees only the results of the 2nd render.
         // Mostly important on first render after setData. Note that stack overflow
         // will not happen because this will only be called once per data change.
-        if (this._columnsManager.checkColumnAutosizing(true, true)) {
+        if (this._columnsManager.checkColumnAutoSizing(true, true)) {
             this._viewLayout.ensureValidInsideAnimationFrame();
             this._gridPainter.paintCells();
         }

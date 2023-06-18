@@ -4,7 +4,7 @@ import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
@@ -238,8 +238,11 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
                     this.columnsManager.moveColumnAfter(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex, true);
                 }
                 break;
+            case DragActionType.None:
+                break;
+            default:
+                throw new UnreachableCaseError('CMUBEDC23334', dragAction);
         }
-        this.eventBehavior.processColumnsChangedEvent();
     }
 
     private getDragAction(event: MouseEvent, dragColumn: ViewLayoutColumn<BCS, SF>): ColumnDragAction<BCS, SF> {

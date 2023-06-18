@@ -215,9 +215,9 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
                 if (column !== undefined) {
                     this.deleteCellOwnProperties(column, y, subgrid);
                 } else {
-                    const allColumns = this._columnsManager.allColumns;
-                    for (const aColumn of allColumns) {
-                        this.deleteCellOwnProperties(aColumn, y, subgrid);
+                    const fieldColumns = this._columnsManager.fieldColumns;
+                    for (const fieldColumn of fieldColumns) {
+                        this.deleteCellOwnProperties(fieldColumn, y, subgrid);
                     }
                 }
             }
