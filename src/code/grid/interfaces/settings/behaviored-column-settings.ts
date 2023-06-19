@@ -1,26 +1,11 @@
 import { AllColumnSettings } from './all-column-settings';
-import { BehavioredGridSettings } from './behaviored-grid-settings';
+import { AllGridSettings } from './all-grid-settings';
+import { BehavioredSettings } from './behaviored-settings';
 
 /** @public */
-export interface BehavioredColumnSettings extends AllColumnSettings {
-    readonly gridSettings: BehavioredGridSettings;
+export interface BehavioredColumnSettings extends AllColumnSettings, BehavioredSettings{
+    readonly gridSettings: AllGridSettings;
 
-    /** @internal */
-    resizeEventer: BehavioredGridSettings.ResizeEventer | undefined;
-    /** @internal */
-    viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer | undefined;
-    /** @internal */
-    viewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
-    /** @internal */
-    horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
-    /** @internal */
-    verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
-
-    beginChange(): void;
-    endChange(): void;
     load(settings: AllColumnSettings): void;
     clone(): BehavioredColumnSettings;
-
-    subscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler): void;
-    unsubscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler): void;
 }

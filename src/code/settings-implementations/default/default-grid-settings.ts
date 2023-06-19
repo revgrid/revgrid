@@ -2,7 +2,7 @@
 import { GridSettings, HorizontalWheelScrollingAllowed, ModifierKeyEnum, SelectionAreaType } from '../../grid/grid-public-api';
 
 /** @public */
-export const gridSettingsDefaults: Required<GridSettings> = {
+export const defaultGridSettings: GridSettings = {
 
     eventDispatchEnabled: false,
 

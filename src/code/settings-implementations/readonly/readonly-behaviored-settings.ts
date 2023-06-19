@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import { GridSettingsBehavior } from '../../grid/grid-public-api';
+import { BehavioredSettings } from '../../grid/grid-public-api';
 
 /** @public */
-export const readonlyGridSettingsBehavior: GridSettingsBehavior = {
+export const readonlyBehavioredSettings: BehavioredSettings = {
     resizeEventer: () => {},
     viewRenderInvalidatedEventer: () => {},
     viewLayoutInvalidatedEventer: () => {},
@@ -12,7 +12,6 @@ export const readonlyGridSettingsBehavior: GridSettingsBehavior = {
 
     beginChange: () => {},
     endChange: () => {},
-    load: () => {},
 
     subscribeChangedEvent: () => {},
     unsubscribeChangedEvent: () => {},

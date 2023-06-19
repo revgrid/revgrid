@@ -1,8 +1,8 @@
-import { SchemaServer, StandardAllGridSettings, StandardInMemoryBehavioredColumnSettings, standardAllColumnSettingsDefaults } from '..';
+import { InMemoryStandardBehavioredColumnSettings, SchemaServer, StandardAllGridSettings, defaultStandardAllColumnSettings } from '..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
-export class AppSchemaServer implements SchemaServer<StandardInMemoryBehavioredColumnSettings, AppSchemaField> {
+export class AppSchemaServer implements SchemaServer<InMemoryStandardBehavioredColumnSettings, AppSchemaField> {
     private readonly _schema: AppSchemaField[];
 
     readonly nameSchemaSchemaField: AppSchemaField;
@@ -22,8 +22,8 @@ export class AppSchemaServer implements SchemaServer<StandardInMemoryBehavioredC
         for (let i = 0; i < columnCount; i++) {
             const nameHeader = nameHeaders[i];
             const name = nameHeader.name;
-            const columnSettings = new StandardInMemoryBehavioredColumnSettings(gridSettings);
-            columnSettings.load(standardAllColumnSettingsDefaults);
+            const columnSettings = new InMemoryStandardBehavioredColumnSettings(gridSettings);
+            columnSettings.load(defaultStandardAllColumnSettings);
             const field: AppSchemaField = {
                 name,
                 index: i,
@@ -69,7 +69,7 @@ export class AppSchemaServer implements SchemaServer<StandardInMemoryBehavioredC
         return this._schema;
     }
 
-    getFieldColumnSettings(field: AppSchemaField): StandardInMemoryBehavioredColumnSettings {
+    getFieldColumnSettings(field: AppSchemaField): InMemoryStandardBehavioredColumnSettings {
         return field.columnSettings;
     }
 

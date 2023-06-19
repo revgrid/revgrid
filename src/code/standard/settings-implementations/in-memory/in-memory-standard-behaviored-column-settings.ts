@@ -4,34 +4,36 @@ import {
     Halign,
     TextTruncateType
 } from '../../../grid/grid-public-api';
-import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { StandardAllGridSettings, StandardBehavioredGridSettings, StandardGridSettings } from '../../settings/standard-settings-public-api';
+import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
+import { StandardAllColumnSettings, StandardAllGridSettings, StandardBehavioredColumnSettings, StandardColumnSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
-    private _cellPadding: number;
-    private _cellFocusedBorderColor: GridSettings.Color | undefined;
-    private _cellHoverBackgroundColor: GridSettings.Color | undefined;
-    private _columnHoverBackgroundColor: GridSettings.Color | undefined;
-    private _columnHeaderFont: string;
-    private _columnHeaderHorizontalAlign: Halign;
-    private _columnHeaderBackgroundColor: GridSettings.Color;
-    private _columnHeaderForegroundColor: GridSettings.Color;
-    private _columnHeaderSelectionFont: string;
-    private _columnHeaderSelectionBackgroundColor: GridSettings.Color;
-    private _columnHeaderSelectionForegroundColor: GridSettings.Color;
-    private _rowHoverBackgroundColor: GridSettings.Color | undefined;
-    private _selectionFont: GridSettings.Color;
-    private _selectionBackgroundColor: GridSettings.Color;
-    private _selectionForegroundColor: GridSettings.Color;
-    private _horizontalAlign: Halign;
-    private _verticalOffset: number;
-    private _font: string;
-    private _textTruncateType: TextTruncateType | undefined;
-    private _textStrikeThrough: boolean;
-    private _editorClickCursorName: string | undefined;
+export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings{
+    declare gridSettings: StandardAllGridSettings;
 
-    get cellPadding() { return this._cellPadding; }
+    private _cellPadding: number | undefined;
+    private _cellFocusedBorderColor: GridSettings.Color | undefined | null;
+    private _cellHoverBackgroundColor: GridSettings.Color | undefined | null;
+    private _columnHoverBackgroundColor: GridSettings.Color | undefined | null;
+    private _columnHeaderFont: string | undefined;
+    private _columnHeaderHorizontalAlign: Halign | undefined;
+    private _columnHeaderBackgroundColor: GridSettings.Color | undefined;
+    private _columnHeaderForegroundColor: GridSettings.Color | undefined;
+    private _columnHeaderSelectionFont: string | undefined;
+    private _columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
+    private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
+    private _horizontalAlign: Halign | undefined;
+    private _verticalOffset: number | undefined;
+    private _font: string | undefined;
+    private _textTruncateType: TextTruncateType | undefined | null;
+    private _textStrikeThrough: boolean | undefined;
+    private _editorClickCursorName: string | undefined | null;
+
+    constructor(gridSettings: StandardAllGridSettings) {
+        super(gridSettings);
+    }
+
+    get cellPadding() { return this._cellPadding !== undefined ? this._cellPadding : this.gridSettings.cellPadding; }
     set cellPadding(value: number) {
         if (value !== this._cellPadding) {
             this.beginChange();
@@ -40,34 +42,64 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get cellFocusedBorderColor() { return this._cellFocusedBorderColor; }
+    get cellFocusedBorderColor() {
+        if (this._cellFocusedBorderColor === null) {
+            return undefined;
+        } else {
+            return this._cellFocusedBorderColor !== undefined ? this._cellFocusedBorderColor : this.gridSettings.cellFocusedBorderColor;
+        }
+    }
     set cellFocusedBorderColor(value: GridSettings.Color | undefined) {
         if (value !== this._cellFocusedBorderColor) {
             this.beginChange();
-            this._cellFocusedBorderColor = value;
+            if (value === undefined) {
+                this._cellHoverBackgroundColor = null;
+            } else {
+                this._cellFocusedBorderColor = value;
+            }
             this.notifyChangedViewRender();
             this.endChange();
         }
     }
-    get cellHoverBackgroundColor() { return this._cellHoverBackgroundColor; }
+    get cellHoverBackgroundColor() {
+        if (this._cellHoverBackgroundColor === null) {
+            return undefined;
+        } else {
+            return this._cellHoverBackgroundColor !== undefined ? this._cellHoverBackgroundColor : this.gridSettings.cellHoverBackgroundColor;
+        }
+    }
     set cellHoverBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._cellHoverBackgroundColor) {
             this.beginChange();
-            this._cellHoverBackgroundColor = value;
+            if (value === undefined) {
+                this._cellHoverBackgroundColor = null;
+            } else {
+                this._cellHoverBackgroundColor = value;
+            }
             this.notifyChangedViewRender();
             this.endChange();
         }
     }
-    get columnHoverBackgroundColor() { return this._columnHoverBackgroundColor; }
+    get columnHoverBackgroundColor() {
+        if (this._columnHoverBackgroundColor === null) {
+            return undefined;
+        } else {
+            return this._columnHoverBackgroundColor !== undefined ? this._columnHoverBackgroundColor : this.gridSettings.columnHoverBackgroundColor;
+        }
+    }
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHoverBackgroundColor) {
             this.beginChange();
-            this._columnHoverBackgroundColor = value;
+            if (value === undefined) {
+                this._columnHoverBackgroundColor = null;
+            } else {
+                this._columnHoverBackgroundColor = value;
+            }
             this.notifyChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderFont() { return this._columnHeaderFont; }
+    get columnHeaderFont() { return this._columnHeaderFont !== undefined ? this._columnHeaderFont : this.gridSettings.columnHeaderFont; }
     set columnHeaderFont(value: string) {
         if (value !== this._columnHeaderFont) {
             this.beginChange();
@@ -76,7 +108,9 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get columnHeaderHorizontalAlign() { return this._columnHeaderHorizontalAlign; }
+    get columnHeaderHorizontalAlign() {
+        return this._columnHeaderHorizontalAlign !== undefined ? this._columnHeaderHorizontalAlign : this.gridSettings.columnHeaderHorizontalAlign;
+    }
     set columnHeaderHorizontalAlign(value: Halign) {
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
@@ -85,7 +119,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get columnHeaderBackgroundColor() { return this._columnHeaderBackgroundColor; }
+    get columnHeaderBackgroundColor() { return this._columnHeaderBackgroundColor !== undefined ? this._columnHeaderBackgroundColor : this.gridSettings.columnHeaderBackgroundColor; }
     set columnHeaderBackgroundColor(value: GridSettings.Color) {
         if (value !== this._columnHeaderBackgroundColor) {
             this.beginChange();
@@ -94,7 +128,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get columnHeaderForegroundColor() { return this._columnHeaderForegroundColor; }
+    get columnHeaderForegroundColor() { return this._columnHeaderForegroundColor !== undefined ? this._columnHeaderForegroundColor : this.gridSettings.columnHeaderForegroundColor; }
     set columnHeaderForegroundColor(value: GridSettings.Color) {
         if (value !== this._columnHeaderForegroundColor) {
             this.beginChange();
@@ -103,7 +137,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get columnHeaderSelectionFont() { return this._columnHeaderSelectionFont; }
+    get columnHeaderSelectionFont() { return this._columnHeaderSelectionFont !== undefined ? this._columnHeaderSelectionFont : this.gridSettings.columnHeaderSelectionFont; }
     set columnHeaderSelectionFont(value: string) {
         if (value !== this._columnHeaderSelectionFont) {
             this.beginChange();
@@ -112,7 +146,9 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get columnHeaderSelectionBackgroundColor() { return this._columnHeaderSelectionBackgroundColor; }
+    get columnHeaderSelectionBackgroundColor() {
+        return this._columnHeaderSelectionBackgroundColor !== undefined ? this._columnHeaderSelectionBackgroundColor : this.gridSettings.columnHeaderSelectionBackgroundColor;
+    }
     set columnHeaderSelectionBackgroundColor(value: GridSettings.Color) {
         if (value !== this._columnHeaderSelectionBackgroundColor) {
             this.beginChange();
@@ -121,7 +157,9 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get columnHeaderSelectionForegroundColor() { return this._columnHeaderSelectionForegroundColor; }
+    get columnHeaderSelectionForegroundColor() {
+        return this._columnHeaderSelectionForegroundColor !== undefined ? this._columnHeaderSelectionForegroundColor : this.gridSettings.columnHeaderSelectionForegroundColor;
+    }
     set columnHeaderSelectionForegroundColor(value: GridSettings.Color) {
         if (value !== this._columnHeaderSelectionForegroundColor) {
             this.beginChange();
@@ -130,43 +168,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get rowHoverBackgroundColor() { return this._rowHoverBackgroundColor; }
-    set rowHoverBackgroundColor(value: GridSettings.Color | undefined) {
-        if (value !== this._rowHoverBackgroundColor) {
-            this.beginChange();
-            this._rowHoverBackgroundColor = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get selectionFont() { return this._selectionFont; }
-    set selectionFont(value: GridSettings.Color) {
-        if (value !== this._selectionFont) {
-            this.beginChange();
-            this._selectionFont = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get selectionBackgroundColor() { return this._selectionBackgroundColor; }
-    set selectionBackgroundColor(value: GridSettings.Color) {
-        if (value !== this._selectionBackgroundColor) {
-            this.beginChange();
-            this._selectionBackgroundColor = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get selectionForegroundColor() { return this._selectionForegroundColor; }
-    set selectionForegroundColor(value: GridSettings.Color) {
-        if (value !== this._selectionForegroundColor) {
-            this.beginChange();
-            this._selectionForegroundColor = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get horizontalAlign() { return this._horizontalAlign; }
+    get horizontalAlign() { return this._horizontalAlign !== undefined ? this._horizontalAlign : this.gridSettings.horizontalAlign; }
     set horizontalAlign(value: Halign) {
         if (value !== this._horizontalAlign) {
             this.beginChange();
@@ -175,7 +177,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get verticalOffset() { return this._verticalOffset; }
+    get verticalOffset() { return this._verticalOffset !== undefined ? this._verticalOffset : this.gridSettings.verticalOffset; }
     set verticalOffset(value: number) {
         if (value !== this._verticalOffset) {
             this.beginChange();
@@ -184,7 +186,7 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get font() { return this._font; }
+    get font() { return this._font !== undefined ? this._font : this.gridSettings.font; }
     set font(value: string) {
         if (value !== this._font) {
             this.beginChange();
@@ -193,16 +195,26 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get textTruncateType() { return this._textTruncateType; }
+    get textTruncateType() {
+        if (this._textTruncateType === null) {
+            return undefined;
+        } else {
+            return this._textTruncateType !== undefined ? this._textTruncateType : this.gridSettings.textTruncateType;
+        }
+    }
     set textTruncateType(value: TextTruncateType | undefined) {
         if (value !== this._textTruncateType) {
             this.beginChange();
-            this._textTruncateType = value;
+            if (value === undefined) {
+                this._textTruncateType = null;
+            } else {
+                this._textTruncateType = value;
+            }
             this.notifyChangedViewRender();
             this.endChange();
         }
     }
-    get textStrikeThrough() { return this._textStrikeThrough; }
+    get textStrikeThrough() { return this._textStrikeThrough !== undefined ? this._textStrikeThrough : this.gridSettings.textStrikeThrough; }
     set textStrikeThrough(value: boolean) {
         if (value !== this._textStrikeThrough) {
             this.beginChange();
@@ -211,25 +223,36 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get editorClickCursorName() { return this._editorClickCursorName; }
+
+    get editorClickCursorName() {
+        if (this._editorClickCursorName === null) {
+            return undefined;
+        } else {
+            return this._editorClickCursorName !== undefined ? this._editorClickCursorName : this.gridSettings.editorClickCursorName;
+        }
+    }
     set editorClickCursorName(value: string | undefined) {
         if (value !== this._editorClickCursorName) {
             this.beginChange();
-            this._editorClickCursorName = value;
+            if (this._editorClickCursorName === undefined) {
+                this._editorClickCursorName = null;
+            } else {
+                this._editorClickCursorName = value;
+            }
             this.notifyChanged(GridSettingChangeInvalidateTypeId.None);
             this.endChange();
         }
     }
 
-    override load(settings: StandardAllGridSettings) {
+    override load(settings: StandardAllColumnSettings) {
         this.beginChange();
 
         super.load(settings);
 
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
-            const gridSettingsKey = key as keyof StandardGridSettings;
-            switch (gridSettingsKey) {
+            const columnSettingsKey = key as keyof StandardColumnSettings;
+            switch (columnSettingsKey) {
                 case 'cellPadding':
                     this._cellPadding = settings.cellPadding;
                     break;
@@ -263,18 +286,6 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
                 case 'columnHeaderSelectionForegroundColor':
                     this._columnHeaderSelectionForegroundColor = settings.columnHeaderSelectionForegroundColor;
                     break;
-                case 'rowHoverBackgroundColor':
-                    this._rowHoverBackgroundColor = settings.rowHoverBackgroundColor;
-                    break;
-                case 'selectionFont':
-                    this._selectionFont = settings.selectionFont;
-                    break;
-                case 'selectionBackgroundColor':
-                    this._selectionBackgroundColor = settings.selectionBackgroundColor;
-                    break;
-                case 'selectionForegroundColor':
-                    this._selectionForegroundColor = settings.selectionForegroundColor;
-                    break;
                 case 'horizontalAlign':
                     this._horizontalAlign = settings.horizontalAlign;
                     break;
@@ -294,12 +305,17 @@ export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGr
                     this._editorClickCursorName = settings.editorClickCursorName;
                     break;
 
-                default: {
-                    gridSettingsKey satisfies never;
-                }
+                default:
+                    columnSettingsKey satisfies never;
             }
         }
 
         this.endChange();
+    }
+
+    override clone() {
+        const copy = new InMemoryStandardBehavioredColumnSettings(this.gridSettings);
+        copy.load(this);
+        return copy;
     }
 }

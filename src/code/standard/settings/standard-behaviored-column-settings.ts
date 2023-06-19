@@ -1,7 +1,9 @@
+import { BehavioredColumnSettings } from '../../grid/grid-public-api';
 import { StandardAllColumnSettings } from './standard-all-column-settings';
-import { StandardColumnSettingsBehavior } from './standard-column-settings-behavior';
 
 /** @public */
-export interface StandardBehavioredColumnSettings extends StandardAllColumnSettings, StandardColumnSettingsBehavior {
+export interface StandardBehavioredColumnSettings extends StandardAllColumnSettings, BehavioredColumnSettings {
+    load(settings: StandardAllColumnSettings): void;
+    clone(): StandardBehavioredColumnSettings;
 }
 

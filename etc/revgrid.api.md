@@ -5,20 +5,66 @@
 ```ts
 
 // @public (undocumented)
+export type AllColumnSettings = ColumnSettings;
+
+// @public (undocumented)
+export type AllGridSettings = GridSettings;
+
+// @public (undocumented)
 export class AssertError extends RevgridError {
     constructor(code: string, message?: string);
 }
 
-// Warning: (ae-forgotten-export) The symbol "AllColumnSettings" needs to be exported by the entry point public-api.d.ts
-//
 // @public (undocumented)
-export interface BehavioredColumnSettings extends AllColumnSettings, ColumnSettingsBehavior {
+export interface BehavioredColumnSettings extends AllColumnSettings, BehavioredSettings {
+    // (undocumented)
+    clone(): BehavioredColumnSettings;
+    // (undocumented)
+    readonly gridSettings: AllGridSettings;
+    // (undocumented)
+    load(settings: AllColumnSettings): void;
 }
 
-// Warning: (ae-forgotten-export) The symbol "AllGridSettings" needs to be exported by the entry point public-api.d.ts
-//
 // @public (undocumented)
-export interface BehavioredGridSettings extends AllGridSettings, GridSettingsBehavior {
+export interface BehavioredGridSettings extends AllGridSettings, BehavioredSettings {
+    // (undocumented)
+    clone(): BehavioredGridSettings;
+    // (undocumented)
+    load(settings: AllGridSettings): void;
+}
+
+// @public (undocumented)
+export interface BehavioredSettings {
+    // (undocumented)
+    beginChange(): void;
+    // (undocumented)
+    endChange(): void;
+    // @internal (undocumented)
+    horizontalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    // @internal (undocumented)
+    resizeEventer: BehavioredSettings.ResizeEventer | undefined;
+    // (undocumented)
+    subscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler): void;
+    // (undocumented)
+    unsubscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler): void;
+    // @internal (undocumented)
+    verticalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    // @internal (undocumented)
+    viewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    // @internal (undocumented)
+    viewRenderInvalidatedEventer: BehavioredSettings.ViewRenderInvalidatedEventer | undefined;
+}
+
+// @public (undocumented)
+export namespace BehavioredSettings {
+    // (undocumented)
+    export type ChangedEventHandler = (this: void) => void;
+    // @internal (undocumented)
+    export type ResizeEventer = (this: void) => void;
+    // @internal (undocumented)
+    export type ViewLayoutInvalidatedEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+    // @internal (undocumented)
+    export type ViewRenderInvalidatedEventer = (this: void) => void;
 }
 
 // @public (undocumented)
@@ -326,15 +372,6 @@ export interface ColumnFieldNameAndAutoSizableWidth {
 
 // @public (undocumented)
 export type ColumnSettings = Pick<GridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
-
-// @public (undocumented)
-export interface ColumnSettingsBehavior extends GridSettingsBehavior {
-    // (undocumented)
-    load(settings: ColumnSettings): void;
-}
-
-// @public (undocumented)
-export const columnSettingsDefaults: Required<ColumnSettings>;
 
 // @public (undocumented)
 export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
@@ -687,6 +724,24 @@ export namespace DataServer {
     // (undocumented)
     export type ViewValue = unknown;
 }
+
+// @public (undocumented)
+export const defaultColumnSettings: ColumnSettings;
+
+// @public (undocumented)
+export const defaultGridSettings: GridSettings;
+
+// @public (undocumented)
+export const defaultStandardAllColumnSettings: StandardAllColumnSettings;
+
+// @public (undocumented)
+export const defaultStandardAllGridSettings: StandardAllGridSettings;
+
+// @public (undocumented)
+export const defaultStandardColumnSettings: StandardColumnSettings;
+
+// @public (undocumented)
+export const defaultStandardGridSettings: StandardGridSettings;
 
 // @public (undocumented)
 export namespace EventDetail {
@@ -1254,45 +1309,6 @@ export namespace GridSettings {
 }
 
 // @public (undocumented)
-export interface GridSettingsBehavior {
-    // (undocumented)
-    beginChange(): void;
-    // (undocumented)
-    endChange(): void;
-    // @internal (undocumented)
-    horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
-    // (undocumented)
-    load(settings: GridSettings): void;
-    // @internal (undocumented)
-    resizeEventer: GridSettingsBehavior.ResizeEventer | undefined;
-    // (undocumented)
-    subscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler): void;
-    // (undocumented)
-    unsubscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler): void;
-    // @internal (undocumented)
-    verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
-    // @internal (undocumented)
-    viewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
-    // @internal (undocumented)
-    viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer | undefined;
-}
-
-// @public (undocumented)
-export namespace GridSettingsBehavior {
-    // (undocumented)
-    export type ChangedEventHandler = (this: void) => void;
-    // @internal (undocumented)
-    export type ResizeEventer = (this: void) => void;
-    // @internal (undocumented)
-    export type ViewLayoutInvalidatedEventer = (this: void, scrollDimensionAsWell: boolean) => void;
-    // @internal (undocumented)
-    export type ViewRenderInvalidatedEventer = (this: void) => void;
-}
-
-// @public (undocumented)
-export const gridSettingsDefaults: Required<GridSettings>;
-
-// @public (undocumented)
 export type Halign = keyof typeof HalignEnum;
 
 // @public (undocumented)
@@ -1427,14 +1443,14 @@ export namespace InexclusiveRectangle {
     export function arrayContainsPoint(rectangles: InexclusiveRectangle[], x: number, y: number): boolean;
 }
 
-// Warning: (ae-forgotten-export) The symbol "InMemoryBehavioredSettings" needs to be exported by the entry point public-api.d.ts
-//
 // @public (undocumented)
 export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings implements BehavioredColumnSettings {
     constructor(gridSettings: AllGridSettings);
     // (undocumented)
     get backgroundColor(): string;
     set backgroundColor(value: string);
+    // (undocumented)
+    clone(): InMemoryBehavioredColumnSettings;
     // (undocumented)
     get color(): string;
     set color(value: string);
@@ -1500,6 +1516,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get backgroundColor(): GridSettings.Color;
     set backgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    clone(): InMemoryBehavioredGridSettings;
     // (undocumented)
     get color(): GridSettings.Color;
     set color(value: GridSettings.Color);
@@ -1645,7 +1663,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get horizontalWheelScrollingAllowed(): HorizontalWheelScrollingAllowed;
     set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed);
     // (undocumented)
-    load(settings: GridSettings): void;
+    load(settings: AllGridSettings): void;
     // (undocumented)
     get maximumColumnWidth(): number | undefined;
     set maximumColumnWidth(value: number | undefined);
@@ -1763,6 +1781,165 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get wheelVFactor(): number;
     set wheelVFactor(value: number);
+}
+
+// @public (undocumented)
+export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
+    // (undocumented)
+    beginChange(): void;
+    // (undocumented)
+    endChange(): void;
+    // @internal (undocumented)
+    horizontalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    // (undocumented)
+    protected notifyChanged(invalidateType: GridSettingChangeInvalidateTypeId): void;
+    // (undocumented)
+    protected notifyChangedViewRender(): void;
+    // @internal (undocumented)
+    resizeEventer: BehavioredSettings.ResizeEventer | undefined;
+    // (undocumented)
+    subscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler): void;
+    // (undocumented)
+    unsubscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler): void;
+    // @internal (undocumented)
+    verticalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    // @internal (undocumented)
+    viewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    // @internal (undocumented)
+    viewRenderInvalidatedEventer: BehavioredSettings.ViewRenderInvalidatedEventer | undefined;
+}
+
+// @public (undocumented)
+export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
+    constructor(gridSettings: StandardAllGridSettings);
+    // (undocumented)
+    get cellFocusedBorderColor(): GridSettings.Color | undefined;
+    set cellFocusedBorderColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get cellHoverBackgroundColor(): GridSettings.Color | undefined;
+    set cellHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get cellPadding(): number;
+    set cellPadding(value: number);
+    // (undocumented)
+    clone(): InMemoryStandardBehavioredColumnSettings;
+    // (undocumented)
+    get columnHeaderBackgroundColor(): GridSettings.Color;
+    set columnHeaderBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderFont(): string;
+    set columnHeaderFont(value: string);
+    // (undocumented)
+    get columnHeaderForegroundColor(): GridSettings.Color;
+    set columnHeaderForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderHorizontalAlign(): Halign;
+    set columnHeaderHorizontalAlign(value: Halign);
+    // (undocumented)
+    get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
+    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderSelectionFont(): string;
+    set columnHeaderSelectionFont(value: string);
+    // (undocumented)
+    get columnHeaderSelectionForegroundColor(): GridSettings.Color;
+    set columnHeaderSelectionForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHoverBackgroundColor(): GridSettings.Color | undefined;
+    set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get editorClickCursorName(): string | undefined;
+    set editorClickCursorName(value: string | undefined);
+    // (undocumented)
+    get font(): string;
+    set font(value: string);
+    // (undocumented)
+    gridSettings: StandardAllGridSettings;
+    // (undocumented)
+    get horizontalAlign(): Halign;
+    set horizontalAlign(value: Halign);
+    // (undocumented)
+    load(settings: StandardAllColumnSettings): void;
+    // (undocumented)
+    get textStrikeThrough(): boolean;
+    set textStrikeThrough(value: boolean);
+    // (undocumented)
+    get textTruncateType(): TextTruncateType | undefined;
+    set textTruncateType(value: TextTruncateType | undefined);
+    // (undocumented)
+    get verticalOffset(): number;
+    set verticalOffset(value: number);
+}
+
+// @public (undocumented)
+export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
+    // (undocumented)
+    get cellFocusedBorderColor(): GridSettings.Color | undefined;
+    set cellFocusedBorderColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get cellHoverBackgroundColor(): GridSettings.Color | undefined;
+    set cellHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get cellPadding(): number;
+    set cellPadding(value: number);
+    // (undocumented)
+    clone(): InMemoryStandardBehavioredGridSettings;
+    // (undocumented)
+    get columnHeaderBackgroundColor(): GridSettings.Color;
+    set columnHeaderBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderFont(): string;
+    set columnHeaderFont(value: string);
+    // (undocumented)
+    get columnHeaderForegroundColor(): GridSettings.Color;
+    set columnHeaderForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderHorizontalAlign(): Halign;
+    set columnHeaderHorizontalAlign(value: Halign);
+    // (undocumented)
+    get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
+    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHeaderSelectionFont(): string;
+    set columnHeaderSelectionFont(value: string);
+    // (undocumented)
+    get columnHeaderSelectionForegroundColor(): GridSettings.Color;
+    set columnHeaderSelectionForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get columnHoverBackgroundColor(): GridSettings.Color | undefined;
+    set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get editorClickCursorName(): string | undefined;
+    set editorClickCursorName(value: string | undefined);
+    // (undocumented)
+    get font(): string;
+    set font(value: string);
+    // (undocumented)
+    get horizontalAlign(): Halign;
+    set horizontalAlign(value: Halign);
+    // (undocumented)
+    load(settings: StandardAllGridSettings): void;
+    // (undocumented)
+    get rowHoverBackgroundColor(): GridSettings.Color | undefined;
+    set rowHoverBackgroundColor(value: GridSettings.Color | undefined);
+    // (undocumented)
+    get selectionBackgroundColor(): GridSettings.Color;
+    set selectionBackgroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get selectionFont(): GridSettings.Color;
+    set selectionFont(value: GridSettings.Color);
+    // (undocumented)
+    get selectionForegroundColor(): GridSettings.Color;
+    set selectionForegroundColor(value: GridSettings.Color);
+    // (undocumented)
+    get textStrikeThrough(): boolean;
+    set textStrikeThrough(value: boolean);
+    // (undocumented)
+    get textTruncateType(): TextTruncateType | undefined;
+    set textTruncateType(value: TextTruncateType | undefined);
+    // (undocumented)
+    get verticalOffset(): number;
+    set verticalOffset(value: number);
 }
 
 // @public (undocumented)
@@ -1998,7 +2175,7 @@ export namespace Point {
 }
 
 // @public (undocumented)
-export const readonlyColumnSettingsBehavior: ColumnSettingsBehavior;
+export const readonlyBehavioredSettings: BehavioredSettings;
 
 // @public (undocumented)
 export const readonlyDefaultBehavioredColumnSettings: BehavioredColumnSettings;
@@ -2007,7 +2184,10 @@ export const readonlyDefaultBehavioredColumnSettings: BehavioredColumnSettings;
 export const readonlyDefaultBehavioredGridSettings: BehavioredGridSettings;
 
 // @public (undocumented)
-export const readonlyGridSettingsBehavior: GridSettingsBehavior;
+export const readonlyDefaultStandardBehavioredColumnSettings: StandardBehavioredColumnSettings;
+
+// @public (undocumented)
+export const readonlyDefaultStandardBehavioredGridSettings: StandardBehavioredGridSettings;
 
 // @public (undocumented)
 export interface Rectangle {
@@ -3183,14 +3363,8 @@ export interface StandardAllColumnSettings extends StandardColumnSettings, Colum
 }
 
 // @public (undocumented)
-export const standardAllColumnSettingsDefaults: StandardAllColumnSettings;
-
-// @public (undocumented)
 export interface StandardAllGridSettings extends StandardGridSettings, GridSettings {
 }
-
-// @public (undocumented)
-export const standardAllGridSettingsDefaults: StandardAllGridSettings;
 
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -3203,11 +3377,19 @@ export class StandardAlphaTextCellPainter<BGS extends StandardBehavioredGridSett
 }
 
 // @public (undocumented)
-export interface StandardBehavioredColumnSettings extends StandardAllColumnSettings, StandardColumnSettingsBehavior {
+export interface StandardBehavioredColumnSettings extends StandardAllColumnSettings, BehavioredColumnSettings {
+    // (undocumented)
+    clone(): StandardBehavioredColumnSettings;
+    // (undocumented)
+    load(settings: StandardAllColumnSettings): void;
 }
 
 // @public (undocumented)
-export interface StandardBehavioredGridSettings extends StandardAllGridSettings, StandardGridSettingsBehavior {
+export interface StandardBehavioredGridSettings extends StandardAllGridSettings, BehavioredGridSettings {
+    // (undocumented)
+    clone(): StandardBehavioredGridSettings;
+    // (undocumented)
+    load(settings: StandardAllGridSettings): void;
 }
 
 // @public
@@ -3338,15 +3520,6 @@ export class StandardColorInputCellEditor<BGS extends StandardBehavioredGridSett
 export type StandardColumnSettings = Pick<StandardGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'horizontalAlign' | 'verticalOffset' | 'font' | 'textTruncateType' | 'textStrikeThrough' | 'editorClickCursorName'>;
 
 // @public (undocumented)
-export interface StandardColumnSettingsBehavior extends ColumnSettingsBehavior {
-    // (undocumented)
-    load(settings: StandardAllColumnSettings): void;
-}
-
-// @public (undocumented)
-export const standardColumnSettingsDefaults: Required<StandardColumnSettings>;
-
-// @public (undocumented)
 export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
@@ -3392,15 +3565,6 @@ export interface StandardGridSettings {
     verticalOffset: number;
 }
 
-// @public (undocumented)
-export interface StandardGridSettingsBehavior extends GridSettingsBehavior {
-    // (undocumented)
-    load(settings: StandardAllGridSettings): void;
-}
-
-// @public (undocumented)
-export const standardGridSettingsDefaults: Required<StandardGridSettings>;
-
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -3411,135 +3575,6 @@ export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSet
     paint(cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
     // (undocumented)
     textWrapping: boolean;
-}
-
-// @public (undocumented)
-export class StandardInMemoryBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
-    constructor(gridSettings: StandardAllGridSettings);
-    // (undocumented)
-    get cellFocusedBorderColor(): GridSettings.Color | undefined;
-    set cellFocusedBorderColor(value: GridSettings.Color | undefined);
-    // (undocumented)
-    get cellHoverBackgroundColor(): GridSettings.Color | undefined;
-    set cellHoverBackgroundColor(value: GridSettings.Color | undefined);
-    // (undocumented)
-    get cellPadding(): number;
-    set cellPadding(value: number);
-    // (undocumented)
-    get columnHeaderBackgroundColor(): GridSettings.Color;
-    set columnHeaderBackgroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderFont(): string;
-    set columnHeaderFont(value: string);
-    // (undocumented)
-    get columnHeaderForegroundColor(): GridSettings.Color;
-    set columnHeaderForegroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderHorizontalAlign(): Halign;
-    set columnHeaderHorizontalAlign(value: Halign);
-    // (undocumented)
-    get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
-    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderSelectionFont(): string;
-    set columnHeaderSelectionFont(value: string);
-    // (undocumented)
-    get columnHeaderSelectionForegroundColor(): GridSettings.Color;
-    set columnHeaderSelectionForegroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHoverBackgroundColor(): GridSettings.Color | undefined;
-    set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
-    // (undocumented)
-    get editorClickCursorName(): string | undefined;
-    set editorClickCursorName(value: string | undefined);
-    // (undocumented)
-    get font(): string;
-    set font(value: string);
-    // (undocumented)
-    gridSettings: StandardAllGridSettings;
-    // (undocumented)
-    get horizontalAlign(): Halign;
-    set horizontalAlign(value: Halign);
-    // (undocumented)
-    load(settings: StandardAllColumnSettings): void;
-    // (undocumented)
-    get textStrikeThrough(): boolean;
-    set textStrikeThrough(value: boolean);
-    // (undocumented)
-    get textTruncateType(): TextTruncateType | undefined;
-    set textTruncateType(value: TextTruncateType | undefined);
-    // (undocumented)
-    get verticalOffset(): number;
-    set verticalOffset(value: number);
-}
-
-// @public (undocumented)
-export class StandardInMemoryBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
-    // (undocumented)
-    get cellFocusedBorderColor(): GridSettings.Color | undefined;
-    set cellFocusedBorderColor(value: GridSettings.Color | undefined);
-    // (undocumented)
-    get cellHoverBackgroundColor(): GridSettings.Color | undefined;
-    set cellHoverBackgroundColor(value: GridSettings.Color | undefined);
-    // (undocumented)
-    get cellPadding(): number;
-    set cellPadding(value: number);
-    // (undocumented)
-    get columnHeaderBackgroundColor(): GridSettings.Color;
-    set columnHeaderBackgroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderFont(): string;
-    set columnHeaderFont(value: string);
-    // (undocumented)
-    get columnHeaderForegroundColor(): GridSettings.Color;
-    set columnHeaderForegroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderHorizontalAlign(): Halign;
-    set columnHeaderHorizontalAlign(value: Halign);
-    // (undocumented)
-    get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
-    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHeaderSelectionFont(): string;
-    set columnHeaderSelectionFont(value: string);
-    // (undocumented)
-    get columnHeaderSelectionForegroundColor(): GridSettings.Color;
-    set columnHeaderSelectionForegroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get columnHoverBackgroundColor(): GridSettings.Color | undefined;
-    set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
-    // (undocumented)
-    get editorClickCursorName(): string | undefined;
-    set editorClickCursorName(value: string | undefined);
-    // (undocumented)
-    get font(): string;
-    set font(value: string);
-    // (undocumented)
-    get horizontalAlign(): Halign;
-    set horizontalAlign(value: Halign);
-    // (undocumented)
-    load(settings: StandardAllGridSettings): void;
-    // (undocumented)
-    get rowHoverBackgroundColor(): GridSettings.Color | undefined;
-    set rowHoverBackgroundColor(value: GridSettings.Color | undefined);
-    // (undocumented)
-    get selectionBackgroundColor(): GridSettings.Color;
-    set selectionBackgroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get selectionFont(): GridSettings.Color;
-    set selectionFont(value: GridSettings.Color);
-    // (undocumented)
-    get selectionForegroundColor(): GridSettings.Color;
-    set selectionForegroundColor(value: GridSettings.Color);
-    // (undocumented)
-    get textStrikeThrough(): boolean;
-    set textStrikeThrough(value: boolean);
-    // (undocumented)
-    get textTruncateType(): TextTruncateType | undefined;
-    set textTruncateType(value: TextTruncateType | undefined);
-    // (undocumented)
-    get verticalOffset(): number;
-    set verticalOffset(value: number);
 }
 
 // @public (undocumented)
@@ -3561,13 +3596,7 @@ export class StandardRangeInputCellEditor<BGS extends StandardBehavioredGridSett
 }
 
 // @public (undocumented)
-export const standardReadonlyDefaultBehavioredColumnSettings: StandardBehavioredColumnSettings;
-
-// @public (undocumented)
-export const standardReadonlyDefaultBehavioredGridSettings: StandardBehavioredGridSettings;
-
-// @public (undocumented)
-export class StandardRevgrid extends Revgrid<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, SchemaField> {
+export class StandardRevgrid extends Revgrid<InMemoryStandardBehavioredGridSettings, InMemoryStandardBehavioredColumnSettings, SchemaField> {
 }
 
 // @public

@@ -1,9 +1,13 @@
 import { BehavioredColumnSettings } from '../../grid/grid-public-api';
-import { columnSettingsDefaults } from '../defaults/settings-implementations-defaults-public-api';
-import { readonlyGridSettingsBehavior } from './readonly-grid-settings-behavior';
+import { defaultColumnSettings, defaultGridSettings } from '../default/settings-implementations-default-public-api';
+import { readonlyBehavioredSettings } from './readonly-behaviored-settings';
 
 /** @public */
 export const readonlyDefaultBehavioredColumnSettings: BehavioredColumnSettings = {
-    ...columnSettingsDefaults,
-    ...readonlyGridSettingsBehavior,
+    gridSettings: defaultGridSettings,
+    ...defaultColumnSettings,
+    ...readonlyBehavioredSettings,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    load: () => {},
+    clone: () => { return readonlyDefaultBehavioredColumnSettings; }
 }

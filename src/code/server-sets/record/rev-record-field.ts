@@ -6,7 +6,6 @@ import { RevRecord } from './rev-record';
  */
 export interface RevRecordField<BCS extends BehavioredColumnSettings> extends SchemaField {
     readonly name: string;
-    readonly columnSettings: BCS;
 
     /** Retrieves the value of a field for display purposes */
     getViewValue(record: RevRecord): DataServer.ViewValue;

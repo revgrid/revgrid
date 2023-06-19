@@ -3,7 +3,7 @@
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/standard-settings-implementations-defaults.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/standard-settings-implementations-default.tsbuildinfo"
   },
 
   "include": [

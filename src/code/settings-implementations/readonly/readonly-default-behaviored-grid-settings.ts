@@ -1,9 +1,12 @@
 import { BehavioredGridSettings } from '../../grid/grid-public-api';
-import { gridSettingsDefaults } from '../defaults/settings-implementations-defaults-public-api';
-import { readonlyGridSettingsBehavior } from './readonly-grid-settings-behavior';
+import { defaultGridSettings } from '../default/settings-implementations-default-public-api';
+import { readonlyBehavioredSettings } from './readonly-behaviored-settings';
 
 /** @public */
 export const readonlyDefaultBehavioredGridSettings: BehavioredGridSettings = {
-    ...gridSettingsDefaults,
-    ...readonlyGridSettingsBehavior,
+    ...defaultGridSettings,
+    ...readonlyBehavioredSettings,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    load: () => {},
+    clone: () => { return readonlyDefaultBehavioredGridSettings; }
 }

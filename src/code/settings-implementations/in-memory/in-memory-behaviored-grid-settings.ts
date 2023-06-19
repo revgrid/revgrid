@@ -1,4 +1,5 @@
 import {
+    AllGridSettings,
     BehavioredGridSettings,
     GridSettingChangeInvalidateTypeId,
     GridSettings,
@@ -1004,7 +1005,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         }
     }
 
-    load(settings: GridSettings) {
+    load(settings: AllGridSettings) {
         this.beginChange();
 
         for (const key in settings) {
@@ -1291,5 +1292,11 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         this.notifyChanged(GridSettingChangeInvalidateTypeId.Resize);
 
         this.endChange();
+    }
+
+    clone() {
+        const copy = new InMemoryBehavioredGridSettings();
+        copy.load(this);
+        return copy;
     }
 }
