@@ -82,3 +82,4 @@ There are many excellent alternative JavaScript grid libraries (both paid and fr
  Version | Details
 ---------|---------
  0.1.13  | A major rewrite of this library.  Substantial changes to API.
+ 0.1.14  | Fix dev dependency issue
