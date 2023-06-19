@@ -37,7 +37,7 @@ import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /** @internal */
-export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     private readonly _uiBehaviorFactory = new UiBehaviorFactory<BGS, BCS, SF>();
     private readonly _uiBehaviorMap = new Map<string, UiBehavior<BGS, BCS, SF>>();
     private readonly _sharedState: UiBehaviorSharedState; // Will be initialised in constructor

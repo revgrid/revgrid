@@ -14,13 +14,13 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
     private readonly _fieldValueDependsOnRecordIndexFieldIndexes: RevRecordFieldIndex[] = [];
     private readonly _fieldValueDependsOnRowIndexFieldIndexes: RevRecordFieldIndex[] = [];
 
-    private _notificationClient: SchemaServer.NotificationsClient<SF>;
+    private _notificationClient: SchemaServer.NotificationsClient<BCS, SF>;
 
     get schema(): readonly SF[] { return this._fields; }
     get fields(): readonly SF[] { return this._fields; }
     get fieldCount(): number { return this._fields.length; }
 
-    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<SF>): void {
+    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<BCS, SF>): void {
         this._notificationClient = value;
     }
 

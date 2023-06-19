@@ -9,7 +9,7 @@ import { AssertError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
 import { SelectionAreaType } from '../../types-utils/types';
 
-export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     constructor(
         private readonly _gridSettings: BGS,
         private readonly _selection: Selection<BGS, BCS, SF>,
@@ -168,6 +168,6 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
 export namespace FocusSelectBehavior {
     export type CheckFocusEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField
+        SF extends SchemaField<BCS>
     > = (this: void, activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) => void;
 }

@@ -5,14 +5,14 @@ import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from
 export abstract class StandardCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
+    SF extends SchemaField<BCS>
 > implements CellPainter<BCS, SF> {
     protected readonly _gridSettings: BGS;
     protected readonly _renderingContext: CachedCanvasRenderingContext2D;
 
     constructor(
         protected readonly _grid: Revgrid<BGS, BCS, SF>,
-        protected readonly _dataServer: DataServer<SF>,
+        protected readonly _dataServer: DataServer<BCS, SF>,
     ) {
         const grid = this._grid;
         this._gridSettings = grid.settings;

@@ -6,9 +6,9 @@ import { StandardInputElementCellEditor } from './standard-input-element-cell-ed
 export class StandardColorInputCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
+    SF extends SchemaField<BCS>
 > extends StandardInputElementCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<BCS, SF>) {
         super(grid, dataServer, 'color');
         this.element.classList.add('revgrid-color-input-editor');
     }

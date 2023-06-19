@@ -2,17 +2,17 @@ import { AssertError, BehavioredColumnSettings, SchemaServer } from '../../grid/
 import { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
 
 /** @public */
-export class RevDataRowArraySchemaServer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaField> implements SchemaServer<BCS, SF> {
+export class RevDataRowArraySchemaServer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaField<BCS>> implements SchemaServer<BCS, SF> {
     getFieldColumnSettingsEventer: RevDataRowArraySchemaServer.GetFieldColumnSettingsEventer<BCS, SF>;
 
-    private _schemaCallbackListeners: SchemaServer.NotificationsClient<SF>[] = [];
+    private _schemaCallbackListeners: SchemaServer.NotificationsClient<BCS, SF>[] = [];
     private _fields = new Array<SF>();
 
-    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>) {
+    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<BCS, SF>) {
         this._schemaCallbackListeners.push(listener)
     }
 
-    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>) {
+    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<BCS, SF>) {
         const idx = this._schemaCallbackListeners.findIndex((element) => element === listener);
         if (idx < 0) {
             throw new AssertError('LMDMRSCL91364', 'LocalMainSchemaModel: SchemaCallbackListener not found');
@@ -47,5 +47,5 @@ export class RevDataRowArraySchemaServer<BCS extends BehavioredColumnSettings, S
 
 /** @public */
 export namespace RevDataRowArraySchemaServer {
-    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaField> = (this: void, field: SF) => BCS;
+    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaField<BCS>> = (this: void, field: SF) => BCS;
 }

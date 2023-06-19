@@ -4,7 +4,7 @@ import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from
 export abstract class StandardCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
+    SF extends SchemaField<BCS>
 > implements CellEditor<BCS, SF> {
     pullValueEventer: CellEditor.PullDataEventer;
     pushValueEventer: CellEditor.PushDataEventer;
@@ -14,7 +14,7 @@ export abstract class StandardCellEditor<
 
     constructor(
         protected readonly _grid: Revgrid<BGS, BCS, SF>,
-        protected readonly _dataServer: DataServer<SF>,
+        protected readonly _dataServer: DataServer<BCS, SF>,
     ) {
     }
 

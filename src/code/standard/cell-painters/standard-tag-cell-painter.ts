@@ -7,7 +7,7 @@ import { StandardCellPainter } from './standard-cell-painter';
 export class StandardTagCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
+    SF extends SchemaField<BCS>
 > extends StandardCellPainter<BGS, BCS, SF> {
 
     override paint(_cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {

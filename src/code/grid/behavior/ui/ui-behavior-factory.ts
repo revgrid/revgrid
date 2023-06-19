@@ -7,7 +7,7 @@ import { UiBehavior } from './ui-behavior';
 import { UiBehaviorServices } from './ui-behavior-services';
 
 /** @internal */
-export class UiBehaviorFactory<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class UiBehaviorFactory<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     private readonly _registry = new Registry<UiBehavior.Constructor<BGS, BCS, SF>>;
 
     registerDefinition(typeName: string, constructor: UiBehavior.Constructor<BGS, BCS, SF>) {

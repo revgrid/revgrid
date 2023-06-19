@@ -1,5 +1,6 @@
 import { Rectangle } from '../../types-utils/rectangle';
 import { SchemaField } from '../schema/schema-field';
+import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 // import { Hypergrid } from '../Hypergrid';
 
 /**
@@ -10,7 +11,7 @@ import { SchemaField } from '../schema/schema-field';
  */
 
  /** @public */
-export interface DataServer<SF extends SchemaField> {
+export interface DataServer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     /**
      * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link DataServer#dispatchEvent dispatchEvent}, {@link DataServer#removeListener removeListener}, and {@link DataServer#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
@@ -155,7 +156,7 @@ export namespace DataServer {
     export type ArrayViewRow = ViewValue[];
     export type ViewRow = ArrayViewRow | ObjectViewRow;
 
-    export type Constructor<SF extends SchemaField> = new () => DataServer<SF>;
+    export type Constructor<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = new () => DataServer<BCS, SF>;
 
     /**
      * Besides `type`, your event object can contain other event details.

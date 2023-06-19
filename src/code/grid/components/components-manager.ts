@@ -15,7 +15,7 @@ import { SubgridsManager } from './subgrid/subgrids-manager';
 import { ViewLayout } from './view/view-layout';
 
 /** @internal */
-export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly canvasManager: CanvasManager<BGS>;
     readonly focus: Focus<BGS, BCS, SF>;
     readonly selection: Selection<BGS, BCS, SF>;

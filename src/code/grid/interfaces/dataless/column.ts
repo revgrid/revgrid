@@ -3,7 +3,7 @@ import { BehavioredColumnSettings } from '../settings/behaviored-column-settings
 import { ColumnSettings } from '../settings/column-settings';
 
 /** @public */
-export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly field: SF;
     readonly settings: BCS;
 
@@ -20,7 +20,7 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaF
 }
 
 /** @public */
-export interface ColumnAutoSizeableWidth<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export interface ColumnAutoSizeableWidth<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     column: Column<BCS, SF>;
     width: number | undefined;
 }

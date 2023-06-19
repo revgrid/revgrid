@@ -33,7 +33,7 @@ import { GridPainter } from './grid-painter';
  * Note that text never overflows to left because text starting point is never < 0. The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.
  */
 
-export class ByColumnsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends GridPainter<BGS, BCS, SF> {
+export class ByColumnsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends GridPainter<BGS, BCS, SF> {
     constructor(
         gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,

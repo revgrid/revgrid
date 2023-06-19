@@ -4,7 +4,7 @@ import { RevRecord } from './rev-record';
 /** Provides access to a field
  * @public
  */
-export interface RevRecordField<BCS extends BehavioredColumnSettings> extends SchemaField {
+export interface RevRecordField<BCS extends BehavioredColumnSettings> extends SchemaField<BCS> {
     readonly name: string;
 
     /** Retrieves the value of a field for display purposes */

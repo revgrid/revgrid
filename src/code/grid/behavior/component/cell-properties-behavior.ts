@@ -13,7 +13,7 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { CellMetaSettingsImplementation } from '../../settings/cell-meta-settings-implementation';
 
-export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     constructor(
         private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
         private readonly _subgridsManger: SubgridsManager<BGS, BCS, SF>,
@@ -260,11 +260,11 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
 export namespace CellPropertiesBehavior {
     export type GetRowMetadataEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField
+        SF extends SchemaField<BCS>
     > = (this: void, rowIndex: number, subgrid: Subgrid<BCS, SF>) => MetaModel.RowMetadata | undefined;
     export type SetRowMetadataEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField
+        SF extends SchemaField<BCS>
     > = (this: void, rowIndex: number, subgrid: Subgrid<BCS, SF>) => void;
 
 }

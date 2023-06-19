@@ -18,7 +18,7 @@ interface Action {
 }
 
 /** @internal */
-interface MoveAction<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Action {
+interface MoveAction<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
     source: ViewLayoutColumn<BCS, SF>;
@@ -26,7 +26,7 @@ interface MoveAction<BCS extends BehavioredColumnSettings, SF extends SchemaFiel
 }
 
 /** @internal */
-interface ScrollAction<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Action {
+interface ScrollAction<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends Action {
     type: DragActionType.Scroll;
     toRight: boolean;
     mouseOffGrid: boolean; // only considers left and right off grid
@@ -39,10 +39,10 @@ interface NoAction extends Action {
 }
 
 /** @internal */
-type ColumnDragAction<BCS extends BehavioredColumnSettings, SF extends SchemaField> = MoveAction<BCS, SF> | ScrollAction<BCS, SF> | NoAction
+type ColumnDragAction<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = MoveAction<BCS, SF> | ScrollAction<BCS, SF> | NoAction
 
 /** @internal */
-export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
     readonly typeName = ColumnMovingUiBehavior.typeName;
 
     private _dragOverlay: HTMLCanvasElement | undefined;

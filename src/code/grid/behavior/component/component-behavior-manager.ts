@@ -39,7 +39,7 @@ import { ServerNotificationBehavior } from './server-notification-behavior';
  * @abstract
  */
 /** @internal */
-export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
     readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
     readonly eventBehavior: EventBehavior<BGS, BCS, SF>;

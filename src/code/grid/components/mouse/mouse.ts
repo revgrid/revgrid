@@ -8,7 +8,7 @@ import { CanvasManager } from '../canvas/canvas-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     /** @internal */
     cellEnteredEventer: Mouse.CellEnteredExitedEventer<BCS, SF>;
     /** @internal */
@@ -215,8 +215,8 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 /** @public */
 export namespace Mouse {
     /** @internal */
-    export type CellEnteredExitedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
-    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
+    export type CellEnteredExitedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, cell: ViewCell<BCS, SF>) => void;
+    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, cell: ViewCell<BCS, SF>) => void;
 
     /** @internal */
     export interface CursorNameAndTitleText {

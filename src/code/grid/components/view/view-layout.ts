@@ -47,7 +47,7 @@ import { ViewCellImplementation } from './view-cell-implementation';
  * Same parameters as {@link ViewLayout#initialize|initialize}, which is called by this constructor.
  *
  */
-export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     /** @internal */
     layoutInvalidatedEventer: ViewLayout.LayoutInvalidatedEventer;
     /** @internal */
@@ -2335,7 +2335,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 }
 
 export namespace ViewLayout {
-    export type GetRowHeightEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, y: number, subgrid: Subgrid<BCS, SF> | undefined) => number;
+    export type GetRowHeightEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, y: number, subgrid: Subgrid<BCS, SF> | undefined) => number;
     export type CheckNeedsShapeChangedEventer = (this: void) => void;
     export type LayoutInvalidatedEventer = (this: void, action: InvalidateAction) => void;
     export type ColumnsViewWidthsChangedEventer = (this: void) => void;
@@ -2352,7 +2352,7 @@ export namespace ViewLayout {
         RowColumn,
     }
 
-    export class ViewLayoutColumnArray<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Array<ViewLayoutColumn<BCS, SF>> {
+    export class ViewLayoutColumnArray<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends Array<ViewLayoutColumn<BCS, SF>> {
         gap: ViewLayoutColumnArray.Gap | undefined;
     }
 
@@ -2363,7 +2363,7 @@ export namespace ViewLayout {
         }
     }
 
-    export class ViewLayoutRowArray<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Array<ViewLayoutRow<BCS, SF>> {
+    export class ViewLayoutRowArray<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends Array<ViewLayoutRow<BCS, SF>> {
         gap: ViewLayoutRowArray.Gap | undefined;
     }
 

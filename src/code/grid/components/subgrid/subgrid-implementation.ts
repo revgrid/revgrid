@@ -13,7 +13,7 @@ import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements Subgrid<BCS, SF> {
+export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> implements Subgrid<BCS, SF> {
     readonly isMain: boolean = false;
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
@@ -44,7 +44,7 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
         public readonly handle: SubgridImplementation.Handle,
         public readonly role: Subgrid.Role,
         public readonly schemaServer: SchemaServer<BCS, SF>,
-        public readonly dataServer: DataServer<SF>,
+        public readonly dataServer: DataServer<BCS, SF>,
         public readonly metaModel: MetaModel | undefined,
         public readonly selectable: boolean,
         public readonly defaultRowHeight: number | undefined,
@@ -521,13 +521,13 @@ export namespace SubgridImplementation {
     export type Handle = number;
 
     /** @internal */
-    export class ViewDataRowProxy<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    export class ViewDataRowProxy<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
         [fieldName: string]: DataServer.ViewValue;
 
         ____rowIndex: number;
         ____fieldNames: string[] = [];
 
-        constructor(readonly schemaServer: SchemaServer<BCS, SF>, readonly dataServer: DataServer<SF>) {
+        constructor(readonly schemaServer: SchemaServer<BCS, SF>, readonly dataServer: DataServer<BCS, SF>) {
             this.updateSchema(); // is this necessary? If we do not always get the "rev-schema-loaded" event then it is necessary
         }
 

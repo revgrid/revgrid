@@ -36,7 +36,7 @@ import { GridPainter } from './grid-painter';
  * @this {ViewLayout}
  * @param {CanvasManager.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
-export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends GridPainter<BGS, BCS, SF> {
+export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends GridPainter<BGS, BCS, SF> {
     // private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
     constructor(

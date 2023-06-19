@@ -9,7 +9,7 @@ import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-err
 import { SelectionAreaType } from '../../types-utils/types';
 
 /** @public */
-export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     constructor(
         private readonly _selection: Selection<BGS, BCS, SF>,
         private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,

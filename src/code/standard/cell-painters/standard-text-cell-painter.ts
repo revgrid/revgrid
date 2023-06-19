@@ -6,7 +6,7 @@ import { StandardCellPainter } from './standard-cell-painter';
 export abstract class StandardTextCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
+    SF extends SchemaField<BCS>
 > extends StandardCellPainter<BGS, BCS, SF> {
     protected _columnSettings: BCS;
 

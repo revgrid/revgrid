@@ -10,12 +10,12 @@ import { StandardCellPainter } from './standard-cell-painter';
 export class StandardCheckboxCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
+    SF extends SchemaField<BCS>
 > extends StandardCellPainter<BGS, BCS, SF> {
 
     constructor(
         grid: Revgrid<BGS, BCS, SF>,
-        dataServer: DataServer<SF>,
+        dataServer: DataServer<BCS, SF>,
         private readonly _editable: boolean,
     ) {
         super(grid, dataServer);
