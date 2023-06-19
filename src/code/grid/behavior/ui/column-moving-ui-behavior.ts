@@ -228,7 +228,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
         switch (dragAction.type) {
             case DragActionType.Scroll:
                 if (this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid) {
-                    this.columnsManager.hideActiveColumn(dragAction.source.activeColumnIndex);
+                    this.columnsManager.hideActiveColumn(dragAction.source.activeColumnIndex, true);
                 }
                 break;
             case DragActionType.Move:

@@ -498,19 +498,19 @@ export namespace CachedCanvasRenderingContext2D {
                 this.values.imageSmoothingEnabled = value;
             }
         }
-        // get lineCap() {
-        //     let value = this.values.lineCap;
-        //     if (value === undefined) {
-        //         value = this.values.lineCap = this._canvasRenderingContext2D.lineCap;
-        //     }
-        //     return value;
-        // }
-        // set lineCap(value: string) {
-        //     if (value !== this.lineCap) {
-        //         this._canvasRenderingContext2D.lineCap = value;
-        //         this.values.lineCap = value;
-        //     }
-        // }
+        get lineCap() {
+            let value = this.values.lineCap;
+            if (value === undefined) {
+                value = this.values.lineCap = this._canvasRenderingContext2D.lineCap;
+            }
+            return value;
+        }
+        set lineCap(value: CanvasLineCap) {
+            if (value !== this.lineCap) {
+                this._canvasRenderingContext2D.lineCap = value;
+                this.values.lineCap = value;
+            }
+        }
         get lineDashOffset() {
             let value = this.values.lineDashOffset;
             if (value === undefined) {
@@ -524,19 +524,19 @@ export namespace CachedCanvasRenderingContext2D {
                 this.values.lineDashOffset = value;
             }
         }
-        // get lineJoin() {
-        //     let value = this.values.lineJoin;
-        //     if (value === undefined) {
-        //         value = this.values.lineJoin = this._canvasRenderingContext2D.lineJoin;
-        //     }
-        //     return value;
-        // }
-        // set lineJoin(value: string) {
-        //     if (value !== this.lineJoin) {
-        //         this._canvasRenderingContext2D.lineJoin = value;
-        //         this.values.lineJoin = value;
-        //     }
-        // }
+        get lineJoin() {
+            let value = this.values.lineJoin;
+            if (value === undefined) {
+                value = this.values.lineJoin = this._canvasRenderingContext2D.lineJoin;
+            }
+            return value;
+        }
+        set lineJoin(value: CanvasLineJoin) {
+            if (value !== this.lineJoin) {
+                this._canvasRenderingContext2D.lineJoin = value;
+                this.values.lineJoin = value;
+            }
+        }
         get lineWidth() {
             let value = this.values.lineWidth;
             if (value === undefined) {
@@ -724,9 +724,9 @@ export namespace CachedCanvasRenderingContext2D {
             globalAlpha: number | undefined;
             globalCompositeOperation: GlobalCompositeOperation | undefined;
             imageSmoothingEnabled: boolean | undefined;
-            // lineCap: string;
+            lineCap: CanvasLineCap;
             lineDashOffset: number | undefined;
-            // lineJoin: string;
+            lineJoin: CanvasLineJoin;
             lineWidth: number | undefined;
             miterLimit: number | undefined;
             // mozImageSmoothingEnabled: boolean;

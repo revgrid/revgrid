@@ -674,29 +674,66 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      *
      * This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted in which case it will be allColumnIndexes
      *
-     * @param referenceIndex - Insertion point, _i.e.,_ the element to insert before. A negative values skips the reinsert. Default is to insert new columns at end of active column list.
+     * @param insertIndex - Insertion point, _i.e.,_ the element to insert before. A negative values skips the reinsert. Default is to insert new columns at end of active column list.
      *
      * _Promoted left one arg position when `isActiveColumnIndexes` omitted._
      *
      * @param allowDuplicateColumns - Unless true, already visible columns are removed first.
      *
      * _Promoted left one arg position when `isActiveColumnIndexes` omitted + one position when `referenceIndex` omitted._
-     *
-     * @internal
      */
-    showColumns(columnIndexes: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
-    showColumns(isActiveColumnIndexes: boolean, columnIndexes?: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
-    showColumns(
-        columnIndexesOrIsActiveColumnIndexes: boolean | number | number[],
-        referenceIndexOrColumnIndexes?: number | number[],
-        allowDuplicateColumnsOrReferenceIndex?: boolean | number,
-        allowDuplicateColumns = false
+    showHideColumns(
+        /** A column index or array of field indices which are to be shown or hidden */
+        fieldColumnIndexes: number | number[],
+        /** Set to undefined to add new active columns at end of list.  Set to -1 to hide specified columns */
+        insertIndex?: number,
+        /** If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false */
+        allowDuplicateColumns?: boolean,
+        /** Whether this was instigated by a UI action. Default: true */
+        ui?: boolean): void;
+    showHideColumns(
+        /** If true, then column indices specify active column indices.  Otherwise field column indices */
+        indexesAreActive: boolean,
+        /** A column index or array of indices.  If undefined then all of the columns as per isActiveColumnIndexes */
+        columnIndexes?: number | number[],
+        /** Set to undefined to add new active columns at end of list.  Set to -1 to hide specified columns */
+        insertIndex?: number,
+        /** If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false */
+        allowDuplicateColumns?: boolean,
+        /** Whether this was instigated by a UI action. Default: true */
+        ui?: boolean,
+    ): void;
+    showHideColumns(
+        fieldColumnIndexesOrIndexesAreActive: boolean | number | number[],
+        insertIndexOrColumnIndexes?: number | number[],
+        allowDuplicateColumnsOrInsertIndex?: boolean | number,
+        uiOrAllowDuplicateColumns?: boolean,
+        ui = true
     ): void {
-        this._columnsManager.showColumns(columnIndexesOrIsActiveColumnIndexes, referenceIndexOrColumnIndexes, allowDuplicateColumnsOrReferenceIndex, allowDuplicateColumns);
+        let indexesAreActive: boolean;
+        let columnIndexOrIndices: number | number[] | undefined;
+        let insertIndex: number | undefined;
+        let allowDuplicateColumns: boolean;
+
+        // Promote args when indexesAreActive omitted
+        if (typeof fieldColumnIndexesOrIndexesAreActive === 'number' || Array.isArray(fieldColumnIndexesOrIndexesAreActive)) {
+            indexesAreActive = false;
+            columnIndexOrIndices = fieldColumnIndexesOrIndexesAreActive;
+            insertIndex = insertIndexOrColumnIndexes as number | undefined;
+            allowDuplicateColumns = allowDuplicateColumnsOrInsertIndex as boolean;
+            ui = uiOrAllowDuplicateColumns ?? true;
+        } else {
+            indexesAreActive = fieldColumnIndexesOrIndexesAreActive;
+            columnIndexOrIndices = insertIndexOrColumnIndexes;
+            insertIndex = allowDuplicateColumnsOrInsertIndex as number | undefined;
+            allowDuplicateColumns = uiOrAllowDuplicateColumns ?? false;
+        }
+
+        this._columnsManager.showHideColumns(indexesAreActive, columnIndexOrIndices, insertIndex, allowDuplicateColumns, ui);
     }
 
-    hideActiveColumn(activeColumnIndex: number) {
-        this._columnsManager.hideActiveColumn(activeColumnIndex);
+    hideActiveColumn(activeColumnIndex: number, ui = true) {
+        this._columnsManager.hideActiveColumn(activeColumnIndex, ui);
     }
 
     clearColumns() {
@@ -1253,7 +1290,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell<BCS, SF>) {
+    protected descendantProcessColumnSort(_event: MouseEvent, _headerOrFixedRowCell: ViewCell<BCS, SF>) {
         // for descendants
     }
 
@@ -1870,7 +1907,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
             columnsViewWidthsChanged: () => this.descendantProcessColumnsViewWidthsChanged(),
-            columnSort: (event, cell) => this.descendantProcessColumnSort(event, cell),
+            columnSort: (event, headerOrFixedRowCell) => this.descendantProcessColumnSort(event, headerOrFixedRowCell),
             cellFocusChanged: (newPoint, oldPoint) => this.descendantProcessCellFocusChanged(newPoint, oldPoint),
             selectionChanged: () => this.descendantProcessSelectionChanged(),
             focus: () => this.descendantEventerFocus(),

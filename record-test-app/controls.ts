@@ -1,7 +1,7 @@
-import { RevRecordMainDataServer, RevRecordSchemaServer, StandardBehavioredColumnSettings } from '..';
+import { Column, RevRecordMainDataServer, RevRecordSchemaServer, StandardBehavioredColumnSettings } from '..';
 import { appAllGridSettingsDefaults } from './app-all-grid-settings-defaults';
 import { AppInMemoryBehavioredGridSettings } from './app-in-memory-behaviored-grid-settings';
-import { GridField, StrValGridField } from './grid-field';
+import { GridField, IntValGridField, RecordIndexGridField, StrValGridField } from './grid-field';
 import { RecordGrid } from './record-grid';
 import { RecordStore } from './record-store';
 
@@ -49,6 +49,8 @@ export class Controls {
         private readonly _recordStore: RecordStore,
         private readonly _schemaServer: RevRecordSchemaServer<StandardBehavioredColumnSettings, GridField>,
         private readonly _mainDataServer: RevRecordMainDataServer<StandardBehavioredColumnSettings, GridField>,
+        private readonly _recordIndexGridField: RecordIndexGridField,
+        private readonly _intValGridField: IntValGridField,
         private readonly _strValGridField: StrValGridField,
         private readonly _debugEnabled: boolean,
     ) {
@@ -373,7 +375,7 @@ export class Controls {
         this._gridRightAlignedCheckboxElement.checked = this._settings.gridRightAligned;
 
         this._grid.resizedEventer = () => this.handleGridResized();
-        this._grid.columnWidthChangedEventer = () => this.handleColumnWidthChanged();
+        this._grid.columnsWidthChangedEventer = (columns) => this.handleColumnsWidthChanged(columns);
         this._grid.renderedEventer = () => this.handleGridRendered();
 
         // do we need to wait for this? Do we even need it with rightToLeftColumns?
@@ -447,7 +449,7 @@ export class Controls {
         this._activeWidthSpanElement.textContent = this._grid.calculateActiveColumnsWidth().toString();
     }
 
-    private handleColumnWidthChanged(/*index: number*/): void {
+    private handleColumnsWidthChanged(_columns: Column<StandardBehavioredColumnSettings, GridField>[]): void {
         this._activeWidthSpanElement.textContent = this._grid.calculateActiveColumnsWidth().toString();
     }
 
@@ -544,7 +546,7 @@ export class Controls {
 
     private handleUiHideStringFieldChange() {
         const visible = !this._hideStringFieldCheckboxElement.checked;
-        this._grid.setFieldVisible(this._strValGridField, visible);
+        this._grid.showHideColumns(false, this._strValGridField.index, visible ? undefined : -1);
     }
 
     // private handleUiVertScrollbarWidthChange() {
@@ -826,16 +828,20 @@ export class Controls {
         if (fieldCount > 0 && this._recordStore.recordCount > 0) {
             let fieldIdx = Math.floor(Math.random() * fieldCount);
 
-            if (this._grid.isRecordIndexGridFieldIndex(fieldIdx)) {
+            let field = this._schemaServer.fields[fieldIdx];
+
+            if (field === this._recordIndexGridField) {
                 fieldIdx += 2;
             }
 
+            field = this._schemaServer.fields[fieldIdx];
+
             // fieldIdx = this._grid.getFieldIndex(DataStore.intValGridField); // for testing
 
-            const recIdx = Math.floor(Math.random() * this._recordStore.recordCount);
-            this.modifyValue(fieldIdx, recIdx);
+            const recordIndex = Math.floor(Math.random() * this._recordStore.recordCount);
+            this.modifyValue(field, recordIndex);
 
-            this._modifyValuePosSpanElement.textContent = `${this._grid.getField(fieldIdx).name}, ${recIdx}`;
+            this._modifyValuePosSpanElement.textContent = `${field.name}, ${recordIndex}`;
         }
     }
 
@@ -859,22 +865,26 @@ export class Controls {
         this._recordStore.endChange();
     }
 
-    private modifyValue(fieldIndex: number, recIdx: number) {
+    private modifyValue(field: GridField, recordIndex: number) {
         if (this._debugEnabled) {
-            console.debug(`ModifyValue: ${fieldIndex}, ${recIdx}, ${this._recordStore.recordCount}`);
+            console.debug(`ModifyValue: ${field.name}, ${recordIndex}, ${this._recordStore.recordCount}`);
         }
-        const record = this._recordStore.getRecord(recIdx);
-        const field = this._grid.getField(fieldIndex);
+        const record = this._recordStore.getRecord(recordIndex);
 
         const valueRecentChangeTypeId = field.modifyValue(record);
 
-        const focusPoint = this._grid.focus.currentSubgridPoint;
-        if (valueRecentChangeTypeId !== undefined && focusPoint !== undefined) {
-            if (this._grid.isIntValGridField(field) && recIdx === focusPoint.y) {
-                this.updateCaptionValue(recIdx);
+        if (valueRecentChangeTypeId !== undefined) {
+            if (field === this._intValGridField) {
+                const focusPoint = this._grid.focus.current;
+                if (focusPoint !== undefined) {
+                    const focusRecordIndex = this._mainDataServer.getRecordIndexFromRowIndex(focusPoint.y);
+                    if (recordIndex === focusRecordIndex) {
+                        this.updateCaptionValue(recordIndex);
+                    }
+                }
             }
 
-            this._recordStore.invalidateValue(fieldIndex, recIdx, valueRecentChangeTypeId);
+            this._recordStore.invalidateValue(field.index, recordIndex, valueRecentChangeTypeId);
         }
     }
 

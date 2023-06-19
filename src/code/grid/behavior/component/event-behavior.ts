@@ -148,12 +148,12 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    processColumnSortEvent(event: MouseEvent, cell: ViewCell<BCS, SF>) {
-        this._descendantEventer.columnSort(event, cell);
+    processColumnSortEvent(event: MouseEvent, headerOrFixedRowCell: ViewCell<BCS, SF>) {
+        this._descendantEventer.columnSort(event, headerOrFixedRowCell);
 
         if (this._dispatchEnabled) {
             const hoverCell: LinedHoverCell<BCS, SF> = {
-                viewCell: cell,
+                viewCell: headerOrFixedRowCell,
                 mouseOverLeftLine: false,
                 mouseOverTopLine: false,
             }
@@ -593,7 +593,7 @@ export namespace EventBehavior {
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
         readonly columnsWidthChanged: (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: DescendantEventer.Signal;
-        readonly columnSort: (this: void, event: MouseEvent, cell: ViewCell<BCS, SF>) => void;
+        readonly columnSort: (this: void, event: MouseEvent, headerOrFixedRowCell: ViewCell<BCS, SF>) => void;
         readonly cellFocusChanged: DescendantEventer.CellFocusChanged;
         readonly selectionChanged: DescendantEventer.Signal;
         readonly focus: DescendantEventer.Focus;

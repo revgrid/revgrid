@@ -243,10 +243,19 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF ex
         return this._recordRowMap.getRecordIndexFromRowIndex(rowIndex);
     }
 
-    // Do NOT implement getRow for now. That way all requests for data go through getValue
-    // Implement it when RevRecordDataStore is implemented
-    // getRow(rowIndex: number): GridDataRow {
-    //     return this._rows[rowIndex].Data;
+    getRecordRecentChangeTypeId(rowIndex: number) {
+        if (this._rowOrderReversed) {
+            rowIndex = this.reverseRowIndex(rowIndex);
+        }
+        return this._recentChanges.getRecordRecentChangeTypeId(rowIndex);
+    }
+
+    // Should be ok to uncomment getViewRow() below.  Test.
+    // getViewRow(rowIndex: number): DataServer.ViewRow {
+    //     if (this._rowOrderReversed) {
+    //         rowIndex = this.reverseRowIndex(rowIndex);
+    //     }
+    //     return this._rows[rowIndex];
     // }
 
     getRowIndexFromRecordIndex(recordIndex: RevRecordIndex): number | undefined {
@@ -264,6 +273,13 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF ex
 
     getSortSpecifier(index: number): RevRecordMainDataServer.SortFieldSpecifier {
         return this._sortFieldSpecifiers[index];
+    }
+
+    getValueRecentChangeTypeId(field: SF, rowIndex: number) {
+        if (this._rowOrderReversed) {
+            rowIndex = this.reverseRowIndex(rowIndex);
+        }
+        return this._recentChanges.getValueRecentChangeTypeId(field.index, rowIndex);
     }
 
     invalidateAll(): void {

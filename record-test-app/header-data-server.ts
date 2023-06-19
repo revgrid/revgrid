@@ -1,4 +1,4 @@
-import { RevRecordHeaderDataServer, StandardBehavioredColumnSettings } from '../dist/types/public-api';
+import { RevRecordHeaderDataServer, StandardBehavioredColumnSettings } from '..';
 import { GridField } from './grid-field';
 
 export class HeaderDataServer extends RevRecordHeaderDataServer<StandardBehavioredColumnSettings, GridField> {

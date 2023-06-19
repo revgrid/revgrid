@@ -14,14 +14,14 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
     private readonly _fieldValueDependsOnRecordIndexFieldIndexes: RevRecordFieldIndex[] = [];
     private readonly _fieldValueDependsOnRowIndexFieldIndexes: RevRecordFieldIndex[] = [];
 
-    private _callbackListener: SchemaServer.NotificationsClient<SF>;
+    private _notificationClient: SchemaServer.NotificationsClient<SF>;
 
     get schema(): readonly SF[] { return this._fields; }
     get fields(): readonly SF[] { return this._fields; }
     get fieldCount(): number { return this._fields.length; }
 
     subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<SF>): void {
-        this._callbackListener = value;
+        this._notificationClient = value;
     }
 
     addField(field: SF): SF {
@@ -99,15 +99,15 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
     }
 
     beginChange(): void {
-        this._callbackListener.beginChange();
+        this._notificationClient.beginChange();
     }
 
     endChange(): void {
-        this._callbackListener.endChange();
+        this._notificationClient.endChange();
     }
 
     getActiveSchemaColumns(): readonly SF[] {
-        return this._callbackListener.getActiveSchemaFields();
+        return this._notificationClient.getActiveSchemaFields();
     }
 
     getColumnCount(): number {
@@ -189,7 +189,7 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
         this._fieldValueDependsOnRecordIndexFieldIndexes.length = 0;
         this._fieldValueDependsOnRowIndexFieldIndexes.length = 0;
         this._fields.length = 0;
-        this._callbackListener.allFieldsDeleted();
+        this._notificationClient.allFieldsDeleted();
     }
 
     private internalAddField(
@@ -215,9 +215,7 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
             }
         }
 
-        this._fields.push(field);
-
-        this._callbackListener.fieldsInserted(fieldIndex, 1);
+        this._notificationClient.fieldsInserted(fieldIndex, 1);
 
         if (notifyFieldListChange && this.fieldListChangedEventer !== undefined) {
             this.fieldListChangedEventer(ListChangedTypeId.Insert, fieldIndex, 1, undefined);

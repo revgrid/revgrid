@@ -161,14 +161,13 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             this.resetAllCellPaintFingerprints();
             this.invalidateAll(true);
         }
-        this._columnsManager.activeColumnWidthOrOrderChangedEventer = () => this.invalidateHorizontalAll(true)
+        this._columnsManager.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell);
         this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvasManager, this._columnsManager);
         this._horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
         this._verticalScrollDimension = new VerticalScrollDimension(this._gridSettings, this._canvasManager, this._subgridsManager);
         this._verticalScrollDimension.computedEventer = (withinAnimationFrame: boolean) => this.handleVerticalScrollDimensionComputedEvent(withinAnimationFrame);
 
         this._dummyUnusedColumn = this._columnsManager.createDummyColumn();
-        this._columnsManager.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell);
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
         this.reset();
     }

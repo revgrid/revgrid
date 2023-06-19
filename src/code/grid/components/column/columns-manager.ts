@@ -10,9 +10,6 @@ import { ColumnImplementation } from './column-implementation';
 /** @public */
 export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
     /** @internal */
-    activeColumnWidthOrOrderChangedEventer: ColumnsManager.ActiveColumnWidthOrOrderChangedEventer;
-
-    /** @internal */
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
     fieldColumnListChangedEventer: ListChangedEventer;
@@ -177,7 +174,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         return new ColumnImplementation(
             field,
             columnSettings,
-            (column, ui) => this.columnsWidthChangedEventer([column], ui),
+            (column, ui) => this.notifyColumnsWidthChanged([column], ui),
             () => this.invalidateHorizontalViewLayoutEventer(true),
         );
     }
@@ -207,8 +204,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             }
         }
 
-        this.invalidateHorizontalViewLayoutEventer(true);
-        this.activeColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined, false);
+        this.notifyActiveColumnListChanged(ListChangedTypeId.Set, 0, count, undefined, false);
         this.fieldColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined);
     }
 
@@ -288,7 +284,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             return false;
         } else {
             changedColumns.length = changedColumnsCount;
-            this.columnsWidthChangedEventer(changedColumns, ui);
+            this.notifyColumnsWidthChanged(changedColumns, ui);
             return true;
         }
     }
@@ -316,7 +312,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             return false;
         } else {
             changedColumns.length = changedColumnsCount;
-            this.columnsWidthChangedEventer(changedColumns, ui);
+            this.notifyColumnsWidthChanged(changedColumns, ui);
             return true;
         }
     }
@@ -344,11 +340,11 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             }
         }
 
-        this.activeColumnListChangedEventer(ListChangedTypeId.Set, 0, newActiveColumnCount, undefined, ui);
+        this.notifyActiveColumnListChanged(ListChangedTypeId.Set, 0, newActiveColumnCount, undefined, ui);
 
         if (changedColumnsCount > 0) {
             changedColumns.length = changedColumnsCount;
-            this.columnsWidthChangedEventer(changedColumns, ui);
+            this.notifyColumnsWidthChanged(changedColumns, ui);
         }
     }
 
@@ -406,30 +402,20 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         // }
     }
 
-    showColumns(
-        allColumnIndexesOrIsActiveColumnIndexes: boolean | number | number[],
-        referenceIndexOrColumnIndexes?: number | number[],
-        allowDuplicateColumnsOrReferenceIndex?: boolean | number,
-        allowDuplicateColumns = false
+    showHideColumns(
+        /** If true, then column indices specify active column indices.  Otherwise field column indices */
+        indexesAreActive: boolean,
+        /** A column index or array of indices.  If undefined then all of the columns as per isActiveColumnIndexes */
+        columnIndexOrIndices: number | number[] | undefined,
+        /** Set to undefined to add new active columns at end of list.  Set to -1 to hide specified columns */
+        insertIndex: number | undefined,
+        /** If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present */
+        allowDuplicateColumns: boolean,
+        /** Whether this was instigated by a UI action */
+        ui: boolean,
     ): void {
-        let isActiveColumnIndexes: boolean;
-        let columnIndexOrIndices: number | number[] | undefined;
-        let referenceIndex: number;
-
-        // Promote args when isActiveColumnIndexes omitted
-        if (typeof allColumnIndexesOrIsActiveColumnIndexes === 'number' || Array.isArray(allColumnIndexesOrIsActiveColumnIndexes)) {
-            isActiveColumnIndexes = false;
-            columnIndexOrIndices = allColumnIndexesOrIsActiveColumnIndexes;
-            referenceIndex = referenceIndexOrColumnIndexes as number;
-            allowDuplicateColumns = allowDuplicateColumnsOrReferenceIndex as boolean;
-        } else {
-            isActiveColumnIndexes = allColumnIndexesOrIsActiveColumnIndexes;
-            columnIndexOrIndices = referenceIndexOrColumnIndexes;
-            referenceIndex = allowDuplicateColumnsOrReferenceIndex as number;
-        }
-
         const activeColumns = this._activeColumns;
-        const sourceColumnList = isActiveColumnIndexes ? activeColumns : this._fieldColumns;
+        const sourceColumnList = indexesAreActive ? activeColumns : this._fieldColumns;
 
         let newColumns: Column<BCS, SF>[];
         if (columnIndexOrIndices === undefined) {
@@ -438,50 +424,49 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
             const columnIndexes = (typeof columnIndexOrIndices === 'number') ? [columnIndexOrIndices] : columnIndexOrIndices;
             newColumns = columnIndexes
                 .map((index) => sourceColumnList[index]) // Look up columns using provided indexes
-                .filter(column => column); // Remove any undefined columns
+                .filter(column => column !== undefined); // Remove any undefined columns
 
         }
 
         // Default insertion point is end (i.e., before (last+1)th element)
-        if (referenceIndex === undefined) {
-            referenceIndex = activeColumns.length;
+        if (insertIndex === undefined) {
+            insertIndex = activeColumns.length;
         }
+
+        let changed = false;
 
         // Remove already visible columns and adjust insertion point
         if (!allowDuplicateColumns) {
-            newColumns.forEach(
-                (column) => {
-                    const i = activeColumns.indexOf(column);
-                    if (i >= 0) {
-                        activeColumns.splice(i, 1);
-                        if (referenceIndex > i) {
-                            --referenceIndex;
-                        }
+            for (const newColumn of newColumns) {
+                const i = activeColumns.indexOf(newColumn);
+                if (i >= 0) {
+                    activeColumns.splice(i, 1);
+                    if (insertIndex > i) {
+                        --insertIndex;
                     }
+                    changed = true;
                 }
-            );
+            }
         }
 
         // Insert the new columns at the insertion point
-        if (referenceIndex >= 0) {
-            activeColumns.splice(referenceIndex, 0, ...newColumns);
+        if (insertIndex >= 0) {
+            activeColumns.splice(insertIndex, 0, ...newColumns);
+            changed = true;
+        }
+
+        if (changed) {
+            this.notifyActiveColumnListChanged(ListChangedTypeId.Set, 0, activeColumns.length, undefined, ui);
         }
     }
 
-    /**
-     * @summary Hide active column(s).
-     * @desc Removes one or several columns from the "active" column list.
-     * @param allColumnIndexes - Column index(es) to be removed. The columns are specified by the column index (not active index).
-     * @internal
-     */
-    hideColumns(allColumnIndexes: number | number[]) {
-        this.showColumns(allColumnIndexes, -1);
+    hideColumns(indexesAreActive: boolean, columnIndexOrIndices: number | number[] | undefined, ui: boolean) {
+        this.showHideColumns(indexesAreActive, columnIndexOrIndices, -1, false, ui);
     }
 
-    /** @internal */
-    hideActiveColumn(columnIndex: number) {
-        this._activeColumns.splice(columnIndex, 1);
-        this.activeColumnWidthOrOrderChangedEventer();
+    hideActiveColumn(activeColumnIndex: number, ui: boolean) {
+        this._activeColumns.splice(activeColumnIndex, 1);
+        this.notifyActiveColumnListChanged(ListChangedTypeId.Remove, activeColumnIndex, 1, undefined, ui)
     }
 
     /** @internal */
@@ -563,7 +548,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         }
         this.moveActive(columns, sourceIndex, targetIndex, ui);
 
-        this.activeColumnWidthOrOrderChangedEventer();
+        this.notifyActiveColumnListChanged(ListChangedTypeId.Move, sourceIndex, 1, targetIndex, ui);
     }
 
     /** @internal */
@@ -579,7 +564,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         }
         this.moveActive(columns, sourceIndex, targetIndex + 1, ui);
 
-        this.activeColumnWidthOrOrderChangedEventer();
+        this.notifyActiveColumnListChanged(ListChangedTypeId.Move, sourceIndex, 1, targetIndex + 1, ui);
     }
 
     /** @internal */
@@ -587,7 +572,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         const old = arr[oldIndex];
         arr.splice(oldIndex, 1);
         arr.splice(newIndex > oldIndex ? newIndex - 1 : newIndex, 0, old);
-        this.activeColumnListChangedEventer(ListChangedTypeId.Move, oldIndex, 1, newIndex, ui);
+        this.notifyActiveColumnListChanged(ListChangedTypeId.Move, oldIndex, 1, newIndex, ui);
         return arr;
     }
 
@@ -642,12 +627,21 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         });
         return hidden;
     }
+
+    private notifyActiveColumnListChanged(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
+        this.activeColumnListChangedEventer(typeId, index, count, targetIndex, ui);
+        this.invalidateHorizontalViewLayoutEventer(true);
+    }
+
+    private notifyColumnsWidthChanged(columns: Column<BCS, SF>[], ui: boolean) {
+        this.columnsWidthChangedEventer(columns, ui);
+        this.invalidateHorizontalViewLayoutEventer(true);
+    }
 }
 
 /** @public */
 export namespace ColumnsManager {
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
-    export type ActiveColumnWidthOrOrderChangedEventer = (this: void) => void;
     export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;

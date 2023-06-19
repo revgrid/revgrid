@@ -1,4 +1,4 @@
-import { standardAllGridSettingsDefaults } from '../dist/types/public-api';
+import { standardAllGridSettingsDefaults } from '..';
 import { AppAllGridSettings } from './app-all-grid-settings';
 import { appGridSettingsDefaults } from './app-grid-settings-defaults';
 

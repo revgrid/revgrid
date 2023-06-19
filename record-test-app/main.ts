@@ -2,6 +2,7 @@ import {
     CellEditor,
     DatalessSubgrid,
     DatalessViewCell,
+    Point,
     RevRecordMainDataServer,
     RevRecordSchemaServer,
     Revgrid,
@@ -65,27 +66,41 @@ export class Main {
 
         const initialSettings: AppAllGridSettings = {
             ...appAllGridSettingsDefaults,
-            horizontalGridLinesEnabled: false,
+            // horizontalGridLinesEnabled: true,
             fixedColumnCount: 1,
-        }
+
+            font: 'Tahoma, Geneva, sans-serif 13px',
+            columnHeaderFont: 'Tahoma, Geneva, sans-serif 12px',
+
+            backgroundColor: backgroundColor,
+            color: foregroundColor,
+
+            columnHeaderBackgroundColor: columnHeaderBackgroundColor,
+            columnHeaderForegroundColor: columnHeaderForegroundColor,
+            selectionForegroundColor: backgroundColor,
+            selectionBackgroundColor: foregroundColor,
+            selectionRegionOutlineColor: '#D3D3D1',
+            verticalGridLinesColor: '#595959',
+            horizontalGridLinesColor: '#595959',
+            alternateBackgroundColor: '#2b2b2b',
+            grayedOutForegroundColor: '#595959',
+            focusedRowBackgroundColor: '#6e6835',
+            focusedRowBorderColor: '#C8B900',
+
+            valueRecentlyModifiedBorderColor: '#8C5F46',
+            valueRecentlyModifiedUpBorderColor: '#4646FF',
+            valueRecentlyModifiedDownBorderColor: '#64FA64',
+            recordRecentlyUpdatedBorderColor: 'orange',
+            recordRecentlyInsertedBorderColor: 'pink',
+        };
         this._gridSettings.load(initialSettings);
 
         this._recordStore = new RecordStore();
-
 
         this._schemaServer = new RevRecordSchemaServer<StandardBehavioredColumnSettings, GridField>();
         this._mainDataServer = new RevRecordMainDataServer<StandardBehavioredColumnSettings, GridField>(this._schemaServer, this._recordStore);
         this._headerDataServer = new HeaderDataServer();
 
-        this._schemaServer.addFields([
-            this._recordIndexGridField,
-            this._hiddenStrValGridField,
-            this._intValGridField,
-            this._strValGridField,
-            this._numberValGridField,
-            this._dateValGridField,
-            this._statusIdValGridField,
-        ]);
 
         const definition: Revgrid.Definition<StandardBehavioredColumnSettings, GridField> = {
             schemaServer: this._schemaServer,
@@ -113,17 +128,37 @@ export class Main {
         grid.focusChangedEventer = (newPoint, oldPoint) => this.handleFocusChanged(newPoint, oldPoint)
         grid.cellClickEventer = (cell) => this.handleCellFocusClick(cell);
         grid.cellDblClickEventer = (cell) => this.handleRecordFocusDblClick(cell);
+        grid.columnSortEventer = (headerOrFixedRowCell) => this.handleColumnSort(headerOrFixedRowCell);
 
         this._controls = new Controls(
             grid,
             this._gridSettings,
             this._recordStore,
             this._schemaServer,
+            this._mainDataServer,
+            this._recordIndexGridField,
+            this._intValGridField,
             this._strValGridField,
             this._debugEnabled
         );
 
+        grid.allowEvents(true);
+
+        this._schemaServer.addFields([
+            this._recordIndexGridField,
+            this._hiddenStrValGridField,
+            this._intValGridField,
+            this._strValGridField,
+            this._numberValGridField,
+            this._dateValGridField,
+            this._statusIdValGridField,
+        ]);
+
         // grid.canvas.canvas.addEventListener('mousemove', this._ctrlKeyMousemoveListener);
+    }
+
+    start(): void {
+        // no code needed
     }
 
     // private numberToPixels(value: number): string {
@@ -230,7 +265,9 @@ export class Main {
     }
 
     private handleFocusChanged(newPoint: Point | undefined, oldPoint: Point | undefined): void {
-        console.log(`Focus for Record: New: ${newPoint} Old: ${oldPoint}`);
+        const newText = newPoint === undefined ? '()' : `(${newPoint.x}, ${newPoint.y})`;
+        const oldText = oldPoint === undefined ? '()' : `(${oldPoint.x}, ${oldPoint.y})`;
+        console.log(`Focus for Record: New: ${newText} Old: ${oldText}`);
     }
 
     private handleCellFocusClick(cell: ViewCell<StandardBehavioredColumnSettings, GridField>): void {
@@ -257,6 +294,10 @@ export class Main {
                 throw new Error('Double click in unknown subgrid');
             }
         }
+    }
+
+    private handleColumnSort(headerOrFixedRowCell: ViewCell<StandardBehavioredColumnSettings, GridField>) {
+        this._mainDataServer.sortBy(headerOrFixedRowCell.viewLayoutColumn.column.field.index);
     }
 }
 
@@ -341,3 +382,9 @@ export class Main {
 
 //     colorMap,
 // }
+
+const backgroundColor = '#212121';
+const foregroundColor = '#f9f0f0';
+const columnHeaderBackgroundColor = '#626262';
+const columnHeaderForegroundColor = 'white';
+

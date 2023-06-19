@@ -41,7 +41,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
         return this.setWidthAndPossiblyNotify(width, ui, true);
     }
 
-    setWidthAndPossiblyNotify(width: number, ui: boolean, notify: boolean) {
+    setWidthAndPossiblyNotify(width: number, ui: boolean, notifyWidthChange: boolean) {
         let changed: boolean;
 
         width = Math.ceil(Math.min(Math.max(this._settings.minimumColumnWidth, width), this._settings.maximumColumnWidth ?? Infinity));
@@ -54,9 +54,10 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
         }
 
         if (changed) {
-            this._horizontalViewLayoutInvalidatedEventer();
-            if (notify) {
+            if (notifyWidthChange) {
                 this._widthChangedEventer(this, ui);
+            } else {
+                this._horizontalViewLayoutInvalidatedEventer();
             }
         }
 

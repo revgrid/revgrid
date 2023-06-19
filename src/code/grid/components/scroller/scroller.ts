@@ -201,6 +201,8 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         bar.addEventListener('click', this._barClickListener);
         bar.appendChild(thumb);
 
+        this.setAfterInsideOffset(0);
+
         this.applySettings();
 
         this._containerHtmlElement.addEventListener('wheel', this._containerWheelListener);

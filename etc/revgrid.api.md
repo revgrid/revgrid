@@ -121,11 +121,17 @@ export namespace CachedCanvasRenderingContext2D {
         get imageSmoothingEnabled(): boolean;
         set imageSmoothingEnabled(value: boolean);
         // (undocumented)
+        get lineCap(): CanvasLineCap;
+        set lineCap(value: CanvasLineCap);
+        // (undocumented)
         get lineDash(): number[];
         set lineDash(value: number[]);
         // (undocumented)
         get lineDashOffset(): number;
         set lineDashOffset(value: number);
+        // (undocumented)
+        get lineJoin(): CanvasLineJoin;
+        set lineJoin(value: CanvasLineJoin);
         // (undocumented)
         get lineWidth(): number;
         set lineWidth(value: number);
@@ -179,9 +185,13 @@ export namespace CachedCanvasRenderingContext2D {
             // (undocumented)
             imageSmoothingEnabled: boolean | undefined;
             // (undocumented)
+            lineCap: CanvasLineCap;
+            // (undocumented)
             lineDash: number[];
             // (undocumented)
             lineDashOffset: number | undefined;
+            // (undocumented)
+            lineJoin: CanvasLineJoin;
             // (undocumented)
             lineWidth: number | undefined;
             // (undocumented)
@@ -337,8 +347,6 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     // @internal (undocumented)
     get activeColumns(): readonly Column<BCS, SF>[];
     // @internal (undocumented)
-    activeColumnWidthOrOrderChangedEventer: ColumnsManager.ActiveColumnWidthOrOrderChangedEventer;
-    // @internal (undocumented)
     addBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener): void;
     // @internal (undocumented)
     allSchemaColumnsDeleted(): void;
@@ -390,13 +398,10 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     getHiddenColumns(): Column<BCS, SF>[];
     // @internal (undocumented)
     getSchema(): readonly SF[];
-    // @internal (undocumented)
-    hideActiveColumn(columnIndex: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
-    // @internal
-    hideColumns(allColumnIndexes: number | number[]): void;
+    // (undocumented)
+    hideActiveColumn(activeColumnIndex: number, ui: boolean): void;
+    // (undocumented)
+    hideColumns(indexesAreActive: boolean, columnIndexOrIndices: number | number[] | undefined, ui: boolean): void;
     // @internal (undocumented)
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     // (undocumented)
@@ -442,7 +447,12 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     // @internal (undocumented)
     setColumnWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndAutoSizableWidth[], ui: boolean): boolean;
     // (undocumented)
-    showColumns(allColumnIndexesOrIsActiveColumnIndexes: boolean | number | number[], referenceIndexOrColumnIndexes?: number | number[], allowDuplicateColumnsOrReferenceIndex?: boolean | number, allowDuplicateColumns?: boolean): void;
+    showHideColumns(
+    indexesAreActive: boolean,
+    columnIndexOrIndices: number | number[] | undefined,
+    insertIndex: number | undefined,
+    allowDuplicateColumns: boolean,
+    ui: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     //
     // @internal
@@ -451,8 +461,6 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
 // @public (undocumented)
 export namespace ColumnsManager {
-    // (undocumented)
-    export type ActiveColumnWidthOrOrderChangedEventer = (this: void) => void;
     // (undocumented)
     export type BeforeCreateColumnsListener = (this: void) => void;
     // (undocumented)
@@ -2336,7 +2344,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessClick(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS, SF> | null | undefined): void;
     // (undocumented)
-    protected descendantProcessColumnSort(_event: MouseEvent, _cell: ViewCell<BCS, SF>): void;
+    protected descendantProcessColumnSort(_event: MouseEvent, _headerOrFixedRowCell: ViewCell<BCS, SF>): void;
     // (undocumented)
     protected descendantProcessColumnsViewWidthsChanged(): void;
     // (undocumented)
@@ -2491,7 +2499,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     hasFocus(): boolean;
     // (undocumented)
-    hideActiveColumn(activeColumnIndex: number): void;
+    hideActiveColumn(activeColumnIndex: number, ui?: boolean): void;
     // (undocumented)
     isColumnOrRowSelected(): boolean;
     // (undocumented)
@@ -2598,11 +2606,18 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     setValue(x: number, y: number, value: number, subgrid?: Subgrid<BCS, SF>): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
-    // @internal
-    showColumns(columnIndexes: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
+    showHideColumns(
+    fieldColumnIndexes: number | number[],
+    insertIndex?: number,
+    allowDuplicateColumns?: boolean,
+    ui?: boolean): void;
     // (undocumented)
-    showColumns(isActiveColumnIndexes: boolean, columnIndexes?: number | number[], referenceIndex?: number, allowDuplicateColumns?: boolean): void;
+    showHideColumns(
+    indexesAreActive: boolean,
+    columnIndexes?: number | number[],
+    insertIndex?: number,
+    allowDuplicateColumns?: boolean,
+    ui?: boolean): void;
     // (undocumented)
     swapColumns(source: number, target: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2804,6 +2819,8 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF ex
     // (undocumented)
     getRecordIndexFromRowIndex(rowIndex: number): RevRecordIndex;
     // (undocumented)
+    getRecordRecentChangeTypeId(rowIndex: number): RevRecordRecentChangeTypeId | undefined;
+    // (undocumented)
     getRowCount(): number;
     // (undocumented)
     getRowIdFromIndex(rowIndex: number): unknown;
@@ -2813,6 +2830,8 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF ex
     getRowIndexFromRecordIndex(recordIndex: RevRecordIndex): number | undefined;
     // (undocumented)
     getSortSpecifier(index: number): RevRecordMainDataServer.SortFieldSpecifier;
+    // (undocumented)
+    getValueRecentChangeTypeId(field: SF, rowIndex: number): RevRecordValueRecentChangeTypeId | undefined;
     // (undocumented)
     getViewValue(field: SF, rowIndex: number): DataServer.ViewValue;
     // (undocumented)
