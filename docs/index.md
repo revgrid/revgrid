@@ -2,13 +2,24 @@
 
 Welcome to the Revgrid website
 
-Revgrid is a canvas based virtual grid focusing on realtime data display and performance. Data is injected into the grid using adapters built on schema/data interfaces.
+Revgrid is a canvas based virtual grid focusing on realtime data display and performance. Data is injected into the grid using server interfaces.
 
-It is a TypeScript port of [Fin Hypergrid Core](https://github.com/fin-hypergrid/core) (actually a port of the [EclipseTrading](https://github.com/EclipseTrading/hypergrid) fork of Hypergrid core). The port incorporated many of the specialised npm packages used by Hypergrid. Revgrid itself has no runtime dependencies.
+Its main features are:
 
-To use Revgrid, you first need to create a set of adapters (implementations of the model interfaces) in order to display data with Revgrid. The test programs in the source code demonstrate how to create adapters. In addition, the Revgrid source code contains 2 pre-built adapter sets:
-* **Simple**: A full data set is injected into Revgrid with a `setData()` function.
-* **Record**: Allows applications to work with records and fields and converts these to rows and columns. Sorting and filtering of rows is fully handled by the adapter set. In addition, the adapter set allows recent changes in records and field values to be highlighed in the grid.
+* Speed
+* Virtual (supporting display of very large data sets)
+* Multiple selections (rectangle, row and column)
+* Focus
+* Smooth horizontal scrolling
+* Multiple subgrids (header, main, footer)
+* Fixed rows and columns
+* Plug in cell painters
+* Plug in cell editors
+* Plug in UI controllers
+
+To use Revgrid, you first need to create a set of servers (implementations of the schema and server interfaces) in order to display data with Revgrid. The test programs in the source code demonstrate how to create these servers. In addition, the Revgrid source code contains 2 pre-built server sets:
+* **Data Row Array**: A data set consisting of an array of JSON objects is injected into Revgrid with a `setData()` function.
+* **Record**: Allows applications to work with records and fields and converts these to rows and columns. Sorting and filtering of rows is fully handled by the server set. In addition, the server set allows recent changes in records and field values to be highlighted in the grid.
 
 # Install Library
 Revgrid is shipped via NPM. Use the following commands to install it into an application package:\
@@ -33,8 +44,8 @@ Note that the `lib` subfolder only holds the TypeScript declaration files genera
 
 Revgrid has 3 test applications which can be easily built to see it in action:
 * **testapp**: Test application for the grid.
-* **simpletestapp**: Test application for the simple adapter set.
-* **recordtestapp**: Test application for the record adapter set.
+* **simpletestapp**: Test application for the simple server set.
+* **recordtestapp**: Test application for the record server set.
 
 Follow the steps below to build and run these applications:
 1. Install the source as described above.
@@ -54,12 +65,6 @@ Many aspects of the code base still need to be cleaned up.  As part of this, it 
 
 We will endeavour to document these API changes however this will probably only consist of dot points. You may need to examine the Revgrid source code to fully understand the implications of these API changes.
 
-# More information
-Currently there is no further direct information describing Revgrid.  However much of the Hypergrid documentation is relevant.  Some links are:
-* [https://github.com/fin-hypergrid/core](https://github.com/fin-hypergrid/core)
-* [https://fin-hypergrid.github.io/core/doc/index.html](https://fin-hypergrid.github.io/core/doc/index.html)
-* [https://fin-hypergrid.github.io/](https://fin-hypergrid.github.io/)
-
 # Should you use Revgrid?
 Revgrid is open source and used in at least one production application. However please consider the following before using it:
 * There is little documentation describing covering how it works and how it should be used.
@@ -71,3 +76,9 @@ Revgrid is open source and used in at least one production application. However 
 If you do intend to use it, it is recommended you have the skills to develop an understanding of the library based on the code base and existing available documentation. Also that you have sufficient development skills to be able to fix issues in the library yourself. (Pull Requests fixing issues will obviously be appreciated.)
 
 There are many excellent alternative JavaScript grid libraries (both paid and free) to consider if the above does not align with your grid library needs and expectations.
+
+# Release information
+
+ Version | Details
+---------|---------
+ 0.1.13  | A major rewrite of this library.  Substantial changes to API.

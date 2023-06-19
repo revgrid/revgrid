@@ -2,9 +2,20 @@
 
 [![NPM version](https://img.shields.io/npm/v/revgrid)](https://www.npmjs.com/package/revgrid) [![License](https://img.shields.io/github/license/revgrid/revgrid)](https://img.shields.io/github/license/revgrid/revgrid)
 
-Revgrid is a canvas based virtual grid focusing on realtime data display and performance. Data is injected into the grid using adapters built on schema/data interfaces.
+Revgrid is a canvas based virtual grid focusing on realtime data display and performance. Data is injected into the grid using server interfaces.
 
-This grid is a TypeScript port of [Fin Hypergrid Core](https://github.com/fin-hypergrid/core) however with signifcant changes to the design and data model interface.
+Its main features are:
+
+* Speed
+* Virtual (supporting display of very large data sets)
+* Multiple selections (rectangle, row and column)
+* Focus
+* Smooth horizontal scrolling
+* Multiple subgrids (header, main, footer)
+* Fixed rows and columns
+* Plug in cell painters
+* Plug in cell editors
+* Plug in UI controllers
 
 Note that it is necessary to create a set of adapters in order to display data with Revgrid. The library contains 2 pre-built adapter sets and the test programs also demonstrate how to create adapters.
 
