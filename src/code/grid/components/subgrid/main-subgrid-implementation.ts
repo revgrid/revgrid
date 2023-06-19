@@ -1,5 +1,5 @@
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { SubgridImplementation } from './subgrid-implementation';
@@ -8,7 +8,7 @@ import { SubgridImplementation } from './subgrid-implementation';
 export class MainSubgridImplementation<
     BGS extends BehavioredGridSettings,
     BCS extends BehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField
 > extends SubgridImplementation<BGS, BCS, SF> implements MainSubgrid<BCS, SF> {
     override get fixedRowCount() { return this._gridSettings.fixedRowCount; }
 

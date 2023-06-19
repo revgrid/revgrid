@@ -1,5 +1,5 @@
 
-import { DatalessViewCell, Rectangle, SchemaServer } from '../../grid/grid-public-api';
+import { DatalessViewCell, Rectangle, SchemaField } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -10,7 +10,7 @@ import { StandardCellPainter } from './standard-cell-painter';
 export class StandardSparkBarCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField
 > extends StandardCellPainter<BGS, BCS, SF> {
     config: StandardSparkBarCellPainter.Config;
 

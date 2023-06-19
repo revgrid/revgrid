@@ -1,12 +1,12 @@
 // import { Column } from '../../interfaces/data/column';
 import { DataServer } from '../../interfaces/data/data-server';
-import { Column } from '../../interfaces/schema/column';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { Column } from '../../interfaces/dataless/column';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 
 /** @internal */
-export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> implements Column<BCS, SF> {
+export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements Column<BCS, SF> {
     readonly field: SF;
 
     preferredWidth: number | undefined;
@@ -145,6 +145,6 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
 }
 
 export namespace ColumnImplementation {
-    export type WidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, column: ColumnImplementation<BCS, SF>, ui: boolean) => void;
+    export type WidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, column: ColumnImplementation<BCS, SF>, ui: boolean) => void;
     export type HorizontalViewLayoutInvalidatedEventer = (this: void) => void;
 }

@@ -1,13 +1,13 @@
 import { DatalessViewCell } from '../dataless/dataless-view-cell';
-import { SchemaServer } from '../schema/schema-server';
-import { ViewLayoutColumn } from '../schema/view-layout-column';
+import { ViewLayoutColumn } from '../dataless/view-layout-column';
+import { SchemaField } from '../schema/schema-field';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { DataServer } from './data-server';
 import { Subgrid } from './subgrid';
 import { ViewLayoutRow } from './view-layout-row';
 
 /** @public */
-export interface ViewCell<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends DatalessViewCell<BCS, SF> {
+export interface ViewCell<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends DatalessViewCell<BCS, SF> {
     readonly subgrid: Subgrid<BCS, SF>;
     readonly viewLayoutColumn: ViewLayoutColumn<BCS, SF>;
     readonly viewLayoutRow: ViewLayoutRow<BCS, SF>;

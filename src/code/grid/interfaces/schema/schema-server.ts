@@ -1,7 +1,8 @@
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { SchemaField } from './schema-field';
 
 /** @public */
-export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<SF>): void;
     unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<SF>): void;
 
@@ -16,12 +17,7 @@ export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends S
 
 /** @public */
 export namespace SchemaServer {
-    export interface Field {
-        name: string;
-        index: number;
-    }
-
-    export interface NotificationsClient<SF extends SchemaServer.Field> {
+    export interface NotificationsClient<SF extends SchemaField> {
         beginChange: (this: void) => void;
         endChange: (this: void) => void;
         /**
@@ -39,7 +35,7 @@ export namespace SchemaServer {
         getActiveSchemaFields: (this: void) => readonly SF[];
     }
 
-    export type Constructor<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = new() => SchemaServer<BCS, SF>;
+    export type Constructor<BCS extends BehavioredColumnSettings, SF extends SchemaField> = new() => SchemaServer<BCS, SF>;
 
     // /**
     //  * @summary Generates an array of columns (proper schema) from an array of Column and string.

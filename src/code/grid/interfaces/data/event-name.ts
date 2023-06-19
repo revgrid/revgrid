@@ -1,15 +1,15 @@
 // import { CellEditor } from '../../cell-editor/cell-editor';
-import { SchemaServer } from '../schema/schema-server';
+import { SchemaField } from '../schema/schema-field';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { EventDetail } from './event-detail';
 import { ViewCell } from './view-cell';
 
 /** @public */
-export type EventName<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = keyof EventName.DetailMap<BCS, SF>;
+export type EventName<BCS extends BehavioredColumnSettings, SF extends SchemaField> = keyof EventName.DetailMap<BCS, SF>;
 
 /** @public */
 export namespace EventName {
-    export interface DetailMap<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    export interface DetailMap<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         // SchemaModel / DataModel
         'rev-schema-loaded': undefined;
         'rev-data-loaded': undefined;

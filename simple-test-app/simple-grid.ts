@@ -3,7 +3,7 @@ import {
     DatalessViewCell,
     LinedHoverCell,
     Point,
-    RevDataRowArraySchemaServer,
+    RevDataRowArraySchemaField,
     RevDataRowArrayServerSet,
     Revgrid,
     StandardAlphaTextCellPainter,
@@ -15,7 +15,7 @@ import {
 export class SimpleGrid extends Revgrid<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        RevDataRowArraySchemaServer.Field
+        RevDataRowArraySchemaField
     > {
 
     cellFocusEventer: SimpleGrid.CellFocusEventer | undefined;
@@ -27,12 +27,12 @@ export class SimpleGrid extends Revgrid<
     private readonly _headerCellPainter: StandardHeaderTextCellPainter<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        RevDataRowArraySchemaServer.Field
+        RevDataRowArraySchemaField
     >;
     private readonly _textCellPainter: StandardAlphaTextCellPainter<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        RevDataRowArraySchemaServer.Field
+        RevDataRowArraySchemaField
     >;
 
     constructor(
@@ -47,7 +47,7 @@ export class SimpleGrid extends Revgrid<
         const headerDataServer = serverSet.headerDataServer;
         const mainDataServer = serverSet.mainDataServer;
 
-        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field> = {
+        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, RevDataRowArraySchemaField> = {
             schemaServer,
             subgrids: [
                 {
@@ -90,7 +90,7 @@ export class SimpleGrid extends Revgrid<
 
     protected override descendantProcessClick(
         event: MouseEvent,
-        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field> | null | undefined
+        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaField> | null | undefined
     ) {
         if (this.clickEventer !== undefined) {
             if (hoverCell !== null) {
@@ -109,7 +109,7 @@ export class SimpleGrid extends Revgrid<
 
     protected override descendantProcessDblClick(
         event: MouseEvent,
-        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field> | null | undefined
+        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaField> | null | undefined
     ) {
         if (this.dblClickEventer !== undefined) {
             if (hoverCell !== null) {
@@ -130,11 +130,11 @@ export class SimpleGrid extends Revgrid<
         this._serverSet.setData(data, headerRowCount)
     }
 
-    private getHeaderCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field>) {
+    private getHeaderCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaField>) {
         return this._headerCellPainter;
     }
 
-    private getMainCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaServer.Field>) {
+    private getMainCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, RevDataRowArraySchemaField>) {
         return this._textCellPainter;
     }
 }

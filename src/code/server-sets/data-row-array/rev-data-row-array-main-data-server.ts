@@ -1,8 +1,8 @@
 import { AssertError, DataServer, MetaModel } from '../../grid/grid-public-api';
-import { RevDataRowArraySchemaServer } from './rev-data-row-array-schema-server';
+import { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
 
 /** @public */
-export class RevDataRowArrayMainDataServer<SF extends RevDataRowArraySchemaServer.Field> implements DataServer<SF> {
+export class RevDataRowArrayMainDataServer<SF extends RevDataRowArraySchemaField> implements DataServer<SF> {
     private _data: RevDataRowArrayMainDataServer.DataRow[] = [];
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 

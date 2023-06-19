@@ -6,12 +6,13 @@ import { SubgridImplementation } from '../../components/subgrid/subgrid-implemen
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { DataServer } from '../../interfaces/data/data-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ReindexBehavior } from './reindex-behavior';
 
-export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     private readonly _schemaServer: SchemaServer<BCS, SF>;
     private readonly _subgrids: SubgridImplementation<BGS, BCS, SF>[];
     private readonly _mainDataServer: DataServer<SF>;

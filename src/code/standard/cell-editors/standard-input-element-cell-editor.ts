@@ -1,11 +1,11 @@
-import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardElementCellEditor } from './standard-element-cell-editor';
 
 export abstract class StandardInputElementCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField
 > extends StandardElementCellEditor<BGS, BCS, SF> {
     keyDownEventer: CellEditor.KeyDownEventer;
 

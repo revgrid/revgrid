@@ -2,7 +2,8 @@ import { Animation } from '../../components/canvas/animation';
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { ModelUpdateId, SchemaServer, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
+import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
@@ -18,7 +19,7 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 /** @public */
-export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     /** @internal */
     renderedEventer: Renderer.RenderedEventer;
 

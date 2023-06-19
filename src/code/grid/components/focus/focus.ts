@@ -3,7 +3,7 @@ import { DataServer } from '../../interfaces/data/data-server';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
@@ -13,7 +13,7 @@ import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF> | undefined;
     editorKeyDownEventer: Focus.EditorKeyDownEventer;
 
@@ -686,7 +686,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 /** @public */
 export namespace Focus {
     export type EditorKeyDownEventer = (this: void, event: KeyboardEvent) => void;
-    export type GetCellEditorEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (
+    export type GetCellEditorEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (
         this: void,
         field: SF,
         subgridRowIndex: number,
@@ -698,7 +698,7 @@ export namespace Focus {
     /** @internal */
     export type ChangedEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
     /** @internal */
-    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, cell: ViewCell<BCS, SF>) => void;
+    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
 
     export const enum ActionKeyboardKey {
         Tab = 'Tab',

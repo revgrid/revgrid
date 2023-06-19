@@ -1,8 +1,8 @@
 import { Column, DataServer, StandardBehavioredColumnSettings } from '..';
-import { AppSchemaServer } from './app-schema-server';
+import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
-export class MainDataServer implements DataServer<AppSchemaServer.Field> {
+export class MainDataServer implements DataServer<AppSchemaField> {
     private readonly _data: MainRecord[] = [];
     private _fishCreateCount = 0;
     private _notificationsClient: DataServer.NotificationsClient;
@@ -30,19 +30,19 @@ export class MainDataServer implements DataServer<AppSchemaServer.Field> {
         return this._data.length;
     }
 
-    getViewValue(field: AppSchemaServer.Field, rowIndex: number) {
+    getViewValue(field: AppSchemaField, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = field.name;
         return record[fieldName].toLocaleString();
     }
 
-    getEditValue(field: AppSchemaServer.Field, rowIndex: number) {
+    getEditValue(field: AppSchemaField, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = field.name;
         return record[fieldName];
     }
 
-    setEditValue(field: AppSchemaServer.Field, rowIndex: number, value: DataServer.EditValue) {
+    setEditValue(field: AppSchemaField, rowIndex: number, value: DataServer.EditValue) {
         const record = this._data[rowIndex];
         const fieldName = field.name;
         switch (fieldName) {
@@ -79,7 +79,7 @@ export class MainDataServer implements DataServer<AppSchemaServer.Field> {
         return this._data[rowIndex].id;
     }
 
-    getTitleText(field: AppSchemaServer.Field, rowIndex: number) {
+    getTitleText(field: AppSchemaField, rowIndex: number) {
         const record = this._data[rowIndex];
         const fieldName = field.name;
         const prefix = fieldName + ': '
@@ -97,7 +97,7 @@ export class MainDataServer implements DataServer<AppSchemaServer.Field> {
         }
     }
 
-    sort(column: Column<StandardBehavioredColumnSettings, AppSchemaServer.Field>) {
+    sort(column: Column<StandardBehavioredColumnSettings, AppSchemaField>) {
         this._notificationsClient.preReindex();
         try {
             const field = column.field;

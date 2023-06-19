@@ -1,29 +1,30 @@
 import { SchemaServer, StandardAllGridSettings, StandardInMemoryBehavioredColumnSettings, standardAllColumnSettingsDefaults } from '..';
+import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
-export class AppSchemaServer implements SchemaServer<StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field> {
-    private readonly _schema: AppSchemaServer.Field[];
+export class AppSchemaServer implements SchemaServer<StandardInMemoryBehavioredColumnSettings, AppSchemaField> {
+    private readonly _schema: AppSchemaField[];
 
-    readonly nameSchemaSchemaField: AppSchemaServer.Field;
-    readonly typeSchemaSchemaField: AppSchemaServer.Field;
-    readonly colorSchemaSchemaField: AppSchemaServer.Field;
-    readonly ageSchemaSchemaField: AppSchemaServer.Field;
-    readonly receiveDateSchemaField: AppSchemaServer.Field;
-    readonly favoriteFoodSchemaField: AppSchemaServer.Field;
-    readonly restrictMovementSchemaField: AppSchemaServer.Field;
+    readonly nameSchemaSchemaField: AppSchemaField;
+    readonly typeSchemaSchemaField: AppSchemaField;
+    readonly colorSchemaSchemaField: AppSchemaField;
+    readonly ageSchemaSchemaField: AppSchemaField;
+    readonly receiveDateSchemaField: AppSchemaField;
+    readonly favoriteFoodSchemaField: AppSchemaField;
+    readonly restrictMovementSchemaField: AppSchemaField;
 
-    private notificationsClient: SchemaServer.NotificationsClient<AppSchemaServer.Field>;
+    private notificationsClient: SchemaServer.NotificationsClient<AppSchemaField>;
 
     constructor(gridSettings: StandardAllGridSettings) {
         const nameHeaders = AppSchemaServer.columnNameHeaders;
         const columnCount = nameHeaders.length;
-        const schema = new Array<AppSchemaServer.Field>(columnCount);
+        const schema = new Array<AppSchemaField>(columnCount);
         for (let i = 0; i < columnCount; i++) {
             const nameHeader = nameHeaders[i];
             const name = nameHeader.name;
             const columnSettings = new StandardInMemoryBehavioredColumnSettings(gridSettings);
             columnSettings.load(standardAllColumnSettingsDefaults);
-            const field: AppSchemaServer.Field = {
+            const field: AppSchemaField = {
                 name,
                 index: i,
                 columnSettings,
@@ -68,11 +69,11 @@ export class AppSchemaServer implements SchemaServer<StandardInMemoryBehavioredC
         return this._schema;
     }
 
-    getFieldColumnSettings(field: AppSchemaServer.Field): StandardInMemoryBehavioredColumnSettings {
+    getFieldColumnSettings(field: AppSchemaField): StandardInMemoryBehavioredColumnSettings {
         return field.columnSettings;
     }
 
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<AppSchemaServer.Field>) {
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<AppSchemaField>) {
         this.notificationsClient = client;
 
         this.notificationsClient.schemaChanged();
@@ -80,12 +81,6 @@ export class AppSchemaServer implements SchemaServer<StandardInMemoryBehavioredC
 }
 
 export namespace AppSchemaServer {
-    export interface Field extends SchemaServer.Field {
-        name: keyof MainRecord;
-        columnSettings: StandardInMemoryBehavioredColumnSettings;
-        header: string;
-    }
-
     export interface ColumnNameHeader {
         name: keyof MainRecord;
         header: string;

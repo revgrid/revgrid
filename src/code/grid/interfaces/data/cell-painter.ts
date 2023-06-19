@@ -1,6 +1,6 @@
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 import { DatalessViewCell } from '../dataless/dataless-view-cell';
-import { SchemaServer } from '../schema/schema-server';
+import { SchemaField } from '../schema/schema-field';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { CellPossiblyPaintable } from './cell-possibly-paintable';
 
@@ -11,7 +11,7 @@ import { CellPossiblyPaintable } from './cell-possibly-paintable';
  *
  * @public
  */
-export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends CellPossiblyPaintable<BCS, SF> {
+export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends CellPossiblyPaintable<BCS, SF> {
 
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).

@@ -3,15 +3,15 @@ import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
+import { ViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> implements ViewCell<BCS, SF> {
+export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements ViewCell<BCS, SF> {
     /** Set by some Grid Painters to record out cell was painted. If fingerprint is same on successive repaints of cell, then
      * cell does not need to be repainted
      * @internal

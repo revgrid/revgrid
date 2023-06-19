@@ -1,4 +1,5 @@
-import { Column, ColumnAutoSizeableWidth } from '../../interfaces/schema/column';
+import { Column, ColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -8,7 +9,7 @@ import { ColumnFieldNameAndAutoSizableWidth, ListChangedEventHandler as ListChan
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     /** @internal */
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
@@ -642,7 +643,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 /** @public */
 export namespace ColumnsManager {
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
-    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

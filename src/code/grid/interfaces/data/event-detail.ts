@@ -1,5 +1,5 @@
 import { Point } from '../../types-utils/point';
-import { SchemaServer } from '../schema/schema-server';
+import { SchemaField } from '../schema/schema-field';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { LinedHoverCell } from './hover-cell';
 
@@ -10,19 +10,19 @@ export namespace EventDetail {
         readonly newPoint: Point | undefined;
     }
 
-    export interface Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends MouseEvent {
+    export interface Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
         revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
-    export interface Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends PointerEvent, Mouse<BCS, SF> {
+    export interface Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends PointerEvent, Mouse<BCS, SF> {
         revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
-    export interface Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends WheelEvent {
+    export interface Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends WheelEvent {
         revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
-    export interface ColumnSort<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends MouseEvent {
+    export interface ColumnSort<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
         revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 

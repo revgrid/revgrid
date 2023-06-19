@@ -1,13 +1,14 @@
 import { AssertError, BehavioredColumnSettings, DataServer } from '../../grid/grid-public-api';
 import { RevDataRowArrayHeaderDataServer } from './rev-data-row-array-header-data-server';
 import { RevDataRowArrayMainDataServer } from './rev-data-row-array-main-data-server';
+import { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
 import { RevDataRowArraySchemaServer } from './rev-data-row-array-schema-server';
 
 /** @public */
 export class RevDataRowArrayServerSet<BCS extends BehavioredColumnSettings> {
-    readonly schemaServer = new RevDataRowArraySchemaServer<BCS, RevDataRowArraySchemaServer.Field>();
-    readonly mainDataServer = new RevDataRowArrayMainDataServer<RevDataRowArraySchemaServer.Field>();
-    readonly headerDataServer = new RevDataRowArrayHeaderDataServer<RevDataRowArraySchemaServer.Field>();
+    readonly schemaServer = new RevDataRowArraySchemaServer<BCS, RevDataRowArraySchemaField>();
+    readonly mainDataServer = new RevDataRowArrayMainDataServer<RevDataRowArraySchemaField>();
+    readonly headerDataServer = new RevDataRowArrayHeaderDataServer<RevDataRowArraySchemaField>();
 
     /**
      * Establish new data and schema.
@@ -26,7 +27,7 @@ export class RevDataRowArrayServerSet<BCS extends BehavioredColumnSettings> {
             if (!Array.isArray(dataRows)) {
                 throw new AssertError('BSD73766', 'Expected data to be an array of data row objects');
             } else {
-                let schema: RevDataRowArraySchemaServer.Field[];
+                let schema: RevDataRowArraySchemaField[];
                 if (headerRowCount < 0) {
                     schema = this.calculateSchemaFromData(dataRows, true);
                 } else {
@@ -72,7 +73,7 @@ export class RevDataRowArrayServerSet<BCS extends BehavioredColumnSettings> {
             const fieldKeys = Object.keys(firstHeaderRow);
 
             const fieldCount = fieldKeys.length;
-            const schema = new Array<RevDataRowArraySchemaServer.Field>(fieldCount);
+            const schema = new Array<RevDataRowArraySchemaField>(fieldCount);
             for (let fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
                 const columnKey = fieldKeys[fieldIndex];
                 const columnHeaders = new Array<string>(headerCount);
@@ -105,13 +106,13 @@ export class RevDataRowArrayServerSet<BCS extends BehavioredColumnSettings> {
         }
 }
 
-    private calculateSchemaFromData(dataRows: RevDataRowArrayServerSet.DataRow[], keyIsHeader: boolean): RevDataRowArraySchemaServer.Field[] {
+    private calculateSchemaFromData(dataRows: RevDataRowArrayServerSet.DataRow[], keyIsHeader: boolean): RevDataRowArraySchemaField[] {
         const { rows } = this.getInitialDefinedRows(dataRows, 1);
         if (rows.length === 0) {
             return [];
         } else {
             const row = rows[0];
-            const result: RevDataRowArraySchemaServer.Field[] = Object.keys(row).map((key, index) => ({
+            const result: RevDataRowArraySchemaField[] = Object.keys(row).map((key, index) => ({
                 name: key,
                 index,
                 headers: keyIsHeader ? [key] : []
@@ -160,7 +161,7 @@ export namespace RevDataRowArrayServerSet {
 }
 
 interface ExtractSchemaAndHeadersFromDataResult {
-    schema: RevDataRowArraySchemaServer.Field[];
+    schema: RevDataRowArraySchemaField[];
     dataRows: RevDataRowArrayServerSet.DataRow[];
 }
 

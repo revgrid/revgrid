@@ -1,4 +1,4 @@
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { HorizontalVertical } from '../../types-utils/types';
@@ -6,7 +6,7 @@ import { CanvasManager } from '../canvas/canvas-manager';
 import { ColumnsManager } from '../column/columns-manager';
 import { ScrollDimension } from './scroll-dimension';
 
-export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends ScrollDimension<BGS> {
+export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends ScrollDimension<BGS> {
     constructor(
         private readonly _gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,

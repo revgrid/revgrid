@@ -1,11 +1,11 @@
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 
-export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     actionsQueuedEventer: RenderActioner.ActionsQueuedEventer;
 
     private _queuedActions: RenderAction[] = [];

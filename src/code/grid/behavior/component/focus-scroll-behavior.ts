@@ -6,12 +6,12 @@ import { ViewLayout } from '../../components/view/view-layout';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
+import { ViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 
-export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     private readonly _mainSubgrid: MainSubgrid<BCS, SF>;
 
     constructor(

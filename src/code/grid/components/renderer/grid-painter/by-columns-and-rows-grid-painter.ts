@@ -1,5 +1,5 @@
 
-import { SchemaServer } from '../../../interfaces/schema/schema-server';
+import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -26,7 +26,7 @@ import { GridPainter } from './grid-painter';
  *
  * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumns|paintCellsByColumns}.
  */
-export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends GridPainter<BGS, BCS, SF> {
+export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends GridPainter<BGS, BCS, SF> {
     constructor(
         gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,

@@ -3,7 +3,7 @@ import {
     DatalessViewCell,
     IndexSignatureHack,
     Rectangle,
-    SchemaServer
+    SchemaField
 } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardTextCellPainter } from './standard-text-cell-painter';
@@ -21,7 +21,7 @@ import { StandardTextCellPainter } from './standard-text-cell-painter';
 export class StandardAlphaTextCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField
 > extends StandardTextCellPainter<BGS, BCS, SF> {
 
     override paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {

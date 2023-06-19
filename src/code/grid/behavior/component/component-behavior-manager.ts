@@ -7,7 +7,7 @@ import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
@@ -39,7 +39,7 @@ import { ServerNotificationBehavior } from './server-notification-behavior';
  * @abstract
  */
 /** @internal */
-export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
     readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
     readonly eventBehavior: EventBehavior<BGS, BCS, SF>;

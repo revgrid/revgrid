@@ -2,14 +2,14 @@ import { Focus } from '../../components/focus/focus';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
 import { Subgrid } from '../../interfaces/data/subgrid';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
 import { SelectionAreaType } from '../../types-utils/types';
 
-export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     constructor(
         private readonly _gridSettings: BGS,
         private readonly _selection: Selection<BGS, BCS, SF>,
@@ -168,6 +168,6 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
 export namespace FocusSelectBehavior {
     export type CheckFocusEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaServer.Field
+        SF extends SchemaField
     > = (this: void, activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) => void;
 }

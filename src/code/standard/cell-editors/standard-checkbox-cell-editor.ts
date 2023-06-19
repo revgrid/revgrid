@@ -1,4 +1,4 @@
-import { CellEditor, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { CellEditor, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardCheckboxCellPainter } from '../cell-painters/standard-cell-painters-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardPaintCellEditor } from './standard-paint-cell-editor';
@@ -7,7 +7,7 @@ import { StandardPaintCellEditor } from './standard-paint-cell-editor';
 export class StandardCheckboxCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField
 > extends StandardPaintCellEditor<BGS, BCS, SF> {
     declare _painter: StandardCheckboxCellPainter<BGS, BCS, SF>;
 
