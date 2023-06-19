@@ -4,6 +4,7 @@ import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { Point } from '../../types-utils/point';
 import { UiBehavior } from './ui-behavior';
 
@@ -23,6 +24,11 @@ export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
         }
         const viewCell = this.getViewCellFromHoverCell(hoverCell);
         this.mouse.setMouseCanvasOffset(canvasOffsetPoint, viewCell);
+
+        if (GridSettings.isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent(this.gridSettings, event)) {
+            this.horizontalScroller.temporarilyGiveThumbFullVisibility(HoverUiBehavior.temporaryThumbFullVisibilityTimePeriod);
+            this.verticalScroller.temporarilyGiveThumbFullVisibility(HoverUiBehavior.temporaryThumbFullVisibilityTimePeriod);
+        }
         return super.handlePointerMove(event, hoverCell);
     }
 
@@ -61,4 +67,6 @@ export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
 /** @internal */
 export namespace HoverUiBehavior {
     export const typeName = 'hover';
+
+    export const temporaryThumbFullVisibilityTimePeriod = 500; // milliseconds
 }

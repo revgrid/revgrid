@@ -83,17 +83,16 @@ export const gridSettingsDefaults: Required<GridSettings> = {
     showFilterRow: false,
     scrollerThumbColor: '#d3d3d3',
     scrollerThumbReducedVisibilityOpacity: 0.4,
+    showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum.Control,
     scrollHorizontallySmoothly: false,
     scrollingEnabled: true,
     horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed.CtrlKeyDown,
     verticalScrollbarClassPrefix: '',
     horizontalScrollbarClassPrefix: '',
 
-    horizontalGridLinesEnabled: true,
     horizontalGridLinesWidth: 1,
     horizontalGridLinesColor: 'rgb(199, 199, 199)',
 
-    verticalGridLinesEnabled: true,
     verticalGridLinesWidth: 1,
     verticalGridLinesColor: 'rgb(199, 199, 199)',
 

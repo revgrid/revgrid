@@ -102,15 +102,11 @@ export interface GridSettings {
      */
     readonly gridRightAligned: boolean;
     readonly verticalGridLinesVisible: boolean;
-    /** Enable rendering of horizontal grid lines. */
-    readonly horizontalGridLinesEnabled: boolean;
     /** Color of horizontal grid lines. */
     readonly horizontalGridLinesColor: GridSettings.Color;
     /** Thickness of horizontal grid lines (pixels). */
     readonly horizontalGridLinesWidth: number;
     readonly horizontalGridLinesVisible: boolean;
-    /** Enable rendering of vertical grid lines. */
-    readonly verticalGridLinesEnabled: boolean;
     /** Color of vertical grid lines. */
     readonly verticalGridLinesColor: GridSettings.Color;
     /** Thickness of vertical grid lines (pixels). */
@@ -162,6 +158,7 @@ export interface GridSettings {
     /** Fill color for last selection overlay. */
     readonly selectionRegionOverlayColor: GridSettings.Color;
     readonly showFilterRow: boolean;
+    readonly showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
     /** Sort column on double-click rather than single-click. */
     readonly sortOnDoubleClick: boolean;
     /** Column can be sorted with mouse click on column header */
@@ -282,6 +279,10 @@ export namespace GridSettings {
 
     export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
         return ModifierKey.isDownInEvent(gridSettings.secondarySelectionAreaTypeSpecifierModifierKey, event);
+    }
+
+    export function isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
+        return ModifierKey.isDownInEvent(gridSettings.showScrollerThumbOnMouseMoveModifierKey, event);
     }
 
     export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {

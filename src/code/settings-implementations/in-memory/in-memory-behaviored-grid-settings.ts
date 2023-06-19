@@ -62,11 +62,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _fixedRowCount: number;
     private _gridRightAligned: boolean;
     private _verticalGridLinesVisible: boolean;
-    private _horizontalGridLinesEnabled: boolean;
     private _horizontalGridLinesColor: GridSettings.Color;
     private _horizontalGridLinesWidth: number;
     private _horizontalGridLinesVisible: boolean;
-    private _verticalGridLinesEnabled: boolean;
     private _verticalGridLinesColor: GridSettings.Color;
     private _verticalGridLinesWidth: number;
     private _horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
@@ -97,6 +95,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _selectionRegionOutlineColor: GridSettings.Color;
     private _selectionRegionOverlayColor: GridSettings.Color;
     private _showFilterRow: boolean;
+    private _showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
     private _sortOnDoubleClick: boolean;
     private _sortOnClick: boolean;
     private _useHiDPI: boolean;
@@ -604,16 +603,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
-    get horizontalGridLinesEnabled() { return this._horizontalGridLinesEnabled; }
-    set horizontalGridLinesEnabled(value: boolean) {
-        if (value !== this._horizontalGridLinesEnabled) {
-            this.beginChange();
-            this._horizontalGridLinesEnabled = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalGridLinesEnabled;
-            this.notifyChanged(invalidateType);
-            this.endChange();
-        }
-    }
     get horizontalGridLinesColor() { return this._horizontalGridLinesColor; }
     set horizontalGridLinesColor(value: GridSettings.Color) {
         if (value !== this._horizontalGridLinesColor) {
@@ -640,16 +629,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._horizontalGridLinesVisible = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalGridLinesVisible;
-            this.notifyChanged(invalidateType);
-            this.endChange();
-        }
-    }
-    get verticalGridLinesEnabled() { return this._verticalGridLinesEnabled; }
-    set verticalGridLinesEnabled(value: boolean) {
-        if (value !== this._verticalGridLinesEnabled) {
-            this.beginChange();
-            this._verticalGridLinesEnabled = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.verticalGridLinesEnabled;
             this.notifyChanged(invalidateType);
             this.endChange();
         }
@@ -954,6 +933,16 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
+    get showScrollerThumbOnMouseMoveModifierKey() { return this._showScrollerThumbOnMouseMoveModifierKey; }
+    set showScrollerThumbOnMouseMoveModifierKey(value: ModifierKeyEnum | undefined) {
+        if (value !== this.showScrollerThumbOnMouseMoveModifierKey) {
+            this.beginChange();
+            this.showScrollerThumbOnMouseMoveModifierKey = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.showScrollerThumbOnMouseMoveModifierKey;
+            this.notifyChanged(invalidateType);
+            this.endChange();
+        }
+    }
     get sortOnDoubleClick() { return this._sortOnDoubleClick; }
     set sortOnDoubleClick(value: boolean) {
         if (value !== this._sortOnDoubleClick) {
@@ -1172,9 +1161,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                 case 'verticalGridLinesVisible':
                     this._verticalGridLinesVisible = settings.verticalGridLinesVisible;
                     break;
-                case 'horizontalGridLinesEnabled':
-                    this._horizontalGridLinesEnabled = settings.horizontalGridLinesEnabled;
-                    break;
                 case 'horizontalGridLinesColor':
                     this._horizontalGridLinesColor = settings.horizontalGridLinesColor;
                     break;
@@ -1183,9 +1169,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     break;
                 case 'horizontalGridLinesVisible':
                     this._horizontalGridLinesVisible = settings.horizontalGridLinesVisible;
-                    break;
-                case 'verticalGridLinesEnabled':
-                    this._verticalGridLinesEnabled = settings.verticalGridLinesEnabled;
                     break;
                 case 'verticalGridLinesColor':
                     this._verticalGridLinesColor = settings.verticalGridLinesColor;
@@ -1282,6 +1265,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     break;
                 case 'sortOnClick':
                     this._sortOnClick = settings.sortOnClick;
+                    break;
+                case 'showScrollerThumbOnMouseMoveModifierKey':
+                    this._showScrollerThumbOnMouseMoveModifierKey = settings.showScrollerThumbOnMouseMoveModifierKey;
                     break;
                 case 'useHiDPI':
                     this._useHiDPI = settings.useHiDPI;

@@ -77,9 +77,9 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
         }
         const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
         const viewHeight = rowCount ? viewLayoutRows[rowCount - 1].bottomPlus1 : 0;
-        const drawLines = gridProps.horizontalGridLinesEnabled;
         const lineWidth = gridProps.horizontalGridLinesWidth;
         const lineColor = gridProps.horizontalGridLinesColor;
+        const drawLines = gridProps.horizontalGridLinesVisible && lineWidth > 0;
 
         const canvasBounds = this.canvasManager.bounds;
         gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);

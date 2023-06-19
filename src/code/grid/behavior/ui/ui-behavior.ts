@@ -4,6 +4,7 @@ import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
 import { Mouse } from '../../components/mouse/mouse';
 import { Renderer } from '../../components/renderer/renderer';
+import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
@@ -45,6 +46,8 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     protected readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>;
 
     protected readonly mouse: Mouse<BGS, BCS, SF>;
+    protected readonly horizontalScroller: Scroller<BGS>;
+    protected readonly verticalScroller: Scroller<BGS>;
 
     protected readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
     protected readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
@@ -70,6 +73,8 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
         this.reindexBehavior = services.reindexBehavior;
 
         this.mouse = services.mouse;
+        this.horizontalScroller = services.horizontalScroller;
+        this.verticalScroller = services.verticalScroller;
 
         this.focusScrollBehavior = services.focusScrollBehavior;
         this.focusSelectBehavior = services.focusSelectBehavior;

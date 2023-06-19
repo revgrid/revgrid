@@ -66,7 +66,7 @@ export class Main {
 
         const initialSettings: AppAllGridSettings = {
             ...appAllGridSettingsDefaults,
-            // horizontalGridLinesEnabled: true,
+            horizontalGridLinesWidth: 0,
             fixedColumnCount: 1,
 
             font: 'Tahoma, Geneva, sans-serif 13px',

@@ -133,8 +133,8 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
             const horizontalGridLinesColor = gridSettings.horizontalGridLinesColor;
             // const borderBox = gridProps.boxSizing === 'border-box';
 
-            if (gridSettings.verticalGridLinesEnabled && gridSettings.verticalGridLinesVisible) {
-                const verticalGridLinesWidth = gridSettings.verticalGridLinesWidth;
+            const verticalGridLinesWidth = gridSettings.verticalGridLinesWidth;
+            if (gridSettings.verticalGridLinesVisible && verticalGridLinesWidth > 0) {
                 const preMainRowCount = this.subgridsManager.calculatePreMainRowCount();
                 const lastPreMainRow = viewLayoutRows[preMainRowCount - 1]; // any header rows?
                 const firstDataRow = viewLayoutRows[preMainRowCount]; // any data rows?
@@ -165,8 +165,8 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
                 }
             }
 
-            if (gridSettings.horizontalGridLinesEnabled && gridSettings.horizontalGridLinesVisible) {
-                const horizontalGridLinesWidth = gridSettings.horizontalGridLinesWidth;
+            const horizontalGridLinesWidth = gridSettings.horizontalGridLinesWidth;
+            if (gridSettings.horizontalGridLinesVisible && horizontalGridLinesWidth > 0) {
                 const width = lastVisibleColumnRight - firstVisibleColumnLeft;
 
                 gc.cache.lineCap = 'butt';

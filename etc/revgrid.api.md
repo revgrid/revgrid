@@ -1150,7 +1150,6 @@ export interface GridSettings {
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     readonly horizontalFixedLineWidth: number | undefined;
     readonly horizontalGridLinesColor: GridSettings.Color;
-    readonly horizontalGridLinesEnabled: boolean;
     // (undocumented)
     readonly horizontalGridLinesVisible: boolean;
     readonly horizontalGridLinesWidth: number;
@@ -1198,6 +1197,8 @@ export interface GridSettings {
     readonly selectionRegionOverlayColor: GridSettings.Color;
     // (undocumented)
     readonly showFilterRow: boolean;
+    // (undocumented)
+    readonly showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
     readonly sortOnClick: boolean;
     readonly sortOnDoubleClick: boolean;
     // (undocumented)
@@ -1210,7 +1211,6 @@ export interface GridSettings {
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     readonly verticalFixedLineWidth: number | undefined;
     readonly verticalGridLinesColor: GridSettings.Color;
-    readonly verticalGridLinesEnabled: boolean;
     // (undocumented)
     readonly verticalGridLinesVisible: boolean;
     readonly verticalGridLinesWidth: number;
@@ -1244,6 +1244,8 @@ export namespace GridSettings {
     export function isMouseSelectionAllowed(gridSettings: GridSettings, selectionAreaType: SelectionAreaType): boolean;
     // (undocumented)
     export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
+    // (undocumented)
+    export function isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
     export interface RowStripe {
         // (undocumented)
@@ -1631,9 +1633,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get horizontalGridLinesColor(): GridSettings.Color;
     set horizontalGridLinesColor(value: GridSettings.Color);
     // (undocumented)
-    get horizontalGridLinesEnabled(): boolean;
-    set horizontalGridLinesEnabled(value: boolean);
-    // (undocumented)
     get horizontalGridLinesVisible(): boolean;
     set horizontalGridLinesVisible(value: boolean);
     // (undocumented)
@@ -1723,6 +1722,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get showFilterRow(): boolean;
     set showFilterRow(value: boolean);
     // (undocumented)
+    get showScrollerThumbOnMouseMoveModifierKey(): ModifierKeyEnum | undefined;
+    set showScrollerThumbOnMouseMoveModifierKey(value: ModifierKeyEnum | undefined);
+    // (undocumented)
     get sortOnClick(): boolean;
     set sortOnClick(value: boolean);
     // (undocumented)
@@ -1743,9 +1745,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get verticalGridLinesColor(): GridSettings.Color;
     set verticalGridLinesColor(value: GridSettings.Color);
-    // (undocumented)
-    get verticalGridLinesEnabled(): boolean;
-    set verticalGridLinesEnabled(value: boolean);
     // (undocumented)
     get verticalGridLinesVisible(): boolean;
     set verticalGridLinesVisible(value: boolean);
@@ -3856,6 +3855,10 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     handleVerticalScrollerAction(action: EventDetail.ScrollerAction): void;
     // @internal (undocumented)
     handleWheelMove(event: WheelEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined;
+    // Warning: (ae-forgotten-export) The symbol "Scroller" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    protected readonly horizontalScroller: Scroller<BGS>;
     // @internal (undocumented)
     initialise(): void;
     // (undocumented)
@@ -3891,6 +3894,8 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null;
     // (undocumented)
     abstract readonly typeName: string;
+    // (undocumented)
+    protected readonly verticalScroller: Scroller<BGS>;
     // (undocumented)
     protected readonly viewLayout: ViewLayout<BGS, BCS, SF>;
 }

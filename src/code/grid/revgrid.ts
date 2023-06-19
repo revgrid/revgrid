@@ -240,6 +240,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.viewLayout,
             this._renderer,
             this.mouse,
+            this._horizontalScroller,
+            this._verticalScroller,
             this._focusScrollBehavior,
             this._focusSelectBehavior,
             this._rowPropertiesBehavior,
