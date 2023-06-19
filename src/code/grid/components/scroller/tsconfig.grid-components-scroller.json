@@ -1,0 +1,19 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-scroller.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../view/tsconfig.grid-components-view.json" },
+    { "path": "../../types-utils/tsconfig.grid-types-utils.json" }
+  ]
+}

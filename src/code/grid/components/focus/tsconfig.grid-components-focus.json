@@ -1,0 +1,23 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-focus.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../view/tsconfig.grid-components-view.json" },
+    { "path": "../subgrid/tsconfig.grid-components-subgrid.json" },
+    { "path": "../column/tsconfig.grid-components-column.json" },
+    { "path": "../canvas/tsconfig.grid-components-canvas.json" },
+    { "path": "../../interfaces/data/tsconfig.grid-interfaces-data.json" },
+    { "path": "../../interfaces/dataless/tsconfig.grid-interfaces-dataless.json" },
+    { "path": "../../interfaces/settings/tsconfig.grid-interfaces-settings.json" },
+    { "path": "../../types-utils/tsconfig.grid-types-utils.json" }
+  ]
+}

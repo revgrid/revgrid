@@ -1,1 +1,0 @@
-export { FinBar } from './finbar';

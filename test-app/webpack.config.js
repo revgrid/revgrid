@@ -8,6 +8,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 module.exports = {
     entry: [
         path.resolve(__dirname, "styles.css"),
+        // path.resolve(__dirname, "../dist/css/revgrid.css"),
         path.resolve(__dirname, "index.ts"),
     ],
 

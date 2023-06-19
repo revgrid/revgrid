@@ -1,7 +1,28 @@
-import { defaultGridProperties, HalignEnum, Revgrid } from '..';
-import { HeaderDataAdapter } from './header-data-adapter';
-import { MainDataAdapter } from './main-data-adapter';
-import { SchemaAdapter } from './schema-adapter';
+import {
+    CellEditor,
+    DatalessSubgrid,
+    DatalessViewCell,
+    EventDetail,
+    HalignEnum,
+    Revgrid,
+    StandardAlphaTextCellPainter,
+    StandardCellPainter,
+    StandardCheckboxCellEditor,
+    StandardCheckboxCellPainter,
+    StandardHeaderTextCellPainter,
+    StandardInMemoryBehavioredColumnSettings,
+    StandardInMemoryBehavioredGridSettings,
+    StandardTextInputCellEditor,
+    Subgrid,
+    ViewCell,
+    gridSettingsDefaults,
+    standardAllGridSettingsDefaults,
+    standardGridSettingsDefaults
+} from '..';
+import { AppSchemaServer } from './app-schema-server';
+import { HeaderDataServer } from './header-data-server';
+import { MainDataServer } from './main-data-server';
+import { MainRecord } from './main-record';
 
 export class Main {
     private readonly _controlsElement: HTMLElement;
@@ -17,8 +38,17 @@ export class Main {
     private readonly _addFishButtonElement: HTMLButtonElement;
     private readonly _gridHostElement: HTMLElement;
 
-    private _mainDataAdapter: MainDataAdapter;
-    private _grid: Revgrid;
+    private _gridSettings = new StandardInMemoryBehavioredGridSettings();
+    private _schemaServer: AppSchemaServer;
+    private _headerDataServer: HeaderDataServer;
+    private _mainDataServer: MainDataServer;
+    private _headerCellPainter: StandardHeaderTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>;
+    private _textCellPainter: StandardAlphaTextCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>;
+    private _checkboxCellPainter: StandardCheckboxCellPainter<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>;
+    private _textInputEditor: StandardTextInputCellEditor<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>;
+    private _checkboxEditor: StandardCheckboxCellEditor<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>;
+
+    private _grid: Revgrid<StandardInMemoryBehavioredGridSettings, StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>;
 
     constructor() {
         const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
@@ -47,9 +77,7 @@ export class Main {
             throw new Error('fixedColumnCountTextboxElement not found');
         } else {
             this._fixedColumnCountTextboxElement.onchange = () => {
-                this._grid.properties.fixedColumnCount = parseInt(this._fixedColumnCountTextboxElement.value);
-                this._grid.computeCellsBounds();
-                this._grid.repaint();
+                this._grid.settings.fixedColumnCount = parseInt(this._fixedColumnCountTextboxElement.value);
             };
         }
 
@@ -58,9 +86,7 @@ export class Main {
             throw new Error('cellPaddingTextboxElement not found');
         } else {
             this._cellPaddingTextboxElement.onchange = () => {
-                this._grid.properties.cellPadding = parseInt(this._cellPaddingTextboxElement.value);
-                this._grid.computeCellsBounds();
-                this._grid.repaint();
+                this._grid.settings.cellPadding = parseInt(this._cellPaddingTextboxElement.value);
             };
         }
 
@@ -69,9 +95,7 @@ export class Main {
             throw new Error('rightHalignCheckBoxElement not found');
         } else {
             this._rightHalignCheckboxElement.onchange = () => {
-                this._grid.properties.halign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
-                this._grid.computeCellsBounds();
-                this._grid.repaint();
+                this._grid.settings.horizontalAlign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
             };
         }
 
@@ -80,9 +104,7 @@ export class Main {
             throw new Error('gridRightAlignedCheckBoxElement not found');
         } else {
             this._gridRightAlignedCheckboxElement.onchange = () => {
-                this._grid.properties.gridRightAligned = this._gridRightAlignedCheckboxElement.checked;
-                this._grid.computeCellsBounds();
-                this._grid.repaint();
+                this._grid.settings.gridRightAligned = this._gridRightAlignedCheckboxElement.checked;
             };
         }
 
@@ -91,9 +113,7 @@ export class Main {
             throw new Error('scrollHorizontallySmoothlyCheckBoxElement not found');
         } else {
             this._scrollHorizontallySmoothlyCheckboxElement.onchange = () => {
-                this._grid.properties.scrollHorizontallySmoothly = this._scrollHorizontallySmoothlyCheckboxElement.checked;
-                this._grid.computeCellsBounds();
-                this._grid.repaint();
+                this._grid.settings.scrollHorizontallySmoothly = this._scrollHorizontallySmoothlyCheckboxElement.checked;
             };
         }
 
@@ -102,9 +122,7 @@ export class Main {
             throw new Error('visibleColumnWidthAdjustCheckBoxElement not found');
         } else {
             this._visibleColumnWidthAdjustCheckboxElement.onchange = () => {
-                this._grid.properties.visibleColumnWidthAdjust = this._visibleColumnWidthAdjustCheckboxElement.checked;
-                this._grid.computeCellsBounds();
-                this._grid.repaint();
+                this._grid.settings.visibleColumnWidthAdjust = this._visibleColumnWidthAdjustCheckboxElement.checked;
             };
         }
 
@@ -119,7 +137,7 @@ export class Main {
         } else {
             this._deleteRowButtonElement.onclick = () => {
                 const deleteRowIndex = parseInt(this._deleteRowIndexTextboxElement.value);
-                this._mainDataAdapter.deleteRow(deleteRowIndex);
+                this._mainDataServer.deleteRow(deleteRowIndex);
             };
         }
 
@@ -128,7 +146,7 @@ export class Main {
             throw new Error('addFishButtonElement not found');
         } else {
             this._addFishButtonElement.onclick = () => {
-                this._mainDataAdapter.addFish();
+                this._mainDataServer.addFish();
             };
         }
     }
@@ -142,88 +160,155 @@ export class Main {
             this._grid.destroy();
         }
 
-        this._mainDataAdapter = new MainDataAdapter();
+        const gridSettings = this._gridSettings;
 
-        const gridOptions: Revgrid.Options = {
-            container: this._gridHostElement,
-            adapterSet: {
-                schemaModel: new SchemaAdapter(),
-                subgrids: [
-                    {
-                        dataModel: new HeaderDataAdapter(),
-                        role: 'header',
-                    },
-                    {
-                        dataModel: this._mainDataAdapter,
-                        role: 'main',
-                    }
-                ],
-            },
-            gridProperties: {
-                renderFalsy: true,
-                editable: true,
-                singleRowSelectionMode: false,
-                autoSelectRows: false,
-                columnSelection: false,
-                rowSelection: false,
-                restoreColumnSelections: false,
-                multipleSelections: false,
-                sortOnDoubleClick: false,
-                cellPadding: defaultCellPadding,
-                halign: defaultHalign,
-                fixedColumnCount: defaultFixedColumnCount,
-                gridRightAligned: defaultGridRightAligned,
-                scrollHorizontallySmoothly: defaultScrollHorizontallySmoothly,
-                visibleColumnWidthAdjust: defaultVisibleColumnWidthAdjust,
-            }
-        }
+        gridSettings.beginChange();
+        gridSettings.load(standardAllGridSettingsDefaults);
 
-        this._grid = new Revgrid(this._gridHostElement, gridOptions);
+        gridSettings.editable = true;
+        gridSettings.multipleSelectionAreas = true;
+        gridSettings.cellPadding = defaultCellPadding;
+        gridSettings.horizontalAlign = defaultHorizontalAlign;
+        gridSettings.fixedColumnCount = defaultFixedColumnCount;
+        gridSettings.gridRightAligned = defaultGridRightAligned;
+        gridSettings.scrollHorizontallySmoothly = defaultScrollHorizontallySmoothly;
+        gridSettings.visibleColumnWidthAdjust = defaultVisibleColumnWidthAdjust;
+        gridSettings.eventDispatchEnabled = true;
+        gridSettings.endChange();
 
-        this._fixedColumnCountTextboxElement.value = this._grid.properties.fixedColumnCount.toString();
-        this._cellPaddingTextboxElement.value = this._grid.properties.cellPadding.toString();
-        this._rightHalignCheckboxElement.checked = this._grid.properties.halign === HalignEnum.right;
-        this._gridRightAlignedCheckboxElement.checked = this._grid.properties.gridRightAligned;
-        this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.properties.scrollHorizontallySmoothly;
-        this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.properties.visibleColumnWidthAdjust;
+
+        this._schemaServer = new AppSchemaServer(gridSettings);
+        this._mainDataServer = new MainDataServer();
+        this._headerDataServer = new HeaderDataServer();
+
+        const definition: Revgrid.Definition<StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field> = {
+            schemaServer: this._schemaServer,
+            subgrids: [
+                {
+                    role: DatalessSubgrid.RoleEnum.header,
+                    dataServer: this._headerDataServer,
+                    getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
+                },
+                {
+                    role: DatalessSubgrid.RoleEnum.main,
+                    dataServer: this._mainDataServer,
+                    getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
+                }
+            ],
+        };
+
+        this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings);
+
+        this._headerCellPainter = new StandardHeaderTextCellPainter(this._grid, this._headerDataServer);
+        this._textCellPainter = new StandardAlphaTextCellPainter(this._grid, this._mainDataServer);
+        this._checkboxCellPainter = new StandardCheckboxCellPainter(this._grid, this._mainDataServer, false);
+        this._textInputEditor = new StandardTextInputCellEditor(this._grid, this._mainDataServer);
+        this._checkboxEditor = new StandardCheckboxCellEditor(this._grid, this._mainDataServer);
+
+
+        this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();
+        this._cellPaddingTextboxElement.value = this._grid.settings.cellPadding.toString();
+        this._rightHalignCheckboxElement.checked = this._grid.settings.horizontalAlign === HalignEnum.right;
+        this._gridRightAlignedCheckboxElement.checked = this._grid.settings.gridRightAligned;
+        this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.settings.scrollHorizontallySmoothly;
+        this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.settings.visibleColumnWidthAdjust;
         this._deleteRowIndexTextboxElement.value = '0';
 
-        this._grid.addEventListener('rev-column-sort', (event) => this._mainDataAdapter.sort(event.detail.column) )
+        this._grid.addEventListener('rev-column-sort', (event) => {
+                const hoverCell = (event as CustomEvent<EventDetail.ColumnSort<StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>>).detail.revgridHoverCell;
+                if (hoverCell !== undefined) {
+                    this._mainDataServer.sort(hoverCell.viewCell.viewLayoutColumn.column);
+                }
+            }
+        );
+
+        this._grid.focus.getCellEditorEventer = (
+            field,
+            subgridRowIndex,
+            subgrid,
+            readonly,
+            viewCell
+        ) => this.getCellEditor(field, subgridRowIndex, subgrid, readonly, viewCell);
 
         this._grid.allowEvents(true);
 
-        const columns = this._grid.getAllColumns();
+        // const columns = this._grid.getAllColumns();
 
-        for (const column of columns) {
-            switch (column.name) {
-                case 'name':
-                case 'type':
-                case 'favoriteFood':
-                    column.properties.editor = 'TextField';
-                    break;
-                case 'id':
-                case 'age':
-                    column.properties.editor = 'Number';
-                    break;
-                case 'receiveDate':
-                    column.properties.editor = 'Date';
-                    break;
-                case 'color':
-                    column.properties.editor = 'Color';
-                    break;
-                case 'restrictMovement':
-                    column.properties.editor = 'TextField'; // need something else for boolean
-                    break;
-                default:
-                    throw new Error(`Editor does not support field: ${column.name}`);
-            }
+        // for (const column of columns) {
+        //     switch (column.name) {
+        //         case 'name':
+        //         case 'type':
+        //         case 'favoriteFood':
+        //             column.settings.editor = 'TextField';
+        //             break;
+        //         case 'id':
+        //         case 'age':
+        //             column.settings.editor = 'Number';
+        //             break;
+        //         case 'receiveDate':
+        //             column.settings.editor = 'Date';
+        //             break;
+        //         case 'color':
+        //             column.settings.editor = 'Color';
+        //             break;
+        //         case 'restrictMovement':
+        //             column.settings.editor = 'TextField'; // need something else for boolean
+        //             break;
+        //         default:
+        //             throw new Error(`Editor does not support field: ${column.name}`);
+        //     }
+        // }
+    }
+
+    private getMainCellPainter(viewCell: DatalessViewCell<StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>) {
+        let cellPainter: StandardCellPainter<
+            StandardInMemoryBehavioredGridSettings,
+            StandardInMemoryBehavioredColumnSettings,
+            AppSchemaServer.Field
+        >;
+
+        if (viewCell.viewLayoutColumn.column.field === this._schemaServer.restrictMovementSchemaField) {
+            cellPainter = this._checkboxCellPainter;
+        } else {
+            cellPainter = this._textCellPainter;
+        }
+        return cellPainter;
+    }
+
+    private getHeaderCellPainter(viewCell: DatalessViewCell<StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>) {
+        return this._headerCellPainter;
+    }
+
+    private getCellEditor(
+        field: AppSchemaServer.Field,
+        _subgridRowIndex: number,
+        _subgrid: Subgrid<StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field>,
+        readonly: boolean,
+        _viewCell: ViewCell<StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field> | undefined
+    ): CellEditor<StandardInMemoryBehavioredColumnSettings, AppSchemaServer.Field> | undefined {
+        return this.tryGetCellEditor(field.name, readonly);
+    }
+
+    private tryGetCellEditor(columnName: keyof MainRecord, readonly: boolean) {
+        const editor = this.tryCreateCellEditor(columnName);
+        if (editor !== undefined) {
+            editor.readonly = readonly;
+        }
+        return editor;
+    }
+
+    private tryCreateCellEditor(columnName: keyof MainRecord) {
+        switch (columnName) {
+            case 'favoriteFood': return this._textInputEditor;
+            case 'restrictMovement': return this._checkboxEditor;
+            default: return undefined;
         }
     }
 }
 
-const defaultGridRightAligned = defaultGridProperties.gridRightAligned;
-const defaultScrollHorizontallySmoothly = defaultGridProperties.scrollHorizontallySmoothly;
-const defaultVisibleColumnWidthAdjust = defaultGridProperties.visibleColumnWidthAdjust;
-const defaultCellPadding = defaultGridProperties.cellPadding;
-const defaultFixedColumnCount: typeof defaultGridProperties.fixedColumnCount = 2;
-const defaultHalign: typeof defaultGridProperties.halign = 'left';
+const defaultGridRightAligned = gridSettingsDefaults.gridRightAligned;
+const defaultScrollHorizontallySmoothly = gridSettingsDefaults.scrollHorizontallySmoothly;
+const defaultVisibleColumnWidthAdjust = gridSettingsDefaults.visibleColumnWidthAdjust;
+const defaultCellPadding = standardGridSettingsDefaults.cellPadding;
+const defaultFixedColumnCount: typeof gridSettingsDefaults.fixedColumnCount = 2;
+const defaultHorizontalAlign: typeof standardGridSettingsDefaults.horizontalAlign = 'left';

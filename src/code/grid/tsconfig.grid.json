@@ -1,0 +1,23 @@
+{
+  "extends": "../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../tsbuildinfo/grid.tsbuildinfo"
+  },
+
+  "include": [
+    "grid-public-api.ts",
+    "revgrid.ts",
+  ],
+
+  "references": [
+    { "path": "./behavior/ui/tsconfig.grid-behavior-ui.json" },
+    { "path": "./behavior/component/tsconfig.grid-behavior-component.json" },
+    { "path": "./components/tsconfig.grid-components.json" },
+    { "path": "./components/subgrid/tsconfig.grid-components-subgrid.json" },
+    { "path": "./interfaces/data/tsconfig.grid-interfaces-data.json" },
+    { "path": "./interfaces/settings/tsconfig.grid-interfaces-settings.json" },
+    { "path": "./types-utils/tsconfig.grid-types-utils.json" }
+  ]
+}

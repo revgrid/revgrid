@@ -1,0 +1,18 @@
+{
+  // This tsconfig.json only exists so that VSCode's intellisense works.
+  // The Typescript compiler uses src/code/tsconfig.code.json when compiling.
+  // However VSCode looks for tsconfig.json in root directory for intellisense.
+  "extends": "./tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "tsbuildinfo/tsbuildinfo",
+  },
+
+  "include": [
+  ],
+
+  "references": [
+    { "path": "src/code/tsconfig.code.json" },
+  ]
+}
