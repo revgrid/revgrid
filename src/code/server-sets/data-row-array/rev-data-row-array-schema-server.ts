@@ -3,8 +3,6 @@ import { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
 
 /** @public */
 export class RevDataRowArraySchemaServer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaField<BCS>> implements SchemaServer<BCS, SF> {
-    getFieldColumnSettingsEventer: RevDataRowArraySchemaServer.GetFieldColumnSettingsEventer<BCS, SF>;
-
     private _schemaCallbackListeners: SchemaServer.NotificationsClient<BCS, SF>[] = [];
     private _fields = new Array<SF>();
 
@@ -39,13 +37,4 @@ export class RevDataRowArraySchemaServer<BCS extends BehavioredColumnSettings, S
         this._fields = schema;
         this._schemaCallbackListeners.forEach((listener) => listener.schemaChanged());
     }
-
-    getFieldColumnSettings(field: SF): BCS {
-        return this.getFieldColumnSettingsEventer(field);
-    }
-}
-
-/** @public */
-export namespace RevDataRowArraySchemaServer {
-    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaField<BCS>> = (this: void, field: SF) => BCS;
 }

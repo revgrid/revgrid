@@ -1,6 +1,8 @@
+import { BehavioredGridSettings } from '..';
 import { AppAllGridSettings } from './app-all-grid-settings';
-import { AppGridSettingsBehavior } from './app-grid-settings-behavior';
 
 /** @public */
-export interface AppBehavioredGridSettings extends AppAllGridSettings, AppGridSettingsBehavior {
+export interface AppBehavioredGridSettings extends AppAllGridSettings, BehavioredGridSettings {
+    load(settings: AppAllGridSettings): void;
+    clone(): AppBehavioredGridSettings;
 }

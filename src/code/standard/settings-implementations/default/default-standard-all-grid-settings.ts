@@ -6,4 +6,4 @@ import { defaultStandardGridSettings } from './default-standard-grid-settings';
 export const defaultStandardAllGridSettings: StandardAllGridSettings = {
     ...defaultGridSettings,
     ...defaultStandardGridSettings,
-};
+} as const;

@@ -55,10 +55,6 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
         }
     }
 
-    getFieldColumnSettings(field: SF): BCS {
-        return field.columnSettings;
-    }
-
     setFields(fields: readonly SF[]): void {
         const oldCount = this._fields.length;
         let clearNeeded: boolean;
@@ -223,9 +219,4 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
 
         return field;
     }
-}
-
-/** @public */
-export namespace RevRecordSchemaServer {
-    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevRecordField<BCS>> = (this: void, field: SF) => BCS;
 }

@@ -17,12 +17,11 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
 
     constructor(
         field: SF,
-        columnSettings: BCS,
         private readonly _widthChangedEventer: ColumnImplementation.WidthChangedEventer<BCS, SF>,
         private readonly _horizontalViewLayoutInvalidatedEventer: ColumnImplementation.HorizontalViewLayoutInvalidatedEventer,
     ) {
         this.field = field;
-        this._settings = columnSettings;
+        this._settings = field.columnSettings;
         this._width = this._settings.defaultColumnWidth;
         this._autoSizing = this._settings.defaultColumnAutoSizing;
     }

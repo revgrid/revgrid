@@ -20,4 +20,4 @@ export const defaultColumnSettings: ColumnSettings = {
     resizeColumnInPlace: defaultGridSettings.resizeColumnInPlace,
     sortOnClick: defaultGridSettings.sortOnClick,
     sortOnDoubleClick: defaultGridSettings.sortOnDoubleClick,
-};
+} as const;

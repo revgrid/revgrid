@@ -3,7 +3,7 @@
 import { BehavioredSettings } from '../../grid/grid-public-api';
 
 /** @public */
-export const readonlyBehavioredSettings: BehavioredSettings = {
+export const readonlyBehavioredSettings: Readonly<BehavioredSettings> = {
     resizeEventer: () => {},
     viewRenderInvalidatedEventer: () => {},
     viewLayoutInvalidatedEventer: () => {},
@@ -15,4 +15,4 @@ export const readonlyBehavioredSettings: BehavioredSettings = {
 
     subscribeChangedEvent: () => {},
     unsubscribeChangedEvent: () => {},
-}
+} as const;

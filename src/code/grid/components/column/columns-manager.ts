@@ -171,10 +171,9 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /** @internal */
-    newColumn(field: SF, columnSettings: BCS): Column<BCS, SF> {
+    newColumn(field: SF): Column<BCS, SF> {
         return new ColumnImplementation(
             field,
-            columnSettings,
             (column, ui) => this.notifyColumnsWidthChanged([column], ui),
             () => this.invalidateHorizontalViewLayoutEventer(true),
         );
@@ -194,8 +193,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
         for (let i = 0; i < count; i++) {
             const field = fields[i];
-            const columnSettings = this.schemaServer.getFieldColumnSettings(field);
-            const column = this.newColumn(field, columnSettings);
+            const column = this.newColumn(field);
             this._activeColumns[i] = column;
             const fieldIndex = field.index;
             if (this._fieldColumns[fieldIndex] !== undefined) {
@@ -211,14 +209,16 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
     /** @internal */
     createDummyColumn(): Column<BCS, SF> {
-        const dummyColumnSettings: BCS = {} as BCS;
         const field: SF = {
             name: '',
             index: -1,
+            columnSettings: {
+                defaultColumnWidth: 10,
+                defaultColumnAutoSizing: true,
+            } as BCS,
         } as SF;
         return new ColumnImplementation(
             field,
-            dummyColumnSettings,
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             () => {},
             // eslint-disable-next-line @typescript-eslint/no-empty-function

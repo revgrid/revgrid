@@ -6,4 +6,4 @@ import { defaultStandardColumnSettings } from './default-standard-column-setting
 export const defaultStandardAllColumnSettings: StandardAllColumnSettings = {
     ...defaultColumnSettings,
     ...defaultStandardColumnSettings,
-};
+} as const;

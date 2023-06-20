@@ -2,7 +2,7 @@ import { Column, DataServer, StandardBehavioredColumnSettings } from '..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
-export class MainDataServer implements DataServer<AppSchemaField> {
+export class MainDataServer implements DataServer<StandardBehavioredColumnSettings, AppSchemaField> {
     private readonly _data: MainRecord[] = [];
     private _fishCreateCount = 0;
     private _notificationsClient: DataServer.NotificationsClient;

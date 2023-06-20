@@ -32,4 +32,4 @@ export const defaultStandardGridSettings: StandardGridSettings = {
     textStrikeThrough: false,
 
     editorClickCursorName: 'pointer',
-}
+} as const;

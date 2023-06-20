@@ -20,4 +20,4 @@ export const defaultStandardColumnSettings: StandardColumnSettings = {
     textTruncateType: defaultStandardGridSettings.textTruncateType,
     textStrikeThrough: defaultStandardGridSettings.textStrikeThrough,
     editorClickCursorName: defaultStandardGridSettings.editorClickCursorName,
-}
+} as const;

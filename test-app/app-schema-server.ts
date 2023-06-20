@@ -1,8 +1,8 @@
-import { InMemoryStandardBehavioredColumnSettings, SchemaServer, StandardAllGridSettings, defaultStandardAllColumnSettings } from '..';
+import { InMemoryStandardBehavioredColumnSettings, SchemaServer, StandardAllGridSettings, StandardBehavioredColumnSettings, defaultStandardAllColumnSettings } from '..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
-export class AppSchemaServer implements SchemaServer<InMemoryStandardBehavioredColumnSettings, AppSchemaField> {
+export class AppSchemaServer implements SchemaServer<StandardBehavioredColumnSettings, AppSchemaField> {
     private readonly _schema: AppSchemaField[];
 
     readonly nameSchemaSchemaField: AppSchemaField;
@@ -13,7 +13,7 @@ export class AppSchemaServer implements SchemaServer<InMemoryStandardBehavioredC
     readonly favoriteFoodSchemaField: AppSchemaField;
     readonly restrictMovementSchemaField: AppSchemaField;
 
-    private notificationsClient: SchemaServer.NotificationsClient<AppSchemaField>;
+    private notificationsClient: SchemaServer.NotificationsClient<StandardBehavioredColumnSettings, AppSchemaField>;
 
     constructor(gridSettings: StandardAllGridSettings) {
         const nameHeaders = AppSchemaServer.columnNameHeaders;
@@ -69,11 +69,7 @@ export class AppSchemaServer implements SchemaServer<InMemoryStandardBehavioredC
         return this._schema;
     }
 
-    getFieldColumnSettings(field: AppSchemaField): InMemoryStandardBehavioredColumnSettings {
-        return field.columnSettings;
-    }
-
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<AppSchemaField>) {
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<StandardBehavioredColumnSettings, AppSchemaField>) {
         this.notificationsClient = client;
 
         this.notificationsClient.schemaChanged();

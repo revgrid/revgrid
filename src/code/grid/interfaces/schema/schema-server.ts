@@ -12,7 +12,6 @@ export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends S
      * On initial call and again whenever the schema changes, the data model must dispatch the `hypegrid-schema-loaded` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
      */
     getFields(): readonly SF[];
-    getFieldColumnSettings(field: SF): BCS;
 }
 
 /** @public */

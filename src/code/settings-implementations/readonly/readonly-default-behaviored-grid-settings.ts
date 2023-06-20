@@ -3,10 +3,10 @@ import { defaultGridSettings } from '../default/settings-implementations-default
 import { readonlyBehavioredSettings } from './readonly-behaviored-settings';
 
 /** @public */
-export const readonlyDefaultBehavioredGridSettings: BehavioredGridSettings = {
+export const readonlyDefaultBehavioredGridSettings: Readonly<BehavioredGridSettings> = {
     ...defaultGridSettings,
     ...readonlyBehavioredSettings,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     load: () => {},
     clone: () => { return readonlyDefaultBehavioredGridSettings; }
-}
+} as const;

@@ -3,11 +3,11 @@ import { defaultColumnSettings, defaultGridSettings } from '../default/settings-
 import { readonlyBehavioredSettings } from './readonly-behaviored-settings';
 
 /** @public */
-export const readonlyDefaultBehavioredColumnSettings: BehavioredColumnSettings = {
+export const readonlyDefaultBehavioredColumnSettings: Readonly<BehavioredColumnSettings> = {
     gridSettings: defaultGridSettings,
     ...defaultColumnSettings,
     ...readonlyBehavioredSettings,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     load: () => {},
     clone: () => { return readonlyDefaultBehavioredColumnSettings; }
-}
+} as const;

@@ -458,7 +458,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     // @internal (undocumented)
     moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean): void;
     // @internal (undocumented)
-    newColumn(field: SF, columnSettings: BCS): Column<BCS, SF>;
+    newColumn(field: SF): Column<BCS, SF>;
     // @internal (undocumented)
     removeBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener): void;
     // @internal (undocumented)
@@ -1128,155 +1128,155 @@ export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateType
 
 // @public (undocumented)
 export interface GridSettings {
-    readonly addToggleSelectionAreaModifierKey: ModifierKeyEnum;
-    readonly addToggleSelectionAreaModifierKeyDoesToggle: boolean;
+    addToggleSelectionAreaModifierKey: ModifierKeyEnum;
+    addToggleSelectionAreaModifierKeyDoesToggle: boolean;
     // (undocumented)
-    readonly backgroundColor: GridSettings.Color;
+    backgroundColor: GridSettings.Color;
     // (undocumented)
-    readonly color: GridSettings.Color;
-    readonly columnAutoSizingMax: number | undefined;
-    readonly columnClip: boolean | undefined;
+    color: GridSettings.Color;
+    columnAutoSizingMax: number | undefined;
+    columnClip: boolean | undefined;
     // (undocumented)
-    readonly columnMoveDragActiveCursorName: string | undefined;
+    columnMoveDragActiveCursorName: string | undefined;
     // (undocumented)
-    readonly columnMoveDragActiveTitleText: string | undefined;
+    columnMoveDragActiveTitleText: string | undefined;
     // (undocumented)
-    readonly columnMoveDragPossibleCursorName: string | undefined;
+    columnMoveDragPossibleCursorName: string | undefined;
     // (undocumented)
-    readonly columnMoveDragPossibleTitleText: string | undefined;
+    columnMoveDragPossibleTitleText: string | undefined;
     // (undocumented)
-    readonly columnResizeDragActiveCursorName: string | undefined;
+    columnResizeDragActiveCursorName: string | undefined;
     // (undocumented)
-    readonly columnResizeDragActiveTitleText: string | undefined;
+    columnResizeDragActiveTitleText: string | undefined;
     // (undocumented)
-    readonly columnResizeDragPossibleCursorName: string | undefined;
+    columnResizeDragPossibleCursorName: string | undefined;
     // (undocumented)
-    readonly columnResizeDragPossibleTitleText: string | undefined;
+    columnResizeDragPossibleTitleText: string | undefined;
     // (undocumented)
-    readonly columnSortPossibleCursorName: string | undefined;
+    columnSortPossibleCursorName: string | undefined;
     // (undocumented)
-    readonly columnSortPossibleTitleText: string | undefined;
-    readonly columnsReorderable: boolean;
-    readonly columnsReorderableHideable: boolean;
-    readonly defaultColumnAutoSizing: boolean;
+    columnSortPossibleTitleText: string | undefined;
+    columnsReorderable: boolean;
+    columnsReorderableHideable: boolean;
+    defaultColumnAutoSizing: boolean;
     // (undocumented)
-    readonly defaultColumnWidth: number;
+    defaultColumnWidth: number;
     // (undocumented)
-    readonly defaultRowHeight: number;
+    defaultRowHeight: number;
     // (undocumented)
-    readonly defaultUiBehaviorTypeNames: string[];
+    defaultUiBehaviorTypeNames: string[];
     // (undocumented)
-    readonly editable: boolean;
-    readonly editKey: string;
-    readonly editOnClick: boolean;
-    readonly editOnDoubleClick: boolean;
-    readonly editOnFocusCell: boolean;
-    readonly editOnKeyDown: boolean;
+    editable: boolean;
+    editKey: string;
+    editOnClick: boolean;
+    editOnDoubleClick: boolean;
+    editOnFocusCell: boolean;
+    editOnKeyDown: boolean;
     // (undocumented)
-    readonly enableContinuousRepaint: boolean;
-    readonly eventDispatchEnabled: boolean;
-    readonly extendLastSelectionAreaModifierKey: ModifierKeyEnum;
-    readonly filterable: boolean;
+    enableContinuousRepaint: boolean;
+    eventDispatchEnabled: boolean;
+    extendLastSelectionAreaModifierKey: ModifierKeyEnum;
+    filterable: boolean;
     // (undocumented)
-    readonly filterBackgroundColor: GridSettings.Color;
+    filterBackgroundColor: GridSettings.Color;
     // (undocumented)
-    readonly filterBackgroundSelectionColor: GridSettings.Color;
+    filterBackgroundSelectionColor: GridSettings.Color;
     // (undocumented)
-    readonly filterCellPainter: string;
+    filterCellPainter: string;
     // (undocumented)
-    readonly filterColor: GridSettings.Color;
+    filterColor: GridSettings.Color;
     // (undocumented)
-    readonly filterEditor: string;
+    filterEditor: string;
     // (undocumented)
-    readonly filterFont: string;
+    filterFont: string;
     // (undocumented)
-    readonly filterForegroundSelectionColor: GridSettings.Color;
+    filterForegroundSelectionColor: GridSettings.Color;
     // (undocumented)
-    readonly filterHalign: Halign;
+    filterHalign: Halign;
     // (undocumented)
-    readonly fixedColumnCount: number;
+    fixedColumnCount: number;
     // (undocumented)
-    readonly fixedRowCount: number;
-    readonly gridRightAligned: boolean;
+    fixedRowCount: number;
+    gridRightAligned: boolean;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    readonly horizontalFixedLineColor: GridSettings.Color;
+    horizontalFixedLineColor: GridSettings.Color;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    readonly horizontalFixedLineEdgeWidth: number | undefined;
+    horizontalFixedLineEdgeWidth: number | undefined;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    readonly horizontalFixedLineWidth: number | undefined;
-    readonly horizontalGridLinesColor: GridSettings.Color;
+    horizontalFixedLineWidth: number | undefined;
+    horizontalGridLinesColor: GridSettings.Color;
     // (undocumented)
-    readonly horizontalGridLinesVisible: boolean;
-    readonly horizontalGridLinesWidth: number;
+    horizontalGridLinesVisible: boolean;
+    horizontalGridLinesWidth: number;
     // (undocumented)
-    readonly horizontalScrollbarClassPrefix: string;
+    horizontalScrollbarClassPrefix: string;
     // (undocumented)
-    readonly horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
+    horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
     // (undocumented)
-    readonly maximumColumnWidth: number | undefined;
+    maximumColumnWidth: number | undefined;
     // (undocumented)
-    readonly minimumColumnWidth: number;
-    readonly mouseColumnSelection: boolean;
-    readonly mouseRectangleSelection: boolean;
-    readonly mouseRowSelection: boolean;
-    readonly multipleSelectionAreas: boolean;
-    readonly primarySelectionAreaType: SelectionAreaType;
+    minimumColumnWidth: number;
+    mouseColumnSelection: boolean;
+    mouseRectangleSelection: boolean;
+    mouseRowSelection: boolean;
+    multipleSelectionAreas: boolean;
+    primarySelectionAreaType: SelectionAreaType;
     // (undocumented)
-    readonly repaintFramesPerSecond: number;
+    repaintFramesPerSecond: number;
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-    readonly repaintImmediately: boolean;
+    repaintImmediately: boolean;
     // (undocumented)
-    readonly resizeColumnInPlace: boolean;
-    readonly resizedEventDebounceExtendedWhenPossible: boolean;
-    readonly resizedEventDebounceInterval: number;
-    readonly rowResize: boolean;
-    readonly rowStripes: GridSettings.RowStripe[] | undefined;
+    resizeColumnInPlace: boolean;
+    resizedEventDebounceExtendedWhenPossible: boolean;
+    resizedEventDebounceInterval: number;
+    rowResize: boolean;
+    rowStripes: GridSettings.RowStripe[] | undefined;
     // (undocumented)
-    readonly scrollerThumbColor: string;
+    scrollerThumbColor: string;
     // (undocumented)
-    readonly scrollerThumbReducedVisibilityOpacity: number;
-    readonly scrollHorizontallySmoothly: boolean;
+    scrollerThumbReducedVisibilityOpacity: number;
+    scrollHorizontallySmoothly: boolean;
     // (undocumented)
-    readonly scrollingEnabled: boolean;
+    scrollingEnabled: boolean;
     // (undocumented)
-    readonly secondarySelectionAreaType: SelectionAreaType;
-    readonly secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
-    readonly selectionExtendDragActiveCursorName: string | undefined;
+    secondarySelectionAreaType: SelectionAreaType;
+    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
+    selectionExtendDragActiveCursorName: string | undefined;
     // (undocumented)
-    readonly selectionExtendDragActiveTitleText: string | undefined;
-    readonly selectionRegionOutlineColor: GridSettings.Color;
-    readonly selectionRegionOverlayColor: GridSettings.Color;
+    selectionExtendDragActiveTitleText: string | undefined;
+    selectionRegionOutlineColor: GridSettings.Color;
+    selectionRegionOverlayColor: GridSettings.Color;
     // (undocumented)
-    readonly showFilterRow: boolean;
+    showFilterRow: boolean;
     // (undocumented)
-    readonly showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
-    readonly sortOnClick: boolean;
-    readonly sortOnDoubleClick: boolean;
+    showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
+    sortOnClick: boolean;
+    sortOnDoubleClick: boolean;
     // (undocumented)
-    readonly useHiDPI: boolean;
+    useHiDPI: boolean;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    readonly verticalFixedLineColor: GridSettings.Color;
+    verticalFixedLineColor: GridSettings.Color;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    readonly verticalFixedLineEdgeWidth: number | undefined;
+    verticalFixedLineEdgeWidth: number | undefined;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    readonly verticalFixedLineWidth: number | undefined;
-    readonly verticalGridLinesColor: GridSettings.Color;
+    verticalFixedLineWidth: number | undefined;
+    verticalGridLinesColor: GridSettings.Color;
     // (undocumented)
-    readonly verticalGridLinesVisible: boolean;
-    readonly verticalGridLinesWidth: number;
+    verticalGridLinesVisible: boolean;
+    verticalGridLinesWidth: number;
     // (undocumented)
-    readonly verticalScrollbarClassPrefix: string;
+    verticalScrollbarClassPrefix: string;
     // (undocumented)
-    readonly visibleColumnWidthAdjust: boolean;
+    visibleColumnWidthAdjust: boolean;
     // (undocumented)
-    readonly wheelHFactor: number;
+    wheelHFactor: number;
     // (undocumented)
-    readonly wheelVFactor: number;
+    wheelVFactor: number;
 }
 
 // @public (undocumented)
@@ -1285,8 +1285,6 @@ export namespace GridSettings {
     export function assign(source: Partial<GridSettings>, target: GridSettings): boolean;
     // (undocumented)
     export type Color = string;
-    // (undocumented)
-    export type FeedbackEffect = string;
     // (undocumented)
     export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): SelectionAreaType;
     // (undocumented)
@@ -2175,19 +2173,19 @@ export namespace Point {
 }
 
 // @public (undocumented)
-export const readonlyBehavioredSettings: BehavioredSettings;
+export const readonlyBehavioredSettings: Readonly<BehavioredSettings>;
 
 // @public (undocumented)
-export const readonlyDefaultBehavioredColumnSettings: BehavioredColumnSettings;
+export const readonlyDefaultBehavioredColumnSettings: Readonly<BehavioredColumnSettings>;
 
 // @public (undocumented)
-export const readonlyDefaultBehavioredGridSettings: BehavioredGridSettings;
+export const readonlyDefaultBehavioredGridSettings: Readonly<BehavioredGridSettings>;
 
 // @public (undocumented)
-export const readonlyDefaultStandardBehavioredColumnSettings: StandardBehavioredColumnSettings;
+export const readonlyDefaultStandardBehavioredColumnSettings: Readonly<StandardBehavioredColumnSettings>;
 
 // @public (undocumented)
-export const readonlyDefaultStandardBehavioredGridSettings: StandardBehavioredGridSettings;
+export const readonlyDefaultStandardBehavioredGridSettings: Readonly<StandardBehavioredGridSettings>;
 
 // @public (undocumented)
 export interface Rectangle {
@@ -2277,10 +2275,6 @@ export interface RevDataRowArraySchemaField<BCS extends BehavioredColumnSettings
 // @public (undocumented)
 export class RevDataRowArraySchemaServer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaField<BCS>> implements SchemaServer<BCS, SF> {
     // (undocumented)
-    getFieldColumnSettings(field: SF): BCS;
-    // (undocumented)
-    getFieldColumnSettingsEventer: RevDataRowArraySchemaServer.GetFieldColumnSettingsEventer<BCS, SF>;
-    // (undocumented)
     getFields(): readonly SF[];
     // (undocumented)
     reset(schema?: SF[]): void;
@@ -2290,12 +2284,6 @@ export class RevDataRowArraySchemaServer<BCS extends BehavioredColumnSettings, S
     subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<BCS, SF>): void;
     // (undocumented)
     unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<BCS, SF>): void;
-}
-
-// @public (undocumented)
-export namespace RevDataRowArraySchemaServer {
-    // (undocumented)
-    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaField<BCS>> = (this: void, field: SF) => BCS;
 }
 
 // @public (undocumented)
@@ -3161,8 +3149,6 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
     // (undocumented)
     getFieldByName(fieldName: string): SF;
     // (undocumented)
-    getFieldColumnSettings(field: SF): BCS;
-    // (undocumented)
     getFieldIndex(field: SF): RevRecordFieldIndex;
     // (undocumented)
     getFieldIndexByName(fieldName: string): RevRecordFieldIndex;
@@ -3184,12 +3170,6 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
     setFields(fields: readonly SF[]): void;
     // (undocumented)
     subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<BCS, SF>): void;
-}
-
-// @public (undocumented)
-export namespace RevRecordSchemaServer {
-    // (undocumented)
-    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevRecordField<BCS>> = (this: void, field: SF) => BCS;
 }
 
 // @public
@@ -3298,8 +3278,6 @@ export interface SchemaField<BCS extends BehavioredColumnSettings> {
 
 // @public (undocumented)
 export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
-    // (undocumented)
-    getFieldColumnSettings(field: SF): BCS;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     getFields(): readonly SF[];

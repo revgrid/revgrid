@@ -4,10 +4,11 @@ import {
     DatalessViewCell,
     EventDetail,
     HalignEnum,
-    InMemoryStandardBehavioredColumnSettings,
     InMemoryStandardBehavioredGridSettings,
     Revgrid,
     StandardAlphaTextCellPainter,
+    StandardBehavioredColumnSettings,
+    StandardBehavioredGridSettings,
     StandardCellPainter,
     StandardCheckboxCellEditor,
     StandardCheckboxCellPainter,
@@ -39,17 +40,17 @@ export class Main {
     private readonly _addFishButtonElement: HTMLButtonElement;
     private readonly _gridHostElement: HTMLElement;
 
-    private _gridSettings = new InMemoryStandardBehavioredGridSettings();
+    private _gridSettings: StandardBehavioredGridSettings = new InMemoryStandardBehavioredGridSettings();
     private _schemaServer: AppSchemaServer;
     private _headerDataServer: HeaderDataServer;
     private _mainDataServer: MainDataServer;
-    private _headerCellPainter: StandardHeaderTextCellPainter<InMemoryStandardBehavioredGridSettings, InMemoryStandardBehavioredColumnSettings, AppSchemaField>;
-    private _textCellPainter: StandardAlphaTextCellPainter<InMemoryStandardBehavioredGridSettings, InMemoryStandardBehavioredColumnSettings, AppSchemaField>;
-    private _checkboxCellPainter: StandardCheckboxCellPainter<InMemoryStandardBehavioredGridSettings, InMemoryStandardBehavioredColumnSettings, AppSchemaField>;
-    private _textInputEditor: StandardTextInputCellEditor<InMemoryStandardBehavioredGridSettings, InMemoryStandardBehavioredColumnSettings, AppSchemaField>;
-    private _checkboxEditor: StandardCheckboxCellEditor<InMemoryStandardBehavioredGridSettings, InMemoryStandardBehavioredColumnSettings, AppSchemaField>;
+    private _headerCellPainter: StandardHeaderTextCellPainter<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
+    private _textCellPainter: StandardAlphaTextCellPainter<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
+    private _checkboxCellPainter: StandardCheckboxCellPainter<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
+    private _textInputEditor: StandardTextInputCellEditor<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
+    private _checkboxEditor: StandardCheckboxCellEditor<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
 
-    private _grid: Revgrid<InMemoryStandardBehavioredGridSettings, InMemoryStandardBehavioredColumnSettings, AppSchemaField>;
+    private _grid: Revgrid<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
 
     constructor() {
         const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
@@ -182,7 +183,7 @@ export class Main {
         this._mainDataServer = new MainDataServer();
         this._headerDataServer = new HeaderDataServer();
 
-        const definition: Revgrid.Definition<InMemoryStandardBehavioredColumnSettings, AppSchemaField> = {
+        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, AppSchemaField> = {
             schemaServer: this._schemaServer,
             subgrids: [
                 {
@@ -216,7 +217,7 @@ export class Main {
         this._deleteRowIndexTextboxElement.value = '0';
 
         this._grid.addEventListener('rev-column-sort', (event) => {
-                const hoverCell = (event as CustomEvent<EventDetail.ColumnSort<InMemoryStandardBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
+                const hoverCell = (event as CustomEvent<EventDetail.ColumnSort<StandardBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
                 if (hoverCell !== undefined) {
                     this._mainDataServer.sort(hoverCell.viewCell.viewLayoutColumn.column);
                 }
@@ -261,10 +262,10 @@ export class Main {
         // }
     }
 
-    private getMainCellPainter(viewCell: DatalessViewCell<InMemoryStandardBehavioredColumnSettings, AppSchemaField>) {
+    private getMainCellPainter(viewCell: DatalessViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
         let cellPainter: StandardCellPainter<
-            InMemoryStandardBehavioredGridSettings,
-            InMemoryStandardBehavioredColumnSettings,
+            StandardBehavioredGridSettings,
+            StandardBehavioredColumnSettings,
             AppSchemaField
         >;
 
@@ -276,17 +277,17 @@ export class Main {
         return cellPainter;
     }
 
-    private getHeaderCellPainter(viewCell: DatalessViewCell<InMemoryStandardBehavioredColumnSettings, AppSchemaField>) {
+    private getHeaderCellPainter(viewCell: DatalessViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
         return this._headerCellPainter;
     }
 
     private getCellEditor(
         field: AppSchemaField,
         _subgridRowIndex: number,
-        _subgrid: Subgrid<InMemoryStandardBehavioredColumnSettings, AppSchemaField>,
+        _subgrid: Subgrid<StandardBehavioredColumnSettings, AppSchemaField>,
         readonly: boolean,
-        _viewCell: ViewCell<InMemoryStandardBehavioredColumnSettings, AppSchemaField> | undefined
-    ): CellEditor<InMemoryStandardBehavioredColumnSettings, AppSchemaField> | undefined {
+        _viewCell: ViewCell<StandardBehavioredColumnSettings, AppSchemaField> | undefined
+    ): CellEditor<StandardBehavioredColumnSettings, AppSchemaField> | undefined {
         return this.tryGetCellEditor(field.name, readonly);
     }
 
