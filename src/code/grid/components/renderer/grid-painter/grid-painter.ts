@@ -1,7 +1,7 @@
 import { ViewCell } from '../../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../../interfaces/data/view-layout-row';
-import { SchemaServer } from '../../../interfaces/schema/schema-server';
-import { ViewLayoutColumn } from '../../../interfaces/schema/view-layout-column';
+import { ViewLayoutColumn } from '../../../interfaces/dataless/view-layout-column';
+import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
@@ -13,7 +13,7 @@ import { Selection } from '../../selection/selection';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
-export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     protected _renderingContext: CachedCanvasRenderingContext2D;
 
     private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
@@ -474,7 +474,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
 export namespace GridPainter {
     export type ResetAllGridPaintersRequiredEventer = (this: void, blackList: string[]) => void;
     export type RepaintAllRequiredEventer = (this: void) => void;
-    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = new(
+    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = new(
         gridProperties: BGS,
         canvasManager: CanvasManager<BGS>,
         subgridsManager: SubgridsManager<BGS, BCS, SF>,

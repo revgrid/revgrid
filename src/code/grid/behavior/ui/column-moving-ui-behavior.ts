@@ -1,7 +1,7 @@
 import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { ViewLayoutColumn } from '../../interfaces/schema/view-layout-column';
+import { ViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
@@ -18,7 +18,7 @@ interface Action {
 }
 
 /** @internal */
-interface MoveAction<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends Action {
+interface MoveAction<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
     source: ViewLayoutColumn<BCS, SF>;
@@ -26,7 +26,7 @@ interface MoveAction<BCS extends BehavioredColumnSettings, SF extends SchemaServ
 }
 
 /** @internal */
-interface ScrollAction<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends Action {
+interface ScrollAction<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends Action {
     type: DragActionType.Scroll;
     toRight: boolean;
     mouseOffGrid: boolean; // only considers left and right off grid
@@ -39,10 +39,10 @@ interface NoAction extends Action {
 }
 
 /** @internal */
-type ColumnDragAction<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = MoveAction<BCS, SF> | ScrollAction<BCS, SF> | NoAction
+type ColumnDragAction<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = MoveAction<BCS, SF> | ScrollAction<BCS, SF> | NoAction
 
 /** @internal */
-export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
+export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
     readonly typeName = ColumnMovingUiBehavior.typeName;
 
     private _dragOverlay: HTMLCanvasElement | undefined;

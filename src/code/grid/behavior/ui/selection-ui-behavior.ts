@@ -4,7 +4,7 @@ import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
@@ -16,7 +16,7 @@ import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
+export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = SelectionUiBehavior.typeName;
 
@@ -665,7 +665,7 @@ export namespace SelectionUiBehavior {
 
     export const scheduleStepScrollDragTickInterval = 20;
 
-    export interface ExtendSelectOrigin<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    export interface ExtendSelectOrigin<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
         readonly areaType: SelectionAreaType,
         readonly subgrid: Subgrid<BCS, SF>;
         readonly point: Point;

@@ -1,14 +1,14 @@
 import { DataServer } from '../../interfaces/data/data-server';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
+export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = CellClickUiBehavior.typeName;
 

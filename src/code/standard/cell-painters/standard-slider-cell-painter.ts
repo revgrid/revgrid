@@ -1,5 +1,5 @@
 
-import { CellPainter, DatalessViewCell, Rectangle, SchemaServer } from '../../grid/grid-public-api';
+import { CellPainter, DatalessViewCell, Rectangle, SchemaField } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -11,7 +11,7 @@ import { StandardCellPainter } from './standard-cell-painter';
 export class StandardSliderCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField<BCS>
 > extends StandardCellPainter<BGS, BCS, SF> {
     config: StandardSliderCellPainter.Config;
 

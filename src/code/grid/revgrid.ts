@@ -26,7 +26,8 @@ import { MainSubgrid } from './interfaces/data/main-subgrid';
 import { MetaModel } from './interfaces/data/meta-model';
 import { Subgrid } from './interfaces/data/subgrid';
 import { ViewCell } from './interfaces/data/view-cell';
-import { Column, ColumnAutoSizeableWidth } from './interfaces/schema/column';
+import { Column, ColumnAutoSizeableWidth } from './interfaces/dataless/column';
+import { SchemaField } from './interfaces/schema/schema-field';
 import { SchemaServer } from './interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
@@ -39,7 +40,7 @@ import { AssertError } from './types-utils/revgrid-error';
 import { ColumnFieldNameAndAutoSizableWidth, ListChangedTypeId, SelectionAreaType } from './types-utils/types';
 
 /** @public */
-export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly mouse: Mouse<BGS, BCS, SF>;
     readonly selection: Selection<BGS, BCS, SF>;
     readonly focus: Focus<BGS, BCS, SF>;
@@ -47,7 +48,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
 
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
-    readonly mainDataServer: DataServer<SF>;
+    readonly mainDataServer: DataServer<BCS, SF>;
 
     /** @internal */
     private readonly _componentsManager: ComponentsManager<BGS, BCS, SF>;
@@ -628,7 +629,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this.viewLayout.getBoundsOfCell(gridCell.x, gridCell.y);
     }
 
-    getSchema(): readonly SchemaServer.Field[] {
+    getSchema(): readonly SchemaField<BCS>[] {
         return this._columnsManager.getSchema();
     }
 
@@ -2027,12 +2028,12 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
 /** @public */
 export namespace Revgrid {
-    export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
         schemaServer: (SchemaServer<BCS, SF> | SchemaServer.Constructor<BCS, SF>),
         subgrids: Subgrid.Definition<BCS, SF>[],
     }
 
-    export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS, SF>[];

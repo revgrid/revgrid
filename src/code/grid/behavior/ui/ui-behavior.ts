@@ -11,7 +11,7 @@ import { ViewLayout } from '../../components/view/view-layout';
 import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
@@ -29,7 +29,7 @@ import { UiBehaviorSharedState } from './ui-behavior-shared-state';
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @public
  */
-export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     abstract readonly typeName: string;
 
     protected readonly sharedState: UiBehaviorSharedState;
@@ -315,10 +315,10 @@ export namespace UiBehavior {
     export type Constructor<
         BGS extends BehavioredGridSettings,
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaServer.Field
+        SF extends SchemaField<BCS>
     > = new (services: UiBehaviorServices<BGS, BCS, SF>) => UiBehavior<BGS, BCS, SF>;
 
-    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
         typeName: string;
         constructor: Constructor<BGS, BCS, SF>;
     }

@@ -1,12 +1,7 @@
 import { AppGridSettings } from './app-grid-settings';
 
 /** @public */
-export const appGridSettingsDefaults: AppGridSettings = {
-    // allChangedRecentDuration: 250,
-    // recordInsertedRecentDuration: 1000,
-    // recordUpdatedRecentDuration: 1000,
-    // valueChangedRecentDuration: 1000,
-
+export const defaultAppGridSettings: AppGridSettings = {
     focusedRowBorderWidth: 1,
 
     alternateBackgroundColor: '#2b2b2b',
@@ -19,4 +14,4 @@ export const appGridSettingsDefaults: AppGridSettings = {
     valueRecentlyModifiedDownBorderColor: '#4646FF',
     recordRecentlyUpdatedBorderColor: 'orange',
     recordRecentlyInsertedBorderColor: 'pink',
-}
+} as const;

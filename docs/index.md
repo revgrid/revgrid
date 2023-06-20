@@ -83,3 +83,4 @@ There are many excellent alternative JavaScript grid libraries (both paid and fr
 ---------|---------
  0.1.13  | A major rewrite of this library.  Substantial changes to API.
  0.1.14  | Fix dev dependency issue
+ 0.1.15  | SchemaField is now independent of SchemaServer and includes column Settings. Refactor settings.

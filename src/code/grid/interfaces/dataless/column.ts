@@ -1,9 +1,9 @@
+import { SchemaField } from '../schema/schema-field';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { ColumnSettings } from '../settings/column-settings';
-import { SchemaServer } from './schema-server';
 
 /** @public */
-export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly field: SF;
     readonly settings: BCS;
 
@@ -20,7 +20,7 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaS
 }
 
 /** @public */
-export interface ColumnAutoSizeableWidth<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export interface ColumnAutoSizeableWidth<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     column: Column<BCS, SF>;
     width: number | undefined;
 }

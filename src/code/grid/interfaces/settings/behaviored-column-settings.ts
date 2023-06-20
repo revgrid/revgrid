@@ -1,7 +1,11 @@
 import { AllColumnSettings } from './all-column-settings';
-import { ColumnSettingsBehavior } from './column-settings-behavior';
+import { AllGridSettings } from './all-grid-settings';
+import { BehavioredSettings } from './behaviored-settings';
 
 /** @public */
-export interface BehavioredColumnSettings extends AllColumnSettings, ColumnSettingsBehavior {
+export interface BehavioredColumnSettings extends AllColumnSettings, BehavioredSettings{
+    readonly gridSettings: AllGridSettings;
 
+    load(settings: AllColumnSettings): void;
+    clone(): BehavioredColumnSettings;
 }

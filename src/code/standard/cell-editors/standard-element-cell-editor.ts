@@ -1,15 +1,15 @@
-import { DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellEditor } from './standard-cell-editor';
 
 export abstract class StandardElementCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField<BCS>
 > extends StandardCellEditor<BGS, BCS, SF> {
     protected readonly element: HTMLElement;
 
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, element: HTMLElement) {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<BCS, SF>, element: HTMLElement) {
         super(grid, dataServer);
         this.element = element;
         element.style.position = 'absolute';

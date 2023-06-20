@@ -2,8 +2,9 @@ import { CellPainter } from '../../interfaces/data/cell-painter';
 import { DataServer } from '../../interfaces/data/data-server';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
+import { Column } from '../../interfaces/dataless/column';
 import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
-import { Column } from '../../interfaces/schema/column';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -12,7 +13,7 @@ import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> implements Subgrid<BCS, SF> {
+export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> implements Subgrid<BCS, SF> {
     readonly isMain: boolean = false;
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
@@ -43,7 +44,7 @@ export class SubgridImplementation<BGS extends BehavioredGridSettings, BCS exten
         public readonly handle: SubgridImplementation.Handle,
         public readonly role: Subgrid.Role,
         public readonly schemaServer: SchemaServer<BCS, SF>,
-        public readonly dataServer: DataServer<SF>,
+        public readonly dataServer: DataServer<BCS, SF>,
         public readonly metaModel: MetaModel | undefined,
         public readonly selectable: boolean,
         public readonly defaultRowHeight: number | undefined,
@@ -520,13 +521,13 @@ export namespace SubgridImplementation {
     export type Handle = number;
 
     /** @internal */
-    export class ViewDataRowProxy<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    export class ViewDataRowProxy<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
         [fieldName: string]: DataServer.ViewValue;
 
         ____rowIndex: number;
         ____fieldNames: string[] = [];
 
-        constructor(readonly schemaServer: SchemaServer<BCS, SF>, readonly dataServer: DataServer<SF>) {
+        constructor(readonly schemaServer: SchemaServer<BCS, SF>, readonly dataServer: DataServer<BCS, SF>) {
             this.updateSchema(); // is this necessary? If we do not always get the "rev-schema-loaded" event then it is necessary
         }
 

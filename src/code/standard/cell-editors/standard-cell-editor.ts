@@ -1,10 +1,10 @@
-import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 
 export abstract class StandardCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField<BCS>
 > implements CellEditor<BCS, SF> {
     pullValueEventer: CellEditor.PullDataEventer;
     pushValueEventer: CellEditor.PushDataEventer;
@@ -14,7 +14,7 @@ export abstract class StandardCellEditor<
 
     constructor(
         protected readonly _grid: Revgrid<BGS, BCS, SF>,
-        protected readonly _dataServer: DataServer<SF>,
+        protected readonly _dataServer: DataServer<BCS, SF>,
     ) {
     }
 

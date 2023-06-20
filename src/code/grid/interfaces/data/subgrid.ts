@@ -1,6 +1,7 @@
+import { Column } from '../dataless/column';
 import { DatalessSubgrid } from '../dataless/dataless-subgrid';
 import { DatalessViewCell } from '../dataless/dataless-view-cell';
-import { Column } from '../schema/column';
+import { SchemaField } from '../schema/schema-field';
 import { SchemaServer } from '../schema/schema-server';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { CellPainter } from './cell-painter';
@@ -8,9 +9,9 @@ import { DataServer } from './data-server';
 import { MetaModel } from './meta-model';
 
 /** @public */
-export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends DatalessSubgrid {
+export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends DatalessSubgrid {
     readonly schemaServer: SchemaServer<BCS, SF>;
-    readonly dataServer: DataServer<SF>;
+    readonly dataServer: DataServer<BCS, SF>;
     readonly metaModel: MetaModel | undefined;
 
     getRowCount(): number;
@@ -40,7 +41,7 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends Schema
 export namespace Subgrid {
     export type GetCellPainterEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaServer.Field
+        SF extends SchemaField<BCS>
     > = (this: void, viewCell: DatalessViewCell<BCS, SF>) => CellPainter<BCS, SF>;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -48,10 +49,10 @@ export namespace Subgrid {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export import Role = DatalessSubgrid.Role;
 
-    export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+    export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
         /** defaults to main */
         role?: DatalessSubgrid.Role;
-        dataServer: DataServer<SF> | DataServer.Constructor<SF>;
+        dataServer: DataServer<BCS, SF> | DataServer.Constructor<BCS, SF>;
         metaModel?: MetaModel | MetaModel.Constructor;
         selectable?: boolean;
         defaultRowHeight?: number;

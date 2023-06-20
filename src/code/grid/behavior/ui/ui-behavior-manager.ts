@@ -9,7 +9,7 @@ import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
 import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
@@ -37,7 +37,7 @@ import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /** @internal */
-export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     private readonly _uiBehaviorFactory = new UiBehaviorFactory<BGS, BCS, SF>();
     private readonly _uiBehaviorMap = new Map<string, UiBehavior<BGS, BCS, SF>>();
     private readonly _sharedState: UiBehaviorSharedState; // Will be initialised in constructor

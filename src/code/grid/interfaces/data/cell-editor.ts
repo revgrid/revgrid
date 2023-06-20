@@ -1,6 +1,6 @@
 import { Rectangle } from '../../types-utils/rectangle';
 import { DatalessViewCell } from '../dataless/dataless-view-cell';
-import { SchemaServer } from '../schema/schema-server';
+import { SchemaField } from '../schema/schema-field';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { CellPossiblyPaintable } from './cell-possibly-paintable';
 import { DataServer } from './data-server';
@@ -8,7 +8,7 @@ import { DataServer } from './data-server';
 /** @public */
 export interface CellEditor<
     BCS extends BehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField<BCS>
 > extends CellPossiblyPaintable<BCS, SF> {
 
     // Common properties, methods and events

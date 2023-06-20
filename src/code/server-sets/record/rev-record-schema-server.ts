@@ -14,13 +14,13 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
     private readonly _fieldValueDependsOnRecordIndexFieldIndexes: RevRecordFieldIndex[] = [];
     private readonly _fieldValueDependsOnRowIndexFieldIndexes: RevRecordFieldIndex[] = [];
 
-    private _notificationClient: SchemaServer.NotificationsClient<SF>;
+    private _notificationClient: SchemaServer.NotificationsClient<BCS, SF>;
 
     get schema(): readonly SF[] { return this._fields; }
     get fields(): readonly SF[] { return this._fields; }
     get fieldCount(): number { return this._fields.length; }
 
-    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<SF>): void {
+    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<BCS, SF>): void {
         this._notificationClient = value;
     }
 
@@ -53,10 +53,6 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
 
             return firstIndex;
         }
-    }
-
-    getFieldColumnSettings(field: SF): BCS {
-        return field.columnSettings;
     }
 
     setFields(fields: readonly SF[]): void {
@@ -223,9 +219,4 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
 
         return field;
     }
-}
-
-/** @public */
-export namespace RevRecordSchemaServer {
-    export type GetFieldColumnSettingsEventer<BCS extends BehavioredColumnSettings, SF extends RevRecordField<BCS>> = (this: void, field: SF) => BCS;
 }

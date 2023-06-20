@@ -11,6 +11,7 @@
   ],
 
   "references": [
+    { "path": "../../standard/tsconfig.standard.json" },
     { "path": "../../grid/tsconfig.grid.json" }
   ]
 }

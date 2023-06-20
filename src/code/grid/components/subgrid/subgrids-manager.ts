@@ -2,7 +2,7 @@ import { DataServer } from '../../interfaces/data/data-server';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
@@ -11,7 +11,7 @@ import { MainSubgridImplementation } from './main-subgrid-implementation';
 import { SubgridImplementation } from './subgrid-implementation';
 
 /** @public */
-export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     readonly subgrids: Subgrid<BCS, SF>[];
     /** @internal */
@@ -100,7 +100,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
     /** @returns either Subgrid or MainSubgrid depending on role */
     private createSubgrid(
         subgridHandle: SubgridImplementation.Handle,
-        role: Subgrid.Role, dataServer: DataServer<SF>, metaModel: MetaModel | undefined,
+        role: Subgrid.Role, dataServer: DataServer<BCS, SF>, metaModel: MetaModel | undefined,
         selectable: boolean,
         defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,

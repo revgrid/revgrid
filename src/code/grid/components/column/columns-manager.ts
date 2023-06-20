@@ -1,4 +1,5 @@
-import { Column, ColumnAutoSizeableWidth } from '../../interfaces/schema/column';
+import { Column, ColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -8,7 +9,7 @@ import { ColumnFieldNameAndAutoSizableWidth, ListChangedEventHandler as ListChan
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     /** @internal */
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
@@ -170,10 +171,9 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /** @internal */
-    newColumn(field: SF, columnSettings: BCS): Column<BCS, SF> {
+    newColumn(field: SF): Column<BCS, SF> {
         return new ColumnImplementation(
             field,
-            columnSettings,
             (column, ui) => this.notifyColumnsWidthChanged([column], ui),
             () => this.invalidateHorizontalViewLayoutEventer(true),
         );
@@ -193,8 +193,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
         for (let i = 0; i < count; i++) {
             const field = fields[i];
-            const columnSettings = this.schemaServer.getFieldColumnSettings(field);
-            const column = this.newColumn(field, columnSettings);
+            const column = this.newColumn(field);
             this._activeColumns[i] = column;
             const fieldIndex = field.index;
             if (this._fieldColumns[fieldIndex] !== undefined) {
@@ -210,14 +209,16 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
     /** @internal */
     createDummyColumn(): Column<BCS, SF> {
-        const dummyColumnSettings: BCS = {} as BCS;
         const field: SF = {
             name: '',
             index: -1,
+            columnSettings: {
+                defaultColumnWidth: 10,
+                defaultColumnAutoSizing: true,
+            } as BCS,
         } as SF;
         return new ColumnImplementation(
             field,
-            dummyColumnSettings,
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             () => {},
             // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -642,7 +643,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 /** @public */
 export namespace ColumnsManager {
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
-    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

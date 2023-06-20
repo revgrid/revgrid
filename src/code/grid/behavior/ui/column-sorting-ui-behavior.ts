@@ -1,11 +1,11 @@
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
+export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = ColumnSortingUiBehavior.typeName;
 

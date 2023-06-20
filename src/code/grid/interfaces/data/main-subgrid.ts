@@ -1,8 +1,8 @@
-import { SchemaServer } from '../schema/schema-server';
+import { SchemaField } from '../schema/schema-field';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { Subgrid } from './subgrid';
 
 /** @public */
-export interface MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends Subgrid<BCS, SF> {
+export interface MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends Subgrid<BCS, SF> {
 
 }

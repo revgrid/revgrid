@@ -1,5 +1,5 @@
 
-import { DataServer, DatalessViewCell, IndexSignatureHack, Rectangle, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { DataServer, DatalessViewCell, IndexSignatureHack, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
@@ -10,12 +10,12 @@ import { StandardCellPainter } from './standard-cell-painter';
 export class StandardCheckboxCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField<BCS>
 > extends StandardCellPainter<BGS, BCS, SF> {
 
     constructor(
         grid: Revgrid<BGS, BCS, SF>,
-        dataServer: DataServer<SF>,
+        dataServer: DataServer<BCS, SF>,
         private readonly _editable: boolean,
     ) {
         super(grid, dataServer);

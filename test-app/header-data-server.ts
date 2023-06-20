@@ -1,12 +1,12 @@
-import { DataServer } from '..';
-import { AppSchemaServer } from './app-schema-server';
+import { DataServer, StandardBehavioredColumnSettings } from '..';
+import { AppSchemaField } from './app-schema-field';
 
-export class HeaderDataServer implements DataServer<AppSchemaServer.Field> {
+export class HeaderDataServer implements DataServer<StandardBehavioredColumnSettings, AppSchemaField> {
     getRowCount() {
         return 1;
     }
 
-    getViewValue(field: AppSchemaServer.Field) {
+    getViewValue(field: AppSchemaField) {
         return field.header;
     }
 

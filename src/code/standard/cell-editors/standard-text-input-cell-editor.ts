@@ -1,4 +1,4 @@
-import { AssertError, DataServer, DatalessViewCell, Revgrid, SchemaServer } from '../../grid/grid-public-api';
+import { AssertError, DataServer, DatalessViewCell, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardInputElementCellEditor } from './standard-input-element-cell-editor';
 
@@ -6,9 +6,9 @@ import { StandardInputElementCellEditor } from './standard-input-element-cell-ed
 export class StandardTextInputCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaServer.Field
+    SF extends SchemaField<BCS>
 > extends StandardInputElementCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<BCS, SF>) {
         super(grid, dataServer, 'text');
         this.element.classList.add('revgrid-text-input-editor');
     }

@@ -312,4 +312,10 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
 
         this.endChange();
     }
+
+    clone() {
+        const copy = new InMemoryBehavioredColumnSettings(this.gridSettings);
+        copy.load(this);
+        return copy;
+    }
 }

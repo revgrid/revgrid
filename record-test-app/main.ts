@@ -10,18 +10,18 @@ import {
     StandardHeaderTextCellPainter,
     Subgrid,
     ViewCell,
-    standardReadonlyDefaultBehavioredColumnSettings
+    readonlyDefaultStandardBehavioredColumnSettings
 } from '..';
 import { AppAllGridSettings } from './app-all-grid-settings';
-import { appAllGridSettingsDefaults } from './app-all-grid-settings-defaults';
 import { AppBehavioredGridSettings } from './app-behaviored-grid-settings';
-import { AppInMemoryBehavioredGridSettings } from './app-in-memory-behaviored-grid-settings';
 import { Controls } from './controls';
+import { defaultAppAllGridSettings } from './default-app-all-grid-settings';
 import {
     DateValGridField,
     GridField, HiddenStrValGridField, IntValGridField, NumberValGridField, RecordIndexGridField, StatusIdValGridField, StrValGridField
 } from './grid-field';
 import { HeaderDataServer } from './header-data-server';
+import { InMemoryAppBehavioredGridSettings } from './in-memory-app-behaviored-grid-settings';
 import { MainCellPainter } from './main-cell-painter';
 import { RecordGrid } from './record-grid';
 import { RecordStore } from './record-store';
@@ -41,16 +41,16 @@ export class Main {
     private readonly _mainCellPainter: MainCellPainter;
     private readonly _headerCellPainter: StandardHeaderTextCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>;
 
-    private readonly _recordIndexGridField = new RecordIndexGridField(standardReadonlyDefaultBehavioredColumnSettings);
-    private readonly _hiddenStrValGridField = new HiddenStrValGridField(standardReadonlyDefaultBehavioredColumnSettings);
-    private readonly _intValGridField = new IntValGridField(standardReadonlyDefaultBehavioredColumnSettings);
-    private readonly _strValGridField = new StrValGridField(standardReadonlyDefaultBehavioredColumnSettings);
-    private readonly _numberValGridField = new NumberValGridField(standardReadonlyDefaultBehavioredColumnSettings);
-    private readonly _dateValGridField = new DateValGridField(standardReadonlyDefaultBehavioredColumnSettings);
-    private readonly _statusIdValGridField = new StatusIdValGridField(standardReadonlyDefaultBehavioredColumnSettings);
+    private readonly _recordIndexGridField = new RecordIndexGridField(readonlyDefaultStandardBehavioredColumnSettings);
+    private readonly _hiddenStrValGridField = new HiddenStrValGridField(readonlyDefaultStandardBehavioredColumnSettings);
+    private readonly _intValGridField = new IntValGridField(readonlyDefaultStandardBehavioredColumnSettings);
+    private readonly _strValGridField = new StrValGridField(readonlyDefaultStandardBehavioredColumnSettings);
+    private readonly _numberValGridField = new NumberValGridField(readonlyDefaultStandardBehavioredColumnSettings);
+    private readonly _dateValGridField = new DateValGridField(readonlyDefaultStandardBehavioredColumnSettings);
+    private readonly _statusIdValGridField = new StatusIdValGridField(readonlyDefaultStandardBehavioredColumnSettings);
 
     private readonly _grid: RecordGrid;
-    private readonly _gridSettings: AppInMemoryBehavioredGridSettings = new AppInMemoryBehavioredGridSettings();
+    private readonly _gridSettings: InMemoryAppBehavioredGridSettings = new InMemoryAppBehavioredGridSettings();
     private readonly _debugEnabled = true;
 
     private readonly _controls: Controls;
@@ -65,7 +65,7 @@ export class Main {
         this._gridHostElement = gridHostElement;
 
         const initialSettings: AppAllGridSettings = {
-            ...appAllGridSettingsDefaults,
+            ...defaultAppAllGridSettings,
             horizontalGridLinesWidth: 0,
             fixedColumnCount: 1,
 

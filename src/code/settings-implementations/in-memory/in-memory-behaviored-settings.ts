@@ -1,31 +1,30 @@
 import {
     AssertError,
+    BehavioredSettings,
     GridSettingChangeInvalidateType,
     GridSettingChangeInvalidateTypeId,
-    GridSettings,
-    GridSettingsBehavior,
     UnreachableCaseError
 } from '../../grid/grid-public-api';
 
 /** @public */
-export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior {
+export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
     /** @internal */
-    viewRenderInvalidatedEventer: GridSettingsBehavior.ViewRenderInvalidatedEventer | undefined;
+    viewRenderInvalidatedEventer: BehavioredSettings.ViewRenderInvalidatedEventer | undefined;
     /** @internal */
-    viewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
+    viewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    horizontalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
+    horizontalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    verticalViewLayoutInvalidatedEventer: GridSettingsBehavior.ViewLayoutInvalidatedEventer | undefined;
+    verticalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    resizeEventer: GridSettingsBehavior.ResizeEventer | undefined;
+    resizeEventer: BehavioredSettings.ResizeEventer | undefined;
 
     /** @internal */
     private _beginChangeCount = 0;
     /** @internal */
     private _beginChangeInvalidateType: GridSettingChangeInvalidateTypeId | undefined;
     /** @internal */
-    private _changedEventHandlers =  new Array<GridSettingsBehavior.ChangedEventHandler>();
+    private _changedEventHandlers =  new Array<BehavioredSettings.ChangedEventHandler>();
 
 
     beginChange() {
@@ -47,11 +46,11 @@ export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior
         }
     }
 
-    subscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler) {
+    subscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler) {
         this._changedEventHandlers.push(handler);
     }
 
-    unsubscribeChangedEvent(handler: GridSettingsBehavior.ChangedEventHandler) {
+    unsubscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler) {
         const index = this._changedEventHandlers.indexOf(handler);
         if (index < 0) {
             throw new AssertError('IMBSUCE23445');
@@ -59,8 +58,6 @@ export abstract class InMemoryBehavioredSettings implements GridSettingsBehavior
             this._changedEventHandlers.splice(index, 1);
         }
     }
-
-    abstract load(settings: GridSettings): void;
 
     protected notifyChangedViewRender() {
         this.notifyChanged(GridSettingChangeInvalidateTypeId.ViewRender);

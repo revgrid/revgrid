@@ -1,9 +1,10 @@
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { SchemaField } from './schema-field';
 
 /** @public */
-export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<SF>): void;
-    unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<SF>): void;
+export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<BCS, SF>): void;
+    unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<BCS, SF>): void;
 
     /**
      * @desc Get list of columns. The order of the columns in the list defines the column indexes.
@@ -11,17 +12,11 @@ export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends S
      * On initial call and again whenever the schema changes, the data model must dispatch the `hypegrid-schema-loaded` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
      */
     getFields(): readonly SF[];
-    getFieldColumnSettings(field: SF): BCS;
 }
 
 /** @public */
 export namespace SchemaServer {
-    export interface Field {
-        name: string;
-        index: number;
-    }
-
-    export interface NotificationsClient<SF extends SchemaServer.Field> {
+    export interface NotificationsClient<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
         beginChange: (this: void) => void;
         endChange: (this: void) => void;
         /**
@@ -39,7 +34,7 @@ export namespace SchemaServer {
         getActiveSchemaFields: (this: void) => readonly SF[];
     }
 
-    export type Constructor<BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> = new() => SchemaServer<BCS, SF>;
+    export type Constructor<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = new() => SchemaServer<BCS, SF>;
 
     // /**
     //  * @summary Generates an array of columns (proper schema) from an array of Column and string.

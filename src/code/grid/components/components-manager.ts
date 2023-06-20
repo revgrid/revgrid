@@ -1,4 +1,5 @@
 import { Subgrid } from '../interfaces/data/subgrid';
+import { SchemaField } from '../interfaces/schema/schema-field';
 import { SchemaServer } from '../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
@@ -14,7 +15,7 @@ import { SubgridsManager } from './subgrid/subgrids-manager';
 import { ViewLayout } from './view/view-layout';
 
 /** @internal */
-export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> {
+export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly canvasManager: CanvasManager<BGS>;
     readonly focus: Focus<BGS, BCS, SF>;
     readonly selection: Selection<BGS, BCS, SF>;

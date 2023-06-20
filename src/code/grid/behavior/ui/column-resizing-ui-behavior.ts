@@ -1,15 +1,15 @@
 import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
-import { Column, ColumnAutoSizeableWidth } from '../../interfaces/schema/column';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { Column, ColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { EventBehavior } from '../component/event-behavior';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends UiBehavior<BGS, BCS, SF> {
+export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = ColumnResizingUiBehavior.typeName;
 

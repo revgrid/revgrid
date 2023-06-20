@@ -1,4 +1,4 @@
-import { SchemaServer } from '../../interfaces/schema/schema-server';
+import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
@@ -7,7 +7,7 @@ import { CanvasManager } from '../canvas/canvas-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ScrollDimension } from './scroll-dimension';
 
-export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends ScrollDimension<BGS> {
+export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends ScrollDimension<BGS> {
     constructor(
         private readonly _gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,

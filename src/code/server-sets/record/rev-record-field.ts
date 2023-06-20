@@ -1,12 +1,11 @@
-import { BehavioredColumnSettings, DataServer, SchemaServer } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, DataServer, SchemaField } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 
 /** Provides access to a field
  * @public
  */
-export interface RevRecordField<BCS extends BehavioredColumnSettings> extends SchemaServer.Field {
+export interface RevRecordField<BCS extends BehavioredColumnSettings> extends SchemaField<BCS> {
     readonly name: string;
-    readonly columnSettings: BCS;
 
     /** Retrieves the value of a field for display purposes */
     getViewValue(record: RevRecord): DataServer.ViewValue;

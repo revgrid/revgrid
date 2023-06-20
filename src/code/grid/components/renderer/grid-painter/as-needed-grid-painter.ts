@@ -1,5 +1,5 @@
 
-import { SchemaServer } from '../../../interfaces/schema/schema-server';
+import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -36,7 +36,7 @@ import { GridPainter } from './grid-painter';
  * @this {ViewLayout}
  * @param {CanvasManager.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
-export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaServer.Field> extends GridPainter<BGS, BCS, SF> {
+export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends GridPainter<BGS, BCS, SF> {
     // private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
     constructor(
