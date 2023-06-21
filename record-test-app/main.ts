@@ -93,7 +93,7 @@ export class Main {
             recordRecentlyUpdatedBorderColor: 'orange',
             recordRecentlyInsertedBorderColor: 'pink',
         };
-        this._gridSettings.load(initialSettings);
+        this._gridSettings.merge(initialSettings);
 
         this._recordStore = new RecordStore();
 

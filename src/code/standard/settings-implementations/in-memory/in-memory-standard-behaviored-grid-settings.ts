@@ -221,77 +221,78 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
 
-    override load(settings: StandardAllGridSettings) {
+    override merge(settings: Partial<StandardAllGridSettings>) {
         this.beginChange();
 
-        super.load(settings);
+        super.merge(settings);
 
+        const requiredSettings = settings as Required<StandardAllGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
             const gridSettingsKey = key as keyof StandardGridSettings;
             switch (gridSettingsKey) {
                 case 'cellPadding':
-                    this._cellPadding = settings.cellPadding;
+                    this._cellPadding = requiredSettings.cellPadding;
                     break;
                 case 'cellFocusedBorderColor':
-                    this._cellFocusedBorderColor = settings.cellFocusedBorderColor;
+                    this._cellFocusedBorderColor = requiredSettings.cellFocusedBorderColor;
                     break;
                 case 'cellHoverBackgroundColor':
-                    this._cellHoverBackgroundColor = settings.cellHoverBackgroundColor;
+                    this._cellHoverBackgroundColor = requiredSettings.cellHoverBackgroundColor;
                     break;
                 case 'columnHoverBackgroundColor':
-                    this._columnHoverBackgroundColor = settings.columnHoverBackgroundColor;
+                    this._columnHoverBackgroundColor = requiredSettings.columnHoverBackgroundColor;
                     break;
                 case 'columnHeaderFont':
-                    this._columnHeaderFont = settings.columnHeaderFont;
+                    this._columnHeaderFont = requiredSettings.columnHeaderFont;
                     break;
                 case 'columnHeaderHorizontalAlign':
-                    this._columnHeaderHorizontalAlign = settings.columnHeaderHorizontalAlign;
+                    this._columnHeaderHorizontalAlign = requiredSettings.columnHeaderHorizontalAlign;
                     break;
                 case 'columnHeaderBackgroundColor':
-                    this._columnHeaderBackgroundColor = settings.columnHeaderBackgroundColor;
+                    this._columnHeaderBackgroundColor = requiredSettings.columnHeaderBackgroundColor;
                     break;
                 case 'columnHeaderForegroundColor':
-                    this._columnHeaderForegroundColor = settings.columnHeaderForegroundColor;
+                    this._columnHeaderForegroundColor = requiredSettings.columnHeaderForegroundColor;
                     break;
                 case 'columnHeaderSelectionFont':
-                    this._columnHeaderSelectionFont = settings.columnHeaderSelectionFont;
+                    this._columnHeaderSelectionFont = requiredSettings.columnHeaderSelectionFont;
                     break;
                 case 'columnHeaderSelectionBackgroundColor':
-                    this._columnHeaderSelectionBackgroundColor = settings.columnHeaderSelectionBackgroundColor;
+                    this._columnHeaderSelectionBackgroundColor = requiredSettings.columnHeaderSelectionBackgroundColor;
                     break;
                 case 'columnHeaderSelectionForegroundColor':
-                    this._columnHeaderSelectionForegroundColor = settings.columnHeaderSelectionForegroundColor;
+                    this._columnHeaderSelectionForegroundColor = requiredSettings.columnHeaderSelectionForegroundColor;
                     break;
                 case 'rowHoverBackgroundColor':
-                    this._rowHoverBackgroundColor = settings.rowHoverBackgroundColor;
+                    this._rowHoverBackgroundColor = requiredSettings.rowHoverBackgroundColor;
                     break;
                 case 'selectionFont':
-                    this._selectionFont = settings.selectionFont;
+                    this._selectionFont = requiredSettings.selectionFont;
                     break;
                 case 'selectionBackgroundColor':
-                    this._selectionBackgroundColor = settings.selectionBackgroundColor;
+                    this._selectionBackgroundColor = requiredSettings.selectionBackgroundColor;
                     break;
                 case 'selectionForegroundColor':
-                    this._selectionForegroundColor = settings.selectionForegroundColor;
+                    this._selectionForegroundColor = requiredSettings.selectionForegroundColor;
                     break;
                 case 'horizontalAlign':
-                    this._horizontalAlign = settings.horizontalAlign;
+                    this._horizontalAlign = requiredSettings.horizontalAlign;
                     break;
                 case 'verticalOffset':
-                    this._verticalOffset = settings.verticalOffset;
+                    this._verticalOffset = requiredSettings.verticalOffset;
                     break;
                 case 'font':
-                    this._font = settings.font;
+                    this._font = requiredSettings.font;
                     break;
                 case 'textTruncateType':
-                    this._textTruncateType = settings.textTruncateType;
+                    this._textTruncateType = requiredSettings.textTruncateType;
                     break;
                 case 'textStrikeThrough':
-                    this._textStrikeThrough = settings.textStrikeThrough;
+                    this._textStrikeThrough = requiredSettings.textStrikeThrough;
                     break;
                 case 'editorClickCursorName':
-                    this._editorClickCursorName = settings.editorClickCursorName;
+                    this._editorClickCursorName = requiredSettings.editorClickCursorName;
                     break;
 
                 default: {
@@ -305,7 +306,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
 
     override clone() {
         const copy = new InMemoryStandardBehavioredGridSettings();
-        copy.load(this);
+        copy.merge(this);
         return copy;
     }
 }

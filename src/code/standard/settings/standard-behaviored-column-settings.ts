@@ -3,7 +3,7 @@ import { StandardAllColumnSettings } from './standard-all-column-settings';
 
 /** @public */
 export interface StandardBehavioredColumnSettings extends StandardAllColumnSettings, BehavioredColumnSettings {
-    load(settings: StandardAllColumnSettings): void;
+    merge(settings: Partial<StandardAllColumnSettings>): void;
     clone(): StandardBehavioredColumnSettings;
 }
 

@@ -165,7 +165,7 @@ export class Main {
         const gridSettings = this._gridSettings;
 
         gridSettings.beginChange();
-        gridSettings.load(defaultStandardAllGridSettings);
+        gridSettings.merge(defaultStandardAllGridSettings);
 
         gridSettings.editable = true;
         gridSettings.multipleSelectionAreas = true;

@@ -22,7 +22,7 @@ export interface BehavioredColumnSettings extends AllColumnSettings, BehavioredS
     // (undocumented)
     readonly gridSettings: AllGridSettings;
     // (undocumented)
-    load(settings: AllColumnSettings): void;
+    merge(settings: Partial<AllColumnSettings>): void;
 }
 
 // @public (undocumented)
@@ -30,7 +30,7 @@ export interface BehavioredGridSettings extends AllGridSettings, BehavioredSetti
     // (undocumented)
     clone(): BehavioredGridSettings;
     // (undocumented)
-    load(settings: AllGridSettings): void;
+    merge(settings: Partial<AllGridSettings>): void;
 }
 
 // @public (undocumented)
@@ -453,6 +453,10 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     //
     // @internal
     mergeAllColumnSettings(settings: Partial<ColumnSettings>[] | Record<string, Partial<ColumnSettings>>, settingState?: boolean): void;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
+    //
+    // @internal (undocumented)
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<ColumnSettings>): ColumnSettings;
     // @internal (undocumented)
     moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean): void;
     // @internal (undocumented)
@@ -473,10 +477,6 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     setActiveColumns(columnArray: readonly Column<BCS, SF>[]): void;
     // (undocumented)
     setActiveColumnsAndWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndAutoSizableWidth[], ui: boolean): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    //
-    // @internal (undocumented)
-    setColumnSettings(allX: number, settings: ColumnSettings): ColumnSettings;
     // Warning: (ae-forgotten-export) The symbol "ColumnAutoSizeableWidth" needs to be exported by the entry point public-api.d.ts
     //
     // @internal (undocumented)
@@ -1485,10 +1485,10 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     // (undocumented)
     readonly gridSettings: AllGridSettings;
     // (undocumented)
-    load(settings: ColumnSettings): void;
-    // (undocumented)
     get maximumColumnWidth(): number | undefined;
     set maximumColumnWidth(value: number | undefined);
+    // (undocumented)
+    merge(settings: Partial<ColumnSettings>): void;
     // (undocumented)
     get minimumColumnWidth(): number;
     set minimumColumnWidth(value: number);
@@ -1661,10 +1661,10 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get horizontalWheelScrollingAllowed(): HorizontalWheelScrollingAllowed;
     set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed);
     // (undocumented)
-    load(settings: AllGridSettings): void;
-    // (undocumented)
     get maximumColumnWidth(): number | undefined;
     set maximumColumnWidth(value: number | undefined);
+    // (undocumented)
+    merge(settings: Partial<AllGridSettings>): void;
     // (undocumented)
     get minimumColumnWidth(): number;
     set minimumColumnWidth(value: number);
@@ -1857,7 +1857,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     get horizontalAlign(): Halign;
     set horizontalAlign(value: Halign);
     // (undocumented)
-    load(settings: StandardAllColumnSettings): void;
+    merge(settings: Partial<StandardAllColumnSettings>): void;
     // (undocumented)
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
@@ -1916,7 +1916,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     get horizontalAlign(): Halign;
     set horizontalAlign(value: Halign);
     // (undocumented)
-    load(settings: StandardAllGridSettings): void;
+    merge(settings: Partial<StandardAllGridSettings>): void;
     // (undocumented)
     get rowHoverBackgroundColor(): GridSettings.Color | undefined;
     set rowHoverBackgroundColor(value: GridSettings.Color | undefined);
@@ -2689,6 +2689,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     // (undocumented)
+    mergeFieldColumnProperties(fieldIndex: number, settings: Partial<ColumnSettings>): void;
+    // (undocumented)
     readonly mouse: Mouse<BGS, BCS, SF>;
     // (undocumented)
     moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean): void;
@@ -2756,16 +2758,14 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     setCellProperty(cell: ViewCell<BCS, SF>, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
     // (undocumented)
     setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    //
-    // (undocumented)
-    setColumnProperties(x: number, properties: ColumnSettings): void;
     // (undocumented)
     setColumnScrollAnchor(index: number, offset: number): boolean;
     // (undocumented)
     setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[]): boolean;
     // (undocumented)
     setColumnWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]): boolean;
+    // (undocumented)
+    setFieldColumnProperties(fieldIndex: number, settings: ColumnSettings): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
@@ -3359,7 +3359,7 @@ export interface StandardBehavioredColumnSettings extends StandardAllColumnSetti
     // (undocumented)
     clone(): StandardBehavioredColumnSettings;
     // (undocumented)
-    load(settings: StandardAllColumnSettings): void;
+    merge(settings: Partial<StandardAllColumnSettings>): void;
 }
 
 // @public (undocumented)
@@ -3367,7 +3367,7 @@ export interface StandardBehavioredGridSettings extends StandardAllGridSettings,
     // (undocumented)
     clone(): StandardBehavioredGridSettings;
     // (undocumented)
-    load(settings: StandardAllGridSettings): void;
+    merge(settings: Partial<StandardAllGridSettings>): void;
 }
 
 // @public

@@ -3,6 +3,6 @@ import { BehavioredSettings } from './behaviored-settings';
 
 /** @public */
 export interface BehavioredGridSettings extends AllGridSettings, BehavioredSettings {
-    load(settings: AllGridSettings): void;
+    merge(settings: Partial<AllGridSettings>): void;
     clone(): BehavioredGridSettings;
 }

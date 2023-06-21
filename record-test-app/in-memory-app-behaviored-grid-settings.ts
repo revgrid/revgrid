@@ -119,44 +119,45 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         }
     }
 
-    override load(settings: AppAllGridSettings) {
+    override merge(settings: Partial<AppAllGridSettings>) {
         this.beginChange();
 
-        super.load(settings);
+        super.merge(settings);
 
+        const requiredSettings = settings as Required<AppAllGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
             const gridSettingsKey = key as keyof AppGridSettings;
             switch (gridSettingsKey) {
                 case 'alternateBackgroundColor':
-                    this._alternateBackgroundColor = settings.alternateBackgroundColor;
+                    this._alternateBackgroundColor = requiredSettings.alternateBackgroundColor;
                     break;
                 case 'focusedRowBorderWidth':
-                    this._focusedRowBorderWidth = settings.focusedRowBorderWidth;
+                    this._focusedRowBorderWidth = requiredSettings.focusedRowBorderWidth;
                     break;
                 case 'grayedOutForegroundColor':
-                    this._grayedOutForegroundColor = settings.grayedOutForegroundColor;
+                    this._grayedOutForegroundColor = requiredSettings.grayedOutForegroundColor;
                     break;
                 case 'focusedRowBackgroundColor':
-                    this._focusedRowBackgroundColor = settings.focusedRowBackgroundColor;
+                    this._focusedRowBackgroundColor = requiredSettings.focusedRowBackgroundColor;
                     break;
                 case 'focusedRowBorderColor':
-                    this._focusedRowBorderColor = settings.focusedRowBorderColor;
+                    this._focusedRowBorderColor = requiredSettings.focusedRowBorderColor;
                     break;
                 case 'valueRecentlyModifiedBorderColor':
-                    this._valueRecentlyModifiedBorderColor = settings.valueRecentlyModifiedBorderColor;
+                    this._valueRecentlyModifiedBorderColor = requiredSettings.valueRecentlyModifiedBorderColor;
                     break;
                 case 'valueRecentlyModifiedUpBorderColor':
-                    this._valueRecentlyModifiedUpBorderColor = settings.valueRecentlyModifiedUpBorderColor;
+                    this._valueRecentlyModifiedUpBorderColor = requiredSettings.valueRecentlyModifiedUpBorderColor;
                     break;
                 case 'valueRecentlyModifiedDownBorderColor':
-                    this._valueRecentlyModifiedDownBorderColor = settings.valueRecentlyModifiedDownBorderColor;
+                    this._valueRecentlyModifiedDownBorderColor = requiredSettings.valueRecentlyModifiedDownBorderColor;
                     break;
                 case 'recordRecentlyUpdatedBorderColor':
-                    this._recordRecentlyUpdatedBorderColor = settings.recordRecentlyUpdatedBorderColor;
+                    this._recordRecentlyUpdatedBorderColor = requiredSettings.recordRecentlyUpdatedBorderColor;
                     break;
                 case 'recordRecentlyInsertedBorderColor':
-                    this._recordRecentlyInsertedBorderColor = settings.recordRecentlyInsertedBorderColor;
+                    this._recordRecentlyInsertedBorderColor = requiredSettings.recordRecentlyInsertedBorderColor;
                     break;
 
                 default: {
@@ -170,7 +171,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
 
     override clone() {
         const copy = new InMemoryAppBehavioredGridSettings();
-        copy.load(this);
+        copy.merge(this);
         return copy;
     }
 }

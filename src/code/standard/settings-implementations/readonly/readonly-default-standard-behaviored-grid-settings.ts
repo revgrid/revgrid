@@ -7,6 +7,6 @@ export const readonlyDefaultStandardBehavioredGridSettings: Readonly<StandardBeh
     ...defaultStandardAllGridSettings,
     ...readonlyBehavioredSettings,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    load: () => {},
+    merge: () => {},
     clone: () => { return readonlyDefaultStandardBehavioredGridSettings; }
 } as const;

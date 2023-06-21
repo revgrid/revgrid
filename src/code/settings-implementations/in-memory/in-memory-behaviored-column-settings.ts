@@ -243,63 +243,64 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
         }
     }
 
-    load(settings: ColumnSettings) {
+    merge(settings: Partial<ColumnSettings>) {
         this.beginChange();
 
+        const requiredSettings = settings as Required<ColumnSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
             const columnSettingsKey = key as keyof ColumnSettings;
             switch (columnSettingsKey) {
                 case 'backgroundColor':
-                    this._backgroundColor = settings.backgroundColor;
+                    this._backgroundColor = requiredSettings.backgroundColor;
                     break;
                 case 'color':
-                    this._color = settings.color;
+                    this._color = requiredSettings.color;
                     break;
                 case 'columnAutoSizingMax':
-                    this._columnAutoSizingMax = settings.columnAutoSizingMax;
+                    this._columnAutoSizingMax = requiredSettings.columnAutoSizingMax;
                     break;
                 case 'columnClip':
-                    this._columnClip = settings.columnClip;
+                    this._columnClip = requiredSettings.columnClip;
                     break;
                 case 'defaultColumnAutoSizing':
-                    this._defaultColumnAutoSizing = settings.defaultColumnAutoSizing;
+                    this._defaultColumnAutoSizing = requiredSettings.defaultColumnAutoSizing;
                     break;
                 case 'defaultColumnWidth':
-                    this._defaultColumnWidth = settings.defaultColumnWidth;
+                    this._defaultColumnWidth = requiredSettings.defaultColumnWidth;
                     break;
                 case 'editable':
-                    this._editable = settings.editable;
+                    this._editable = requiredSettings.editable;
                     break;
                 case 'editOnClick':
-                    this._editOnClick = settings.editOnClick;
+                    this._editOnClick = requiredSettings.editOnClick;
                     break;
                 case 'editOnDoubleClick':
-                    this._editOnDoubleClick = settings.editOnDoubleClick;
+                    this._editOnDoubleClick = requiredSettings.editOnDoubleClick;
                     break;
                 case 'editOnFocusCell':
-                    this._editOnFocusCell = settings.editOnFocusCell;
+                    this._editOnFocusCell = requiredSettings.editOnFocusCell;
                     break;
                 case 'editOnKeyDown':
-                    this._editOnKeyDown = settings.editOnKeyDown;
+                    this._editOnKeyDown = requiredSettings.editOnKeyDown;
                     break;
                 case 'filterable':
-                    this._filterable = settings.filterable;
+                    this._filterable = requiredSettings.filterable;
                     break;
                 case 'maximumColumnWidth':
-                    this._maximumColumnWidth = settings.maximumColumnWidth;
+                    this._maximumColumnWidth = requiredSettings.maximumColumnWidth;
                     break;
                 case 'minimumColumnWidth':
-                    this._minimumColumnWidth = settings.minimumColumnWidth;
+                    this._minimumColumnWidth = requiredSettings.minimumColumnWidth;
                     break;
                 case 'resizeColumnInPlace':
-                    this._resizeColumnInPlace = settings.resizeColumnInPlace;
+                    this._resizeColumnInPlace = requiredSettings.resizeColumnInPlace;
                     break;
                 case 'sortOnDoubleClick':
-                    this._sortOnDoubleClick = settings.sortOnDoubleClick;
+                    this._sortOnDoubleClick = requiredSettings.sortOnDoubleClick;
                     break;
                 case 'sortOnClick':
-                    this._sortOnClick = settings.sortOnClick;
+                    this._sortOnClick = requiredSettings.sortOnClick;
                     break;
 
                 default: {
@@ -315,7 +316,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
 
     clone() {
         const copy = new InMemoryBehavioredColumnSettings(this.gridSettings);
-        copy.load(this);
+        copy.merge(this);
         return copy;
     }
 }

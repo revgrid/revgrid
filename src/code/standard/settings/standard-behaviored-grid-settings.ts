@@ -3,6 +3,6 @@ import { StandardAllGridSettings } from './standard-all-grid-settings';
 
 /** @public */
 export interface StandardBehavioredGridSettings extends StandardAllGridSettings, BehavioredGridSettings {
-    load(settings: StandardAllGridSettings): void;
+    merge(settings: Partial<StandardAllGridSettings>): void;
     clone(): StandardBehavioredGridSettings;
 }

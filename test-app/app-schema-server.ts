@@ -23,7 +23,7 @@ export class AppSchemaServer implements SchemaServer<StandardBehavioredColumnSet
             const nameHeader = nameHeaders[i];
             const name = nameHeader.name;
             const columnSettings = new InMemoryStandardBehavioredColumnSettings(gridSettings);
-            columnSettings.load(defaultStandardAllColumnSettings);
+            columnSettings.merge(defaultStandardAllColumnSettings);
             const field: AppSchemaField = {
                 name,
                 index: i,

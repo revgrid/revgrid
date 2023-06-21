@@ -1183,12 +1183,12 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._columnsManager.getActiveColumnSettings(activeColumnIndex);
     }
 
-    /**
-     * @param x - Data x coordinate.
-     * @return The properties for a specific column.
-     */
-    setColumnProperties(x: number, properties: ColumnSettings) {
-        this._columnsManager.setColumnSettings(x, properties);
+    mergeFieldColumnProperties(fieldIndex: number, settings: Partial<ColumnSettings>) {
+        this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
+    }
+
+    setFieldColumnProperties(fieldIndex: number, settings: ColumnSettings) {
+        this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
     }
 
     /**

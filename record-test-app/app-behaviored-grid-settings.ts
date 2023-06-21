@@ -3,6 +3,6 @@ import { AppAllGridSettings } from './app-all-grid-settings';
 
 /** @public */
 export interface AppBehavioredGridSettings extends AppAllGridSettings, BehavioredGridSettings {
-    load(settings: AppAllGridSettings): void;
+    merge(settings: Partial<AppAllGridSettings>): void;
     clone(): AppBehavioredGridSettings;
 }

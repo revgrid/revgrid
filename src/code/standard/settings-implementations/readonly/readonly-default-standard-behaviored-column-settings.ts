@@ -8,6 +8,6 @@ export const readonlyDefaultStandardBehavioredColumnSettings: Readonly<StandardB
     ...defaultStandardAllColumnSettings,
     ...readonlyBehavioredSettings,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    load: () => {},
+    merge: () => {},
     clone: () => { return readonlyDefaultStandardBehavioredColumnSettings; }
 } as const;

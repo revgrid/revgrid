@@ -474,8 +474,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     setActiveColumns(columnArray: readonly Column<BCS, SF>[]) {
         const oldActiveCount = this._activeColumns.length;
         this._activeColumns.splice(0, oldActiveCount, ...columnArray);
-
-        this.invalidateHorizontalViewLayoutEventer(true);
+        this.notifyActiveColumnListChanged(ListChangedTypeId.Set, 0, columnArray.length, undefined, false);
     }
 
     /**
@@ -489,18 +488,18 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /**
-     * @param allX - Data x coordinate.
+     * @param fieldIndex - Data x coordinate.
      * @return The properties for a specific column.
      * @internal
      */
-    setColumnSettings(allX: number, settings: ColumnSettings): ColumnSettings {
-        const column = this.getFieldColumn(allX);
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<ColumnSettings>): ColumnSettings {
+        const column = this.getFieldColumn(fieldIndex);
         if (column === undefined) {
             throw 'Expected column.';
         }
 
         // column.clearProperties(); // needs implementation
-        column.settings.load(settings);
+        column.settings.merge(settings);
         return column.settings;
     }
 
