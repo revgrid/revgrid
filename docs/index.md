@@ -70,7 +70,7 @@ Revgrid is open source and used in at least one production application. However 
 * There is little documentation describing covering how it works and how it should be used.
 * There are significant parts of it which have not yet been tested.
 * The support for it is voluntary and cannot be relied upon.
-* It is specifically targetted at high performance and real time display of data (especially related to financial trading). Features not relevant to this domain will not be incorporated.
+* It is specifically targeted at high performance and real time display of data (especially related to financial trading). Features not relevant to this domain will not be incorporated.
 * The public API interfaces are subject to change.
 
 If you do intend to use it, it is recommended you have the skills to develop an understanding of the library based on the code base and existing available documentation. Also that you have sufficient development skills to be able to fix issues in the library yourself. (Pull Requests fixing issues will obviously be appreciated.)
@@ -79,8 +79,9 @@ There are many excellent alternative JavaScript grid libraries (both paid and fr
 
 # Release information
 
- Version | Details
----------|---------
- 0.1.13  | A major rewrite of this library.  Substantial changes to API.
- 0.1.14  | Fix dev dependency issue
- 0.1.15  | SchemaField is now independent of SchemaServer and includes column Settings. Refactor settings.
+ Version | Date        | Details
+---------|-------------|---------
+ 0.1.13  | 19 Jun 2023 | A major rewrite of this library.  Substantial changes to API.
+ 0.1.14  | 19 Jun 2023 | Fix dev dependency issue
+ 0.1.15  | 20 Jun 2023 | SchemaField is now independent of SchemaServer and includes column Settings. Refactor settings.
+ 0.1.16  | 21 Jun 2023 | Remove column settings from field and implement merge settings.
