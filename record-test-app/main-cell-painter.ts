@@ -15,7 +15,7 @@ export class MainCellPainter
     extends StandardTextCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>
     implements CellPainter<StandardBehavioredColumnSettings, GridField> {
 
-    protected declare readonly _dataServer: RevRecordMainDataServer<StandardBehavioredColumnSettings, GridField>;
+    protected declare readonly _dataServer: RevRecordMainDataServer<GridField>;
 
     paint(cell: DatalessViewCell<StandardBehavioredColumnSettings, GridField>, prefillColor: string | undefined): number | undefined {
         const grid = this._grid;

@@ -8,7 +8,7 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
+export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = FiltersUiBehavior.typeName;
 

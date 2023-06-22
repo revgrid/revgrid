@@ -1,5 +1,5 @@
 import { AssertError, DataServer } from '../../grid/grid-public-api';
-import { StandardBehavioredColumnSettings, readonlyDefaultStandardBehavioredColumnSettings } from '../../standard/standard-public-api';
+import { readonlyDefaultStandardBehavioredColumnSettings } from '../../standard/standard-public-api';
 import { RevDataRowArrayHeaderDataServer } from './rev-data-row-array-header-data-server';
 import { RevDataRowArrayMainDataServer } from './rev-data-row-array-main-data-server';
 import { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
@@ -7,9 +7,9 @@ import { RevDataRowArraySchemaServer } from './rev-data-row-array-schema-server'
 
 /** @public */
 export class RevDataRowArrayServerSet {
-    readonly schemaServer = new RevDataRowArraySchemaServer<StandardBehavioredColumnSettings, RevDataRowArraySchemaField<StandardBehavioredColumnSettings>>;
-    readonly mainDataServer = new RevDataRowArrayMainDataServer<StandardBehavioredColumnSettings, RevDataRowArraySchemaField<StandardBehavioredColumnSettings>>();
-    readonly headerDataServer = new RevDataRowArrayHeaderDataServer<StandardBehavioredColumnSettings, RevDataRowArraySchemaField<StandardBehavioredColumnSettings>>();
+    readonly schemaServer = new RevDataRowArraySchemaServer;
+    readonly mainDataServer = new RevDataRowArrayMainDataServer<RevDataRowArraySchemaField>();
+    readonly headerDataServer = new RevDataRowArrayHeaderDataServer<RevDataRowArraySchemaField>();
 
     /**
      * Establish new data and schema.
@@ -28,7 +28,7 @@ export class RevDataRowArrayServerSet {
             if (!Array.isArray(dataRows)) {
                 throw new AssertError('BSD73766', 'Expected data to be an array of data row objects');
             } else {
-                let schema: RevDataRowArraySchemaField<StandardBehavioredColumnSettings>[];
+                let schema: RevDataRowArraySchemaField[];
                 if (headerRowCount < 0) {
                     schema = this.calculateSchemaFromData(dataRows, true);
                 } else {
@@ -74,7 +74,7 @@ export class RevDataRowArrayServerSet {
             const fieldKeys = Object.keys(firstHeaderRow);
 
             const fieldCount = fieldKeys.length;
-            const schema = new Array<RevDataRowArraySchemaField<StandardBehavioredColumnSettings>>(fieldCount);
+            const schema = new Array<RevDataRowArraySchemaField>(fieldCount);
             for (let fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
                 const columnKey = fieldKeys[fieldIndex];
                 const columnHeaders = new Array<string>(headerCount);
@@ -87,7 +87,7 @@ export class RevDataRowArrayServerSet {
                     name: columnKey,
                     index: fieldIndex,
                     headers: columnHeaders,
-                    columnSettings: readonlyDefaultStandardBehavioredColumnSettings,
+                    // columnSettings: readonlyDefaultStandardBehavioredColumnSettings,
                 };
             }
 
@@ -112,13 +112,13 @@ export class RevDataRowArrayServerSet {
         }
 }
 
-    private calculateSchemaFromData(dataRows: RevDataRowArrayServerSet.DataRow[], keyIsHeader: boolean): RevDataRowArraySchemaField<StandardBehavioredColumnSettings>[] {
+    private calculateSchemaFromData(dataRows: RevDataRowArrayServerSet.DataRow[], keyIsHeader: boolean): RevDataRowArraySchemaField[] {
         const { rows } = this.getInitialDefinedRows(dataRows, 1);
         if (rows.length === 0) {
             return [];
         } else {
             const row = rows[0];
-            const result: RevDataRowArraySchemaField<StandardBehavioredColumnSettings>[] = Object.keys(row).map((key, index) => ({
+            const result: RevDataRowArraySchemaField[] = Object.keys(row).map((key, index) => ({
                 name: key,
                 index,
                 headers: keyIsHeader ? [key] : [],
@@ -168,7 +168,7 @@ export namespace RevDataRowArrayServerSet {
 }
 
 interface ExtractSchemaAndHeadersFromDataResult {
-    schema: RevDataRowArraySchemaField<StandardBehavioredColumnSettings>[];
+    schema: RevDataRowArraySchemaField[];
     dataRows: RevDataRowArrayServerSet.DataRow[];
 }
 

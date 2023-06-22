@@ -1,4 +1,4 @@
-import { GridSettings } from '../dist/types/public-api';
+import { GridSettings } from '..';
 
 /** @public */
 export interface AppOnlyGridSettings {

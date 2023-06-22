@@ -3,7 +3,7 @@ import { BehavioredColumnSettings } from '../settings/behaviored-column-settings
 import { ViewCell } from './view-cell';
 
 /** @public */
-export interface LinedHoverCell<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export interface LinedHoverCell<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     readonly viewCell: ViewCell<BCS, SF>;
 
     readonly mouseOverLeftLine: boolean;
@@ -12,7 +12,7 @@ export interface LinedHoverCell<BCS extends BehavioredColumnSettings, SF extends
 
 /** @public */
 export namespace LinedHoverCell {
-    export function isMouseOverLine<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>>(hoverCell: LinedHoverCell<BCS, SF>) {
+    export function isMouseOverLine<BCS extends BehavioredColumnSettings, SF extends SchemaField>(hoverCell: LinedHoverCell<BCS, SF>) {
         return hoverCell.mouseOverLeftLine || hoverCell.mouseOverTopLine;
     }
 }

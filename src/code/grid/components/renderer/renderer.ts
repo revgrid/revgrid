@@ -19,7 +19,7 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 /** @public */
-export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     /** @internal */
     renderedEventer: Renderer.RenderedEventer;
 

@@ -7,11 +7,11 @@ import { StandardPaintCellEditor } from './standard-paint-cell-editor';
 export class StandardCheckboxCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField<BCS>
+    SF extends SchemaField
 > extends StandardPaintCellEditor<BGS, BCS, SF> {
     declare _painter: StandardCheckboxCellPainter<BGS, BCS, SF>;
 
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<BCS, SF>) {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
         const painter = new StandardCheckboxCellPainter(grid, dataServer, true);
         super(grid, dataServer, painter);
     }

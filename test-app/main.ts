@@ -4,6 +4,7 @@ import {
     DatalessViewCell,
     EventDetail,
     HalignEnum,
+    InMemoryStandardBehavioredColumnSettings,
     InMemoryStandardBehavioredGridSettings,
     Revgrid,
     StandardAlphaTextCellPainter,
@@ -17,6 +18,7 @@ import {
     Subgrid,
     ViewCell,
     defaultGridSettings,
+    defaultStandardColumnSettings,
     defaultStandardGridSettings
 } from '..';
 import { AppSchemaField } from './app-schema-field';
@@ -38,6 +40,7 @@ export class Main {
     private readonly _deleteRowIndexTextboxElement: HTMLInputElement;
     private readonly _addFishButtonElement: HTMLButtonElement;
     private readonly _gridHostElement: HTMLElement;
+    private readonly _getSettingsForNewColumnListener = (field: AppSchemaField) => this.getSettingsForNewColumn(field);
 
     private _gridSettings: StandardBehavioredGridSettings = new InMemoryStandardBehavioredGridSettings();
     private _schemaServer: AppSchemaServer;
@@ -178,7 +181,7 @@ export class Main {
         gridSettings.endChange();
 
 
-        this._schemaServer = new AppSchemaServer(gridSettings);
+        this._schemaServer = new AppSchemaServer();
         this._mainDataServer = new MainDataServer();
         this._headerDataServer = new HeaderDataServer();
 
@@ -198,7 +201,7 @@ export class Main {
             ],
         };
 
-        this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings);
+        this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings, this._getSettingsForNewColumnListener);
 
         this._headerCellPainter = new StandardHeaderTextCellPainter(this._grid, this._headerDataServer);
         this._textCellPainter = new StandardAlphaTextCellPainter(this._grid, this._mainDataServer);
@@ -259,6 +262,12 @@ export class Main {
         //             throw new Error(`Editor does not support field: ${column.name}`);
         //     }
         // }
+    }
+
+    private getSettingsForNewColumn(_field: AppSchemaField) {
+        const columnSettings = new InMemoryStandardBehavioredColumnSettings(this._gridSettings) as StandardBehavioredColumnSettings;
+        columnSettings.merge(defaultStandardColumnSettings);
+        return columnSettings;
     }
 
     private getMainCellPainter(viewCell: DatalessViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {

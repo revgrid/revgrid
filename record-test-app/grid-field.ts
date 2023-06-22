@@ -6,7 +6,7 @@ import {
 } from '..';
 import { RecordStore } from './record-store';
 
-export abstract class GridField implements RevRecordField<StandardBehavioredColumnSettings> {
+export abstract class GridField implements RevRecordField {
     index = -1;
 
     constructor(readonly name: string, public heading: string, readonly columnSettings: StandardBehavioredColumnSettings) {}

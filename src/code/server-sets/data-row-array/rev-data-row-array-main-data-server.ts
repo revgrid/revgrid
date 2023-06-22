@@ -1,8 +1,8 @@
-import { AssertError, BehavioredColumnSettings, DataServer, MetaModel } from '../../grid/grid-public-api';
+import { AssertError, DataServer, MetaModel } from '../../grid/grid-public-api';
 import { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
 
 /** @public */
-export class RevDataRowArrayMainDataServer<BCS extends BehavioredColumnSettings, SF extends RevDataRowArraySchemaField<BCS>> implements DataServer<BCS, SF> {
+export class RevDataRowArrayMainDataServer<SF extends RevDataRowArraySchemaField> implements DataServer<SF> {
     private _data: RevDataRowArrayMainDataServer.DataRow[] = [];
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 

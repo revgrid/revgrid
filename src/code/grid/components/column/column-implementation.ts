@@ -5,7 +5,7 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 
 /** @internal */
-export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> implements Column<BCS, SF> {
+export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements Column<BCS, SF> {
     readonly field: SF;
 
     preferredWidth: number | undefined;
@@ -16,11 +16,12 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
 
     constructor(
         field: SF,
+        columnSettings: BCS,
         private readonly _widthChangedEventer: ColumnImplementation.WidthChangedEventer<BCS, SF>,
         private readonly _horizontalViewLayoutInvalidatedEventer: ColumnImplementation.HorizontalViewLayoutInvalidatedEventer,
     ) {
         this.field = field;
-        this._settings = field.columnSettings;
+        this._settings = columnSettings;
         this._width = this._settings.defaultColumnWidth;
         this._autoSizing = this._settings.defaultColumnAutoSizing;
     }
@@ -143,6 +144,6 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
 }
 
 export namespace ColumnImplementation {
-    export type WidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, column: ColumnImplementation<BCS, SF>, ui: boolean) => void;
+    export type WidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, column: ColumnImplementation<BCS, SF>, ui: boolean) => void;
     export type HorizontalViewLayoutInvalidatedEventer = (this: void) => void;
 }

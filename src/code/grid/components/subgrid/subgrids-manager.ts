@@ -11,7 +11,7 @@ import { MainSubgridImplementation } from './main-subgrid-implementation';
 import { SubgridImplementation } from './subgrid-implementation';
 
 /** @public */
-export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     readonly subgrids: Subgrid<BCS, SF>[];
     /** @internal */
@@ -100,7 +100,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
     /** @returns either Subgrid or MainSubgrid depending on role */
     private createSubgrid(
         subgridHandle: SubgridImplementation.Handle,
-        role: Subgrid.Role, dataServer: DataServer<BCS, SF>, metaModel: MetaModel | undefined,
+        role: Subgrid.Role, dataServer: DataServer<SF>, metaModel: MetaModel | undefined,
         selectable: boolean,
         defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,

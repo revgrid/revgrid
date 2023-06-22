@@ -1,6 +1,6 @@
-import { BehavioredColumnSettings, SchemaField } from '../../grid/grid-public-api';
+import { SchemaField } from '../../grid/grid-public-api';
 
 /** @public */
-export interface RevDataRowArraySchemaField<BCS extends BehavioredColumnSettings> extends SchemaField<BCS> {
+export interface RevDataRowArraySchemaField extends SchemaField {
     headers: string[];
 }

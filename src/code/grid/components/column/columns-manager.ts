@@ -9,7 +9,7 @@ import { ColumnFieldNameAndAutoSizableWidth, ListChangedEventHandler as ListChan
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     /** @internal */
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
@@ -33,8 +33,9 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 
     /** @internal */
     constructor(
-        readonly schemaServer: SchemaServer<BCS, SF>,
+        readonly schemaServer: SchemaServer<SF>,
         private readonly _gridSettings: GridSettings,
+        private readonly _getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
     ) {
     }
 
@@ -172,8 +173,10 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 
     /** @internal */
     newColumn(field: SF): Column<BCS, SF> {
+        const columnSettings = this._getSettingsForNewColumnEventer(field);
         return new ColumnImplementation(
             field,
+            columnSettings,
             (column, ui) => this.notifyColumnsWidthChanged([column], ui),
             () => this.invalidateHorizontalViewLayoutEventer(true),
         );
@@ -212,13 +215,13 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         const field: SF = {
             name: '',
             index: -1,
-            columnSettings: {
-                defaultColumnWidth: 10,
-                defaultColumnAutoSizing: true,
-            } as BCS,
         } as SF;
         return new ColumnImplementation(
             field,
+            {
+                defaultColumnWidth: 50,
+                defaultColumnAutoSizing: true,
+            } as BCS,
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             () => {},
             // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -641,8 +644,9 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 
 /** @public */
 export namespace ColumnsManager {
+    export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, field: SF) => BCS;
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
-    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

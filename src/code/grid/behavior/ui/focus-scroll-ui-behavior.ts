@@ -9,7 +9,7 @@ import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
+export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
     readonly typeName = FocusScrollUiBehavior.typeName;
 
     override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {

@@ -14,7 +14,7 @@ import { Selection } from '../../selection/selection';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
-export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     protected _renderingContext: CachedCanvasRenderingContext2D;
 
     private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
@@ -475,7 +475,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
 export namespace GridPainter {
     export type ResetAllGridPaintersRequiredEventer = (this: void, blackList: string[]) => void;
     export type RepaintAllRequiredEventer = (this: void) => void;
-    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = new(
+    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> = new(
         gridSettings: GridSettings,
         canvasManager: CanvasManager<BGS>,
         subgridsManager: SubgridsManager<BCS, SF>,

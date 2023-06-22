@@ -1,8 +1,8 @@
-import { InMemoryStandardBehavioredColumnSettings, SchemaServer, StandardBehavioredColumnSettings, StandardGridSettings, defaultStandardColumnSettings } from '..';
+import { SchemaServer } from '..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
-export class AppSchemaServer implements SchemaServer<StandardBehavioredColumnSettings, AppSchemaField> {
+export class AppSchemaServer implements SchemaServer<AppSchemaField> {
     private readonly _schema: AppSchemaField[];
 
     readonly nameSchemaSchemaField: AppSchemaField;
@@ -13,21 +13,18 @@ export class AppSchemaServer implements SchemaServer<StandardBehavioredColumnSet
     readonly favoriteFoodSchemaField: AppSchemaField;
     readonly restrictMovementSchemaField: AppSchemaField;
 
-    private notificationsClient: SchemaServer.NotificationsClient<StandardBehavioredColumnSettings, AppSchemaField>;
+    private notificationsClient: SchemaServer.NotificationsClient<AppSchemaField>;
 
-    constructor(gridSettings: StandardGridSettings) {
+    constructor() {
         const nameHeaders = AppSchemaServer.columnNameHeaders;
         const columnCount = nameHeaders.length;
         const schema = new Array<AppSchemaField>(columnCount);
         for (let i = 0; i < columnCount; i++) {
             const nameHeader = nameHeaders[i];
             const name = nameHeader.name;
-            const columnSettings = new InMemoryStandardBehavioredColumnSettings(gridSettings);
-            columnSettings.merge(defaultStandardColumnSettings);
             const field: AppSchemaField = {
                 name,
                 index: i,
-                columnSettings,
                 header: nameHeader.header,
             };
 
@@ -69,7 +66,7 @@ export class AppSchemaServer implements SchemaServer<StandardBehavioredColumnSet
         return this._schema;
     }
 
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<StandardBehavioredColumnSettings, AppSchemaField>) {
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<AppSchemaField>) {
         this.notificationsClient = client;
 
         this.notificationsClient.schemaChanged();

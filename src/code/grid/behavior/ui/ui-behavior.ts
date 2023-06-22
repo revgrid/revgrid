@@ -29,7 +29,7 @@ import { UiBehaviorSharedState } from './ui-behavior-shared-state';
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @public
  */
-export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     abstract readonly typeName: string;
 
     protected readonly sharedState: UiBehaviorSharedState;
@@ -315,10 +315,10 @@ export namespace UiBehavior {
     export type Constructor<
         BGS extends BehavioredGridSettings,
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField<BCS>
+        SF extends SchemaField
     > = new (services: UiBehaviorServices<BGS, BCS, SF>) => UiBehavior<BGS, BCS, SF>;
 
-    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         typeName: string;
         constructor: Constructor<BGS, BCS, SF>;
     }

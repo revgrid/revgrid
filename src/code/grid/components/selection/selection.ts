@@ -23,7 +23,7 @@ import { SelectionRectangleList } from './selection-rectangle-list';
  * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
  */
 
-export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     changedEventerForRenderer: Selection.ChangedEventer;
     changedEventerForEventBehavior: Selection.ChangedEventer;
 
@@ -729,7 +729,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS, SF>) {
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -758,7 +758,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS, SF>) {
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -787,7 +787,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<BCS, SF>) {
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -1124,7 +1124,7 @@ export namespace Selection {
         cellSelected: boolean;
     }
 
-    export interface Stash<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface Stash<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         readonly subgrid: Subgrid<BCS, SF> | undefined;
         readonly allRowsSelected: boolean,
         readonly rowIds: unknown[] | undefined,

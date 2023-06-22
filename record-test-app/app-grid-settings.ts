@@ -1,4 +1,4 @@
-import { StandardGridSettings } from '../dist/types/public-api';
+import { StandardGridSettings } from '..';
 import { AppOnlyGridSettings } from './app-only-grid-settings';
 
 /** @public */

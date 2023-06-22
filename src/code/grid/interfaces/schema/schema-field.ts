@@ -1,8 +1,5 @@
-import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
-
 /** @public */
-export interface SchemaField<BCS extends BehavioredColumnSettings> {
+export interface SchemaField {
     name: string;
     index: number;
-    readonly columnSettings: BCS;
 }

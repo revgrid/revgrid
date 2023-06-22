@@ -27,7 +27,7 @@ import { GridPainter } from './grid-painter';
  *
  * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumns|paintCellsByColumns}.
  */
-export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends GridPainter<BGS, BCS, SF> {
+export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends GridPainter<BGS, BCS, SF> {
     constructor(
         gridSettings: GridSettings,
         canvasManager: CanvasManager<BGS>,

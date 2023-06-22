@@ -10,19 +10,19 @@ export namespace EventDetail {
         readonly newPoint: Point | undefined;
     }
 
-    export interface Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends MouseEvent {
+    export interface Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
         revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
-    export interface Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends PointerEvent, Mouse<BCS, SF> {
+    export interface Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends PointerEvent, Mouse<BCS, SF> {
         revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
-    export interface Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends WheelEvent {
+    export interface Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends WheelEvent {
         revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 
-    export interface ColumnSort<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends MouseEvent {
+    export interface ColumnSort<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
         revgridHoverCell?: LinedHoverCell<BCS, SF>;
     }
 

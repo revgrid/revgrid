@@ -1,10 +1,10 @@
-import { BehavioredColumnSettings, ListChangedEventHandler, ListChangedTypeId, SchemaServer } from '../../grid/grid-public-api';
+import { ListChangedEventHandler, ListChangedTypeId, SchemaServer } from '../../grid/grid-public-api';
 import { RevRecordSchemaError, RevRecordUnexpectedUndefinedError } from './rev-record-error';
 import { RevRecordField } from './rev-record-field';
 import { RevRecordFieldIndex } from './rev-record-types';
 
 /** @public */
-export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF extends RevRecordField<BCS>> implements SchemaServer<BCS, SF> {
+export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaServer<SF> {
     /** @internal */
     fieldListChangedEventer: ListChangedEventHandler | undefined;
 
@@ -14,13 +14,13 @@ export class RevRecordSchemaServer<BCS extends BehavioredColumnSettings, SF exte
     private readonly _fieldValueDependsOnRecordIndexFieldIndexes: RevRecordFieldIndex[] = [];
     private readonly _fieldValueDependsOnRowIndexFieldIndexes: RevRecordFieldIndex[] = [];
 
-    private _notificationClient: SchemaServer.NotificationsClient<BCS, SF>;
+    private _notificationClient: SchemaServer.NotificationsClient<SF>;
 
     get schema(): readonly SF[] { return this._fields; }
     get fields(): readonly SF[] { return this._fields; }
     get fieldCount(): number { return this._fields.length; }
 
-    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<BCS, SF>): void {
+    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<SF>): void {
         this._notificationClient = value;
     }
 

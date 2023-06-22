@@ -8,7 +8,7 @@ import { Rectangle } from '../../types-utils/rectangle';
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
+export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = TouchScrollingUiBehavior.typeName;
 

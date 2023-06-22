@@ -6,7 +6,7 @@ import { SubgridImplementation } from './subgrid-implementation';
 /** @internal */
 export class MainSubgridImplementation<
     BCS extends BehavioredColumnSettings,
-    SF extends SchemaField<BCS>
+    SF extends SchemaField
 > extends SubgridImplementation<BCS, SF> implements MainSubgrid<BCS, SF> {
     override get fixedRowCount() { return this._gridSettings.fixedRowCount; }
 

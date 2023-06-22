@@ -20,7 +20,7 @@ import { StandardTextCellPainter } from './standard-text-cell-painter';
 export class StandardHeaderTextCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField<BCS>
+    SF extends SchemaField
 > extends StandardTextCellPainter<BGS, BCS, SF> {
     textWrapping = false;
 

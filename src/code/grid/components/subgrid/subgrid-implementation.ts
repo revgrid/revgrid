@@ -12,7 +12,7 @@ import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> implements Subgrid<BCS, SF> {
+export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements Subgrid<BCS, SF> {
     readonly isMain: boolean = false;
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
@@ -24,7 +24,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
 
     /** @internal */
     /** @internal */
-    private _viewDataRowProxy: SubgridImplementation.ViewDataRowProxy<BCS, SF>; // used if DataServer.getRowProperties not implemented
+    private _viewDataRowProxy: SubgridImplementation.ViewDataRowProxy<SF>; // used if DataServer.getRowProperties not implemented
     /** @internal */
     private readonly _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | null;
 
@@ -42,8 +42,8 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         /** @internal */
         public readonly handle: SubgridImplementation.Handle,
         public readonly role: Subgrid.Role,
-        public readonly schemaServer: SchemaServer<BCS, SF>,
-        public readonly dataServer: DataServer<BCS, SF>,
+        public readonly schemaServer: SchemaServer<SF>,
+        public readonly dataServer: DataServer<SF>,
         public readonly metaModel: MetaModel | undefined,
         public readonly selectable: boolean,
         public readonly defaultRowHeight: number | undefined,
@@ -73,7 +73,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
             }
         }
 
-        this._viewDataRowProxy = new SubgridImplementation.ViewDataRowProxy(this.schemaServer, this.dataServer);
+        this._viewDataRowProxy = new SubgridImplementation.ViewDataRowProxy<SF>(this.schemaServer, this.dataServer);
 
         if (rowPropertiesPrototype === undefined) {
             this._rowPropertiesPrototype = null;
@@ -520,13 +520,13 @@ export namespace SubgridImplementation {
     export type Handle = number;
 
     /** @internal */
-    export class ViewDataRowProxy<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export class ViewDataRowProxy<SF extends SchemaField> {
         [fieldName: string]: DataServer.ViewValue;
 
         ____rowIndex: number;
         ____fieldNames: string[] = [];
 
-        constructor(readonly schemaServer: SchemaServer<BCS, SF>, readonly dataServer: DataServer<BCS, SF>) {
+        constructor(readonly schemaServer: SchemaServer<SF>, readonly dataServer: DataServer<SF>) {
             this.updateSchema(); // is this necessary? If we do not always get the "rev-schema-loaded" event then it is necessary
         }
 
