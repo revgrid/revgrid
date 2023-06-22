@@ -3,7 +3,6 @@ import { DataServer } from '../../interfaces/data/data-server';
 import { Column } from '../../interfaces/dataless/column';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { ColumnSettings } from '../../interfaces/settings/column-settings';
 
 /** @internal */
 export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> implements Column<BCS, SF> {
@@ -127,7 +126,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
      * @desc Amend properties for this hypergrid only.
      * @param settings - A simple properties hash.
      */
-    loadSettings(settings: Partial<ColumnSettings>) {
+    loadSettings(settings: Partial<BCS>) {
         this._settings.merge(settings);
     }
 

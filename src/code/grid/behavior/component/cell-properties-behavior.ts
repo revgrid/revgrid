@@ -15,8 +15,8 @@ import { CellMetaSettingsImplementation } from '../../settings/cell-meta-setting
 
 export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     constructor(
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
-        private readonly _subgridsManger: SubgridsManager<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
+        private readonly _subgridsManger: SubgridsManager<BCS, SF>,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
     ) {
     }
@@ -187,7 +187,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
             optionalCell = this._viewLayout.findCellAtDataPoint(column.field.index, rowIndex, subgrid);
         }
         if (optionalCell !== undefined) {
-            (optionalCell as ViewCellImplementation<BGS, BCS, SF>).clearCellOwnProperties();
+            (optionalCell as ViewCellImplementation<BCS, SF>).clearCellOwnProperties();
         }
 
         return properties;
@@ -237,7 +237,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
      */
     getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS, SF>): MetaModel.CellOwnProperties | false | null | undefined{
         // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
-        const viewCellImplementation = renderedCell as ViewCellImplementation<BGS, BCS, SF>;
+        const viewCellImplementation = renderedCell as ViewCellImplementation<BCS, SF>;
         let cellOwnProperties = viewCellImplementation.cellOwnProperties;
         if (cellOwnProperties === undefined) {
             cellOwnProperties = this.getCellOwnProperties(renderedCell.viewLayoutColumn.column, renderedCell.viewLayoutRow.subgridRowIndex, renderedCell.subgrid);

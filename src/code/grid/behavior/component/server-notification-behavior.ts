@@ -14,7 +14,7 @@ import { ReindexBehavior } from './reindex-behavior';
 
 export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     private readonly _schemaServer: SchemaServer<BCS, SF>;
-    private readonly _subgrids: SubgridImplementation<BGS, BCS, SF>[];
+    private readonly _subgrids: SubgridImplementation<BCS, SF>[];
     private readonly _mainDataServer: DataServer<BCS, SF>;
 
     private _destroyed = false;
@@ -33,11 +33,11 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     constructor(
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
+        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         private readonly _focus: Focus<BGS, BCS, SF>,
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _selection: Selection<BCS, SF>,
         private readonly _renderer: Renderer<BGS, BCS, SF>,
         private readonly _reindexStashManager: ReindexBehavior<BGS, BCS, SF>,
     ) {

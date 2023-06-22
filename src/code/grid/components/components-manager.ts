@@ -18,9 +18,9 @@ import { ViewLayout } from './view/view-layout';
 export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly canvasManager: CanvasManager<BGS>;
     readonly focus: Focus<BGS, BCS, SF>;
-    readonly selection: Selection<BGS, BCS, SF>;
-    readonly columnsManager: ColumnsManager<BGS, BCS, SF>;
-    readonly subgridsManager: SubgridsManager<BGS, BCS, SF>;
+    readonly selection: Selection<BCS, SF>;
+    readonly columnsManager: ColumnsManager<BCS, SF>;
+    readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
     readonly renderer: Renderer<BGS, BCS, SF>;
     readonly mouse: Mouse<BGS, BCS, SF>;
@@ -47,7 +47,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             gridSettings,
         );
 
-        this.columnsManager = new ColumnsManager<BGS, BCS, SF>(
+        this.columnsManager = new ColumnsManager<BCS, SF>(
             schemaServer,
             gridSettings,
         );

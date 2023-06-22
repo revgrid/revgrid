@@ -12,10 +12,10 @@ import {
     ViewCell,
     readonlyDefaultStandardBehavioredColumnSettings
 } from '..';
-import { AppAllGridSettings } from './app-all-grid-settings';
 import { AppBehavioredGridSettings } from './app-behaviored-grid-settings';
+import { AppGridSettings } from './app-grid-settings';
 import { Controls } from './controls';
-import { defaultAppAllGridSettings } from './default-app-all-grid-settings';
+import { defaultAppGridSettings } from './default-app-grid-settings';
 import {
     DateValGridField,
     GridField, HiddenStrValGridField, IntValGridField, NumberValGridField, RecordIndexGridField, StatusIdValGridField, StrValGridField
@@ -64,8 +64,8 @@ export class Main {
         }
         this._gridHostElement = gridHostElement;
 
-        const initialSettings: AppAllGridSettings = {
-            ...defaultAppAllGridSettings,
+        const initialSettings: AppGridSettings = {
+            ...defaultAppGridSettings,
             horizontalGridLinesWidth: 0,
             fixedColumnCount: 1,
 

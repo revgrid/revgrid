@@ -91,8 +91,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     private readonly _dummyUnusedColumn: Column<BCS, SF>;
 
-    private readonly _rowColumnOrderedCellPool = new Array<ViewCellImplementation<BGS, BCS, SF>>();
-    private readonly _columnRowOrderedCellPool = new Array<ViewCellImplementation<BGS, BCS, SF>>();
+    private readonly _rowColumnOrderedCellPool = new Array<ViewCellImplementation<BCS, SF>>();
+    private readonly _columnRowOrderedCellPool = new Array<ViewCellImplementation<BCS, SF>>();
 
     private _columnsValid = false;
     private _rowsValid = false;
@@ -142,8 +142,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     constructor(
         private readonly _gridSettings: BGS,
         private readonly _canvasManager: CanvasManager<BGS>,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
+        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
     ) {
         this._gridSettings.viewLayoutInvalidatedEventer = (scrollDimensionAsWell) => {
             this.resetAllCellPaintFingerprints();
@@ -1628,7 +1628,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    findCellAtViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number, canComputePool: boolean) {
+    findCellAtViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number, canComputePool: boolean): ViewCell<BCS, SF> {
         // called from within animation frame
         if (this._columnRowOrderedCellPoolComputationId === this._rowsColumnsComputationId) {
             const cellIndex = viewportColumnIndex * this._rows.length + viewportRowIndex;
@@ -1662,7 +1662,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    findCellAtCanvasOffset(x: number, y: number, canComputePool: boolean): ViewCell<BCS, SF> | undefined {
+    findCellAtCanvasOffset(x: number, y: number, canComputePool: boolean) {
         // called from within animation frame
         const columnIndex = this.findColumnIndexOfCanvasOffset(x);
         if (columnIndex < 0) {
@@ -2284,13 +2284,13 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    private resizeCellPool(pool: ViewCellImplementation<BGS, BCS, SF>[], requiredSize: number) {
+    private resizeCellPool(pool: ViewCellImplementation<BCS, SF>[], requiredSize: number) {
         const previousLength = pool.length;
         pool.length = requiredSize;
 
         if (requiredSize > previousLength) {
             for (let i = previousLength; i < requiredSize; i++) {
-                pool[i] = new ViewCellImplementation<BGS, BCS, SF>(this._columnsManager);
+                pool[i] = new ViewCellImplementation<BCS, SF>(this._columnsManager);
             }
         }
     }
@@ -2316,7 +2316,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     }
 
-    private resetPoolAllCellPaintFingerprints(pool: ViewCell<BCS, SF>[]) {
+    private resetPoolAllCellPaintFingerprints(pool: ViewCellImplementation<BCS, SF>[]) {
         const cellCount = pool.length;
         for (let i = 0; i < cellCount; i++) {
             const cell = pool[i];
@@ -2324,7 +2324,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    private resetPoolAllCellPropertiesCaches(pool: ViewCell<BCS, SF>[]) {
+    private resetPoolAllCellPropertiesCaches(pool: ViewCellImplementation<BCS, SF>[]) {
         const cellCount = pool.length;
         for (let i = 0; i < cellCount; i++) {
             const cell = pool[i];

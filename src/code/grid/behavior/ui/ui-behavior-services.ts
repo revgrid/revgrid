@@ -29,10 +29,10 @@ export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends 
         readonly containerHtmlElement: HTMLElement,
         readonly gridSettings: GridSettings,
         readonly canvasManager: CanvasManager<BGS>,
-        readonly selection: Selection<BGS, BCS, SF>,
+        readonly selection: Selection<BCS, SF>,
         readonly focus: Focus<BGS, BCS, SF>,
-        readonly columnsManager: ColumnsManager<BGS, BCS, SF>,
-        readonly subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        readonly columnsManager: ColumnsManager<BCS, SF>,
+        readonly subgridsManager: SubgridsManager<BCS, SF>,
         readonly viewLayout: ViewLayout<BGS, BCS, SF>,
         readonly renderer: Renderer<BGS, BCS, SF>,
 
@@ -45,7 +45,7 @@ export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends 
         readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>,
         readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>,
         readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>,
-        readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>,
+        readonly dataExtractBehavior: DataExtractBehavior<BCS, SF>,
         readonly eventBehavior: EventBehavior<BGS, BCS, SF>,
     ) {
 

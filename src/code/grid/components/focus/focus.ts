@@ -6,6 +6,7 @@ import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { CanvasManager } from '../canvas/canvas-manager';
@@ -44,13 +45,13 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _gridSettings: BGS,
+        private readonly _gridSettings: GridSettings,
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
         private readonly _mainSubgrid: MainSubgrid<BCS, SF>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
         /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
     ) {

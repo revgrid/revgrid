@@ -1,6 +1,7 @@
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { HorizontalVertical } from '../../types-utils/types';
 import { CanvasManager } from '../canvas/canvas-manager';
@@ -9,9 +10,9 @@ import { ScrollDimension } from './scroll-dimension';
 
 export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends ScrollDimension<BGS> {
     constructor(
-        private readonly _gridSettings: BGS,
+        private readonly _gridSettings: GridSettings,
         canvasManager: CanvasManager<BGS>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
     ) {
         super(
             HorizontalVertical.Vertical,

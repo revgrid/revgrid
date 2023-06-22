@@ -4,27 +4,27 @@ import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 import { MainSubgridImplementation } from './main-subgrid-implementation';
 import { SubgridImplementation } from './subgrid-implementation';
 
 /** @public */
-export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     readonly subgrids: Subgrid<BCS, SF>[];
     /** @internal */
-    readonly subgridImplementations = new Array<SubgridImplementation<BGS, BCS, SF>>();
+    readonly subgridImplementations = new Array<SubgridImplementation<BCS, SF>>();
     /** @internal */
-    readonly _handledSubgrids = new Array<SubgridImplementation<BGS, BCS, SF> | undefined>();
+    readonly _handledSubgrids = new Array<SubgridImplementation<BCS, SF> | undefined>();
 
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _gridSettings: BGS,
+        private readonly _gridSettings: GridSettings,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
         definitions: Subgrid.Definition<BCS, SF>[],
     ) {
         this.subgrids = this.subgridImplementations;
@@ -38,7 +38,7 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
                 subgrids.push(subgrid);
                 this._handledSubgrids.push(subgrid);
                 if (subgrid.role === Subgrid.RoleEnum.main) {
-                    mainSubgrid = subgrid as MainSubgridImplementation<BGS, BCS, SF>;
+                    mainSubgrid = subgrid as MainSubgridImplementation<BCS, SF>;
                 }
             }
         }
@@ -106,9 +106,9 @@ export class SubgridsManager<BGS extends BehavioredGridSettings, BCS extends Beh
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
         getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
     ) {
-        let subgrid: SubgridImplementation<BGS, BCS, SF>;
+        let subgrid: SubgridImplementation<BCS, SF>;
         if (role === Subgrid.RoleEnum.main) {
-            subgrid = new MainSubgridImplementation<BGS, BCS, SF>(
+            subgrid = new MainSubgridImplementation<BCS, SF>(
                 this._gridSettings,
                 this._columnsManager,
                 subgridHandle,

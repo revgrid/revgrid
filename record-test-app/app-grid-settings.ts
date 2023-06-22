@@ -1,26 +1,7 @@
-import { GridSettings } from '..';
+import { StandardGridSettings } from '../dist/types/public-api';
+import { AppOnlyGridSettings } from './app-only-grid-settings';
 
 /** @public */
-export interface AppGridSettings {
-    // /** The highlight duration when all values/records are changed. 0 to disable*/
-    // allChangedRecentDuration: RevRecordSysTick.Span;
-    // /** The highlight duration for added values. 0 to disable*/
-    // recordInsertedRecentDuration: RevRecordSysTick.Span;
-    // /** The highlight duration for updated records. 0 to disable*/
-    // recordUpdatedRecentDuration: RevRecordSysTick.Span;
-    // /** The highlight duration for changed values. 0 to disable */
-    // valueChangedRecentDuration: RevRecordSysTick.Span;
+export interface AppGridSettings extends AppOnlyGridSettings, StandardGridSettings {
 
-    focusedRowBorderWidth: number;
-
-    alternateBackgroundColor: GridSettings.Color; // will not be needed when stripes are improved
-    grayedOutForegroundColor: GridSettings.Color;
-    focusedRowBackgroundColor: GridSettings.Color | undefined;
-    focusedRowBorderColor: GridSettings.Color | undefined;
-
-    valueRecentlyModifiedBorderColor: GridSettings.Color;
-    valueRecentlyModifiedUpBorderColor: GridSettings.Color;
-    valueRecentlyModifiedDownBorderColor: GridSettings.Color;
-    recordRecentlyUpdatedBorderColor: GridSettings.Color;
-    recordRecentlyInsertedBorderColor: GridSettings.Color;
 }

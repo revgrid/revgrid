@@ -1,22 +1,7 @@
-import { StandardGridSettings } from './standard-grid-settings';
+import { ColumnSettings } from '../../grid/grid-public-api';
+import { StandardOnlyColumnSettings } from './standard-only-column-settings';
 
 /** @public */
-export type StandardColumnSettings = Pick<StandardGridSettings,
-    'cellPadding' |
-    'cellFocusedBorderColor' |
-    'cellHoverBackgroundColor' |
-    'columnHoverBackgroundColor' |
-    'columnHeaderFont' |
-    'columnHeaderHorizontalAlign' |
-    'columnHeaderBackgroundColor' |
-    'columnHeaderForegroundColor' |
-    'columnHeaderSelectionFont' |
-    'columnHeaderSelectionBackgroundColor' |
-    'columnHeaderSelectionForegroundColor' |
-    'horizontalAlign' |
-    'verticalOffset' |
-    'font' |
-    'textTruncateType' |
-    'textStrikeThrough' |
-    'editorClickCursorName'
->;
+export interface StandardColumnSettings extends StandardOnlyColumnSettings, ColumnSettings {
+
+}

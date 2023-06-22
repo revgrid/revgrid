@@ -2,6 +2,7 @@ import { SchemaField } from '../schema/schema-field';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { Column } from './column';
 
+
 export interface ViewLayoutColumn<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     /** A back reference to the element's array index in {@link ViewLayout#columns}. */
     index: number;

@@ -1,4 +1,4 @@
-import { InMemoryStandardBehavioredColumnSettings, SchemaServer, StandardAllGridSettings, StandardBehavioredColumnSettings, defaultStandardAllColumnSettings } from '..';
+import { InMemoryStandardBehavioredColumnSettings, SchemaServer, StandardBehavioredColumnSettings, StandardGridSettings, defaultStandardColumnSettings } from '..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
@@ -15,7 +15,7 @@ export class AppSchemaServer implements SchemaServer<StandardBehavioredColumnSet
 
     private notificationsClient: SchemaServer.NotificationsClient<StandardBehavioredColumnSettings, AppSchemaField>;
 
-    constructor(gridSettings: StandardAllGridSettings) {
+    constructor(gridSettings: StandardGridSettings) {
         const nameHeaders = AppSchemaServer.columnNameHeaders;
         const columnCount = nameHeaders.length;
         const schema = new Array<AppSchemaField>(columnCount);
@@ -23,7 +23,7 @@ export class AppSchemaServer implements SchemaServer<StandardBehavioredColumnSet
             const nameHeader = nameHeaders[i];
             const name = nameHeader.name;
             const columnSettings = new InMemoryStandardBehavioredColumnSettings(gridSettings);
-            columnSettings.merge(defaultStandardAllColumnSettings);
+            columnSettings.merge(defaultStandardColumnSettings);
             const field: AppSchemaField = {
                 name,
                 index: i,

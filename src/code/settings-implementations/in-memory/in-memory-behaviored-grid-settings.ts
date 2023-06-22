@@ -1,5 +1,4 @@
 import {
-    AllGridSettings,
     BehavioredGridSettings,
     GridSettingChangeInvalidateTypeId,
     GridSettings,
@@ -1005,10 +1004,10 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         }
     }
 
-    merge(settings: Partial<AllGridSettings>) {
+    merge(settings: Partial<GridSettings>) {
         this.beginChange();
 
-        const requiredSettings = settings as Required<AllGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
+        const requiredSettings = settings as Required<GridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
             const gridSettingsKey = key as keyof GridSettings;

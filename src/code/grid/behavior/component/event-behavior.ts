@@ -71,13 +71,13 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
         /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         /** @internal */
         private readonly _focus: Focus<BGS, BCS, SF>,
         /** @internal */
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _selection: Selection<BCS, SF>,
         /** @internal */
         private readonly _mouse: Mouse<BGS, BCS, SF>,
         /** @internal */

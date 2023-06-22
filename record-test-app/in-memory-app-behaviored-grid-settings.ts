@@ -2,9 +2,9 @@ import {
     GridSettings,
     InMemoryStandardBehavioredGridSettings
 } from '..';
-import { AppAllGridSettings } from './app-all-grid-settings';
 import { AppBehavioredGridSettings } from './app-behaviored-grid-settings';
 import { AppGridSettings } from './app-grid-settings';
+import { AppOnlyGridSettings } from './app-only-grid-settings';
 
 /** @public */
 export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehavioredGridSettings implements AppBehavioredGridSettings {
@@ -119,15 +119,15 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         }
     }
 
-    override merge(settings: Partial<AppAllGridSettings>) {
+    override merge(settings: Partial<AppGridSettings>) {
         this.beginChange();
 
         super.merge(settings);
 
-        const requiredSettings = settings as Required<AppAllGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
+        const requiredSettings = settings as Required<AppGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
-            const gridSettingsKey = key as keyof AppGridSettings;
+            const gridSettingsKey = key as keyof AppOnlyGridSettings;
             switch (gridSettingsKey) {
                 case 'alternateBackgroundColor':
                     this._alternateBackgroundColor = requiredSettings.alternateBackgroundColor;

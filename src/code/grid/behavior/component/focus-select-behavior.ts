@@ -5,14 +5,15 @@ import { Subgrid } from '../../interfaces/data/subgrid';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
 import { SelectionAreaType } from '../../types-utils/types';
 
 export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     constructor(
-        private readonly _gridSettings: BGS,
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _gridSettings: GridSettings,
+        private readonly _selection: Selection<BCS, SF>,
         private readonly _focus: Focus<BGS, BCS, SF>,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         private readonly _checkFocusEventer: FocusSelectBehavior.CheckFocusEventer<BCS, SF>,

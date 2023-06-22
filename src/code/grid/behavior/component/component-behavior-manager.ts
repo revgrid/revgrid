@@ -46,18 +46,18 @@ export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS ex
     readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>;
     readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>;
     readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>;
-    readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>;
+    readonly dataExtractBehavior: DataExtractBehavior<BCS, SF>;
 
     private readonly _serverNotificationBehavior: ServerNotificationBehavior<BGS, BCS, SF>;
 
     constructor(
         gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
-        columnsManager: ColumnsManager<BGS, BCS, SF>,
-        subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        columnsManager: ColumnsManager<BCS, SF>,
+        subgridsManager: SubgridsManager<BCS, SF>,
         viewLayout: ViewLayout<BGS, BCS, SF>,
         focus: Focus<BGS, BCS, SF>,
-        selection: Selection<BGS, BCS, SF>,
+        selection: Selection<BCS, SF>,
         mouse: Mouse<BGS, BCS, SF>,
         renderer: Renderer<BGS, BCS, SF>,
         horizontalScroller: Scroller<BGS>,

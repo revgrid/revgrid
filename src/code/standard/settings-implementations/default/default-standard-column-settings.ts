@@ -1,23 +1,9 @@
+import { defaultColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
 import { StandardColumnSettings } from '../../settings/standard-settings-public-api';
-import { defaultStandardGridSettings } from './default-standard-grid-settings';
+import { defaultStandardOnlyColumnSettings } from './default-standard-only-column-settings';
 
 /** @public */
 export const defaultStandardColumnSettings: StandardColumnSettings = {
-    cellPadding: defaultStandardGridSettings.cellPadding,
-    cellFocusedBorderColor: defaultStandardGridSettings.cellFocusedBorderColor,
-    cellHoverBackgroundColor: defaultStandardGridSettings.cellHoverBackgroundColor,
-    columnHoverBackgroundColor: defaultStandardGridSettings.columnHoverBackgroundColor,
-    columnHeaderFont: defaultStandardGridSettings.columnHeaderFont,
-    columnHeaderHorizontalAlign: defaultStandardGridSettings.columnHeaderHorizontalAlign,
-    columnHeaderBackgroundColor: defaultStandardGridSettings.columnHeaderBackgroundColor,
-    columnHeaderForegroundColor: defaultStandardGridSettings.columnHeaderForegroundColor,
-    columnHeaderSelectionFont: defaultStandardGridSettings.columnHeaderSelectionFont,
-    columnHeaderSelectionBackgroundColor: defaultStandardGridSettings.columnHeaderSelectionBackgroundColor,
-    columnHeaderSelectionForegroundColor: defaultStandardGridSettings.columnHeaderSelectionForegroundColor,
-    horizontalAlign: defaultStandardGridSettings.horizontalAlign,
-    verticalOffset: defaultStandardGridSettings.verticalOffset,
-    font: defaultStandardGridSettings.font,
-    textTruncateType: defaultStandardGridSettings.textTruncateType,
-    textStrikeThrough: defaultStandardGridSettings.textStrikeThrough,
-    editorClickCursorName: defaultStandardGridSettings.editorClickCursorName,
+    ...defaultColumnSettings,
+    ...defaultStandardOnlyColumnSettings,
 } as const;

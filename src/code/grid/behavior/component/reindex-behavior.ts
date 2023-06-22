@@ -12,7 +12,7 @@ export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
 
     constructor(
         private readonly _focus: Focus<BGS, BCS, SF>,
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _selection: Selection<BCS, SF>,
     ) {
 
     }

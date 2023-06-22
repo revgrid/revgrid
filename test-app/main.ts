@@ -17,7 +17,6 @@ import {
     Subgrid,
     ViewCell,
     defaultGridSettings,
-    defaultStandardAllGridSettings,
     defaultStandardGridSettings
 } from '..';
 import { AppSchemaField } from './app-schema-field';
@@ -165,7 +164,7 @@ export class Main {
         const gridSettings = this._gridSettings;
 
         gridSettings.beginChange();
-        gridSettings.merge(defaultStandardAllGridSettings);
+        gridSettings.merge(defaultStandardGridSettings);
 
         gridSettings.editable = true;
         gridSettings.multipleSelectionAreas = true;

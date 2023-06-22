@@ -2,14 +2,14 @@ import { Column, ColumnAutoSizeableWidth } from '../../interfaces/dataless/colum
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnFieldNameAndAutoSizableWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     /** @internal */
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
@@ -34,7 +34,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     /** @internal */
     constructor(
         readonly schemaServer: SchemaServer<BCS, SF>,
-        private readonly _gridSettings: BGS,
+        private readonly _gridSettings: GridSettings,
     ) {
     }
 
@@ -355,7 +355,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
      * @param settings - If undefined, this call is a no-op.
      * @internal
      */
-    loadAllColumnSettings(settings: ColumnSettings) {
+    loadAllColumnSettings(settings: BCS) {
         const fieldColumns = this._fieldColumns;
         const columnCount = fieldColumns.length;
         for (let i = 0; i < columnCount; i++) {
@@ -492,7 +492,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
      * @return The properties for a specific column.
      * @internal
      */
-    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<ColumnSettings>): ColumnSettings {
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): ColumnSettings {
         const column = this.getFieldColumn(fieldIndex);
         if (column === undefined) {
             throw 'Expected column.';

@@ -5,11 +5,11 @@ import {
     TextTruncateType
 } from '../../../grid/grid-public-api';
 import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { StandardAllColumnSettings, StandardAllGridSettings, StandardBehavioredColumnSettings, StandardColumnSettings } from '../../settings/standard-settings-public-api';
+import { StandardBehavioredColumnSettings, StandardColumnSettings, StandardGridSettings, StandardOnlyColumnSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings{
-    declare gridSettings: StandardAllGridSettings;
+export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
+    declare gridSettings: StandardGridSettings;
 
     private _cellPadding: number | undefined;
     private _cellFocusedBorderColor: GridSettings.Color | undefined | null;
@@ -29,7 +29,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     private _textStrikeThrough: boolean | undefined;
     private _editorClickCursorName: string | undefined | null;
 
-    constructor(gridSettings: StandardAllGridSettings) {
+    constructor(gridSettings: StandardGridSettings) {
         super(gridSettings);
     }
 
@@ -244,15 +244,15 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
         }
     }
 
-    override merge(settings: Partial<StandardAllColumnSettings>) {
+    override merge(settings: Partial<StandardColumnSettings>) {
         this.beginChange();
 
         super.merge(settings);
 
-        const requiredSettings = settings as Required<StandardAllColumnSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
+        const requiredSettings = settings as Required<StandardColumnSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
-            const columnSettingsKey = key as keyof StandardColumnSettings;
+            const columnSettingsKey = key as keyof StandardOnlyColumnSettings;
             switch (columnSettingsKey) {
                 case 'cellPadding':
                     this._cellPadding = requiredSettings.cellPadding;

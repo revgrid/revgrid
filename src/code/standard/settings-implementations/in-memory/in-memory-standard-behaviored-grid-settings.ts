@@ -5,7 +5,7 @@ import {
     TextTruncateType
 } from '../../../grid/grid-public-api';
 import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { StandardAllGridSettings, StandardBehavioredGridSettings, StandardGridSettings } from '../../settings/standard-settings-public-api';
+import { StandardBehavioredGridSettings, StandardGridSettings, StandardOnlyGridSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
 export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
@@ -221,15 +221,15 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
 
-    override merge(settings: Partial<StandardAllGridSettings>) {
+    override merge(settings: Partial<StandardGridSettings>) {
         this.beginChange();
 
         super.merge(settings);
 
-        const requiredSettings = settings as Required<StandardAllGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
+        const requiredSettings = settings as Required<StandardGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
-            const gridSettingsKey = key as keyof StandardGridSettings;
+            const gridSettingsKey = key as keyof StandardOnlyGridSettings;
             switch (gridSettingsKey) {
                 case 'cellPadding':
                     this._cellPadding = requiredSettings.cellPadding;

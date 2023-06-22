@@ -1,6 +1,7 @@
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { SchemaField } from './schema-field';
 
+
 /** @public */
 export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<BCS, SF>): void;

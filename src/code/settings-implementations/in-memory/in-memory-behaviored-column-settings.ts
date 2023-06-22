@@ -1,5 +1,4 @@
-import { BehavioredColumnSettings, ColumnSettings, GridSettingChangeInvalidateTypeId, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
-import { AllGridSettings } from '../../grid/interfaces/settings/all-grid-settings';
+import { BehavioredColumnSettings, ColumnSettings, GridSettingChangeInvalidateTypeId, GridSettings, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
 import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */
@@ -22,7 +21,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     private _sortOnDoubleClick: boolean | undefined;
     private _sortOnClick: boolean | undefined;
 
-    constructor(readonly gridSettings: AllGridSettings) {
+    constructor(readonly gridSettings: GridSettings) {
         super();
     }
 

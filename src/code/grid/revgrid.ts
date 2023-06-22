@@ -42,7 +42,7 @@ import { ColumnFieldNameAndAutoSizableWidth, ListChangedTypeId, SelectionAreaTyp
 /** @public */
 export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
     readonly mouse: Mouse<BGS, BCS, SF>;
-    readonly selection: Selection<BGS, BCS, SF>;
+    readonly selection: Selection<BCS, SF>;
     readonly focus: Focus<BGS, BCS, SF>;
     readonly canvasManager: CanvasManager<BGS>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
@@ -58,9 +58,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     private readonly _uiBehaviorManager: UiBehaviorManager<BGS, BCS, SF>;
 
     /** @internal */
-    private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>;
+    private readonly _columnsManager: ColumnsManager<BCS, SF>;
     /** @internal */
-    private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>;
+    private readonly _subgridsManager: SubgridsManager<BCS, SF>;
     /** @internal */
     private readonly _renderer: Renderer<BGS, BCS, SF>;
     /** @internal */
@@ -77,7 +77,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /** @internal */
     private readonly _cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>;
     /** @internal */
-    private readonly _dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>;
+    private readonly _dataExtractBehavior: DataExtractBehavior<BCS, SF>;
 
     destroyed = false;
 
@@ -1183,11 +1183,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._columnsManager.getActiveColumnSettings(activeColumnIndex);
     }
 
-    mergeFieldColumnProperties(fieldIndex: number, settings: Partial<ColumnSettings>) {
+    mergeFieldColumnProperties(fieldIndex: number, settings: Partial<BCS>) {
         this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
     }
 
-    setFieldColumnProperties(fieldIndex: number, settings: ColumnSettings) {
+    setFieldColumnProperties(fieldIndex: number, settings: BCS) {
         this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
     }
 
