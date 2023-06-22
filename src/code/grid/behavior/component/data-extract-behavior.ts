@@ -4,15 +4,14 @@ import { DataServer } from '../../interfaces/data/data-server';
 import { Column } from '../../interfaces/dataless/column';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType } from '../../types-utils/types';
 
 /** @public */
-export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     constructor(
-        private readonly _selection: Selection<BGS, BCS, SF>,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _selection: Selection<BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
 
     }

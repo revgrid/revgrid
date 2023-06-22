@@ -6,6 +6,7 @@ import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { CanvasManager } from '../canvas/canvas-manager';
@@ -13,7 +14,7 @@ import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF> | undefined;
     editorKeyDownEventer: Focus.EditorKeyDownEventer;
 
@@ -23,7 +24,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer<BCS, SF>;
 
     readonly subgrid: Subgrid<BCS, SF>;
-    readonly dataServer: DataServer<BCS, SF>;
+    readonly dataServer: DataServer<SF>;
 
     /** @internal */
     private _current: Point | undefined;
@@ -44,13 +45,13 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _gridSettings: BGS,
+        private readonly _gridSettings: GridSettings,
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
         private readonly _mainSubgrid: MainSubgrid<BCS, SF>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
         /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
     ) {
@@ -374,7 +375,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS, SF>) {
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._current !== undefined) {
                 Point.adjustForYRangeInserted(this._current, rowIndex, rowCount);
@@ -388,7 +389,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS, SF>) {
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._current !== undefined) {
                 const positionInDeletionRange = Point.adjustForYRangeDeleted(this._current, rowIndex, rowCount);
@@ -408,7 +409,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<BCS, SF>) {
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<SF>) {
         if (dataServer === this._mainSubgrid.dataServer) {
             if (this._current !== undefined) {
                 Point.adjustForYRangeMoved(this._current, oldRowIndex, newRowIndex, count);
@@ -686,7 +687,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 /** @public */
 export namespace Focus {
     export type EditorKeyDownEventer = (this: void, event: KeyboardEvent) => void;
-    export type GetCellEditorEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (
+    export type GetCellEditorEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (
         this: void,
         field: SF,
         subgridRowIndex: number,
@@ -698,7 +699,7 @@ export namespace Focus {
     /** @internal */
     export type ChangedEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
     /** @internal */
-    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, cell: ViewCell<BCS, SF>) => void;
+    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
 
     export const enum ActionKeyboardKey {
         Tab = 'Tab',

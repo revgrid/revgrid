@@ -1,5 +1,4 @@
 import {
-    AllGridSettings,
     BehavioredGridSettings,
     GridSettingChangeInvalidateTypeId,
     GridSettings,
@@ -1005,282 +1004,283 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         }
     }
 
-    load(settings: AllGridSettings) {
+    merge(settings: Partial<GridSettings>) {
         this.beginChange();
 
+        const requiredSettings = settings as Required<GridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
             const gridSettingsKey = key as keyof GridSettings;
             switch (gridSettingsKey) {
                 case 'addToggleSelectionAreaModifierKey':
-                    this._addToggleSelectionAreaModifierKey = settings.addToggleSelectionAreaModifierKey;
+                    this._addToggleSelectionAreaModifierKey = requiredSettings.addToggleSelectionAreaModifierKey;
                     break;
                 case 'addToggleSelectionAreaModifierKeyDoesToggle':
-                    this._addToggleSelectionAreaModifierKeyDoesToggle = settings.addToggleSelectionAreaModifierKeyDoesToggle;
+                    this._addToggleSelectionAreaModifierKeyDoesToggle = requiredSettings.addToggleSelectionAreaModifierKeyDoesToggle;
                     break;
                 case 'backgroundColor':
-                    this._backgroundColor = settings.backgroundColor;
+                    this._backgroundColor = requiredSettings.backgroundColor;
                     break;
                 case 'color':
-                    this._color = settings.color;
+                    this._color = requiredSettings.color;
                     break;
                 case 'defaultColumnAutoSizing':
-                    this._defaultColumnAutoSizing = settings.defaultColumnAutoSizing;
+                    this._defaultColumnAutoSizing = requiredSettings.defaultColumnAutoSizing;
                     break;
                 case 'columnAutoSizingMax':
-                    this._columnAutoSizingMax = settings.columnAutoSizingMax;
+                    this._columnAutoSizingMax = requiredSettings.columnAutoSizingMax;
                     break;
                 case 'columnClip':
-                    this._columnClip = settings.columnClip;
+                    this._columnClip = requiredSettings.columnClip;
                     break;
                 case 'columnMoveDragPossibleCursorName':
-                    this._columnMoveDragPossibleCursorName = settings.columnMoveDragPossibleCursorName;
+                    this._columnMoveDragPossibleCursorName = requiredSettings.columnMoveDragPossibleCursorName;
                     break;
                 case 'columnMoveDragPossibleTitleText':
-                    this._columnMoveDragPossibleTitleText = settings.columnMoveDragPossibleTitleText;
+                    this._columnMoveDragPossibleTitleText = requiredSettings.columnMoveDragPossibleTitleText;
                     break;
                 case 'columnMoveDragActiveCursorName':
-                    this._columnMoveDragActiveCursorName = settings.columnMoveDragActiveCursorName;
+                    this._columnMoveDragActiveCursorName = requiredSettings.columnMoveDragActiveCursorName;
                     break;
                 case 'columnMoveDragActiveTitleText':
-                    this._columnMoveDragActiveTitleText = settings.columnMoveDragActiveTitleText;
+                    this._columnMoveDragActiveTitleText = requiredSettings.columnMoveDragActiveTitleText;
                     break;
                 case 'columnResizeDragPossibleCursorName':
-                    this._columnResizeDragPossibleCursorName = settings.columnResizeDragPossibleCursorName;
+                    this._columnResizeDragPossibleCursorName = requiredSettings.columnResizeDragPossibleCursorName;
                     break;
                 case 'columnResizeDragPossibleTitleText':
-                    this._columnResizeDragPossibleTitleText = settings.columnResizeDragPossibleTitleText;
+                    this._columnResizeDragPossibleTitleText = requiredSettings.columnResizeDragPossibleTitleText;
                     break;
                 case 'columnResizeDragActiveCursorName':
-                    this._columnResizeDragActiveCursorName = settings.columnResizeDragActiveCursorName;
+                    this._columnResizeDragActiveCursorName = requiredSettings.columnResizeDragActiveCursorName;
                     break;
                 case 'columnResizeDragActiveTitleText':
-                    this._columnResizeDragActiveTitleText = settings.columnResizeDragActiveTitleText;
+                    this._columnResizeDragActiveTitleText = requiredSettings.columnResizeDragActiveTitleText;
                     break;
                 case 'columnSortPossibleCursorName':
-                    this._columnSortPossibleCursorName = settings.columnSortPossibleCursorName;
+                    this._columnSortPossibleCursorName = requiredSettings.columnSortPossibleCursorName;
                     break;
                 case 'columnSortPossibleTitleText':
-                    this._columnSortPossibleTitleText = settings.columnSortPossibleTitleText;
+                    this._columnSortPossibleTitleText = requiredSettings.columnSortPossibleTitleText;
                     break;
                 case 'columnsReorderable':
-                    this._columnsReorderable = settings.columnsReorderable;
+                    this._columnsReorderable = requiredSettings.columnsReorderable;
                     break;
                 case 'columnsReorderableHideable':
-                    this._columnsReorderableHideable = settings.columnsReorderableHideable;
+                    this._columnsReorderableHideable = requiredSettings.columnsReorderableHideable;
                     break;
                 case 'defaultRowHeight':
-                    this._defaultRowHeight = settings.defaultRowHeight;
+                    this._defaultRowHeight = requiredSettings.defaultRowHeight;
                     break;
                 case 'defaultColumnWidth':
-                    this._defaultColumnWidth = settings.defaultColumnWidth;
+                    this._defaultColumnWidth = requiredSettings.defaultColumnWidth;
                     break;
                 case 'defaultUiBehaviorTypeNames':
-                    this._defaultUiBehaviorTypeNames = settings.defaultUiBehaviorTypeNames;
+                    this._defaultUiBehaviorTypeNames = requiredSettings.defaultUiBehaviorTypeNames;
                     break;
                 case 'editable':
-                    this._editable = settings.editable;
+                    this._editable = requiredSettings.editable;
                     break;
                 case 'editKey':
-                    this._editKey = settings.editKey;
+                    this._editKey = requiredSettings.editKey;
                     break;
                 case 'editOnClick':
-                    this._editOnClick = settings.editOnClick;
+                    this._editOnClick = requiredSettings.editOnClick;
                     break;
                 case 'editOnDoubleClick':
-                    this._editOnDoubleClick = settings.editOnDoubleClick;
+                    this._editOnDoubleClick = requiredSettings.editOnDoubleClick;
                     break;
                 case 'editOnFocusCell':
-                    this._editOnFocusCell = settings.editOnFocusCell;
+                    this._editOnFocusCell = requiredSettings.editOnFocusCell;
                     break;
                 case 'editOnKeyDown':
-                    this._editOnKeyDown = settings.editOnKeyDown;
+                    this._editOnKeyDown = requiredSettings.editOnKeyDown;
                     break;
                 case 'enableContinuousRepaint':
-                    this._enableContinuousRepaint = settings.enableContinuousRepaint;
+                    this._enableContinuousRepaint = requiredSettings.enableContinuousRepaint;
                     break;
                 case 'extendLastSelectionAreaModifierKey':
-                    this._extendLastSelectionAreaModifierKey = settings.extendLastSelectionAreaModifierKey;
+                    this._extendLastSelectionAreaModifierKey = requiredSettings.extendLastSelectionAreaModifierKey;
                     break;
                 case 'eventDispatchEnabled':
-                    this._eventDispatchEnabled = settings.eventDispatchEnabled;
+                    this._eventDispatchEnabled = requiredSettings.eventDispatchEnabled;
                     break;
                 case 'filterable':
-                    this._filterable = settings.filterable;
+                    this._filterable = requiredSettings.filterable;
                     break;
                 case 'filterBackgroundColor':
-                    this._filterBackgroundColor = settings.filterBackgroundColor;
+                    this._filterBackgroundColor = requiredSettings.filterBackgroundColor;
                     break;
                 case 'filterBackgroundSelectionColor':
-                    this._filterBackgroundSelectionColor = settings.filterBackgroundSelectionColor;
+                    this._filterBackgroundSelectionColor = requiredSettings.filterBackgroundSelectionColor;
                     break;
                 case 'filterColor':
-                    this._filterColor = settings.filterColor;
+                    this._filterColor = requiredSettings.filterColor;
                     break;
                 case 'filterEditor':
-                    this._filterEditor = settings.filterEditor;
+                    this._filterEditor = requiredSettings.filterEditor;
                     break;
                 case 'filterFont':
-                    this._filterFont = settings.filterFont;
+                    this._filterFont = requiredSettings.filterFont;
                     break;
                 case 'filterForegroundSelectionColor':
-                    this._filterForegroundSelectionColor = settings.filterForegroundSelectionColor;
+                    this._filterForegroundSelectionColor = requiredSettings.filterForegroundSelectionColor;
                     break;
                 case 'filterHalign':
-                    this._filterHalign = settings.filterHalign;
+                    this._filterHalign = requiredSettings.filterHalign;
                     break;
                 case 'filterCellPainter':
-                    this._filterCellPainter = settings.filterCellPainter;
+                    this._filterCellPainter = requiredSettings.filterCellPainter;
                     break;
                 case 'fixedColumnCount':
-                    this._fixedColumnCount = settings.fixedColumnCount;
+                    this._fixedColumnCount = requiredSettings.fixedColumnCount;
                     break;
                 case 'horizontalFixedLineColor':
-                    this._horizontalFixedLineColor = settings.horizontalFixedLineColor;
+                    this._horizontalFixedLineColor = requiredSettings.horizontalFixedLineColor;
                     break;
                 case 'horizontalFixedLineEdgeWidth':
-                    this._horizontalFixedLineEdgeWidth = settings.horizontalFixedLineEdgeWidth;
+                    this._horizontalFixedLineEdgeWidth = requiredSettings.horizontalFixedLineEdgeWidth;
                     break;
                 case 'horizontalFixedLineWidth':
-                    this._horizontalFixedLineWidth = settings.horizontalFixedLineWidth;
+                    this._horizontalFixedLineWidth = requiredSettings.horizontalFixedLineWidth;
                     break;
                 case 'verticalFixedLineColor':
-                    this._verticalFixedLineColor = settings.verticalFixedLineColor;
+                    this._verticalFixedLineColor = requiredSettings.verticalFixedLineColor;
                     break;
                 case 'verticalFixedLineEdgeWidth':
-                    this._verticalFixedLineEdgeWidth = settings.verticalFixedLineEdgeWidth;
+                    this._verticalFixedLineEdgeWidth = requiredSettings.verticalFixedLineEdgeWidth;
                     break;
                 case 'verticalFixedLineWidth':
-                    this._verticalFixedLineWidth = settings.verticalFixedLineWidth;
+                    this._verticalFixedLineWidth = requiredSettings.verticalFixedLineWidth;
                     break;
                 case 'fixedRowCount':
-                    this._fixedRowCount = settings.fixedRowCount;
+                    this._fixedRowCount = requiredSettings.fixedRowCount;
                     break;
                 case 'gridRightAligned':
-                    this._gridRightAligned = settings.gridRightAligned;
+                    this._gridRightAligned = requiredSettings.gridRightAligned;
                     break;
                 case 'verticalGridLinesVisible':
-                    this._verticalGridLinesVisible = settings.verticalGridLinesVisible;
+                    this._verticalGridLinesVisible = requiredSettings.verticalGridLinesVisible;
                     break;
                 case 'horizontalGridLinesColor':
-                    this._horizontalGridLinesColor = settings.horizontalGridLinesColor;
+                    this._horizontalGridLinesColor = requiredSettings.horizontalGridLinesColor;
                     break;
                 case 'horizontalGridLinesWidth':
-                    this._horizontalGridLinesWidth = settings.horizontalGridLinesWidth;
+                    this._horizontalGridLinesWidth = requiredSettings.horizontalGridLinesWidth;
                     break;
                 case 'horizontalGridLinesVisible':
-                    this._horizontalGridLinesVisible = settings.horizontalGridLinesVisible;
+                    this._horizontalGridLinesVisible = requiredSettings.horizontalGridLinesVisible;
                     break;
                 case 'verticalGridLinesColor':
-                    this._verticalGridLinesColor = settings.verticalGridLinesColor;
+                    this._verticalGridLinesColor = requiredSettings.verticalGridLinesColor;
                     break;
                 case 'verticalGridLinesWidth':
-                    this._verticalGridLinesWidth = settings.verticalGridLinesWidth;
+                    this._verticalGridLinesWidth = requiredSettings.verticalGridLinesWidth;
                     break;
                 case 'horizontalWheelScrollingAllowed':
-                    this._horizontalWheelScrollingAllowed = settings.horizontalWheelScrollingAllowed;
+                    this._horizontalWheelScrollingAllowed = requiredSettings.horizontalWheelScrollingAllowed;
                     break;
                 case 'horizontalScrollbarClassPrefix':
-                    this._horizontalScrollbarClassPrefix = settings.horizontalScrollbarClassPrefix;
+                    this._horizontalScrollbarClassPrefix = requiredSettings.horizontalScrollbarClassPrefix;
                     break;
                 case 'minimumColumnWidth':
-                    this._minimumColumnWidth = settings.minimumColumnWidth;
+                    this._minimumColumnWidth = requiredSettings.minimumColumnWidth;
                     break;
                 case 'maximumColumnWidth':
-                    this._maximumColumnWidth = settings.maximumColumnWidth;
+                    this._maximumColumnWidth = requiredSettings.maximumColumnWidth;
                     break;
                 case 'visibleColumnWidthAdjust':
-                    this._visibleColumnWidthAdjust = settings.visibleColumnWidthAdjust;
+                    this._visibleColumnWidthAdjust = requiredSettings.visibleColumnWidthAdjust;
                     break;
                 case 'mouseRectangleSelection':
-                    this._mouseRectangleSelection = settings.mouseRectangleSelection;
+                    this._mouseRectangleSelection = requiredSettings.mouseRectangleSelection;
                     break;
                 case 'mouseColumnSelection':
-                    this._mouseColumnSelection = settings.mouseColumnSelection;
+                    this._mouseColumnSelection = requiredSettings.mouseColumnSelection;
                     break;
                 case 'mouseRowSelection':
-                    this._mouseRowSelection = settings.mouseRowSelection;
+                    this._mouseRowSelection = requiredSettings.mouseRowSelection;
                     break;
                 case 'multipleSelectionAreas':
-                    this._multipleSelectionAreas = settings.multipleSelectionAreas;
+                    this._multipleSelectionAreas = requiredSettings.multipleSelectionAreas;
                     break;
                 case 'primarySelectionAreaType':
-                    this._primarySelectionAreaType = settings.primarySelectionAreaType;
+                    this._primarySelectionAreaType = requiredSettings.primarySelectionAreaType;
                     break;
                 case 'repaintImmediately':
-                    this._repaintImmediately = settings.repaintImmediately;
+                    this._repaintImmediately = requiredSettings.repaintImmediately;
                     break;
                 case 'repaintFramesPerSecond':
-                    this._repaintFramesPerSecond = settings.repaintFramesPerSecond;
+                    this._repaintFramesPerSecond = requiredSettings.repaintFramesPerSecond;
                     break;
                 case 'resizeColumnInPlace':
-                    this._resizeColumnInPlace = settings.resizeColumnInPlace;
+                    this._resizeColumnInPlace = requiredSettings.resizeColumnInPlace;
                     break;
                 case 'resizedEventDebounceExtendedWhenPossible':
-                    this._resizedEventDebounceExtendedWhenPossible = settings.resizedEventDebounceExtendedWhenPossible;
+                    this._resizedEventDebounceExtendedWhenPossible = requiredSettings.resizedEventDebounceExtendedWhenPossible;
                     break;
                 case 'resizedEventDebounceInterval':
-                    this._resizedEventDebounceInterval = settings.resizedEventDebounceInterval;
+                    this._resizedEventDebounceInterval = requiredSettings.resizedEventDebounceInterval;
                     break;
                 case 'rowResize':
-                    this._rowResize = settings.rowResize;
+                    this._rowResize = requiredSettings.rowResize;
                     break;
                 case 'rowStripes':
-                    this._rowStripes = settings.rowStripes;
+                    this._rowStripes = requiredSettings.rowStripes;
                     break;
                 case 'scrollerThumbColor':
-                    this._scrollerThumbColor = settings.scrollerThumbColor;
+                    this._scrollerThumbColor = requiredSettings.scrollerThumbColor;
                     break;
                 case 'scrollerThumbReducedVisibilityOpacity':
-                    this._scrollerThumbReducedVisibilityOpacity = settings.scrollerThumbReducedVisibilityOpacity;
+                    this._scrollerThumbReducedVisibilityOpacity = requiredSettings.scrollerThumbReducedVisibilityOpacity;
                     break;
                 case 'scrollHorizontallySmoothly':
-                    this._scrollHorizontallySmoothly = settings.scrollHorizontallySmoothly;
+                    this._scrollHorizontallySmoothly = requiredSettings.scrollHorizontallySmoothly;
                     break;
                 case 'scrollingEnabled':
-                    this._scrollingEnabled = settings.scrollingEnabled;
+                    this._scrollingEnabled = requiredSettings.scrollingEnabled;
                     break;
                 case 'secondarySelectionAreaTypeSpecifierModifierKey':
-                    this._secondarySelectionAreaTypeSpecifierModifierKey = settings.secondarySelectionAreaTypeSpecifierModifierKey;
+                    this._secondarySelectionAreaTypeSpecifierModifierKey = requiredSettings.secondarySelectionAreaTypeSpecifierModifierKey;
                     break;
                 case 'secondarySelectionAreaType':
-                    this._secondarySelectionAreaType = settings.secondarySelectionAreaType;
+                    this._secondarySelectionAreaType = requiredSettings.secondarySelectionAreaType;
                     break;
                 case 'selectionExtendDragActiveCursorName':
-                    this._selectionExtendDragActiveCursorName = settings.selectionExtendDragActiveCursorName;
+                    this._selectionExtendDragActiveCursorName = requiredSettings.selectionExtendDragActiveCursorName;
                     break;
                 case 'selectionExtendDragActiveTitleText':
-                    this._selectionExtendDragActiveTitleText = settings.selectionExtendDragActiveTitleText;
+                    this._selectionExtendDragActiveTitleText = requiredSettings.selectionExtendDragActiveTitleText;
                     break;
                 case 'selectionRegionOutlineColor':
-                    this._selectionRegionOutlineColor = settings.selectionRegionOutlineColor;
+                    this._selectionRegionOutlineColor = requiredSettings.selectionRegionOutlineColor;
                     break;
                 case 'selectionRegionOverlayColor':
-                    this._selectionRegionOverlayColor = settings.selectionRegionOverlayColor;
+                    this._selectionRegionOverlayColor = requiredSettings.selectionRegionOverlayColor;
                     break;
                 case 'showFilterRow':
-                    this._showFilterRow = settings.showFilterRow;
+                    this._showFilterRow = requiredSettings.showFilterRow;
                     break;
                 case 'sortOnDoubleClick':
-                    this._sortOnDoubleClick = settings.sortOnDoubleClick;
+                    this._sortOnDoubleClick = requiredSettings.sortOnDoubleClick;
                     break;
                 case 'sortOnClick':
-                    this._sortOnClick = settings.sortOnClick;
+                    this._sortOnClick = requiredSettings.sortOnClick;
                     break;
                 case 'showScrollerThumbOnMouseMoveModifierKey':
-                    this._showScrollerThumbOnMouseMoveModifierKey = settings.showScrollerThumbOnMouseMoveModifierKey;
+                    this._showScrollerThumbOnMouseMoveModifierKey = requiredSettings.showScrollerThumbOnMouseMoveModifierKey;
                     break;
                 case 'useHiDPI':
-                    this._useHiDPI = settings.useHiDPI;
+                    this._useHiDPI = requiredSettings.useHiDPI;
                     break;
                 case 'verticalScrollbarClassPrefix':
-                    this._verticalScrollbarClassPrefix = settings.verticalScrollbarClassPrefix;
+                    this._verticalScrollbarClassPrefix = requiredSettings.verticalScrollbarClassPrefix;
                     break;
                 case 'wheelHFactor':
-                    this._wheelHFactor = settings.wheelHFactor;
+                    this._wheelHFactor = requiredSettings.wheelHFactor;
                     break;
                 case 'wheelVFactor':
-                    this._wheelVFactor = settings.wheelVFactor;
+                    this._wheelVFactor = requiredSettings.wheelVFactor;
                     break;
 
                 default: {
@@ -1296,7 +1296,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
 
     clone() {
         const copy = new InMemoryBehavioredGridSettings();
-        copy.load(this);
+        copy.merge(this);
         return copy;
     }
 }

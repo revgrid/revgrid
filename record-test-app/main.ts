@@ -2,6 +2,7 @@ import {
     CellEditor,
     DatalessSubgrid,
     DatalessViewCell,
+    InMemoryStandardBehavioredColumnSettings,
     Point,
     RevRecordMainDataServer,
     RevRecordSchemaServer,
@@ -12,10 +13,10 @@ import {
     ViewCell,
     readonlyDefaultStandardBehavioredColumnSettings
 } from '..';
-import { AppAllGridSettings } from './app-all-grid-settings';
 import { AppBehavioredGridSettings } from './app-behaviored-grid-settings';
+import { AppGridSettings } from './app-grid-settings';
 import { Controls } from './controls';
-import { defaultAppAllGridSettings } from './default-app-all-grid-settings';
+import { defaultAppGridSettings } from './default-app-grid-settings';
 import {
     DateValGridField,
     GridField, HiddenStrValGridField, IntValGridField, NumberValGridField, RecordIndexGridField, StatusIdValGridField, StrValGridField
@@ -34,9 +35,9 @@ export class Main {
     // private readonly _mainRecordAdapter: RevRecordMainAdapter;
 
     private readonly _recordStore: RecordStore;
-    private readonly _schemaServer: RevRecordSchemaServer<StandardBehavioredColumnSettings, GridField>;
+    private readonly _schemaServer: RevRecordSchemaServer<GridField>;
     private readonly _headerDataServer: HeaderDataServer;
-    private readonly _mainDataServer: RevRecordMainDataServer<StandardBehavioredColumnSettings, GridField>;
+    private readonly _mainDataServer: RevRecordMainDataServer<GridField>;
 
     private readonly _mainCellPainter: MainCellPainter;
     private readonly _headerCellPainter: StandardHeaderTextCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>;
@@ -64,8 +65,8 @@ export class Main {
         }
         this._gridHostElement = gridHostElement;
 
-        const initialSettings: AppAllGridSettings = {
-            ...defaultAppAllGridSettings,
+        const initialSettings: AppGridSettings = {
+            ...defaultAppGridSettings,
             horizontalGridLinesWidth: 0,
             fixedColumnCount: 1,
 
@@ -93,12 +94,12 @@ export class Main {
             recordRecentlyUpdatedBorderColor: 'orange',
             recordRecentlyInsertedBorderColor: 'pink',
         };
-        this._gridSettings.load(initialSettings);
+        this._gridSettings.merge(initialSettings);
 
         this._recordStore = new RecordStore();
 
-        this._schemaServer = new RevRecordSchemaServer<StandardBehavioredColumnSettings, GridField>();
-        this._mainDataServer = new RevRecordMainDataServer<StandardBehavioredColumnSettings, GridField>(this._schemaServer, this._recordStore);
+        this._schemaServer = new RevRecordSchemaServer<GridField>();
+        this._mainDataServer = new RevRecordMainDataServer<GridField>(this._schemaServer, this._recordStore);
         this._headerDataServer = new HeaderDataServer();
 
 
@@ -118,7 +119,12 @@ export class Main {
             ],
         };
 
-        this._grid = new RecordGrid(this._gridHostElement, definition, this._gridSettings);
+        this._grid = new RecordGrid(
+            this._gridHostElement,
+            definition,
+            this._gridSettings,
+            () => new InMemoryStandardBehavioredColumnSettings(this._gridSettings),
+        );
 
         const grid = this._grid;
 
@@ -153,82 +159,11 @@ export class Main {
             this._dateValGridField,
             this._statusIdValGridField,
         ]);
-
-        // grid.canvas.canvas.addEventListener('mousemove', this._ctrlKeyMousemoveListener);
     }
 
     start(): void {
         // no code needed
     }
-
-    // private numberToPixels(value: number): string {
-    //     return value.toString(10) + 'px';
-    // }
-
-    // private handleHypegridCtrlKeyMousemoveEvent(ctrlKey: boolean) {
-    //     if (ctrlKey) {
-    //         if (this._scrollbarThumbInactiveOpaqueSetTimeoutId !== undefined) {
-    //             this._scrollbarThumbInactiveOpaqueExtended = true;
-    //         } else {
-    //             this.temporarilySetScrollbarThumbInactiveOpaque();
-    //         }
-    //     }
-    // }
-
-    // Event Handlers
-
-    // OnFocusedCellChange(newFieldIndex: GridFieldIndex, oldFieldIndex: GridFieldIndex, newRecordIndex: GridRecordIndex,
-    // 	oldRecordIndex: GridRecordIndex, uiEvent: boolean): void {
-    // 	this.UpdateCaptionValue(newRecordIndex);
-
-    // 	const RowIndexFieldIndex = this._grid.GegridFieldIndex(AppComponent.FieldRowIndex);
-
-    // 	if (oldRecordIndex >= 0) {
-    // 		this._grid.InvalidateValue(RowIndexFieldIndex, oldRecordIndex);
-    // 	}
-
-    // 	if (newRecordIndex >= 0) {
-    // 		this._grid.InvalidateValue(RowIndexFieldIndex, newRecordIndex);
-    // 	}
-    // }
-
-
-    // private updateScrollbar() {
-    //     const settings = this._settings;
-    //     // this._grid1HostElement.style.setProperty(CssVar.scrollbarThumbColor, colorSettings.getFore(settings.scrollbar));
-    //     // this._grid1HostElement.style.setProperty(CssVar.scrollbarThumbShadowColor, colors.scrollbarThumbShadowColor);
-    //     this._gridHostElement.style.setProperty(CssVar.scrollbarHorizontalHeight, this.numberToPixels(settings.scrollbarHorizontalHeight));
-    //     this._gridHostElement.style.setProperty(CssVar.scrollbarHorizontalThumbHeight, this.numberToPixels(settings.scrollbarHorizontalThumbHeight));
-    //     this._gridHostElement.style.setProperty(CssVar.scrollbarVerticalWidth, this.numberToPixels(settings.scrollbarVerticalWidth));
-    //     this._gridHostElement.style.setProperty(CssVar.scrollbarVerticalThumbWidth, this.numberToPixels(settings.scrollbarVerticalThumbWidth));
-
-    //     this._gridHostElement.style.setProperty(CssVar.scrollbarMargin, this.numberToPixels(settings.scrollbarMargin));
-
-    //     this._gridHostElement.style.setProperty(CssVar.scrollbarThumbInactiveOpacity, settings.scrollbarThumbInactiveOpacity.toString());
-
-    //     if (settings.gridRightAligned) {
-    //         this._gridHostElement.style.setProperty(CssVar.scrollbarVerticalLeft, 'revert');
-    //         this._gridHostElement.style.setProperty(CssVar.scrollbarVerticalRight, 'null');
-    //     } else {
-    //         this._gridHostElement.style.setProperty(CssVar.scrollbarVerticalLeft, 'null');
-    //         this._gridHostElement.style.setProperty(CssVar.scrollbarVerticalRight, 'revert');
-    //     }
-    // }
-
-    // private temporarilySetScrollbarThumbInactiveOpaque() {
-    //     this._gridHostElement.style.setProperty(CssVar.scrollbarThumbInactiveOpacity, '1');
-    //     this._scrollbarThumbInactiveOpaqueSetTimeoutId = setTimeout(() => {
-    //         this._scrollbarThumbInactiveOpaqueSetTimeoutId = undefined;
-    //         if (this._scrollbarThumbInactiveOpaqueExtended) {
-    //             this._scrollbarThumbInactiveOpaqueExtended = false;
-    //             this.temporarilySetScrollbarThumbInactiveOpaque();
-    //         } else {
-    //             this._gridHostElement.style.setProperty(CssVar.scrollbarThumbInactiveOpacity, 'revert');
-    //         }
-    //     }, 250);
-    // }
-
-
     private getMainCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, GridField>) {
         return this._mainCellPainter;
     }

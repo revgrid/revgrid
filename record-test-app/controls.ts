@@ -1,5 +1,5 @@
 import { Column, RevRecordMainDataServer, RevRecordSchemaServer, StandardBehavioredColumnSettings } from '..';
-import { defaultAppAllGridSettings } from './default-app-all-grid-settings';
+import { defaultAppGridSettings } from './default-app-grid-settings';
 import { GridField, IntValGridField, RecordIndexGridField, StrValGridField } from './grid-field';
 import { InMemoryAppBehavioredGridSettings } from './in-memory-app-behaviored-grid-settings';
 import { RecordGrid } from './record-grid';
@@ -47,8 +47,8 @@ export class Controls {
         private readonly _grid: RecordGrid,
         private readonly _settings: InMemoryAppBehavioredGridSettings,
         private readonly _recordStore: RecordStore,
-        private readonly _schemaServer: RevRecordSchemaServer<StandardBehavioredColumnSettings, GridField>,
-        private readonly _mainDataServer: RevRecordMainDataServer<StandardBehavioredColumnSettings, GridField>,
+        private readonly _schemaServer: RevRecordSchemaServer<GridField>,
+        private readonly _mainDataServer: RevRecordMainDataServer<GridField>,
         private readonly _recordIndexGridField: RecordIndexGridField,
         private readonly _intValGridField: IntValGridField,
         private readonly _strValGridField: StrValGridField,
@@ -532,7 +532,7 @@ export class Controls {
     private handleUiRowHeightChange() {
         const value = this._rowHeightTextboxElement.value;
         if (value === '') {
-            this._settings.defaultRowHeight = defaultAppAllGridSettings.defaultRowHeight;
+            this._settings.defaultRowHeight = defaultAppGridSettings.defaultRowHeight;
         } else {
             this._settings.defaultRowHeight = Number(value);
         }

@@ -10,7 +10,7 @@ import { StandardCellPainter } from './standard-cell-painter';
 export class StandardButtonCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField<BCS>
+    SF extends SchemaField
 > extends StandardCellPainter<BGS, BCS, SF> {
     config: StandardButtonCellPainter.Config;
 

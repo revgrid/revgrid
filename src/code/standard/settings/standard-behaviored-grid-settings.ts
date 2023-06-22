@@ -1,8 +1,8 @@
 import { BehavioredGridSettings } from '../../grid/grid-public-api';
-import { StandardAllGridSettings } from './standard-all-grid-settings';
+import { StandardGridSettings } from './standard-grid-settings';
 
 /** @public */
-export interface StandardBehavioredGridSettings extends StandardAllGridSettings, BehavioredGridSettings {
-    load(settings: StandardAllGridSettings): void;
+export interface StandardBehavioredGridSettings extends StandardGridSettings, BehavioredGridSettings {
+    merge(settings: Partial<StandardGridSettings>): void;
     clone(): StandardBehavioredGridSettings;
 }

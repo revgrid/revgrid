@@ -1,4 +1,4 @@
-import { Point, RevDataRowArrayServerSet, StandardBehavioredGridSettings, readonlyDefaultStandardBehavioredGridSettings } from '..';
+import { Point, RevDataRowArrayServerSet } from '..';
 import { SimpleGrid } from './simple-grid';
 
 export class Main {
@@ -34,14 +34,7 @@ export class Main {
     }
 
     private createGrid(hostElement: HTMLElement) {
-        const gridSettings: StandardBehavioredGridSettings = {
-            ...readonlyDefaultStandardBehavioredGridSettings,
-            mouseColumnSelection: false,
-            mouseRowSelection: false,
-            multipleSelectionAreas: false,
-        };
-
-        const grid = new SimpleGrid(hostElement, gridSettings);
+        const grid = new SimpleGrid(hostElement);
 
         grid.cellFocusEventer = (newPoint, oldPoint) => this.handleCellFocusEvent(newPoint, oldPoint)
         grid.clickEventer = (columnIndex, recordIndex) => this.handleCellClickEvent(columnIndex, recordIndex);

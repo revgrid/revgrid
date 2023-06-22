@@ -6,12 +6,11 @@ import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
 import { ViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> implements ViewCell<BCS, SF> {
+export class ViewCellImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements ViewCell<BCS, SF> {
     /** Set by some Grid Painters to record out cell was painted. If fingerprint is same on successive repaints of cell, then
      * cell does not need to be repainted
      * @internal
@@ -36,7 +35,7 @@ export class ViewCellImplementation<BGS extends BehavioredGridSettings, BCS exte
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>) {
+        private readonly _columnsManager: ColumnsManager<BCS, SF>) {
     }
 
     get subgrid() { return this._subgrid; }

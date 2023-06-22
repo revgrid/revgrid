@@ -15,12 +15,12 @@ import { SubgridsManager } from './subgrid/subgrids-manager';
 import { ViewLayout } from './view/view-layout';
 
 /** @internal */
-export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     readonly canvasManager: CanvasManager<BGS>;
     readonly focus: Focus<BGS, BCS, SF>;
-    readonly selection: Selection<BGS, BCS, SF>;
-    readonly columnsManager: ColumnsManager<BGS, BCS, SF>;
-    readonly subgridsManager: SubgridsManager<BGS, BCS, SF>;
+    readonly selection: Selection<BCS, SF>;
+    readonly columnsManager: ColumnsManager<BCS, SF>;
+    readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
     readonly renderer: Renderer<BGS, BCS, SF>;
     readonly mouse: Mouse<BGS, BCS, SF>;
@@ -31,9 +31,10 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
     constructor(
         gridSettings: BGS,
         containerHtmlElement: HTMLElement,
-        schemaServer: SchemaServer<BCS, SF>,
+        schemaServer: SchemaServer<SF>,
         subgridDefinitions: Subgrid.Definition<BCS, SF>[],
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
+        getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
     ) {
         // this.gridSettings = new AbstractMergableGridSettings();
         // this.gridSettings.loadDefaults();
@@ -47,9 +48,10 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             gridSettings,
         );
 
-        this.columnsManager = new ColumnsManager<BGS, BCS, SF>(
+        this.columnsManager = new ColumnsManager<BCS, SF>(
             schemaServer,
             gridSettings,
+            getSettingsForNewColumnEventer,
         );
 
         if  (subgridDefinitions.length === 0) {

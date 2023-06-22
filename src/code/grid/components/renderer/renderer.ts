@@ -19,7 +19,7 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 /** @public */
-export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     /** @internal */
     renderedEventer: Renderer.RenderedEventer;
 
@@ -56,23 +56,23 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
-        private readonly _canvasEx: CanvasManager<BGS>,
+        private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
         /** @internal */
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
         /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         /** @internal */
         private readonly _focus: Focus<BGS, BCS, SF>,
         /** @internal */
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _selection: Selection<BCS, SF>,
         /** @internal */
         private readonly _mouse: Mouse<BGS, BCS, SF>,
     ) {
         this._gridPainterRepository = new GridPainterRepository(
             this._gridSettings,
-            this._canvasEx,
+            this._canvasManager,
             this._subgridsManager,
             this._viewLayout,
             this._focus,
@@ -320,7 +320,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
                 const renderActions = this._renderActionQueue.takeActions();
                 const actionsCount = renderActions.length;
                 if (renderActions.length > 0) {
-                    const gc = this._canvasEx.gc;
+                    const gc = this._canvasManager.gc;
                     try {
                         gc.cache.save();
 

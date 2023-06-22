@@ -1,12 +1,12 @@
-import { BehavioredColumnSettings, DataServer } from '../../grid/grid-public-api';
+import { DataServer } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 import { RevRecordField } from './rev-record-field';
 
 /** Provides access to a field
  * @public
  */
-export abstract class RevRecordFunctionizeField<BCS extends BehavioredColumnSettings> implements RevRecordField<BCS> {
-    constructor(readonly name: string, readonly index: number, readonly columnSettings: BCS) {
+export abstract class RevRecordFunctionizeField implements RevRecordField {
+    constructor(readonly name: string, readonly index: number) {
     }
 
     getViewValue: (this: void, record: never) => DataServer.ViewValue;
@@ -25,16 +25,15 @@ export abstract class RevRecordFunctionizeField<BCS extends BehavioredColumnSett
  * Provides a simple field accessor
  * @public
  */
-export class RevRecordSimpleFunctionizeField<BCS extends BehavioredColumnSettings, Record> extends RevRecordFunctionizeField<BCS> {
+export class RevRecordSimpleFunctionizeField<Record> extends RevRecordFunctionizeField {
     constructor(
         name: string,
         index: number,
-        columnSettings: BCS,
         value: (record: Record) => DataServer.ViewValue,
         compare?: (left: Record, right: Record) => number,
         compareDesc?: (left: Record, right: Record) => number
     ) {
-        super(name, index, columnSettings);
+        super(name, index);
 
         this.getViewValue = value;
 
@@ -54,14 +53,13 @@ export class RevRecordSimpleFunctionizeField<BCS extends BehavioredColumnSetting
  * Provides a numeric field accessor with sorting
  * @public
  */
-export class RevRecordNumericFunctionizeField<BCS extends BehavioredColumnSettings, Record> extends RevRecordFunctionizeField<BCS> {
+export class RevRecordNumericFunctionizeField<Record> extends RevRecordFunctionizeField {
     constructor(
         name: string,
         index: number,
-        columnSettings: BCS,
         value: (record: Record) => number,
     ) {
-        super(name, index, columnSettings);
+        super(name, index);
 
         this.getViewValue = value;
 
@@ -74,15 +72,14 @@ export class RevRecordNumericFunctionizeField<BCS extends BehavioredColumnSettin
  * Provides a string field accessor with basic sorting
  * @public
  */
-export class RevRecordStringFunctionizeField<BCS extends BehavioredColumnSettings, Record> extends RevRecordFunctionizeField<BCS> {
+export class RevRecordStringFunctionizeField<Record> extends RevRecordFunctionizeField {
     constructor(
         name: string,
         index: number,
-        columnSettings: BCS,
         value: (record: Record) => string,
         options?: Intl.CollatorOptions
     ) {
-        super(name, index, columnSettings);
+        super(name, index);
 
         this.getViewValue = value;
 
@@ -95,15 +92,14 @@ export class RevRecordStringFunctionizeField<BCS extends BehavioredColumnSetting
  * Provides a date field accessor with basic sorting
  * @public
  */
-export class RevRecordDateFunctionizeField<BCS extends BehavioredColumnSettings, Record> extends RevRecordFunctionizeField<BCS> {
+export class RevRecordDateFunctionizeField<Record> extends RevRecordFunctionizeField {
     constructor(
         name: string,
         index: number,
-        columnSettings: BCS,
         value: (record: Record) => Date,
         /*options?: Intl.CollatorOptions*/
     ) {
-        super(name, index, columnSettings);
+        super(name, index);
 
         this.getViewValue = value;
 

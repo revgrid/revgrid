@@ -6,9 +6,9 @@ import { StandardInputElementCellEditor } from './standard-input-element-cell-ed
 export class StandardNumberInputCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField<BCS>
+    SF extends SchemaField
 > extends StandardInputElementCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<BCS, SF>) {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
         super(grid, dataServer, 'number');
         this.element.classList.add('revgrid-number-input-editor');
     }

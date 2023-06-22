@@ -4,6 +4,7 @@ import { ViewLayoutColumn } from '../../../interfaces/dataless/view-layout-colum
 import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { Rectangle } from '../../../types-utils/rectangle';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -13,7 +14,7 @@ import { Selection } from '../../selection/selection';
 import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 
-export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     protected _renderingContext: CachedCanvasRenderingContext2D;
 
     private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
@@ -29,12 +30,12 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
     private _rowBundlesComputationId = -1;
 
     constructor(
-        protected readonly gridSettings: BGS,
+        protected readonly gridSettings: GridSettings,
         protected readonly canvasManager: CanvasManager<BGS>,
-        protected readonly subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        protected readonly subgridsManager: SubgridsManager<BCS, SF>,
         protected readonly viewLayout: ViewLayout<BGS, BCS, SF>,
         protected readonly focus: Focus<BGS, BCS, SF>,
-        protected readonly selection: Selection<BGS, BCS, SF>,
+        protected readonly selection: Selection<BCS, SF>,
         protected readonly mouse: Mouse<BGS, BCS, SF>,
         protected readonly repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
         public readonly key: string,
@@ -474,13 +475,13 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
 export namespace GridPainter {
     export type ResetAllGridPaintersRequiredEventer = (this: void, blackList: string[]) => void;
     export type RepaintAllRequiredEventer = (this: void) => void;
-    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = new(
-        gridProperties: BGS,
+    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> = new(
+        gridSettings: GridSettings,
         canvasManager: CanvasManager<BGS>,
-        subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        subgridsManager: SubgridsManager<BCS, SF>,
         viewLayout: ViewLayout<BGS, BCS, SF>,
         focus: Focus<BGS, BCS, SF>,
-        selection: Selection<BGS, BCS, SF>,
+        selection: Selection<BCS, SF>,
         mouse: Mouse<BGS, BCS, SF>,
         repaintAllRequired: RepaintAllRequiredEventer,
     ) => GridPainter<BGS, BCS, SF>;

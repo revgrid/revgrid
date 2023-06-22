@@ -29,7 +29,7 @@ import { UiBehaviorSharedState } from './ui-behavior-shared-state';
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @public
  */
-export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     abstract readonly typeName: string;
 
     protected readonly sharedState: UiBehaviorSharedState;
@@ -37,10 +37,10 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     protected readonly gridSettings: GridSettings;
     protected readonly canvasManager: CanvasManager<BGS>;
-    protected readonly selection: Selection<BGS, BCS, SF>;
+    protected readonly selection: Selection<BCS, SF>;
     protected readonly focus: Focus<BGS, BCS, SF>;
-    protected readonly columnsManager: ColumnsManager<BGS, BCS, SF>;
-    protected readonly subgridsManager: SubgridsManager<BGS, BCS, SF>;
+    protected readonly columnsManager: ColumnsManager<BCS, SF>;
+    protected readonly subgridsManager: SubgridsManager<BCS, SF>;
     protected readonly viewLayout: ViewLayout<BGS, BCS, SF>;
     protected readonly renderer: Renderer<BGS, BCS, SF>;
     protected readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>;
@@ -53,7 +53,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     protected readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
     protected readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>;
     protected readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>;
-    protected readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>;
+    protected readonly dataExtractBehavior: DataExtractBehavior<BCS, SF>;
     protected readonly eventBehavior: EventBehavior<BGS, BCS, SF>;
 
     protected readonly mainSubgrid: MainSubgrid<BCS, SF>;
@@ -315,10 +315,10 @@ export namespace UiBehavior {
     export type Constructor<
         BGS extends BehavioredGridSettings,
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField<BCS>
+        SF extends SchemaField
     > = new (services: UiBehaviorServices<BGS, BCS, SF>) => UiBehavior<BGS, BCS, SF>;
 
-    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         typeName: string;
         constructor: Constructor<BGS, BCS, SF>;
     }

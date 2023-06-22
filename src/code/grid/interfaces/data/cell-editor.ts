@@ -8,7 +8,7 @@ import { DataServer } from './data-server';
 /** @public */
 export interface CellEditor<
     BCS extends BehavioredColumnSettings,
-    SF extends SchemaField<BCS>
+    SF extends SchemaField
 > extends CellPossiblyPaintable<BCS, SF> {
 
     // Common properties, methods and events

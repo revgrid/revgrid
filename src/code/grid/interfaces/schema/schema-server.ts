@@ -1,10 +1,10 @@
-import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { SchemaField } from './schema-field';
 
+
 /** @public */
-export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<BCS, SF>): void;
-    unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<BCS, SF>): void;
+export interface SchemaServer<SF extends SchemaField> {
+    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<SF>): void;
+    unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<SF>): void;
 
     /**
      * @desc Get list of columns. The order of the columns in the list defines the column indexes.
@@ -16,7 +16,7 @@ export interface SchemaServer<BCS extends BehavioredColumnSettings, SF extends S
 
 /** @public */
 export namespace SchemaServer {
-    export interface NotificationsClient<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface NotificationsClient<SF extends SchemaField> {
         beginChange: (this: void) => void;
         endChange: (this: void) => void;
         /**
@@ -34,7 +34,7 @@ export namespace SchemaServer {
         getActiveSchemaFields: (this: void) => readonly SF[];
     }
 
-    export type Constructor<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = new() => SchemaServer<BCS, SF>;
+    export type Constructor<SF extends SchemaField> = new() => SchemaServer<SF>;
 
     // /**
     //  * @summary Generates an array of columns (proper schema) from an array of Column and string.

@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, DataServer, ListChangedTypeId, UnreachableCaseError } from '../../grid/grid-public-api';
+import { DataServer, ListChangedTypeId, UnreachableCaseError } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 import { RevRecordArrayUtil } from './rev-record-array-utils';
 import { RevRecordAssertError } from './rev-record-error';
@@ -11,7 +11,7 @@ import { RevRecordStore } from './rev-record-store';
 import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
 /** @public */
-export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF extends RevRecordField<BCS>> implements DataServer<BCS, SF>, RevRecordStore.RecordsEventers {
+export class RevRecordMainDataServer<SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
     readonly mainDataModel = true;
 
     private readonly _recordRowBindingKey = Symbol();
@@ -75,7 +75,7 @@ export class RevRecordMainDataServer<BCS extends BehavioredColumnSettings, SF ex
     set valueChangedRecentDuration(value: number) { this._recentChanges.valueChangedRecentDuration = value; }
 
     constructor(
-        private readonly _schemaServer: RevRecordSchemaServer<BCS, SF>,
+        private readonly _schemaServer: RevRecordSchemaServer<SF>,
         private readonly _recordStore: RevRecordStore,
     ) {
         this._recordRowMap = new RevRecordRowMap(this._recordRowBindingKey);

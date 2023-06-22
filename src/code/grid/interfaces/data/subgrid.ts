@@ -9,9 +9,9 @@ import { DataServer } from './data-server';
 import { MetaModel } from './meta-model';
 
 /** @public */
-export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends DatalessSubgrid {
-    readonly schemaServer: SchemaServer<BCS, SF>;
-    readonly dataServer: DataServer<BCS, SF>;
+export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends DatalessSubgrid {
+    readonly schemaServer: SchemaServer<SF>;
+    readonly dataServer: DataServer<SF>;
     readonly metaModel: MetaModel | undefined;
 
     getRowCount(): number;
@@ -41,7 +41,7 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends Schema
 export namespace Subgrid {
     export type GetCellPainterEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField<BCS>
+        SF extends SchemaField
     > = (this: void, viewCell: DatalessViewCell<BCS, SF>) => CellPainter<BCS, SF>;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -49,10 +49,10 @@ export namespace Subgrid {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export import Role = DatalessSubgrid.Role;
 
-    export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         /** defaults to main */
         role?: DatalessSubgrid.Role;
-        dataServer: DataServer<BCS, SF> | DataServer.Constructor<BCS, SF>;
+        dataServer: DataServer<SF> | DataServer.Constructor<SF>;
         metaModel?: MetaModel | MetaModel.Constructor;
         selectable?: boolean;
         defaultRowHeight?: number;

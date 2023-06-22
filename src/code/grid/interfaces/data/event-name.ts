@@ -5,11 +5,11 @@ import { EventDetail } from './event-detail';
 import { ViewCell } from './view-cell';
 
 /** @public */
-export type EventName<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = keyof EventName.DetailMap<BCS, SF>;
+export type EventName<BCS extends BehavioredColumnSettings, SF extends SchemaField> = keyof EventName.DetailMap<BCS, SF>;
 
 /** @public */
 export namespace EventName {
-    export interface DetailMap<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface DetailMap<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         // SchemaModel / DataModel
         'rev-schema-loaded': undefined;
         'rev-data-loaded': undefined;

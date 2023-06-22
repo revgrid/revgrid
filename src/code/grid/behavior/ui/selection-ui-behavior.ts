@@ -16,7 +16,7 @@ import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils
 import { UiBehavior } from './ui-behavior';
 
 /** @internal */
-export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends UiBehavior<BGS, BCS, SF> {
+export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
 
     readonly typeName = SelectionUiBehavior.typeName;
 
@@ -665,7 +665,7 @@ export namespace SelectionUiBehavior {
 
     export const scheduleStepScrollDragTickInterval = 20;
 
-    export interface ExtendSelectOrigin<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface ExtendSelectOrigin<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         readonly areaType: SelectionAreaType,
         readonly subgrid: Subgrid<BCS, SF>;
         readonly point: Point;

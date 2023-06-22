@@ -7,7 +7,7 @@ import { Subgrid } from './subgrid';
 import { ViewLayoutRow } from './view-layout-row';
 
 /** @public */
-export interface ViewCell<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends DatalessViewCell<BCS, SF> {
+export interface ViewCell<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends DatalessViewCell<BCS, SF> {
     readonly subgrid: Subgrid<BCS, SF>;
     readonly viewLayoutColumn: ViewLayoutColumn<BCS, SF>;
     readonly viewLayoutRow: ViewLayoutRow<BCS, SF>;

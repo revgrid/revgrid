@@ -1,6 +1,7 @@
 import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { Registry } from '../../../types-utils/registry';
 import { AssertError } from '../../../types-utils/revgrid-error';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -16,17 +17,17 @@ import { ByColumnsGridPainter } from './by-columns-grid-painter';
 import { ByRowsGridPainter } from './by-rows-grid-painter';
 import { GridPainter } from './grid-painter';
 
-export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     private constructorRegistry = new Registry<GridPainter.Constructor<BGS, BCS, SF>>();
     private cache = new Map<string, GridPainter<BGS, BCS, SF>>();
 
     constructor(
-        private readonly _gridSettings: BGS,
-        private readonly _canvasEx: CanvasManager<BGS>,
-        private readonly _subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        private readonly _gridSettings: GridSettings,
+        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         private readonly _focus: Focus<BGS, BCS, SF>,
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _selection: Selection<BCS, SF>,
         private readonly _mouse: Mouse<BGS, BCS, SF>,
         private readonly _repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {
@@ -47,7 +48,7 @@ export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS exten
             } else {
                 gridPainter = new constructor(
                     this._gridSettings,
-                    this._canvasEx,
+                    this._canvasManager,
                     this._subgridsManager,
                     this._viewLayout,
                     this._focus,

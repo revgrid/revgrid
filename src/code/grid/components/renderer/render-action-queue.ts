@@ -5,7 +5,7 @@ import { AssertError } from '../../types-utils/revgrid-error';
 import { ViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 
-export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     actionsQueuedEventer: RenderActioner.ActionsQueuedEventer;
 
     private _queuedActions: RenderAction[] = [];

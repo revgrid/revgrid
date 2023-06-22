@@ -1,8 +1,7 @@
-import { SchemaField, StandardBehavioredColumnSettings } from '..';
+import { SchemaField } from '..';
 import { MainRecord } from './main-record';
 
-export interface AppSchemaField extends SchemaField<StandardBehavioredColumnSettings> {
+export interface AppSchemaField extends SchemaField {
     name: keyof MainRecord;
-    columnSettings: StandardBehavioredColumnSettings;
     header: string;
 }

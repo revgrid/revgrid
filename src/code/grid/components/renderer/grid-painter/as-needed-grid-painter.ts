@@ -2,6 +2,7 @@
 import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { CanvasManager } from '../../canvas/canvas-manager';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -36,16 +37,16 @@ import { GridPainter } from './grid-painter';
  * @this {ViewLayout}
  * @param {CanvasManager.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
-export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends GridPainter<BGS, BCS, SF> {
+export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends GridPainter<BGS, BCS, SF> {
     // private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
     constructor(
-        gridSettings: BGS,
+        gridSettings: GridSettings,
         canvasManager: CanvasManager<BGS>,
-        subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        subgridsManager: SubgridsManager<BCS, SF>,
         viewLayout: ViewLayout<BGS, BCS, SF>,
         focus: Focus<BGS, BCS, SF>,
-        selection: Selection<BGS, BCS, SF>,
+        selection: Selection<BCS, SF>,
         mouse: Mouse<BGS, BCS, SF>,
         repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
     ) {

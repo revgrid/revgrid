@@ -4,7 +4,7 @@ import { Subgrid } from '../../interfaces/data/subgrid';
 import { DatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils/types';
@@ -23,7 +23,7 @@ import { SelectionRectangleList } from './selection-rectangle-list';
  * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
  */
 
-export class Selection<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     changedEventerForRenderer: Selection.ChangedEventer;
     changedEventerForEventBehavior: Selection.ChangedEventer;
 
@@ -39,11 +39,11 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
     private _changed = false;
     private _silentlyChanged = false;
 
-    private _snapshot: Selection<BGS, BCS, SF> | undefined;
+    private _snapshot: Selection<BCS, SF> | undefined;
 
     constructor(
-        private readonly _gridSettings: BGS,
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _gridSettings: GridSettings,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
     }
 
@@ -87,7 +87,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    assign(other: Selection<BGS, BCS, SF>) {
+    assign(other: Selection<BCS, SF>) {
         this.rectangleList.assign(other.rectangleList);
         this.rows.assign(other.rows);
         this.columns.assign(other.columns);
@@ -729,7 +729,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS, SF>) {
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -758,7 +758,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<BCS, SF>) {
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -787,7 +787,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<BCS, SF>) {
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
             this.beginChange();
@@ -1124,7 +1124,7 @@ export namespace Selection {
         cellSelected: boolean;
     }
 
-    export interface Stash<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface Stash<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         readonly subgrid: Subgrid<BCS, SF> | undefined;
         readonly allRowsSelected: boolean,
         readonly rowIds: unknown[] | undefined,

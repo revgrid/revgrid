@@ -11,7 +11,7 @@ import { CellPossiblyPaintable } from './cell-possibly-paintable';
  *
  * @public
  */
-export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> extends CellPossiblyPaintable<BCS, SF> {
+export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends CellPossiblyPaintable<BCS, SF> {
 
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).

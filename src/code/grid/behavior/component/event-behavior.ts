@@ -18,7 +18,7 @@ import { Point } from '../../types-utils/point';
 import { ListChangedTypeId } from '../../types-utils/types';
 
 /** @public */
-export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     /** @internal */
     uiKeyDownEventer: EventBehavior.UiKeyDownEventer;
     /** @internal */
@@ -71,13 +71,13 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BGS, BCS, SF>,
+        private readonly _columnsManager: ColumnsManager<BCS, SF>,
         /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         /** @internal */
         private readonly _focus: Focus<BGS, BCS, SF>,
         /** @internal */
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _selection: Selection<BCS, SF>,
         /** @internal */
         private readonly _mouse: Mouse<BGS, BCS, SF>,
         /** @internal */
@@ -582,13 +582,13 @@ export namespace EventBehavior {
     export type DispatchEventEventer = (this: void, event: Event) => boolean;
 
     /** @internal */
-    export interface UiPointerDragStartResult<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface UiPointerDragStartResult<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         readonly started: boolean;
         readonly hoverCell: LinedHoverCell<BCS, SF> | null | undefined;
     }
 
     /** @internal */
-    export interface DescendantEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+    export interface DescendantEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         readonly fieldColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
         readonly columnsWidthChanged: (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
@@ -633,18 +633,18 @@ export namespace EventBehavior {
         export type Focus = (this: void, event: FocusEvent) => void;
         export type Key = (this: void, event: KeyboardEvent) => void;
         export type KeyDown = (this: void, event: KeyboardEvent, fromEditor: boolean) => void;
-        export type Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) => void;
-        export type Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) => void;
+        export type Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) => void;
+        export type Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) => void;
         export type PointerDrag = (this: void, event: PointerEvent) => void;
         export type PointerDragStart<
             BCS extends BehavioredColumnSettings,
-            SF extends SchemaField<BCS>
+            SF extends SchemaField
         > = (this: void, event: DragEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) => boolean; // This is not a typo. Drag event has the correct mouse down location
-        export type Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, event: WheelEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) => void;
-        export type DragCell<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, event: DragEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) => void;
+        export type Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, event: WheelEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) => void;
+        export type DragCell<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, event: DragEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) => void;
         export type Drag = (this: void, event: DragEvent) => void;
         export type Touch = (this: void, event: TouchEvent) => void;
-        export type ViewCellOnly<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, cell: ViewCell<BCS, SF>) => void;
+        export type ViewCellOnly<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
         export type ScrollerAction = (this: void, event: EventDetail.ScrollerAction) => void;
         export type CellFocusChanged = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
@@ -657,32 +657,32 @@ export namespace EventBehavior {
     /** @internal */
     export type UiMouseEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField<BCS>
+        SF extends SchemaField
     > = (this: void, pointerEvent: EventDetail.Mouse<BCS, SF>) => LinedHoverCell<BCS, SF> | null | undefined;
     /** @internal */
     export type UiPointerEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField<BCS>
+        SF extends SchemaField
     > = (this: void, pointerEvent: EventDetail.Pointer<BCS, SF>) => LinedHoverCell<BCS, SF> | null | undefined;
     /** @internal */
     export type UiPointerDragEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField<BCS>
+        SF extends SchemaField
     > = (this: void, pointerEvent: EventDetail.Pointer<BCS, SF>) => void;
     /** @internal */
     export type UiPointerDragStartEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField<BCS>
+        SF extends SchemaField
     > = (this: void, dragEvent: DragEvent) => UiPointerDragStartResult<BCS, SF>;
     /** @internal */
     export type UiWheelEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField<BCS>
+        SF extends SchemaField
     > = (this: void, wheelEvent: EventDetail.Wheel<BCS, SF>) => LinedHoverCell<BCS, SF> | null | undefined;
     /** @internal */
     export type UiDragEventer<
         BCS extends BehavioredColumnSettings,
-        SF extends SchemaField<BCS>
+        SF extends SchemaField
     > = (this: void, event: DragEvent) => LinedHoverCell<BCS, SF> | null | undefined;
     /** @internal */
     export type UiTouchEventer = (this: void, touchEvent: TouchEvent) => void;

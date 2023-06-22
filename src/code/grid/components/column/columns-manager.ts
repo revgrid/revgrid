@@ -2,14 +2,14 @@ import { Column, ColumnAutoSizeableWidth } from '../../interfaces/dataless/colum
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ColumnFieldNameAndAutoSizableWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     /** @internal */
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
@@ -33,8 +33,9 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
     /** @internal */
     constructor(
-        readonly schemaServer: SchemaServer<BCS, SF>,
-        private readonly _gridSettings: BGS,
+        readonly schemaServer: SchemaServer<SF>,
+        private readonly _gridSettings: GridSettings,
+        private readonly _getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
     ) {
     }
 
@@ -172,8 +173,10 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
     /** @internal */
     newColumn(field: SF): Column<BCS, SF> {
+        const columnSettings = this._getSettingsForNewColumnEventer(field);
         return new ColumnImplementation(
             field,
+            columnSettings,
             (column, ui) => this.notifyColumnsWidthChanged([column], ui),
             () => this.invalidateHorizontalViewLayoutEventer(true),
         );
@@ -212,13 +215,13 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
         const field: SF = {
             name: '',
             index: -1,
-            columnSettings: {
-                defaultColumnWidth: 10,
-                defaultColumnAutoSizing: true,
-            } as BCS,
         } as SF;
         return new ColumnImplementation(
             field,
+            {
+                defaultColumnWidth: 50,
+                defaultColumnAutoSizing: true,
+            } as BCS,
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             () => {},
             // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -355,7 +358,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
      * @param settings - If undefined, this call is a no-op.
      * @internal
      */
-    loadAllColumnSettings(settings: ColumnSettings) {
+    loadAllColumnSettings(settings: BCS) {
         const fieldColumns = this._fieldColumns;
         const columnCount = fieldColumns.length;
         for (let i = 0; i < columnCount; i++) {
@@ -474,8 +477,7 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     setActiveColumns(columnArray: readonly Column<BCS, SF>[]) {
         const oldActiveCount = this._activeColumns.length;
         this._activeColumns.splice(0, oldActiveCount, ...columnArray);
-
-        this.invalidateHorizontalViewLayoutEventer(true);
+        this.notifyActiveColumnListChanged(ListChangedTypeId.Set, 0, columnArray.length, undefined, false);
     }
 
     /**
@@ -489,18 +491,18 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
     }
 
     /**
-     * @param allX - Data x coordinate.
+     * @param fieldIndex - Data x coordinate.
      * @return The properties for a specific column.
      * @internal
      */
-    setColumnSettings(allX: number, settings: ColumnSettings): ColumnSettings {
-        const column = this.getFieldColumn(allX);
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): ColumnSettings {
+        const column = this.getFieldColumn(fieldIndex);
         if (column === undefined) {
             throw 'Expected column.';
         }
 
         // column.clearProperties(); // needs implementation
-        column.settings.load(settings);
+        column.settings.merge(settings);
         return column.settings;
     }
 
@@ -642,8 +644,9 @@ export class ColumnsManager<BGS extends BehavioredGridSettings, BCS extends Beha
 
 /** @public */
 export namespace ColumnsManager {
+    export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, field: SF) => BCS;
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
-    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
 
     export type BeforeCreateColumnsListener = (this: void) => void;
 }

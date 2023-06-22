@@ -1,9 +1,8 @@
 import { SchemaField } from '../schema/schema-field';
 import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
-import { ColumnSettings } from '../settings/column-settings';
 
 /** @public */
-export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     readonly field: SF;
     readonly settings: BCS;
 
@@ -16,11 +15,11 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaF
     checkAutoSizing(widenOnly: boolean): boolean;
     autoSize(widenOnly: boolean): boolean;
 
-    loadSettings(settings: ColumnSettings): void;
+    loadSettings(settings: BCS): void;
 }
 
 /** @public */
-export interface ColumnAutoSizeableWidth<BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export interface ColumnAutoSizeableWidth<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     column: Column<BCS, SF>;
     width: number | undefined;
 }

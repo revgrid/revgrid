@@ -37,7 +37,7 @@ import { UiBehaviorServices } from './ui-behavior-services';
 import { UiBehaviorSharedState } from './ui-behavior-shared-state';
 
 /** @internal */
-export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField<BCS>> {
+export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     private readonly _uiBehaviorFactory = new UiBehaviorFactory<BGS, BCS, SF>();
     private readonly _uiBehaviorMap = new Map<string, UiBehavior<BGS, BCS, SF>>();
     private readonly _sharedState: UiBehaviorSharedState; // Will be initialised in constructor
@@ -51,9 +51,9 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
         private readonly _gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
         focus: Focus<BGS, BCS, SF>,
-        selection: Selection<BGS, BCS, SF>,
-        columnsManager: ColumnsManager<BGS, BCS, SF>,
-        subgridsManager: SubgridsManager<BGS, BCS, SF>,
+        selection: Selection<BCS, SF>,
+        columnsManager: ColumnsManager<BCS, SF>,
+        subgridsManager: SubgridsManager<BCS, SF>,
         viewLayout: ViewLayout<BGS, BCS, SF>,
         renderer: Renderer<BGS, BCS, SF>,
         private readonly _mouse: Mouse<BGS, BCS, SF>,
@@ -63,7 +63,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
         selectionBehavior: FocusSelectBehavior<BGS, BCS, SF>,
         rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>,
         cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>,
-        dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>,
+        dataExtractBehavior: DataExtractBehavior<BCS, SF>,
         reindexBehavior: ReindexBehavior<BGS, BCS, SF>,
         private readonly _eventBehavior: EventBehavior<BGS, BCS, SF>,
         customUiBehaviorDefinitions: UiBehavior.UiBehaviorDefinition<BGS, BCS, SF>[] | undefined,
