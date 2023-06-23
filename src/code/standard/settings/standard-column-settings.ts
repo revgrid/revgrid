@@ -1,7 +1,7 @@
-import { ColumnSettings } from '../../grid/grid-public-api';
+import { TextColumnSettings } from '../../text/text-public-api';
 import { StandardOnlyColumnSettings } from './standard-only-column-settings';
 
 /** @public */
-export interface StandardColumnSettings extends StandardOnlyColumnSettings, ColumnSettings {
+export interface StandardColumnSettings extends StandardOnlyColumnSettings, TextColumnSettings {
 
 }

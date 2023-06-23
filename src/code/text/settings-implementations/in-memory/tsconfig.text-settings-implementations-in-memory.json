@@ -1,0 +1,18 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/text-settings-implementations-in-memory.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts",
+  ],
+
+  "references": [
+    { "path": "../../settings/tsconfig.text-settings.json" },
+    { "path": "../../../settings-implementations/tsconfig.settings-implementations.json" },
+    { "path": "../../../grid/tsconfig.grid.json" },
+  ]
+}

@@ -1,6 +1,5 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
-import { HorizontalVertical } from '../../types-utils/types';
 import { CanvasManager } from '../canvas/canvas-manager';
 
 export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
@@ -25,7 +24,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     private _viewportStart: number | undefined;
 
     constructor(
-        public readonly horizontalVertical: HorizontalVertical,
+        public readonly horizontalVertical: ScrollDimension.AxisEnum,
         protected readonly _canvasEx: CanvasManager<BGS>,
     ) {
 
@@ -203,6 +202,14 @@ export namespace ScrollDimension {
     export type ChangedEventer = (this: void) => void
     export type ComputedEventer = (this: void, withinAnimationFrame: boolean) => number | undefined; // return Viewport Start
     export type ViewportStartChangedEventer = (this: void) => void;
+
+    /** @public */
+    export const enum AxisEnum {
+        horizontal,
+        vertical,
+    }
+
+    export type Axis = keyof typeof AxisEnum;
 
     export interface Anchor {
         index: number; // Index of column/row

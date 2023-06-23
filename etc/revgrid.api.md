@@ -110,8 +110,8 @@ export class CachedCanvasRenderingContext2D {
     // (undocumented)
     getTextHeight(text: string): CachedCanvasRenderingContext2D.TextHeight;
     getTextWidth(text: string): number;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    getTextWidthTruncated(this: CachedCanvasRenderingContext2D, text: string, width: number, truncateType: TextTruncateType | undefined, abort: boolean, truncateFromEnd: boolean): CachedCanvasRenderingContext2D.TruncatedTextWidth;
+    // (undocumented)
+    getTextWidthMap(font: string): CachedCanvasRenderingContext2D.TextWidthMap;
     // (undocumented)
     lineTo(x: number, y: number): void;
     // (undocumented)
@@ -136,8 +136,6 @@ export class CachedCanvasRenderingContext2D {
 export namespace CachedCanvasRenderingContext2D {
     const // (undocumented)
     ALPHA_REGEX: RegExp;
-    const // (undocumented)
-    ELLIPSIS = "\u2026";
     // (undocumented)
     export class Cache implements Cache.Values {
         // @internal
@@ -746,6 +744,18 @@ export const defaultStandardOnlyColumnSettings: StandardOnlyColumnSettings;
 export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings;
 
 // @public (undocumented)
+export const defaultTextColumnSettings: TextColumnSettings;
+
+// @public (undocumented)
+export const defaultTextGridSettings: TextGridSettings;
+
+// @public (undocumented)
+export const defaultTextOnlyColumnSettings: TextOnlyColumnSettings;
+
+// @public (undocumented)
+export const defaultTextOnlyGridSettings: TextOnlyGridSettings;
+
+// @public (undocumented)
 export namespace EventDetail {
     // (undocumented)
     export interface CellDataInvalidated {
@@ -1156,10 +1166,10 @@ export namespace GridSettings {
 }
 
 // @public (undocumented)
-export type Halign = keyof typeof HalignEnum;
+export type HorizontalAlign = keyof typeof HorizontalAlignEnum;
 
 // @public (undocumented)
-export const enum HalignEnum {
+export const enum HorizontalAlignEnum {
     // (undocumented)
     center = "center",
     // (undocumented)
@@ -1170,14 +1180,6 @@ export const enum HalignEnum {
     right = "right",
     // (undocumented)
     start = "start"
-}
-
-// @public (undocumented)
-export const enum HorizontalVertical {
-    // (undocumented)
-    Horizontal = 0,
-    // (undocumented)
-    Vertical = 1
 }
 
 // @public (undocumented)
@@ -1474,9 +1476,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get filterForegroundSelectionColor(): GridSettings.Color;
     set filterForegroundSelectionColor(value: GridSettings.Color);
     // (undocumented)
-    get filterHalign(): Halign;
-    set filterHalign(value: Halign);
-    // (undocumented)
     get fixedColumnCount(): number;
     set fixedColumnCount(value: number);
     // (undocumented)
@@ -1657,7 +1656,7 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
 }
 
 // @public (undocumented)
-export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
+export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavioredColumnSettings implements StandardBehavioredColumnSettings {
     constructor(gridSettings: StandardGridSettings);
     // (undocumented)
     get cellFocusedBorderColor(): GridSettings.Color | undefined;
@@ -1680,8 +1679,8 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     get columnHeaderForegroundColor(): GridSettings.Color;
     set columnHeaderForegroundColor(value: GridSettings.Color);
     // (undocumented)
-    get columnHeaderHorizontalAlign(): Halign;
-    set columnHeaderHorizontalAlign(value: Halign);
+    get columnHeaderHorizontalAlign(): HorizontalAlign;
+    set columnHeaderHorizontalAlign(value: HorizontalAlign);
     // (undocumented)
     get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
     set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
@@ -1703,23 +1702,11 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     // (undocumented)
     gridSettings: StandardGridSettings;
     // (undocumented)
-    get horizontalAlign(): Halign;
-    set horizontalAlign(value: Halign);
-    // (undocumented)
     merge(settings: Partial<StandardColumnSettings>): void;
-    // (undocumented)
-    get textStrikeThrough(): boolean;
-    set textStrikeThrough(value: boolean);
-    // (undocumented)
-    get textTruncateType(): TextTruncateType | undefined;
-    set textTruncateType(value: TextTruncateType | undefined);
-    // (undocumented)
-    get verticalOffset(): number;
-    set verticalOffset(value: number);
 }
 
 // @public (undocumented)
-export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
+export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavioredGridSettings implements StandardBehavioredGridSettings {
     // (undocumented)
     get cellFocusedBorderColor(): GridSettings.Color | undefined;
     set cellFocusedBorderColor(value: GridSettings.Color | undefined);
@@ -1741,8 +1728,8 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     get columnHeaderForegroundColor(): GridSettings.Color;
     set columnHeaderForegroundColor(value: GridSettings.Color);
     // (undocumented)
-    get columnHeaderHorizontalAlign(): Halign;
-    set columnHeaderHorizontalAlign(value: Halign);
+    get columnHeaderHorizontalAlign(): HorizontalAlign;
+    set columnHeaderHorizontalAlign(value: HorizontalAlign);
     // (undocumented)
     get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
     set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
@@ -1762,9 +1749,6 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     get font(): string;
     set font(value: string);
     // (undocumented)
-    get horizontalAlign(): Halign;
-    set horizontalAlign(value: Halign);
-    // (undocumented)
     merge(settings: Partial<StandardGridSettings>): void;
     // (undocumented)
     get rowHoverBackgroundColor(): GridSettings.Color | undefined;
@@ -1778,6 +1762,40 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     // (undocumented)
     get selectionForegroundColor(): GridSettings.Color;
     set selectionForegroundColor(value: GridSettings.Color);
+}
+
+// @public (undocumented)
+export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements TextBehavioredColumnSettings {
+    constructor(gridSettings: TextGridSettings);
+    // (undocumented)
+    clone(): InMemoryTextBehavioredColumnSettings;
+    // (undocumented)
+    gridSettings: TextGridSettings;
+    // (undocumented)
+    get horizontalAlign(): HorizontalAlign;
+    set horizontalAlign(value: HorizontalAlign);
+    // (undocumented)
+    merge(settings: Partial<TextColumnSettings>): void;
+    // (undocumented)
+    get textStrikeThrough(): boolean;
+    set textStrikeThrough(value: boolean);
+    // (undocumented)
+    get textTruncateType(): TextTruncateType | undefined;
+    set textTruncateType(value: TextTruncateType | undefined);
+    // (undocumented)
+    get verticalOffset(): number;
+    set verticalOffset(value: number);
+}
+
+// @public (undocumented)
+export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSettings implements TextBehavioredGridSettings {
+    // (undocumented)
+    clone(): InMemoryTextBehavioredGridSettings;
+    // (undocumented)
+    get horizontalAlign(): HorizontalAlign;
+    set horizontalAlign(value: HorizontalAlign);
+    // (undocumented)
+    merge(settings: Partial<TextGridSettings>): void;
     // (undocumented)
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
@@ -2033,8 +2051,6 @@ export interface OnlyGridSettings {
     // (undocumented)
     filterForegroundSelectionColor: OnlyGridSettings.Color;
     // (undocumented)
-    filterHalign: Halign;
-    // (undocumented)
     fixedColumnCount: number;
     // (undocumented)
     fixedRowCount: number;
@@ -2202,6 +2218,12 @@ export const readonlyDefaultStandardBehavioredColumnSettings: Readonly<StandardB
 
 // @public (undocumented)
 export const readonlyDefaultStandardBehavioredGridSettings: Readonly<StandardBehavioredGridSettings>;
+
+// @public (undocumented)
+export const readonlyDefaultTextBehavioredColumnSettings: Readonly<TextBehavioredColumnSettings>;
+
+// @public (undocumented)
+export const readonlyDefaultTextBehavioredGridSettings: Readonly<TextBehavioredGridSettings>;
 
 // @public (undocumented)
 export interface Rectangle {
@@ -3361,7 +3383,7 @@ export class StandardAlphaTextCellPainter<BGS extends StandardBehavioredGridSett
 }
 
 // @public (undocumented)
-export interface StandardBehavioredColumnSettings extends StandardColumnSettings, BehavioredColumnSettings {
+export interface StandardBehavioredColumnSettings extends StandardColumnSettings, TextBehavioredColumnSettings {
     // (undocumented)
     clone(): StandardBehavioredColumnSettings;
     // (undocumented)
@@ -3369,7 +3391,7 @@ export interface StandardBehavioredColumnSettings extends StandardColumnSettings
 }
 
 // @public (undocumented)
-export interface StandardBehavioredGridSettings extends StandardGridSettings, BehavioredGridSettings {
+export interface StandardBehavioredGridSettings extends StandardGridSettings, TextBehavioredGridSettings {
     // (undocumented)
     clone(): StandardBehavioredGridSettings;
     // (undocumented)
@@ -3400,7 +3422,7 @@ export namespace StandardButtonCellPainter {
 }
 
 // @public (undocumented)
-export abstract class StandardCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> implements CellPainter<BCS, SF> {
+export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements CellPainter<BCS, SF> {
     constructor(_grid: Revgrid<BGS, BCS, SF>, _dataServer: DataServer<SF>);
     // (undocumented)
     protected readonly _dataServer: DataServer<SF>;
@@ -3501,7 +3523,7 @@ export class StandardColorInputCellEditor<BGS extends StandardBehavioredGridSett
 }
 
 // @public (undocumented)
-export interface StandardColumnSettings extends StandardOnlyColumnSettings, ColumnSettings {
+export interface StandardColumnSettings extends StandardOnlyColumnSettings, TextColumnSettings {
 }
 
 // @public (undocumented)
@@ -3514,7 +3536,7 @@ export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSetti
 }
 
 // @public (undocumented)
-export interface StandardGridSettings extends StandardOnlyGridSettings, GridSettings {
+export interface StandardGridSettings extends StandardOnlyGridSettings, TextGridSettings {
 }
 
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
@@ -3539,7 +3561,7 @@ export class StandardNumberInputCellEditor<BGS extends StandardBehavioredGridSet
 }
 
 // @public (undocumented)
-export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'horizontalAlign' | 'verticalOffset' | 'font' | 'textTruncateType' | 'textStrikeThrough' | 'editorClickCursorName'>;
+export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'editorClickCursorName'>;
 
 // @public (undocumented)
 export interface StandardOnlyGridSettings {
@@ -3555,7 +3577,7 @@ export interface StandardOnlyGridSettings {
     // (undocumented)
     columnHeaderForegroundColor: GridSettings.Color;
     // (undocumented)
-    columnHeaderHorizontalAlign: Halign;
+    columnHeaderHorizontalAlign: HorizontalAlign;
     // (undocumented)
     columnHeaderSelectionBackgroundColor: GridSettings.Color;
     columnHeaderSelectionFont: string;
@@ -3566,16 +3588,11 @@ export interface StandardOnlyGridSettings {
     editorClickCursorName: string | undefined;
     // (undocumented)
     font: string;
-    horizontalAlign: Halign;
     // (undocumented)
     rowHoverBackgroundColor: GridSettings.Color | undefined;
     selectionBackgroundColor: GridSettings.Color;
     selectionFont: GridSettings.Color;
     selectionForegroundColor: GridSettings.Color;
-    textStrikeThrough: boolean;
-    // (undocumented)
-    textTruncateType: TextTruncateType | undefined;
-    verticalOffset: number;
 }
 
 // @public (undocumented)
@@ -3696,7 +3713,7 @@ export namespace StandardTagCellPainter {
 }
 
 // @public (undocumented)
-export abstract class StandardTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
+export abstract class StandardTextCellPainter<BGS extends TextBehavioredGridSettings, BCS extends TextBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
     // (undocumented)
     protected _columnSettings: BCS;
     // (undocumented)
@@ -3704,7 +3721,7 @@ export abstract class StandardTextCellPainter<BGS extends StandardBehavioredGrid
     // (undocumented)
     protected findLines(words: string[], width: number): string[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    protected renderMultiLineText(bounds: Rectangle, val: string, leftPadding: number, rightPadding: number): number;
+    protected renderMultiLineText(bounds: Rectangle, val: string, leftPadding: number, rightPadding: number, font: string): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     protected renderSingleLineText(bounds: Rectangle, val: string, leftPadding: number, rightPadding: number): number;
     // (undocumented)
@@ -3712,7 +3729,20 @@ export abstract class StandardTextCellPainter<BGS extends StandardBehavioredGrid
     // (undocumented)
     protected strikeThrough(text: string, x: number, y: number, thickness: number): void;
     // (undocumented)
-    protected underline(text: string, x: number, y: number, thickness: number): void;
+    protected underline(text: string, font: string, x: number, y: number, thickness: number): void;
+}
+
+// @public (undocumented)
+export namespace StandardTextCellPainter {
+    const // (undocumented)
+    Whitespace: RegExp;
+    const // (undocumented)
+    Ellipsis = "\u2026";
+    // (undocumented)
+    export interface TruncatedTextWidth {
+        text: string | undefined;
+        width: number;
+    }
 }
 
 // @public (undocumented)
@@ -3784,6 +3814,42 @@ export namespace Subgrid {
     import Role = DatalessSubgrid.Role;
     // (undocumented)
     export type GetCellPainterEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, viewCell: DatalessViewCell<BCS, SF>) => CellPainter<BCS, SF>;
+}
+
+// @public (undocumented)
+export interface TextBehavioredColumnSettings extends TextColumnSettings, BehavioredColumnSettings {
+    // (undocumented)
+    clone(): TextBehavioredColumnSettings;
+    // (undocumented)
+    merge(settings: Partial<TextColumnSettings>): void;
+}
+
+// @public (undocumented)
+export interface TextBehavioredGridSettings extends TextGridSettings, BehavioredGridSettings {
+    // (undocumented)
+    clone(): TextBehavioredGridSettings;
+    // (undocumented)
+    merge(settings: Partial<TextGridSettings>): void;
+}
+
+// @public (undocumented)
+export interface TextColumnSettings extends TextOnlyColumnSettings, ColumnSettings {
+}
+
+// @public (undocumented)
+export interface TextGridSettings extends TextOnlyGridSettings, GridSettings {
+}
+
+// @public (undocumented)
+export type TextOnlyColumnSettings = Pick<TextOnlyGridSettings, 'horizontalAlign' | 'verticalOffset' | 'textTruncateType' | 'textStrikeThrough'>;
+
+// @public (undocumented)
+export interface TextOnlyGridSettings {
+    horizontalAlign: HorizontalAlign;
+    textStrikeThrough: boolean;
+    // (undocumented)
+    textTruncateType: TextTruncateType | undefined;
+    verticalOffset: number;
 }
 
 // @public (undocumented)

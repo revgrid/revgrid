@@ -1,5 +1,5 @@
 import { ModifierKeyEnum } from '../../types-utils/modifier-key';
-import { Halign, HorizontalWheelScrollingAllowed, SelectionAreaType } from '../../types-utils/types';
+import { HorizontalWheelScrollingAllowed, SelectionAreaType } from '../../types-utils/types';
 
 /** @public */
 export interface OnlyGridSettings {
@@ -56,7 +56,6 @@ export interface OnlyGridSettings {
     filterEditor: string;
     filterFont: string;
     filterForegroundSelectionColor: OnlyGridSettings.Color;
-    filterHalign: Halign;
     filterCellPainter: string;
 
     fixedColumnCount: number;
@@ -174,5 +173,4 @@ export namespace OnlyGridSettings {
     export interface RowStripe {
         backgroundColor?: string;
     }
-
 }

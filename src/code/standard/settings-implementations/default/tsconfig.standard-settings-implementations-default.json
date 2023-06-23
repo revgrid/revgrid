@@ -12,6 +12,7 @@
 
   "references": [
     { "path": "../../settings/tsconfig.standard-settings.json" },
+    { "path": "../../../text/tsconfig.text.json" },
     { "path": "../../../settings-implementations/tsconfig.settings-implementations.json" },
     { "path": "../../../grid/tsconfig.grid.json" },
   ]

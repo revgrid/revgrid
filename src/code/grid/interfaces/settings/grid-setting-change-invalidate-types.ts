@@ -126,7 +126,6 @@ export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateType
     filterEditor: GridSettingChangeInvalidateTypeId.ViewRender,
     filterFont: GridSettingChangeInvalidateTypeId.ViewRender,
     filterForegroundSelectionColor: GridSettingChangeInvalidateTypeId.ViewRender,
-    filterHalign: GridSettingChangeInvalidateTypeId.ViewRender,
     filterCellPainter: GridSettingChangeInvalidateTypeId.ViewRender,
     fixedColumnCount: GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
     horizontalFixedLineColor: GridSettingChangeInvalidateTypeId.ViewRender,

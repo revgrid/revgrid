@@ -1,20 +1,18 @@
 import {
     GridSettingChangeInvalidateTypeId,
     GridSettings,
-    Halign,
-    TextTruncateType
 } from '../../../grid/grid-public-api';
-import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/settings-implementations-public-api';
+import { HorizontalAlign, InMemoryTextBehavioredGridSettings } from '../../../text/text-public-api';
 import { StandardBehavioredGridSettings, StandardGridSettings, StandardOnlyGridSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
+export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavioredGridSettings implements StandardBehavioredGridSettings {
     private _cellPadding: number;
     private _cellFocusedBorderColor: GridSettings.Color | undefined;
     private _cellHoverBackgroundColor: GridSettings.Color | undefined;
     private _columnHoverBackgroundColor: GridSettings.Color | undefined;
     private _columnHeaderFont: string;
-    private _columnHeaderHorizontalAlign: Halign;
+    private _columnHeaderHorizontalAlign: HorizontalAlign;
     private _columnHeaderBackgroundColor: GridSettings.Color;
     private _columnHeaderForegroundColor: GridSettings.Color;
     private _columnHeaderSelectionFont: string;
@@ -24,11 +22,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     private _selectionFont: GridSettings.Color;
     private _selectionBackgroundColor: GridSettings.Color;
     private _selectionForegroundColor: GridSettings.Color;
-    private _horizontalAlign: Halign;
-    private _verticalOffset: number;
     private _font: string;
-    private _textTruncateType: TextTruncateType | undefined;
-    private _textStrikeThrough: boolean;
     private _editorClickCursorName: string | undefined;
 
     get cellPadding() { return this._cellPadding; }
@@ -77,7 +71,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderHorizontalAlign() { return this._columnHeaderHorizontalAlign; }
-    set columnHeaderHorizontalAlign(value: Halign) {
+    set columnHeaderHorizontalAlign(value: HorizontalAlign) {
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
             this._columnHeaderHorizontalAlign = value;
@@ -166,47 +160,11 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
             this.endChange();
         }
     }
-    get horizontalAlign() { return this._horizontalAlign; }
-    set horizontalAlign(value: Halign) {
-        if (value !== this._horizontalAlign) {
-            this.beginChange();
-            this._horizontalAlign = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get verticalOffset() { return this._verticalOffset; }
-    set verticalOffset(value: number) {
-        if (value !== this._verticalOffset) {
-            this.beginChange();
-            this._verticalOffset = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
     get font() { return this._font; }
     set font(value: string) {
         if (value !== this._font) {
             this.beginChange();
             this._font = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get textTruncateType() { return this._textTruncateType; }
-    set textTruncateType(value: TextTruncateType | undefined) {
-        if (value !== this._textTruncateType) {
-            this.beginChange();
-            this._textTruncateType = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get textStrikeThrough() { return this._textStrikeThrough; }
-    set textStrikeThrough(value: boolean) {
-        if (value !== this._textStrikeThrough) {
-            this.beginChange();
-            this._textStrikeThrough = value;
             this.notifyChangedViewRender();
             this.endChange();
         }
@@ -276,20 +234,8 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
                 case 'selectionForegroundColor':
                     this._selectionForegroundColor = requiredSettings.selectionForegroundColor;
                     break;
-                case 'horizontalAlign':
-                    this._horizontalAlign = requiredSettings.horizontalAlign;
-                    break;
-                case 'verticalOffset':
-                    this._verticalOffset = requiredSettings.verticalOffset;
-                    break;
                 case 'font':
                     this._font = requiredSettings.font;
-                    break;
-                case 'textTruncateType':
-                    this._textTruncateType = requiredSettings.textTruncateType;
-                    break;
-                case 'textStrikeThrough':
-                    this._textStrikeThrough = requiredSettings.textStrikeThrough;
                     break;
                 case 'editorClickCursorName':
                     this._editorClickCursorName = requiredSettings.editorClickCursorName;

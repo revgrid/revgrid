@@ -1,6 +1,5 @@
 import { Rectangle } from './rectangle';
-import { AssertError, UnreachableCaseError } from './revgrid-error';
-import { TextTruncateType } from './types';
+import { AssertError } from './revgrid-error';
 
 /** @public */
 export class CachedCanvasRenderingContext2D {
@@ -152,6 +151,15 @@ export class CachedCanvasRenderingContext2D {
         return result;
     }
 
+    getTextWidthMap(font: string) {
+        let textWidthMap = this._fontTextWidthMap.get(font);
+        if (textWidthMap === undefined) {
+            textWidthMap = new Map<string, number>();
+            this._fontTextWidthMap.set(font, textWidthMap);
+        }
+        return textWidthMap;
+    }
+
     /**
      * Accumulates width of string in pixels, character by character, by chaching character widths and reusing those values when previously cached.
      *
@@ -161,11 +169,7 @@ export class CachedCanvasRenderingContext2D {
      */
     getTextWidth(text: string) {
         const font = this.cache.font;
-        let textWidthMap = this._fontTextWidthMap.get(font);
-        if (textWidthMap === undefined) {
-            textWidthMap = new Map<string, number>();
-            this._fontTextWidthMap.set(font, textWidthMap);
-        }
+        const textWidthMap = this.getTextWidthMap(font);
 
         const charCount = text.length
         let textWidth = 0;
@@ -185,11 +189,7 @@ export class CachedCanvasRenderingContext2D {
 
     getCharWidth(char: string) {
         const font = this.cache.font;
-        let textWidthMap = this._fontTextWidthMap.get(font);
-        if (textWidthMap === undefined) {
-            textWidthMap = new Map<string, number>();
-            this._fontTextWidthMap.set(font, textWidthMap);
-        }
+        const textWidthMap = this.getTextWidthMap(font);
 
         let charWidth = textWidthMap.get(char);
         if (charWidth === undefined) {
@@ -207,140 +207,6 @@ export class CachedCanvasRenderingContext2D {
             this.cache.emWidth = emWidth;
         }
         return emWidth;
-    }
-
-    /**
-     * Similar to `getTextWidth` except:
-     * 1. Aborts accumulating when sum exceeds given `width`.
-     * 2. Returns an object containing both the truncated string and the sum (rather than a number primitive containing the sum alone).
-     * @param text - Text to measure.
-     * @param width - Width of target cell; overflow point.
-     * @param truncateType - _Per {@link module:defaults.truncateTextWithEllipsis}._
-     * @param abort - Abort measuring upon overflow. Returned `width` sum will reflect truncated string rather than untruncated string. Note that returned `string` is truncated in either case.
-     * @param truncateFromStart - by default it will truncate the string from the position 0
-     */
-    getTextWidthTruncated(this: CachedCanvasRenderingContext2D,
-        text: string,
-        width: number,
-        truncateType: TextTruncateType | undefined,
-        abort: boolean,
-        truncateFromEnd: boolean
-    ): CachedCanvasRenderingContext2D.TruncatedTextWidth {
-        const truncating = truncateType !== undefined;
-        let truncString: string | undefined; //, truncWidth, truncAt;
-
-        let ellipsisWidth: number | undefined;
-        const font = this.cache.font;
-        let stringWidthsMap = this._fontTextWidthMap.get(font);
-        if (stringWidthsMap === undefined) {
-            stringWidthsMap = new Map<string, number>();
-            this._fontTextWidthMap.set(font, stringWidthsMap);
-            ellipsisWidth = this.measureText(CachedCanvasRenderingContext2D.ELLIPSIS).width;
-            stringWidthsMap.set(CachedCanvasRenderingContext2D.ELLIPSIS, ellipsisWidth);
-        } else {
-            ellipsisWidth = stringWidthsMap.get(CachedCanvasRenderingContext2D.ELLIPSIS);
-            if (ellipsisWidth === undefined) {
-                ellipsisWidth = this.measureText(CachedCanvasRenderingContext2D.ELLIPSIS).width;
-                stringWidthsMap.set(CachedCanvasRenderingContext2D.ELLIPSIS, ellipsisWidth);
-            }
-        }
-
-        text += ''; // convert to string
-        // width += truncateType === TextTruncateType.BeforeLastPartiallyVisibleCharacter ? 2 : -1; // fudge for inequality
-        const textLength = text.length;
-        const textCharWidths = new Array<number>(textLength);
-        let sum = 0;
-        if (truncateFromEnd) {
-            for (let i = textLength - 1; i >= 0; --i) {
-                const char = text[i];
-                let charWidth = stringWidthsMap.get(char);
-                if (charWidth === undefined) {
-                    charWidth = this.measureText(char).width;
-                    stringWidthsMap.set(char, charWidth);
-                }
-                textCharWidths[i] = charWidth;
-                sum += charWidth;
-                if (truncating && sum > width && truncString === undefined) {
-                    switch (truncateType) {
-                        case TextTruncateType.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
-                            let truncWidth = sum - charWidth + ellipsisWidth;
-                            let truncAt = i + 1;
-                            while (truncAt < textLength && truncWidth > width) {
-                                truncWidth -= textCharWidths[truncAt++];
-                            }
-                            truncString = truncWidth > width
-                                ? '' // not enough room even for ellipsis
-                                : truncString = CachedCanvasRenderingContext2D.ELLIPSIS + text.substr(truncAt);
-                            break;
-                        }
-                        case TextTruncateType.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
-                            truncString = text.substr(i + 1);
-                            break;
-                        }
-                        case TextTruncateType.AfterLastPartiallyVisibleCharacter: { // truncate *after* partially visible character
-                            truncString = text.substr(i);
-                            break;
-                        }
-                        default:
-                            throw new UnreachableCaseError('CRC2EGTWT98832', truncateType);
-                    }
-                    if (abort) {
-                        break;
-                    }
-                }
-            }
-        } else {
-            for (let i = 0, len = textLength; i < len; ++i) {
-                const char = text[i];
-                let charWidth = stringWidthsMap.get(char);
-                if (charWidth === undefined) {
-                    charWidth = this.measureText(char).width;
-                    stringWidthsMap.set(char, charWidth);
-                }
-                textCharWidths[i] = charWidth;
-                sum += charWidth;
-                if (truncating && sum > width && truncString === undefined) {
-                    switch (truncateType) {
-                        case TextTruncateType.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
-                            let truncWidth = sum - charWidth + ellipsisWidth;
-                            let truncAt = i;
-                            while (truncAt && truncWidth > width) {
-                                truncWidth -= textCharWidths[--truncAt];
-                            }
-                            truncString = truncWidth > width
-                                ? '' // not enough room even for ellipsis
-                                : truncString = text.substr(0, truncAt) + CachedCanvasRenderingContext2D.ELLIPSIS;
-                            break;
-                        }
-                        case TextTruncateType.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
-                            truncString = text.substr(0, i);
-                            break;
-                        }
-                        case TextTruncateType.AfterLastPartiallyVisibleCharacter: { // truncate *after* partially visible character
-                            const truncAt = i + 1;
-                            if (truncAt < text.length) {
-                                truncString = text.substr(0, truncAt);
-                            }
-                            break;
-                        }
-                        default:
-                            throw new UnreachableCaseError('CRC2EGTWT98832', truncateType);
-                    }
-                    if (abort) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (truncString === undefined) {
-            truncString = text;
-        }
-
-        return {
-            text: truncString,
-            textWidth: sum
-        };
     }
 
     getTextHeight(text: string) {
@@ -387,7 +253,6 @@ export class CachedCanvasRenderingContext2D {
 /** @public */
 export namespace CachedCanvasRenderingContext2D {
     export const ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d.]+)\)))$/i
-    export const ELLIPSIS = '\u2026' // The "…" (dot-dot-dot) character
 
     export type TextWidthMap = Map<string, number>;
     export type FontTextWidthMap = Map<string, TextWidthMap>;

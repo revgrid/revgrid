@@ -119,11 +119,18 @@ export class Main {
             ],
         };
 
+        const options: Revgrid.Options<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField> = {
+            canvasRenderingContext2DSettings: {
+                alpha: false,
+            }
+        }
+
         this._grid = new RecordGrid(
             this._gridHostElement,
             definition,
             this._gridSettings,
             () => new InMemoryStandardBehavioredColumnSettings(this._gridSettings),
+            options,
         );
 
         const grid = this._grid;

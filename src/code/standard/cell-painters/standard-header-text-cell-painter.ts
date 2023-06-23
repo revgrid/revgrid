@@ -80,7 +80,7 @@ export class StandardHeaderTextCellPainter<
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
             return this.textWrapping
-                ? this.renderMultiLineText(bounds, valText, leftPadding, rightPadding)
+                ? this.renderMultiLineText(bounds, valText, leftPadding, rightPadding, textFont)
                 : this.renderSingleLineText(bounds, valText, leftPadding, rightPadding);
         }
     }

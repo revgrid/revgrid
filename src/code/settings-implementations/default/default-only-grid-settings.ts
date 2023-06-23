@@ -76,7 +76,6 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     filterBackgroundColor: 'white',
     filterForegroundSelectionColor: 'rgb(25, 25, 25)',
     filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
-    filterHalign: 'center',
     filterCellPainter: 'SimpleCell',
     filterEditor: 'TextField',
     filterable: true,

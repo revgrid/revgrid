@@ -1,14 +1,12 @@
 import {
     GridSettingChangeInvalidateTypeId,
     GridSettings,
-    Halign,
-    TextTruncateType
 } from '../../../grid/grid-public-api';
-import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
+import { HorizontalAlign, InMemoryTextBehavioredColumnSettings } from '../../../text/text-public-api';
 import { StandardBehavioredColumnSettings, StandardColumnSettings, StandardGridSettings, StandardOnlyColumnSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
+export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavioredColumnSettings implements StandardBehavioredColumnSettings {
     declare gridSettings: StandardGridSettings;
 
     private _cellPadding: number | undefined;
@@ -16,17 +14,13 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     private _cellHoverBackgroundColor: GridSettings.Color | undefined | null;
     private _columnHoverBackgroundColor: GridSettings.Color | undefined | null;
     private _columnHeaderFont: string | undefined;
-    private _columnHeaderHorizontalAlign: Halign | undefined;
+    private _columnHeaderHorizontalAlign: HorizontalAlign | undefined;
     private _columnHeaderBackgroundColor: GridSettings.Color | undefined;
     private _columnHeaderForegroundColor: GridSettings.Color | undefined;
     private _columnHeaderSelectionFont: string | undefined;
     private _columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
     private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
-    private _horizontalAlign: Halign | undefined;
-    private _verticalOffset: number | undefined;
     private _font: string | undefined;
-    private _textTruncateType: TextTruncateType | undefined | null;
-    private _textStrikeThrough: boolean | undefined;
     private _editorClickCursorName: string | undefined | null;
 
     constructor(gridSettings: StandardGridSettings) {
@@ -111,7 +105,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     get columnHeaderHorizontalAlign() {
         return this._columnHeaderHorizontalAlign !== undefined ? this._columnHeaderHorizontalAlign : this.gridSettings.columnHeaderHorizontalAlign;
     }
-    set columnHeaderHorizontalAlign(value: Halign) {
+    set columnHeaderHorizontalAlign(value: HorizontalAlign) {
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
             this._columnHeaderHorizontalAlign = value;
@@ -168,57 +162,11 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
             this.endChange();
         }
     }
-    get horizontalAlign() { return this._horizontalAlign !== undefined ? this._horizontalAlign : this.gridSettings.horizontalAlign; }
-    set horizontalAlign(value: Halign) {
-        if (value !== this._horizontalAlign) {
-            this.beginChange();
-            this._horizontalAlign = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get verticalOffset() { return this._verticalOffset !== undefined ? this._verticalOffset : this.gridSettings.verticalOffset; }
-    set verticalOffset(value: number) {
-        if (value !== this._verticalOffset) {
-            this.beginChange();
-            this._verticalOffset = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
     get font() { return this._font !== undefined ? this._font : this.gridSettings.font; }
     set font(value: string) {
         if (value !== this._font) {
             this.beginChange();
             this._font = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get textTruncateType() {
-        if (this._textTruncateType === null) {
-            return undefined;
-        } else {
-            return this._textTruncateType !== undefined ? this._textTruncateType : this.gridSettings.textTruncateType;
-        }
-    }
-    set textTruncateType(value: TextTruncateType | undefined) {
-        if (value !== this._textTruncateType) {
-            this.beginChange();
-            if (value === undefined) {
-                this._textTruncateType = null;
-            } else {
-                this._textTruncateType = value;
-            }
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get textStrikeThrough() { return this._textStrikeThrough !== undefined ? this._textStrikeThrough : this.gridSettings.textStrikeThrough; }
-    set textStrikeThrough(value: boolean) {
-        if (value !== this._textStrikeThrough) {
-            this.beginChange();
-            this._textStrikeThrough = value;
             this.notifyChangedViewRender();
             this.endChange();
         }
@@ -287,20 +235,8 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
                 case 'columnHeaderSelectionForegroundColor':
                     this._columnHeaderSelectionForegroundColor = requiredSettings.columnHeaderSelectionForegroundColor;
                     break;
-                case 'horizontalAlign':
-                    this._horizontalAlign = requiredSettings.horizontalAlign;
-                    break;
-                case 'verticalOffset':
-                    this._verticalOffset = requiredSettings.verticalOffset;
-                    break;
                 case 'font':
                     this._font = requiredSettings.font;
-                    break;
-                case 'textTruncateType':
-                    this._textTruncateType = requiredSettings.textTruncateType;
-                    break;
-                case 'textStrikeThrough':
-                    this._textStrikeThrough = requiredSettings.textStrikeThrough;
                     break;
                 case 'editorClickCursorName':
                     this._editorClickCursorName = requiredSettings.editorClickCursorName;

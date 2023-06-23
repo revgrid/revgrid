@@ -1,29 +1,4 @@
 /** @public */
-export const enum HorizontalVertical {
-    Horizontal,
-    Vertical,
-}
-
-/** @public */
-export const enum HalignEnum {
-    left = 'left',
-    right = 'right',
-    center = 'center',
-    start = 'start',
-    end = 'end'
-}
-
-/** @public */
-export type Halign = keyof typeof HalignEnum;
-
-/** @public */
-export const enum TextTruncateType {
-    WithEllipsis,
-    BeforeLastPartiallyVisibleCharacter,
-    AfterLastPartiallyVisibleCharacter,
-}
-
-/** @public */
 export const enum HorizontalWheelScrollingAllowed {
     Never,
     Always,

@@ -2,7 +2,6 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { HorizontalVertical } from '../../types-utils/types';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { ColumnsManager } from '../column/columns-manager';
 import { ScrollDimension } from './scroll-dimension';
@@ -14,7 +13,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
         super(
-            HorizontalVertical.Horizontal,
+            ScrollDimension.AxisEnum.horizontal,
             canvasManager,
         );
     }

@@ -2,7 +2,6 @@ import {
     BehavioredGridSettings,
     GridSettingChangeInvalidateTypeId,
     GridSettings,
-    Halign,
     HorizontalWheelScrollingAllowed,
     ModifierKeyEnum,
     SelectionAreaType,
@@ -50,7 +49,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _filterEditor: string;
     private _filterFont: string;
     private _filterForegroundSelectionColor: GridSettings.Color;
-    private _filterHalign: Halign;
     private _filterCellPainter: string;
     private _fixedColumnCount: number;
     private _horizontalFixedLineColor: GridSettings.Color;
@@ -479,16 +477,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._filterForegroundSelectionColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterForegroundSelectionColor;
-            this.notifyChanged(invalidateType);
-            this.endChange();
-        }
-    }
-    get filterHalign() { return this._filterHalign; }
-    set filterHalign(value: Halign) {
-        if (value !== this._filterHalign) {
-            this.beginChange();
-            this._filterHalign = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.filterHalign;
             this.notifyChanged(invalidateType);
             this.endChange();
         }
@@ -1125,9 +1113,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     break;
                 case 'filterForegroundSelectionColor':
                     this._filterForegroundSelectionColor = requiredSettings.filterForegroundSelectionColor;
-                    break;
-                case 'filterHalign':
-                    this._filterHalign = requiredSettings.filterHalign;
                     break;
                 case 'filterCellPainter':
                     this._filterCellPainter = requiredSettings.filterCellPainter;

@@ -1,4 +1,3 @@
-import { TextTruncateType } from '../../../grid/grid-public-api';
 import { StandardOnlyGridSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
@@ -24,12 +23,7 @@ export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings = {
     selectionBackgroundColor: 'rgba(147, 185, 255, 0.625)',
     selectionForegroundColor: 'rgb(0, 0, 128)',
 
-    horizontalAlign: 'center',
-    verticalOffset: 0,
-
     font: '13px Tahoma, Geneva, sans-serif',
-    textTruncateType: TextTruncateType.WithEllipsis,
-    textStrikeThrough: false,
 
     editorClickCursorName: 'pointer',
 } as const;

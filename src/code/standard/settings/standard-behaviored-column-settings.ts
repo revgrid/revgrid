@@ -1,8 +1,8 @@
-import { BehavioredColumnSettings } from '../../grid/grid-public-api';
+import { TextBehavioredColumnSettings } from '../../text/text-public-api';
 import { StandardColumnSettings } from './standard-column-settings';
 
 /** @public */
-export interface StandardBehavioredColumnSettings extends StandardColumnSettings, BehavioredColumnSettings {
+export interface StandardBehavioredColumnSettings extends StandardColumnSettings, TextBehavioredColumnSettings {
     merge(settings: Partial<StandardColumnSettings>): void;
     clone(): StandardBehavioredColumnSettings;
 }

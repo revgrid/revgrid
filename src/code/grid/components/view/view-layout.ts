@@ -13,10 +13,10 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
-import { HorizontalVertical } from '../../types-utils/types';
 import { ColumnsManager } from '../column/columns-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { HorizontalScrollDimension } from './horizontal-scroll-dimension';
+import { ScrollDimension } from './scroll-dimension';
 import { VerticalScrollDimension } from './vertical-scroll-dimension';
 import { ViewCellImplementation } from './view-cell-implementation';
 
@@ -461,14 +461,14 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         // in the future, may want to do more with action
         const scrollablePlaneDimensionAsWell = action.scrollDimensionAsWell;
         switch (action.dimension) {
-            case HorizontalVertical.Horizontal: {
+            case ScrollDimension.AxisEnum.horizontal: {
                 if (scrollablePlaneDimensionAsWell) {
                     this._horizontalScrollDimension.invalidate();
                 }
                 this._columnsValid = false;
                 break;
             }
-            case HorizontalVertical.Vertical: {
+            case ScrollDimension.AxisEnum.vertical: {
                 if (scrollablePlaneDimensionAsWell) {
                     this._verticalScrollDimension.invalidate();
                 }
@@ -503,7 +503,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateHorizontalAll(scrollDimensionAsWell: boolean) {
         const action: ViewLayout.AllInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.All,
-            dimension: HorizontalVertical.Horizontal,
+            dimension: ScrollDimension.AxisEnum.horizontal,
             scrollDimensionAsWell: scrollDimensionAsWell,
         }
         this.invalidate(action);
@@ -512,7 +512,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateVerticalAll(scrollDimensionAsWell: boolean) {
         const action: ViewLayout.AllInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.All,
-            dimension: HorizontalVertical.Vertical,
+            dimension: ScrollDimension.AxisEnum.vertical,
             scrollDimensionAsWell: scrollDimensionAsWell,
         }
         this.invalidate(action);
@@ -521,7 +521,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateColumnsInserted(index: number, count: number) {
         const action: ViewLayout.DataRangeInsertedInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.DataRangeInserted,
-            dimension: HorizontalVertical.Horizontal,
+            dimension: ScrollDimension.AxisEnum.horizontal,
             scrollDimensionAsWell: true,
             index,
             count,
@@ -546,7 +546,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (affected) {
             action = {
                 type: ViewLayout.InvalidateAction.Type.ActiveRangeDeleted,
-                dimension: HorizontalVertical.Horizontal,
+                dimension: ScrollDimension.AxisEnum.horizontal,
                 scrollDimensionAsWell: true,
                 index,
                 count,
@@ -554,7 +554,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         } else {
             action = {
                 type: ViewLayout.InvalidateAction.Type.ActiveRangeDeletedButViewNotAffected,
-                dimension: HorizontalVertical.Horizontal,
+                dimension: ScrollDimension.AxisEnum.horizontal,
                 scrollDimensionAsWell: true,
                 index,
                 count,
@@ -566,7 +566,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateAllColumnsDeleted() {
         const action: ViewLayout.AllDeletedInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.AllDeleted,
-            dimension: HorizontalVertical.Horizontal,
+            dimension: ScrollDimension.AxisEnum.horizontal,
             scrollDimensionAsWell: true,
         };
         this.invalidate(action);
@@ -575,7 +575,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateColumnsChanged() {
         const action: ViewLayout.AllChangedInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.AllChanged,
-            dimension: HorizontalVertical.Horizontal,
+            dimension: ScrollDimension.AxisEnum.horizontal,
             scrollDimensionAsWell: true,
         };
         this.invalidate(action);
@@ -592,7 +592,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (affected) {
             action = {
                 type: ViewLayout.InvalidateAction.Type.DataRangeInserted,
-                dimension: HorizontalVertical.Vertical,
+                dimension: ScrollDimension.AxisEnum.vertical,
                 scrollDimensionAsWell: true,
                 index,
                 count,
@@ -600,7 +600,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         } else {
             action = {
                 type: ViewLayout.InvalidateAction.Type.DataRangeInsertedButViewNotAffected,
-                dimension: HorizontalVertical.Vertical,
+                dimension: ScrollDimension.AxisEnum.vertical,
                 scrollDimensionAsWell: true,
                 index,
                 count,
@@ -624,7 +624,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (affected) {
             action = {
                 type: ViewLayout.InvalidateAction.Type.DataRangeDeleted,
-                dimension: HorizontalVertical.Vertical,
+                dimension: ScrollDimension.AxisEnum.vertical,
                 scrollDimensionAsWell: true,
                 index,
                 count,
@@ -632,7 +632,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         } else {
             action = {
                 type: ViewLayout.InvalidateAction.Type.DataRangeDeletedButViewNotAffected,
-                dimension: HorizontalVertical.Vertical,
+                dimension: ScrollDimension.AxisEnum.vertical,
                 scrollDimensionAsWell: true,
                 index,
                 count,
@@ -644,7 +644,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateAllDataRowsDeleted() {
         const action: ViewLayout.AllDeletedInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.AllDeleted,
-            dimension: HorizontalVertical.Vertical,
+            dimension: ScrollDimension.AxisEnum.vertical,
             scrollDimensionAsWell: true,
         };
         this.invalidate(action);
@@ -653,7 +653,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateDataRowsLoaded() {
         const action: ViewLayout.LoadedInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.Loaded,
-            dimension: HorizontalVertical.Vertical,
+            dimension: ScrollDimension.AxisEnum.vertical,
             scrollDimensionAsWell: true,
         };
         this.invalidate(action);
@@ -673,7 +673,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (affected) {
             const action: ViewLayout.DataRangeMovedInvalidateAction = {
                 type: ViewLayout.InvalidateAction.Type.DataRangeMoved,
-                dimension: HorizontalVertical.Vertical,
+                dimension: ScrollDimension.AxisEnum.vertical,
                 scrollDimensionAsWell: true,
                 oldIndex: oldRowIndex,
                 newIndex: newRowIndex,
@@ -2403,7 +2403,7 @@ export namespace ViewLayout {
 
     export interface InvalidateAction {
         readonly type: InvalidateAction.Type;
-        readonly dimension: HorizontalVertical | undefined; // undefined means both
+        readonly dimension: ScrollDimension.AxisEnum | undefined; // undefined means both
         readonly scrollDimensionAsWell: boolean
     }
 

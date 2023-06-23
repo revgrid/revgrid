@@ -3,7 +3,7 @@ import {
     DatalessSubgrid,
     DatalessViewCell,
     EventDetail,
-    HalignEnum,
+    HorizontalAlignEnum,
     InMemoryStandardBehavioredColumnSettings,
     InMemoryStandardBehavioredGridSettings,
     Revgrid,
@@ -212,7 +212,7 @@ export class Main {
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();
         this._cellPaddingTextboxElement.value = this._grid.settings.cellPadding.toString();
-        this._rightHalignCheckboxElement.checked = this._grid.settings.horizontalAlign === HalignEnum.right;
+        this._rightHalignCheckboxElement.checked = this._grid.settings.horizontalAlign === HorizontalAlignEnum.right;
         this._gridRightAlignedCheckboxElement.checked = this._grid.settings.gridRightAligned;
         this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.settings.scrollHorizontallySmoothly;
         this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.settings.visibleColumnWidthAdjust;
