@@ -1,22 +1,12 @@
 import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { HorizontalAlign, TextBehavioredGridSettings, TextGridSettings, TextOnlyGridSettings, TextTruncateType } from '../../settings/text-settings-public-api';
+import { TextBehavioredGridSettings, TextGridSettings, TextOnlyGridSettings, TextTruncateType } from '../../settings/text-settings-public-api';
 
 /** @public */
 export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSettings implements TextBehavioredGridSettings {
-    private _horizontalAlign: HorizontalAlign;
     private _verticalOffset: number;
     private _textTruncateType: TextTruncateType | undefined;
     private _textStrikeThrough: boolean;
 
-    get horizontalAlign() { return this._horizontalAlign; }
-    set horizontalAlign(value: HorizontalAlign) {
-        if (value !== this._horizontalAlign) {
-            this.beginChange();
-            this._horizontalAlign = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
     get verticalOffset() { return this._verticalOffset; }
     set verticalOffset(value: number) {
         if (value !== this._verticalOffset) {
@@ -55,9 +45,6 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
             // Use loop so that compiler will report error if any setting missing
             const gridSettingsKey = key as keyof TextOnlyGridSettings;
             switch (gridSettingsKey) {
-                case 'horizontalAlign':
-                    this._horizontalAlign = requiredSettings.horizontalAlign;
-                    break;
                 case 'verticalOffset':
                     this._verticalOffset = requiredSettings.verticalOffset;
                     break;

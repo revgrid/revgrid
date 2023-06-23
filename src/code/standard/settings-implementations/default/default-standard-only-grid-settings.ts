@@ -24,6 +24,7 @@ export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings = {
     selectionForegroundColor: 'rgb(0, 0, 128)',
 
     font: '13px Tahoma, Geneva, sans-serif',
+    horizontalAlign: 'center',
 
     editorClickCursorName: 'pointer',
 } as const;

@@ -5,24 +5,24 @@ export class Main {
     private readonly _grid: SimpleGrid;
     constructor() {
 
-        const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
+        const gridHostElement = document.querySelector('#gridHost') as HTMLElement | null;
         if (gridHostElement === null) {
             throw new Error('gridHost not found');
         }
 
-        const loadStocksButtonElement = document.querySelector('#loadStocksButton') as HTMLButtonElement;
+        const loadStocksButtonElement = document.querySelector('#loadStocksButton') as HTMLButtonElement | null;
         if (loadStocksButtonElement === null) {
             throw new Error('loadStocksButton not found');
         }
         loadStocksButtonElement.onclick = () => this.loadStocks();
 
-        const loadPetsButtonElement = document.querySelector('#loadPetsButton') as HTMLButtonElement;
+        const loadPetsButtonElement = document.querySelector('#loadPetsButton') as HTMLButtonElement | null;
         if (loadPetsButtonElement === null) {
             throw new Error('loadPetsButton not found');
         }
         loadPetsButtonElement.onclick = () => this.loadPets();
 
-        const loadManyButtonElement = document.querySelector('#loadManyButton') as HTMLButtonElement;
+        const loadManyButtonElement = document.querySelector('#loadManyButton') as HTMLButtonElement | null;
         if (loadManyButtonElement === null) {
             throw new Error('loadManyButton not found');
         }

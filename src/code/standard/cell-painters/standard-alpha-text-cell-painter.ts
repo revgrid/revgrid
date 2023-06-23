@@ -162,6 +162,7 @@ export class StandardAlphaTextCellPainter<
         } else {
             const bounds = cell.bounds;
             const cellPadding = columnSettings.cellPadding;
+            const horizontalAlign = columnSettings.columnHeaderHorizontalAlign;
 
             this.paintLayerColors(bounds, layerColors, firstColorIsFill);
             if (borderColor !== undefined) {
@@ -170,7 +171,7 @@ export class StandardAlphaTextCellPainter<
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
-            return this.renderSingleLineText(bounds, valText, cellPadding, cellPadding);
+            return this.renderSingleLineText(bounds, valText, cellPadding, cellPadding, horizontalAlign);
         }
     }
 
@@ -185,7 +186,6 @@ export class StandardAlphaTextCellPainter<
             }
         }
     }
-
 }
 
 export interface PaintFingerprintInterface {

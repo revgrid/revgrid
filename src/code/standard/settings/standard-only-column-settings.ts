@@ -14,5 +14,6 @@ export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings,
     'columnHeaderSelectionBackgroundColor' |
     'columnHeaderSelectionForegroundColor' |
     'font' |
+    'horizontalAlign' |
     'editorClickCursorName'
 >;

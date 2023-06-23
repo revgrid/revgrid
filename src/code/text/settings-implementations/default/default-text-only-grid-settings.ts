@@ -2,7 +2,6 @@ import { TextOnlyGridSettings, TextTruncateType } from '../../settings/text-sett
 
 /** @public */
 export const defaultTextOnlyGridSettings: TextOnlyGridSettings = {
-    horizontalAlign: 'center',
     verticalOffset: 0,
     textTruncateType: TextTruncateType.WithEllipsis,
     textStrikeThrough: false,

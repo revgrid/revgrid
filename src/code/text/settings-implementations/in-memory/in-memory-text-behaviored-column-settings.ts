@@ -1,28 +1,14 @@
 import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { HorizontalAlign, TextBehavioredColumnSettings, TextColumnSettings, TextGridSettings, TextOnlyColumnSettings, TextTruncateType } from '../../settings/text-settings-public-api';
+import { TextBehavioredColumnSettings, TextColumnSettings, TextGridSettings, TextOnlyColumnSettings, TextTruncateType } from '../../settings/text-settings-public-api';
 
 /** @public */
 export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements TextBehavioredColumnSettings {
     declare gridSettings: TextGridSettings;
 
-    private _horizontalAlign: HorizontalAlign | undefined;
     private _verticalOffset: number | undefined;
     private _textTruncateType: TextTruncateType | undefined | null;
     private _textStrikeThrough: boolean | undefined;
 
-    constructor(gridSettings: TextGridSettings) {
-        super(gridSettings);
-    }
-
-    get horizontalAlign() { return this._horizontalAlign !== undefined ? this._horizontalAlign : this.gridSettings.horizontalAlign; }
-    set horizontalAlign(value: HorizontalAlign) {
-        if (value !== this._horizontalAlign) {
-            this.beginChange();
-            this._horizontalAlign = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
     get verticalOffset() { return this._verticalOffset !== undefined ? this._verticalOffset : this.gridSettings.verticalOffset; }
     set verticalOffset(value: number) {
         if (value !== this._verticalOffset) {
@@ -71,9 +57,6 @@ export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColu
             // Use loop so that compiler will report error if any setting missing
             const columnSettingsKey = key as keyof TextOnlyColumnSettings;
             switch (columnSettingsKey) {
-                case 'horizontalAlign':
-                    this._horizontalAlign = requiredSettings.horizontalAlign;
-                    break;
                 case 'verticalOffset':
                     this._verticalOffset = requiredSettings.verticalOffset;
                     break;

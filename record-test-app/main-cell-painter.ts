@@ -266,7 +266,7 @@ export class MainCellPainter
             } else {
                 gc.cache.fillStyle = foreColor;
                 gc.cache.font = foreFont;
-                return this.renderSingleLineText(bounds, foreText, cellPadding, cellPadding);
+                return this.renderSingleLineText(bounds, foreText, cellPadding, cellPadding, columnSettings.horizontalAlign);
             }
         }
     }

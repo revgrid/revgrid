@@ -21,11 +21,8 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
     private _columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
     private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
     private _font: string | undefined;
+    private _horizontalAlign: HorizontalAlign | undefined;
     private _editorClickCursorName: string | undefined | null;
-
-    constructor(gridSettings: StandardGridSettings) {
-        super(gridSettings);
-    }
 
     get cellPadding() { return this._cellPadding !== undefined ? this._cellPadding : this.gridSettings.cellPadding; }
     set cellPadding(value: number) {
@@ -171,7 +168,15 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
             this.endChange();
         }
     }
-
+    get horizontalAlign() { return this._horizontalAlign !== undefined ? this._horizontalAlign : this.gridSettings.horizontalAlign; }
+    set horizontalAlign(value: HorizontalAlign) {
+        if (value !== this._horizontalAlign) {
+            this.beginChange();
+            this._horizontalAlign = value;
+            this.notifyChangedViewRender();
+            this.endChange();
+        }
+    }
     get editorClickCursorName() {
         if (this._editorClickCursorName === null) {
             return undefined;
@@ -237,6 +242,9 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
                     break;
                 case 'font':
                     this._font = requiredSettings.font;
+                    break;
+                case 'horizontalAlign':
+                    this._horizontalAlign = requiredSettings.horizontalAlign;
                     break;
                 case 'editorClickCursorName':
                     this._editorClickCursorName = requiredSettings.editorClickCursorName;

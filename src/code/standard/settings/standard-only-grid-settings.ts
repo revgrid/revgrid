@@ -29,6 +29,8 @@ export interface StandardOnlyGridSettings {
     selectionForegroundColor: GridSettings.Color;
 
     font: string;
+    /** Horizontal alignment of content of each cell. */
+    horizontalAlign: HorizontalAlign;
     /** Cursor to display when editor can be clicked */
     editorClickCursorName: string | undefined;
 }

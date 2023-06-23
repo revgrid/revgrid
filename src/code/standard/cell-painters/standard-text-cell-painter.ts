@@ -1,5 +1,5 @@
 import { CachedCanvasRenderingContext2D, Rectangle, SchemaField, UnreachableCaseError } from '../../grid/grid-public-api';
-import { TextBehavioredColumnSettings, TextBehavioredGridSettings, TextTruncateType } from '../../text/text-public-api';
+import { HorizontalAlign, TextBehavioredColumnSettings, TextBehavioredGridSettings, TextTruncateType } from '../../text/text-public-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
 /** @public */
@@ -16,13 +16,14 @@ export abstract class StandardTextCellPainter<
 
 /**
  * @summary Renders single line text.
- * @param val - The text to render in the cell.
+ * @param text - The text to render in the cell.
  */
     protected renderMultiLineText(
         bounds: Rectangle,
-        val: string,
+        text: string,
         leftPadding: number,
         rightPadding: number,
+        horizontalAlign: HorizontalAlign,
         font: string,
     ) {
         const columnSettings = this._columnSettings;
@@ -31,15 +32,14 @@ export abstract class StandardTextCellPainter<
         const y = bounds.y;
         const width = bounds.width;
         const height = bounds.height;
-        const cleanVal = (val + '').trim().replace(StandardTextCellPainter.Whitespace, ' '); // trim and squeeze whitespace
-        const lines = this.findLines(cleanVal.split(' '), width);
+        const cleanText = text.trim().replace(StandardTextCellPainter.Whitespace, ' '); // trim and squeeze whitespace
+        const lines = this.findLines(cleanText.split(' '), width);
 
         if (lines.length === 1) {
-            return this.renderSingleLineText(bounds, cleanVal, leftPadding, rightPadding);
+            return this.renderSingleLineText(bounds, cleanText, leftPadding, rightPadding, horizontalAlign);
         } else {
             let halignOffset = leftPadding;
             let valignOffset = columnSettings.verticalOffset;
-            const horizontalAlign = columnSettings.horizontalAlign;
             const textHeight = gc.getTextHeight(font).height;
 
             switch (horizontalAlign) {
@@ -79,66 +79,70 @@ export abstract class StandardTextCellPainter<
 
     /**
      * @summary Renders single line text.
-     * @param val - The text to render in the cell.
+     * @param text - The text to render in the cell.
      */
     protected renderSingleLineText(
         bounds: Rectangle,
-        val: string,
+        text: string,
         leftPadding: number,
         rightPadding: number,
+        horizontalAlign: HorizontalAlign,
     ) {
-        const gc = this._renderingContext;
-        const columnSettings = this._columnSettings;
-        let x = bounds.x;
-        let y = bounds.y;
-        const width = bounds.width;
-        let halignOffset = leftPadding;
-        const horizontalAlign = columnSettings.horizontalAlign;
-        let minWidth: number;
-
-        const rightHaligned = horizontalAlign === 'right';
-        const truncateWidth = width - rightPadding - leftPadding;
-        if (columnSettings.defaultColumnAutoSizing) {
-            const truncatedMeasure = this.measureAndTruncateText(gc, val, truncateWidth, columnSettings.textTruncateType, false, rightHaligned);
-            minWidth = truncatedMeasure.width;
-            val = truncatedMeasure.text ?? val;
-            if (horizontalAlign === 'center') {
-                halignOffset = (width - truncatedMeasure.width) / 2;
-            }
+        if (text === '') {
+            return leftPadding + rightPadding
         } else {
-            const truncatedResult = this.measureAndTruncateText(gc, val, truncateWidth, columnSettings.textTruncateType, true, rightHaligned);
-            minWidth = 0;
-            if (truncatedResult.text !== undefined) {
-                // not enough space to show the extire text, the text is truncated to fit for the width
-                val = truncatedResult.text;
-            } else {
-                // enought space to show the entire text
+            const gc = this._renderingContext;
+            const columnSettings = this._columnSettings;
+            let x = bounds.x;
+            let y = bounds.y;
+            const width = bounds.width;
+            let halignOffset = leftPadding;
+            let minWidth: number;
+
+            const rightHaligned = horizontalAlign === 'right';
+            const truncateWidth = width - rightPadding - leftPadding;
+            if (columnSettings.defaultColumnAutoSizing) {
+                const truncatedMeasure = this.measureAndTruncateText(gc, text, truncateWidth, columnSettings.textTruncateType, false, rightHaligned);
+                minWidth = truncatedMeasure.width;
+                text = truncatedMeasure.text ?? text;
                 if (horizontalAlign === 'center') {
-                    halignOffset = (width - truncatedResult.width) / 2;
+                    halignOffset = (width - truncatedMeasure.width) / 2;
+                }
+            } else {
+                const truncatedResult = this.measureAndTruncateText(gc, text, truncateWidth, columnSettings.textTruncateType, true, rightHaligned);
+                minWidth = 0;
+                if (truncatedResult.text !== undefined) {
+                    // not enough space to show the extire text, the text is truncated to fit for the width
+                    text = truncatedResult.text;
+                } else {
+                    // enought space to show the entire text
+                    if (horizontalAlign === 'center') {
+                        halignOffset = (width - truncatedResult.width) / 2;
+                    }
                 }
             }
+
+            if (text !== null) {
+                // the position for x need to be relocated.
+                // for canvas to print text, when textAlign is 'end' or 'right'
+                // it will start with position x and print the text on the left
+                // so the exact position for x need to increase by the acutal width - rightPadding
+                x += horizontalAlign === 'right'
+                    ? width - rightPadding
+                    : Math.max(leftPadding, halignOffset);
+                y += Math.floor(bounds.height / 2);
+
+                this.decorateText();
+
+                gc.cache.textAlign = horizontalAlign === 'right'
+                    ? 'right'
+                    : 'left';
+                gc.cache.textBaseline = 'middle';
+                gc.fillText(text, x, y);
+            }
+
+            return leftPadding + minWidth + rightPadding;
         }
-
-        if (val !== null) {
-            // the position for x need to be relocated.
-            // for canvas to print text, when textAlign is 'end' or 'right'
-            // it will start with position x and print the text on the left
-            // so the exact position for x need to increase by the acutal width - rightPadding
-            x += horizontalAlign === 'right'
-                ? width - rightPadding
-                : Math.max(leftPadding, halignOffset);
-            y += Math.floor(bounds.height / 2);
-
-            this.decorateText();
-
-            gc.cache.textAlign = horizontalAlign === 'right'
-                ? 'right'
-                : 'left';
-            gc.cache.textBaseline = 'middle';
-            gc.fillText(val, x, y);
-        }
-
-        return leftPadding + minWidth + rightPadding;
     }
 
     protected findLines(words: string[], width: number) {

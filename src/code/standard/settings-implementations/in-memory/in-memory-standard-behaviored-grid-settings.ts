@@ -23,6 +23,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
     private _selectionBackgroundColor: GridSettings.Color;
     private _selectionForegroundColor: GridSettings.Color;
     private _font: string;
+    private _horizontalAlign: HorizontalAlign;
     private _editorClickCursorName: string | undefined;
 
     get cellPadding() { return this._cellPadding; }
@@ -169,6 +170,15 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
             this.endChange();
         }
     }
+    get horizontalAlign() { return this._horizontalAlign; }
+    set horizontalAlign(value: HorizontalAlign) {
+        if (value !== this._horizontalAlign) {
+            this.beginChange();
+            this._horizontalAlign = value;
+            this.notifyChangedViewRender();
+            this.endChange();
+        }
+    }
     get editorClickCursorName() { return this._editorClickCursorName; }
     set editorClickCursorName(value: string | undefined) {
         if (value !== this._editorClickCursorName) {
@@ -236,6 +246,9 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
                     break;
                 case 'font':
                     this._font = requiredSettings.font;
+                    break;
+                case 'horizontalAlign':
+                    this._horizontalAlign = requiredSettings.horizontalAlign;
                     break;
                 case 'editorClickCursorName':
                     this._editorClickCursorName = requiredSettings.editorClickCursorName;

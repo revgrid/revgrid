@@ -15,5 +15,6 @@ export const defaultStandardOnlyColumnSettings: StandardOnlyColumnSettings = {
     columnHeaderSelectionBackgroundColor: defaultStandardOnlyGridSettings.columnHeaderSelectionBackgroundColor,
     columnHeaderSelectionForegroundColor: defaultStandardOnlyGridSettings.columnHeaderSelectionForegroundColor,
     font: defaultStandardOnlyGridSettings.font,
+    horizontalAlign: defaultStandardOnlyGridSettings.horizontalAlign,
     editorClickCursorName: defaultStandardOnlyGridSettings.editorClickCursorName,
 } as const;

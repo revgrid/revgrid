@@ -1657,7 +1657,6 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
 
 // @public (undocumented)
 export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavioredColumnSettings implements StandardBehavioredColumnSettings {
-    constructor(gridSettings: StandardGridSettings);
     // (undocumented)
     get cellFocusedBorderColor(): GridSettings.Color | undefined;
     set cellFocusedBorderColor(value: GridSettings.Color | undefined);
@@ -1701,6 +1700,9 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
     set font(value: string);
     // (undocumented)
     gridSettings: StandardGridSettings;
+    // (undocumented)
+    get horizontalAlign(): HorizontalAlign;
+    set horizontalAlign(value: HorizontalAlign);
     // (undocumented)
     merge(settings: Partial<StandardColumnSettings>): void;
 }
@@ -1749,6 +1751,9 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
     get font(): string;
     set font(value: string);
     // (undocumented)
+    get horizontalAlign(): HorizontalAlign;
+    set horizontalAlign(value: HorizontalAlign);
+    // (undocumented)
     merge(settings: Partial<StandardGridSettings>): void;
     // (undocumented)
     get rowHoverBackgroundColor(): GridSettings.Color | undefined;
@@ -1766,14 +1771,10 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
 
 // @public (undocumented)
 export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements TextBehavioredColumnSettings {
-    constructor(gridSettings: TextGridSettings);
     // (undocumented)
     clone(): InMemoryTextBehavioredColumnSettings;
     // (undocumented)
     gridSettings: TextGridSettings;
-    // (undocumented)
-    get horizontalAlign(): HorizontalAlign;
-    set horizontalAlign(value: HorizontalAlign);
     // (undocumented)
     merge(settings: Partial<TextColumnSettings>): void;
     // (undocumented)
@@ -1791,9 +1792,6 @@ export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColu
 export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSettings implements TextBehavioredGridSettings {
     // (undocumented)
     clone(): InMemoryTextBehavioredGridSettings;
-    // (undocumented)
-    get horizontalAlign(): HorizontalAlign;
-    set horizontalAlign(value: HorizontalAlign);
     // (undocumented)
     merge(settings: Partial<TextGridSettings>): void;
     // (undocumented)
@@ -3562,7 +3560,7 @@ export class StandardNumberInputCellEditor<BGS extends StandardBehavioredGridSet
 }
 
 // @public (undocumented)
-export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'editorClickCursorName'>;
+export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'horizontalAlign' | 'editorClickCursorName'>;
 
 // @public (undocumented)
 export interface StandardOnlyGridSettings {
@@ -3589,6 +3587,7 @@ export interface StandardOnlyGridSettings {
     editorClickCursorName: string | undefined;
     // (undocumented)
     font: string;
+    horizontalAlign: HorizontalAlign;
     // (undocumented)
     rowHoverBackgroundColor: GridSettings.Color | undefined;
     selectionBackgroundColor: GridSettings.Color;
@@ -3722,9 +3721,9 @@ export abstract class StandardTextCellPainter<BGS extends TextBehavioredGridSett
     // (undocumented)
     protected findLines(words: string[], width: number): string[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    protected renderMultiLineText(bounds: Rectangle, val: string, leftPadding: number, rightPadding: number, font: string): number;
+    protected renderMultiLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign, font: string): number;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    protected renderSingleLineText(bounds: Rectangle, val: string, leftPadding: number, rightPadding: number): number;
+    protected renderSingleLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign): number;
     // (undocumented)
     setColumnSettings(value: BCS): void;
     // (undocumented)
@@ -3842,11 +3841,10 @@ export interface TextGridSettings extends TextOnlyGridSettings, GridSettings {
 }
 
 // @public (undocumented)
-export type TextOnlyColumnSettings = Pick<TextOnlyGridSettings, 'horizontalAlign' | 'verticalOffset' | 'textTruncateType' | 'textStrikeThrough'>;
+export type TextOnlyColumnSettings = Pick<TextOnlyGridSettings, 'verticalOffset' | 'textTruncateType' | 'textStrikeThrough'>;
 
 // @public (undocumented)
 export interface TextOnlyGridSettings {
-    horizontalAlign: HorizontalAlign;
     textStrikeThrough: boolean;
     // (undocumented)
     textTruncateType: TextTruncateType | undefined;

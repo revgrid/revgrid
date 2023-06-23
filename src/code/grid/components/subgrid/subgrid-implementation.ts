@@ -99,9 +99,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
 
     /** @internal */
     trySubscribeDataNotifications() {
-        if (this.dataServer.subscribeDataNotifications !== undefined) {
-            this.dataServer.subscribeDataNotifications(this._dataNotificationsClient);
-        }
+        this.dataServer.subscribeDataNotifications(this._dataNotificationsClient);
     }
 
     /** @internal */
@@ -269,7 +267,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
 
         if (value !== undefined) {
             if (properties === undefined) {
-                const createdProperties = Object.create(this._rowPropertiesPrototype) as MetaModel.RowProperties;
+                const createdProperties = Object.create(this._rowPropertiesPrototype) as MetaModel.RowProperties | null;
                 if (createdProperties === null) {
                     throw new AssertError('RPBSRP99441');
                 } else {
