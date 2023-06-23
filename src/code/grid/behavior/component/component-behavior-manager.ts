@@ -130,16 +130,17 @@ export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS ex
         );
     }
 
-    destroy() {
-        this._serverNotificationBehavior.destroy();
-        this.eventBehavior.destroy();
-    }
-
-    allowEvents(allow: boolean){
-        if (allow){
+    get active() { return this._serverNotificationBehavior.notificationsEnabled; }
+    set active(value: boolean){
+        if (value){
             this._serverNotificationBehavior.enableNotifications();
         } else {
             this._serverNotificationBehavior.disableNotifications();
         }
+    }
+
+    destroy() {
+        this._serverNotificationBehavior.destroy();
+        this.eventBehavior.destroy();
     }
 }

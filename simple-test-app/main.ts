@@ -40,7 +40,7 @@ export class Main {
         grid.clickEventer = (columnIndex, recordIndex) => this.handleCellClickEvent(columnIndex, recordIndex);
         grid.dblClickEventer = (columnIndex, recordIndex) => this.handleRecordFocusDblClick(columnIndex, recordIndex);
 
-        grid.allowEvents(true);
+        grid.activate();
 
         return grid;
     }

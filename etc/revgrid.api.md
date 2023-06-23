@@ -2484,6 +2484,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
     // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
     constructor(container: string | HTMLElement | undefined, definition: Revgrid.Definition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: Revgrid.Options<BGS, BCS, SF>);
+    // (undocumented)
+    activate(): void;
+    // (undocumented)
+    get active(): boolean;
+    set active(value: boolean);
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
@@ -2504,8 +2509,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addEventListener(eventName: string, listener: CanvasManager.EventListener): void;
-    // (undocumented)
-    allowEvents(allow: boolean): void;
     // (undocumented)
     autoSizeAllColumns(widenOnly: boolean): void;
     // (undocumented)
@@ -2539,6 +2542,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly containerHtmlElement: HTMLElement;
     // @internal (undocumented)
     createColumns(): void;
+    // (undocumented)
+    deactivate(): void;
     // (undocumented)
     protected descendantEventerBlur(): void;
     // (undocumented)
@@ -2613,7 +2618,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "Hypgrid"
     destroy(): void;
     // (undocumented)
-    destroyed: boolean;
+    get destroyed(): boolean;
     endSelectionChange(): void;
     // (undocumented)
     get fieldColumns(): readonly Column<BCS, SF>[];
@@ -2718,10 +2723,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     isDataVisible(c: number, rn: number): boolean;
     // (undocumented)
     isPointSelected(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean;
-    // Warning: (ae-forgotten-export) The symbol "Localization" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    localization: Localization;
     // (undocumented)
     readonly mainDataServer: DataServer<SF>;
     // (undocumented)

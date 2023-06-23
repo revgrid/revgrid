@@ -76,6 +76,8 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         }
     }
 
+    get notificationsEnabled() { return this._notificationsEnabled; }
+
     destroy() {
         this.disableNotifications();
         this._destroyed = true;

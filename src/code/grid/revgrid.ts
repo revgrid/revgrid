@@ -33,7 +33,6 @@ import { BehavioredColumnSettings } from './interfaces/settings/behaviored-colum
 import { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from './interfaces/settings/column-settings';
 import { CssClassName } from './types-utils/html-types';
-import { Localization } from './types-utils/localization';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { AssertError } from './types-utils/revgrid-error';
@@ -41,6 +40,8 @@ import { ColumnFieldNameAndAutoSizableWidth, ListChangedTypeId, SelectionAreaTyp
 
 /** @public */
 export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    readonly containerHtmlElement: HTMLElement;
+
     readonly mouse: Mouse<BGS, BCS, SF>;
     readonly selection: Selection<BCS, SF>;
     readonly focus: Focus<BGS, BCS, SF>;
@@ -79,22 +80,19 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /** @internal */
     private readonly _dataExtractBehavior: DataExtractBehavior<BCS, SF>;
 
-    destroyed = false;
-
-    localization: Localization;
-
-    readonly containerHtmlElement: HTMLElement;
+    private _destroyed = false;
 
     /** @internal */
     get columnsManager() { return this._columnsManager; }
     get fieldColumns(): readonly Column<BCS, SF>[] { return this._columnsManager.fieldColumns; }
     get activeColumns(): readonly Column<BCS, SF>[] { return this._columnsManager.activeColumns; }
 
-
     getSelectedRowCount() { return this.selection.getRowCount(); }
     getSelectedRowIndices() { return this.selection.getRowIndices(); }
     getSelectedColumnIndices() { return this.selection.getColumnIndices(); }
     getSelectedRectangles() { return this.selection.rectangleList.rectangles; }
+
+    get destroyed() { return this._destroyed; }
 
     /**
      * The index of the active column which is first in view (either on left or right depending on Grid alignment)
@@ -261,6 +259,17 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.canvasManager.resize(false); // Will invalidate all and cause a repaint
     }
 
+    get active() { return this._componentBehaviorManager.active; }
+    set active(value: boolean) {
+        this._componentBehaviorManager.active = value;
+        if (value){
+            this._uiBehaviorManager.enable();
+        } else {
+            this._uiBehaviorManager.disable();
+        }
+        this.viewLayout.invalidateAll(true);
+    }
+
     get canvasBounds() { return this.canvasManager.bounds; }
 
     /**
@@ -278,7 +287,15 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             firstChild = containerHtmlElement.firstChild;
         }
 
-        this.destroyed = true;
+        this._destroyed = true;
+    }
+
+    activate() {
+        this.active = true;
+    }
+
+    deactivate() {
+        this.active = false;
     }
 
     setAttribute(attribute: string, value: string) {
@@ -1259,16 +1276,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     removeEventListener(eventName: string, listener: CanvasManager.EventListener) {
         this.canvasManager.removeExternalEventListener(eventName, listener);
-    }
-
-    allowEvents(allow: boolean){
-        this._componentBehaviorManager.allowEvents(allow);
-        if (allow){
-            this._uiBehaviorManager.enable();
-        } else {
-            this._uiBehaviorManager.disable();
-        }
-        this.viewLayout.invalidateAll(true);
     }
 
     protected descendantProcessCellFocusChanged(newPoint: Point | undefined, oldPoint: Point | undefined) {

@@ -234,7 +234,7 @@ export class Main {
             viewCell
         ) => this.getCellEditor(field, subgridRowIndex, subgrid, readonly, viewCell);
 
-        this._grid.allowEvents(true);
+        this._grid.activate();
 
         // const columns = this._grid.getAllColumns();
 

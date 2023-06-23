@@ -155,7 +155,7 @@ export class Main {
             this._debugEnabled
         );
 
-        grid.allowEvents(true);
+        grid.activate();
 
         this._schemaServer.addFields([
             this._recordIndexGridField,
