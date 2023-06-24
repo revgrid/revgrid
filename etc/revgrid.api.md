@@ -756,211 +756,112 @@ export const defaultTextOnlyColumnSettings: TextOnlyColumnSettings;
 export const defaultTextOnlyGridSettings: TextOnlyGridSettings;
 
 // @public (undocumented)
-export namespace EventDetail {
+export namespace DispatchableEvent {
     // (undocumented)
-    export interface CellDataInvalidated {
+    export namespace Detail {
         // (undocumented)
-        readonly rowIndex: number;
-        // (undocumented)
-        readonly schemaColumnIndex: number;
-        // (undocumented)
-        readonly time: number;
-    }
-    // (undocumented)
-    export interface CellFocusChanged {
-        // (undocumented)
-        readonly newPoint: Point | undefined;
-        // (undocumented)
-        readonly oldPoint: Point | undefined;
-    }
-    // (undocumented)
-    export interface ColumnSort<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
-        // (undocumented)
-        revgridHoverCell?: LinedHoverCell<BCS, SF>;
-    }
-    // (undocumented)
-    export type DragType = keyof typeof DragTypeEnum;
-    // (undocumented)
-    export const enum DragTypeEnum {
-        // (undocumented)
-        ColumnMoving = "revgridcolumnmoving",
-        // (undocumented)
-        ColumnResizing = "revgridcolumnresizing",
-        // (undocumented)
-        LastColumnSelectionAreaExtending = "revgridlastcolumnselectionareaextending",
-        // (undocumented)
-        LastRectangleSelectionAreaExtending = "revgridlastrectangleselectionareaextending",
-        // (undocumented)
-        LastRowSelectionAreaExtending = "revgridlastrowselectionareaextending"
-    }
-    // (undocumented)
-    export interface Grid {
-        // (undocumented)
-        readonly time: number;
-    }
-    // (undocumented)
-    export interface Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
-        // (undocumented)
-        revgridHoverCell?: LinedHoverCell<BCS, SF>;
-    }
-    // (undocumented)
-    export interface Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends PointerEvent, Mouse<BCS, SF> {
-        // (undocumented)
-        revgridHoverCell?: LinedHoverCell<BCS, SF>;
-    }
-    // (undocumented)
-    export interface RowCellsDataInvalidated {
-        // (undocumented)
-        readonly rowIndex: number;
-        // (undocumented)
-        readonly schemaColumnIndexes: number[];
-        // (undocumented)
-        readonly time: number;
-    }
-    // (undocumented)
-    export interface RowColumnsDataInvalidated {
-        // (undocumented)
-        readonly columnCount: number;
-        // (undocumented)
-        readonly rowIndex: number;
-        // (undocumented)
-        readonly schemaColumnIndex: number;
-        // (undocumented)
-        readonly time: number;
-    }
-    // (undocumented)
-    export interface RowsDataInvalidated {
-        // (undocumented)
-        readonly count: number;
-        // (undocumented)
-        readonly rowIndex: number;
-        // (undocumented)
-        readonly time: number;
-    }
-    // (undocumented)
-    export interface ScrollerAction {
-        // (undocumented)
-        readonly type: ScrollerAction.Type;
-        // (undocumented)
-        readonly viewportStart: number | undefined;
-    }
-    // (undocumented)
-    export namespace ScrollerAction {
-        // (undocumented)
-        export const enum Type {
+        export interface CellFocusChanged {
             // (undocumented)
-            newViewportStart = 4,
+            readonly newPoint: Point | undefined;
             // (undocumented)
-            PageBack = 3,
+            readonly oldPoint: Point | undefined;
+        }
+        // (undocumented)
+        export interface ColumnSort<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
             // (undocumented)
-            PageForward = 2,
+            revgridHoverCell?: LinedHoverCell<BCS, SF>;
+        }
+        // (undocumented)
+        export interface Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
             // (undocumented)
-            StepBack = 1,
+            revgridHoverCell?: LinedHoverCell<BCS, SF>;
+        }
+        // (undocumented)
+        export interface Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends PointerEvent, Mouse<BCS, SF> {
             // (undocumented)
-            StepForward = 0
+            revgridHoverCell?: LinedHoverCell<BCS, SF>;
+        }
+        // (undocumented)
+        export interface Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends WheelEvent {
+            // (undocumented)
+            revgridHoverCell?: LinedHoverCell<BCS, SF>;
         }
     }
     // (undocumented)
-    export interface Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends WheelEvent {
-        // (undocumented)
-        revgridHoverCell?: LinedHoverCell<BCS, SF>;
-    }
-}
-
-// @public (undocumented)
-export type EventName<BCS extends BehavioredColumnSettings, SF extends SchemaField> = keyof EventName.DetailMap<BCS, SF>;
-
-// @public (undocumented)
-export namespace EventName {
+    export type Name<BCS extends BehavioredColumnSettings, SF extends SchemaField> = keyof Name.DetailMap<BCS, SF>;
     // (undocumented)
-    export interface DetailMap<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    export namespace Name {
         // (undocumented)
-        'rev-cell-enter': ViewCell<BCS, SF>;
+        export interface DetailMap<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+            // (undocumented)
+            'rev-cell-enter': ViewCell<BCS, SF>;
+            // (undocumented)
+            'rev-cell-exit': ViewCell<BCS, SF>;
+            // (undocumented)
+            'rev-cell-focus-changed': Detail.CellFocusChanged;
+            // (undocumented)
+            'rev-click': Detail.Pointer<BCS, SF>;
+            // (undocumented)
+            'rev-column-sort': Detail.ColumnSort<BCS, SF>;
+            // Warning: (ae-forgotten-export) The symbol "ViewLayout" needs to be exported by the entry point public-api.d.ts
+            //
+            // (undocumented)
+            'rev-columns-view-widths-changed': ViewLayout.ColumnsViewWidthChangeds;
+            // (undocumented)
+            'rev-context-menu': Detail.Pointer<BCS, SF>;
+            // (undocumented)
+            'rev-dbl-click': Detail.Pointer<BCS, SF>;
+            // (undocumented)
+            'rev-field-column-list-changed': undefined;
+            // (undocumented)
+            'rev-filter-applied': undefined;
+            // (undocumented)
+            'rev-grid-rendered': undefined;
+            // (undocumented)
+            'rev-grid-resized': undefined;
+            // (undocumented)
+            'rev-horizontal-scroll-viewport-changed': undefined;
+            // Warning: (ae-forgotten-export) The symbol "Scroller" needs to be exported by the entry point public-api.d.ts
+            //
+            // (undocumented)
+            'rev-horizontal-scroller-action': Scroller.Action;
+            // (undocumented)
+            'rev-key-down': KeyboardEvent;
+            // (undocumented)
+            'rev-key-up': KeyboardEvent;
+            // (undocumented)
+            'rev-pointer-down': Detail.Pointer<BCS, SF>;
+            // (undocumented)
+            'rev-pointer-enter': Detail.Pointer<BCS, SF>;
+            // (undocumented)
+            'rev-pointer-leave-out': Detail.Pointer<BCS, SF>;
+            // (undocumented)
+            'rev-pointer-move': Detail.Pointer<BCS, SF>;
+            // (undocumented)
+            'rev-pointer-up-cancel': Detail.Pointer<BCS, SF>;
+            // (undocumented)
+            'rev-selection-changed': undefined;
+            // (undocumented)
+            'rev-touch-end': TouchEvent;
+            // (undocumented)
+            'rev-touch-move': TouchEvent;
+            // (undocumented)
+            'rev-touch-start': TouchEvent;
+            // (undocumented)
+            'rev-vertical-scroll-viewport-changed': undefined;
+            // (undocumented)
+            'rev-vertical-scroller-action': Scroller.Action;
+            // (undocumented)
+            'rev-wheel-move': Detail.Wheel<BCS, SF>;
+        }
         // (undocumented)
-        'rev-cell-exit': ViewCell<BCS, SF>;
-        // (undocumented)
-        'rev-cell-focus-changed': EventDetail.CellFocusChanged;
-        // (undocumented)
-        'rev-click': EventDetail.Pointer<BCS, SF>;
-        // (undocumented)
-        'rev-column-sort': EventDetail.ColumnSort<BCS, SF>;
-        // (undocumented)
-        'rev-columns-view-widths-changed': undefined;
-        // (undocumented)
-        'rev-context-menu': EventDetail.Pointer<BCS, SF>;
-        // (undocumented)
-        'rev-data-all-invalidated': undefined;
-        // (undocumented)
-        'rev-data-cell-invalidated': EventDetail.CellDataInvalidated;
-        // (undocumented)
-        'rev-data-loaded': undefined;
-        // (undocumented)
-        'rev-data-postreindex': undefined;
-        // (undocumented)
-        'rev-data-prereindex': undefined;
-        // (undocumented)
-        'rev-data-row-cells-invalidated': EventDetail.RowCellsDataInvalidated;
-        // (undocumented)
-        'rev-data-row-columns-invalidated': EventDetail.RowColumnsDataInvalidated;
-        // (undocumented)
-        'rev-data-row-count-changed': undefined;
-        // (undocumented)
-        'rev-data-rows-invalidated': EventDetail.RowsDataInvalidated;
-        // (undocumented)
-        'rev-data-rows-moved': undefined;
-        // (undocumented)
-        'rev-dbl-click': EventDetail.Pointer<BCS, SF>;
-        // (undocumented)
-        'rev-field-column-list-changed': undefined;
-        // (undocumented)
-        'rev-filter-applied': undefined;
-        // (undocumented)
-        'rev-grid-rendered': EventDetail.Grid;
-        // (undocumented)
-        'rev-grid-resized': undefined;
-        // (undocumented)
-        'rev-horizontal-scroll-viewport-changed': undefined;
-        // (undocumented)
-        'rev-horizontal-scroller-action': EventDetail.ScrollerAction;
-        // (undocumented)
-        'rev-key-down': KeyboardEvent;
-        // (undocumented)
-        'rev-key-up': KeyboardEvent;
-        // (undocumented)
-        'rev-pointer-down': EventDetail.Pointer<BCS, SF>;
-        // (undocumented)
-        'rev-pointer-enter': EventDetail.Pointer<BCS, SF>;
-        // (undocumented)
-        'rev-pointer-leave-out': EventDetail.Pointer<BCS, SF>;
-        // (undocumented)
-        'rev-pointer-move': EventDetail.Pointer<BCS, SF>;
-        // (undocumented)
-        'rev-pointer-up-cancel': EventDetail.Pointer<BCS, SF>;
-        // (undocumented)
-        'rev-schema-loaded': undefined;
-        // (undocumented)
-        'rev-selection-changed': EventDetail.Grid;
-        // (undocumented)
-        'rev-touch-end': TouchEvent;
-        // (undocumented)
-        'rev-touch-move': TouchEvent;
-        // (undocumented)
-        'rev-touch-start': TouchEvent;
-        // (undocumented)
-        'rev-vertical-scroll-viewport-changed': undefined;
-        // (undocumented)
-        'rev-vertical-scroller-action': EventDetail.ScrollerAction;
-        // (undocumented)
-        'rev-wheel-move': EventDetail.Wheel<BCS, SF>;
+        export type MouseHoverCell = 'rev-click' | 'rev-dbl-click' | 'rev-pointer-up-cancel' | 'rev-pointer-down' | 'rev-pointer-move' | 'rev-pointer-enter' | 'rev-pointer-leave-out' | 'rev-wheel-move' | 'rev-context-menu' | 'rev-column-sort';
     }
-    // (undocumented)
-    export type MouseHoverCell = 'rev-click' | 'rev-dbl-click' | 'rev-pointer-up-cancel' | 'rev-pointer-down' | 'rev-pointer-move' | 'rev-pointer-enter' | 'rev-pointer-leave-out' | 'rev-wheel-move' | 'rev-context-menu' | 'rev-column-sort';
 }
 
 // @public (undocumented)
 export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     // Warning: (ae-forgotten-export) The symbol "CanvasManager" needs to be exported by the entry point public-api.d.ts
-    // Warning: (ae-forgotten-export) The symbol "ViewLayout" needs to be exported by the entry point public-api.d.ts
     //
     // @internal
     constructor(
@@ -1944,7 +1845,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     _canvasManager: CanvasManager<BGS>,
     _viewLayout: ViewLayout<BGS, BCS, SF>);
     // (undocumented)
-    get activeDragType(): EventDetail.DragTypeEnum | undefined;
+    get activeDragType(): Mouse.DragTypeEnum | undefined;
     // @internal (undocumented)
     cellEnteredEventer: Mouse.CellEnteredExitedEventer<BCS, SF>;
     // @internal (undocumented)
@@ -1954,7 +1855,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // @internal (undocumented)
     reset(): void;
     // @internal (undocumented)
-    setActiveDragType(value: EventDetail.DragTypeEnum | undefined): void;
+    setActiveDragType(value: Mouse.DragTypeEnum | undefined): void;
     // @internal (undocumented)
     setLocation(cursorName: string | undefined, titleText: string | undefined): void;
     // @internal (undocumented)
@@ -1975,6 +1876,21 @@ export namespace Mouse {
         readonly cursorName: string | undefined;
         // (undocumented)
         readonly titleText: string;
+    }
+    // (undocumented)
+    export type DragType = keyof typeof DragTypeEnum;
+    // (undocumented)
+    export const enum DragTypeEnum {
+        // (undocumented)
+        ColumnMoving = "revgridcolumnmoving",
+        // (undocumented)
+        ColumnResizing = "revgridcolumnresizing",
+        // (undocumented)
+        LastColumnSelectionAreaExtending = "revgridlastcolumnselectionareaextending",
+        // (undocumented)
+        LastRectangleSelectionAreaExtending = "revgridlastrectangleselectionareaextending",
+        // (undocumented)
+        LastRowSelectionAreaExtending = "revgridlastrowselectionareaextending"
     }
     // (undocumented)
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
@@ -2555,7 +2471,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessColumnSort(_event: MouseEvent, _headerOrFixedRowCell: ViewCell<BCS, SF>): void;
     // (undocumented)
-    protected descendantProcessColumnsViewWidthsChanged(): void;
+    protected descendantProcessColumnsViewWidthsChanged(_changeds: ViewLayout.ColumnsViewWidthChangeds): void;
     // (undocumented)
     protected descendantProcessColumnsWidthChanged(_columns: Column<BCS, SF>[], _ui: boolean): void;
     // (undocumented)
@@ -2569,7 +2485,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessFieldColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined): void;
     // (undocumented)
-    protected descendantProcessHorizontalScrollerAction(_event: EventDetail.ScrollerAction): void;
+    protected descendantProcessHorizontalScrollerAction(_event: Scroller.Action): void;
     // (undocumented)
     protected descendantProcessHorizontalScrollViewportStartChanged(): void;
     // (undocumented)
@@ -2608,7 +2524,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessTouchStart(_event: TouchEvent): void;
     // (undocumented)
-    protected descendantProcessVerticalScrollerAction(_event: EventDetail.ScrollerAction): void;
+    protected descendantProcessVerticalScrollerAction(_event: Scroller.Action): void;
     // (undocumented)
     protected descendantProcessVerticalScrollViewportStartChanged(): void;
     // (undocumented)
@@ -3912,7 +3828,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     // @internal (undocumented)
     handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined;
     // @internal (undocumented)
-    handleHorizontalScrollerAction(action: EventDetail.ScrollerAction): void;
+    handleHorizontalScrollerAction(action: Scroller.Action): void;
     // @internal (undocumented)
     handleKeyDown(event: KeyboardEvent, fromEditor: boolean): void;
     // @internal (undocumented)
@@ -3940,11 +3856,9 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     // @internal (undocumented)
     handleTouchStart(eventDetail: TouchEvent): void;
     // @internal (undocumented)
-    handleVerticalScrollerAction(action: EventDetail.ScrollerAction): void;
+    handleVerticalScrollerAction(action: Scroller.Action): void;
     // @internal (undocumented)
     handleWheelMove(event: WheelEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined;
-    // Warning: (ae-forgotten-export) The symbol "Scroller" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     protected readonly horizontalScroller: Scroller<BGS>;
     // @internal (undocumented)

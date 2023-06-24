@@ -6,27 +6,21 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 
 /** @internal */
 export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements Column<BCS, SF> {
-    readonly field: SF;
-
     preferredWidth: number | undefined;
 
     private _width: number;
     private _autoSizing: boolean;
-    private _settings: BCS;
 
     constructor(
-        field: SF,
-        columnSettings: BCS,
+        readonly field: SF,
+        readonly settings: BCS,
         private readonly _widthChangedEventer: ColumnImplementation.WidthChangedEventer<BCS, SF>,
         private readonly _horizontalViewLayoutInvalidatedEventer: ColumnImplementation.HorizontalViewLayoutInvalidatedEventer,
     ) {
-        this.field = field;
-        this._settings = columnSettings;
-        this._width = this._settings.defaultColumnWidth;
-        this._autoSizing = this._settings.defaultColumnAutoSizing;
+        this._width = this.settings.defaultColumnWidth;
+        this._autoSizing = this.settings.defaultColumnAutoSizing;
     }
 
-    get settings() { return this._settings; }
     get width() { return this._width; }
     set width(value: number) {
         this.setWidthAndPossiblyNotify(value, true, true);
@@ -43,7 +37,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
     setWidthAndPossiblyNotify(width: number, ui: boolean, notifyWidthChange: boolean) {
         let changed: boolean;
 
-        width = Math.ceil(Math.min(Math.max(this._settings.minimumColumnWidth, width), this._settings.maximumColumnWidth ?? Infinity));
+        width = Math.ceil(Math.min(Math.max(this.settings.minimumColumnWidth, width), this.settings.maximumColumnWidth ?? Infinity));
         if (!this._autoSizing && width === this._width) {
             changed = false;
         } else {
@@ -89,7 +83,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
     }
 
     autoSize(widenOnly: boolean) {
-        const settings = this._settings;
+        const settings = this.settings;
 
         let newWidth: number;
         const preferredWidth = this.preferredWidth;
@@ -128,7 +122,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
      * @param settings - A simple properties hash.
      */
     loadSettings(settings: Partial<BCS>) {
-        this._settings.merge(settings);
+        this.settings.merge(settings);
     }
 
     /**

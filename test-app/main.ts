@@ -2,7 +2,7 @@ import {
     CellEditor,
     DatalessSubgrid,
     DatalessViewCell,
-    EventDetail,
+    DispatchableEvent,
     HorizontalAlignEnum,
     InMemoryStandardBehavioredColumnSettings,
     InMemoryStandardBehavioredGridSettings,
@@ -219,7 +219,7 @@ export class Main {
         this._deleteRowIndexTextboxElement.value = '0';
 
         this._grid.addEventListener('rev-column-sort', (event) => {
-                const hoverCell = (event as CustomEvent<EventDetail.ColumnSort<StandardBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
+                const hoverCell = (event as CustomEvent<DispatchableEvent.Detail.ColumnSort<StandardBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
                 if (hoverCell !== undefined) {
                     this._mainDataServer.sort(hoverCell.viewCell.viewLayoutColumn.column);
                 }

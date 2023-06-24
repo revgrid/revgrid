@@ -1,5 +1,5 @@
 import { Focus } from '../../components/focus/focus';
-import { EventDetail } from '../../interfaces/data/event-detail';
+import { Scroller } from '../../components/scroller/scroller';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
@@ -183,21 +183,21 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
         return cell;
     }
 
-    override handleHorizontalScrollerAction(action: EventDetail.ScrollerAction) {
+    override handleHorizontalScrollerAction(action: Scroller.Action) {
         switch (action.type) {
-            case EventDetail.ScrollerAction.Type.StepForward:
+            case Scroller.Action.TypeEnum.StepForward:
                 this.focusScrollBehavior.tryScrollRight();
                 break;
-            case EventDetail.ScrollerAction.Type.StepBack:
+            case Scroller.Action.TypeEnum.StepBack:
                 this.focusScrollBehavior.tryScrollLeft();
                 break;
-            case EventDetail.ScrollerAction.Type.PageForward:
+            case Scroller.Action.TypeEnum.PageForward:
                 this.focusScrollBehavior.tryScrollPageRight();
                 break;
-            case EventDetail.ScrollerAction.Type.PageBack:
+            case Scroller.Action.TypeEnum.PageBack:
                 this.focusScrollBehavior.tryScrollPageLeft();
                 break;
-            case EventDetail.ScrollerAction.Type.newViewportStart: {
+            case Scroller.Action.TypeEnum.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new AssertError('FUBPHSAV53009')
@@ -212,21 +212,21 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
     }
 
 
-    override handleVerticalScrollerAction(action: EventDetail.ScrollerAction) {
+    override handleVerticalScrollerAction(action: Scroller.Action) {
         switch (action.type) {
-            case EventDetail.ScrollerAction.Type.StepForward:
+            case Scroller.Action.TypeEnum.StepForward:
                 this.focusScrollBehavior.tryScrollDown();
                 break;
-            case EventDetail.ScrollerAction.Type.StepBack:
+            case Scroller.Action.TypeEnum.StepBack:
                 this.focusScrollBehavior.tryScrollUp();
                 break;
-            case EventDetail.ScrollerAction.Type.PageForward:
+            case Scroller.Action.TypeEnum.PageForward:
                 this.focusScrollBehavior.tryScrollPageDown();
                 break;
-            case EventDetail.ScrollerAction.Type.PageBack:
+            case Scroller.Action.TypeEnum.PageBack:
                 this.focusScrollBehavior.tryScrollPageUp();
                 break;
-            case EventDetail.ScrollerAction.Type.newViewportStart: {
+            case Scroller.Action.TypeEnum.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new AssertError('FUBPHSAV53009')

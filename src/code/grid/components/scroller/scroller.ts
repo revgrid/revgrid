@@ -1,4 +1,3 @@
-import { EventDetail } from '../../interfaces/data/event-detail';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { ScrollDimension } from '../view/scroll-dimension';
@@ -7,6 +6,7 @@ import { ScrollDimension } from '../view/scroll-dimension';
 // Maintained in code so not dependent being in stylesheet.
 // const BAR_STYLE = 'position: absolute;';
 
+/** @public */
 export class Scroller<BGS extends BehavioredGridSettings> {
     /**
      * @name bar
@@ -135,17 +135,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     private deltaZFactor: number;
 
     /**
-     * @name barStyles
-     * @summary Scrollbar styles to be applied by {@link Scroller#resize|resize()}.
-     * @desc Set by the constructor. See the similarly named property in the {@link finbarOptions} object.
-     *
-     * This is a value to be assigned to {@link Scroller#styles|styles} on each call to {@link Scroller#resize|resize()}. That is, a hash of values to be copied to the scrollbar element's style object on resize; or `null` for none.
-     *
-     * @see {@link Scroller#style|style}
-     */
-    private barStyles: Scroller.BarStyles | null;
-
-    /**
      * @summary Create a scrollbar object.
      * @desc Creating a scrollbar is a three-step process:
      *
@@ -216,7 +205,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         bar.classList.add(`${this._classPrefix}-${axis}`);
         this._deltaProp = this._axisProperties.delta;
         this.increment = 1;
-        this.barStyles = null;
         this._deltaProp = (this.axis === 'vertical' ? Scroller.DeltaPropEnum.deltaY : Scroller.DeltaPropEnum.deltaX);
         this.deltaXFactor = deltaXFactor;
         this.deltaYFactor = deltaYFactor;
@@ -628,21 +616,21 @@ export class Scroller<BGS extends BehavioredGridSettings> {
                 const goingUp = evt[this._axisProperties.client] < thumbBox[this._axisProperties.leading];
 
 
-                let actionType: EventDetail.ScrollerAction.Type;
+                let actionType: Scroller.Action.TypeEnum;
                 if (goingUp) {
                     if (evt.altKey) {
-                        actionType = EventDetail.ScrollerAction.Type.StepBack;
+                        actionType = Scroller.Action.TypeEnum.StepBack;
                     } else {
-                        actionType = EventDetail.ScrollerAction.Type.PageBack;
+                        actionType = Scroller.Action.TypeEnum.PageBack;
                     }
                 } else {
                     if (evt.altKey) {
-                        actionType = EventDetail.ScrollerAction.Type.StepForward;
+                        actionType = Scroller.Action.TypeEnum.StepForward;
                     } else {
-                        actionType = EventDetail.ScrollerAction.Type.PageForward;
+                        actionType = Scroller.Action.TypeEnum.PageForward;
                     }
                 }
-                const action: EventDetail.ScrollerAction = {
+                const action: Scroller.Action = {
                     type: actionType,
                     viewportStart: undefined,
                 };
@@ -738,8 +726,8 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         // }
         // this._currentThumbPosition = thumbPosition;
 
-        const action: EventDetail.ScrollerAction = {
-            type: EventDetail.ScrollerAction.Type.newViewportStart,
+        const action: Scroller.Action = {
+            type: Scroller.Action.TypeEnum.newViewportStart,
             viewportStart,
         };
 
@@ -872,26 +860,34 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     }
 }
 
+/** @public */
 export namespace Scroller {
     export const defaultClassPrefix = 'revgrid';
     export const barElementIdBase = '-revgrid-scroller-bar-';
     export const thumbElementIdBase = '-revgrid-scroller-thumb-';
 
+    export interface Action {
+        readonly type: Action.TypeEnum;
+        readonly viewportStart: number | undefined;
+    }
+
+    export namespace Action {
+        export const enum TypeEnum {
+            StepForward,
+            StepBack,
+            PageForward,
+            PageBack,
+            newViewportStart,
+        }
+    }
+
     export interface Options {
         indexMode?: boolean;
-        increment?: number;
-        paging?: boolean | Paging;
-        barStyles?: BarStyles;
         deltaProp?: DeltaProp;
         deltaXFactor?: number;
         deltaYFactor?: number;
         deltaZFactor?: number;
         classPrefix?: string;
-        // container?: HTMLElement;
-        // content?: HTMLElement;
-        /** Specifies whether to load builtin FinBar stylesheet. Default: true */
-        loadBuiltinCssStylesheet?: boolean;
-        cssStylesheetReferenceElement?: null | Element | string;
     }
 
     export const enum DeltaPropEnum {
@@ -901,24 +897,7 @@ export namespace Scroller {
     }
     export type DeltaProp = keyof typeof DeltaPropEnum;
 
-    export interface ContentRange {
-        start: number;
-        finish: number;
-    }
-
-    export const defaultContentRange: ContentRange = {
-        start: 0,
-        finish: 100
-    }
-
-    export interface Paging {
-        up: (this: void, index: number) => number | undefined;
-        down: (this: void, index: number) => number | undefined;
-    }
-
-    export type BarStyles = Record<string, string>;
-
-    export type ActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;
+    export type ActionEventer = (this: void, action: Scroller.Action) => void;
     export type VisibilityChangedEventer = (this: void) => void;
 }
 

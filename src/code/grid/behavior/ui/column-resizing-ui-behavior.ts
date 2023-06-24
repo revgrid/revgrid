@@ -1,4 +1,4 @@
-import { EventDetail } from '../../interfaces/data/event-detail';
+import { Mouse } from '../../components/mouse/mouse';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column, ColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
@@ -332,7 +332,7 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
 
     private setMouseDragging(active: boolean) {
         if (active) {
-            this.mouse.setActiveDragType(EventDetail.DragTypeEnum.ColumnResizing);
+            this.mouse.setActiveDragType(Mouse.DragTypeEnum.ColumnResizing);
             this.mouse.setOperation(this.gridSettings.columnResizeDragActiveCursorName, this.gridSettings.columnResizeDragActiveTitleText);
         } else {
             this.mouse.setActiveDragType(undefined);

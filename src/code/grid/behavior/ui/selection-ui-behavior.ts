@@ -1,6 +1,6 @@
 
 import { Focus } from '../../components/focus/focus';
-import { EventDetail } from '../../interfaces/data/event-detail';
+import { Mouse } from '../../components/mouse/mouse';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
@@ -21,7 +21,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
     readonly typeName = SelectionUiBehavior.typeName;
 
     /** @internal */
-    private _activeDragType: EventDetail.DragTypeEnum | undefined;
+    private _activeDragType: Mouse.DragTypeEnum | undefined;
     /**
      * a millisecond value representing the previous time an autoscroll started
      */
@@ -622,16 +622,16 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
             return undefined;
         } else {
             switch (lastArea.areaType) {
-                case SelectionAreaType.Rectangle: return EventDetail.DragTypeEnum.LastRectangleSelectionAreaExtending;
-                case SelectionAreaType.Column: return EventDetail.DragTypeEnum.LastColumnSelectionAreaExtending;
-                case SelectionAreaType.Row: return EventDetail.DragTypeEnum.LastRowSelectionAreaExtending;
+                case SelectionAreaType.Rectangle: return Mouse.DragTypeEnum.LastRectangleSelectionAreaExtending;
+                case SelectionAreaType.Column: return Mouse.DragTypeEnum.LastColumnSelectionAreaExtending;
+                case SelectionAreaType.Row: return Mouse.DragTypeEnum.LastRowSelectionAreaExtending;
                 default:
                     throw new UnreachableCaseError('SUBGDTFSLA59598', lastArea.areaType);
             }
         }
     }
 
-    private setActiveDragType(dragType: EventDetail.DragTypeEnum | undefined) {
+    private setActiveDragType(dragType: Mouse.DragTypeEnum | undefined) {
         this._activeDragType = dragType;
         this.mouse.setActiveDragType(dragType);
         if (dragType === undefined) {
@@ -641,7 +641,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    // private dragTypesArrayContainsExtendLastSelectionAreaDragType(types: readonly EventDetail.DragTypeEnum[]) {
+    // private dragTypesArrayContainsExtendLastSelectionAreaDragType(types: readonly Mouse.DragTypeEnum[]) {
     //     for (const type of types) {
     //         if (this.dragTypeIsExtendLastSelectionArea(type)) {
     //             return true;
@@ -650,11 +650,11 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
     //     return false;
     // }
 
-    // private dragTypeIsExtendLastSelectionArea(type: EventDetail.DragTypeEnum) {
+    // private dragTypeIsExtendLastSelectionArea(type: Mouse.DragTypeEnum) {
     //     return (
-    //         type === EventDetail.DragTypeEnum.ExtendLastRectangleSelectionArea ||
-    //         type === EventDetail.DragTypeEnum.ExtendLastColumnSelectionArea ||
-    //         type === EventDetail.DragTypeEnum.ExtendLastRowSelectionArea
+    //         type === Mouse.DragTypeEnum.ExtendLastRectangleSelectionArea ||
+    //         type === Mouse.DragTypeEnum.ExtendLastColumnSelectionArea ||
+    //         type === Mouse.DragTypeEnum.ExtendLastRowSelectionArea
     //     );
     // }
 }

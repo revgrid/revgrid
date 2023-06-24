@@ -2,13 +2,12 @@
 
 export { UiBehavior } from './behavior/ui/ui-behavior';
 export { ColumnsManager } from './components/column/columns-manager';
+export { DispatchableEvent } from './components/dispatchable-event/dispatchable-event';
 export { Focus } from './components/focus/focus';
 export { Mouse } from './components/mouse/mouse';
 export { CellEditor } from './interfaces/data/cell-editor';
 export { CellPainter } from './interfaces/data/cell-painter';
 export { DataServer } from './interfaces/data/data-server';
-export { EventDetail } from './interfaces/data/event-detail';
-export { EventName } from './interfaces/data/event-name';
 export { LinedHoverCell } from './interfaces/data/hover-cell';
 export { MainSubgrid } from './interfaces/data/main-subgrid';
 export { MetaModel } from './interfaces/data/meta-model';

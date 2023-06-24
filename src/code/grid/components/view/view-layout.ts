@@ -2271,15 +2271,15 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
 
         if (fixedColumnsViewWidthChanged || scrollableColumnsViewWidthChanged || columnsViewWidthChanged) {
-            // const changedColumnsViewWidths: ViewLayout.ChangedColumnsViewWidths = {
-            //     fixedChanged: fixedColumnsViewWidthChanged,
-            //     scrollableChanged: scrollableColumnsViewWidthChanged,
-            //     visibleChanged: columnsViewWidthChanged,
-            // };
+            const columnsViewWidthChangeds: ViewLayout.ColumnsViewWidthChangeds = {
+                fixedChanged: fixedColumnsViewWidthChanged,
+                scrollableChanged: scrollableColumnsViewWidthChanged,
+                visibleChanged: columnsViewWidthChanged,
+            } as const;
             if (withinAnimationFrame) {
-                setTimeout(() => this.columnsViewWidthsChangedEventer(), 0);
+                setTimeout(() => this.columnsViewWidthsChangedEventer(columnsViewWidthChangeds), 0);
             } else {
-                this.columnsViewWidthsChangedEventer();
+                this.columnsViewWidthsChangedEventer(columnsViewWidthChangeds);
             }
         }
     }
@@ -2338,14 +2338,14 @@ export namespace ViewLayout {
     export type GetRowHeightEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, y: number, subgrid: Subgrid<BCS, SF> | undefined) => number;
     export type CheckNeedsShapeChangedEventer = (this: void) => void;
     export type LayoutInvalidatedEventer = (this: void, action: InvalidateAction) => void;
-    export type ColumnsViewWidthsChangedEventer = (this: void) => void;
+    export type ColumnsViewWidthsChangedEventer = (this: void, changeds: ColumnsViewWidthChangeds) => void;
     export type CellPoolComputedEventer = (this: void) => void;
 
-    // export interface ChangedColumnsViewWidths {
-    //     fixedChanged: boolean,
-    //     scrollableChanged: boolean,
-    //     visibleChanged: boolean,
-    // }
+    export interface ColumnsViewWidthChangeds {
+        readonly fixedChanged: boolean,
+        readonly scrollableChanged: boolean,
+        readonly visibleChanged: boolean,
+    }
 
     export const enum CellPoolOrder {
         ColumnRow,

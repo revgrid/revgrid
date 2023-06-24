@@ -8,7 +8,6 @@ import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { ViewLayout } from '../../components/view/view-layout';
-import { EventDetail } from '../../interfaces/data/event-detail';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { SchemaField } from '../../interfaces/schema/schema-field';
@@ -279,14 +278,14 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    handleHorizontalScrollerAction(action: EventDetail.ScrollerAction) {
+    handleHorizontalScrollerAction(action: Scroller.Action) {
         if (this.next) {
             this.next.handleHorizontalScrollerAction(action);
         }
     }
 
     /** @internal */
-    handleVerticalScrollerAction(action: EventDetail.ScrollerAction) {
+    handleVerticalScrollerAction(action: Scroller.Action) {
         if (this.next) {
             this.next.handleVerticalScrollerAction(action);
         }

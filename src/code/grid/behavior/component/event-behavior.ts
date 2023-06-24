@@ -1,13 +1,12 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ColumnsManager } from '../../components/column/columns-manager';
+import { DispatchableEvent } from '../../components/dispatchable-event/dispatchable-event';
 import { Focus } from '../../components/focus/focus';
 import { Mouse } from '../../components/mouse/mouse';
 import { Renderer } from '../../components/renderer/renderer';
 import { Scroller } from '../../components/scroller/scroller';
 import { Selection } from '../../components/selection/selection';
 import { ViewLayout } from '../../components/view/view-layout';
-import { EventDetail } from '../../interfaces/data/event-detail';
-import { EventName } from '../../interfaces/data/event-name';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { Column } from '../../interfaces/dataless/column';
@@ -125,7 +124,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         );
         this._columnsManager.columnsWidthChangedEventer = (columns, ui) => this.processColumnsWidthChangedEvent(columns, ui);
 
-        this._viewLayout.columnsViewWidthsChangedEventer = () => this.processColumnsViewWidthsChangedEvent();
+        this._viewLayout.columnsViewWidthsChangedEventer = (changeds) => this.processColumnsViewWidthsChangedEvent(changeds);
         this._viewLayout.horizontalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processHorizontalScrollViewportStartChangedEvent();
         this._viewLayout.verticalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processVerticalScrollViewportStartChangedEvent();
 
@@ -189,11 +188,11 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processColumnsViewWidthsChangedEvent() {
-        this._descendantEventer.columnsViewWidthsChanged();
+    private processColumnsViewWidthsChangedEvent(changeds: ViewLayout.ColumnsViewWidthChangeds) {
+        this._descendantEventer.columnsViewWidthsChanged(changeds);
 
         if (this._dispatchEnabled) {
-            this.dispatchCustomEvent('rev-columns-view-widths-changed', false, undefined)
+            this.dispatchCustomEvent('rev-columns-view-widths-changed', false, changeds);
         }
     }
 
@@ -471,7 +470,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         this._descendantEventer.cellFocusChanged(newPoint, oldPoint);
 
         if (this._dispatchEnabled) {
-            const detail: EventDetail.CellFocusChanged = {
+            const detail: DispatchableEvent.Detail.CellFocusChanged = {
                 oldPoint,
                 newPoint,
             };
@@ -490,7 +489,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processHorizontalScrollerEvent(action: EventDetail.ScrollerAction) {
+    private processHorizontalScrollerEvent(action: Scroller.Action) {
         this.uiHorizontalScrollerActionEventer(action);
 
         this._descendantEventer.horizontalScrollerAction(action);
@@ -501,7 +500,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processVerticalScrollerEvent(action: EventDetail.ScrollerAction) {
+    private processVerticalScrollerEvent(action: Scroller.Action) {
         this.uiVerticalScrollerActionEventer(action);
 
         this._descendantEventer.verticalScrollerAction(action);
@@ -538,27 +537,27 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private dispatchCustomEvent<T extends EventName<BCS, SF>>(
+    private dispatchCustomEvent<T extends DispatchableEvent.Name<BCS, SF>>(
         eventName: T,
         cancelable: boolean,
-        eventDetail: EventName.DetailMap<BCS, SF>[T] | undefined,
+        eventDetail: DispatchableEvent.Name.DetailMap<BCS, SF>[T] | undefined,
     ): boolean {
         if (this._destroyed) {
             return false;
         } else {
-            const eventInit: CustomEventInit<EventName.DetailMap<BCS, SF>[T]> = {
+            const eventInit: CustomEventInit<DispatchableEvent.Name.DetailMap<BCS, SF>[T]> = {
                 detail: eventDetail,
                 cancelable,
             };
 
-            const event = new CustomEvent<EventName.DetailMap<BCS, SF>[T]>(eventName, eventInit);
+            const event = new CustomEvent<DispatchableEvent.Name.DetailMap<BCS, SF>[T]>(eventName, eventInit);
 
             return this._dispatchEventEventer(event);
         }
     }
 
     /** @internal */
-    private dispatchMouseHoverCellEvent<T extends EventName.MouseHoverCell>(eventName: T, event: MouseEvent | WheelEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    private dispatchMouseHoverCellEvent<T extends DispatchableEvent.Name.MouseHoverCell>(eventName: T, event: MouseEvent | WheelEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (cell === null) {
             cell = undefined;
         } else {
@@ -570,7 +569,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
                 }
             }
         }
-        const detail = event as EventName.DetailMap<BCS, SF>[T];
+        const detail = event as DispatchableEvent.Name.DetailMap<BCS, SF>[T];
         detail.revgridHoverCell = cell;
         return this.dispatchCustomEvent(eventName, false, detail);
     }
@@ -592,7 +591,7 @@ export namespace EventBehavior {
         readonly fieldColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
         readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
         readonly columnsWidthChanged: (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
-        readonly columnsViewWidthsChanged: DescendantEventer.Signal;
+        readonly columnsViewWidthsChanged: (this: void, changeds: ViewLayout.ColumnsViewWidthChangeds) => void;
         readonly columnSort: (this: void, event: MouseEvent, headerOrFixedRowCell: ViewCell<BCS, SF>) => void;
         readonly cellFocusChanged: DescendantEventer.CellFocusChanged;
         readonly selectionChanged: DescendantEventer.Signal;
@@ -646,7 +645,7 @@ export namespace EventBehavior {
         export type Touch = (this: void, event: TouchEvent) => void;
         export type ViewCellOnly<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
-        export type ScrollerAction = (this: void, event: EventDetail.ScrollerAction) => void;
+        export type ScrollerAction = (this: void, event: Scroller.Action) => void;
         export type CellFocusChanged = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
     }
 
@@ -658,17 +657,17 @@ export namespace EventBehavior {
     export type UiMouseEventer<
         BCS extends BehavioredColumnSettings,
         SF extends SchemaField
-    > = (this: void, pointerEvent: EventDetail.Mouse<BCS, SF>) => LinedHoverCell<BCS, SF> | null | undefined;
+    > = (this: void, pointerEvent: DispatchableEvent.Detail.Mouse<BCS, SF>) => LinedHoverCell<BCS, SF> | null | undefined;
     /** @internal */
     export type UiPointerEventer<
         BCS extends BehavioredColumnSettings,
         SF extends SchemaField
-    > = (this: void, pointerEvent: EventDetail.Pointer<BCS, SF>) => LinedHoverCell<BCS, SF> | null | undefined;
+    > = (this: void, pointerEvent: DispatchableEvent.Detail.Pointer<BCS, SF>) => LinedHoverCell<BCS, SF> | null | undefined;
     /** @internal */
     export type UiPointerDragEventer<
         BCS extends BehavioredColumnSettings,
         SF extends SchemaField
-    > = (this: void, pointerEvent: EventDetail.Pointer<BCS, SF>) => void;
+    > = (this: void, pointerEvent: DispatchableEvent.Detail.Pointer<BCS, SF>) => void;
     /** @internal */
     export type UiPointerDragStartEventer<
         BCS extends BehavioredColumnSettings,
@@ -678,7 +677,7 @@ export namespace EventBehavior {
     export type UiWheelEventer<
         BCS extends BehavioredColumnSettings,
         SF extends SchemaField
-    > = (this: void, wheelEvent: EventDetail.Wheel<BCS, SF>) => LinedHoverCell<BCS, SF> | null | undefined;
+    > = (this: void, wheelEvent: DispatchableEvent.Detail.Wheel<BCS, SF>) => LinedHoverCell<BCS, SF> | null | undefined;
     /** @internal */
     export type UiDragEventer<
         BCS extends BehavioredColumnSettings,
@@ -689,5 +688,5 @@ export namespace EventBehavior {
     /** @internal */
     export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
     /** @internal */
-    export type UiScrollerActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;
+    export type UiScrollerActionEventer = (this: void, action: Scroller.Action) => void;
 }

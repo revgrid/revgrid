@@ -1,4 +1,4 @@
-import { EventDetail } from '../../interfaces/data/event-detail';
+import { Mouse } from '../../components/mouse/mouse';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
 import { SchemaField } from '../../interfaces/schema/schema-field';
@@ -304,7 +304,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
 
     private setMouseDragging(active: boolean) {
         if (active) {
-            this.mouse.setActiveDragType(EventDetail.DragTypeEnum.ColumnMoving);
+            this.mouse.setActiveDragType(Mouse.DragTypeEnum.ColumnMoving);
             this.mouse.setOperation(this.gridSettings.columnMoveDragActiveCursorName, this.gridSettings.columnMoveDragActiveTitleText);
         } else {
             this.mouse.setActiveDragType(undefined);

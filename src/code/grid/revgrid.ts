@@ -20,7 +20,6 @@ import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
 import { CellMetaSettings } from './interfaces/data/cell-meta-settings';
 import { DataServer } from './interfaces/data/data-server';
-import { EventDetail } from './interfaces/data/event-detail';
 import { LinedHoverCell } from './interfaces/data/hover-cell';
 import { MainSubgrid } from './interfaces/data/main-subgrid';
 import { MetaModel } from './interfaces/data/meta-model';
@@ -1298,7 +1297,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessColumnsViewWidthsChanged() {
+    protected descendantProcessColumnsViewWidthsChanged(_changeds: ViewLayout.ColumnsViewWidthChangeds) {
         // for descendants
     }
 
@@ -1418,11 +1417,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessHorizontalScrollerAction(_event: EventDetail.ScrollerAction) {
+    protected descendantProcessHorizontalScrollerAction(_event: Scroller.Action) {
         // for descendants
     }
 
-    protected descendantProcessVerticalScrollerAction(_event: EventDetail.ScrollerAction) {
+    protected descendantProcessVerticalScrollerAction(_event: Scroller.Action) {
         // for descendants
     }
 
@@ -1918,7 +1917,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             fieldColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessFieldColumnListChanged(typeId, index, count, targetIndex),
             activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
-            columnsViewWidthsChanged: () => this.descendantProcessColumnsViewWidthsChanged(),
+            columnsViewWidthsChanged: (changeds) => this.descendantProcessColumnsViewWidthsChanged(changeds),
             columnSort: (event, headerOrFixedRowCell) => this.descendantProcessColumnSort(event, headerOrFixedRowCell),
             cellFocusChanged: (newPoint, oldPoint) => this.descendantProcessCellFocusChanged(newPoint, oldPoint),
             selectionChanged: () => this.descendantProcessSelectionChanged(),

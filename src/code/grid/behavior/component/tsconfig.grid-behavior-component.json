@@ -11,6 +11,7 @@
   ],
 
   "references": [
+    { "path": "../../components/dispatchable-event/tsconfig.grid-components-dispatchable-event.json" },
     { "path": "../../components/scroller/tsconfig.grid-components-scroller.json" },
     { "path": "../../components/renderer/tsconfig.grid-components-renderer.json" },
     { "path": "../../components/selection/tsconfig.grid-components-selection.json" },
