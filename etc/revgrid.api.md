@@ -803,8 +803,6 @@ export namespace DispatchableEvent {
             'rev-click': Detail.Pointer<BCS, SF>;
             // (undocumented)
             'rev-column-sort': Detail.ColumnSort<BCS, SF>;
-            // Warning: (ae-forgotten-export) The symbol "ViewLayout" needs to be exported by the entry point public-api.d.ts
-            //
             // (undocumented)
             'rev-columns-view-widths-changed': ViewLayout.ColumnsViewWidthChangeds;
             // (undocumented)
@@ -3940,6 +3938,431 @@ export namespace ViewCell {
 }
 
 // @public (undocumented)
+export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    // @internal
+    constructor(
+    _gridSettings: BGS,
+    _canvasManager: CanvasManager<BGS>,
+    _columnsManager: ColumnsManager<BCS, SF>,
+    _subgridsManager: SubgridsManager<BCS, SF>);
+    // (undocumented)
+    calculateHorizontalScrollableLeft(): number;
+    // (undocumented)
+    calculatePageDownRowAnchor(): ViewLayout.ScrollAnchor | undefined;
+    // (undocumented)
+    calculatePageLeftColumnAnchor(): ViewLayout.ScrollAnchor | undefined;
+    // (undocumented)
+    calculatePageRightColumnAnchor(): ViewLayout.ScrollAnchor | undefined;
+    // (undocumented)
+    calculatePageUpRowAnchor(): ViewLayout.ScrollAnchor | undefined;
+    // @internal (undocumented)
+    cellPoolComputedEventerForFocus: ViewLayout.CellPoolComputedEventer;
+    // @internal (undocumented)
+    cellPoolComputedEventerForMouse: ViewLayout.CellPoolComputedEventer;
+    // (undocumented)
+    get columnRowCellPoolComputationInvalid(): boolean;
+    // (undocumented)
+    get columns(): ViewLayout.ViewLayoutColumnArray<BCS, SF>;
+    // (undocumented)
+    get columnScrollAnchorIndex(): number;
+    // (undocumented)
+    get columnScrollAnchorOffset(): number;
+    // (undocumented)
+    get columnsViewWidth(): number;
+    // @internal (undocumented)
+    columnsViewWidthsChangedEventer: ViewLayout.ColumnsViewWidthsChangedEventer;
+    // @internal (undocumented)
+    createUnusedSpaceColumn(): ViewLayoutColumn<BCS, SF> | undefined;
+    // (undocumented)
+    ensureColumnIsInView(activeColumnIndex: number, maximally: boolean): boolean;
+    // (undocumented)
+    ensureColumnRowAreInView(activeColumnIndex: number, mainSubgridRowIndex: number, maximally: boolean): boolean;
+    // (undocumented)
+    ensureRowIsInView(mainSubgridRowIndex: number, maximally: boolean): boolean;
+    // @internal (undocumented)
+    ensureValidInsideAnimationFrame(): void;
+    // (undocumented)
+    findCellAtCanvasOffset(x: number, y: number, canComputePool: boolean): ViewCell<BCS, SF> | undefined;
+    // (undocumented)
+    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>): ViewCell<BCS, SF> | undefined;
+    // (undocumented)
+    findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>, canComputePool: boolean): ViewCell<BCS, SF> | undefined;
+    // (undocumented)
+    findCellAtViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number, canComputePool: boolean): ViewCell<BCS, SF>;
+    // (undocumented)
+    findColumnIndexOfCanvasOffset(canvasOffsetX: number): number;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    findColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<BCS, SF> | undefined;
+    // (undocumented)
+    findColumnWithFieldIndex(fieldIndex: number): ViewLayoutColumn<BCS, SF> | undefined;
+    // (undocumented)
+    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<BCS, SF> | undefined;
+    // (undocumented)
+    findIndexOfScrollableColumnClosestToCanvasOffset(canvasOffsetX: number): number;
+    // (undocumented)
+    findIndexOfScrollableRowClosestToOffset(y: number): number;
+    // (undocumented)
+    findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasOffsetX: number): number;
+    // (undocumented)
+    findLeftGridLineInclusiveColumnOfCanvasOffset(canvasOffsetX: number): ViewLayoutColumn<BCS, SF> | undefined;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
+    findLinedHoverCell(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS, SF> | undefined;
+    // (undocumented)
+    findRowIndexOfCanvasOffset(canvasOffsetY: number): number;
+    // (undocumented)
+    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>): ViewLayoutRow<BCS, SF> | undefined;
+    // (undocumented)
+    findScrollableCellClosestToCanvasOffset(canvasOffsetX: number, canvasOffsetY: number): ViewCell<BCS, SF> | undefined;
+    // (undocumented)
+    findTopGridLineInclusiveRowIndexOfCanvasOffset(canvasOffsetY: number): number;
+    // (undocumented)
+    findTopGridLineInclusiveRowOfCanvasOffset(canvasOffsetY: number): ViewLayoutRow<BCS, SF> | undefined;
+    // (undocumented)
+    get firstScrollableActiveColumnIndex(): number | undefined;
+    // (undocumented)
+    get firstScrollableColumn(): ViewLayoutColumn<BCS, SF> | undefined;
+    // (undocumented)
+    get firstScrollableColumnIndex(): number | undefined;
+    // (undocumented)
+    get firstScrollableColumnLeftOverflow(): number | undefined;
+    // (undocumented)
+    get firstScrollableRowIndex(): number | undefined;
+    // (undocumented)
+    get firstScrollableRowViewTop(): number | undefined;
+    // (undocumented)
+    get firstScrollableSubgridRowIndex(): number | undefined;
+    // (undocumented)
+    get firstScrollableVisibleColumnMaximallyVisible(): boolean;
+    // (undocumented)
+    get fixedColumnsViewWidth(): number;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    getActiveColumnWidthEdgeClosestToPixelX(pixelX: number): number;
+    // (undocumented)
+    getBoundsOfCell(x: number, y: number): Rectangle;
+    // (undocumented)
+    getColumnRowOrderedCellPool(): ViewCell<BCS, SF>[];
+    // (undocumented)
+    getColumnsCount(): number;
+    // (undocumented)
+    getRenderedHeight(index: number): number;
+    // (undocumented)
+    getRenderedWidth(index: number): number;
+    // (undocumented)
+    getRowColumnOrderedCellPool(): ViewCell<BCS, SF>[];
+    // (undocumented)
+    getRowsCount(): number;
+    // (undocumented)
+    getScrollTop(): number;
+    getVisibleCellMatrix(): unknown[][];
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    getVisibleDataRow(rowIndex: number, subgrid: Subgrid<BCS, SF>): ViewLayoutRow<BCS, SF> | undefined;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    getVisibleRow(rowIndex: number): ViewLayoutRow<BCS, SF>;
+    // (undocumented)
+    get horizontalScrollableOverflowed(): boolean | undefined;
+    // Warning: (ae-forgotten-export) The symbol "HorizontalScrollDimension" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    get horizontalScrollDimension(): HorizontalScrollDimension<BGS, BCS, SF>;
+    // @internal (undocumented)
+    invalidate(action: ViewLayout.InvalidateAction): void;
+    // @internal (undocumented)
+    invalidateActiveColumnsDeleted(index: number, count: number): void;
+    // (undocumented)
+    invalidateAll(scrollDimensionAsWell: boolean): void;
+    // @internal (undocumented)
+    invalidateAllColumnsDeleted(): void;
+    // @internal (undocumented)
+    invalidateAllDataRowsDeleted(): void;
+    // @internal (undocumented)
+    invalidateColumnsChanged(): void;
+    // @internal (undocumented)
+    invalidateColumnsInserted(index: number, count: number): void;
+    // @internal (undocumented)
+    invalidateDataRowsDeleted(index: number, count: number): void;
+    // @internal (undocumented)
+    invalidateDataRowsInserted(index: number, count: number): void;
+    // @internal (undocumented)
+    invalidateDataRowsLoaded(): void;
+    // @internal (undocumented)
+    invalidateDataRowsMoved(oldRowIndex: number, newRowIndex: number, rowCount: number): void;
+    // (undocumented)
+    invalidateHorizontalAll(scrollDimensionAsWell: boolean): void;
+    // (undocumented)
+    invalidateVerticalAll(scrollDimensionAsWell: boolean): void;
+    // (undocumented)
+    isActiveColumnFullyVisible(activeIndex: number): boolean;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    isActiveColumnVisible(activeIndex: number): boolean;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    isDataColumnVisible(columnIndex: number): boolean;
+    // (undocumented)
+    isDataRowVisible(rowIndex: number, subgrid: Subgrid<BCS, SF>): boolean;
+    // (undocumented)
+    isLastColumnVisible(): boolean;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    isRowVisible(rowIndex: number): boolean;
+    // (undocumented)
+    get lastScrollableActiveColumnIndex(): number | undefined;
+    // (undocumented)
+    get lastScrollableColumnRightOverflow(): number | undefined;
+    // (undocumented)
+    get lastScrollableRowIndex(): number | undefined;
+    // (undocumented)
+    get lastScrollableSubgridRowIndex(): number | undefined;
+    // (undocumented)
+    get lastScrollableVisibleColumnMaximallyVisible(): boolean;
+    // @internal (undocumented)
+    layoutInvalidatedEventer: ViewLayout.LayoutInvalidatedEventer;
+    // (undocumented)
+    limitActiveColumnIndexToView(activeColumnIndex: number): number | undefined;
+    // (undocumented)
+    limitRowIndexToView(rowIndex: number): number | undefined;
+    // @internal (undocumented)
+    reset(): void;
+    // (undocumented)
+    resetAllCellPaintFingerprints(): void;
+    // (undocumented)
+    resetAllCellPropertiesCaches(): void;
+    // (undocumented)
+    get rowColumnCellPoolComputationInvalid(): boolean;
+    // (undocumented)
+    get rows(): ViewLayout.ViewLayoutRowArray<BCS, SF>;
+    // (undocumented)
+    get rowsColumnsComputationId(): number;
+    // (undocumented)
+    get rowScrollAnchorIndex(): number;
+    // (undocumented)
+    get scrollableCanvasBounds(): InexclusiveRectangle | undefined;
+    // (undocumented)
+    get scrollableCanvasLeft(): number | undefined;
+    // (undocumented)
+    get scrollableColumnCount(): number;
+    // (undocumented)
+    get scrollableColumnsViewWidth(): number;
+    // (undocumented)
+    get scrollableRowCount(): number;
+    // (undocumented)
+    scrollColumnsBy(scrollColumnCount: number): boolean;
+    // (undocumented)
+    scrollColumnsRowsBy(columnCount: number, rowCount: number): boolean;
+    // (undocumented)
+    scrollHorizontalViewportBy(delta: number): void;
+    // (undocumented)
+    scrollRowsBy(rowScrollCount: number): boolean;
+    // (undocumented)
+    scrollVerticalViewportBy(delta: number): boolean;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
+    //
+    // (undocumented)
+    setColumnScrollAnchor(index: number, offset: number): boolean;
+    // (undocumented)
+    setColumnScrollAnchorToLimit(): void;
+    // (undocumented)
+    setHorizontalViewportStart(value: number): boolean;
+    // (undocumented)
+    setRowScrollAnchor(index: number, offset: number): boolean;
+    // (undocumented)
+    setVerticalViewportStart(viewportStart: number): void;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    tryGetColumnWithFieldIndex(columnIndex: number): ViewLayoutColumn<BCS, SF> | undefined;
+    // (undocumented)
+    get unanchoredColumnOverflow(): number | undefined;
+    // Warning: (ae-forgotten-export) The symbol "VerticalScrollDimension" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    get verticalScrollDimension(): VerticalScrollDimension<BGS, BCS, SF>;
+}
+
+// @public (undocumented)
+export namespace ViewLayout {
+    // @internal (undocumented)
+    export interface ActiveRangeDeletedInvalidateAction extends InvalidateAction {
+        // (undocumented)
+        readonly count: number;
+        // (undocumented)
+        readonly index: number;
+        // (undocumented)
+        readonly type: InvalidateAction.Type.ActiveRangeDeleted | InvalidateAction.Type.ActiveRangeDeletedButViewNotAffected;
+    }
+    // @internal (undocumented)
+    export interface AllChangedInvalidateAction extends InvalidateAction {
+        // (undocumented)
+        readonly type: InvalidateAction.Type.AllChanged;
+    }
+    // @internal (undocumented)
+    export interface AllDeletedInvalidateAction extends InvalidateAction {
+        // (undocumented)
+        readonly type: InvalidateAction.Type.AllDeleted;
+    }
+    // @internal (undocumented)
+    export interface AllInvalidateAction extends InvalidateAction {
+        // (undocumented)
+        readonly type: InvalidateAction.Type.All;
+    }
+    // @internal (undocumented)
+    export type CellPoolComputedEventer = (this: void) => void;
+    // (undocumented)
+    export interface ColumnsViewWidthChangeds {
+        // (undocumented)
+        readonly fixedChanged: boolean;
+        // (undocumented)
+        readonly scrollableChanged: boolean;
+        // (undocumented)
+        readonly visibleChanged: boolean;
+    }
+    // @internal (undocumented)
+    export type ColumnsViewWidthsChangedEventer = (this: void, changeds: ColumnsViewWidthChangeds) => void;
+    // @internal (undocumented)
+    export interface DataRangeDeletedInvalidateAction extends InvalidateAction {
+        // (undocumented)
+        readonly count: number;
+        // (undocumented)
+        readonly index: number;
+        // (undocumented)
+        readonly type: InvalidateAction.Type.DataRangeDeleted | InvalidateAction.Type.DataRangeDeletedButViewNotAffected;
+    }
+    // @internal (undocumented)
+    export interface DataRangeInsertedInvalidateAction extends InvalidateAction {
+        // (undocumented)
+        readonly count: number;
+        // (undocumented)
+        readonly index: number;
+        // (undocumented)
+        readonly type: InvalidateAction.Type.DataRangeInserted | InvalidateAction.Type.DataRangeInsertedButViewNotAffected;
+    }
+    // @internal (undocumented)
+    export interface DataRangeMovedInvalidateAction extends InvalidateAction {
+        // (undocumented)
+        readonly count: number;
+        // (undocumented)
+        readonly newIndex: number;
+        // (undocumented)
+        readonly oldIndex: number;
+        // (undocumented)
+        readonly type: InvalidateAction.Type.DataRangeMoved;
+    }
+    // @internal (undocumented)
+    export interface InvalidateAction {
+        // Warning: (ae-forgotten-export) The symbol "ScrollDimension" needs to be exported by the entry point public-api.d.ts
+        //
+        // (undocumented)
+        readonly dimension: ScrollDimension.AxisEnum | undefined;
+        // (undocumented)
+        readonly scrollDimensionAsWell: boolean;
+        // (undocumented)
+        readonly type: InvalidateAction.Type;
+    }
+    // @internal (undocumented)
+    export namespace InvalidateAction {
+        // (undocumented)
+        export const enum Type {
+            // (undocumented)
+            ActiveRangeDeleted = 6,
+            // (undocumented)
+            ActiveRangeDeletedButViewNotAffected = 7,
+            // (undocumented)
+            All = 0,
+            // (undocumented)
+            AllChanged = 10,
+            // (undocumented)
+            AllDeleted = 8,
+            // (undocumented)
+            DataRangeDeleted = 4,
+            // (undocumented)
+            DataRangeDeletedButViewNotAffected = 5,
+            // (undocumented)
+            DataRangeInserted = 2,
+            // (undocumented)
+            DataRangeInsertedButViewNotAffected = 3,
+            // (undocumented)
+            DataRangeMoved = 9,
+            // (undocumented)
+            Loaded = 1
+        }
+    }
+    // @internal (undocumented)
+    export type LayoutInvalidatedEventer = (this: void, action: InvalidateAction) => void;
+    // @internal (undocumented)
+    export interface LoadedInvalidateAction extends InvalidateAction {
+        // (undocumented)
+        readonly type: InvalidateAction.Type.Loaded;
+    }
+    // (undocumented)
+    export interface ScrollAnchor {
+        // (undocumented)
+        index: number;
+        // (undocumented)
+        offset: number;
+    }
+    // (undocumented)
+    export interface ScrollAnchorLimits {
+        // (undocumented)
+        finishAnchorLimitIndex: number;
+        // (undocumented)
+        finishAnchorLimitOffset: number;
+        // (undocumented)
+        startAnchorLimitIndex: number;
+        // (undocumented)
+        startAnchorLimitOffset: number;
+    }
+    // (undocumented)
+    export interface ScrollContentSizeAndAnchorLimits {
+        // (undocumented)
+        anchorLimits: ScrollAnchorLimits;
+        // (undocumented)
+        contentOverflowed: boolean;
+        // (undocumented)
+        contentSize: number;
+    }
+    // @internal (undocumented)
+    export class ViewLayoutColumnArray<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Array<ViewLayoutColumn<BCS, SF>> {
+        // (undocumented)
+        gap: ViewLayoutColumnArray.Gap | undefined;
+    }
+    // @internal (undocumented)
+    export namespace ViewLayoutColumnArray {
+        // (undocumented)
+        export interface Gap {
+            // (undocumented)
+            left: number;
+            // (undocumented)
+            rightPlus1: number;
+        }
+    }
+    // @internal (undocumented)
+    export class ViewLayoutRowArray<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Array<ViewLayoutRow<BCS, SF>> {
+        // (undocumented)
+        gap: ViewLayoutRowArray.Gap | undefined;
+    }
+    // @internal (undocumented)
+    export namespace ViewLayoutRowArray {
+        // (undocumented)
+        export interface Gap {
+            // (undocumented)
+            bottom: number;
+            // (undocumented)
+            top: number;
+        }
+    }
+}
+
+// @public (undocumented)
 export type Writable<T> = {
     -readonly [P in keyof T]: T[P];
 };
@@ -3956,7 +4379,6 @@ export namespace WritablePoint {
 // Warnings were encountered during analysis:
 //
 // src/code/grid/components/selection/selection.ts:23:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-// src/code/grid/components/view/view-layout.ts:30:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 
