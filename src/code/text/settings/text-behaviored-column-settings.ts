@@ -3,7 +3,7 @@ import { TextColumnSettings } from './text-column-settings';
 
 /** @public */
 export interface TextBehavioredColumnSettings extends TextColumnSettings, BehavioredColumnSettings {
-    merge(settings: Partial<TextColumnSettings>): void;
+    merge(settings: Partial<TextColumnSettings>): boolean;
     clone(): TextBehavioredColumnSettings;
 }
 

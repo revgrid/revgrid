@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, ColumnSettings, GridSettingChangeInvalidateTypeId, GridSettings, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, ColumnSettings, GridSettings, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
 import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */
@@ -31,7 +31,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._backgroundColor = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.backgroundColor;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -42,7 +42,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._color = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.color;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -63,7 +63,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                 this._columnAutoSizingMax = value;
             }
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnAutoSizingMax;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -84,7 +84,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                 this._columnClip = value;
             }
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnClip;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -95,7 +95,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._defaultColumnAutoSizing = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnAutoSizing;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -106,7 +106,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._defaultColumnWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnWidth;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -117,7 +117,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editable;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -128,7 +128,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editOnClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnClick;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -139,7 +139,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editOnDoubleClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnDoubleClick;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -150,7 +150,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editOnFocusCell = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnFocusCell;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -161,7 +161,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editOnKeyDown = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnKeyDown;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -172,7 +172,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._filterable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.filterable;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -193,7 +193,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                 this._maximumColumnWidth = value;
             }
             const invalidateType = gridSettingChangeInvalidateTypeIds.maximumColumnWidth;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -204,7 +204,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._minimumColumnWidth = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.minimumColumnWidth;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -215,7 +215,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._resizeColumnInPlace = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.resizeColumnInPlace;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -226,7 +226,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._sortOnDoubleClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.sortOnDoubleClick;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -237,7 +237,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._sortOnClick = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.sortOnClick;
-            this.notifyChanged(invalidateType);
+            this.flagChanged(invalidateType);
             this.endChange();
         }
     }
@@ -251,55 +251,106 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             const columnSettingsKey = key as keyof ColumnSettings;
             switch (columnSettingsKey) {
                 case 'backgroundColor':
-                    this._backgroundColor = requiredSettings.backgroundColor;
+                    if (this._backgroundColor !== requiredSettings.backgroundColor) {
+                        this._backgroundColor = requiredSettings.backgroundColor;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.backgroundColor);
+                    }
                     break;
                 case 'color':
-                    this._color = requiredSettings.color;
+                    if (this._color !== requiredSettings.color) {
+                        this._color = requiredSettings.color;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.color);
+                    }
                     break;
                 case 'columnAutoSizingMax':
-                    this._columnAutoSizingMax = requiredSettings.columnAutoSizingMax;
+                    if (this._columnAutoSizingMax !== requiredSettings.columnAutoSizingMax) {
+                        this._columnAutoSizingMax = requiredSettings.columnAutoSizingMax;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnAutoSizingMax);
+                    }
                     break;
                 case 'columnClip':
-                    this._columnClip = requiredSettings.columnClip;
+                    if (this._columnClip !== requiredSettings.columnClip) {
+                        this._columnClip = requiredSettings.columnClip;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnClip);
+                    }
                     break;
                 case 'defaultColumnAutoSizing':
-                    this._defaultColumnAutoSizing = requiredSettings.defaultColumnAutoSizing;
+                    if (this._defaultColumnAutoSizing !== requiredSettings.defaultColumnAutoSizing) {
+                        this._defaultColumnAutoSizing = requiredSettings.defaultColumnAutoSizing;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.defaultColumnAutoSizing);
+                    }
                     break;
                 case 'defaultColumnWidth':
-                    this._defaultColumnWidth = requiredSettings.defaultColumnWidth;
+                    if (this._defaultColumnWidth !== requiredSettings.defaultColumnWidth) {
+                        this._defaultColumnWidth = requiredSettings.defaultColumnWidth;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.defaultColumnWidth);
+                    }
                     break;
                 case 'editable':
-                    this._editable = requiredSettings.editable;
+                    if (this._editable !== requiredSettings.editable) {
+                        this._editable = requiredSettings.editable;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editable);
+                    }
                     break;
                 case 'editOnClick':
-                    this._editOnClick = requiredSettings.editOnClick;
+                    if (this._editOnClick !== requiredSettings.editOnClick) {
+                        this._editOnClick = requiredSettings.editOnClick;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnClick);
+                    }
                     break;
                 case 'editOnDoubleClick':
-                    this._editOnDoubleClick = requiredSettings.editOnDoubleClick;
+                    if (this._editOnDoubleClick !== requiredSettings.editOnDoubleClick) {
+                        this._editOnDoubleClick = requiredSettings.editOnDoubleClick;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnDoubleClick);
+                    }
                     break;
                 case 'editOnFocusCell':
-                    this._editOnFocusCell = requiredSettings.editOnFocusCell;
+                    if (this._editOnFocusCell !== requiredSettings.editOnFocusCell) {
+                        this._editOnFocusCell = requiredSettings.editOnFocusCell;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnFocusCell);
+                    }
                     break;
                 case 'editOnKeyDown':
-                    this._editOnKeyDown = requiredSettings.editOnKeyDown;
+                    if (this._editOnKeyDown !== requiredSettings.editOnKeyDown) {
+                        this._editOnKeyDown = requiredSettings.editOnKeyDown;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnKeyDown);
+                    }
                     break;
                 case 'filterable':
-                    this._filterable = requiredSettings.filterable;
+                    if (this._filterable !== requiredSettings.filterable) {
+                        this._filterable = requiredSettings.filterable;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.filterable);
+                    }
                     break;
                 case 'maximumColumnWidth':
-                    this._maximumColumnWidth = requiredSettings.maximumColumnWidth;
+                    if (this._maximumColumnWidth !== requiredSettings.maximumColumnWidth) {
+                        this._maximumColumnWidth = requiredSettings.maximumColumnWidth;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.maximumColumnWidth);
+                    }
                     break;
                 case 'minimumColumnWidth':
-                    this._minimumColumnWidth = requiredSettings.minimumColumnWidth;
+                    if (this._minimumColumnWidth !== requiredSettings.minimumColumnWidth) {
+                        this._minimumColumnWidth = requiredSettings.minimumColumnWidth;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.minimumColumnWidth);
+                    }
                     break;
                 case 'resizeColumnInPlace':
-                    this._resizeColumnInPlace = requiredSettings.resizeColumnInPlace;
+                    if (this._resizeColumnInPlace !== requiredSettings.resizeColumnInPlace) {
+                        this._resizeColumnInPlace = requiredSettings.resizeColumnInPlace;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.resizeColumnInPlace);
+                    }
                     break;
                 case 'sortOnDoubleClick':
-                    this._sortOnDoubleClick = requiredSettings.sortOnDoubleClick;
+                    if (this._sortOnDoubleClick !== requiredSettings.sortOnDoubleClick) {
+                        this._sortOnDoubleClick = requiredSettings.sortOnDoubleClick;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.sortOnDoubleClick);
+                    }
                     break;
                 case 'sortOnClick':
-                    this._sortOnClick = requiredSettings.sortOnClick;
+                    if (this._sortOnClick !== requiredSettings.sortOnClick) {
+                        this._sortOnClick = requiredSettings.sortOnClick;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.sortOnClick);
+                    }
                     break;
 
                 default: {
@@ -308,9 +359,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             }
         }
 
-        this.notifyChanged(GridSettingChangeInvalidateTypeId.Resize);
-
-        this.endChange();
+        return this.endChange();
     }
 
     clone() {

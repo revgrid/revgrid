@@ -158,7 +158,7 @@ export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateType
     resizedEventDebounceExtendedWhenPossible: GridSettingChangeInvalidateTypeId.None,
     resizedEventDebounceInterval: GridSettingChangeInvalidateTypeId.None,
     rowResize: GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension,
-    rowStripes: GridSettingChangeInvalidateTypeId.ViewRender,
+    rowStripeBackgroundColor: GridSettingChangeInvalidateTypeId.ViewRender,
     scrollHorizontallySmoothly: GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
     scrollerThumbColor: GridSettingChangeInvalidateTypeId.None,
     scrollerThumbReducedVisibilityOpacity: GridSettingChangeInvalidateTypeId.None,

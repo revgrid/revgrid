@@ -136,7 +136,7 @@ export interface OnlyGridSettings {
     /** On mouse hover, whether to repaint the row background and how. */
     rowResize: boolean;
     /** Repeating pattern of property overrides for grid rows. */
-    rowStripes: OnlyGridSettings.RowStripe[] | undefined;
+    rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
     scrollerThumbColor: string;
     scrollerThumbReducedVisibilityOpacity: number;
         // thumb.style.backgroundColor = this._onlyGridSettings.scrollerThumbColor;
@@ -169,8 +169,4 @@ export interface OnlyGridSettings {
 /** @public */
 export namespace OnlyGridSettings {
     export type Color = string;
-
-    export interface RowStripe {
-        backgroundColor?: string;
-    }
 }

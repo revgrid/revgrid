@@ -12,7 +12,7 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
         if (value !== this._verticalOffset) {
             this.beginChange();
             this._verticalOffset = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -21,7 +21,7 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
         if (value !== this._textTruncateType) {
             this.beginChange();
             this._textTruncateType = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -30,7 +30,7 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
         if (value !== this._textStrikeThrough) {
             this.beginChange();
             this._textStrikeThrough = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -46,13 +46,22 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
             const gridSettingsKey = key as keyof TextOnlyGridSettings;
             switch (gridSettingsKey) {
                 case 'verticalOffset':
-                    this._verticalOffset = requiredSettings.verticalOffset;
+                    if (this._verticalOffset !== requiredSettings.verticalOffset) {
+                        this._verticalOffset = requiredSettings.verticalOffset;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'textTruncateType':
-                    this._textTruncateType = requiredSettings.textTruncateType;
+                    if (this._textTruncateType !== requiredSettings.textTruncateType) {
+                        this._textTruncateType = requiredSettings.textTruncateType;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'textStrikeThrough':
-                    this._textStrikeThrough = requiredSettings.textStrikeThrough;
+                    if (this._textStrikeThrough !== requiredSettings.textStrikeThrough) {
+                        this._textStrikeThrough = requiredSettings.textStrikeThrough;
+                        this.flagChangedViewRender();
+                    }
                     break;
 
                 default: {
@@ -61,7 +70,7 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
             }
         }
 
-        this.endChange();
+        return this.endChange();
     }
 
     override clone() {

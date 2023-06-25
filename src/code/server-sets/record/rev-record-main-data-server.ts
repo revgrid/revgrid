@@ -1,4 +1,4 @@
-import { DataServer, ListChangedTypeId, UnreachableCaseError } from '../../grid/grid-public-api';
+import { ApiError, DataServer, ListChangedTypeId, UnreachableCaseError } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 import { RevRecordArrayUtil } from './rev-record-array-utils';
 import { RevRecordAssertError } from './rev-record-error';
@@ -936,7 +936,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
                 break;
             }
             case ListChangedTypeId.Move: {
-                throw new Error('RevRecordMainAdapater.processFieldListChangedEvent(): Move not implemented');
+                throw new ApiError('RRMDS68309', 'Move not implemented');
             }
             default:
                 throw new UnreachableCaseError('RRMAPFLCE73390', typeId);

@@ -121,7 +121,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
      * @desc Amend properties for this hypergrid only.
      * @param settings - A simple properties hash.
      */
-    loadSettings(settings: Partial<BCS>) {
+    loadSettings(settings: BCS) {
         this.settings.merge(settings);
     }
 

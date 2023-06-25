@@ -31,7 +31,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._cellPadding) {
             this.beginChange();
             this._cellPadding = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -40,7 +40,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._cellFocusedBorderColor) {
             this.beginChange();
             this._cellFocusedBorderColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -49,7 +49,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._cellHoverBackgroundColor) {
             this.beginChange();
             this._cellHoverBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -58,7 +58,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._columnHoverBackgroundColor) {
             this.beginChange();
             this._columnHoverBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -67,7 +67,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._columnHeaderFont) {
             this.beginChange();
             this._columnHeaderFont = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -76,7 +76,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
             this._columnHeaderHorizontalAlign = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -85,7 +85,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._columnHeaderBackgroundColor) {
             this.beginChange();
             this._columnHeaderBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -94,7 +94,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._columnHeaderForegroundColor) {
             this.beginChange();
             this._columnHeaderForegroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -103,7 +103,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._columnHeaderSelectionFont) {
             this.beginChange();
             this._columnHeaderSelectionFont = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -112,7 +112,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._columnHeaderSelectionBackgroundColor) {
             this.beginChange();
             this._columnHeaderSelectionBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -121,7 +121,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._columnHeaderSelectionForegroundColor) {
             this.beginChange();
             this._columnHeaderSelectionForegroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -130,7 +130,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._rowHoverBackgroundColor) {
             this.beginChange();
             this._rowHoverBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -139,7 +139,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._selectionFont) {
             this.beginChange();
             this._selectionFont = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -148,7 +148,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._selectionBackgroundColor) {
             this.beginChange();
             this._selectionBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -157,7 +157,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._selectionForegroundColor) {
             this.beginChange();
             this._selectionForegroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -166,7 +166,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._font) {
             this.beginChange();
             this._font = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -175,7 +175,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._horizontalAlign) {
             this.beginChange();
             this._horizontalAlign = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -184,7 +184,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
         if (value !== this._editorClickCursorName) {
             this.beginChange();
             this._editorClickCursorName = value;
-            this.notifyChanged(GridSettingChangeInvalidateTypeId.None);
+            this.flagChanged(GridSettingChangeInvalidateTypeId.None);
             this.endChange();
         }
     }
@@ -200,58 +200,112 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
             const gridSettingsKey = key as keyof StandardOnlyGridSettings;
             switch (gridSettingsKey) {
                 case 'cellPadding':
-                    this._cellPadding = requiredSettings.cellPadding;
+                    if (this._cellPadding !== requiredSettings.cellPadding) {
+                        this._cellPadding = requiredSettings.cellPadding;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'cellFocusedBorderColor':
-                    this._cellFocusedBorderColor = requiredSettings.cellFocusedBorderColor;
+                    if (this._cellFocusedBorderColor !== requiredSettings.cellFocusedBorderColor) {
+                        this._cellFocusedBorderColor = requiredSettings.cellFocusedBorderColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'cellHoverBackgroundColor':
-                    this._cellHoverBackgroundColor = requiredSettings.cellHoverBackgroundColor;
+                    if (this._cellHoverBackgroundColor !== requiredSettings.cellHoverBackgroundColor) {
+                        this._cellHoverBackgroundColor = requiredSettings.cellHoverBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHoverBackgroundColor':
-                    this._columnHoverBackgroundColor = requiredSettings.columnHoverBackgroundColor;
+                    if (this._columnHoverBackgroundColor !== requiredSettings.columnHoverBackgroundColor) {
+                        this._columnHoverBackgroundColor = requiredSettings.columnHoverBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderFont':
-                    this._columnHeaderFont = requiredSettings.columnHeaderFont;
+                    if (this._columnHeaderFont !== requiredSettings.columnHeaderFont) {
+                        this._columnHeaderFont = requiredSettings.columnHeaderFont;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderHorizontalAlign':
-                    this._columnHeaderHorizontalAlign = requiredSettings.columnHeaderHorizontalAlign;
+                    if (this._columnHeaderHorizontalAlign !== requiredSettings.columnHeaderHorizontalAlign) {
+                        this._columnHeaderHorizontalAlign = requiredSettings.columnHeaderHorizontalAlign;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderBackgroundColor':
-                    this._columnHeaderBackgroundColor = requiredSettings.columnHeaderBackgroundColor;
+                    if (this._columnHeaderBackgroundColor !== requiredSettings.columnHeaderBackgroundColor) {
+                        this._columnHeaderBackgroundColor = requiredSettings.columnHeaderBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderForegroundColor':
-                    this._columnHeaderForegroundColor = requiredSettings.columnHeaderForegroundColor;
+                    if (this._columnHeaderForegroundColor !== requiredSettings.columnHeaderForegroundColor) {
+                        this._columnHeaderForegroundColor = requiredSettings.columnHeaderForegroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderSelectionFont':
-                    this._columnHeaderSelectionFont = requiredSettings.columnHeaderSelectionFont;
+                    if (this._columnHeaderSelectionFont !== requiredSettings.columnHeaderSelectionFont) {
+                        this._columnHeaderSelectionFont = requiredSettings.columnHeaderSelectionFont;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderSelectionBackgroundColor':
-                    this._columnHeaderSelectionBackgroundColor = requiredSettings.columnHeaderSelectionBackgroundColor;
+                    if (this._columnHeaderSelectionBackgroundColor !== requiredSettings.columnHeaderSelectionBackgroundColor) {
+                        this._columnHeaderSelectionBackgroundColor = requiredSettings.columnHeaderSelectionBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderSelectionForegroundColor':
-                    this._columnHeaderSelectionForegroundColor = requiredSettings.columnHeaderSelectionForegroundColor;
+                    if (this._columnHeaderSelectionForegroundColor !== requiredSettings.columnHeaderSelectionForegroundColor) {
+                        this._columnHeaderSelectionForegroundColor = requiredSettings.columnHeaderSelectionForegroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'rowHoverBackgroundColor':
-                    this._rowHoverBackgroundColor = requiredSettings.rowHoverBackgroundColor;
+                    if (this._rowHoverBackgroundColor !== requiredSettings.rowHoverBackgroundColor) {
+                        this._rowHoverBackgroundColor = requiredSettings.rowHoverBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'selectionFont':
-                    this._selectionFont = requiredSettings.selectionFont;
+                    if (this._selectionFont !== requiredSettings.selectionFont) {
+                        this._selectionFont = requiredSettings.selectionFont;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'selectionBackgroundColor':
-                    this._selectionBackgroundColor = requiredSettings.selectionBackgroundColor;
+                    if (this._selectionBackgroundColor !== requiredSettings.selectionBackgroundColor) {
+                        this._selectionBackgroundColor = requiredSettings.selectionBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'selectionForegroundColor':
-                    this._selectionForegroundColor = requiredSettings.selectionForegroundColor;
+                    if (this._selectionForegroundColor !== requiredSettings.selectionForegroundColor) {
+                        this._selectionForegroundColor = requiredSettings.selectionForegroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'font':
-                    this._font = requiredSettings.font;
+                    if (this._font !== requiredSettings.font) {
+                        this._font = requiredSettings.font;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'horizontalAlign':
-                    this._horizontalAlign = requiredSettings.horizontalAlign;
+                    if (this._horizontalAlign !== requiredSettings.horizontalAlign) {
+                        this._horizontalAlign = requiredSettings.horizontalAlign;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'editorClickCursorName':
-                    this._editorClickCursorName = requiredSettings.editorClickCursorName;
+                    if (this._editorClickCursorName !== requiredSettings.editorClickCursorName) {
+                        this._editorClickCursorName = requiredSettings.editorClickCursorName;
+                        this.flagChanged(GridSettingChangeInvalidateTypeId.None);
+                    }
                     break;
 
                 default: {
@@ -260,7 +314,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
             }
         }
 
-        this.endChange();
+        return this.endChange();
     }
 
     override clone() {

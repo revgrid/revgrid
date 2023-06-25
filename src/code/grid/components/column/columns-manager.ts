@@ -4,7 +4,7 @@ import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { ApiError, AssertError } from '../../types-utils/revgrid-error';
 import { ColumnFieldNameAndAutoSizableWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
 import { ColumnImplementation } from './column-implementation';
 
@@ -200,7 +200,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             this._activeColumns[i] = column;
             const fieldIndex = field.index;
             if (this._fieldColumns[fieldIndex] !== undefined) {
-                throw new Error(`ColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
+                throw new ApiError('CMCC10197', `ColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
             } else {
                 this._fieldColumns[fieldIndex] = column;
             }
@@ -301,7 +301,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             const { fieldName, width } = fieldNameAndWidth;
             const column = this._fieldColumns.find((aColumn) => aColumn.field.name === fieldName) as ColumnImplementation<BCS, SF>;
             if (column === undefined) {
-                throw new Error(`Behavior.setColumnWidthsByName: Column name not found: ${fieldName}`);
+                throw new ApiError('CMSCWBFN20251', `Behavior.setColumnWidthsByName: Column name not found: ${fieldName}`);
             } else {
                 if (width === undefined) {
                     column.setAutoWidthSizing(true);
@@ -331,7 +331,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             const { fieldName, width } = columnFieldNameAndWidths[i];
             const column = this._fieldColumns.find((aColumn) => aColumn.field.name === fieldName) as ColumnImplementation<BCS, SF>;
             if (column === undefined) {
-                throw new Error(`Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${fieldName}`);
+                throw new ApiError('CMSACAWBFN01098', `Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${fieldName}`);
             } else {
                 activeColumns[i] = column;
                 if (width === undefined) {
@@ -481,29 +481,18 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /**
-     * @param activeColumnIndex - Data x coordinate.
-     * @return The properties for a specific column.
-     * @internal
-     */
-    getActiveColumnSettings(activeColumnIndex: number): ColumnSettings | undefined {
-        const column = this._activeColumns[activeColumnIndex];
-        return column?.settings;
-    }
-
-    /**
      * @param fieldIndex - Data x coordinate.
      * @return The properties for a specific column.
      * @internal
      */
-    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): ColumnSettings {
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>) {
         const column = this.getFieldColumn(fieldIndex);
         if (column === undefined) {
             throw 'Expected column.';
         }
 
         // column.clearProperties(); // needs implementation
-        column.settings.merge(settings);
-        return column.settings;
+        return column.settings.merge(settings);
     }
 
     /**

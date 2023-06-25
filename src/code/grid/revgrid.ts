@@ -34,7 +34,7 @@ import { ColumnSettings } from './interfaces/settings/column-settings';
 import { CssClassName } from './types-utils/html-types';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
-import { AssertError } from './types-utils/revgrid-error';
+import { ApiError, AssertError } from './types-utils/revgrid-error';
 import { ColumnFieldNameAndAutoSizableWidth, ListChangedTypeId, SelectionAreaType } from './types-utils/types';
 
 /** @public */
@@ -782,7 +782,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
                 if (typeof columnFieldNameOrFieldIndex === 'string') {
                     const foundColumn = fieldColumns.find((aColumn) => aColumn.field.name === columnFieldNameOrFieldIndex);
                     if (foundColumn === undefined) {
-                        throw new Error(`ColumnsManager.setActiveColumns: Column with name not found: ${columnFieldNameOrFieldIndex}`);
+                        throw new ApiError('RSAC20009', `ColumnsManager.setActiveColumns: Column with name not found: ${columnFieldNameOrFieldIndex}`);
                     } else {
                         column = foundColumn;
                     }
@@ -812,7 +812,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         } else {
             const foundColumn = fieldColumns.find((aColumn) => aColumn.field.name === fieldNameOrIndex);
             if (foundColumn === undefined) {
-                throw new Error(`ColumnsManager.setActiveColumns: Column with name not found: ${fieldNameOrIndex}`);
+                throw new ApiError('RASFC29752', `ColumnsManager.setActiveColumns: Column with name not found: ${fieldNameOrIndex}`);
             } else {
                 column = foundColumn;
             }
@@ -1025,7 +1025,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             if (columnOrIndex >= 0) {
                 column = this._columnsManager.getActiveColumn(columnOrIndex);
             } else {
-                throw new Error(`Behavior.setColumnWidth: Invalid column number ${columnOrIndex}`);
+                throw new ApiError('RSACW93109', `Behavior.setColumnWidth: Invalid column number ${columnOrIndex}`);
             }
         } else {
             column = columnOrIndex;
@@ -1201,16 +1201,21 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @param activeColumnIndex - Data x coordinate.
      * @return The properties for a specific column.
      */
-    getColumnProperties(activeColumnIndex: number): ColumnSettings | undefined {
-        return this._columnsManager.getActiveColumnSettings(activeColumnIndex);
+    getActiveColumnSettings(activeColumnIndex: number): BCS {
+        const column = this._columnsManager.getActiveColumn(activeColumnIndex);
+        if (column === undefined) {
+            throw new ApiError('RGACS50008', `activeColumnIndex is not a valid index: ${activeColumnIndex}`);
+        } else {
+            return column.settings;
+        }
     }
 
-    mergeFieldColumnProperties(fieldIndex: number, settings: Partial<BCS>) {
-        this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>) {
+        return this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
     }
 
-    setFieldColumnProperties(fieldIndex: number, settings: BCS) {
-        this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
+    setFieldColumnSettings(fieldIndex: number, settings: BCS) {
+        return this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
     }
 
     /**
@@ -1904,16 +1909,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
         return div;
     }
-
-    // /** @internal */
-    // private createLocalDataModel(role: Subgrid.Role) {
-    //     switch (role) {
-    //         case Subgrid.RoleEnum.main: return new LocalMainDataSource();
-    //         case Subgrid.RoleEnum.header: return new LocalHeaderDataSource(this);
-    //         default:
-    //             throw new Error('Unsupported role for local DataModel: ' + role);
-    //     }
-    // }
 
     /** @internal */
     private createDescendantEventer(): EventBehavior.DescendantEventer<BCS, SF> {

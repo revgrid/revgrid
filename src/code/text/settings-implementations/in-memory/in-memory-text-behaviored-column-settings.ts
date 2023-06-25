@@ -14,7 +14,7 @@ export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColu
         if (value !== this._verticalOffset) {
             this.beginChange();
             this._verticalOffset = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -33,7 +33,7 @@ export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColu
             } else {
                 this._textTruncateType = value;
             }
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -42,7 +42,7 @@ export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColu
         if (value !== this._textStrikeThrough) {
             this.beginChange();
             this._textStrikeThrough = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -58,13 +58,22 @@ export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColu
             const columnSettingsKey = key as keyof TextOnlyColumnSettings;
             switch (columnSettingsKey) {
                 case 'verticalOffset':
-                    this._verticalOffset = requiredSettings.verticalOffset;
+                    if (this._verticalOffset !== requiredSettings.verticalOffset) {
+                        this._verticalOffset = requiredSettings.verticalOffset;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'textTruncateType':
-                    this._textTruncateType = requiredSettings.textTruncateType;
+                    if (this._textTruncateType !== requiredSettings.textTruncateType) {
+                        this._textTruncateType = requiredSettings.textTruncateType;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'textStrikeThrough':
-                    this._textStrikeThrough = requiredSettings.textStrikeThrough;
+                    if (this._textStrikeThrough !== requiredSettings.textStrikeThrough) {
+                        this._textStrikeThrough = requiredSettings.textStrikeThrough;
+                        this.flagChangedViewRender();
+                    }
                     break;
 
                 default:
@@ -72,7 +81,7 @@ export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColu
             }
         }
 
-        this.endChange();
+        return this.endChange();
     }
 
     override clone() {

@@ -11,8 +11,6 @@ export type GridSettings = OnlyGridSettings;
 export namespace GridSettings {
     export type Color = OnlyGridSettings.Color;
 
-    export type RowStripe = OnlyGridSettings.RowStripe;
-
     export function assign(source: Partial<GridSettings>, target: GridSettings): boolean {
         const sourceKeys = Object.keys(source) as (keyof GridSettings)[];
         if (sourceKeys.length === 0) {

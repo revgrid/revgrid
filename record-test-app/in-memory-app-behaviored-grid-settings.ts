@@ -9,7 +9,6 @@ import { AppOnlyGridSettings } from './app-only-grid-settings';
 /** @public */
 export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehavioredGridSettings implements AppBehavioredGridSettings {
     private _focusedRowBorderWidth: number;
-    private _alternateBackgroundColor: GridSettings.Color;
     private _grayedOutForegroundColor: GridSettings.Color;
     private _focusedRowBackgroundColor: GridSettings.Color | undefined;
     private _focusedRowBorderColor: GridSettings.Color | undefined;
@@ -24,17 +23,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._focusedRowBorderWidth) {
             this.beginChange();
             this._focusedRowBorderWidth = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-
-    get alternateBackgroundColor() { return this._alternateBackgroundColor; }
-    set alternateBackgroundColor(value: GridSettings.Color) {
-        if (value !== this._alternateBackgroundColor) {
-            this.beginChange();
-            this._alternateBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -44,7 +33,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._grayedOutForegroundColor) {
             this.beginChange();
             this._grayedOutForegroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -54,7 +43,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._focusedRowBackgroundColor) {
             this.beginChange();
             this._focusedRowBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -64,7 +53,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._focusedRowBorderColor) {
             this.beginChange();
             this._focusedRowBorderColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -74,7 +63,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._valueRecentlyModifiedBorderColor) {
             this.beginChange();
             this._valueRecentlyModifiedBorderColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -84,7 +73,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._valueRecentlyModifiedUpBorderColor) {
             this.beginChange();
             this._valueRecentlyModifiedUpBorderColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -94,7 +83,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._valueRecentlyModifiedDownBorderColor) {
             this.beginChange();
             this._valueRecentlyModifiedDownBorderColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -104,7 +93,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._recordRecentlyUpdatedBorderColor) {
             this.beginChange();
             this._recordRecentlyUpdatedBorderColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -114,7 +103,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._recordRecentlyInsertedBorderColor) {
             this.beginChange();
             this._recordRecentlyInsertedBorderColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -129,35 +118,59 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
             // Use loop so that compiler will report error if any setting missing
             const gridSettingsKey = key as keyof AppOnlyGridSettings;
             switch (gridSettingsKey) {
-                case 'alternateBackgroundColor':
-                    this._alternateBackgroundColor = requiredSettings.alternateBackgroundColor;
-                    break;
                 case 'focusedRowBorderWidth':
-                    this._focusedRowBorderWidth = requiredSettings.focusedRowBorderWidth;
+                    if (this._focusedRowBorderWidth !== requiredSettings.focusedRowBorderWidth) {
+                        this._focusedRowBorderWidth = requiredSettings.focusedRowBorderWidth;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'grayedOutForegroundColor':
-                    this._grayedOutForegroundColor = requiredSettings.grayedOutForegroundColor;
+                    if (this._grayedOutForegroundColor !== requiredSettings.grayedOutForegroundColor) {
+                        this._grayedOutForegroundColor = requiredSettings.grayedOutForegroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'focusedRowBackgroundColor':
-                    this._focusedRowBackgroundColor = requiredSettings.focusedRowBackgroundColor;
+                    if (this._focusedRowBackgroundColor !== requiredSettings.focusedRowBackgroundColor) {
+                        this._focusedRowBackgroundColor = requiredSettings.focusedRowBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'focusedRowBorderColor':
-                    this._focusedRowBorderColor = requiredSettings.focusedRowBorderColor;
+                    if (this._focusedRowBorderColor !== requiredSettings.focusedRowBorderColor) {
+                        this._focusedRowBorderColor = requiredSettings.focusedRowBorderColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'valueRecentlyModifiedBorderColor':
-                    this._valueRecentlyModifiedBorderColor = requiredSettings.valueRecentlyModifiedBorderColor;
+                    if (this._valueRecentlyModifiedBorderColor !== requiredSettings.valueRecentlyModifiedBorderColor) {
+                        this._valueRecentlyModifiedBorderColor = requiredSettings.valueRecentlyModifiedBorderColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'valueRecentlyModifiedUpBorderColor':
-                    this._valueRecentlyModifiedUpBorderColor = requiredSettings.valueRecentlyModifiedUpBorderColor;
+                    if (this._valueRecentlyModifiedUpBorderColor !== requiredSettings.valueRecentlyModifiedUpBorderColor) {
+                        this._valueRecentlyModifiedUpBorderColor = requiredSettings.valueRecentlyModifiedUpBorderColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'valueRecentlyModifiedDownBorderColor':
-                    this._valueRecentlyModifiedDownBorderColor = requiredSettings.valueRecentlyModifiedDownBorderColor;
+                    if (this._valueRecentlyModifiedDownBorderColor !== requiredSettings.valueRecentlyModifiedDownBorderColor) {
+                        this._valueRecentlyModifiedDownBorderColor = requiredSettings.valueRecentlyModifiedDownBorderColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'recordRecentlyUpdatedBorderColor':
-                    this._recordRecentlyUpdatedBorderColor = requiredSettings.recordRecentlyUpdatedBorderColor;
+                    if (this._recordRecentlyUpdatedBorderColor !== requiredSettings.recordRecentlyUpdatedBorderColor) {
+                        this._recordRecentlyUpdatedBorderColor = requiredSettings.recordRecentlyUpdatedBorderColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'recordRecentlyInsertedBorderColor':
-                    this._recordRecentlyInsertedBorderColor = requiredSettings.recordRecentlyInsertedBorderColor;
+                    if (this._recordRecentlyInsertedBorderColor !== requiredSettings.recordRecentlyInsertedBorderColor) {
+                        this._recordRecentlyInsertedBorderColor = requiredSettings.recordRecentlyInsertedBorderColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
 
                 default: {
@@ -166,7 +179,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
             }
         }
 
-        this.endChange();
+        return this.endChange();
     }
 
     override clone() {

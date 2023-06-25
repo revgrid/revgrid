@@ -5,6 +5,11 @@
 ```ts
 
 // @public (undocumented)
+export class ApiError extends RevgridError {
+    constructor(code: string, message: string);
+}
+
+// @public (undocumented)
 export class AssertError extends RevgridError {
     constructor(code: string, message?: string);
 }
@@ -16,7 +21,7 @@ export interface BehavioredColumnSettings extends ColumnSettings, BehavioredSett
     // (undocumented)
     readonly gridSettings: GridSettings;
     // (undocumented)
-    merge(settings: Partial<ColumnSettings>): void;
+    merge(settings: Partial<ColumnSettings>): boolean;
 }
 
 // @public (undocumented)
@@ -24,7 +29,7 @@ export interface BehavioredGridSettings extends GridSettings, BehavioredSettings
     // (undocumented)
     clone(): BehavioredGridSettings;
     // (undocumented)
-    merge(settings: Partial<GridSettings>): void;
+    merge(settings: Partial<GridSettings>): boolean;
 }
 
 // @public (undocumented)
@@ -32,7 +37,7 @@ export interface BehavioredSettings {
     // (undocumented)
     beginChange(): void;
     // (undocumented)
-    endChange(): void;
+    endChange(): boolean;
     // @internal (undocumented)
     horizontalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
     // @internal (undocumented)
@@ -413,10 +418,6 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     getActiveColumnIndexByFieldName(name: string): number;
     // @internal (undocumented)
     getActiveColumnRoundedWidth(index: number): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    //
-    // @internal (undocumented)
-    getActiveColumnSettings(activeColumnIndex: number): ColumnSettings | undefined;
     // @internal (undocumented)
     getActiveColumnWidth(index: number): number;
     // @internal (undocumented)
@@ -448,7 +449,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     //
     // @internal (undocumented)
-    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): ColumnSettings;
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): boolean;
     // @internal (undocumented)
     moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean): void;
     // @internal (undocumented)
@@ -1062,8 +1063,6 @@ export namespace GridSettings {
     export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
     export function isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
-    // (undocumented)
-    export type RowStripe = OnlyGridSettings.RowStripe;
 }
 
 // @public (undocumented)
@@ -1240,7 +1239,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     get maximumColumnWidth(): number | undefined;
     set maximumColumnWidth(value: number | undefined);
     // (undocumented)
-    merge(settings: Partial<ColumnSettings>): void;
+    merge(settings: Partial<ColumnSettings>): boolean;
     // (undocumented)
     get minimumColumnWidth(): number;
     set minimumColumnWidth(value: number);
@@ -1413,7 +1412,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get maximumColumnWidth(): number | undefined;
     set maximumColumnWidth(value: number | undefined);
     // (undocumented)
-    merge(settings: Partial<GridSettings>): void;
+    merge(settings: Partial<GridSettings>): boolean;
     // (undocumented)
     get minimumColumnWidth(): number;
     set minimumColumnWidth(value: number);
@@ -1451,8 +1450,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get rowResize(): boolean;
     set rowResize(value: boolean);
     // (undocumented)
-    get rowStripes(): GridSettings.RowStripe[] | undefined;
-    set rowStripes(value: GridSettings.RowStripe[] | undefined);
+    get rowStripeBackgroundColor(): OnlyGridSettings.Color | undefined;
+    set rowStripeBackgroundColor(value: OnlyGridSettings.Color | undefined);
     // (undocumented)
     get scrollerThumbColor(): string;
     set scrollerThumbColor(value: string);
@@ -1535,13 +1534,13 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
     // (undocumented)
     beginChange(): void;
     // (undocumented)
-    endChange(): void;
+    endChange(): boolean;
+    // (undocumented)
+    protected flagChanged(invalidateType: GridSettingChangeInvalidateTypeId): void;
+    // (undocumented)
+    protected flagChangedViewRender(): void;
     // @internal (undocumented)
     horizontalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
-    // (undocumented)
-    protected notifyChanged(invalidateType: GridSettingChangeInvalidateTypeId): void;
-    // (undocumented)
-    protected notifyChangedViewRender(): void;
     // @internal (undocumented)
     resizeEventer: BehavioredSettings.ResizeEventer | undefined;
     // (undocumented)
@@ -1605,7 +1604,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
     get horizontalAlign(): HorizontalAlign;
     set horizontalAlign(value: HorizontalAlign);
     // (undocumented)
-    merge(settings: Partial<StandardColumnSettings>): void;
+    merge(settings: Partial<StandardColumnSettings>): boolean;
 }
 
 // @public (undocumented)
@@ -1655,7 +1654,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
     get horizontalAlign(): HorizontalAlign;
     set horizontalAlign(value: HorizontalAlign);
     // (undocumented)
-    merge(settings: Partial<StandardGridSettings>): void;
+    merge(settings: Partial<StandardGridSettings>): boolean;
     // (undocumented)
     get rowHoverBackgroundColor(): GridSettings.Color | undefined;
     set rowHoverBackgroundColor(value: GridSettings.Color | undefined);
@@ -1677,7 +1676,7 @@ export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColu
     // (undocumented)
     gridSettings: TextGridSettings;
     // (undocumented)
-    merge(settings: Partial<TextColumnSettings>): void;
+    merge(settings: Partial<TextColumnSettings>): boolean;
     // (undocumented)
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
@@ -1694,7 +1693,7 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
     // (undocumented)
     clone(): InMemoryTextBehavioredGridSettings;
     // (undocumented)
-    merge(settings: Partial<TextGridSettings>): void;
+    merge(settings: Partial<TextGridSettings>): boolean;
     // (undocumented)
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
@@ -2005,7 +2004,7 @@ export interface OnlyGridSettings {
     resizedEventDebounceExtendedWhenPossible: boolean;
     resizedEventDebounceInterval: number;
     rowResize: boolean;
-    rowStripes: OnlyGridSettings.RowStripe[] | undefined;
+    rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
     // (undocumented)
     scrollerThumbColor: string;
     // (undocumented)
@@ -2054,11 +2053,6 @@ export interface OnlyGridSettings {
 export namespace OnlyGridSettings {
     // (undocumented)
     export type Color = string;
-    // (undocumented)
-    export interface RowStripe {
-        // (undocumented)
-        backgroundColor?: string;
-    }
 }
 
 // @public (undocumented)
@@ -2548,6 +2542,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getActiveColumnIndexByFieldIndex(fieldIndex: number): number;
     // (undocumented)
     getActiveColumns(begin?: number, end?: number): Column<BCS, SF>[];
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
+    //
+    // (undocumented)
+    getActiveColumnSettings(activeColumnIndex: number): BCS;
     // (undocumented)
     getActiveColumnWidth(activeIndex: number): number;
     // (undocumented)
@@ -2573,10 +2571,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getCellProperty(allX: number, y: number, key: string | number, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty;
     // (undocumented)
     getCellProperty<T extends keyof ColumnSettings>(allX: number, y: number, key: T, subgrid: Subgrid<BCS, SF>): ColumnSettings[T];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    //
-    // (undocumented)
-    getColumnProperties(activeColumnIndex: number): ColumnSettings | undefined;
     // (undocumented)
     getColumnScrollableLeft(activeIndex: number): number;
     // (undocumented)
@@ -2642,7 +2636,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     // (undocumented)
-    mergeFieldColumnProperties(fieldIndex: number, settings: Partial<BCS>): void;
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): boolean;
     // (undocumented)
     readonly mouse: Mouse<BGS, BCS, SF>;
     // (undocumented)
@@ -2720,7 +2714,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     setColumnWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]): boolean;
     // (undocumented)
-    setFieldColumnProperties(fieldIndex: number, settings: BCS): void;
+    setFieldColumnSettings(fieldIndex: number, settings: BCS): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
@@ -3304,7 +3298,7 @@ export interface StandardBehavioredColumnSettings extends StandardColumnSettings
     // (undocumented)
     clone(): StandardBehavioredColumnSettings;
     // (undocumented)
-    merge(settings: Partial<StandardColumnSettings>): void;
+    merge(settings: Partial<StandardColumnSettings>): boolean;
 }
 
 // @public (undocumented)
@@ -3312,7 +3306,7 @@ export interface StandardBehavioredGridSettings extends StandardGridSettings, Te
     // (undocumented)
     clone(): StandardBehavioredGridSettings;
     // (undocumented)
-    merge(settings: Partial<StandardGridSettings>): void;
+    merge(settings: Partial<StandardGridSettings>): boolean;
 }
 
 // @public
@@ -3739,7 +3733,7 @@ export interface TextBehavioredColumnSettings extends TextColumnSettings, Behavi
     // (undocumented)
     clone(): TextBehavioredColumnSettings;
     // (undocumented)
-    merge(settings: Partial<TextColumnSettings>): void;
+    merge(settings: Partial<TextColumnSettings>): boolean;
 }
 
 // @public (undocumented)
@@ -3747,7 +3741,7 @@ export interface TextBehavioredGridSettings extends TextGridSettings, Behaviored
     // (undocumented)
     clone(): TextBehavioredGridSettings;
     // (undocumented)
-    merge(settings: Partial<TextGridSettings>): void;
+    merge(settings: Partial<TextGridSettings>): boolean;
 }
 
 // @public (undocumented)

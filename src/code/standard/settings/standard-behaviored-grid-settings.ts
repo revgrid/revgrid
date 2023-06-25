@@ -3,6 +3,6 @@ import { StandardGridSettings } from './standard-grid-settings';
 
 /** @public */
 export interface StandardBehavioredGridSettings extends StandardGridSettings, TextBehavioredGridSettings {
-    merge(settings: Partial<StandardGridSettings>): void;
+    merge(settings: Partial<StandardGridSettings>): boolean;
     clone(): StandardBehavioredGridSettings;
 }

@@ -75,6 +75,7 @@ export class Main {
 
             backgroundColor: backgroundColor,
             color: foregroundColor,
+            rowStripeBackgroundColor: '#2b2b2b',
 
             columnHeaderBackgroundColor: columnHeaderBackgroundColor,
             columnHeaderForegroundColor: columnHeaderForegroundColor,
@@ -83,7 +84,6 @@ export class Main {
             selectionRegionOutlineColor: '#D3D3D1',
             verticalGridLinesColor: '#595959',
             horizontalGridLinesColor: '#595959',
-            alternateBackgroundColor: '#2b2b2b',
             grayedOutForegroundColor: '#595959',
             focusedRowBackgroundColor: '#6e6835',
             focusedRowBorderColor: '#C8B900',

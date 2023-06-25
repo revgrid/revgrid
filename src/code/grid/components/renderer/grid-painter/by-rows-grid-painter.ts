@@ -55,8 +55,8 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
 
     paintCells() {
         const gc = this._renderingContext;
-        const gridProps = this.gridSettings;
-        const gridPrefillColor = gridProps.backgroundColor;
+        const gridSettings = this.gridSettings;
+        const gridPrefillColor = gridSettings.backgroundColor;
         const viewLayout = this.viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
@@ -78,9 +78,9 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
         }
         const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
         const viewHeight = rowCount ? viewLayoutRows[rowCount - 1].bottomPlus1 : 0;
-        const lineWidth = gridProps.horizontalGridLinesWidth;
-        const lineColor = gridProps.horizontalGridLinesColor;
-        const drawLines = gridProps.horizontalGridLinesVisible && lineWidth > 0;
+        const lineWidth = gridSettings.horizontalGridLinesWidth;
+        const lineColor = gridSettings.horizontalGridLinesColor;
+        const drawLines = gridSettings.horizontalGridLinesVisible && lineWidth > 0;
 
         const canvasBounds = this.canvasManager.bounds;
         gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
@@ -92,17 +92,9 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
             gc.fillRect(firstVisibleColumnLeft, 0, viewWidth, viewHeight);
         }
 
-        let rowPrefillColors: string[] | undefined;
-        const rowBundlesAndPrefillColors = this.getRowBundlesAndPrefillColors(viewLayoutRows);
-        if (rowBundlesAndPrefillColors) {
-            const rowBundles = rowBundlesAndPrefillColors.bundles;
-            for (let r = rowBundles.length; r--;) {
-                const rowBundle = rowBundles[r];
-                gc.clearFillRect(firstVisibleColumnLeft, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
-            }
-            rowPrefillColors = rowBundlesAndPrefillColors.prefillColors;
-        } else {
-            rowPrefillColors = undefined;
+        const rowStripeBackgroundColor = gridSettings.rowStripeBackgroundColor;
+        if (rowStripeBackgroundColor !== undefined) {
+            this.stripeRows(rowStripeBackgroundColor, firstVisibleColumnLeft, viewWidth);
         }
 
         // gc.clipSave(clipToGrid, firstVisibleColumnLeft, 0, lastVisibleColumnRight, viewHeight);
@@ -110,23 +102,32 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
         let cellIndex = 0;
         // For each row of each subgrid...
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            const prefillColor = rowPrefillColors === undefined ? gridProps.backgroundColor : rowPrefillColors[rowIndex];
+            const viewRow = viewLayoutRows[rowIndex];
 
-            const vr = viewLayoutRows[rowIndex];
+            let prefillColor: string;
+            if (rowStripeBackgroundColor === undefined) {
+                prefillColor = gridSettings.backgroundColor;
+            } else {
+                if (this.isRowStriped(viewRow.subgridRowIndex)) {
+                    prefillColor = rowStripeBackgroundColor;
+                } else {
+                    prefillColor = gridSettings.backgroundColor;
+                }
+            }
 
             if (drawLines) {
                 gc.cache.fillStyle = lineColor;
-                gc.fillRect(firstVisibleColumnLeft, vr.bottomPlus1, viewWidth, lineWidth);
+                gc.fillRect(firstVisibleColumnLeft, viewRow.bottomPlus1, viewWidth, lineWidth);
             }
 
             // For each column (of each row)... (make sure correct pool is used)
             for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                const vc = viewLayoutColumns[columnIndex];
+                const viewColumn = viewLayoutColumns[columnIndex];
                 const viewCell = pool[cellIndex++];
 
                 // Optionally clip to visible portion of column to prevent text from overflowing to right.
-                const columnClip = vc.column.settings.columnClip;
-                gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
+                const columnClip = viewColumn.column.settings.columnClip;
+                gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, viewColumn.rightPlus1, viewHeight);
 
                 try {
                     const preferredWidth = this.paintCell(viewCell, prefillColor);
@@ -139,7 +140,7 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
                         }
                     }
                 } catch (e) {
-                    this.paintErrorCell(e as Error, vc, viewLayoutRows[rowIndex]);
+                    this.paintErrorCell(e as Error, viewColumn, viewLayoutRows[rowIndex]);
                 }
 
                 gc.clipRestore();

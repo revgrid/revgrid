@@ -328,7 +328,7 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
      * @type {undefined|object[]}
      * @default
      */
-    rowStripes: undefined,
+    rowStripeBackgroundColor: undefined,
 
     // for Renderer.prototype.assignProps
     // propClassLayers: propClassLayersMap.DEFAULT,

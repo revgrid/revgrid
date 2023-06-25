@@ -54,7 +54,7 @@ export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS
     }
 
     paintCells() {
-        const gridProps = this.gridSettings;
+        const gridSettings = this.gridSettings;
         const viewLayout = this.viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
@@ -82,15 +82,16 @@ export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS
 
             if (!columnCount || !rowCount) { return; }
 
-            const gridPrefillColor = gridProps.backgroundColor;
+            const gridPrefillColor = gridSettings.backgroundColor;
             if (gc.alpha(gridPrefillColor) > 0) {
                 gc.cache.fillStyle = gridPrefillColor;
                 gc.fillRect(firstVisibleColumnLeft, 0, viewWidth, viewHeight);
             }
 
-            let rowPrefillColors: string[] | undefined;
-            const rowBundlesAndPrefillColors = this.getRowBundlesAndPrefillColors(viewLayoutRows);
-            if (rowBundlesAndPrefillColors === undefined) {
+            const rowStripeBackgroundColor = gridSettings.rowStripeBackgroundColor;
+            if (rowStripeBackgroundColor !== undefined) {
+                this.stripeRows(rowStripeBackgroundColor, firstVisibleColumnLeft, viewWidth);
+            } else {
                 const columnBundles = this.getColumnBundles(viewLayoutColumns);
                 const columnBundleCount = columnBundles.length;
                 for (let i = columnBundleCount - 1; i > 0; i--) {
@@ -99,14 +100,6 @@ export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS
                         gc.clearFillRect(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
                     }
                 }
-                rowPrefillColors = undefined;
-            } else {
-                const rowBundles = rowBundlesAndPrefillColors.bundles;
-                for (let i = rowBundles.length - 1; i >= 0; i--) {
-                    const rowBundle = rowBundles[i];
-                    gc.clearFillRect(firstVisibleColumnLeft, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
-                }
-                rowPrefillColors = rowBundlesAndPrefillColors.prefillColors;
             }
 
             // gc.clipSave(clipToGrid, firstVisibleColumnLeft, 0, lastVisibleColumnRight, viewHeight);
@@ -114,39 +107,47 @@ export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS
             // For each column...
             let cellEvent = 0;
             for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                const vc = viewLayoutColumns[columnIndex];
+                const viewColumn = viewLayoutColumns[columnIndex];
 
                 // Optionally clip to visible portion of column to prevent text from overflowing to right.
-                const columnClip = vc.column.settings.columnClip;
-                gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, vc.rightPlus1, viewHeight);
+                const columnClip = viewColumn.column.settings.columnClip;
+                gc.clipSave(columnClip ?? columnIndex === lastColumnIndex, 0, 0, viewColumn.rightPlus1, viewHeight);
 
                 let columnPreferredPaintWidth: number | undefined;
                 // For each row of each subgrid (of each column)...
                 for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-                    // if (!pool[p].disabled) {
-                        const prefillColor = rowPrefillColors === undefined ? vc.column.settings.backgroundColor : rowPrefillColors[rowIndex];
-
-                        const viewCell = pool[cellEvent++];
-
-                        try {
-                            const preferredPaintWidth = this.paintCell(viewCell, prefillColor);
-                            if (preferredPaintWidth !== undefined) {
-                                if (columnPreferredPaintWidth === undefined) {
-                                    columnPreferredPaintWidth = preferredPaintWidth;
-                                } else {
-                                    columnPreferredPaintWidth = Math.max(columnPreferredPaintWidth, preferredPaintWidth);
-                                }
-                            }
-                        } catch (e) {
-                            this.paintErrorCell(e as Error, vc, viewCell.viewLayoutRow);
+                    let prefillColor: string;
+                    if (rowStripeBackgroundColor === undefined) {
+                        prefillColor = viewColumn.column.settings.backgroundColor;
+                    } else {
+                        const viewRow = viewLayoutRows[rowIndex];
+                        if (this.isRowStriped(viewRow.subgridRowIndex)) {
+                            prefillColor = rowStripeBackgroundColor;
+                        } else {
+                            prefillColor = gridSettings.backgroundColor;
                         }
-                    // }
+                    }
+
+                    const viewCell = pool[cellEvent++];
+
+                    try {
+                        const preferredPaintWidth = this.paintCell(viewCell, prefillColor);
+                        if (preferredPaintWidth !== undefined) {
+                            if (columnPreferredPaintWidth === undefined) {
+                                columnPreferredPaintWidth = preferredPaintWidth;
+                            } else {
+                                columnPreferredPaintWidth = Math.max(columnPreferredPaintWidth, preferredPaintWidth);
+                            }
+                        }
+                    } catch (e) {
+                        this.paintErrorCell(e as Error, viewColumn, viewCell.viewLayoutRow);
+                    }
                 }
 
                 gc.clipRestore();
 
                 if (columnPreferredPaintWidth !== undefined) {
-                    vc.column.preferredWidth = Math.ceil(columnPreferredPaintWidth);
+                    viewColumn.column.preferredWidth = Math.ceil(columnPreferredPaintWidth);
                 }
             }
 
