@@ -264,7 +264,7 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                             }
                         } else {
                             if (preferredWidth === undefined) {
-                                column.setAutoSizing(true);
+                                column.setAutoWidthSizing(true);
                             } else {
                                 column.setWidth(preferredWidth, true);
                             }

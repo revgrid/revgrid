@@ -27,7 +27,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
     }
     get autoSizing() { return this._autoSizing; }
     set autoSizing(value: boolean) {
-        this.setAutoSizing(value);
+        this.setAutoWidthSizing(value);
     }
 
     setWidth(width: number, ui: boolean) {
@@ -57,7 +57,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
         return changed;
     }
 
-    setAutoSizing(value: boolean) {
+    setAutoWidthSizing(value: boolean) {
         let changed: boolean;
 
         if (value === this._autoSizing) {
@@ -74,15 +74,15 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
         return changed;
     }
 
-    checkAutoSizing(widenOnly: boolean) {
+    checkAutoWidthSizing(widenOnly: boolean) {
         if (this._autoSizing) {
-            return this.autoSize(widenOnly);
+            return this.autoSizeWidth(widenOnly);
         } else {
             return false;
         }
     }
 
-    autoSize(widenOnly: boolean) {
+    autoSizeWidth(widenOnly: boolean) {
         const settings = this.settings;
 
         let newWidth: number;

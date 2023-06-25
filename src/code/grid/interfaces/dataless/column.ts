@@ -10,10 +10,10 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaF
     width: number;
     preferredWidth: number | undefined;
 
-    setAutoSizing(value: boolean): boolean;
+    setAutoWidthSizing(value: boolean): boolean;
     setWidth(width: number, ui: boolean): boolean;
-    checkAutoSizing(widenOnly: boolean): boolean;
-    autoSize(widenOnly: boolean): boolean;
+    checkAutoWidthSizing(widenOnly: boolean): boolean;
+    autoSizeWidth(widenOnly: boolean): boolean;
 
     loadSettings(settings: BCS): void;
 }

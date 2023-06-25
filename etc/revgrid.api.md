@@ -333,11 +333,11 @@ export namespace CellPainter {
 // @public (undocumented)
 export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     // (undocumented)
-    autoSize(widenOnly: boolean): boolean;
+    autoSizeWidth(widenOnly: boolean): boolean;
     // (undocumented)
     autoSizing: boolean;
     // (undocumented)
-    checkAutoSizing(widenOnly: boolean): boolean;
+    checkAutoWidthSizing(widenOnly: boolean): boolean;
     // (undocumented)
     readonly field: SF;
     // (undocumented)
@@ -345,7 +345,7 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaF
     // (undocumented)
     preferredWidth: number | undefined;
     // (undocumented)
-    setAutoSizing(value: boolean): boolean;
+    setAutoWidthSizing(value: boolean): boolean;
     // (undocumented)
     readonly settings: BCS;
     // (undocumented)
@@ -379,14 +379,14 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     addBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener): void;
     // @internal (undocumented)
     allSchemaColumnsDeleted(): void;
-    // @internal (undocumented)
-    autoSizeAllColumns(widenOnly: boolean): void;
+    // (undocumented)
+    autoSizeActiveColumnWidths(widenOnly: boolean): void;
     // @internal (undocumented)
     beginSchemaChange(): void;
     // (undocumented)
     calculateFixedColumnsWidth(): number;
     // @internal (undocumented)
-    checkColumnAutoSizing(widenOnly: boolean, withinAnimationFrame: boolean): boolean;
+    checkAllColumnsAutoWidthSizing(widenOnly: boolean, withinAnimationFrame: boolean): boolean;
     // @internal (undocumented)
     clearColumns(): void;
     // @internal (undocumented)
@@ -469,6 +469,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     setActiveColumns(columnArray: readonly Column<BCS, SF>[]): void;
     // (undocumented)
     setActiveColumnsAndWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndAutoSizableWidth[], ui: boolean): void;
+    // (undocumented)
+    setActiveColumnsAutoWidthSizing(value: boolean): void;
     // Warning: (ae-forgotten-export) The symbol "ColumnAutoSizeableWidth" needs to be exported by the entry point public-api.d.ts
     //
     // @internal (undocumented)
@@ -2422,7 +2424,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addEventListener(eventName: string, listener: CanvasManager.EventListener): void;
     // (undocumented)
-    autoSizeAllColumns(widenOnly: boolean): void;
+    autoSizeActiveColumnWidths(widenOnly: boolean): void;
     // (undocumented)
     autoSizeFieldColumn(fieldNameOrIndex: string | number, widenOnly: boolean): void;
     beginSelectionChange(): void;
@@ -2695,6 +2697,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
     // (undocumented)
     setActiveColumnsAndWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]): void;
+    // (undocumented)
+    setActiveColumnsAutoWidthSizing(widenOnly: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, width: number, ui: boolean): void;

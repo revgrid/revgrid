@@ -796,8 +796,12 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._columnsManager.setActiveColumns(newActiveColumns);
     }
 
-    autoSizeAllColumns(widenOnly: boolean) {
-        this._columnsManager.autoSizeAllColumns(widenOnly);
+    autoSizeActiveColumnWidths(widenOnly: boolean) {
+        this._columnsManager.autoSizeActiveColumnWidths(widenOnly);
+    }
+
+    setActiveColumnsAutoWidthSizing(widenOnly: boolean) {
+        this._columnsManager.setActiveColumnsAutoWidthSizing(widenOnly);
     }
 
     autoSizeFieldColumn(fieldNameOrIndex: string | number, widenOnly: boolean) {
@@ -813,7 +817,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
                 column = foundColumn;
             }
         }
-        column.autoSize(widenOnly);
+        column.autoSizeWidth(widenOnly);
     }
 
     setColumnScrollAnchor(index: number, offset: number) {

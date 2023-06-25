@@ -594,11 +594,11 @@ export class Controls {
     }
 
     private handleUiAutoSizeAllAction() {
-        this._grid.autoSizeAllColumns(false);
+        this._grid.autoSizeActiveColumnWidths(false);
     }
 
     private handleUiAutoWidenAllAction() {
-        this._grid.autoSizeAllColumns(true);
+        this._grid.autoSizeActiveColumnWidths(true);
     }
 
     private handleUiPerformance30kAction() {

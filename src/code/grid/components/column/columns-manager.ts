@@ -276,7 +276,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             const column = columnWidth.column as ColumnImplementation<BCS, SF>;
             const width = columnWidth.width;
             if (width === undefined) {
-                column.setAutoSizing(true);
+                column.setAutoWidthSizing(true);
             } else {
                 // do not flag UI change when setting column as these changes will be aggregated below
                 if (column.setWidthAndPossiblyNotify(width, ui, false)) {
@@ -304,7 +304,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
                 throw new Error(`Behavior.setColumnWidthsByName: Column name not found: ${fieldName}`);
             } else {
                 if (width === undefined) {
-                    column.setAutoSizing(true);
+                    column.setAutoWidthSizing(true);
                 } else {
                     if (column.setWidthAndPossiblyNotify(width, ui, false)) {
                         changedColumns[changedColumnsCount++] = column;
@@ -335,7 +335,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             } else {
                 activeColumns[i] = column;
                 if (width === undefined) {
-                    column.setAutoSizing(true);
+                    column.setAutoWidthSizing(true);
                 } else {
                     if (column.setWidthAndPossiblyNotify(width, ui, false)) {
                         changedColumns[changedColumnsCount++] = column;
@@ -579,29 +579,36 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         return arr;
     }
 
-    /** @internal */
-    autoSizeAllColumns(widenOnly: boolean) {
-        this.checkColumnAutoSizing(widenOnly, false);
+    autoSizeActiveColumnWidths(widenOnly: boolean) {
+        for (const column of this._activeColumns) {
+            column.autoSizeWidth(widenOnly);
+        }
+    }
+
+    setActiveColumnsAutoWidthSizing(value: boolean) {
+        for (const column of this._activeColumns) {
+            column.setAutoWidthSizing(value);
+        }
     }
 
     /** @internal */
-    checkColumnAutoSizing(widenOnly: boolean, withinAnimationFrame: boolean) {
-        let autoSized = false;
+    checkAllColumnsAutoWidthSizing(widenOnly: boolean, withinAnimationFrame: boolean) {
+        let autoWidthSized = false;
 
         for (const column of this._activeColumns) {
-            if (column.checkAutoSizing(widenOnly)) {
-                autoSized = true;
+            if (column.checkAutoWidthSizing(widenOnly)) {
+                autoWidthSized = true;
             }
         }
 
-        if (autoSized) {
+        if (autoWidthSized) {
             if (withinAnimationFrame) {
                 setTimeout(() => this.invalidateHorizontalViewLayoutEventer(true), 0);
             } else {
                 this.invalidateHorizontalViewLayoutEventer(true);
             }
         }
-        return autoSized;
+        return autoWidthSized;
     }
 
     /** @internal */
