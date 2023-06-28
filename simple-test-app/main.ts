@@ -1,4 +1,4 @@
-import { Point, RevDataRowArrayServerSet } from '..';
+import { MultiHeadingDataRowArrayServerSet, Point } from '..';
 import { SimpleGrid } from './simple-grid';
 
 export class Main {
@@ -67,7 +67,7 @@ export class Main {
     }
 
     private loadPets() {
-        interface Pet extends RevDataRowArrayServerSet.DataRow {
+        interface Pet extends MultiHeadingDataRowArrayServerSet.DataRow {
             name: string;
             type: string;
             color: string;
@@ -129,7 +129,7 @@ export class Main {
     }
 
     private loadMany() {
-        interface Row extends RevDataRowArrayServerSet.DataRow {
+        interface Row extends MultiHeadingDataRowArrayServerSet.DataRow {
             StrCol: string;
             NumberCol: number;
             BoolCol: boolean;

@@ -1,15 +1,21 @@
-import { AssertError, DataServer } from '../../grid/grid-public-api';
-import { readonlyDefaultStandardBehavioredColumnSettings } from '../../standard/standard-public-api';
-import { RevDataRowArrayHeaderDataServer } from './rev-data-row-array-header-data-server';
-import { RevDataRowArrayMainDataServer } from './rev-data-row-array-main-data-server';
-import { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
-import { RevDataRowArraySchemaServer } from './rev-data-row-array-schema-server';
+import { AssertError, DataServer } from '../../../grid/grid-public-api';
+import { DataRowArrayMainDataServer } from '../common/data-row-array-main-data-server';
+import { DataRowArraySchemaServer } from '../common/data-row-array-schema-server';
+import { MultiHeadingDataRowArrayHeaderDataServer } from './multi-heading-data-row-array-header-data-server';
+import { MultiHeadingDataRowArraySchemaField } from './multi-heading-data-row-array-schema-field';
 
 /** @public */
-export class RevDataRowArrayServerSet {
-    readonly schemaServer = new RevDataRowArraySchemaServer;
-    readonly mainDataServer = new RevDataRowArrayMainDataServer<RevDataRowArraySchemaField>();
-    readonly headerDataServer = new RevDataRowArrayHeaderDataServer<RevDataRowArraySchemaField>();
+export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingDataRowArraySchemaField> {
+    readonly schemaServer = new DataRowArraySchemaServer<SF>;
+    readonly mainDataServer = new DataRowArrayMainDataServer<SF>();
+    readonly headerDataServer = new MultiHeadingDataRowArrayHeaderDataServer<SF>();
+
+    constructor(
+        /** @private */
+        private readonly _createFieldEventer: MultiHeadingDataRowArrayServerSet.CreateFieldEventer<SF>,
+    ) {
+
+    }
 
     /**
      * Establish new data and schema.
@@ -19,37 +25,42 @@ export class RevDataRowArrayServerSet {
      * should be stripped from data and included in header. If less than 0, then there should be one header row and the header values
      * should be derived from column names in data.
      */
-    setData(data: RevDataRowArrayServerSet.DataRow[] | (() => RevDataRowArrayServerSet.DataRow[]), headerRowCount = -1) {
+    setData(data: MultiHeadingDataRowArrayServerSet.DataRow[] | (() => MultiHeadingDataRowArrayServerSet.DataRow[]), headerRowCount = -1) {
         if (data === undefined) {
             return;
         } else {
-            let dataRows = typeof data === 'function' ? data() : data;
+            const dataRows = typeof data === 'function' ? data() : data;
+            let mainDataRows: MultiHeadingDataRowArrayServerSet.DataRow[];
 
             if (!Array.isArray(dataRows)) {
                 throw new AssertError('BSD73766', 'Expected data to be an array of data row objects');
             } else {
-                let schema: RevDataRowArraySchemaField[];
+                let schema: SF[];
                 if (headerRowCount < 0) {
                     schema = this.calculateSchemaFromData(dataRows, true);
+                    mainDataRows = dataRows;
                 } else {
                     if (headerRowCount === 0) {
                         schema = this.calculateSchemaFromData(dataRows, false);
+                        mainDataRows = dataRows;
                     } else {
-                        ({ schema, dataRows } = this.extractSchemaAndHeadersFromData(dataRows, headerRowCount));
+                        const schemaAndMainDataRows = this.extractSchemaAndMainDataRowsFromData(dataRows, headerRowCount);
+                        schema = schemaAndMainDataRows.schema;
+                        mainDataRows = schemaAndMainDataRows.mainDataRows;
                     }
                 }
 
                 if (schema.length === 0) {
                     headerRowCount = 0;
                 } else {
-                    headerRowCount = schema[0].headers.length;
+                    headerRowCount = schema[0].headings.length;
                 }
 
                 this.mainDataServer.beginDataChange();
                 try {
                     this.schemaServer.reset(schema);
                     this.headerDataServer.reset(headerRowCount);
-                    this.mainDataServer.reset(dataRows);
+                    this.mainDataServer.reset(mainDataRows);
                 } finally {
                     this.mainDataServer.endDataChange();
                 }
@@ -57,42 +68,38 @@ export class RevDataRowArrayServerSet {
         }
     }
 
-    private extractSchemaAndHeadersFromData(
-        rows: RevDataRowArrayServerSet.DataRow[],
+    private extractSchemaAndMainDataRowsFromData(
+        dataRows: MultiHeadingDataRowArrayServerSet.DataRow[],
         headerRowCount: number
-    ): ExtractSchemaAndHeadersFromDataResult {
-        const { rows: headerRows, sourceCount: initialSourceCount } = this.getInitialDefinedRows(rows, headerRowCount);
+    ): ExtractSchemaAndMainDataRowsFromDataResult<SF> {
+        const { rows: headerRows, sourceCount: initialSourceCount } = this.getInitialDefinedRows(dataRows, headerRowCount);
         const headerCount = headerRows.length;
         if (headerCount === 0) {
             return {
-                dataRows: [],
+                mainDataRows: [],
                 schema: [],
             };
         } else {
-            rows.splice(0, initialSourceCount);
+            dataRows.splice(0, initialSourceCount);
             const firstHeaderRow = headerRows[0];
             const fieldKeys = Object.keys(firstHeaderRow);
 
             const fieldCount = fieldKeys.length;
-            const schema = new Array<RevDataRowArraySchemaField>(fieldCount);
+            const schema = new Array<SF>(fieldCount);
             for (let fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
-                const columnKey = fieldKeys[fieldIndex];
-                const columnHeaders = new Array<string>(headerCount);
+                const key = fieldKeys[fieldIndex];
+                const headings = new Array<string>(headerCount);
                 for (let rowIndex = 0; rowIndex < headerCount; rowIndex++) {
                     const row = headerRows[rowIndex];
-                    const header = this.convertDataValueToString(row[columnKey]);
-                    columnHeaders[rowIndex] = header;
+                    const heading = this.convertDataValueToString(row[key]);
+                    headings[rowIndex] = heading;
                 }
-                schema[fieldIndex] = {
-                    name: columnKey,
-                    index: fieldIndex,
-                    headers: columnHeaders,
-                    // columnSettings: readonlyDefaultStandardBehavioredColumnSettings,
-                };
+                const field = this._createFieldEventer(fieldIndex, key, headings);
+                schema[fieldIndex] = field;
             }
 
             return {
-                dataRows: rows,
+                mainDataRows: dataRows,
                 schema,
             };
         }
@@ -112,19 +119,21 @@ export class RevDataRowArrayServerSet {
         }
 }
 
-    private calculateSchemaFromData(dataRows: RevDataRowArrayServerSet.DataRow[], keyIsHeader: boolean): RevDataRowArraySchemaField[] {
+    private calculateSchemaFromData(dataRows: MultiHeadingDataRowArrayServerSet.DataRow[], keyIsHeading: boolean): SF[] {
         const { rows } = this.getInitialDefinedRows(dataRows, 1);
         if (rows.length === 0) {
             return [];
         } else {
             const row = rows[0];
-            const result: RevDataRowArraySchemaField[] = Object.keys(row).map((key, index) => ({
-                name: key,
-                index,
-                headers: keyIsHeader ? [key] : [],
-                columnSettings: readonlyDefaultStandardBehavioredColumnSettings,
-            }));
-            return result;
+            const keys = Object.keys(row);
+            const fieldCount = keys.length;
+            const schema = new Array<SF>(fieldCount);
+            for (let i = 0; i < fieldCount; i++) {
+                const key = keys[i];
+                const field = this._createFieldEventer(i, key, keyIsHeading ? [key] : []);
+                schema[i] = field;
+            }
+            return schema;
         }
     }
 
@@ -134,8 +143,8 @@ export class RevDataRowArrayServerSet {
      * @returns The initial rows (up to maxCount) and the number of source rows these covered (may be more
      * than max count if some rows are undefined).
      */
-    getInitialDefinedRows(sourceRows: readonly RevDataRowArrayServerSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult {
-        const rows = new Array<RevDataRowArrayServerSet.DataRow>(maxCount);
+    private getInitialDefinedRows(sourceRows: readonly MultiHeadingDataRowArrayServerSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult {
+        const rows = new Array<MultiHeadingDataRowArrayServerSet.DataRow>(maxCount);
 
         const sourceCount = sourceRows.length;
         let initialCount = 0;
@@ -161,18 +170,19 @@ export class RevDataRowArrayServerSet {
 }
 
 /** @public */
-export namespace RevDataRowArrayServerSet {
-    export interface DataRow extends RevDataRowArrayMainDataServer.DataRow {
+export namespace MultiHeadingDataRowArrayServerSet {
+    export type CreateFieldEventer<SF extends MultiHeadingDataRowArraySchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
+    export interface DataRow extends DataRowArrayMainDataServer.DataRow {
         [fieldName: string]: DataServer.ViewValue | string; // can also have header
     }
 }
 
-interface ExtractSchemaAndHeadersFromDataResult {
-    schema: RevDataRowArraySchemaField[];
-    dataRows: RevDataRowArrayServerSet.DataRow[];
+interface ExtractSchemaAndMainDataRowsFromDataResult<SF extends MultiHeadingDataRowArraySchemaField> {
+    schema: SF[];
+    mainDataRows: MultiHeadingDataRowArrayServerSet.DataRow[];
 }
 
 interface GetInitialDefinedRowsResult {
-    rows: RevDataRowArrayServerSet.DataRow[];
+    rows: MultiHeadingDataRowArrayServerSet.DataRow[];
     sourceCount: number;
 }

@@ -8,6 +8,9 @@
         "project": [
           "./src/code/tsconfig.code.json",
           "./src/code/server-sets/record/tsconfig.server-sets-record.json",
+          "./src/code/server-sets/data-row-array/multi-heading/tsconfig.server-sets-data-row-array-multi-heading.json",
+          "./src/code/server-sets/data-row-array/single-heading/tsconfig.server-sets-data-row-array-single-heading.json",
+          "./src/code/server-sets/data-row-array/common/tsconfig.server-sets-data-row-array-common.json",
           "./src/code/server-sets/data-row-array/tsconfig.server-sets-data-row-array.json",
           "./src/code/server-sets/tsconfig.server-sets.json",
           "./src/code/standard/cell-editors/tsconfig.standard-cell-editors.json",

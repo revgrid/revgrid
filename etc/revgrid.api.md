@@ -631,6 +631,65 @@ export interface DatalessViewLayoutRow {
 }
 
 // @public (undocumented)
+export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataServer<SF> {
+    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
+    addRow(dataRow: DataRowArrayMainDataServer.DataRow): void;
+    // (undocumented)
+    addRow(index: number, dataRow: DataRowArrayMainDataServer.DataRow): void;
+    // (undocumented)
+    beginDataChange(): void;
+    delRow(index: number, count?: number): DataRowArrayMainDataServer.DataRow[];
+    // (undocumented)
+    endDataChange(): void;
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getRowMetadata(index: number, prototype?: null): any;
+    // (undocumented)
+    getViewRow(index: number): DataRowArrayMainDataServer.DataRow;
+    // (undocumented)
+    getViewValue(field: SF, y: number): unknown;
+    // (undocumented)
+    invalidateAll(): void;
+    // (undocumented)
+    reset(data?: DataRowArrayMainDataServer.DataRow[]): void;
+    // (undocumented)
+    setEditValue(field: SF, y: number, value: unknown): void;
+    // (undocumented)
+    setRowMetadata(index: number, metadata: MetaModel.RowMetadata): boolean;
+    setViewRow(index: number, dataRow: DataRowArrayMainDataServer.DataRow): void;
+    // (undocumented)
+    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+    // (undocumented)
+    unsubscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+}
+
+// @public (undocumented)
+export namespace DataRowArrayMainDataServer {
+    // (undocumented)
+    export interface DataRow extends DataServer.ObjectViewRow {
+        // (undocumented)
+        [fieldName: string]: DataServer.ViewValue;
+        // (undocumented)
+        __META?: MetaModel.RowMetadata;
+    }
+}
+
+// @public (undocumented)
+export class DataRowArraySchemaServer<SF extends SchemaField> implements SchemaServer<SF> {
+    // (undocumented)
+    getFields(): readonly SF[];
+    // (undocumented)
+    reset(schema?: SF[]): void;
+    // (undocumented)
+    setSchema(schema: SF[]): void;
+    // (undocumented)
+    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>): void;
+    // (undocumented)
+    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>): void;
+}
+
+// @public (undocumented)
 export interface DataServer<SF extends SchemaField> {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@Summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -1911,6 +1970,50 @@ export namespace Mouse {
 }
 
 // @public (undocumented)
+export class MultiHeadingDataRowArrayHeaderDataServer<SF extends MultiHeadingDataRowArraySchemaField> implements DataServer<SF> {
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getViewValue(field: SF, rowIndex: number): string;
+    // (undocumented)
+    reset(rowCount: number): void;
+    // (undocumented)
+    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+    // (undocumented)
+    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
+}
+
+// @public (undocumented)
+export interface MultiHeadingDataRowArraySchemaField extends SchemaField {
+    // (undocumented)
+    headings: string[];
+}
+
+// @public (undocumented)
+export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingDataRowArraySchemaField> {
+    constructor(
+    _createFieldEventer: MultiHeadingDataRowArrayServerSet.CreateFieldEventer<SF>);
+    // (undocumented)
+    readonly headerDataServer: MultiHeadingDataRowArrayHeaderDataServer<SF>;
+    // (undocumented)
+    readonly mainDataServer: DataRowArrayMainDataServer<SF>;
+    // (undocumented)
+    readonly schemaServer: DataRowArraySchemaServer<SF>;
+    setData(data: MultiHeadingDataRowArrayServerSet.DataRow[] | (() => MultiHeadingDataRowArrayServerSet.DataRow[]), headerRowCount?: number): void;
+}
+
+// @public (undocumented)
+export namespace MultiHeadingDataRowArrayServerSet {
+    // (undocumented)
+    export type CreateFieldEventer<SF extends MultiHeadingDataRowArraySchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
+    // (undocumented)
+    export interface DataRow extends DataRowArrayMainDataServer.DataRow {
+        // (undocumented)
+        [fieldName: string]: DataServer.ViewValue | string;
+    }
+}
+
+// @public (undocumented)
 export type OnlyColumnSettings = Pick<OnlyGridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
 
 // @public (undocumented)
@@ -2166,108 +2269,6 @@ export namespace Rectangle {
     export function containsXY(rectangle: Rectangle, x: number, y: number): boolean;
     // (undocumented)
     export function isEqual(left: Rectangle, right: Rectangle): boolean;
-}
-
-// @public (undocumented)
-export class RevDataRowArrayHeaderDataServer<SF extends RevDataRowArraySchemaField> implements DataServer<SF> {
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getViewValue(field: SF, rowIndex: number): string;
-    // (undocumented)
-    reset(rowCount: number): void;
-    // (undocumented)
-    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-    // (undocumented)
-    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
-}
-
-// @public (undocumented)
-export class RevDataRowArrayMainDataServer<SF extends RevDataRowArraySchemaField> implements DataServer<SF> {
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    addRow(dataRow: RevDataRowArrayMainDataServer.DataRow): void;
-    // (undocumented)
-    addRow(index: number, dataRow: RevDataRowArrayMainDataServer.DataRow): void;
-    // (undocumented)
-    beginDataChange(): void;
-    delRow(index: number, count?: number): RevDataRowArrayMainDataServer.DataRow[];
-    // (undocumented)
-    endDataChange(): void;
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getRowMetadata(index: number, prototype?: null): any;
-    // (undocumented)
-    getViewRow(index: number): RevDataRowArrayMainDataServer.DataRow;
-    // (undocumented)
-    getViewValue(field: SF, y: number): unknown;
-    // (undocumented)
-    invalidateAll(): void;
-    // (undocumented)
-    reset(data?: RevDataRowArrayMainDataServer.DataRow[]): void;
-    // (undocumented)
-    setEditValue(field: SF, y: number, value: unknown): void;
-    // (undocumented)
-    setRowMetadata(index: number, metadata: MetaModel.RowMetadata): boolean;
-    setViewRow(index: number, dataRow: RevDataRowArrayMainDataServer.DataRow): void;
-    // (undocumented)
-    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-    // (undocumented)
-    unsubscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-}
-
-// @public (undocumented)
-export namespace RevDataRowArrayMainDataServer {
-    // (undocumented)
-    export interface DataRow extends DataServer.ObjectViewRow {
-        // (undocumented)
-        [fieldName: string]: DataServer.ViewValue;
-        // (undocumented)
-        __META?: MetaModel.RowMetadata;
-    }
-}
-
-// @public (undocumented)
-export interface RevDataRowArraySchemaField extends SchemaField {
-    // (undocumented)
-    headers: string[];
-}
-
-// @public (undocumented)
-export class RevDataRowArraySchemaServer<SF extends RevDataRowArraySchemaField> implements SchemaServer<SF> {
-    // (undocumented)
-    getFields(): readonly SF[];
-    // (undocumented)
-    reset(schema?: SF[]): void;
-    // (undocumented)
-    setSchema(schema: SF[]): void;
-    // (undocumented)
-    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>): void;
-    // (undocumented)
-    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>): void;
-}
-
-// @public (undocumented)
-export class RevDataRowArrayServerSet {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (ae-forgotten-export) The symbol "GetInitialDefinedRowsResult" needs to be exported by the entry point public-api.d.ts
-    getInitialDefinedRows(sourceRows: readonly RevDataRowArrayServerSet.DataRow[], maxCount: number): GetInitialDefinedRowsResult;
-    // (undocumented)
-    readonly headerDataServer: RevDataRowArrayHeaderDataServer<RevDataRowArraySchemaField>;
-    // (undocumented)
-    readonly mainDataServer: RevDataRowArrayMainDataServer<RevDataRowArraySchemaField>;
-    // (undocumented)
-    readonly schemaServer: RevDataRowArraySchemaServer<RevDataRowArraySchemaField>;
-    setData(data: RevDataRowArrayServerSet.DataRow[] | (() => RevDataRowArrayServerSet.DataRow[]), headerRowCount?: number): void;
-}
-
-// @public (undocumented)
-export namespace RevDataRowArrayServerSet {
-    // (undocumented)
-    export interface DataRow extends RevDataRowArrayMainDataServer.DataRow {
-        // (undocumented)
-        [fieldName: string]: DataServer.ViewValue | string;
-    }
 }
 
 // @public (undocumented)
@@ -3300,6 +3301,50 @@ export const enum SelectionAreaTypeSpecifier {
     Row = 3,
     // (undocumented)
     Secondary = 1
+}
+
+// @public (undocumented)
+export class SingleHeadingDataRowArrayHeaderDataServer<SF extends SingleHeadingDataRowArraySchemaField> implements DataServer<SF> {
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getViewValue(field: SF, rowIndex: number): string;
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+    // (undocumented)
+    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
+}
+
+// @public (undocumented)
+export interface SingleHeadingDataRowArraySchemaField extends SchemaField {
+    // (undocumented)
+    heading: string;
+}
+
+// @public (undocumented)
+export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingDataRowArraySchemaField> {
+    constructor(
+    _createFieldEventer: SingleHeadingDataRowArrayServerSet.CreateFieldEventer<SF>);
+    // (undocumented)
+    readonly headerDataServer: SingleHeadingDataRowArrayHeaderDataServer<SF>;
+    // (undocumented)
+    readonly mainDataServer: DataRowArrayMainDataServer<SF>;
+    // (undocumented)
+    readonly schemaServer: DataRowArraySchemaServer<SF>;
+    setData(data: SingleHeadingDataRowArrayServerSet.DataRow[] | (() => SingleHeadingDataRowArrayServerSet.DataRow[]), keyIsHeading: boolean): void;
+}
+
+// @public (undocumented)
+export namespace SingleHeadingDataRowArrayServerSet {
+    // (undocumented)
+    export type CreateFieldEventer<SF extends SchemaField> = (this: void, index: number, key: string, heading: string) => SF;
+    // (undocumented)
+    export interface DataRow extends DataRowArrayMainDataServer.DataRow {
+        // (undocumented)
+        [fieldName: string]: DataServer.ViewValue | string;
+    }
 }
 
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration

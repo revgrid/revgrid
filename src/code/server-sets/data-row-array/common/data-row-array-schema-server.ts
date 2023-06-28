@@ -1,8 +1,7 @@
-import { AssertError, SchemaServer } from '../../grid/grid-public-api';
-import { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
+import { AssertError, SchemaField, SchemaServer } from '../../../grid/grid-public-api';
 
 /** @public */
-export class RevDataRowArraySchemaServer<SF extends RevDataRowArraySchemaField> implements SchemaServer<SF> {
+export class DataRowArraySchemaServer<SF extends SchemaField> implements SchemaServer<SF> {
     private _schemaCallbackListeners: SchemaServer.NotificationsClient<SF>[] = [];
     private _fields = new Array<SF>();
 

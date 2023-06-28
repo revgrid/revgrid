@@ -1,9 +1,9 @@
 
-import { AssertError, DataServer } from '../../grid/grid-public-api';
-import { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
+import { AssertError, DataServer } from '../../../grid/grid-public-api';
+import { MultiHeadingDataRowArraySchemaField } from './multi-heading-data-row-array-schema-field';
 
 /** @public */
-export class RevDataRowArrayHeaderDataServer<SF extends RevDataRowArraySchemaField> implements DataServer<SF> {
+export class MultiHeadingDataRowArrayHeaderDataServer<SF extends MultiHeadingDataRowArraySchemaField> implements DataServer<SF> {
     private _rowCount = 0;
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
@@ -25,11 +25,11 @@ export class RevDataRowArrayHeaderDataServer<SF extends RevDataRowArraySchemaFie
     }
 
     getViewValue(field: SF, rowIndex: number) {
-        const headers = field.headers;
-        if (rowIndex >= headers.length) {
+        const headings = field.headings;
+        if (rowIndex >= headings.length) {
             return field.name;
         } else {
-            return headers[rowIndex];
+            return headings[rowIndex];
         }
     }
 
