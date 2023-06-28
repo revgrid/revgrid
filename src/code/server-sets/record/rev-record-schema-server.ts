@@ -1,4 +1,4 @@
-import { ListChangedEventHandler, ListChangedTypeId, SchemaServer } from '../../grid/grid-public-api';
+import { ListChangedEventer, ListChangedTypeId, SchemaServer } from '../../grid/grid-public-api';
 import { RevRecordSchemaError, RevRecordUnexpectedUndefinedError } from './rev-record-error';
 import { RevRecordField } from './rev-record-field';
 import { RevRecordFieldIndex } from './rev-record-types';
@@ -6,7 +6,7 @@ import { RevRecordFieldIndex } from './rev-record-types';
 /** @public */
 export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaServer<SF> {
     /** @internal */
-    fieldListChangedEventer: ListChangedEventHandler | undefined;
+    fieldListChangedEventer: ListChangedEventer | undefined;
 
     private readonly _fields: SF[] = [];
     private readonly _fieldNameLookup = new Map<string, SF>();

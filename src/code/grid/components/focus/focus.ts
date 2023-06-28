@@ -19,7 +19,9 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     editorKeyDownEventer: Focus.EditorKeyDownEventer;
 
     /** @internal */
-    changedEventer: Focus.ChangedEventer;
+    currentCellChangedEventer: Focus.CurrentCellChangedEventer;
+    /** @internal */
+    currentRowChangedEventer: Focus.CurrentRowChangedEventer;
     /** @internal */
     viewCellRenderInvalidatedEventer: Focus.ViewCellRenderInvalidatedEventer<BCS, SF>;
 
@@ -85,13 +87,17 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     set(newFocusPoint: Point, cell: ViewCell<BCS, SF> | undefined, canvasPoint: PartialPoint | undefined) {
-        const newFocusX = newFocusPoint.x;
-        const newFocusY = newFocusPoint.y;
-        const currentSubgridPoint = this._current;
-        const currentFocusDefined = currentSubgridPoint !== undefined;
-        if (!currentFocusDefined || currentSubgridPoint.x !== newFocusX || currentSubgridPoint.y !== newFocusY) {
+        const newCurrentActiveColumnIndex = newFocusPoint.x;
+        const newCurrentSubgridRowIndex = newFocusPoint.y;
+        const newPrevious = this._current;
+        const newPreviousDefined = newPrevious !== undefined;
+        const newPreviousActiveColumnIndex = newPreviousDefined ? newPrevious.x : undefined;
+        const activeColumnIndexChanged = newPreviousActiveColumnIndex !== newCurrentActiveColumnIndex;
+        const newPreviousSubgridRowIndex = newPreviousDefined ? newPrevious.y : undefined;
+        const subgridRowIndexChanged = newPreviousSubgridRowIndex !== newCurrentSubgridRowIndex;
+        if (activeColumnIndexChanged || subgridRowIndexChanged) {
             this.closeFocus();
-            this._previous = currentSubgridPoint;
+            this._previous = newPrevious;
             this._current = newFocusPoint;
 
             if (canvasPoint !== undefined) {
@@ -107,7 +113,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             }
 
             if (cell === undefined) {
-                cell = this._viewLayout.findCellAtGridPoint(newFocusX, newFocusY, this.subgrid, true);
+                cell = this._viewLayout.findCellAtGridPoint(newCurrentActiveColumnIndex, newCurrentSubgridRowIndex, this.subgrid, true);
             }
 
             if (cell !== undefined) {
@@ -120,17 +126,20 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 this.viewCellRenderInvalidatedEventer(cell);
             }
 
-            this.fireFocusChanged();
+            this.notifyCurrentCellChanged();
+            if (subgridRowIndexChanged) {
+                this.notifyCurrentRowChanged(newCurrentSubgridRowIndex, newPreviousSubgridRowIndex);
+            }
         }
     }
 
     setX(activeColumnIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasX: number | undefined) {
-        const currentSubgridPoint = this._current;
-        const currentFocusDefined = currentSubgridPoint !== undefined;
-        if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex) {
+        const newPrevious = this._current;
+        const newPreviousDefined = newPrevious !== undefined;
+        if (!newPreviousDefined || newPrevious.x !== activeColumnIndex) {
             this.closeFocus();
-            this._previous = currentSubgridPoint;
-            const y = currentFocusDefined ? currentSubgridPoint.y : this._gridSettings.fixedRowCount;
+            this._previous = newPrevious;
+            const y = newPreviousDefined ? newPrevious.y : this._gridSettings.fixedRowCount;
 
             this._current = {
                 x: activeColumnIndex,
@@ -155,17 +164,18 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 this.viewCellRenderInvalidatedEventer(cell);
             }
 
-            this.fireFocusChanged();
+            this.notifyCurrentCellChanged();
         }
     }
 
     setY(subgridRowIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasY: number | undefined) {
-        const currentSubgridPoint = this._current;
-        const currentFocusDefined = currentSubgridPoint !== undefined;
-        if (!currentFocusDefined || currentSubgridPoint.y !== subgridRowIndex) {
+        const newPrevious = this._current;
+        const newPreviousDefined = newPrevious !== undefined;
+        const newPreviousSubgridRowIndex = newPreviousDefined ? newPrevious.y : undefined;
+        if (subgridRowIndex !== newPreviousSubgridRowIndex) {
             this.closeFocus();
-            this._previous = currentSubgridPoint;
-            const x = currentFocusDefined ? currentSubgridPoint.x : this._gridSettings.fixedColumnCount;
+            this._previous = newPrevious;
+            const x = newPreviousDefined ? newPrevious.x : this._gridSettings.fixedColumnCount;
             this._current = {
                 x,
                 y: subgridRowIndex,
@@ -189,16 +199,21 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 this.viewCellRenderInvalidatedEventer(cell);
             }
 
-            this.fireFocusChanged();
+            this.notifyCurrentCellChanged();
+            this.notifyCurrentRowChanged(subgridRowIndex, newPreviousSubgridRowIndex);
         }
     }
 
     setXY(activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined) {
-        const currentSubgridPoint = this._current;
-        const currentFocusDefined = currentSubgridPoint !== undefined;
-        if (!currentFocusDefined || currentSubgridPoint.x !== activeColumnIndex || currentSubgridPoint.y !== subgridRowIndex) {
+        const newPrevious = this._current;
+        const newPreviousDefined = newPrevious !== undefined;
+        const newPreviousActiveColumnIndex = newPreviousDefined ? newPrevious.x : undefined;
+        const activeColumnIndexChanged = activeColumnIndex !== newPreviousActiveColumnIndex;
+        const newPreviousSubgridRowIndex = newPreviousDefined ? newPrevious.y : undefined;
+        const subgridRowIndexChanged = subgridRowIndex !== newPreviousSubgridRowIndex;
+        if (activeColumnIndexChanged || subgridRowIndexChanged) {
             this.closeFocus();
-            this._previous = currentSubgridPoint;
+            this._previous = newPrevious;
             this._current = {
                 x: activeColumnIndex,
                 y: subgridRowIndex,
@@ -225,7 +240,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 this.viewCellRenderInvalidatedEventer(cell);
             }
 
-            this.fireFocusChanged();
+            this.notifyCurrentCellChanged();
+            if (subgridRowIndexChanged) {
+                this.notifyCurrentRowChanged(subgridRowIndex, newPreviousSubgridRowIndex);
+            }
         }
     }
 
@@ -435,7 +453,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    adjustForColumnsDeleted(columnIndex: number, columnCount: number) {
+    adjustForActiveColumnsDeleted(columnIndex: number, columnCount: number) {
         if (this._current !== undefined) {
             const positionInDeletionRange = Point.adjustForXRangeDeleted(this._current, columnIndex, columnCount);
             if (positionInDeletionRange !== undefined) {
@@ -536,8 +554,13 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private fireFocusChanged() {
-        this.changedEventer(this._current, this._previous);
+    private notifyCurrentCellChanged() {
+        this.currentCellChangedEventer(this._current, this._previous);
+    }
+
+    /** @internal */
+    private notifyCurrentRowChanged(newSubgridRowIndex: number | undefined, oldSubgridRowIndex: number | undefined) {
+        this.currentRowChangedEventer(newSubgridRowIndex, oldSubgridRowIndex);
     }
 
     /** @internal */
@@ -697,7 +720,9 @@ export namespace Focus {
     ) => CellEditor<BCS, SF> | undefined;
 
     /** @internal */
-    export type ChangedEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
+    export type CurrentCellChangedEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
+    /** @internal */
+    export type CurrentRowChangedEventer = (this: void, newSubgridRowIndex: number | undefined, oldSubgridRowIndex: number | undefined) => void;
     /** @internal */
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
 

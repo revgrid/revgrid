@@ -101,7 +101,7 @@ export class SimpleGrid extends Revgrid<
         if (this.clickEventer !== undefined) {
             if (hoverCell !== null) {
                 if (hoverCell === undefined) {
-                    hoverCell = this.viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                    hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
                 }
                 if (hoverCell !== undefined) {
                     if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
@@ -120,7 +120,7 @@ export class SimpleGrid extends Revgrid<
         if (this.dblClickEventer !== undefined) {
             if (hoverCell !== null) {
                 if (hoverCell === undefined) {
-                    hoverCell = this.viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                    hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
                 }
                 if (hoverCell !== undefined) {
                     if (!LinedHoverCell.isMouseOverLine(hoverCell)) {

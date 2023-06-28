@@ -5,7 +5,7 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { ApiError, AssertError } from '../../types-utils/revgrid-error';
-import { ColumnFieldNameAndAutoSizableWidth, ListChangedEventHandler as ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
+import { ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
@@ -34,7 +34,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     /** @internal */
     constructor(
         readonly schemaServer: SchemaServer<SF>,
-        private readonly _gridSettings: GridSettings,
+        readonly gridSettings: GridSettings,
+        /** @internal */
         private readonly _getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
     ) {
     }
@@ -84,7 +85,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    schemaColumnsInserted(_index: number, count: number) {
+    schemaFieldsInserted(_index: number, count: number) {
         this.beginSchemaChange();
         try {
             if (count > 0) {
@@ -96,7 +97,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    schemaColumnsDeleted(_index: number, count: number) {
+    schemaFieldsDeleted(_index: number, count: number) {
         this.beginSchemaChange();
         try {
             if (count > 0) {
@@ -262,7 +263,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
                 total += columnWidth;
             }
 
-            total += (count - 1) * this._gridSettings.verticalGridLinesWidth;
+            total += (count - 1) * this.gridSettings.verticalGridLinesWidth;
 
             return total;
         }
@@ -294,19 +295,19 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    setColumnWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndAutoSizableWidth[], ui: boolean) {
-        const changedColumns = new Array<Column<BCS, SF>>(columnFieldNameAndWidths.length);
+    setColumnWidthsByFieldName(fieldNameAndWidths: ColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean) {
+        const changedColumns = new Array<Column<BCS, SF>>(fieldNameAndWidths.length);
         let changedColumnsCount = 0;
-        for (const fieldNameAndWidth of columnFieldNameAndWidths) {
-            const { fieldName, width } = fieldNameAndWidth;
-            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === fieldName) as ColumnImplementation<BCS, SF>;
+        for (const fieldNameAndWidth of fieldNameAndWidths) {
+            const { name, autoSizableWidth } = fieldNameAndWidth;
+            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as ColumnImplementation<BCS, SF>;
             if (column === undefined) {
-                throw new ApiError('CMSCWBFN20251', `Behavior.setColumnWidthsByName: Column name not found: ${fieldName}`);
+                throw new ApiError('CMSCWBFN20251', `Behavior.setColumnWidthsByName: Column name not found: ${name}`);
             } else {
-                if (width === undefined) {
+                if (autoSizableWidth === undefined) {
                     column.setAutoWidthSizing(true);
                 } else {
-                    if (column.setWidthAndPossiblyNotify(width, ui, false)) {
+                    if (column.setWidthAndPossiblyNotify(autoSizableWidth, ui, false)) {
                         changedColumns[changedColumnsCount++] = column;
                     }
                 }
@@ -321,23 +322,23 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         }
     }
 
-    setActiveColumnsAndWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndAutoSizableWidth[], ui: boolean) {
+    setActiveColumnsAndWidthsByFieldName(fieldNameAndWidths: ColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean) {
         const activeColumns = this._activeColumns;
-        const newActiveColumnCount = columnFieldNameAndWidths.length;
+        const newActiveColumnCount = fieldNameAndWidths.length;
         activeColumns.length = newActiveColumnCount;
         const changedColumns = new Array<Column<BCS, SF>>(newActiveColumnCount);
         let changedColumnsCount = 0;
         for (let i = 0; i < newActiveColumnCount; i++) {
-            const { fieldName, width } = columnFieldNameAndWidths[i];
-            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === fieldName) as ColumnImplementation<BCS, SF>;
+            const { name, autoSizableWidth } = fieldNameAndWidths[i];
+            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as ColumnImplementation<BCS, SF>;
             if (column === undefined) {
-                throw new ApiError('CMSACAWBFN01098', `Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${fieldName}`);
+                throw new ApiError('CMSACAWBFN01098', `Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${name}`);
             } else {
                 activeColumns[i] = column;
-                if (width === undefined) {
+                if (autoSizableWidth === undefined) {
                     column.setAutoWidthSizing(true);
                 } else {
-                    if (column.setWidthAndPossiblyNotify(width, ui, false)) {
+                    if (column.setWidthAndPossiblyNotify(autoSizableWidth, ui, false)) {
                         changedColumns[changedColumnsCount++] = column;
                     }
                 }
@@ -499,11 +500,11 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
      * @returns The number of fixed columns.
      */
     getFixedColumnCount(): number {
-        return this._gridSettings.fixedColumnCount;
+        return this.gridSettings.fixedColumnCount;
     }
 
     isColumnFixed(activeColumnIndex: number) {
-        return activeColumnIndex < this._gridSettings.fixedColumnCount;
+        return activeColumnIndex < this.gridSettings.fixedColumnCount;
     }
 
     /**
@@ -641,8 +642,15 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 /** @public */
 export namespace ColumnsManager {
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, field: SF) => BCS;
+    /** @internal */
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+    /** @internal */
     export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
-
+    /** @internal */
     export type BeforeCreateColumnsListener = (this: void) => void;
+
+    export interface FieldNameAndAutoSizableWidth {
+        name: string;
+        autoSizableWidth: number | undefined;
+    }
 }

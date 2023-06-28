@@ -128,7 +128,8 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         this._viewLayout.horizontalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processHorizontalScrollViewportStartChangedEvent();
         this._viewLayout.verticalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processVerticalScrollViewportStartChangedEvent();
 
-        this._focus.changedEventer = (newPoint, oldPoint) => this.processCellFocusChangedEvent(newPoint, oldPoint);
+        this._focus.currentCellChangedEventer = (newPoint, oldPoint) => this.processCellFocusChangedEvent(newPoint, oldPoint);
+        this._focus.currentRowChangedEventer = (newSubgridRowIndex, oldSubgridRowIndex) => this.processRowFocusChangedEvent(newSubgridRowIndex, oldSubgridRowIndex);
         this._focus.editorKeyDownEventer = (event) => this.processKeyDownEvent(event, true);
         this._selection.changedEventerForEventBehavior = () => this.processSelectionChangedEvent();
 
@@ -251,7 +252,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiClickEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
 
@@ -267,7 +268,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiDblClickEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
 
@@ -283,7 +284,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerEnterEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
 
@@ -299,7 +300,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerDownEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
 
@@ -315,7 +316,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerUpCancelEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
 
@@ -331,7 +332,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerMoveEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
 
@@ -347,7 +348,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiPointerLeaveOutEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
 
@@ -363,7 +364,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiWheelMoveEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
 
@@ -384,7 +385,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         let cell = this.uiContextMenuEventer(event);
         if (this._dispatchEnabled) {
             if (cell === undefined) {
-                cell = this._viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+                cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
 
@@ -476,6 +477,20 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
             };
 
             this.dispatchCustomEvent('rev-cell-focus-changed', false, detail);
+        }
+    }
+
+    /** @internal */
+    private processRowFocusChangedEvent(newSubgridRowIndex: number | undefined, oldSubgridRowIndex: number | undefined) {
+        this._descendantEventer.rowFocusChanged(newSubgridRowIndex, oldSubgridRowIndex);
+
+        if (this._dispatchEnabled) {
+            const detail: DispatchableEvent.Detail.RowFocusChanged = {
+                newSubgridRowIndex,
+                oldSubgridRowIndex,
+            };
+
+            this.dispatchCustomEvent('rev-row-focus-changed', false, detail);
         }
     }
 
@@ -594,6 +609,7 @@ export namespace EventBehavior {
         readonly columnsViewWidthsChanged: (this: void, changeds: ViewLayout.ColumnsViewWidthChangeds) => void;
         readonly columnSort: (this: void, event: MouseEvent, headerOrFixedRowCell: ViewCell<BCS, SF>) => void;
         readonly cellFocusChanged: DescendantEventer.CellFocusChanged;
+        readonly rowFocusChanged: DescendantEventer.RowFocusChanged;
         readonly selectionChanged: DescendantEventer.Signal;
         readonly focus: DescendantEventer.Focus;
         readonly blur: DescendantEventer.Focus;
@@ -647,6 +663,7 @@ export namespace EventBehavior {
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
         export type ScrollerAction = (this: void, event: Scroller.Action) => void;
         export type CellFocusChanged = (this: void, oldPoint: Point | undefined, newPoint: Point | undefined) => void;
+        export type RowFocusChanged = (this: void, oldSubgridRowIndex: number | undefined, newSubgridRowIndex: number | undefined) => void;
     }
 
     /** @internal */

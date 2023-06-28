@@ -25,8 +25,8 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     private readonly schemaServerNotificationsClient: SchemaServer.NotificationsClient<SF> = {
         beginChange: () => this.handleBeginSchemaChange(),
         endChange: () => this.handleEndSchemaChange(),
-        fieldsInserted: (columnIndex, columnCount) => this.handleFieldsInserted(columnIndex, columnCount),
-        fieldsDeleted: (columnIndex, columnCount) => this.handleFieldsDeleted(columnIndex, columnCount),
+        fieldsInserted: (fieldIndex, fieldCount) => this.handleFieldsInserted(fieldIndex, fieldCount),
+        fieldsDeleted: (fieldIndex, fieldCount) => this.handleFieldsDeleted(fieldIndex, fieldCount),
         allFieldsDeleted: () => this.handleAllFieldsDeleted(),
         schemaChanged: () => this.handleSchemaChanged(),
         getActiveSchemaFields: () => this.handleGetActiveSchemaFields(),
@@ -149,10 +149,10 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
             this.beginSchemaChange();
             try {
                 this._renderer.modelUpdated();
-                this._columnsManager.schemaColumnsInserted(index, count);
+                this._columnsManager.schemaFieldsInserted(index, count);
                 // Currently cannot calculate active Column Index of added columns so cannot advise SelectionModel of change
                 // or advise Renderer of column index
-                this._viewLayout.invalidateColumnsInserted(index, count);
+                this._viewLayout.invalidateFieldsInserted(index, count);
             } finally {
                 this.endSchemaChange();
             }
@@ -165,14 +165,14 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
             this.beginSchemaChange();
             try {
                 this._renderer.modelUpdated();
-                this._columnsManager.schemaColumnsDeleted(index, count);
+                this._columnsManager.schemaFieldsDeleted(index, count);
                 const nextRange = index + count;
                 for (let i = index; i < nextRange; i++) {
                     // In the future, should consolidate into activeIndex ranges instead of doing individually
                     const activeIndex = this._columnsManager.getActiveColumnIndexByFieldIndex(i);
                     if (activeIndex >= 0) {
-                        this._focus.adjustForColumnsDeleted(activeIndex, 1);
-                        this._selection.adjustForColumnsDeleted(activeIndex, 1);
+                        this._focus.adjustForActiveColumnsDeleted(activeIndex, 1);
+                        this._selection.adjustForActiveColumnsDeleted(activeIndex, 1);
                         this._viewLayout.invalidateActiveColumnsDeleted(activeIndex, 1);
                     }
                 }

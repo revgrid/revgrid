@@ -360,20 +360,13 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaF
 }
 
 // @public (undocumented)
-export interface ColumnFieldNameAndAutoSizableWidth {
-    // (undocumented)
-    fieldName: string;
-    // (undocumented)
-    width: number | undefined;
-}
-
-// @public (undocumented)
 export type ColumnSettings = OnlyColumnSettings;
 
 // @public (undocumented)
 export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     // @internal
-    constructor(schemaServer: SchemaServer<SF>, _gridSettings: GridSettings, _getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>);
+    constructor(schemaServer: SchemaServer<SF>, gridSettings: GridSettings,
+    _getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>);
     // (undocumented)
     get activeColumnCount(): number;
     // @internal (undocumented)
@@ -405,7 +398,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     // (undocumented)
     get fieldColumnCount(): number;
     // @internal (undocumented)
-    fieldColumnListChangedEventer: ListChangedEventHandler;
+    fieldColumnListChangedEventer: ListChangedEventer;
     // @internal (undocumented)
     get fieldColumns(): readonly Column<BCS, SF>[];
     // @internal (undocumented)
@@ -428,6 +421,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     getHiddenColumns(): Column<BCS, SF>[];
     // @internal (undocumented)
     getSchema(): readonly SF[];
+    // (undocumented)
+    readonly gridSettings: GridSettings;
     // (undocumented)
     hideActiveColumn(activeColumnIndex: number, ui: boolean): void;
     // (undocumented)
@@ -461,15 +456,15 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     // @internal (undocumented)
     schemaColumnsChanged(): void;
     // @internal (undocumented)
-    schemaColumnsDeleted(_index: number, count: number): void;
+    schemaFieldsDeleted(_index: number, count: number): void;
     // @internal (undocumented)
-    schemaColumnsInserted(_index: number, count: number): void;
+    schemaFieldsInserted(_index: number, count: number): void;
     // (undocumented)
     readonly schemaServer: SchemaServer<SF>;
     // @internal (undocumented)
     setActiveColumns(columnArray: readonly Column<BCS, SF>[]): void;
     // (undocumented)
-    setActiveColumnsAndWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndAutoSizableWidth[], ui: boolean): void;
+    setActiveColumnsAndWidthsByFieldName(fieldNameAndWidths: ColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean): void;
     // (undocumented)
     setActiveColumnsAutoWidthSizing(value: boolean): void;
     // Warning: (ae-forgotten-export) The symbol "ColumnAutoSizeableWidth" needs to be exported by the entry point public-api.d.ts
@@ -477,7 +472,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     // @internal (undocumented)
     setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[], ui: boolean): boolean;
     // @internal (undocumented)
-    setColumnWidthsByFieldName(columnFieldNameAndWidths: ColumnFieldNameAndAutoSizableWidth[], ui: boolean): boolean;
+    setColumnWidthsByFieldName(fieldNameAndWidths: ColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean): boolean;
     // (undocumented)
     showHideColumns(
     indexesAreActive: boolean,
@@ -493,13 +488,20 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 
 // @public (undocumented)
 export namespace ColumnsManager {
-    // (undocumented)
+    // @internal (undocumented)
     export type BeforeCreateColumnsListener = (this: void) => void;
-    // (undocumented)
+    // @internal (undocumented)
     export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
     // (undocumented)
-    export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, field: SF) => BCS;
+    export interface FieldNameAndAutoSizableWidth {
+        // (undocumented)
+        autoSizableWidth: number | undefined;
+        // (undocumented)
+        name: string;
+    }
     // (undocumented)
+    export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, field: SF) => BCS;
+    // @internal (undocumented)
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
 }
 
@@ -785,6 +787,13 @@ export namespace DispatchableEvent {
             revgridHoverCell?: LinedHoverCell<BCS, SF>;
         }
         // (undocumented)
+        export interface RowFocusChanged {
+            // (undocumented)
+            readonly newSubgridRowIndex: number | undefined;
+            // (undocumented)
+            readonly oldSubgridRowIndex: number | undefined;
+        }
+        // (undocumented)
         export interface Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends WheelEvent {
             // (undocumented)
             revgridHoverCell?: LinedHoverCell<BCS, SF>;
@@ -841,6 +850,8 @@ export namespace DispatchableEvent {
             // (undocumented)
             'rev-pointer-up-cancel': Detail.Pointer<BCS, SF>;
             // (undocumented)
+            'rev-row-focus-changed': Detail.RowFocusChanged;
+            // (undocumented)
             'rev-selection-changed': undefined;
             // (undocumented)
             'rev-touch-end': TouchEvent;
@@ -872,7 +883,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     _columnsManager: ColumnsManager<BCS, SF>,
     _viewLayout: ViewLayout<BGS, BCS, SF>);
     // @internal (undocumented)
-    adjustForColumnsDeleted(columnIndex: number, columnCount: number): void;
+    adjustForActiveColumnsDeleted(columnIndex: number, columnCount: number): void;
     // @internal (undocumented)
     adjustForColumnsInserted(columnIndex: number, columnCount: number): void;
     // @internal (undocumented)
@@ -888,8 +899,6 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // (undocumented)
     get canvasY(): number | undefined;
     get cell(): ViewCell<BCS, SF> | undefined;
-    // @internal (undocumented)
-    changedEventer: Focus.ChangedEventer;
     // (undocumented)
     checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: ViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
     // (undocumented)
@@ -904,6 +913,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     createStash(): Focus.Stash;
     // (undocumented)
     get current(): Point | undefined;
+    // @internal (undocumented)
+    currentCellChangedEventer: Focus.CurrentCellChangedEventer;
+    // @internal (undocumented)
+    currentRowChangedEventer: Focus.CurrentRowChangedEventer;
     // (undocumented)
     get currentX(): number | undefined;
     // (undocumented)
@@ -980,7 +993,9 @@ export namespace Focus {
         Tab = "Tab"
     }
     // @internal (undocumented)
-    export type ChangedEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
+    export type CurrentCellChangedEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
+    // @internal (undocumented)
+    export type CurrentRowChangedEventer = (this: void, newSubgridRowIndex: number | undefined, oldSubgridRowIndex: number | undefined) => void;
     // (undocumented)
     export type EditorKeyDownEventer = (this: void, event: KeyboardEvent) => void;
     // (undocumented)
@@ -1725,7 +1740,7 @@ export namespace LinedHoverCell {
 }
 
 // @public (undocumented)
-export type ListChangedEventHandler = (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
+export type ListChangedEventer = (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
 
 // @public (undocumented)
 export const enum ListChangedTypeId {
@@ -2420,7 +2435,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     autoSizeActiveColumnWidths(widenOnly: boolean): void;
     // (undocumented)
-    autoSizeFieldColumn(fieldNameOrIndex: string | number, widenOnly: boolean): void;
+    autoSizeFieldColumnWidth(fieldNameOrIndex: string | number, widenOnly: boolean): void;
     beginSelectionChange(): void;
     // (undocumented)
     calculateActiveColumnsWidth(): number;
@@ -2444,8 +2459,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     clearSelection(): void;
     get columnScrollAnchorIndex(): number;
     get columnScrollAnchorOffset(): number;
-    // @internal (undocumented)
-    get columnsManager(): ColumnsManager<BCS, SF>;
+    // (undocumented)
+    readonly columnsManager: ColumnsManager<BCS, SF>;
     // (undocumented)
     readonly containerHtmlElement: HTMLElement;
     // @internal (undocumented)
@@ -2459,7 +2474,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     protected descendantProcessActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean): void;
     // (undocumented)
-    protected descendantProcessCellFocusChanged(newPoint: Point | undefined, oldPoint: Point | undefined): void;
+    protected descendantProcessCellFocusChanged(_newPoint: Point | undefined, _oldPoint: Point | undefined): void;
     // (undocumented)
     protected descendantProcessClick(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS, SF> | null | undefined): void;
     // (undocumented)
@@ -2509,6 +2524,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     protected descendantProcessRendered(): void;
     // (undocumented)
     protected descendantProcessResized(): void;
+    // (undocumented)
+    protected descendantProcessRowFocusChanged(_newSubgridRowIndex: number | undefined, _oldSubgridRowIndex: number | undefined): void;
     // (undocumented)
     protected descendantProcessSelectionChanged(): void;
     // (undocumented)
@@ -2690,7 +2707,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
     // (undocumented)
-    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]): void;
+    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): void;
     // (undocumented)
     setActiveColumnsAutoWidthSizing(widenOnly: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2712,7 +2729,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[]): boolean;
     // (undocumented)
-    setColumnWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]): boolean;
+    setColumnWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): boolean;
     // (undocumented)
     setFieldColumnSettings(fieldIndex: number, settings: BCS): boolean;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2735,6 +2752,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     insertIndex?: number,
     allowDuplicateColumns?: boolean,
     ui?: boolean): void;
+    // (undocumented)
+    readonly subgridsManager: SubgridsManager<BCS, SF>;
     // (undocumented)
     swapColumns(source: number, target: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -3086,7 +3105,7 @@ export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaS
     // (undocumented)
     get fieldCount(): number;
     // @internal (undocumented)
-    fieldListChangedEventer: ListChangedEventHandler | undefined;
+    fieldListChangedEventer: ListChangedEventer | undefined;
     // (undocumented)
     get fields(): readonly SF[];
     // (undocumented)
@@ -3247,10 +3266,10 @@ export namespace SchemaServer {
         // (undocumented)
         endChange: (this: void) => void;
         // (undocumented)
-        fieldsDeleted: (this: void, columnIndex: number, columnCount: number) => void;
+        fieldsDeleted: (this: void, fieldIndex: number, fieldCount: number) => void;
         // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
         // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-        fieldsInserted: (this: void, columnIndex: number, columnCount: number) => void;
+        fieldsInserted: (this: void, fieldIndex: number, fieldCount: number) => void;
         // (undocumented)
         getActiveSchemaFields: (this: void) => readonly SF[];
         schemaChanged: (this: void) => void;
@@ -3729,6 +3748,72 @@ export namespace Subgrid {
 }
 
 // @public (undocumented)
+export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    // @internal
+    constructor(
+    _gridSettings: GridSettings,
+    _columnsManager: ColumnsManager<BCS, SF>, definitions: Subgrid.Definition<BCS, SF>[]);
+    // (undocumented)
+    calculateFootersHeight(): number;
+    // (undocumented)
+    calculatePostMainAndFooterHeights(): SubgridsManager.PostMainAndFooterHeights;
+    // (undocumented)
+    calculatePostMainHeight(): number;
+    // (undocumented)
+    calculatePostMainRowCount(): number;
+    // (undocumented)
+    calculatePreMainHeight(): number;
+    // (undocumented)
+    calculatePreMainPlusFixedRowCount(): number;
+    // (undocumented)
+    calculatePreMainPlusFixedRowsHeight(): number;
+    // (undocumented)
+    calculatePreMainRowCount(): number;
+    // (undocumented)
+    calculatePrePostMainRowcount(): number;
+    // (undocumented)
+    calculateRowCount(): number;
+    // (undocumented)
+    calculateSummariesFootersHeights(): SubgridsManager.SummariesFootersHeights;
+    // @internal (undocumented)
+    destroy(): void;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    getAllRowCount(): number;
+    // @internal (undocumented)
+    getSubgridByHandle(handle: SubgridImplementation.Handle): SubgridImplementation<BCS, SF> | undefined;
+    // @internal (undocumented)
+    readonly _handledSubgrids: (SubgridImplementation<BCS, SF> | undefined)[];
+    // (undocumented)
+    readonly mainSubgrid: MainSubgrid<BCS, SF>;
+    // Warning: (ae-forgotten-export) The symbol "SubgridImplementation" needs to be exported by the entry point public-api.d.ts
+    //
+    // @internal (undocumented)
+    readonly subgridImplementations: SubgridImplementation<BCS, SF>[];
+    // (undocumented)
+    readonly subgrids: Subgrid<BCS, SF>[];
+}
+
+// @public (undocumented)
+export namespace SubgridsManager {
+    // (undocumented)
+    export interface PostMainAndFooterHeights {
+        // (undocumented)
+        allPostMainSubgridsHeight: number;
+        // (undocumented)
+        footersHeight: number;
+    }
+    // (undocumented)
+    export interface SummariesFootersHeights {
+        // (undocumented)
+        footersHeight: number;
+        // (undocumented)
+        summariesHeight: number;
+        // (undocumented)
+        summariesPlusFootersHeight: number;
+    }
+}
+
+// @public (undocumented)
 export interface TextBehavioredColumnSettings extends TextColumnSettings, BehavioredColumnSettings {
     // (undocumented)
     clone(): TextBehavioredColumnSettings;
@@ -3884,8 +3969,6 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     //
     // (undocumented)
     protected readonly sharedState: UiBehaviorSharedState;
-    // Warning: (ae-forgotten-export) The symbol "SubgridsManager" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     protected readonly subgridsManager: SubgridsManager<BCS, SF>;
     // @internal (undocumented)
@@ -3980,7 +4063,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // @internal (undocumented)
     ensureValidInsideAnimationFrame(): void;
     // (undocumented)
-    findCellAtCanvasOffset(x: number, y: number, canComputePool: boolean): ViewCell<BCS, SF> | undefined;
+    findCellAtCanvasOffset(x: number, y: number): ViewCell<BCS, SF> | undefined;
+    // @internal (undocumented)
+    findCellAtCanvasOffsetSpecifyRecompute(x: number, y: number, canComputePool: boolean): ViewCell<BCS, SF> | undefined;
     // (undocumented)
     findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>): ViewCell<BCS, SF> | undefined;
     // (undocumented)
@@ -4007,7 +4092,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     findLeftGridLineInclusiveColumnOfCanvasOffset(canvasOffsetX: number): ViewLayoutColumn<BCS, SF> | undefined;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
-    findLinedHoverCell(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS, SF> | undefined;
+    findLinedHoverCellAtCanvasOffset(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
     findRowIndexOfCanvasOffset(canvasOffsetY: number): number;
     // (undocumented)
@@ -4082,8 +4167,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // @internal (undocumented)
     invalidateColumnsChanged(): void;
     // @internal (undocumented)
-    invalidateColumnsInserted(index: number, count: number): void;
-    // @internal (undocumented)
     invalidateDataRowsDeleted(index: number, count: number): void;
     // @internal (undocumented)
     invalidateDataRowsInserted(index: number, count: number): void;
@@ -4091,6 +4174,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateDataRowsLoaded(): void;
     // @internal (undocumented)
     invalidateDataRowsMoved(oldRowIndex: number, newRowIndex: number, rowCount: number): void;
+    // @internal (undocumented)
+    invalidateFieldsInserted(index: number, count: number): void;
     // (undocumented)
     invalidateHorizontalAll(scrollDimensionAsWell: boolean): void;
     // (undocumented)
@@ -4328,12 +4413,12 @@ export namespace ViewLayout {
         // (undocumented)
         contentSize: number;
     }
-    // @internal (undocumented)
+    // (undocumented)
     export class ViewLayoutColumnArray<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Array<ViewLayoutColumn<BCS, SF>> {
         // (undocumented)
         gap: ViewLayoutColumnArray.Gap | undefined;
     }
-    // @internal (undocumented)
+    // (undocumented)
     export namespace ViewLayoutColumnArray {
         // (undocumented)
         export interface Gap {
@@ -4343,12 +4428,12 @@ export namespace ViewLayout {
             rightPlus1: number;
         }
     }
-    // @internal (undocumented)
+    // (undocumented)
     export class ViewLayoutRowArray<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Array<ViewLayoutRow<BCS, SF>> {
         // (undocumented)
         gap: ViewLayoutRowArray.Gap | undefined;
     }
-    // @internal (undocumented)
+    // (undocumented)
     export namespace ViewLayoutRowArray {
         // (undocumented)
         export interface Gap {

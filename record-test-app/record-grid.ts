@@ -27,8 +27,6 @@ export class RecordGrid extends Revgrid<
     columnsViewWidthsChangedEventer: RecordGrid.ColumnsViewWidthsChangedEventer | undefined;
     renderedEventer: RecordGrid.RenderedEventer | undefined;
 
-    private _lastNotifiedFocusedRecordIndex: number | undefined;
-
     // constructor(
     //     gridElement: HTMLElement,
     //     recordStore: RevRecordStore,
@@ -54,7 +52,7 @@ export class RecordGrid extends Revgrid<
 
     protected override descendantProcessClick(event: MouseEvent, hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, GridField> | null | undefined) {
         if (hoverCell === undefined) {
-            hoverCell = this.viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+            hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
         }
 
         if (hoverCell !== null && hoverCell !== undefined) {
@@ -67,7 +65,7 @@ export class RecordGrid extends Revgrid<
 
     protected override descendantProcessDblClick(event: MouseEvent, hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, GridField> | null | undefined) {
         if (hoverCell === undefined) {
-            hoverCell = this.viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+            hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
         }
 
         if (hoverCell !== null && hoverCell !== undefined) {

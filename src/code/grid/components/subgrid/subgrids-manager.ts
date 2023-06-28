@@ -62,6 +62,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
      * @summary Resolves a `subgridSpec` to a Subgrid (and its DataModel).
      * @desc The spec may describe either an existing data model, or a constructor for a new data model.
      * @returns either Subgrid or MainSubgrid depending on role specified in Spec
+     * @internal
      */
     private createSubgridFromDefinition(
         subgridHandle: SubgridImplementation.Handle,
@@ -97,7 +98,10 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
         );
     }
 
-    /** @returns either Subgrid or MainSubgrid depending on role */
+    /**
+     * @returns either Subgrid or MainSubgrid depending on role
+     * @internal
+     */
     private createSubgrid(
         subgridHandle: SubgridImplementation.Handle,
         role: Subgrid.Role, dataServer: DataServer<SF>, metaModel: MetaModel | undefined,
@@ -378,8 +382,6 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
 
 /** @public */
 export namespace SubgridsManager {
-    export type LoadedEventer = (this: void) => void;
-
     export interface SummariesFootersHeights {
         summariesHeight: number;
         footersHeight: number;

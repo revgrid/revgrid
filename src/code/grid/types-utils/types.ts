@@ -20,7 +20,7 @@ export const enum ListChangedTypeId {
 }
 
 /** @public */
-export type ListChangedEventHandler = (
+export type ListChangedEventer = (
     this: void,
     typeId: ListChangedTypeId,
     index: number,
@@ -57,10 +57,3 @@ export type UiableListChangedEventHandler = (
     targetIndex: number | undefined,
     ui: boolean
 ) => void;
-
-/** @public */
-export interface ColumnFieldNameAndAutoSizableWidth {
-    fieldName: string;
-    width: number | undefined;
-}
-

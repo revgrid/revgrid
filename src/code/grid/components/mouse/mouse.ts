@@ -88,7 +88,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         if (canvasOffsetPoint === undefined) {
             newHoverCell = undefined;
         } else {
-            newHoverCell = this._viewLayout.findCellAtCanvasOffset(canvasOffsetPoint.x, canvasOffsetPoint.y, false);
+            newHoverCell = this._viewLayout.findCellAtCanvasOffsetSpecifyRecompute(canvasOffsetPoint.x, canvasOffsetPoint.y, false);
         }
 
         this.updateHoverCell(newHoverCell, false);

@@ -300,7 +300,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     /** @internal */
     protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null {
-        const cell = this.viewLayout.findLinedHoverCell(event.offsetX, event.offsetY);
+        const cell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
         if (cell === undefined) {
             return null;
         } else {

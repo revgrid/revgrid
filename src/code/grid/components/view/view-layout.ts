@@ -522,7 +522,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /** @internal */
-    invalidateColumnsInserted(index: number, count: number) {
+    invalidateFieldsInserted(index: number, count: number) {
         const action: ViewLayout.DataRangeInsertedInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.DataRangeInserted,
             dimension: ScrollDimension.AxisEnum.horizontal,
@@ -1033,7 +1033,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      * @param point
      * @returns Cell coordinates
      */
-    findLinedHoverCell(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS, SF> | undefined {
+    findLinedHoverCellAtCanvasOffset(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS, SF> | undefined {
         this.ensureValidOutsideAnimationFrame();
         const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasXOffset);
         if (columnIndex < 0) {
@@ -1676,7 +1676,13 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
-    findCellAtCanvasOffset(x: number, y: number, canComputePool: boolean) {
+    findCellAtCanvasOffset(x: number, y: number) {
+        // do NOT call from within animation frame
+        return this.findCellAtCanvasOffsetSpecifyRecompute(x, y, true);
+    }
+
+    /** @internal */
+    findCellAtCanvasOffsetSpecifyRecompute(x: number, y: number, canComputePool: boolean) {
         // called from within animation frame
         const columnIndex = this.findColumnIndexOfCanvasOffset(x);
         if (columnIndex < 0) {
@@ -2377,12 +2383,10 @@ export namespace ViewLayout {
         readonly visibleChanged: boolean,
     }
 
-    /** @internal */
     export class ViewLayoutColumnArray<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Array<ViewLayoutColumn<BCS, SF>> {
         gap: ViewLayoutColumnArray.Gap | undefined;
     }
 
-    /** @internal */
     export namespace ViewLayoutColumnArray {
         export interface Gap {
             left: number;
@@ -2390,12 +2394,10 @@ export namespace ViewLayout {
         }
     }
 
-    /** @internal */
     export class ViewLayoutRowArray<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Array<ViewLayoutRow<BCS, SF>> {
         gap: ViewLayoutRowArray.Gap | undefined;
     }
 
-    /** @internal */
     export namespace ViewLayoutRowArray {
         export interface Gap {
             top: number;

@@ -14,6 +14,7 @@ export namespace DispatchableEvent {
         export interface DetailMap<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
             'rev-column-sort': Detail.ColumnSort<BCS, SF>;
             'rev-cell-focus-changed': Detail.CellFocusChanged;
+            'rev-row-focus-changed': Detail.RowFocusChanged;
             'rev-selection-changed': undefined;
             'rev-context-menu': Detail.Pointer<BCS, SF>;
             'rev-pointer-down': Detail.Pointer<BCS, SF>;
@@ -59,6 +60,11 @@ export namespace DispatchableEvent {
         export interface CellFocusChanged {
             readonly oldPoint: Point | undefined;
             readonly newPoint: Point | undefined;
+        }
+
+        export interface RowFocusChanged {
+            readonly oldSubgridRowIndex: number | undefined;
+            readonly newSubgridRowIndex: number | undefined;
         }
 
         export interface Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
