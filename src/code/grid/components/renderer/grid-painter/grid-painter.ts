@@ -77,7 +77,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
                 }
             }
         }
-        const cellPainter = viewCell.subgrid.getCellPainter(viewCell);
+        const cellPainter = viewCell.subgrid.getCellPainterEventer(viewCell);
         return cellPainter.paint(viewCell, prefillColor);
     }
 

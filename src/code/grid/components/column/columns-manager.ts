@@ -35,8 +35,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     constructor(
         readonly schemaServer: SchemaServer<SF>,
         readonly gridSettings: GridSettings,
-        /** @internal */
-        private readonly _getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
+        public getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
     ) {
     }
 
@@ -174,7 +173,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 
     /** @internal */
     newColumn(field: SF): Column<BCS, SF> {
-        const columnSettings = this._getSettingsForNewColumnEventer(field);
+        const columnSettings = this.getSettingsForNewColumnEventer(field);
         return new ColumnImplementation(
             field,
             columnSettings,

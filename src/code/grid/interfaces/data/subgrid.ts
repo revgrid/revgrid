@@ -34,7 +34,7 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends Schema
 
     getViewValueFromDataRowAtColumn(dataRow: DataServer.ViewRow, column: Column<BCS, SF>): DataServer.ViewValue;
 
-    getCellPainter(viewCell: DatalessViewCell<BCS, SF>): CellPainter<BCS, SF>;
+    getCellPainterEventer(viewCell: DatalessViewCell<BCS, SF>): CellPainter<BCS, SF>;
 }
 
 /** @public */

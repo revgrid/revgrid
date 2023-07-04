@@ -102,66 +102,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get nonFixedColumnsViewWidth() { return this.viewLayout.scrollableColumnsViewWidth; }
     get activeColumnsViewWidth() { return this.viewLayout.columnsViewWidth; }
 
-/**
- * @mixes scrolling.mixin
- * @mixes events.mixin
- * @mixes selection.mixin
- * @mixes themes.mixin
- * @mixes themes.sharedMixin
- * @constructor
- * @classdesc An object representing a Hypegrid.
- * @desc The first parameter, `container`, is optional. If omitted, the `options` parameter is promoted to first position. (Note that the container can also be given in `options.container.`)
- * @param {string|Element} [container] - CSS selector or Element. If omitted (and `options.container` also omitted), Hypergrid first looks for an _empty_ element with an ID of `hypergrid`. If not found, it will create a new element. In either case, the container element has the class name `hypergrid-container` added to its class name list. Finally, if the there is more than one such element with that class name, the element's ID attribute is set to `hypergrid` + _n_ where n is an ordinal one less than the number of such elements.
- * @param {object} [options] - If `options.data` provided, passed to {@link Hypergrid#setData setData}; else if `options.Behavior` provided, passed to {@link Hypergrid#setBehavior setBehavior}.
- * @param {function} [options.Behavior=Local] - _Per {@link Behavior#setData}._
- * @param {DataModel} [options.dataModel] - _Passed to behavior {@link Behavior constructor}._
- * @param {function} [options.DataModel=require('datasaur-local')] - _Passed to behavior {@link Behavior constructor}._
- * @param {function|object[]} [options.data] - _Passed to behavior {@link Behavior constructor}._
- * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor}._
- * @param {object} [options.metadata] - _Passed to behavior {@link Behavior constructor}._
- * @param {subgridSpec[]} [options.subgrids=this.properties.subgrids] - _Per {@link Behavior#setData}._
- * @param {pluginSpec|pluginSpec[]} [options.plugins]
- * @param {object} [options.state]
- *
- * @param {string|Element} [options.container] - Alternative to providing `container` (first) parameter above.
- *
- * @param {object} [options.contextAttributes={ alpha: true }] - Passed to [`HTMLCanvasElement.getContext`](https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/getContext). Although the MDN docs say setting this to `{alpha: false}` (opaque canvas) can "can speed up drawing of transparent content and images," our testing (with Chrome v63) failed to show any measurable performance gain.
- *
- * _An opaque canvas does have an important advantage, however!_ It permits the graphics context to use [sub-pixel rendering](https://en.wikipedia.org/wiki/Subpixel_rendering) for sharper text as viewed on LCD or LED screens, especially black text on white backgrounds, and especially when viewed on a high-pixel-density display such as an [Apple retina display](https://en.wikipedia.org/wiki/Retina_Display).
- *
- * Zoom in on the following samples images to see the difference in rendering.
- *
- * Value | Sample
- * :---: | :----:
- * `{ alpha: true }`<br>Transparent canvas,<br>renders text using<br>_regular anti-aliasing_ | ![regular.png](https://cdn-pro.dprcdn.net/files/acc_645730/ZqurK3)
- * `{ alpha: false }`<br>Opaque canvas,<br>renders text using<br>_sub-pixel rendering_ | ![sub-pixel.png](https://cdn-std.dprcdn.net/files/acc_645730/bf3VXh).
- *
- * Use with caution, however. In particular, if the canvas is set to "opaque" (`{alpha: false}`), do _not_ also specify a transparent or translucent color for `grid.properties.backGround` because content may then be drawn with corrupt anti-aliasing (at lest as of Chrome v67).
- *
- * To clarify, the default setting (`{ alpha: true }`) is a transparent canvas, meaning that elements rendered underneath the `<canvas>` element can be seen through any non-opaque pixels (pixels with alpha channel < 1.0). Hypergrids that set their background color to non-opaque can see this effect.
- *
- * Note: An opaque canvas can still be made _to appear_ translucent using the CSS `opacity` property. But that is a different effect entirely, setting the entire rendered canvas to translucent, not just so all pixels become translucent.
- * @param {string} [options.localization=Hypergrid.localization]
- * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to `Intl.NumberFomrat` and `Intl.DateFomrat`. See {@link https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
- * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to [`Intl.NumberFormat`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) for creating the basic "number" localizer.
- * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to [`Intl.DateTimeFormat`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat) for creating the basic "date" localizer.
- *
- * @param {object} [options.margin] - Optional canvas "margins" applied to containing div as .left, .top, .right, .bottom. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container` rule.)
- * @param {string} [options.margin.top='0px']
- * @param {string} [options.margin.right='0px']
- * @param {string} [options.margin.bottom='0px']
- * @param {string} [options.margin.left='0px']
- *
- * @param {object} [options.boundingRect] - Optional grid container size & position. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container > div:first-child` rule.)
- * @param {string} [options.boundingRect.width='auto']
- * @param {string} [options.boundingRect.height='500px']
- * @param {string} [options.boundingRect.left='auto']
- * @param {string} [options.boundingRect.top='auto']
- * @param {string} [options.boundingRect.right='auto']
- * @param {string} [options.boundingRect.bottom='auto']
- * @param {string} [options.boundingRect.position='relative']
- *
- */
     constructor(
         container: string | HTMLElement | undefined,
         definition: Revgrid.Definition<BCS, SF>,
@@ -172,7 +112,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         options = options ?? {};
 
         //Set up the container for a grid instance
-        this.containerHtmlElement = this.initContainer(container, options);
+        this.containerHtmlElement = this.initContainer(container);
 
         let schemaServer = definition.schemaServer;
         if (typeof schemaServer === 'function') {
@@ -561,7 +501,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /**
      * @summary Initialize container
      */
-    private initContainer(container: string | HTMLElement | undefined, options: Revgrid.Options<BGS, BCS, SF>): HTMLElement {
+    private initContainer(container: string | HTMLElement | undefined): HTMLElement {
         let resolvedContainer: HTMLElement;
         if (container === undefined) {
             resolvedContainer = this.findOrCreateContainer();

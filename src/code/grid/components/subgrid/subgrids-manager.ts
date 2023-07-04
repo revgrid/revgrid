@@ -12,8 +12,12 @@ import { SubgridImplementation } from './subgrid-implementation';
 
 /** @public */
 export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    readonly mainSubgrid: MainSubgrid<BCS, SF>;
     readonly subgrids: Subgrid<BCS, SF>[];
+    readonly mainSubgrid: MainSubgrid<BCS, SF>;
+    readonly headerSubgrid: Subgrid<BCS, SF> | undefined;
+    readonly filterSubgrid: Subgrid<BCS, SF> | undefined;
+    readonly summarySubgrid: Subgrid<BCS, SF> | undefined;
+    readonly footerSubgrid: Subgrid<BCS, SF> | undefined;
     /** @internal */
     readonly subgridImplementations = new Array<SubgridImplementation<BCS, SF>>();
     /** @internal */
@@ -28,7 +32,6 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
         definitions: Subgrid.Definition<BCS, SF>[],
     ) {
         this.subgrids = this.subgridImplementations;
-        let mainSubgrid: MainSubgrid<BCS, SF> | undefined;
         const subgrids = this.subgridImplementations;
         definitions.sort((left, right) => Subgrid.Role.gridOrderCompare(left.role, right.role));
         for (const definition of definitions) {
@@ -37,16 +40,19 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
                 const subgrid = this.createSubgridFromDefinition(subgridHandle, definition);
                 subgrids.push(subgrid);
                 this._handledSubgrids.push(subgrid);
-                if (subgrid.role === Subgrid.RoleEnum.main) {
-                    mainSubgrid = subgrid as MainSubgridImplementation<BCS, SF>;
+                const role = subgrid.role;
+                switch (role) {
+                    case 'header': this.headerSubgrid = subgrid; break;
+                    case 'filter': this.filterSubgrid = subgrid; break;
+                    case 'main': this.mainSubgrid = subgrid as MainSubgrid<BCS, SF>; break;
+                    case 'summary': this.summarySubgrid = subgrid; break;
+                    case 'footer': this.footerSubgrid = subgrid; break;
                 }
             }
         }
 
-        if (mainSubgrid === undefined) {
+        if (this.mainSubgrid === undefined) {
             throw new AssertError('SMSS98224', 'Subgrid Specs does not include main');
-        } else {
-            this.mainSubgrid = mainSubgrid;
         }
     }
 
