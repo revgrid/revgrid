@@ -511,9 +511,9 @@ export namespace CssClassName {
     const // (undocumented)
     gridElementCssClass = "revgrid";
     const // (undocumented)
-    gridContainerElementCssIdBase = "revgrid";
+    gridHostElementCssIdBase = "revgrid";
     const // (undocumented)
-    gridContainerElementCssClass = "revgrid-container";
+    gridHostElementCssClass = "revgrid-host";
 }
 
 // @public (undocumented)
@@ -2274,7 +2274,7 @@ export namespace Rectangle {
 
 // @public (undocumented)
 export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    constructor(container: string | HTMLElement | undefined, definition: Revgrid.Definition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: Revgrid.Options<BGS, BCS, SF>);
+    constructor(hostElement: string | HTMLElement | undefined, definition: Revgrid.Definition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: Revgrid.Options<BGS, BCS, SF>);
     // (undocumented)
     activate(): void;
     // (undocumented)
@@ -2329,8 +2329,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get columnScrollAnchorOffset(): number;
     // (undocumented)
     readonly columnsManager: ColumnsManager<BCS, SF>;
-    // (undocumented)
-    readonly containerHtmlElement: HTMLElement;
     // @internal (undocumented)
     createColumns(): void;
     // (undocumented)
@@ -2504,6 +2502,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     hasFocus(): boolean;
     // (undocumented)
     hideActiveColumn(activeColumnIndex: number, ui?: boolean): void;
+    // (undocumented)
+    readonly hostElement: HTMLElement;
     // (undocumented)
     isColumnOrRowSelected(): boolean;
     // (undocumented)
@@ -3795,8 +3795,6 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     protected readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>;
     // (undocumented)
     protected readonly columnsManager: ColumnsManager<BCS, SF>;
-    // (undocumented)
-    protected readonly containerHtmlElement: HTMLElement;
     // Warning: (ae-forgotten-export) The symbol "DataExtractBehavior" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -3862,6 +3860,8 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     handleWheelMove(event: WheelEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
     protected readonly horizontalScroller: Scroller<BGS>;
+    // (undocumented)
+    protected readonly hostElement: HTMLElement;
     // @internal (undocumented)
     initialise(): void;
     // (undocumented)

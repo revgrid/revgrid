@@ -32,7 +32,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     abstract readonly typeName: string;
 
     protected readonly sharedState: UiBehaviorSharedState;
-    protected readonly containerHtmlElement: HTMLElement;
+    protected readonly hostElement: HTMLElement;
 
     protected readonly gridSettings: GridSettings;
     protected readonly canvasManager: CanvasManager<BGS>;
@@ -59,7 +59,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     constructor(services: UiBehaviorServices<BGS, BCS, SF>) {
         this.sharedState = services.sharedState;
-        this.containerHtmlElement = services.containerHtmlElement;
+        this.hostElement = services.hostElement;
 
         this.gridSettings = services.gridSettings;
         this.canvasManager = services.canvasManager;

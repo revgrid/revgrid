@@ -49,7 +49,7 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
         const fixedRowCount = gridSettings.fixedRowCount;
         const preMainPlusFixedRowsHeight = this._subgridsManager.calculatePreMainPlusFixedRowsHeight();
         const postMainHeight = this._subgridsManager.calculatePostMainHeight();
-        const scrollableHeight = this._canvasEx.flooredContainerHeight - (preMainPlusFixedRowsHeight + postMainHeight);
+        const scrollableHeight = this._canvasEx.flooredHostHeight - (preMainPlusFixedRowsHeight + postMainHeight);
 
         let start: number | undefined;
         let size: number | undefined;

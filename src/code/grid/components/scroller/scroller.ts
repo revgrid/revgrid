@@ -8,17 +8,6 @@ import { ScrollDimension } from '../view/scroll-dimension';
 
 /** @public */
 export class Scroller<BGS extends BehavioredGridSettings> {
-    /**
-     * @name bar
-     * @summary The generated scrollbar element.
-     * @desc The caller inserts this element into the DOM (typically into the content container) and then calls its {@link Scroller#resize|resize()} method.
-     *
-     * Thus the node tree is typically:
-     * * A **content container** element, which contains:
-     *   * The content element(s)
-     *   * This **scrollbar element**, which in turn contains:
-     *     * The **thumb element**
-     */
     readonly bar: HTMLDivElement;
 
     /**
@@ -75,9 +64,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     private _thumbMarginLeading: number;
     private _thumbScaling: number;
     private _pinOffset: number;
-    // private _currentThumbPosition: number;
-    // private container: HTMLElement;
-    // private content: HTMLElement;
 
     private _pointerOverThumb = false;
     private _temporaryThumbFullVisibilityTimePeriod: number | undefined; // milliseconds
@@ -95,7 +81,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     // normal: number;
 
     private readonly _settingsChangedListener = () => this.applySettings();
-    private readonly _containerWheelListener = (event: WheelEvent) => this.handleContainerWheelEvent(event);
+    private readonly _hostWheelListener = (event: WheelEvent) => this.handleHostWheelEvent(event);
     private readonly _barClickListener = (event: MouseEvent) => this.handleBarClickEvent(event);
     private readonly _thumbClickListener = (event: MouseEvent) => this.handleThumbClickEvent(event);
     private readonly _thumbPointerEnterListener = () => this.handleThumbPointerEnterEvent();
@@ -154,7 +140,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      */
     constructor(
         private readonly _gridSettings: BGS,
-        private readonly _containerHtmlElement: HTMLElement, // Revgrid container element
+        private readonly _hostElement: HTMLElement, // Revgrid host element
         private readonly _scrollDimension: ScrollDimension<BGS>,
         instanceId: number,
         private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
@@ -194,7 +180,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
         this.applySettings();
 
-        this._containerHtmlElement.addEventListener('wheel', this._containerWheelListener);
+        this._hostElement.addEventListener('wheel', this._hostWheelListener);
         // presets
         this.axis = axis;
         if (classPrefix === undefined || classPrefix === '') {
@@ -209,14 +195,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         this.deltaXFactor = deltaXFactor;
         this.deltaYFactor = deltaYFactor;
         this.deltaZFactor = 1;
-        // this.container = options.container;
-        // this.content = options.content;
-
-        // this.normal = getNormal();
-
-        // if (loadBuiltinCssStylesheet) {
-        //     cssInjector(cssFinBars, 'finbar-base', cssStylesheetReferenceElement);
-        // }
 
         this._gridSettings.subscribeChangedEvent(this._settingsChangedListener);
 
@@ -237,7 +215,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
             this._spaceAccomodatedScroller.visibilityChangedEventer = () => this.adjustLeadingTrailingForSpaceAccomodatedScroller();
         }
 
-        this._containerHtmlElement.appendChild(bar);
+        this._hostElement.appendChild(bar);
     }
 
     /**
@@ -245,7 +223,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      * @desc Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
      */
     destroy() {
-        this._containerHtmlElement.removeEventListener('wheel', this._containerWheelListener);
+        this._hostElement.removeEventListener('wheel', this._hostWheelListener);
 
         this._gridSettings.unsubscribeChangedEvent(this._settingsChangedListener);
         this.bar.removeEventListener('click', this._barClickListener);
@@ -598,7 +576,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         evt.stopPropagation();
     }
 
-    private handleContainerWheelEvent(evt: WheelEvent) {
+    private handleHostWheelEvent(evt: WheelEvent) {
         const index = this.index;
         if (index !== undefined) {
             this.index = index + evt[this._deltaProp] * this[this._deltaProp + 'Factor'] /* * this.normal */;

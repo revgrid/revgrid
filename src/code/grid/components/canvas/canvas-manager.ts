@@ -63,25 +63,24 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     // private _repeatKeyStartTime = 0;
 
     readonly instanceId = getNextInstanceId();
-    readonly canvasContainerElement: HTMLElement;
     readonly canvasElement: HTMLCanvasElement;
     /** @internal */
     readonly gc: CachedCanvasRenderingContext2D;
     /** @internal */
     private _started = false;
     /** @internal */
-    private _flooredContainerWidth: number;
+    private _flooredHostWidth: number;
     /** @internal */
-    private _flooredContainerHeight: number;
+    private _flooredHostHeight: number;
     // bodyZoomFactor: number;
     /** @internal */
     private _bounds = new InexclusiveRectangle(0, 0, 0, 0);
     /** @internal */
     private _devicePixelRatio = 1;
     /** @internal */
-    private _containerWidth: number;
+    private _hostWidth: number;
     /** @internal */
-    private _containerHeight: number;
+    private _hostHeight: number;
 
     /** @internal
      * Used in dragging when no drag image is wanted
@@ -205,7 +204,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     }
 
     constructor(
-        readonly containerElement: HTMLElement,
+        readonly hostElement: HTMLElement,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         private readonly _gridSettings: BGS,
     ) {
@@ -219,7 +218,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
 
         this.gc = createCachedContext(this.canvasElement, canvasRenderingContext2DSettings);
 
-        this.containerElement.appendChild(this.canvasElement);
+        this.hostElement.appendChild(this.canvasElement);
 
         this._emptyImage = document.createElement('img');
         this._emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -337,8 +336,8 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
 
     get bounds() { return this._bounds; }
     get devicePixelRatio() { return this._devicePixelRatio; }
-    get flooredContainerWidth() { return this._flooredContainerWidth; }
-    get flooredContainerHeight() { return this._flooredContainerHeight; }
+    get flooredHostWidth() { return this._flooredHostWidth; }
+    get flooredHostHeight() { return this._flooredHostHeight; }
     get emptyImage() { return this._emptyImage; }
 
     addExternalEventListener(eventName: string, listener: CanvasManager.EventListener) {
@@ -351,7 +350,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
 
     start() {
         this._gridSettings.resizeEventer = () => this.resize(false);
-        this._resizeObserver.observe(this.containerElement);
+        this._resizeObserver.observe(this.hostElement);
         this._started = true;
     }
 
@@ -363,15 +362,15 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     }
 
     checksize() {
-        const containerRect = this.getContainerBoundingClientRect();
-        if (containerRect.width !== this._containerWidth || containerRect.height !== this._containerHeight) {
-            this.resize(true, containerRect);
+        const hostRect = this.getHostBoundingClientRect();
+        if (hostRect.width !== this._hostWidth || hostRect.height !== this._hostHeight) {
+            this.resize(true, hostRect);
         }
     }
 
-    resize(debounceEvent: boolean, containerRect?: DOMRect) {
-        if (containerRect === undefined) {
-            containerRect = this.getContainerBoundingClientRect();
+    resize(debounceEvent: boolean, hostRect?: DOMRect) {
+        if (hostRect === undefined) {
+            hostRect = this.getHostBoundingClientRect();
         }
 
         const oldWidth = this._bounds.width;
@@ -381,14 +380,14 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
            imageData = this.gc.getImageData(0, 0, oldWidth * this._devicePixelRatio, oldHeight * this._devicePixelRatio);
         }
 
-        this._containerWidth = containerRect.width;
-        this._containerHeight = containerRect.height;
+        this._hostWidth = hostRect.width;
+        this._hostHeight = hostRect.height;
 
-        const width = Math.floor(this._containerWidth);
-        const height = Math.floor(this._containerHeight);
+        const width = Math.floor(this._hostWidth);
+        const height = Math.floor(this._hostHeight);
 
-        this._flooredContainerWidth = width;
-        this._flooredContainerHeight = height;
+        this._flooredHostWidth = width;
+        this._flooredHostHeight = height;
 
         // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
         const ratio = this._gridSettings.useHiDPI ? window.devicePixelRatio : 1;
@@ -634,8 +633,8 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         }
     }
 
-    private getContainerBoundingClientRect() {
-        return this.containerElement.getBoundingClientRect();
+    private getHostBoundingClientRect() {
+        return this.hostElement.getBoundingClientRect();
     }
 
     private getCanvasBoundingClientRect() {

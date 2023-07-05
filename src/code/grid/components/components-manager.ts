@@ -30,7 +30,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
 
     constructor(
         gridSettings: BGS,
-        containerHtmlElement: HTMLElement,
+        hostElement: HTMLElement,
         schemaServer: SchemaServer<SF>,
         subgridDefinitions: Subgrid.Definition<BCS, SF>[],
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
@@ -43,7 +43,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         // }
 
         this.canvasManager = new CanvasManager(
-            containerHtmlElement,
+            hostElement,
             canvasRenderingContext2DSettings,
             gridSettings,
         );
@@ -101,7 +101,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
 
             this.verticalScroller = new Scroller(
                 gridSettings,
-                containerHtmlElement,
+                hostElement,
                 this.viewLayout.verticalScrollDimension,
                 this.canvasManager.instanceId,
                 false,
@@ -115,7 +115,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
 
             this.horizontalScroller = new Scroller(
                 gridSettings,
-                containerHtmlElement,
+                hostElement,
                 this.viewLayout.horizontalScrollDimension,
                 this.canvasManager.instanceId,
                 false,

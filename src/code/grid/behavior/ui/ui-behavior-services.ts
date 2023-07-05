@@ -26,7 +26,7 @@ export class UiBehaviorServices<BGS extends BehavioredGridSettings, BCS extends 
     /** @internal */
     constructor(
         readonly sharedState: UiBehaviorSharedState,
-        readonly containerHtmlElement: HTMLElement,
+        readonly hostElement: HTMLElement,
         readonly gridSettings: GridSettings,
         readonly canvasManager: CanvasManager<BGS>,
         readonly selection: Selection<BCS, SF>,

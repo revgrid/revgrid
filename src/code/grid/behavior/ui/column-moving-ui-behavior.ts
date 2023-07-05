@@ -75,11 +75,11 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
                     this._dragOverlay.style.left = '0px';
                     this._dragOverlay.style.display = 'none';
 
-                    this.containerHtmlElement.appendChild(this._dragOverlay);
+                    this.hostElement.appendChild(this._dragOverlay);
 
                     this._dragColumn = viewCell.viewLayoutColumn;
-                    this._dragOverlay.width = this.canvasManager.flooredContainerWidth;
-                    this._dragOverlay.height = this.canvasManager.flooredContainerHeight;
+                    this._dragOverlay.width = this.canvasManager.flooredHostWidth;
+                    this._dragOverlay.height = this.canvasManager.flooredHostHeight;
                     this._dragOverlay.style.display = '';
 
                     return {
@@ -105,7 +105,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
                 this.endGridScrolling();
                 this.endDragColumn(dragAction);
                 this.reindexBehavior.unstash();
-                this.containerHtmlElement.removeChild(dragOverlay);
+                this.hostElement.removeChild(dragOverlay);
                 // requestAnimationFrame(() => this.render(undefined));
                 this.setMouseDragging(false);
             }
@@ -196,9 +196,9 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
                 if (dragContext === null) {
                     throw new AssertError('CMR18887');
                 } else {
-                    dragOverlay.width = this.canvasManager.flooredContainerWidth;
-                    dragOverlay.height = this.canvasManager.flooredContainerHeight;
-                    dragContext.clearRect(0, 0, this.canvasManager.flooredContainerWidth, this.canvasManager.flooredContainerHeight);
+                    dragOverlay.width = this.canvasManager.flooredHostWidth;
+                    dragOverlay.height = this.canvasManager.flooredHostHeight;
+                    dragContext.clearRect(0, 0, this.canvasManager.flooredHostWidth, this.canvasManager.flooredHostHeight);
 
                     if (dragAction !== undefined) {
 
@@ -207,7 +207,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
                                 ? dragAction.target.left
                                 : dragAction.target.rightPlus1;
                             dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
-                            dragContext.fillRect(indicatorX, 0, 2, this.canvasManager.flooredContainerHeight);
+                            dragContext.fillRect(indicatorX, 0, 2, this.canvasManager.flooredHostHeight);
                         }
 
                         const dragCol = this.viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex);
@@ -216,7 +216,7 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
                             dragContext.fillStyle = hideAction
                                 ? 'rgba(255, 50, 50, 0.2)'
                                 : 'rgba(50, 50, 255, 0.2)';
-                            dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasManager.flooredContainerHeight);
+                            dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasManager.flooredHostHeight);
                         }
                     }
                 }

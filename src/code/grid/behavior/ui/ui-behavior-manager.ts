@@ -46,7 +46,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
     private _enabled = false;
 
     constructor(
-        containerHtmlElement: HTMLElement,
+        hostElement: HTMLElement,
         private readonly _gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
         focus: Focus<BGS, BCS, SF>,
@@ -74,7 +74,7 @@ export class UiBehaviorManager<BGS extends BehavioredGridSettings, BCS extends B
 
         this._services = new UiBehaviorServices(
             this._sharedState,
-            containerHtmlElement,
+            hostElement,
             this._gridSettings,
             canvasManager,
             selection,

@@ -39,7 +39,7 @@ import { ListChangedTypeId, SelectionAreaType } from './types-utils/types';
 
 /** @public */
 export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    readonly containerHtmlElement: HTMLElement;
+    readonly hostElement: HTMLElement;
 
     readonly mouse: Mouse<BGS, BCS, SF>;
     readonly selection: Selection<BCS, SF>;
@@ -103,7 +103,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get activeColumnsViewWidth() { return this.viewLayout.columnsViewWidth; }
 
     constructor(
-        container: string | HTMLElement | undefined,
+        hostElement: string | HTMLElement | undefined,
         definition: Revgrid.Definition<BCS, SF>,
         readonly settings: BGS,
         getSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>,
@@ -111,8 +111,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     ) {
         options = options ?? {};
 
-        //Set up the container for a grid instance
-        this.containerHtmlElement = this.initContainer(container);
+        //Set up the host for a grid instance
+        this.hostElement = this.prepareHost(hostElement);
 
         let schemaServer = definition.schemaServer;
         if (typeof schemaServer === 'function') {
@@ -121,7 +121,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
         this._componentsManager = new ComponentsManager(
             settings,
-            this.containerHtmlElement,
+            this.hostElement,
             schemaServer,
             definition.subgrids,
             options.canvasRenderingContext2DSettings,
@@ -166,7 +166,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._dataExtractBehavior = this._componentBehaviorManager.dataExtractBehavior;
 
         this._uiBehaviorManager = new UiBehaviorManager(
-            this.containerHtmlElement,
+            this.hostElement,
             this.settings,
             this.canvasManager,
             this.focus,
@@ -215,11 +215,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     destroy() {
         this._componentBehaviorManager.destroy();
 
-        const containerHtmlElement = this.containerHtmlElement;
-        let firstChild = containerHtmlElement.firstChild;
+        const hostElement = this.hostElement;
+        let firstChild = hostElement.firstChild;
         while (firstChild !== null) {
-            containerHtmlElement.removeChild(firstChild);
-            firstChild = containerHtmlElement.firstChild;
+            hostElement.removeChild(firstChild);
+            firstChild = hostElement.firstChild;
         }
 
         this._destroyed = true;
@@ -234,11 +234,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     setAttribute(attribute: string, value: string) {
-        this.containerHtmlElement.setAttribute(attribute, value);
+        this.hostElement.setAttribute(attribute, value);
     }
 
     removeAttribute(attribute: string) {
-        this.containerHtmlElement.removeAttribute(attribute);
+        this.hostElement.removeAttribute(attribute);
     }
 
     /** @internal */
@@ -489,50 +489,45 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._renderer.waitModelRendered();
     }
 
-    /**
-     * @summary Set the container for a grid instance
-     */
-    // private setContainer(div: string | HTMLElement) {
-    //     this.initContainer(div);
-    //     this.initRenderer();
-    //     // injectGridElements.call(this);
-    // }
+    private prepareHost(hostElement: string | HTMLElement | undefined): HTMLElement {
+        let resolvedHostElement: HTMLElement;
+        if (hostElement === undefined) {
+            let foundOrCreatedElement = document.getElementById(CssClassName.gridHostElementCssIdBase);
 
-    /**
-     * @summary Initialize container
-     */
-    private initContainer(container: string | HTMLElement | undefined): HTMLElement {
-        let resolvedContainer: HTMLElement;
-        if (container === undefined) {
-            resolvedContainer = this.findOrCreateContainer();
+            if (foundOrCreatedElement === null || foundOrCreatedElement.childElementCount > 0) {
+                // is not found or being used.  Create a new host
+                foundOrCreatedElement = document.createElement('div');
+                document.body.appendChild(foundOrCreatedElement);
+            }
+            resolvedHostElement = foundOrCreatedElement;
         } else {
-            if (typeof container === 'string') {
-                const queriedContainer = document.querySelector(container);
-                if (queriedContainer === null) {
-                    throw new AssertError('RIC55998', `Container element not found: ${container}`);
+            if (typeof hostElement === 'string') {
+                const queriedHostElement = document.querySelector(hostElement);
+                if (queriedHostElement === null) {
+                    throw new AssertError('RIC55998', `Host element not found: ${hostElement}`);
                 } else {
-                    resolvedContainer = queriedContainer as HTMLElement;
+                    resolvedHostElement = queriedHostElement as HTMLElement;
                 }
             } else {
-                resolvedContainer = container;
+                resolvedHostElement = hostElement;
             }
         }
 
         // Default Position and height to ensure DnD works
-        if (!resolvedContainer.style.position) {
-            resolvedContainer.style.position = ''; // revert to stylesheet value
+        if (!resolvedHostElement.style.position) {
+            resolvedHostElement.style.position = ''; // revert to stylesheet value
         }
 
-        if (resolvedContainer.clientHeight < 1) {
-            resolvedContainer.style.height = ''; // revert to stylesheet value
+        if (resolvedHostElement.clientHeight < 1) {
+            resolvedHostElement.style.height = ''; // revert to stylesheet value
         }
 
-        resolvedContainer.removeAttribute('tabindex');
+        resolvedHostElement.removeAttribute('tabindex');
 
-        resolvedContainer.classList.add(CssClassName.gridContainerElementCssClass);
-        resolvedContainer.id = resolvedContainer.id || CssClassName.gridContainerElementCssIdBase + (document.querySelectorAll('.' + CssClassName.gridContainerElementCssClass).length - 1 || '');
+        resolvedHostElement.classList.add(CssClassName.gridHostElementCssClass);
+        resolvedHostElement.id = resolvedHostElement.id || CssClassName.gridHostElementCssIdBase + (document.querySelectorAll('.' + CssClassName.gridHostElementCssClass).length - 1 || '');
 
-        return resolvedContainer;
+        return resolvedHostElement;
     }
 
     /**
@@ -1834,20 +1829,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      */
     pageRight() {
         this._focusScrollBehavior.tryPageFocusRight();
-    }
-    // End Scrolling mixin
-
-    /** @internal */
-    private findOrCreateContainer() {
-        let div = document.getElementById(CssClassName.gridContainerElementCssIdBase);
-
-        if (div === null || div.childElementCount > 0) {
-            // is not found or being used.  Create a new container
-            div = document.createElement('div');
-            document.body.appendChild(div);
-        }
-
-        return div;
     }
 
     /** @internal */
