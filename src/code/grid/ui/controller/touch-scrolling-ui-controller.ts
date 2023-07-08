@@ -5,15 +5,15 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
 /** @internal */
-export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
 
-    readonly typeName = TouchScrollingUiBehavior.typeName;
+    readonly typeName = TouchScrollingUiController.typeName;
 
     private _stepTimeoutHandle: ReturnType<typeof setTimeout>;
-    private touches: TouchScrollingUiBehavior.TouchedBounds[];
+    private touches: TouchScrollingUiController.TouchedBounds[];
 
     override handleTouchStart(eventDetail: TouchEvent) {
         this.stopDeceleration();
@@ -45,7 +45,7 @@ export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
             this.viewLayout.scrollHorizontalViewportBy(xOffset);
             this.viewLayout.scrollVerticalViewportBy(yOffset);
 
-            if (touchCount >= TouchScrollingUiBehavior.MAX_TOUCHES) {
+            if (touchCount >= TouchScrollingUiController.MAX_TOUCHES) {
                 this.touches.shift();
             }
 
@@ -78,19 +78,19 @@ export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
         if (cell === undefined) {
             return undefined;
         } else {
-            const bounds = cell.viewCell.bounds as TouchScrollingUiBehavior.TouchedBounds;
+            const bounds = cell.viewCell.bounds as TouchScrollingUiController.TouchedBounds;
             bounds.timestamp = Date.now();
             return bounds;
         }
     }
 
-    private decelerateY(startTouch: TouchScrollingUiBehavior.TouchedBounds, endTouch: TouchScrollingUiBehavior.TouchedBounds) {
+    private decelerateY(startTouch: TouchScrollingUiController.TouchedBounds, endTouch: TouchScrollingUiController.TouchedBounds) {
         const offset = endTouch.y - startTouch.y;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
         this.decelerate(this.viewLayout.verticalScrollDimension, offset, timeOffset);
     }
 
-    private decelerateX(startTouch: TouchScrollingUiBehavior.TouchedBounds, endTouch: TouchScrollingUiBehavior.TouchedBounds) {
+    private decelerateX(startTouch: TouchScrollingUiController.TouchedBounds, endTouch: TouchScrollingUiController.TouchedBounds) {
         const offset = endTouch.x - startTouch.x;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
         this.decelerate(this.viewLayout.horizontalScrollDimension, offset, timeOffset);
@@ -116,7 +116,7 @@ export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                     return;
                 }
 
-                velocity -= TouchScrollingUiBehavior.DEC_STEP_SIZE;
+                velocity -= TouchScrollingUiController.DEC_STEP_SIZE;
 
                 const nextInterval = this.updateInterval(interval, velocity);
                 this._stepTimeoutHandle = setTimeout(
@@ -152,7 +152,7 @@ export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
     }
 
     private updateInterval(interval: number, velocity: number) {
-        if (interval >= TouchScrollingUiBehavior.MAX_INTERVAL) {
+        if (interval >= TouchScrollingUiController.MAX_INTERVAL) {
             return interval;
         }
 
@@ -175,7 +175,7 @@ export class TouchScrollingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
 }
 
 /** @internal */
-export namespace TouchScrollingUiBehavior {
+export namespace TouchScrollingUiController {
     export const typeName = 'touchscrolling';
 
     export const MAX_INTERVAL = 200;

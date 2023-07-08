@@ -1,4 +1,11 @@
 
+import { CellPropertiesBehavior } from '../../behavior/cell-properties-behavior';
+import { DataExtractBehavior } from '../../behavior/data-extract-behavior';
+import { EventBehavior } from '../../behavior/event-behavior';
+import { FocusScrollBehavior } from '../../behavior/focus-scroll-behavior';
+import { FocusSelectBehavior } from '../../behavior/focus-select-behavior';
+import { ReindexBehavior } from '../../behavior/reindex-behavior';
+import { RowPropertiesBehavior } from '../../behavior/row-properties-behavior';
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
@@ -14,24 +21,17 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { CellPropertiesBehavior } from '../component/cell-properties-behavior';
-import { DataExtractBehavior } from '../component/data-extract-behavior';
-import { EventBehavior } from '../component/event-behavior';
-import { FocusScrollBehavior } from '../component/focus-scroll-behavior';
-import { FocusSelectBehavior } from '../component/focus-select-behavior';
-import { ReindexBehavior } from '../component/reindex-behavior';
-import { RowPropertiesBehavior } from '../component/row-properties-behavior';
-import { UiBehaviorServices } from './ui-behavior-services';
-import { UiBehaviorSharedState } from './ui-behavior-shared-state';
+import { UiControllerServices } from './common/ui-controller-services';
+import { UiControllerSharedState } from './common/ui-controller-shared-state';
 
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @public
  */
-export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export abstract class UiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     abstract readonly typeName: string;
 
-    protected readonly sharedState: UiBehaviorSharedState;
+    protected readonly sharedState: UiControllerSharedState;
     protected readonly hostElement: HTMLElement;
 
     protected readonly gridSettings: GridSettings;
@@ -57,7 +57,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     protected readonly mainSubgrid: MainSubgrid<BCS, SF>;
 
-    constructor(services: UiBehaviorServices<BGS, BCS, SF>) {
+    constructor(services: UiControllerServices<BGS, BCS, SF>) {
         this.sharedState = services.sharedState;
         this.hostElement = services.hostElement;
 
@@ -88,18 +88,18 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     /**
      * the next feature to be given a chance to handle incoming events
      */
-    next: UiBehavior<BGS, BCS, SF> | undefined;
+    next: UiController<BGS, BCS, SF> | undefined;
 
     /**
      * a temporary holding field for my next feature when I'm in a disconnected state
      */
-    detached: UiBehavior<BGS, BCS, SF> | undefined;
+    detached: UiController<BGS, BCS, SF> | undefined;
 
     /**
      * @desc set my next field, or if it's populated delegate to the feature in my next field
      * @param nextFeature - this is how we build the chain of responsibility
      */
-    setNext(nextFeature: UiBehavior<BGS, BCS, SF>) {
+    setNext(nextFeature: UiController<BGS, BCS, SF>) {
         if (this.next !== undefined) {
             this.next.setNext(nextFeature);
         } else {
@@ -310,14 +310,14 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
 }
 
 /** @public */
-export namespace UiBehavior {
+export namespace UiController {
     export type Constructor<
         BGS extends BehavioredGridSettings,
         BCS extends BehavioredColumnSettings,
         SF extends SchemaField
-    > = new (services: UiBehaviorServices<BGS, BCS, SF>) => UiBehavior<BGS, BCS, SF>;
+    > = new (services: UiControllerServices<BGS, BCS, SF>) => UiController<BGS, BCS, SF>;
 
-    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    export interface Definition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         typeName: string;
         constructor: Constructor<BGS, BCS, SF>;
     }

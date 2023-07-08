@@ -13,12 +13,12 @@ import { Point } from '../../types-utils/point';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
 import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils/types';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
 /** @internal */
-export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+export class SelectionUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
 
-    readonly typeName = SelectionUiBehavior.typeName;
+    readonly typeName = SelectionUiController.typeName;
 
     /** @internal */
     private _activeDragType: Mouse.DragTypeEnum | undefined;
@@ -494,7 +494,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
                 this._stepScrollDragTickTimeoutHandle = undefined;
                 this.checkStepScrollDrag(canvasOffsetX, canvasOffsetY)
             },
-            SelectionUiBehavior.scheduleStepScrollDragTickInterval
+            SelectionUiController.scheduleStepScrollDragTickInterval
         );
     }
 
@@ -660,7 +660,7 @@ export class SelectionUiBehavior<BGS extends BehavioredGridSettings, BCS extends
 }
 
 /** @internal */
-export namespace SelectionUiBehavior {
+export namespace SelectionUiController {
     export const typeName = 'selection';
 
     export const scheduleStepScrollDragTickInterval = 20;

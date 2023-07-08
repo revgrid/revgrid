@@ -3,15 +3,16 @@
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-behavior-ui.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-ui-controller.tsbuildinfo"
   },
 
   "include": [
-    "*.ts"
+    "*.ts",
+    "./common/*.ts"
   ],
 
   "references": [
-    { "path": "../component/tsconfig.grid-behavior-component.json" },
+    { "path": "../../behavior/tsconfig.grid-behavior.json" },
     { "path": "../../components/renderer/tsconfig.grid-components-renderer.json" },
     { "path": "../../components/scroller/tsconfig.grid-components-scroller.json" },
     { "path": "../../components/selection/tsconfig.grid-components-selection.json" },

@@ -1,10 +1,10 @@
-import { ViewLayout } from '../../components/view/view-layout';
-import { MetaModel } from '../../interfaces/data/meta-model';
-import { Subgrid } from '../../interfaces/data/subgrid';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { ViewLayout } from '../components/view/view-layout';
+import { MetaModel } from '../interfaces/data/meta-model';
+import { Subgrid } from '../interfaces/data/subgrid';
+import { ViewCell } from '../interfaces/data/view-cell';
+import { SchemaField } from '../interfaces/schema/schema-field';
+import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 
 export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     constructor(private readonly _viewLayout: ViewLayout<BGS, BCS, SF>) {

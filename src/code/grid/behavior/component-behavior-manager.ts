@@ -1,15 +1,15 @@
-import { CanvasManager } from '../../components/canvas/canvas-manager';
-import { ColumnsManager } from '../../components/column/columns-manager';
-import { Focus } from '../../components/focus/focus';
-import { Mouse } from '../../components/mouse/mouse';
-import { Renderer } from '../../components/renderer/renderer';
-import { Scroller } from '../../components/scroller/scroller';
-import { Selection } from '../../components/selection/selection';
-import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ViewLayout } from '../../components/view/view-layout';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { CanvasManager } from '../components/canvas/canvas-manager';
+import { ColumnsManager } from '../components/column/columns-manager';
+import { Focus } from '../components/focus/focus';
+import { Mouse } from '../components/mouse/mouse';
+import { Renderer } from '../components/renderer/renderer';
+import { Scroller } from '../components/scroller/scroller';
+import { Selection } from '../components/selection/selection';
+import { SubgridsManager } from '../components/subgrid/subgrids-manager';
+import { ViewLayout } from '../components/view/view-layout';
+import { SchemaField } from '../interfaces/schema/schema-field';
+import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
 import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
@@ -39,7 +39,7 @@ import { ServerNotificationBehavior } from './server-notification-behavior';
  * @abstract
  */
 /** @internal */
-export class ComponentBehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
     readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
     readonly eventBehavior: EventBehavior<BGS, BCS, SF>;

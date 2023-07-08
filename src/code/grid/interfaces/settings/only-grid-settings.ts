@@ -31,7 +31,7 @@ export interface OnlyGridSettings {
     /** Whether to automatically expand column width to accommodate widest rendered value. */
     defaultColumnAutoSizing: boolean;
     defaultColumnWidth: number;
-    defaultUiBehaviorTypeNames: string[];
+    defaultUiControllerTypeNames: string[];
     editable: boolean;
     /** Keyboard event key for editing a cell */
     editKey: string;

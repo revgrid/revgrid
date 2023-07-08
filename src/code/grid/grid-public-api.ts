@@ -1,6 +1,5 @@
 // Public API
 
-export { UiBehavior } from './behavior/ui/ui-behavior';
 export { ColumnsManager } from './components/column/columns-manager';
 export { DispatchableEvent } from './components/dispatchable-event/dispatchable-event';
 export { Focus } from './components/focus/focus';
@@ -38,4 +37,5 @@ export { Point, WritablePoint } from './types-utils/point';
 export { Rectangle } from './types-utils/rectangle';
 export * from './types-utils/revgrid-error';
 export * from './types-utils/types';
+export { UiController } from './ui/controller/ui-controller';
 

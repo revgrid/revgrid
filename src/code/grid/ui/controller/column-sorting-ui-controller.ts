@@ -2,12 +2,12 @@ import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
 /** @internal */
-export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+export class ColumnSortingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
 
-    readonly typeName = ColumnSortingUiBehavior.typeName;
+    readonly typeName = ColumnSortingUiController.typeName;
 
     override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (cell === undefined) {
@@ -80,6 +80,6 @@ export class ColumnSortingUiBehavior<BGS extends BehavioredGridSettings, BCS ext
 }
 
 /** @internal */
-export namespace ColumnSortingUiBehavior {
+export namespace ColumnSortingUiController {
     export const typeName = 'columnsorting';
 }

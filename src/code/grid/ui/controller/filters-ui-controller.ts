@@ -5,12 +5,14 @@ import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
+
+// Currently not used - kept in case this feature is re-instated in future
 
 /** @internal */
-export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
 
-    readonly typeName = FiltersUiBehavior.typeName;
+    readonly typeName = FiltersUiController.typeName;
 
     /**
      * Navigate away from the filter cell when:
@@ -28,7 +30,7 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
         //     const cellEvent = eventDetail.editor.viewCell;
         //     if (cellEvent.isFilterCell) {
         //         const navKey = this.grid.generateNavKey(eventDetail.primitiveEvent);
-        //         const handler = this[('handle' + navKey) as keyof FiltersUiBehavior] as ((CellEvent: CellEvent) => void);
+        //         const handler = this[('handle' + navKey) as keyof FiltersUiController] as ((CellEvent: CellEvent) => void);
         //         if (handler !== undefined) {
         //             handler.call(this, cellEvent);
         //             handled = true;
@@ -113,6 +115,6 @@ export class FiltersUiBehavior<BGS extends BehavioredGridSettings, BCS extends B
 }
 
 /** @internal */
-export namespace FiltersUiBehavior {
+export namespace FiltersUiController {
     export const typeName = 'filters';
 }

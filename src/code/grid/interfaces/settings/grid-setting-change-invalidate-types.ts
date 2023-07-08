@@ -109,7 +109,7 @@ export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateType
     defaultRowHeight: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
     defaultColumnAutoSizing: GridSettingChangeInvalidateTypeId.None,
     defaultColumnWidth: GridSettingChangeInvalidateTypeId.None,
-    defaultUiBehaviorTypeNames: GridSettingChangeInvalidateTypeId.Resize,
+    defaultUiControllerTypeNames: GridSettingChangeInvalidateTypeId.Resize,
     editable: GridSettingChangeInvalidateTypeId.None,
     editKey: GridSettingChangeInvalidateTypeId.None,
     editOnDoubleClick: GridSettingChangeInvalidateTypeId.None,

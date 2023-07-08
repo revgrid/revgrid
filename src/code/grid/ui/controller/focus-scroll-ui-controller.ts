@@ -6,11 +6,11 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
 /** @internal */
-export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
-    readonly typeName = FocusScrollUiBehavior.typeName;
+export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
+    readonly typeName = FocusScrollUiController.typeName;
 
     override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === undefined) {
@@ -252,6 +252,6 @@ export class FocusScrollUiBehavior<BGS extends BehavioredGridSettings, BCS exten
 }
 
 /** @internal */
-export namespace FocusScrollUiBehavior {
+export namespace FocusScrollUiController {
     export const typeName = 'focusscroll';
 }

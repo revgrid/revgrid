@@ -5,12 +5,12 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
 /** @internal */
-export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+export class CellClickUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
 
-    readonly typeName = CellClickUiBehavior.typeName;
+    readonly typeName = CellClickUiController.typeName;
 
     override handlePointerMove(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this.sharedState;
@@ -121,7 +121,7 @@ export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends
         // STEP 5: Decorate the link as "visited"
         if (result) {
             const column = viewCell.viewLayoutColumn.column;
-            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', CellClickUiBehavior.linkVisitedColor, subgrid, viewCell);
+            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', CellClickUiController.linkVisitedColor, subgrid, viewCell);
             this.renderer.invalidateViewCellRender(viewCell);
         }
 
@@ -130,7 +130,7 @@ export class CellClickUiBehavior<BGS extends BehavioredGridSettings, BCS extends
 }
 
 /** @internal */
-export namespace CellClickUiBehavior {
+export namespace CellClickUiController {
     export const typeName = 'cellclick';
 
     export const linkVisitedColor = '';

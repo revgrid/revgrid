@@ -1,17 +1,17 @@
-import { ColumnsManager } from '../../components/column/columns-manager';
-import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
-import { ViewLayout } from '../../components/view/view-layout';
-import { CellMetaSettings } from '../../interfaces/data/cell-meta-settings';
-import { MetaModel } from '../../interfaces/data/meta-model';
-import { Subgrid } from '../../interfaces/data/subgrid';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { Column } from '../../interfaces/dataless/column';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { ColumnSettings } from '../../interfaces/settings/column-settings';
-import { CellMetaSettingsImplementation } from '../../settings/cell-meta-settings-implementation';
+import { ColumnsManager } from '../components/column/columns-manager';
+import { SubgridsManager } from '../components/subgrid/subgrids-manager';
+import { ViewCellImplementation } from '../components/view/view-cell-implementation';
+import { ViewLayout } from '../components/view/view-layout';
+import { CellMetaSettings } from '../interfaces/data/cell-meta-settings';
+import { MetaModel } from '../interfaces/data/meta-model';
+import { Subgrid } from '../interfaces/data/subgrid';
+import { ViewCell } from '../interfaces/data/view-cell';
+import { Column } from '../interfaces/dataless/column';
+import { SchemaField } from '../interfaces/schema/schema-field';
+import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { ColumnSettings } from '../interfaces/settings/column-settings';
+import { CellMetaSettingsImplementation } from '../settings/cell-meta-settings-implementation';
 
 export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     constructor(

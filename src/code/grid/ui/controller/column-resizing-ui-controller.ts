@@ -1,3 +1,4 @@
+import { EventBehavior } from '../../behavior/event-behavior';
 import { Mouse } from '../../components/mouse/mouse';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
@@ -5,13 +6,12 @@ import { Column, ColumnAutoSizeableWidth } from '../../interfaces/dataless/colum
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { EventBehavior } from '../component/event-behavior';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
 /** @internal */
-export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+export class ColumnResizingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
 
-    readonly typeName = ColumnResizingUiBehavior.typeName;
+    readonly typeName = ColumnResizingUiController.typeName;
 
     private _dragColumn: Column<BCS, SF> | undefined;
 
@@ -78,7 +78,7 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
                 return super.handlePointerDragStart(event, hoverCell);
             } else {
                 const nearGridLine = this.calculateNearGridLine(canvasOffsetX, viewCell);
-                if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.neither) {
+                if (nearGridLine === ColumnResizingUiController.NearGridLine.neither) {
                     return super.handlePointerDragStart(event, hoverCell);
                 } else {
                     const viewLayoutColumnCount = this.viewLayout.columns.length;
@@ -87,7 +87,7 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
 
                     const gridRightBottomAligned = this.gridSettings.gridRightAligned;
                     if (!gridRightBottomAligned) {
-                        if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.left) {
+                        if (nearGridLine === ColumnResizingUiController.NearGridLine.left) {
                             vcIndex--;
                             if (vcIndex < 0) {
                                 // can't drag left-most column boundary
@@ -234,19 +234,19 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
             } else {
                 const canvasOffsetX = event.offsetX;
                 const nearGridLine = this.calculateNearGridLine(canvasOffsetX, viewCell);
-                if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.neither) {
+                if (nearGridLine === ColumnResizingUiController.NearGridLine.neither) {
                     return super.handleDblClick(event, hoverCell);
                 } else {
                     let viewLayoutColumn = viewCell.viewLayoutColumn;
                     if (this.gridSettings.gridRightAligned) {
-                        if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.right) {
+                        if (nearGridLine === ColumnResizingUiController.NearGridLine.right) {
                             // always work on the column to the right of the near grid line
                             const columnIndex = viewLayoutColumn.index;
                             // columnIndex cannot be for last column as right grid line of last column cannot be near grid line
                             viewLayoutColumn = this.viewLayout.columns[columnIndex + 1];
                         }
                     } else {
-                        if (nearGridLine === ColumnResizingUiBehavior.NearGridLine.left) {
+                        if (nearGridLine === ColumnResizingUiController.NearGridLine.left) {
                             // always work on the column to the left of the near grid line
                             const columnIndex = viewLayoutColumn.index;
                             // columnIndex cannot be for first column as left grid line of first column cannot be near grid line
@@ -299,32 +299,32 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
         if (!this.gridSettings.gridRightAligned) {
             if (cellLeftOffset < cellRightOffset && cell.viewLayoutColumn.index !== 0) {
                 if (cellLeftOffset < tolerance) {
-                    return ColumnResizingUiBehavior.NearGridLine.left;
+                    return ColumnResizingUiController.NearGridLine.left;
                 } else {
                     // Since cellLeftOffset does not meet tolerance then cellRightOffset will not either.  So no need to check cellRightOffset
-                    return ColumnResizingUiBehavior.NearGridLine.neither;
+                    return ColumnResizingUiController.NearGridLine.neither;
                 }
             } else {
                 if (cellRightOffset < tolerance) {
-                    return ColumnResizingUiBehavior.NearGridLine.right;
+                    return ColumnResizingUiController.NearGridLine.right;
                 } else {
-                    return ColumnResizingUiBehavior.NearGridLine.neither;
+                    return ColumnResizingUiController.NearGridLine.neither;
                 }
             }
         } else {
             const lastViewColumnIndex = this.viewLayout.columns.length - 1;
             if (cellRightOffset < cellLeftOffset && cell.viewLayoutColumn.index !== lastViewColumnIndex) {
                 if (cellRightOffset < tolerance) {
-                    return ColumnResizingUiBehavior.NearGridLine.right;
+                    return ColumnResizingUiController.NearGridLine.right;
                 } else {
                     // Since cellRightOffset does not meet tolerance then cellLeftOffset will not either.  So no need to check cellLeftOffset
-                    return ColumnResizingUiBehavior.NearGridLine.neither;
+                    return ColumnResizingUiController.NearGridLine.neither;
                 }
             } else {
                 if (cellLeftOffset < tolerance) {
-                    return ColumnResizingUiBehavior.NearGridLine.left;
+                    return ColumnResizingUiController.NearGridLine.left;
                 } else {
-                    return ColumnResizingUiBehavior.NearGridLine.neither;
+                    return ColumnResizingUiController.NearGridLine.neither;
                 }
             }
         }
@@ -345,7 +345,7 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
         if (
             cell !== null &&
             cell.isHeader &&
-            this.calculateNearGridLine(canvasOffsetX, cell) !== ColumnResizingUiBehavior.NearGridLine.neither
+            this.calculateNearGridLine(canvasOffsetX, cell) !== ColumnResizingUiController.NearGridLine.neither
         ) {
             const sharedState = this.sharedState;
             sharedState.locationCursorName = this.gridSettings.columnResizeDragPossibleCursorName;
@@ -355,7 +355,7 @@ export class ColumnResizingUiBehavior<BGS extends BehavioredGridSettings, BCS ex
 }
 
 /** @internal */
-export namespace ColumnResizingUiBehavior {
+export namespace ColumnResizingUiController {
     export const typeName = 'columnresizing';
 
     export namespace NearGridLine {

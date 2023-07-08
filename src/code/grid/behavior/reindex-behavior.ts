@@ -1,9 +1,9 @@
-import { Focus } from '../../components/focus/focus';
-import { Selection } from '../../components/selection/selection';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { Focus } from '../components/focus/focus';
+import { Selection } from '../components/selection/selection';
+import { SchemaField } from '../interfaces/schema/schema-field';
+import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { AssertError } from '../types-utils/revgrid-error';
 
 export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     private _requestNestCount = 0;

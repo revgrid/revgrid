@@ -5,11 +5,13 @@ import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
-export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+// This file is no longer used.  Only kept to assist with development of CellEditor.  Will be deleted in future
 
-    readonly typeName = CellEditingUiBehavior.typeName;
+export class CellEditingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
+
+    readonly typeName = CellEditingUiController.typeName;
 
     override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === undefined) {
@@ -77,6 +79,6 @@ export class CellEditingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
     }
 }
 
-export namespace CellEditingUiBehavior {
+export namespace CellEditingUiController {
     export const typeName = 'cellediting';
 }

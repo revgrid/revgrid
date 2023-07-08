@@ -334,10 +334,10 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     // propClassLayers: propClassLayersMap.DEFAULT,
 
     /**
-     * Default UiBehaviors automatically used by program.  Note that order of these in array is important as it
-     * defines the order in which UiEvents are processed.
+     * Default UiController automatically used by program.  Note that order of these in array is important as it
+     * defines the order in which UI Events are processed.
      */
-    defaultUiBehaviorTypeNames: [
+    defaultUiControllerTypeNames: [
         'focusscroll',
         'selection',
         // 'filters',

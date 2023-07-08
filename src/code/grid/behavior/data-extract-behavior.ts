@@ -1,11 +1,11 @@
-import { ColumnsManager } from '../../components/column/columns-manager';
-import { Selection } from '../../components/selection/selection';
-import { DataServer } from '../../interfaces/data/data-server';
-import { Column } from '../../interfaces/dataless/column';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
-import { SelectionAreaType } from '../../types-utils/types';
+import { ColumnsManager } from '../components/column/columns-manager';
+import { Selection } from '../components/selection/selection';
+import { DataServer } from '../interfaces/data/data-server';
+import { Column } from '../interfaces/dataless/column';
+import { SchemaField } from '../interfaces/schema/schema-field';
+import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { AssertError, UnreachableCaseError } from '../types-utils/revgrid-error';
+import { SelectionAreaType } from '../types-utils/types';
 
 /** @public */
 export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extends SchemaField> {

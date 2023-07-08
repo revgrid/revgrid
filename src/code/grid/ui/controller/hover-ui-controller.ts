@@ -6,12 +6,12 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { Point } from '../../types-utils/point';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
 /** @internal */
-export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+export class HoverUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
 
-    readonly typeName = HoverUiBehavior.typeName;
+    readonly typeName = HoverUiController.typeName;
 
     override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         const canvasOffsetPoint: Point = {
@@ -26,8 +26,8 @@ export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
         this.mouse.setMouseCanvasOffset(canvasOffsetPoint, viewCell);
 
         if (GridSettings.isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent(this.gridSettings, event)) {
-            this.horizontalScroller.temporarilyGiveThumbFullVisibility(HoverUiBehavior.temporaryThumbFullVisibilityTimePeriod);
-            this.verticalScroller.temporarilyGiveThumbFullVisibility(HoverUiBehavior.temporaryThumbFullVisibilityTimePeriod);
+            this.horizontalScroller.temporarilyGiveThumbFullVisibility(HoverUiController.temporaryThumbFullVisibilityTimePeriod);
+            this.verticalScroller.temporarilyGiveThumbFullVisibility(HoverUiController.temporaryThumbFullVisibilityTimePeriod);
         }
         return super.handlePointerMove(event, hoverCell);
     }
@@ -65,7 +65,7 @@ export class HoverUiBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
 }
 
 /** @internal */
-export namespace HoverUiBehavior {
+export namespace HoverUiController {
     export const typeName = 'hover';
 
     export const temporaryThumbFullVisibilityTimePeriod = 500; // milliseconds

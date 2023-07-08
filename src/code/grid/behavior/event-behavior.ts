@@ -1,20 +1,20 @@
-import { CanvasManager } from '../../components/canvas/canvas-manager';
-import { ColumnsManager } from '../../components/column/columns-manager';
-import { DispatchableEvent } from '../../components/dispatchable-event/dispatchable-event';
-import { Focus } from '../../components/focus/focus';
-import { Mouse } from '../../components/mouse/mouse';
-import { Renderer } from '../../components/renderer/renderer';
-import { Scroller } from '../../components/scroller/scroller';
-import { Selection } from '../../components/selection/selection';
-import { ViewLayout } from '../../components/view/view-layout';
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { Column } from '../../interfaces/dataless/column';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { Point } from '../../types-utils/point';
-import { ListChangedTypeId } from '../../types-utils/types';
+import { CanvasManager } from '../components/canvas/canvas-manager';
+import { ColumnsManager } from '../components/column/columns-manager';
+import { DispatchableEvent } from '../components/dispatchable-event/dispatchable-event';
+import { Focus } from '../components/focus/focus';
+import { Mouse } from '../components/mouse/mouse';
+import { Renderer } from '../components/renderer/renderer';
+import { Scroller } from '../components/scroller/scroller';
+import { Selection } from '../components/selection/selection';
+import { ViewLayout } from '../components/view/view-layout';
+import { LinedHoverCell } from '../interfaces/data/hover-cell';
+import { ViewCell } from '../interfaces/data/view-cell';
+import { Column } from '../interfaces/dataless/column';
+import { SchemaField } from '../interfaces/schema/schema-field';
+import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { Point } from '../types-utils/point';
+import { ListChangedTypeId } from '../types-utils/types';
 
 /** @public */
 export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {

@@ -4,12 +4,12 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../../types-utils/point';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
 /** @internal */
-export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
+export class RowResizingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
 
-    readonly typeName = RowResizingUiBehavior.typeName;
+    readonly typeName = RowResizingUiController.typeName;
 
     /**
      * the index of the row/column we are dragging
@@ -58,7 +58,7 @@ export class RowResizingUiBehavior<BGS extends BehavioredGridSettings, BCS exten
 }
 
 /** @internal */
-export namespace RowResizingUiBehavior {
+export namespace RowResizingUiController {
     export const typeName = 'rowresizing';
 
     export const cursorName = 'row-resize';

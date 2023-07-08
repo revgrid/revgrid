@@ -1397,8 +1397,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get defaultRowHeight(): number;
     set defaultRowHeight(value: number);
     // (undocumented)
-    get defaultUiBehaviorTypeNames(): string[];
-    set defaultUiBehaviorTypeNames(value: string[]);
+    get defaultUiControllerTypeNames(): string[];
+    set defaultUiControllerTypeNames(value: string[]);
     // (undocumented)
     get editable(): boolean;
     set editable(value: boolean);
@@ -2055,7 +2055,7 @@ export interface OnlyGridSettings {
     // (undocumented)
     defaultRowHeight: number;
     // (undocumented)
-    defaultUiBehaviorTypeNames: string[];
+    defaultUiControllerTypeNames: string[];
     // (undocumented)
     editable: boolean;
     editKey: string;
@@ -2646,7 +2646,7 @@ export namespace Revgrid {
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         // (undocumented)
-        customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS, SF>[];
+        customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
     }
 }
 
@@ -3782,9 +3782,9 @@ export const enum TextTruncateType {
 export type UiableListChangedEventHandler = (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
 
 // @public
-export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    // Warning: (ae-forgotten-export) The symbol "UiBehaviorServices" needs to be exported by the entry point public-api.d.ts
-    constructor(services: UiBehaviorServices<BGS, BCS, SF>);
+export abstract class UiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    // Warning: (ae-forgotten-export) The symbol "UiControllerServices" needs to be exported by the entry point public-api.d.ts
+    constructor(services: UiControllerServices<BGS, BCS, SF>);
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     attachChain(): void;
     // (undocumented)
@@ -3801,7 +3801,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     protected readonly dataExtractBehavior: DataExtractBehavior<BCS, SF>;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     detachChain(): void;
-    detached: UiBehavior<BGS, BCS, SF> | undefined;
+    detached: UiController<BGS, BCS, SF> | undefined;
     // Warning: (ae-forgotten-export) The symbol "EventBehavior" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -3868,7 +3868,7 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     protected readonly mainSubgrid: MainSubgrid<BCS, SF>;
     // (undocumented)
     protected readonly mouse: Mouse<BGS, BCS, SF>;
-    next: UiBehavior<BGS, BCS, SF> | undefined;
+    next: UiController<BGS, BCS, SF> | undefined;
     // Warning: (ae-forgotten-export) The symbol "ReindexBehavior" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -3884,11 +3884,11 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
     // (undocumented)
     protected readonly selection: Selection_2<BCS, SF>;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    setNext(nextFeature: UiBehavior<BGS, BCS, SF>): void;
-    // Warning: (ae-forgotten-export) The symbol "UiBehaviorSharedState" needs to be exported by the entry point public-api.d.ts
+    setNext(nextFeature: UiController<BGS, BCS, SF>): void;
+    // Warning: (ae-forgotten-export) The symbol "UiControllerSharedState" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    protected readonly sharedState: UiBehaviorSharedState;
+    protected readonly sharedState: UiControllerSharedState;
     // (undocumented)
     protected readonly subgridsManager: SubgridsManager<BCS, SF>;
     // @internal (undocumented)
@@ -3902,11 +3902,11 @@ export abstract class UiBehavior<BGS extends BehavioredGridSettings, BCS extends
 }
 
 // @public (undocumented)
-export namespace UiBehavior {
+export namespace UiController {
     // (undocumented)
-    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> = new (services: UiBehaviorServices<BGS, BCS, SF>) => UiBehavior<BGS, BCS, SF>;
+    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> = new (services: UiControllerServices<BGS, BCS, SF>) => UiController<BGS, BCS, SF>;
     // (undocumented)
-    export interface UiBehaviorDefinition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    export interface Definition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         // (undocumented)
         constructor: Constructor<BGS, BCS, SF>;
         // (undocumented)

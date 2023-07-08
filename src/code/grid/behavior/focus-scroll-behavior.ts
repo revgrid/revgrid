@@ -1,16 +1,16 @@
-import { ColumnsManager } from '../../components/column/columns-manager';
-import { Focus } from '../../components/focus/focus';
-import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
-import { ViewLayout } from '../../components/view/view-layout';
-import { MainSubgrid } from '../../interfaces/data/main-subgrid';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
-import { ViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { ColumnsManager } from '../components/column/columns-manager';
+import { Focus } from '../components/focus/focus';
+import { SubgridsManager } from '../components/subgrid/subgrids-manager';
+import { ViewCellImplementation } from '../components/view/view-cell-implementation';
+import { ViewLayout } from '../components/view/view-layout';
+import { MainSubgrid } from '../interfaces/data/main-subgrid';
+import { ViewCell } from '../interfaces/data/view-cell';
+import { ViewLayoutRow } from '../interfaces/data/view-layout-row';
+import { ViewLayoutColumn } from '../interfaces/dataless/view-layout-column';
+import { SchemaField } from '../interfaces/schema/schema-field';
+import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../interfaces/settings/grid-settings';
 
 export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     private readonly _mainSubgrid: MainSubgrid<BCS, SF>;

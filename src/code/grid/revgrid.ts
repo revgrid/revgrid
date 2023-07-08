@@ -1,12 +1,10 @@
-import { CellPropertiesBehavior } from './behavior/component/cell-properties-behavior';
-import { ComponentBehaviorManager } from './behavior/component/component-behavior-manager';
-import { DataExtractBehavior } from './behavior/component/data-extract-behavior';
-import { EventBehavior } from './behavior/component/event-behavior';
-import { FocusScrollBehavior } from './behavior/component/focus-scroll-behavior';
-import { FocusSelectBehavior } from './behavior/component/focus-select-behavior';
-import { RowPropertiesBehavior } from './behavior/component/row-properties-behavior';
-import { UiBehavior } from './behavior/ui/ui-behavior';
-import { UiBehaviorManager } from './behavior/ui/ui-behavior-manager';
+import { CellPropertiesBehavior } from './behavior/cell-properties-behavior';
+import { BehaviorManager } from './behavior/component-behavior-manager';
+import { DataExtractBehavior } from './behavior/data-extract-behavior';
+import { EventBehavior } from './behavior/event-behavior';
+import { FocusScrollBehavior } from './behavior/focus-scroll-behavior';
+import { FocusSelectBehavior } from './behavior/focus-select-behavior';
+import { RowPropertiesBehavior } from './behavior/row-properties-behavior';
 import { CanvasManager } from './components/canvas/canvas-manager';
 import { ColumnsManager } from './components/column/columns-manager';
 import { ComponentsManager } from './components/components-manager';
@@ -36,6 +34,8 @@ import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { ApiError, AssertError } from './types-utils/revgrid-error';
 import { ListChangedTypeId, SelectionAreaType } from './types-utils/types';
+import { UiController } from './ui/controller/ui-controller';
+import { UiManager } from './ui/ui-controller-manager';
 
 /** @public */
 export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
@@ -55,9 +55,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /** @internal */
     private readonly _componentsManager: ComponentsManager<BGS, BCS, SF>;
     /** @internal */
-    private readonly _componentBehaviorManager: ComponentBehaviorManager<BGS, BCS, SF>;
+    private readonly _behaviorManager: BehaviorManager<BGS, BCS, SF>;
     /** @internal */
-    private readonly _uiBehaviorManager: UiBehaviorManager<BGS, BCS, SF>;
+    private readonly _uiManager: UiManager<BGS, BCS, SF>;
 
     /** @internal */
     private readonly _renderer: Renderer<BGS, BCS, SF>;
@@ -144,7 +144,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
         const descendantEventer = this.createDescendantEventer();
 
-        this._componentBehaviorManager = new ComponentBehaviorManager(
+        this._behaviorManager = new BehaviorManager(
             this.settings,
             this.canvasManager,
             this.columnsManager,
@@ -159,13 +159,13 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             descendantEventer,
         );
 
-        this._focusScrollBehavior = this._componentBehaviorManager.focusScrollBehavior;
-        this._focusSelectBehavior = this._componentBehaviorManager.focusSelectBehavior;
-        this._rowPropertiesBehavior = this._componentBehaviorManager.rowPropertiesBehavior;
-        this._cellPropertiesBehavior = this._componentBehaviorManager.cellPropertiesBehavior;
-        this._dataExtractBehavior = this._componentBehaviorManager.dataExtractBehavior;
+        this._focusScrollBehavior = this._behaviorManager.focusScrollBehavior;
+        this._focusSelectBehavior = this._behaviorManager.focusSelectBehavior;
+        this._rowPropertiesBehavior = this._behaviorManager.rowPropertiesBehavior;
+        this._cellPropertiesBehavior = this._behaviorManager.cellPropertiesBehavior;
+        this._dataExtractBehavior = this._behaviorManager.dataExtractBehavior;
 
-        this._uiBehaviorManager = new UiBehaviorManager(
+        this._uiManager = new UiManager(
             this.hostElement,
             this.settings,
             this.canvasManager,
@@ -183,9 +183,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this._rowPropertiesBehavior,
             this._cellPropertiesBehavior,
             this._dataExtractBehavior,
-            this._componentBehaviorManager.reindexBehavior,
-            this._componentBehaviorManager.eventBehavior,
-            options.customUiBehaviorDefinitions,
+            this._behaviorManager.reindexBehavior,
+            this._behaviorManager.eventBehavior,
+            options.customUiControllerDefinitions,
         );
 
         this.canvasManager.start();
@@ -194,13 +194,13 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.canvasManager.resize(false); // Will invalidate all and cause a repaint
     }
 
-    get active() { return this._componentBehaviorManager.active; }
+    get active() { return this._behaviorManager.active; }
     set active(value: boolean) {
-        this._componentBehaviorManager.active = value;
+        this._behaviorManager.active = value;
         if (value){
-            this._uiBehaviorManager.enable();
+            this._uiManager.enable();
         } else {
-            this._uiBehaviorManager.disable();
+            this._uiManager.disable();
         }
         this.viewLayout.invalidateAll(true);
     }
@@ -213,7 +213,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * canvase paint loop will continue to run
      */
     destroy() {
-        this._componentBehaviorManager.destroy();
+        this._behaviorManager.destroy();
 
         const hostElement = this.hostElement;
         let firstChild = hostElement.firstChild;
@@ -1967,7 +1967,7 @@ export namespace Revgrid {
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
-        customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS, SF>[];
+        customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
 	}
 }
 

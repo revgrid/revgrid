@@ -5,7 +5,7 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
-import { UiBehavior } from './ui-behavior';
+import { UiController } from './ui-controller';
 
 /** @internal */
 const enum MoveLocation { Before, After }
@@ -42,8 +42,8 @@ interface NoAction extends Action {
 type ColumnDragAction<BCS extends BehavioredColumnSettings, SF extends SchemaField> = MoveAction<BCS, SF> | ScrollAction<BCS, SF> | NoAction
 
 /** @internal */
-export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiBehavior<BGS, BCS, SF> {
-    readonly typeName = ColumnMovingUiBehavior.typeName;
+export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
+    readonly typeName = ColumnMovingUiController.typeName;
 
     private _dragOverlay: HTMLCanvasElement | undefined;
     private _dragColumn: ViewLayoutColumn<BCS, SF> | undefined;
@@ -314,6 +314,6 @@ export class ColumnMovingUiBehavior<BGS extends BehavioredGridSettings, BCS exte
 }
 
 /** @internal */
-export namespace ColumnMovingUiBehavior {
+export namespace ColumnMovingUiController {
     export const typeName = 'columnmoving';
 }

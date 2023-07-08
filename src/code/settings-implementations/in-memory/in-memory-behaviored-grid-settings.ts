@@ -33,7 +33,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _columnsReorderableHideable: boolean;
     private _defaultRowHeight: number;
     private _defaultColumnWidth: number;
-    private _defaultUiBehaviorTypeNames: string[];
+    private _defaultUiControllerTypeNames: string[];
     private _editable: boolean;
     private _editKey: string;
     private _editOnClick: boolean;
@@ -312,12 +312,12 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
-    get defaultUiBehaviorTypeNames() { return this._defaultUiBehaviorTypeNames; }
-    set defaultUiBehaviorTypeNames(value: string[]) {
-        if (!isArrayEqual(value, this._defaultUiBehaviorTypeNames)) {
+    get defaultUiControllerTypeNames() { return this._defaultUiControllerTypeNames; }
+    set defaultUiControllerTypeNames(value: string[]) {
+        if (!isArrayEqual(value, this._defaultUiControllerTypeNames)) {
             this.beginChange();
-            this._defaultUiBehaviorTypeNames = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultUiBehaviorTypeNames;
+            this._defaultUiControllerTypeNames = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultUiControllerTypeNames;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1127,10 +1127,10 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.defaultColumnWidth);
                     }
                     break;
-                case 'defaultUiBehaviorTypeNames':
-                    if (this._defaultUiBehaviorTypeNames !== requiredSettings.defaultUiBehaviorTypeNames) {
-                        this._defaultUiBehaviorTypeNames = requiredSettings.defaultUiBehaviorTypeNames;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.defaultUiBehaviorTypeNames);
+                case 'defaultUiControllerTypeNames':
+                    if (this._defaultUiControllerTypeNames !== requiredSettings.defaultUiControllerTypeNames) {
+                        this._defaultUiControllerTypeNames = requiredSettings.defaultUiControllerTypeNames;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.defaultUiControllerTypeNames);
                     }
                     break;
                 case 'editable':
