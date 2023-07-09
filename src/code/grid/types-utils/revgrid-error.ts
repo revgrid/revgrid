@@ -25,3 +25,10 @@ export class OptionsError extends RevgridError {
         super(code, message, 'Options');
     }
 }
+
+/** @public */
+export class ApiError extends RevgridError {
+    constructor(code: string, message: string) {
+        super(code, message, 'API');
+    }
+}

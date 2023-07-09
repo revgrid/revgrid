@@ -5,6 +5,7 @@ import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { OnlyGridSettings } from '../../../interfaces/settings/only-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { Rectangle } from '../../../types-utils/rectangle';
 import { CanvasManager } from '../../canvas/canvas-manager';
@@ -18,16 +19,12 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
     protected _renderingContext: CachedCanvasRenderingContext2D;
 
     private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
-    private _rowBundlesAndPrefixColors: GridPainter.RowBundlesAndPrefillColors | undefined;
 
     reset = false;
     rebundle: boolean | undefined;
 
     private _columnRebundlingRequired = false;
-    private _rowRebundlingRequired = false;
-
     private _columnBundlesComputationId = -1;
-    private _rowBundlesComputationId = -1;
 
     constructor(
         protected readonly gridSettings: GridSettings,
@@ -62,16 +59,6 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         return this._columnBundles;
     }
 
-    getRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<BCS, SF>[]) {
-        if (this._rowBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._rowRebundlingRequired) {
-            this._rowBundlesAndPrefixColors = this.calculateRowBundlesAndPrefillColors(viewLayoutRows);
-
-            this._rowBundlesComputationId = this.viewLayout.rowsColumnsComputationId;
-            this._rowRebundlingRequired = false;
-        }
-        return this._rowBundlesAndPrefixColors;
-    }
-
     abstract paintCells(): void;
 
     protected paintCell(
@@ -90,7 +77,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
                 }
             }
         }
-        const cellPainter = viewCell.subgrid.getCellPainter(viewCell);
+        const cellPainter = viewCell.subgrid.getCellPainterEventer(viewCell);
         return cellPainter.paint(viewCell, prefillColor);
     }
 
@@ -360,12 +347,29 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         }
     }
 
+    protected stripeRows(stripeColor: OnlyGridSettings.Color, left: number, width: number) {
+        const gc = this._renderingContext;
+        const rows = this.viewLayout.rows;
+        const rowCount = rows.length;
+        for (let i = 0; i < rowCount; i++) {
+            const row = rows[i];
+            const subgridRowIndex = row.subgridRowIndex;
+            if (this.isRowStriped(subgridRowIndex)) {
+                gc.clearFillRect(left, row.top, width, row.bottomPlus1 - row.top, stripeColor);
+            }
+        }
+    }
+
+    protected isRowStriped(subgridRowIndex: number) {
+        return subgridRowIndex % 2 === 1;
+    }
+
     private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn<BCS, SF>[]): GridPainter.ColumnBundle[] {
-        const gridProps = this.gridSettings;
+        const gridSettings = this.gridSettings;
         const columnCount = viewLayoutColumns.length;
 
         const bundles = new Array<GridPainter.ColumnBundle>(columnCount); // max size
-        const gridPrefillColor = gridProps.backgroundColor;
+        const gridPrefillColor = gridSettings.backgroundColor;
 
         let bundleCount = 0;
 
@@ -392,64 +396,6 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         bundles.length = bundleCount;
 
         return bundles;
-    }
-
-    private calculateRowBundlesAndPrefillColors(viewLayoutRows: ViewLayoutRow<BCS, SF>[]): GridPainter.RowBundlesAndPrefillColors | undefined {
-        const gridProps = this.gridSettings;
-        const stripes = gridProps.rowStripes;
-        if (stripes === undefined) {
-            return undefined;
-        } else {
-            const rowCount = viewLayoutRows.length
-
-            const bundles = new Array<GridPainter.RowBundle>(rowCount); // set to max possible length
-            const gridPrefillColor = gridProps.backgroundColor;
-            const prefillColors = new Array<string>(rowCount);
-
-            let bundle: GridPainter.RowBundle | undefined;
-            let bundleCount = 0;
-            for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-                const vr = viewLayoutRows[rowIndex];
-                let backgroundColor: string;
-                if (!vr.subgrid.isMain) {
-                    backgroundColor = gridPrefillColor;
-                } else {
-                    if (stripes.length === 0) {
-                        backgroundColor = gridPrefillColor;
-                    } else {
-                        const stripe = stripes[vr.subgridRowIndex % stripes.length];
-                        if (stripe === undefined) {
-                            backgroundColor = gridPrefillColor;
-                        } else {
-                            backgroundColor = stripe.backgroundColor ?? gridPrefillColor;
-                        }
-                    }
-                }
-                prefillColors[rowIndex] = backgroundColor;
-                if (bundle !== undefined && bundle.backgroundColor === backgroundColor) {
-                    bundle.bottom = vr.bottomPlus1;
-                } else {
-                    if (backgroundColor === gridPrefillColor) {
-                        bundle = undefined; // this looks wrong
-                    } else {
-                        bundle = {
-                            backgroundColor: backgroundColor,
-                            top: vr.top,
-                            bottom: vr.bottomPlus1
-                        };
-                        bundles[bundleCount++] = bundle;
-                    }
-                }
-            }
-            // what about final bundle
-
-            bundles.length = bundleCount;
-
-            return {
-                bundles: bundles,
-                prefillColors: prefillColors,
-            }
-        }
     }
 
     private paintErrorMessage(gc: CachedCanvasRenderingContext2D, bounds: Rectangle, message: string) {
@@ -490,16 +436,5 @@ export namespace GridPainter {
         backgroundColor: string;
         left: number;
         right: number;
-    }
-
-    export interface RowBundle {
-        backgroundColor: string;
-        top: number;
-        bottom: number;
-    }
-
-    export interface RowBundlesAndPrefillColors {
-        bundles: RowBundle[];
-        prefillColors: string[];
     }
 }

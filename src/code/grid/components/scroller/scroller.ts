@@ -1,4 +1,3 @@
-import { EventDetail } from '../../interfaces/data/event-detail';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { ScrollDimension } from '../view/scroll-dimension';
@@ -7,18 +6,8 @@ import { ScrollDimension } from '../view/scroll-dimension';
 // Maintained in code so not dependent being in stylesheet.
 // const BAR_STYLE = 'position: absolute;';
 
+/** @public */
 export class Scroller<BGS extends BehavioredGridSettings> {
-    /**
-     * @name bar
-     * @summary The generated scrollbar element.
-     * @desc The caller inserts this element into the DOM (typically into the content container) and then calls its {@link Scroller#resize|resize()} method.
-     *
-     * Thus the node tree is typically:
-     * * A **content container** element, which contains:
-     *   * The content element(s)
-     *   * This **scrollbar element**, which in turn contains:
-     *     * The **thumb element**
-     */
     readonly bar: HTMLDivElement;
 
     /**
@@ -48,7 +37,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      *
      * This object is useful externally for coding generalized {@link finbarOnChange} event handler functions that serve both horizontal and vertical scrollbars.
      */
-    private readonly _orientationHash: OrientationHash;
+    private readonly _axisProperties: AxisProperties;
     /**
      * @summary The name of the `WheelEvent` property this scrollbar should listen to.
      * @desc Set by the constructor. See the similarly named property in the {@link finbarOptions} object.
@@ -75,9 +64,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     private _thumbMarginLeading: number;
     private _thumbScaling: number;
     private _pinOffset: number;
-    // private _currentThumbPosition: number;
-    // private container: HTMLElement;
-    // private content: HTMLElement;
 
     private _pointerOverThumb = false;
     private _temporaryThumbFullVisibilityTimePeriod: number | undefined; // milliseconds
@@ -95,7 +81,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     // normal: number;
 
     private readonly _settingsChangedListener = () => this.applySettings();
-    private readonly _containerWheelListener = (event: WheelEvent) => this.handleContainerWheelEvent(event);
+    private readonly _hostWheelListener = (event: WheelEvent) => this.handleHostWheelEvent(event);
     private readonly _barClickListener = (event: MouseEvent) => this.handleBarClickEvent(event);
     private readonly _thumbClickListener = (event: MouseEvent) => this.handleThumbClickEvent(event);
     private readonly _thumbPointerEnterListener = () => this.handleThumbPointerEnterEvent();
@@ -135,17 +121,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     private deltaZFactor: number;
 
     /**
-     * @name barStyles
-     * @summary Scrollbar styles to be applied by {@link Scroller#resize|resize()}.
-     * @desc Set by the constructor. See the similarly named property in the {@link finbarOptions} object.
-     *
-     * This is a value to be assigned to {@link Scroller#styles|styles} on each call to {@link Scroller#resize|resize()}. That is, a hash of values to be copied to the scrollbar element's style object on resize; or `null` for none.
-     *
-     * @see {@link Scroller#style|style}
-     */
-    private barStyles: Scroller.BarStyles | null;
-
-    /**
      * @summary Create a scrollbar object.
      * @desc Creating a scrollbar is a three-step process:
      *
@@ -165,22 +140,22 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      */
     constructor(
         private readonly _gridSettings: BGS,
-        private readonly _containerHtmlElement: HTMLElement, // Revgrid container element
+        private readonly _hostElement: HTMLElement, // Revgrid host element
         private readonly _scrollDimension: ScrollDimension<BGS>,
         instanceId: number,
         private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
-        private readonly orientation: Scroller.Orientation,
+        private readonly axis: ScrollDimension.Axis,
         private _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
         deltaXFactor: number,
         deltaYFactor: number,
         classPrefix: string | undefined,
         private readonly _spaceAccomodatedScroller: Scroller<BGS> | undefined,
     ) {
-        this._orientationHash = orientationHashes[this.orientation];
+        this._axisProperties = axesProperties[this.axis];
 
         const thumb = document.createElement('div');
         this._thumb = thumb;
-        thumb.id = orientation + Scroller.thumbElementIdBase + instanceId.toString(10);
+        thumb.id = axis + Scroller.thumbElementIdBase + instanceId.toString(10);
         thumb.style.position = 'absolute';
 
         thumb.classList.add('thumb');
@@ -191,11 +166,11 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
         const bar = document.createElement('div');
         this.bar = bar;
-        bar.id = orientation + Scroller.barElementIdBase + instanceId.toString();
+        bar.id = axis + Scroller.barElementIdBase + instanceId.toString();
         bar.style.position = 'absolute';
-        const leadingKey = this._orientationHash['leading'];
+        const leadingKey = this._axisProperties['leading'];
         bar.style.setProperty(leadingKey, '0');
-        const trailingKey = this._orientationHash['trailing'];
+        const trailingKey = this._axisProperties['trailing'];
         bar.style.setProperty(trailingKey, '0');
         bar.addEventListener('pointerdown', this._barPointerDownListener);
         bar.addEventListener('click', this._barClickListener);
@@ -205,30 +180,21 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
         this.applySettings();
 
-        this._containerHtmlElement.addEventListener('wheel', this._containerWheelListener);
+        this._hostElement.addEventListener('wheel', this._hostWheelListener);
         // presets
-        this.orientation = orientation;
+        this.axis = axis;
         if (classPrefix === undefined || classPrefix === '') {
             this._classPrefix = Scroller.defaultClassPrefix;
         } else {
             this._classPrefix = classPrefix;
         }
-        bar.classList.add(`${this._classPrefix}-${orientation}`);
-        this._deltaProp = this._orientationHash.delta;
+        bar.classList.add(`${this._classPrefix}-${axis}`);
+        this._deltaProp = this._axisProperties.delta;
         this.increment = 1;
-        this.barStyles = null;
-        this._deltaProp = (this.orientation === 'vertical' ? Scroller.DeltaPropEnum.deltaY : Scroller.DeltaPropEnum.deltaX);
+        this._deltaProp = (this.axis === 'vertical' ? Scroller.DeltaPropEnum.deltaY : Scroller.DeltaPropEnum.deltaX);
         this.deltaXFactor = deltaXFactor;
         this.deltaYFactor = deltaYFactor;
         this.deltaZFactor = 1;
-        // this.container = options.container;
-        // this.content = options.content;
-
-        // this.normal = getNormal();
-
-        // if (loadBuiltinCssStylesheet) {
-        //     cssInjector(cssFinBars, 'finbar-base', cssStylesheetReferenceElement);
-        // }
 
         this._gridSettings.subscribeChangedEvent(this._settingsChangedListener);
 
@@ -249,7 +215,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
             this._spaceAccomodatedScroller.visibilityChangedEventer = () => this.adjustLeadingTrailingForSpaceAccomodatedScroller();
         }
 
-        this._containerHtmlElement.appendChild(bar);
+        this._hostElement.appendChild(bar);
     }
 
     /**
@@ -257,7 +223,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      * @desc Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
      */
     destroy() {
-        this._containerHtmlElement.removeEventListener('wheel', this._containerWheelListener);
+        this._hostElement.removeEventListener('wheel', this._hostWheelListener);
 
         this._gridSettings.unsubscribeChangedEvent(this._settingsChangedListener);
         this.bar.removeEventListener('click', this._barClickListener);
@@ -316,7 +282,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      * @desc See type definition for more details. These styles are applied directly to the scrollbar's `bar` element.
      *
      * Values are adjusted as follows before being applied to the element:
-     * 1. Included "pseudo-property" names from the scrollbar's orientation hash, {@link Scroller#_orientationHash|oh}, are translated to actual property names before being applied.
+     * 1. Included "pseudo-property" names from the scrollbar's orientation hash, {@link Scroller#_axisProperties|oh}, are translated to actual property names before being applied.
      * 2. When there are margins, percentages are translated to absolute pixel values because CSS ignores margins in its percentage calculations.
      * 3. If you give a value without a unit (a raw number), "px" unit is appended.
      *
@@ -403,11 +369,11 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
     get thickness() {
         const computedStyle = window.getComputedStyle(this.bar);
-        return computedStyle[this._orientationHash.thickness];
+        return computedStyle[this._axisProperties.thickness];
     }
 
     setBeforeInsideOffset(offset: number) {
-        if (this.orientation === 'horizontal') {
+        if (this.axis === 'horizontal') {
             this.bar.style.bottom = '';
             this.bar.style.top = offset.toString(10) + 'px';
         } else {
@@ -417,7 +383,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     }
 
     setAfterInsideOffset(offset: number) {
-        if (this.orientation === 'horizontal') {
+        if (this.axis === 'horizontal') {
             this.bar.style.top = '';
             this.bar.style.bottom = offset.toString(10) + 'px';
         } else {
@@ -564,7 +530,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
             } else {
                 thumbPosition = (viewportStart - this._scrollDimension.start) * this._thumbScaling;
             }
-            this._thumb.style[this._orientationHash.leading] = thumbPosition.toString(10) + 'px';
+            this._thumb.style[this._axisProperties.leading] = thumbPosition.toString(10) + 'px';
             // this._currentThumbPosition = thumbPosition;
         }
     }
@@ -574,7 +540,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      * @desc The thumb size has an absolute minimum of 20 (pixels).
      */
     private setThumbSize() {
-        const oh = this._orientationHash;
+        const oh = this._axisProperties;
         const thumbComp = window.getComputedStyle(this._thumb);
         const thumbMarginLeading = parseInt(thumbComp[oh.marginLeading]);
         const thumbMarginTrailing = parseInt(thumbComp[oh.marginTrailing]);
@@ -610,7 +576,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         evt.stopPropagation();
     }
 
-    private handleContainerWheelEvent(evt: WheelEvent) {
+    private handleHostWheelEvent(evt: WheelEvent) {
         const index = this.index;
         if (index !== undefined) {
             this.index = index + evt[this._deltaProp] * this[this._deltaProp + 'Factor'] /* * this.normal */;
@@ -625,24 +591,24 @@ export class Scroller<BGS extends BehavioredGridSettings> {
             const index = this.index;
             if (index !== undefined) {
                 const thumbBox = this._thumb.getBoundingClientRect();
-                const goingUp = evt[this._orientationHash.coordinate] < thumbBox[this._orientationHash.leading];
+                const goingUp = evt[this._axisProperties.client] < thumbBox[this._axisProperties.leading];
 
 
-                let actionType: EventDetail.ScrollerAction.Type;
+                let actionType: Scroller.Action.TypeEnum;
                 if (goingUp) {
                     if (evt.altKey) {
-                        actionType = EventDetail.ScrollerAction.Type.StepBack;
+                        actionType = Scroller.Action.TypeEnum.StepBack;
                     } else {
-                        actionType = EventDetail.ScrollerAction.Type.PageBack;
+                        actionType = Scroller.Action.TypeEnum.PageBack;
                     }
                 } else {
                     if (evt.altKey) {
-                        actionType = EventDetail.ScrollerAction.Type.StepForward;
+                        actionType = Scroller.Action.TypeEnum.StepForward;
                     } else {
-                        actionType = EventDetail.ScrollerAction.Type.PageForward;
+                        actionType = Scroller.Action.TypeEnum.PageForward;
                     }
                 }
-                const action: EventDetail.ScrollerAction = {
+                const action: Scroller.Action = {
                     type: actionType,
                     viewportStart: undefined,
                 };
@@ -679,7 +645,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
     private handleBarPointerDownEvent(event: PointerEvent) {
         const thumbBox = this._thumb.getBoundingClientRect();
-        this._pinOffset = event[this._orientationHash.axis] - thumbBox[this._orientationHash.leading] + this.bar.getBoundingClientRect()[this._orientationHash.leading] + this._thumbMarginLeading;
+        this._pinOffset = event[this._axisProperties.page] - thumbBox[this._axisProperties.leading] + this.bar.getBoundingClientRect()[this._axisProperties.leading] + this._thumbMarginLeading;
         document.documentElement.style.cursor = 'default';
 
         this.bar.addEventListener('pointermove', this._barPointerMoveListener);
@@ -708,10 +674,10 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         let possiblyFractionalViewportStart: number;
 
         if (this._indexMode) {
-            thumbPosition = Math.min(this._thumbMax, Math.max(0, evt[this._orientationHash.axis] - this._pinOffset));
+            thumbPosition = Math.min(this._thumbMax, Math.max(0, evt[this._axisProperties.page] - this._pinOffset));
             possiblyFractionalViewportStart = thumbPosition / this._thumbMax * (this._scrollDimension.finish - this._scrollDimension.start) + this._scrollDimension.start;
         } else {
-            thumbPosition = evt[this._orientationHash.axis] - this._pinOffset;
+            thumbPosition = evt[this._axisProperties.page] - this._pinOffset;
             if (thumbPosition < 0) {
                 // make sure does not go beyond start edge
                 thumbPosition = 0;
@@ -738,8 +704,8 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         // }
         // this._currentThumbPosition = thumbPosition;
 
-        const action: EventDetail.ScrollerAction = {
-            type: EventDetail.ScrollerAction.Type.newViewportStart,
+        const action: Scroller.Action = {
+            type: Scroller.Action.TypeEnum.newViewportStart,
             viewportStart,
         };
 
@@ -797,8 +763,8 @@ export class Scroller<BGS extends BehavioredGridSettings> {
                 return leadingTrailing;
             } else {
                 const thickness = spaceAccomodatedScroller.thickness;
-                const leadingKey = this._orientationHash['leading'];
-                const trailingKey = this._orientationHash['trailing'];
+                const leadingKey = this._axisProperties['leading'];
+                const trailingKey = this._axisProperties['trailing'];
                 if (spaceAccomodatedScroller.trailing) {
                     leadingTrailing[leadingKey] = '';
                     leadingTrailing[trailingKey] = thickness;
@@ -872,30 +838,35 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     }
 }
 
+/** @public */
 export namespace Scroller {
     export const defaultClassPrefix = 'revgrid';
     export const barElementIdBase = '-revgrid-scroller-bar-';
     export const thumbElementIdBase = '-revgrid-scroller-thumb-';
 
+    export interface Action {
+        readonly type: Action.TypeEnum;
+        readonly viewportStart: number | undefined;
+    }
+
+    export namespace Action {
+        export const enum TypeEnum {
+            StepForward,
+            StepBack,
+            PageForward,
+            PageBack,
+            newViewportStart,
+        }
+    }
+
     export interface Options {
         indexMode?: boolean;
-        orientation?: Orientation;
-        increment?: number;
-        paging?: boolean | Paging;
-        barStyles?: BarStyles;
         deltaProp?: DeltaProp;
         deltaXFactor?: number;
         deltaYFactor?: number;
         deltaZFactor?: number;
         classPrefix?: string;
-        // container?: HTMLElement;
-        // content?: HTMLElement;
-        /** Specifies whether to load builtin FinBar stylesheet. Default: true */
-        loadBuiltinCssStylesheet?: boolean;
-        cssStylesheetReferenceElement?: null | Element | string;
     }
-
-    export type Orientation = keyof OrientationHashes;
 
     export const enum DeltaPropEnum {
         deltaX = 'deltaX',
@@ -904,24 +875,7 @@ export namespace Scroller {
     }
     export type DeltaProp = keyof typeof DeltaPropEnum;
 
-    export interface ContentRange {
-        start: number;
-        finish: number;
-    }
-
-    export const defaultContentRange: ContentRange = {
-        start: 0,
-        finish: 100
-    }
-
-    export interface Paging {
-        up: (this: void, index: number) => number | undefined;
-        down: (this: void, index: number) => number | undefined;
-    }
-
-    export type BarStyles = Record<string, string>;
-
-    export type ActionEventer = (this: void, action: EventDetail.ScrollerAction) => void;
+    export type ActionEventer = (this: void, action: Scroller.Action) => void;
     export type VisibilityChangedEventer = (this: void) => void;
 }
 
@@ -1002,9 +956,9 @@ export namespace Scroller {
 //     }
 // }
 
-interface OrientationHash {
-    coordinate: 'clientX' | 'clientY';
-    axis: 'pageX' | 'pageY';
+interface AxisProperties {
+    client: 'clientX' | 'clientY';
+    page: 'pageX' | 'pageY';
     size: 'width' | 'height';
     outside: 'bottom' | 'right';
     inside: 'top' | 'left';
@@ -1016,15 +970,13 @@ interface OrientationHash {
     delta: Scroller.DeltaProp;
 }
 
-interface OrientationHashes {
-    vertical: OrientationHash;
-    horizontal: OrientationHash;
-}
+// Note Axes is plural of Axis
+type AxesProperties = { [axis in keyof typeof ScrollDimension.AxisEnum]: AxisProperties };
 
-const orientationHashes: OrientationHashes = {
+const axesProperties: AxesProperties = {
     vertical: {
-        coordinate:     'clientY',
-        axis:           'pageY',
+        client:         'clientY',
+        page:           'pageY',
         size:           'height',
         outside:        'right',
         inside:         'left',
@@ -1036,8 +988,8 @@ const orientationHashes: OrientationHashes = {
         delta:          'deltaY'
     },
     horizontal: {
-        coordinate:     'clientX',
-        axis:           'pageX',
+        client:         'clientX',
+        page:           'pageX',
         size:           'width',
         outside:        'bottom',
         inside:         'top',

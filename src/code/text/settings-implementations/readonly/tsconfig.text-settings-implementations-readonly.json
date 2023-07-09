@@ -1,0 +1,19 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/text-settings-implementations-readonly.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts",
+  ],
+
+  "references": [
+    { "path": "../default/tsconfig.text-settings-implementations-default.json" },
+    { "path": "../../settings/tsconfig.text-settings.json" },
+    { "path": "../../../settings-implementations/tsconfig.settings-implementations.json" },
+    { "path": "../../../grid/tsconfig.grid.json" },
+  ]
+}

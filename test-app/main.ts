@@ -2,8 +2,8 @@ import {
     CellEditor,
     DatalessSubgrid,
     DatalessViewCell,
-    EventDetail,
-    HalignEnum,
+    DispatchableEvent,
+    HorizontalAlignEnum,
     InMemoryStandardBehavioredColumnSettings,
     InMemoryStandardBehavioredGridSettings,
     Revgrid,
@@ -212,14 +212,14 @@ export class Main {
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();
         this._cellPaddingTextboxElement.value = this._grid.settings.cellPadding.toString();
-        this._rightHalignCheckboxElement.checked = this._grid.settings.horizontalAlign === HalignEnum.right;
+        this._rightHalignCheckboxElement.checked = this._grid.settings.horizontalAlign === HorizontalAlignEnum.right;
         this._gridRightAlignedCheckboxElement.checked = this._grid.settings.gridRightAligned;
         this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.settings.scrollHorizontallySmoothly;
         this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.settings.visibleColumnWidthAdjust;
         this._deleteRowIndexTextboxElement.value = '0';
 
         this._grid.addEventListener('rev-column-sort', (event) => {
-                const hoverCell = (event as CustomEvent<EventDetail.ColumnSort<StandardBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
+                const hoverCell = (event as CustomEvent<DispatchableEvent.Detail.ColumnSort<StandardBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
                 if (hoverCell !== undefined) {
                     this._mainDataServer.sort(hoverCell.viewCell.viewLayoutColumn.column);
                 }
@@ -234,7 +234,7 @@ export class Main {
             viewCell
         ) => this.getCellEditor(field, subgridRowIndex, subgrid, readonly, viewCell);
 
-        this._grid.allowEvents(true);
+        this._grid.activate();
 
         // const columns = this._grid.getAllColumns();
 

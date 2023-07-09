@@ -1,6 +1,4 @@
-export { RevDataRowArrayHeaderDataServer } from './rev-data-row-array-header-data-server';
-export { RevDataRowArrayMainDataServer } from './rev-data-row-array-main-data-server';
-export { RevDataRowArraySchemaField } from './rev-data-row-array-schema-field';
-export { RevDataRowArraySchemaServer } from './rev-data-row-array-schema-server';
-export { RevDataRowArrayServerSet } from './rev-data-row-array-server-set';
+export * from './common/server-sets-data-row-array-multi-heading-public-api';
+export * from './multi-heading/server-sets-data-row-array-multi-heading-public-api';
+export * from './single-heading/server-sets-data-row-array-single-heading-public-api';
 

@@ -13,7 +13,6 @@ export interface AppOnlyGridSettings {
 
     focusedRowBorderWidth: number;
 
-    alternateBackgroundColor: GridSettings.Color; // will not be needed when stripes are improved
     grayedOutForegroundColor: GridSettings.Color;
     focusedRowBackgroundColor: GridSettings.Color | undefined;
     focusedRowBorderColor: GridSettings.Color | undefined;

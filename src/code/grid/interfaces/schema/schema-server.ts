@@ -26,8 +26,8 @@ export namespace SchemaServer {
          * ```
          * This event is not cancelable.
          */
-        fieldsInserted: (this: void, columnIndex: number, columnCount: number) => void;
-        fieldsDeleted: (this: void, columnIndex: number, columnCount: number) => void;
+        fieldsInserted: (this: void, fieldIndex: number, fieldCount: number) => void;
+        fieldsDeleted: (this: void, fieldIndex: number, fieldCount: number) => void;
         allFieldsDeleted: (this: void) => void;
         /** Try to use columnsInserted, columnsDeleted, allColumnsDeleted instead of schemaChanged. These provide better optimisations and control of selection. */
         schemaChanged: (this: void) => void;

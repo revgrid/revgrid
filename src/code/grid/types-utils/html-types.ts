@@ -1,8 +1,8 @@
 /** @public */
 export namespace CssClassName {
     export const gridElementCssClass = 'revgrid';
-    export const gridContainerElementCssIdBase = 'revgrid';
-    export const gridContainerElementCssClass = 'revgrid-container';
+    export const gridHostElementCssIdBase = 'revgrid';
+    export const gridHostElementCssClass = 'revgrid-host';
 }
 
 /** @internal */

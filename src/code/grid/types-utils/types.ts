@@ -1,29 +1,4 @@
 /** @public */
-export const enum HorizontalVertical {
-    Horizontal,
-    Vertical,
-}
-
-/** @public */
-export const enum HalignEnum {
-    left = 'left',
-    right = 'right',
-    center = 'center',
-    start = 'start',
-    end = 'end'
-}
-
-/** @public */
-export type Halign = keyof typeof HalignEnum;
-
-/** @public */
-export const enum TextTruncateType {
-    WithEllipsis,
-    BeforeLastPartiallyVisibleCharacter,
-    AfterLastPartiallyVisibleCharacter,
-}
-
-/** @public */
 export const enum HorizontalWheelScrollingAllowed {
     Never,
     Always,
@@ -45,7 +20,7 @@ export const enum ListChangedTypeId {
 }
 
 /** @public */
-export type ListChangedEventHandler = (
+export type ListChangedEventer = (
     this: void,
     typeId: ListChangedTypeId,
     index: number,
@@ -82,10 +57,3 @@ export type UiableListChangedEventHandler = (
     targetIndex: number | undefined,
     ui: boolean
 ) => void;
-
-/** @public */
-export interface ColumnFieldNameAndAutoSizableWidth {
-    fieldName: string;
-    width: number | undefined;
-}
-

@@ -3,7 +3,6 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
-import { HorizontalVertical } from '../../types-utils/types';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ScrollDimension } from './scroll-dimension';
@@ -15,7 +14,7 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,
     ) {
         super(
-            HorizontalVertical.Vertical,
+            ScrollDimension.AxisEnum.vertical,
             canvasManager,
         );
     }
@@ -50,7 +49,7 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
         const fixedRowCount = gridSettings.fixedRowCount;
         const preMainPlusFixedRowsHeight = this._subgridsManager.calculatePreMainPlusFixedRowsHeight();
         const postMainHeight = this._subgridsManager.calculatePostMainHeight();
-        const scrollableHeight = this._canvasEx.flooredContainerHeight - (preMainPlusFixedRowsHeight + postMainHeight);
+        const scrollableHeight = this._canvasEx.flooredHostHeight - (preMainPlusFixedRowsHeight + postMainHeight);
 
         let start: number | undefined;
         let size: number | undefined;

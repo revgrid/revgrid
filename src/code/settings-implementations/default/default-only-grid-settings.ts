@@ -76,7 +76,6 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     filterBackgroundColor: 'white',
     filterForegroundSelectionColor: 'rgb(25, 25, 25)',
     filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
-    filterHalign: 'center',
     filterCellPainter: 'SimpleCell',
     filterEditor: 'TextField',
     filterable: true,
@@ -329,16 +328,16 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
      * @type {undefined|object[]}
      * @default
      */
-    rowStripes: undefined,
+    rowStripeBackgroundColor: undefined,
 
     // for Renderer.prototype.assignProps
     // propClassLayers: propClassLayersMap.DEFAULT,
 
     /**
-     * Default UiBehaviors automatically used by program.  Note that order of these in array is important as it
-     * defines the order in which UiEvents are processed.
+     * Default UiController automatically used by program.  Note that order of these in array is important as it
+     * defines the order in which UI Events are processed.
      */
-    defaultUiBehaviorTypeNames: [
+    defaultUiControllerTypeNames: [
         'focusscroll',
         'selection',
         // 'filters',

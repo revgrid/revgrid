@@ -1,4 +1,3 @@
-import { EventDetail } from '../../interfaces/data/event-detail';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
@@ -16,7 +15,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer<BCS, SF>;
     /** @internal */
-    private _activeDragType: EventDetail.DragTypeEnum | undefined;
+    private _activeDragType: Mouse.DragTypeEnum | undefined;
     /** @internal */
     private _canvasOffsetPoint: Point | undefined;
     /** @internal */
@@ -78,7 +77,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    setActiveDragType(value: EventDetail.DragTypeEnum | undefined) {
+    setActiveDragType(value: Mouse.DragTypeEnum | undefined) {
         this._activeDragType = value;
     }
 
@@ -89,7 +88,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         if (canvasOffsetPoint === undefined) {
             newHoverCell = undefined;
         } else {
-            newHoverCell = this._viewLayout.findCellAtCanvasOffset(canvasOffsetPoint.x, canvasOffsetPoint.y, false);
+            newHoverCell = this._viewLayout.findCellAtCanvasOffsetSpecifyRecompute(canvasOffsetPoint.x, canvasOffsetPoint.y, false);
         }
 
         this.updateHoverCell(newHoverCell, false);
@@ -214,6 +213,17 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
 /** @public */
 export namespace Mouse {
+    export const enum DragTypeEnum {
+        // Make sure values are all lower case so could be used in Drag Drop API
+        LastRectangleSelectionAreaExtending = 'revgridlastrectangleselectionareaextending',
+        LastColumnSelectionAreaExtending = 'revgridlastcolumnselectionareaextending',
+        LastRowSelectionAreaExtending = 'revgridlastrowselectionareaextending',
+        ColumnResizing = 'revgridcolumnresizing',
+        ColumnMoving = 'revgridcolumnmoving',
+    }
+
+    export type DragType = keyof typeof DragTypeEnum;
+
     /** @internal */
     export type CellEnteredExitedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;

@@ -1,9 +1,7 @@
-import { CellPainter } from '../../interfaces/data/cell-painter';
 import { DataServer } from '../../interfaces/data/data-server';
 import { MetaModel } from '../../interfaces/data/meta-model';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { Column } from '../../interfaces/dataless/column';
-import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
@@ -49,7 +47,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         public readonly defaultRowHeight: number | undefined,
         public readonly rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
-        private readonly _getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
+        public getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
     ) {
         switch (role) {
             case 'main':
@@ -99,9 +97,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
 
     /** @internal */
     trySubscribeDataNotifications() {
-        if (this.dataServer.subscribeDataNotifications !== undefined) {
-            this.dataServer.subscribeDataNotifications(this._dataNotificationsClient);
-        }
+        this.dataServer.subscribeDataNotifications(this._dataNotificationsClient);
     }
 
     /** @internal */
@@ -141,10 +137,6 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
 
     getRowCount() {
         return this.dataServer.getRowCount();
-    }
-
-    getCellPainter(viewCell: DatalessViewCell<BCS, SF>): CellPainter<BCS, SF> {
-        return this._getCellPainterEventer(viewCell);
     }
 
     getRowMetadata(rowIndex: number) {
@@ -269,7 +261,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
 
         if (value !== undefined) {
             if (properties === undefined) {
-                const createdProperties = Object.create(this._rowPropertiesPrototype) as MetaModel.RowProperties;
+                const createdProperties = Object.create(this._rowPropertiesPrototype) as MetaModel.RowProperties | null;
                 if (createdProperties === null) {
                     throw new AssertError('RPBSRP99441');
                 } else {

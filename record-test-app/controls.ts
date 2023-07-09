@@ -586,7 +586,7 @@ export class Controls {
     }
 
     private handleUiAutoSizeStringAction() {
-        this._grid.autoSizeFieldColumn(this._strValGridField.index, false);
+        this._grid.autoSizeFieldColumnWidth(this._strValGridField.index, false);
     }
 
     private handleUiAutoWidenStringAction() {
@@ -594,11 +594,11 @@ export class Controls {
     }
 
     private handleUiAutoSizeAllAction() {
-        this._grid.autoSizeAllColumns(false);
+        this._grid.autoSizeActiveColumnWidths(false);
     }
 
     private handleUiAutoWidenAllAction() {
-        this._grid.autoSizeAllColumns(true);
+        this._grid.autoSizeActiveColumnWidths(true);
     }
 
     private handleUiPerformance30kAction() {

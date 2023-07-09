@@ -12,7 +12,7 @@ export interface BehavioredSettings {
     verticalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
 
     beginChange(): void;
-    endChange(): void;
+    endChange(): boolean;
 
     subscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler): void;
     unsubscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler): void;

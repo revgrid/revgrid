@@ -6,6 +6,6 @@ import { GridSettings } from './grid-settings';
 export interface BehavioredColumnSettings extends ColumnSettings, BehavioredSettings {
     readonly gridSettings: GridSettings;
 
-    merge(settings: Partial<ColumnSettings>): void;
+    merge(settings: Partial<ColumnSettings>): boolean;
     clone(): BehavioredColumnSettings;
 }

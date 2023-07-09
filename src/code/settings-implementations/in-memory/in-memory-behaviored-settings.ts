@@ -22,28 +22,31 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
     /** @internal */
     private _beginChangeCount = 0;
     /** @internal */
-    private _beginChangeInvalidateType: GridSettingChangeInvalidateTypeId | undefined;
+    private _highestPriorityInvalidateType: GridSettingChangeInvalidateTypeId | undefined;
     /** @internal */
     private _changedEventHandlers =  new Array<BehavioredSettings.ChangedEventHandler>();
 
 
     beginChange() {
         if (this._beginChangeCount++ === 0) {
-            this._beginChangeInvalidateType = undefined;
+            this._highestPriorityInvalidateType = undefined;
         }
     }
 
-    endChange() {
+    endChange(): boolean {
+        const beginChangeInvalidateType = this._highestPriorityInvalidateType;
+        const changed = beginChangeInvalidateType !== undefined;
         if (--this._beginChangeCount === 0) {
-            if (this._beginChangeInvalidateType !== undefined) {
-                this.notifyChanged(this._beginChangeInvalidateType);
-                this._beginChangeInvalidateType = undefined;
+            if (changed) {
+                this.notifyChanged(beginChangeInvalidateType);
+                this._highestPriorityInvalidateType = undefined;
             }
         } else {
             if (this._beginChangeCount < 0) {
                 throw new AssertError('IMDBSEC65997');
             }
         }
+        return changed;
     }
 
     subscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler) {
@@ -59,68 +62,68 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
         }
     }
 
-    protected notifyChangedViewRender() {
-        this.notifyChanged(GridSettingChangeInvalidateTypeId.ViewRender);
+    protected flagChangedViewRender() {
+        this.flagChanged(GridSettingChangeInvalidateTypeId.ViewRender);
     }
 
-    protected notifyChanged(invalidateType: GridSettingChangeInvalidateTypeId) {
-        if (this._beginChangeCount === 0) {
-            for (const handler of this._changedEventHandlers) {
-                handler();
-            }
-
-            switch (invalidateType) {
-                case GridSettingChangeInvalidateTypeId.None:
-                    break;
-                case GridSettingChangeInvalidateTypeId.ViewRender:
-                    if (this.viewRenderInvalidatedEventer !== undefined) {
-                        this.viewRenderInvalidatedEventer();
-                    }
-                    break;
-                case GridSettingChangeInvalidateTypeId.HorizontalViewLayout:
-                    if (this.horizontalViewLayoutInvalidatedEventer !== undefined) {
-                        this.horizontalViewLayoutInvalidatedEventer(false);
-                    }
-                    break;
-                case GridSettingChangeInvalidateTypeId.VerticalViewLayout:
-                    if (this.verticalViewLayoutInvalidatedEventer !== undefined) {
-                        this.verticalViewLayoutInvalidatedEventer(false);
-                    }
-                    break;
-                case GridSettingChangeInvalidateTypeId.ViewLayout:
-                    if (this.viewLayoutInvalidatedEventer !== undefined) {
-                        this.viewLayoutInvalidatedEventer(false);
-                    }
-                    break;
-                case GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension:
-                    if (this.horizontalViewLayoutInvalidatedEventer !== undefined) {
-                        this.horizontalViewLayoutInvalidatedEventer(true);
-                    }
-                    break;
-                case GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension:
-                    if (this.verticalViewLayoutInvalidatedEventer !== undefined) {
-                        this.verticalViewLayoutInvalidatedEventer(true);
-                    }
-                    break;
-                case GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension:
-                    if (this.viewLayoutInvalidatedEventer !== undefined) {
-                        this.viewLayoutInvalidatedEventer(true);
-                    }
-                    break;
-                case GridSettingChangeInvalidateTypeId.Resize:
-                    if (this.resizeEventer !== undefined) {
-                        this.resizeEventer();
-                    }
-                    break;
-                default:
-                    throw new UnreachableCaseError('IMDMGSIBT43332', invalidateType);
-            }
+    protected flagChanged(invalidateType: GridSettingChangeInvalidateTypeId) {
+        if (this._highestPriorityInvalidateType === undefined) {
+            this._highestPriorityInvalidateType = invalidateType;
         } else {
-            if (this._beginChangeInvalidateType === undefined) {
-                this._beginChangeInvalidateType = invalidateType;
-            } else {
-                this._beginChangeInvalidateType = GridSettingChangeInvalidateType.getHigherPriority(invalidateType, this._beginChangeInvalidateType);
-            }
+            this._highestPriorityInvalidateType = GridSettingChangeInvalidateType.getHigherPriority(invalidateType, this._highestPriorityInvalidateType);
+        }
+    }
+
+    private notifyChanged(invalidateType: GridSettingChangeInvalidateTypeId) {
+        for (const handler of this._changedEventHandlers) {
+            handler();
+        }
+
+        switch (invalidateType) {
+            case GridSettingChangeInvalidateTypeId.None:
+                break;
+            case GridSettingChangeInvalidateTypeId.ViewRender:
+                if (this.viewRenderInvalidatedEventer !== undefined) {
+                    this.viewRenderInvalidatedEventer();
+                }
+                break;
+            case GridSettingChangeInvalidateTypeId.HorizontalViewLayout:
+                if (this.horizontalViewLayoutInvalidatedEventer !== undefined) {
+                    this.horizontalViewLayoutInvalidatedEventer(false);
+                }
+                break;
+            case GridSettingChangeInvalidateTypeId.VerticalViewLayout:
+                if (this.verticalViewLayoutInvalidatedEventer !== undefined) {
+                    this.verticalViewLayoutInvalidatedEventer(false);
+                }
+                break;
+            case GridSettingChangeInvalidateTypeId.ViewLayout:
+                if (this.viewLayoutInvalidatedEventer !== undefined) {
+                    this.viewLayoutInvalidatedEventer(false);
+                }
+                break;
+            case GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension:
+                if (this.horizontalViewLayoutInvalidatedEventer !== undefined) {
+                    this.horizontalViewLayoutInvalidatedEventer(true);
+                }
+                break;
+            case GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension:
+                if (this.verticalViewLayoutInvalidatedEventer !== undefined) {
+                    this.verticalViewLayoutInvalidatedEventer(true);
+                }
+                break;
+            case GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension:
+                if (this.viewLayoutInvalidatedEventer !== undefined) {
+                    this.viewLayoutInvalidatedEventer(true);
+                }
+                break;
+            case GridSettingChangeInvalidateTypeId.Resize:
+                if (this.resizeEventer !== undefined) {
+                    this.resizeEventer();
+                }
+                break;
+            default:
+                throw new UnreachableCaseError('IMDMGSIBT43332', invalidateType);
         }
     }
 }

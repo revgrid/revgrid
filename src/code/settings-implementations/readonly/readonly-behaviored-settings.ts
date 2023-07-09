@@ -11,7 +11,7 @@ export const readonlyBehavioredSettings: Readonly<BehavioredSettings> = {
     verticalViewLayoutInvalidatedEventer: () => {},
 
     beginChange: () => {},
-    endChange: () => {},
+    endChange: () => false,
 
     subscribeChangedEvent: () => {},
     unsubscribeChangedEvent: () => {},

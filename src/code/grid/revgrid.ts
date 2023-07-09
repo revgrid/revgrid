@@ -1,12 +1,10 @@
-import { CellPropertiesBehavior } from './behavior/component/cell-properties-behavior';
-import { ComponentBehaviorManager } from './behavior/component/component-behavior-manager';
-import { DataExtractBehavior } from './behavior/component/data-extract-behavior';
-import { EventBehavior } from './behavior/component/event-behavior';
-import { FocusScrollBehavior } from './behavior/component/focus-scroll-behavior';
-import { FocusSelectBehavior } from './behavior/component/focus-select-behavior';
-import { RowPropertiesBehavior } from './behavior/component/row-properties-behavior';
-import { UiBehavior } from './behavior/ui/ui-behavior';
-import { UiBehaviorManager } from './behavior/ui/ui-behavior-manager';
+import { CellPropertiesBehavior } from './behavior/cell-properties-behavior';
+import { BehaviorManager } from './behavior/component-behavior-manager';
+import { DataExtractBehavior } from './behavior/data-extract-behavior';
+import { EventBehavior } from './behavior/event-behavior';
+import { FocusScrollBehavior } from './behavior/focus-scroll-behavior';
+import { FocusSelectBehavior } from './behavior/focus-select-behavior';
+import { RowPropertiesBehavior } from './behavior/row-properties-behavior';
 import { CanvasManager } from './components/canvas/canvas-manager';
 import { ColumnsManager } from './components/column/columns-manager';
 import { ComponentsManager } from './components/components-manager';
@@ -20,7 +18,6 @@ import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
 import { CellMetaSettings } from './interfaces/data/cell-meta-settings';
 import { DataServer } from './interfaces/data/data-server';
-import { EventDetail } from './interfaces/data/event-detail';
 import { LinedHoverCell } from './interfaces/data/hover-cell';
 import { MainSubgrid } from './interfaces/data/main-subgrid';
 import { MetaModel } from './interfaces/data/meta-model';
@@ -33,18 +30,23 @@ import { BehavioredColumnSettings } from './interfaces/settings/behaviored-colum
 import { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from './interfaces/settings/column-settings';
 import { CssClassName } from './types-utils/html-types';
-import { Localization } from './types-utils/localization';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
-import { AssertError } from './types-utils/revgrid-error';
-import { ColumnFieldNameAndAutoSizableWidth, ListChangedTypeId, SelectionAreaType } from './types-utils/types';
+import { ApiError, AssertError } from './types-utils/revgrid-error';
+import { ListChangedTypeId, SelectionAreaType } from './types-utils/types';
+import { UiController } from './ui/controller/ui-controller';
+import { UiManager } from './ui/ui-controller-manager';
 
 /** @public */
 export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    readonly hostElement: HTMLElement;
+
     readonly mouse: Mouse<BGS, BCS, SF>;
     readonly selection: Selection<BCS, SF>;
     readonly focus: Focus<BGS, BCS, SF>;
     readonly canvasManager: CanvasManager<BGS>;
+    readonly columnsManager: ColumnsManager<BCS, SF>;
+    readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
 
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
@@ -53,14 +55,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /** @internal */
     private readonly _componentsManager: ComponentsManager<BGS, BCS, SF>;
     /** @internal */
-    private readonly _componentBehaviorManager: ComponentBehaviorManager<BGS, BCS, SF>;
+    private readonly _behaviorManager: BehaviorManager<BGS, BCS, SF>;
     /** @internal */
-    private readonly _uiBehaviorManager: UiBehaviorManager<BGS, BCS, SF>;
+    private readonly _uiManager: UiManager<BGS, BCS, SF>;
 
-    /** @internal */
-    private readonly _columnsManager: ColumnsManager<BCS, SF>;
-    /** @internal */
-    private readonly _subgridsManager: SubgridsManager<BCS, SF>;
     /** @internal */
     private readonly _renderer: Renderer<BGS, BCS, SF>;
     /** @internal */
@@ -79,22 +77,17 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /** @internal */
     private readonly _dataExtractBehavior: DataExtractBehavior<BCS, SF>;
 
-    destroyed = false;
+    private _destroyed = false;
 
-    localization: Localization;
-
-    readonly containerHtmlElement: HTMLElement;
-
-    /** @internal */
-    get columnsManager() { return this._columnsManager; }
-    get fieldColumns(): readonly Column<BCS, SF>[] { return this._columnsManager.fieldColumns; }
-    get activeColumns(): readonly Column<BCS, SF>[] { return this._columnsManager.activeColumns; }
-
+    get fieldColumns(): readonly Column<BCS, SF>[] { return this.columnsManager.fieldColumns; }
+    get activeColumns(): readonly Column<BCS, SF>[] { return this.columnsManager.activeColumns; }
 
     getSelectedRowCount() { return this.selection.getRowCount(); }
     getSelectedRowIndices() { return this.selection.getRowIndices(); }
     getSelectedColumnIndices() { return this.selection.getColumnIndices(); }
     getSelectedRectangles() { return this.selection.rectangleList.rectangles; }
+
+    get destroyed() { return this._destroyed; }
 
     /**
      * The index of the active column which is first in view (either on left or right depending on Grid alignment)
@@ -109,68 +102,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get nonFixedColumnsViewWidth() { return this.viewLayout.scrollableColumnsViewWidth; }
     get activeColumnsViewWidth() { return this.viewLayout.columnsViewWidth; }
 
-/**
- * @mixes scrolling.mixin
- * @mixes events.mixin
- * @mixes selection.mixin
- * @mixes themes.mixin
- * @mixes themes.sharedMixin
- * @constructor
- * @classdesc An object representing a Hypegrid.
- * @desc The first parameter, `container`, is optional. If omitted, the `options` parameter is promoted to first position. (Note that the container can also be given in `options.container.`)
- * @param {string|Element} [container] - CSS selector or Element. If omitted (and `options.container` also omitted), Hypergrid first looks for an _empty_ element with an ID of `hypergrid`. If not found, it will create a new element. In either case, the container element has the class name `hypergrid-container` added to its class name list. Finally, if the there is more than one such element with that class name, the element's ID attribute is set to `hypergrid` + _n_ where n is an ordinal one less than the number of such elements.
- * @param {object} [options] - If `options.data` provided, passed to {@link Hypergrid#setData setData}; else if `options.Behavior` provided, passed to {@link Hypergrid#setBehavior setBehavior}.
- * @param {function} [options.Behavior=Local] - _Per {@link Behavior#setData}._
- * @param {DataModel} [options.dataModel] - _Passed to behavior {@link Behavior constructor}._
- * @param {function} [options.DataModel=require('datasaur-local')] - _Passed to behavior {@link Behavior constructor}._
- * @param {function|object[]} [options.data] - _Passed to behavior {@link Behavior constructor}._
- * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor}._
- * @param {object} [options.metadata] - _Passed to behavior {@link Behavior constructor}._
- * @param {subgridSpec[]} [options.subgrids=this.properties.subgrids] - _Per {@link Behavior#setData}._
- * @param {pluginSpec|pluginSpec[]} [options.plugins]
- * @param {object} [options.state]
- *
- * @param {string|Element} [options.container] - Alternative to providing `container` (first) parameter above.
- *
- * @param {object} [options.contextAttributes={ alpha: true }] - Passed to [`HTMLCanvasElement.getContext`](https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/getContext). Although the MDN docs say setting this to `{alpha: false}` (opaque canvas) can "can speed up drawing of transparent content and images," our testing (with Chrome v63) failed to show any measurable performance gain.
- *
- * _An opaque canvas does have an important advantage, however!_ It permits the graphics context to use [sub-pixel rendering](https://en.wikipedia.org/wiki/Subpixel_rendering) for sharper text as viewed on LCD or LED screens, especially black text on white backgrounds, and especially when viewed on a high-pixel-density display such as an [Apple retina display](https://en.wikipedia.org/wiki/Retina_Display).
- *
- * Zoom in on the following samples images to see the difference in rendering.
- *
- * Value | Sample
- * :---: | :----:
- * `{ alpha: true }`<br>Transparent canvas,<br>renders text using<br>_regular anti-aliasing_ | ![regular.png](https://cdn-pro.dprcdn.net/files/acc_645730/ZqurK3)
- * `{ alpha: false }`<br>Opaque canvas,<br>renders text using<br>_sub-pixel rendering_ | ![sub-pixel.png](https://cdn-std.dprcdn.net/files/acc_645730/bf3VXh).
- *
- * Use with caution, however. In particular, if the canvas is set to "opaque" (`{alpha: false}`), do _not_ also specify a transparent or translucent color for `grid.properties.backGround` because content may then be drawn with corrupt anti-aliasing (at lest as of Chrome v67).
- *
- * To clarify, the default setting (`{ alpha: true }`) is a transparent canvas, meaning that elements rendered underneath the `<canvas>` element can be seen through any non-opaque pixels (pixels with alpha channel < 1.0). Hypergrids that set their background color to non-opaque can see this effect.
- *
- * Note: An opaque canvas can still be made _to appear_ translucent using the CSS `opacity` property. But that is a different effect entirely, setting the entire rendered canvas to translucent, not just so all pixels become translucent.
- * @param {string} [options.localization=Hypergrid.localization]
- * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to `Intl.NumberFomrat` and `Intl.DateFomrat`. See {@link https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
- * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to [`Intl.NumberFormat`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) for creating the basic "number" localizer.
- * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to [`Intl.DateTimeFormat`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat) for creating the basic "date" localizer.
- *
- * @param {object} [options.margin] - Optional canvas "margins" applied to containing div as .left, .top, .right, .bottom. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container` rule.)
- * @param {string} [options.margin.top='0px']
- * @param {string} [options.margin.right='0px']
- * @param {string} [options.margin.bottom='0px']
- * @param {string} [options.margin.left='0px']
- *
- * @param {object} [options.boundingRect] - Optional grid container size & position. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container > div:first-child` rule.)
- * @param {string} [options.boundingRect.width='auto']
- * @param {string} [options.boundingRect.height='500px']
- * @param {string} [options.boundingRect.left='auto']
- * @param {string} [options.boundingRect.top='auto']
- * @param {string} [options.boundingRect.right='auto']
- * @param {string} [options.boundingRect.bottom='auto']
- * @param {string} [options.boundingRect.position='relative']
- *
- */
     constructor(
-        container: string | HTMLElement | undefined,
+        hostElement: string | HTMLElement | undefined,
         definition: Revgrid.Definition<BCS, SF>,
         readonly settings: BGS,
         getSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>,
@@ -178,8 +111,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     ) {
         options = options ?? {};
 
-        //Set up the container for a grid instance
-        this.containerHtmlElement = this.initContainer(container, options);
+        //Set up the host for a grid instance
+        this.hostElement = this.prepareHost(hostElement);
 
         let schemaServer = definition.schemaServer;
         if (typeof schemaServer === 'function') {
@@ -188,7 +121,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
         this._componentsManager = new ComponentsManager(
             settings,
-            this.containerHtmlElement,
+            this.hostElement,
             schemaServer,
             definition.subgrids,
             options.canvasRenderingContext2DSettings,
@@ -199,23 +132,23 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.selection = this._componentsManager.selection;
         this.canvasManager = this._componentsManager.canvasManager;
         this.mouse = this._componentsManager.mouse;
-        this._columnsManager = this._componentsManager.columnsManager;
-        this._subgridsManager = this._componentsManager.subgridsManager;
+        this.columnsManager = this._componentsManager.columnsManager;
+        this.subgridsManager = this._componentsManager.subgridsManager;
         this.viewLayout = this._componentsManager.viewLayout;
         this._renderer = this._componentsManager.renderer;
         this._horizontalScroller = this._componentsManager.horizontalScroller;
         this._verticalScroller = this._componentsManager.verticalScroller;
 
-        this.mainSubgrid = this._subgridsManager.mainSubgrid;
+        this.mainSubgrid = this.subgridsManager.mainSubgrid;
         this.mainDataServer = this.mainSubgrid.dataServer;
 
         const descendantEventer = this.createDescendantEventer();
 
-        this._componentBehaviorManager = new ComponentBehaviorManager(
+        this._behaviorManager = new BehaviorManager(
             this.settings,
             this.canvasManager,
             this.columnsManager,
-            this._subgridsManager,
+            this.subgridsManager,
             this.viewLayout,
             this.focus,
             this.selection,
@@ -226,20 +159,20 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             descendantEventer,
         );
 
-        this._focusScrollBehavior = this._componentBehaviorManager.focusScrollBehavior;
-        this._focusSelectBehavior = this._componentBehaviorManager.focusSelectBehavior;
-        this._rowPropertiesBehavior = this._componentBehaviorManager.rowPropertiesBehavior;
-        this._cellPropertiesBehavior = this._componentBehaviorManager.cellPropertiesBehavior;
-        this._dataExtractBehavior = this._componentBehaviorManager.dataExtractBehavior;
+        this._focusScrollBehavior = this._behaviorManager.focusScrollBehavior;
+        this._focusSelectBehavior = this._behaviorManager.focusSelectBehavior;
+        this._rowPropertiesBehavior = this._behaviorManager.rowPropertiesBehavior;
+        this._cellPropertiesBehavior = this._behaviorManager.cellPropertiesBehavior;
+        this._dataExtractBehavior = this._behaviorManager.dataExtractBehavior;
 
-        this._uiBehaviorManager = new UiBehaviorManager(
-            this.containerHtmlElement,
+        this._uiManager = new UiManager(
+            this.hostElement,
             this.settings,
             this.canvasManager,
             this.focus,
             this.selection,
             this.columnsManager,
-            this._subgridsManager,
+            this.subgridsManager,
             this.viewLayout,
             this._renderer,
             this.mouse,
@@ -250,15 +183,26 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this._rowPropertiesBehavior,
             this._cellPropertiesBehavior,
             this._dataExtractBehavior,
-            this._componentBehaviorManager.reindexBehavior,
-            this._componentBehaviorManager.eventBehavior,
-            options.customUiBehaviorDefinitions,
+            this._behaviorManager.reindexBehavior,
+            this._behaviorManager.eventBehavior,
+            options.customUiControllerDefinitions,
         );
 
         this.canvasManager.start();
         this._renderer.start();
 
         this.canvasManager.resize(false); // Will invalidate all and cause a repaint
+    }
+
+    get active() { return this._behaviorManager.active; }
+    set active(value: boolean) {
+        this._behaviorManager.active = value;
+        if (value){
+            this._uiManager.enable();
+        } else {
+            this._uiManager.disable();
+        }
+        this.viewLayout.invalidateAll(true);
     }
 
     get canvasBounds() { return this.canvasManager.bounds; }
@@ -269,30 +213,38 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * canvase paint loop will continue to run
      */
     destroy() {
-        this._componentBehaviorManager.destroy();
+        this._behaviorManager.destroy();
 
-        const containerHtmlElement = this.containerHtmlElement;
-        let firstChild = containerHtmlElement.firstChild;
+        const hostElement = this.hostElement;
+        let firstChild = hostElement.firstChild;
         while (firstChild !== null) {
-            containerHtmlElement.removeChild(firstChild);
-            firstChild = containerHtmlElement.firstChild;
+            hostElement.removeChild(firstChild);
+            firstChild = hostElement.firstChild;
         }
 
-        this.destroyed = true;
+        this._destroyed = true;
+    }
+
+    activate() {
+        this.active = true;
+    }
+
+    deactivate() {
+        this.active = false;
     }
 
     setAttribute(attribute: string, value: string) {
-        this.containerHtmlElement.setAttribute(attribute, value);
+        this.hostElement.setAttribute(attribute, value);
     }
 
     removeAttribute(attribute: string) {
-        this.containerHtmlElement.removeAttribute(attribute);
+        this.hostElement.removeAttribute(attribute);
     }
 
     /** @internal */
     createColumns() {
         // used by Behavior.addState()
-        this._columnsManager.createColumns();
+        this.columnsManager.createColumns();
     }
 
     /**
@@ -478,7 +430,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     //     this.behavior.reindex();
     // }
 
-    get activeColumnCount() { return this._columnsManager.activeColumnCount; }
+    get activeColumnCount() { return this.columnsManager.activeColumnCount; }
 
     /**
      * @summary Gets the number of rows in the main subgrid.
@@ -489,7 +441,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     calculateRowCount() {
-        return this._subgridsManager.calculateRowCount();
+        return this.subgridsManager.calculateRowCount();
     }
 
     /**
@@ -537,50 +489,45 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._renderer.waitModelRendered();
     }
 
-    /**
-     * @summary Set the container for a grid instance
-     */
-    // private setContainer(div: string | HTMLElement) {
-    //     this.initContainer(div);
-    //     this.initRenderer();
-    //     // injectGridElements.call(this);
-    // }
+    private prepareHost(hostElement: string | HTMLElement | undefined): HTMLElement {
+        let resolvedHostElement: HTMLElement;
+        if (hostElement === undefined) {
+            let foundOrCreatedElement = document.getElementById(CssClassName.gridHostElementCssIdBase);
 
-    /**
-     * @summary Initialize container
-     */
-    private initContainer(container: string | HTMLElement | undefined, options: Revgrid.Options<BGS, BCS, SF>): HTMLElement {
-        let resolvedContainer: HTMLElement;
-        if (container === undefined) {
-            resolvedContainer = this.findOrCreateContainer();
+            if (foundOrCreatedElement === null || foundOrCreatedElement.childElementCount > 0) {
+                // is not found or being used.  Create a new host
+                foundOrCreatedElement = document.createElement('div');
+                document.body.appendChild(foundOrCreatedElement);
+            }
+            resolvedHostElement = foundOrCreatedElement;
         } else {
-            if (typeof container === 'string') {
-                const queriedContainer = document.querySelector(container);
-                if (queriedContainer === null) {
-                    throw new AssertError('RIC55998', `Container element not found: ${container}`);
+            if (typeof hostElement === 'string') {
+                const queriedHostElement = document.querySelector(hostElement);
+                if (queriedHostElement === null) {
+                    throw new AssertError('RIC55998', `Host element not found: ${hostElement}`);
                 } else {
-                    resolvedContainer = queriedContainer as HTMLElement;
+                    resolvedHostElement = queriedHostElement as HTMLElement;
                 }
             } else {
-                resolvedContainer = container;
+                resolvedHostElement = hostElement;
             }
         }
 
         // Default Position and height to ensure DnD works
-        if (!resolvedContainer.style.position) {
-            resolvedContainer.style.position = ''; // revert to stylesheet value
+        if (!resolvedHostElement.style.position) {
+            resolvedHostElement.style.position = ''; // revert to stylesheet value
         }
 
-        if (resolvedContainer.clientHeight < 1) {
-            resolvedContainer.style.height = ''; // revert to stylesheet value
+        if (resolvedHostElement.clientHeight < 1) {
+            resolvedHostElement.style.height = ''; // revert to stylesheet value
         }
 
-        resolvedContainer.removeAttribute('tabindex');
+        resolvedHostElement.removeAttribute('tabindex');
 
-        resolvedContainer.classList.add(CssClassName.gridContainerElementCssClass);
-        resolvedContainer.id = resolvedContainer.id || CssClassName.gridContainerElementCssIdBase + (document.querySelectorAll('.' + CssClassName.gridContainerElementCssClass).length - 1 || '');
+        resolvedHostElement.classList.add(CssClassName.gridHostElementCssClass);
+        resolvedHostElement.id = resolvedHostElement.id || CssClassName.gridHostElementCssIdBase + (document.querySelectorAll('.' + CssClassName.gridHostElementCssClass).length - 1 || '');
 
-        return resolvedContainer;
+        return resolvedHostElement;
     }
 
     /**
@@ -620,7 +567,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @param mouse - The mouse point to interrogate.
      */
     getGridCellFromMousePoint(mouse: Point) {
-        return this.viewLayout.findLinedHoverCell(mouse.x, mouse.y);
+        return this.viewLayout.findLinedHoverCellAtCanvasOffset(mouse.x, mouse.y);
     }
 
     /**
@@ -632,18 +579,18 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     getSchema(): readonly SchemaField[] {
-        return this._columnsManager.getSchema();
+        return this.columnsManager.getSchema();
     }
 
     getAllColumn(allX: number) {
-        return this._columnsManager.getFieldColumn(allX);
+        return this.columnsManager.getFieldColumn(allX);
     }
 
     /**
      * @returns A copy of the all columns array by passing the params to `Array.prototype.slice`.
      */
     getFieldColumnRange(begin?: number, end?: number): Column<BCS, SF>[] {
-        const columns = this._columnsManager.fieldColumns;
+        const columns = this.columnsManager.fieldColumns;
         return columns.slice(begin, end);
     }
 
@@ -651,17 +598,17 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @returns A copy of the active columns array by passing the params to `Array.prototype.slice`.
      */
     getActiveColumns(begin?: number, end?: number): Column<BCS, SF>[] {
-        const columns = this._columnsManager.activeColumns;
+        const columns = this.columnsManager.activeColumns;
         return columns.slice(begin, end);
     }
 
     getHiddenColumns() {
         //A non in-memory behavior will be more troublesome
-        return this._columnsManager.getHiddenColumns();
+        return this.columnsManager.getHiddenColumns();
     }
 
-    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]) {
-        this._columnsManager.setActiveColumnsAndWidthsByFieldName(columnNameWidths, false);
+    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]) {
+        this.columnsManager.setActiveColumnsAndWidthsByFieldName(columnNameWidths, false);
     }
 
     /**
@@ -734,27 +681,27 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             allowDuplicateColumns = uiOrAllowDuplicateColumns ?? false;
         }
 
-        this._columnsManager.showHideColumns(indexesAreActive, columnIndexOrIndices, insertIndex, allowDuplicateColumns, ui);
+        this.columnsManager.showHideColumns(indexesAreActive, columnIndexOrIndices, insertIndex, allowDuplicateColumns, ui);
     }
 
     hideActiveColumn(activeColumnIndex: number, ui = true) {
-        this._columnsManager.hideActiveColumn(activeColumnIndex, ui);
+        this.columnsManager.hideActiveColumn(activeColumnIndex, ui);
     }
 
     clearColumns() {
-        this._columnsManager.clearColumns();
+        this.columnsManager.clearColumns();
     }
 
     moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean) {
-        this._columnsManager.moveColumnBefore(sourceIndex, targetIndex, ui);
+        this.columnsManager.moveColumnBefore(sourceIndex, targetIndex, ui);
     }
 
     moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean) {
-        this._columnsManager.moveColumnAfter(sourceIndex, targetIndex, ui);
+        this.columnsManager.moveColumnAfter(sourceIndex, targetIndex, ui);
     }
 
     setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]) {
-        const fieldColumns = this._columnsManager.fieldColumns;
+        const fieldColumns = this.columnsManager.fieldColumns;
         const newActiveCount = columnFieldNameOrFieldIndexArray.length;
         const newActiveColumns = new Array<Column<BCS, SF>>(newActiveCount);
         for (let i = 0; i < newActiveCount; i++) {
@@ -766,7 +713,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
                 if (typeof columnFieldNameOrFieldIndex === 'string') {
                     const foundColumn = fieldColumns.find((aColumn) => aColumn.field.name === columnFieldNameOrFieldIndex);
                     if (foundColumn === undefined) {
-                        throw new Error(`ColumnsManager.setActiveColumns: Column with name not found: ${columnFieldNameOrFieldIndex}`);
+                        throw new ApiError('RSAC20009', `ColumnsManager.setActiveColumns: Column with name not found: ${columnFieldNameOrFieldIndex}`);
                     } else {
                         column = foundColumn;
                     }
@@ -777,27 +724,31 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
             newActiveColumns[i] = column;
         }
-        this._columnsManager.setActiveColumns(newActiveColumns);
+        this.columnsManager.setActiveColumns(newActiveColumns);
     }
 
-    autoSizeAllColumns(widenOnly: boolean) {
-        this._columnsManager.autoSizeAllColumns(widenOnly);
+    autoSizeActiveColumnWidths(widenOnly: boolean) {
+        this.columnsManager.autoSizeActiveColumnWidths(widenOnly);
     }
 
-    autoSizeFieldColumn(fieldNameOrIndex: string | number, widenOnly: boolean) {
-        const fieldColumns = this._columnsManager.fieldColumns;
+    setActiveColumnsAutoWidthSizing(widenOnly: boolean) {
+        this.columnsManager.setActiveColumnsAutoWidthSizing(widenOnly);
+    }
+
+    autoSizeFieldColumnWidth(fieldNameOrIndex: string | number, widenOnly: boolean) {
+        const fieldColumns = this.columnsManager.fieldColumns;
         let column: Column<BCS, SF>;
         if (typeof fieldNameOrIndex === 'number') {
             column = fieldColumns[fieldNameOrIndex];
         } else {
             const foundColumn = fieldColumns.find((aColumn) => aColumn.field.name === fieldNameOrIndex);
             if (foundColumn === undefined) {
-                throw new Error(`ColumnsManager.setActiveColumns: Column with name not found: ${fieldNameOrIndex}`);
+                throw new ApiError('RASFC29752', `ColumnsManager.setActiveColumns: Column with name not found: ${fieldNameOrIndex}`);
             } else {
                 column = foundColumn;
             }
         }
-        column.autoSize(widenOnly);
+        column.autoSizeWidth(widenOnly);
     }
 
     setColumnScrollAnchor(index: number, offset: number) {
@@ -806,7 +757,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     calculateActiveColumnsWidth() {
         const lineWidth = this.settings.verticalGridLinesWidth;
-        const columnsManager = this._columnsManager;
+        const columnsManager = this.columnsManager;
         const activeColumnCount = columnsManager.activeColumnCount;
         const fixedColumnCount = this.columnsManager.getFixedColumnCount();
 
@@ -978,11 +929,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     getActiveColumn(activeIndex: number) {
-        return this._columnsManager.getActiveColumn(activeIndex);
+        return this.columnsManager.getActiveColumn(activeIndex);
     }
 
     getActiveColumnIndexByFieldIndex(fieldIndex: number) {
-        return this._columnsManager.getActiveColumnIndexByFieldIndex(fieldIndex);
+        return this.columnsManager.getActiveColumnIndexByFieldIndex(fieldIndex);
     }
 
     /**
@@ -990,7 +941,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @param activeIndex - The untranslated column index.
      */
     getActiveColumnWidth(activeIndex: number) {
-        return this._columnsManager.getActiveColumnWidth(activeIndex);
+        return this.columnsManager.getActiveColumnWidth(activeIndex);
     }
 
     /**
@@ -1003,9 +954,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         let column: Column<BCS, SF>
         if (typeof columnOrIndex === 'number') {
             if (columnOrIndex >= 0) {
-                column = this._columnsManager.getActiveColumn(columnOrIndex);
+                column = this.columnsManager.getActiveColumn(columnOrIndex);
             } else {
-                throw new Error(`Behavior.setColumnWidth: Invalid column number ${columnOrIndex}`);
+                throw new ApiError('RSACW93109', `Behavior.setColumnWidth: Invalid column number ${columnOrIndex}`);
             }
         } else {
             column = columnOrIndex;
@@ -1015,11 +966,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[]) {
-        return this._columnsManager.setColumnWidths(columnWidths, false);
+        return this.columnsManager.setColumnWidths(columnWidths, false);
     }
 
-    setColumnWidthsByName(columnNameWidths: ColumnFieldNameAndAutoSizableWidth[]) {
-        return this._columnsManager.setColumnWidthsByFieldName(columnNameWidths, false);
+    setColumnWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]) {
+        return this.columnsManager.setColumnWidthsByFieldName(columnNameWidths, false);
     }
 
     /**
@@ -1174,23 +1125,28 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     swapColumns(source: number, target: number) {
         //Turns out this is called during dragged 'i.e' when the floater column is reshuffled
         //by the currently dragged column. The column positions are constantly reshuffled
-        this._columnsManager.swapColumns(source, target);
+        this.columnsManager.swapColumns(source, target);
     }
 
     /**
      * @param activeColumnIndex - Data x coordinate.
      * @return The properties for a specific column.
      */
-    getColumnProperties(activeColumnIndex: number): ColumnSettings | undefined {
-        return this._columnsManager.getActiveColumnSettings(activeColumnIndex);
+    getActiveColumnSettings(activeColumnIndex: number): BCS {
+        const column = this.columnsManager.getActiveColumn(activeColumnIndex);
+        if (column === undefined) {
+            throw new ApiError('RGACS50008', `activeColumnIndex is not a valid index: ${activeColumnIndex}`);
+        } else {
+            return column.settings;
+        }
     }
 
-    mergeFieldColumnProperties(fieldIndex: number, settings: Partial<BCS>) {
-        this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>) {
+        return this.columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
     }
 
-    setFieldColumnProperties(fieldIndex: number, settings: BCS) {
-        this._columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
+    setFieldColumnSettings(fieldIndex: number, settings: BCS) {
+        return this.columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
     }
 
     /**
@@ -1198,7 +1154,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @param x - Omit for all columns.
      */
     clearAllCellProperties(x?: number) {
-        const column = x === undefined ? undefined : this._columnsManager.getFieldColumn(x);
+        const column = x === undefined ? undefined : this.columnsManager.getFieldColumn(x);
         this._cellPropertiesBehavior.clearAllCellProperties(column)
     }
 
@@ -1261,17 +1217,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.canvasManager.removeExternalEventListener(eventName, listener);
     }
 
-    allowEvents(allow: boolean){
-        this._componentBehaviorManager.allowEvents(allow);
-        if (allow){
-            this._uiBehaviorManager.enable();
-        } else {
-            this._uiBehaviorManager.disable();
-        }
-        this.viewLayout.invalidateAll(true);
+    protected descendantProcessCellFocusChanged(_newPoint: Point | undefined, _oldPoint: Point | undefined) {
+        // for descendants
     }
 
-    protected descendantProcessCellFocusChanged(newPoint: Point | undefined, oldPoint: Point | undefined) {
+    protected descendantProcessRowFocusChanged(_newSubgridRowIndex: number | undefined, _oldSubgridRowIndex: number | undefined) {
         // for descendants
     }
 
@@ -1291,7 +1241,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessColumnsViewWidthsChanged() {
+    protected descendantProcessColumnsViewWidthsChanged(_changeds: ViewLayout.ColumnsViewWidthChangeds) {
         // for descendants
     }
 
@@ -1411,11 +1361,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessHorizontalScrollerAction(_event: EventDetail.ScrollerAction) {
+    protected descendantProcessHorizontalScrollerAction(_event: Scroller.Action) {
         // for descendants
     }
 
-    protected descendantProcessVerticalScrollerAction(_event: EventDetail.ScrollerAction) {
+    protected descendantProcessVerticalScrollerAction(_event: Scroller.Action) {
         // for descendants
     }
 
@@ -1437,7 +1387,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         } else {
             // xOrCellEvent is x
             if (y !== undefined && subgrid !== undefined) {
-                const column = this._columnsManager.getFieldColumn(allXOrRenderedCell);
+                const column = this.columnsManager.getFieldColumn(allXOrRenderedCell);
                 return this._cellPropertiesBehavior.getCellOwnProperties(column, y, subgrid);
             } else {
                 return undefined;
@@ -1460,7 +1410,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     getCellProperties(allX: number, y: number, subgrid: Subgrid<BCS, SF>): CellMetaSettings {
-        const column = this._columnsManager.getFieldColumn(allX);
+        const column = this.columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
     }
 
@@ -1485,7 +1435,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         key: string | T,
         subgrid: Subgrid<BCS, SF>
     ): MetaModel.CellOwnProperty | ColumnSettings[T] {
-        const column = this._columnsManager.getFieldColumn(allX);
+        const column = this.columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.getCellProperty(column, y, key, subgrid);
     }
 
@@ -1501,7 +1451,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._cellPropertiesBehavior.setCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
-        const column = this._columnsManager.getFieldColumn(allX);
+        const column = this.columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.setCellOwnProperties(column, y, properties, subgrid);
     }
 
@@ -1517,7 +1467,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._cellPropertiesBehavior.addCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
-        const column = this._columnsManager.getFieldColumn(allX);
+        const column = this.columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.addCellOwnProperties(column, y, properties, subgrid);
     }
 
@@ -1556,7 +1506,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             value = keyOrValue;
         } else {
             optionalCell = undefined;
-            column = this._columnsManager.getFieldColumn(allXOrCell);
+            column = this.columnsManager.getFieldColumn(allXOrCell);
             dataY = yOrKey as number;
             key = keyOrValue as string;
         }
@@ -1880,30 +1830,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     pageRight() {
         this._focusScrollBehavior.tryPageFocusRight();
     }
-    // End Scrolling mixin
-
-    /** @internal */
-    private findOrCreateContainer() {
-        let div = document.getElementById(CssClassName.gridContainerElementCssIdBase);
-
-        if (div === null || div.childElementCount > 0) {
-            // is not found or being used.  Create a new container
-            div = document.createElement('div');
-            document.body.appendChild(div);
-        }
-
-        return div;
-    }
-
-    // /** @internal */
-    // private createLocalDataModel(role: Subgrid.Role) {
-    //     switch (role) {
-    //         case Subgrid.RoleEnum.main: return new LocalMainDataSource();
-    //         case Subgrid.RoleEnum.header: return new LocalHeaderDataSource(this);
-    //         default:
-    //             throw new Error('Unsupported role for local DataModel: ' + role);
-    //     }
-    // }
 
     /** @internal */
     private createDescendantEventer(): EventBehavior.DescendantEventer<BCS, SF> {
@@ -1911,9 +1837,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             fieldColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessFieldColumnListChanged(typeId, index, count, targetIndex),
             activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
             columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
-            columnsViewWidthsChanged: () => this.descendantProcessColumnsViewWidthsChanged(),
+            columnsViewWidthsChanged: (changeds) => this.descendantProcessColumnsViewWidthsChanged(changeds),
             columnSort: (event, headerOrFixedRowCell) => this.descendantProcessColumnSort(event, headerOrFixedRowCell),
             cellFocusChanged: (newPoint, oldPoint) => this.descendantProcessCellFocusChanged(newPoint, oldPoint),
+            rowFocusChanged: (newSubgridRowIndex, oldSubgridRowIndex) => this.descendantProcessRowFocusChanged(newSubgridRowIndex, oldSubgridRowIndex),
             selectionChanged: () => this.descendantProcessSelectionChanged(),
             focus: () => this.descendantEventerFocus(),
             blur: () => this.descendantEventerBlur(),
@@ -2040,7 +1967,7 @@ export namespace Revgrid {
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
-        customUiBehaviorDefinitions?: UiBehavior.UiBehaviorDefinition<BGS, BCS, SF>[];
+        customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
 	}
 }
 

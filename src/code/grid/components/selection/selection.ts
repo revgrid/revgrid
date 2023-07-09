@@ -842,7 +842,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    adjustForColumnsDeleted(columnIndex: number, columnCount: number) {
+    adjustForActiveColumnsDeleted(columnIndex: number, columnCount: number) {
         this.beginChange();
         try {
             const lastArea = this._lastArea;
@@ -864,7 +864,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
 
         const snapshot = this._snapshot;
         if (snapshot !== undefined) {
-            snapshot.adjustForColumnsDeleted(columnIndex, columnCount);
+            snapshot.adjustForActiveColumnsDeleted(columnIndex, columnCount);
         }
     }
 

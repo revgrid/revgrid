@@ -1,14 +1,14 @@
 // Public API
 
-export { UiBehavior } from './behavior/ui/ui-behavior';
 export { ColumnsManager } from './components/column/columns-manager';
+export { DispatchableEvent } from './components/dispatchable-event/dispatchable-event';
 export { Focus } from './components/focus/focus';
 export { Mouse } from './components/mouse/mouse';
+export { SubgridsManager } from './components/subgrid/subgrids-manager';
+export { ViewLayout } from './components/view/view-layout';
 export { CellEditor } from './interfaces/data/cell-editor';
 export { CellPainter } from './interfaces/data/cell-painter';
 export { DataServer } from './interfaces/data/data-server';
-export { EventDetail } from './interfaces/data/event-detail';
-export { EventName } from './interfaces/data/event-name';
 export { LinedHoverCell } from './interfaces/data/hover-cell';
 export { MainSubgrid } from './interfaces/data/main-subgrid';
 export { MetaModel } from './interfaces/data/meta-model';
@@ -37,4 +37,5 @@ export { Point, WritablePoint } from './types-utils/point';
 export { Rectangle } from './types-utils/rectangle';
 export * from './types-utils/revgrid-error';
 export * from './types-utils/types';
+export { UiController } from './ui/controller/ui-controller';
 

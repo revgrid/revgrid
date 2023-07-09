@@ -1,5 +1,5 @@
 import { ModifierKeyEnum } from '../../types-utils/modifier-key';
-import { Halign, HorizontalWheelScrollingAllowed, SelectionAreaType } from '../../types-utils/types';
+import { HorizontalWheelScrollingAllowed, SelectionAreaType } from '../../types-utils/types';
 
 /** @public */
 export interface OnlyGridSettings {
@@ -31,7 +31,7 @@ export interface OnlyGridSettings {
     /** Whether to automatically expand column width to accommodate widest rendered value. */
     defaultColumnAutoSizing: boolean;
     defaultColumnWidth: number;
-    defaultUiBehaviorTypeNames: string[];
+    defaultUiControllerTypeNames: string[];
     editable: boolean;
     /** Keyboard event key for editing a cell */
     editKey: string;
@@ -56,7 +56,6 @@ export interface OnlyGridSettings {
     filterEditor: string;
     filterFont: string;
     filterForegroundSelectionColor: OnlyGridSettings.Color;
-    filterHalign: Halign;
     filterCellPainter: string;
 
     fixedColumnCount: number;
@@ -137,7 +136,7 @@ export interface OnlyGridSettings {
     /** On mouse hover, whether to repaint the row background and how. */
     rowResize: boolean;
     /** Repeating pattern of property overrides for grid rows. */
-    rowStripes: OnlyGridSettings.RowStripe[] | undefined;
+    rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
     scrollerThumbColor: string;
     scrollerThumbReducedVisibilityOpacity: number;
         // thumb.style.backgroundColor = this._onlyGridSettings.scrollerThumbColor;
@@ -170,9 +169,4 @@ export interface OnlyGridSettings {
 /** @public */
 export namespace OnlyGridSettings {
     export type Color = string;
-
-    export interface RowStripe {
-        backgroundColor?: string;
-    }
-
 }

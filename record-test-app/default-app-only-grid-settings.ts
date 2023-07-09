@@ -4,7 +4,6 @@ import { AppOnlyGridSettings } from './app-only-grid-settings';
 export const defaultAppOnlyGridSettings: AppOnlyGridSettings = {
     focusedRowBorderWidth: 1,
 
-    alternateBackgroundColor: '#2b2b2b',
     grayedOutForegroundColor: '#595959',
     focusedRowBackgroundColor: '#6e6835',
     focusedRowBorderColor: '#C8B900',

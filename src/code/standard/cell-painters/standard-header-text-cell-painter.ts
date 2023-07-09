@@ -69,8 +69,8 @@ export class StandardHeaderTextCellPainter<
             return undefined;
         } else {
             const bounds = cell.bounds;
-            const leftPadding = columnSettings.cellPadding;
-            const rightPadding = columnSettings.cellPadding;
+            const cellPadding = columnSettings.cellPadding;
+            const horizontalAlign = columnSettings.columnHeaderHorizontalAlign;
 
             // background
             gc.cache.fillStyle = backgroundColor;
@@ -80,8 +80,8 @@ export class StandardHeaderTextCellPainter<
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
             return this.textWrapping
-                ? this.renderMultiLineText(bounds, valText, leftPadding, rightPadding)
-                : this.renderSingleLineText(bounds, valText, leftPadding, rightPadding);
+                ? this.renderMultiLineText(bounds, valText, cellPadding, cellPadding, horizontalAlign, textFont)
+                : this.renderSingleLineText(bounds, valText, cellPadding, cellPadding, horizontalAlign);
         }
     }
 }

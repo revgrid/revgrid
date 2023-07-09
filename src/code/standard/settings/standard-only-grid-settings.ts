@@ -1,4 +1,5 @@
-import { GridSettings, Halign, TextTruncateType } from '../../grid/grid-public-api';
+import { GridSettings } from '../../grid/grid-public-api';
+import { HorizontalAlign } from '../../text/text-public-api';
 
 /** @public */
 export interface StandardOnlyGridSettings {
@@ -10,7 +11,7 @@ export interface StandardOnlyGridSettings {
     columnHoverBackgroundColor: GridSettings.Color | undefined;
 
     columnHeaderFont: string;
-    columnHeaderHorizontalAlign: Halign;
+    columnHeaderHorizontalAlign: HorizontalAlign;
     columnHeaderBackgroundColor: GridSettings.Color;
     columnHeaderForegroundColor: GridSettings.Color;
     /** Font style for selected columns' headers. */
@@ -27,16 +28,9 @@ export interface StandardOnlyGridSettings {
     /** Font color for selected cell(s). */
     selectionForegroundColor: GridSettings.Color;
 
-    /** Horizontal alignment of content of each cell. */
-    horizontalAlign: Halign;
-    /** Vertical offset from top of cell of content of each cell. */
-    verticalOffset: number;
-
     font: string;
-    textTruncateType: TextTruncateType | undefined;
-    /** Display cell font with strike-through line drawn over it. */
-    textStrikeThrough: boolean;
-
+    /** Horizontal alignment of content of each cell. */
+    horizontalAlign: HorizontalAlign;
     /** Cursor to display when editor can be clicked */
     editorClickCursorName: string | undefined;
 }

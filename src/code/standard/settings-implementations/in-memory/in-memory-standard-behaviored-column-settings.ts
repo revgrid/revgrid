@@ -1,14 +1,12 @@
 import {
     GridSettingChangeInvalidateTypeId,
     GridSettings,
-    Halign,
-    TextTruncateType
 } from '../../../grid/grid-public-api';
-import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
+import { HorizontalAlign, InMemoryTextBehavioredColumnSettings } from '../../../text/text-public-api';
 import { StandardBehavioredColumnSettings, StandardColumnSettings, StandardGridSettings, StandardOnlyColumnSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
+export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavioredColumnSettings implements StandardBehavioredColumnSettings {
     declare gridSettings: StandardGridSettings;
 
     private _cellPadding: number | undefined;
@@ -16,29 +14,22 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     private _cellHoverBackgroundColor: GridSettings.Color | undefined | null;
     private _columnHoverBackgroundColor: GridSettings.Color | undefined | null;
     private _columnHeaderFont: string | undefined;
-    private _columnHeaderHorizontalAlign: Halign | undefined;
+    private _columnHeaderHorizontalAlign: HorizontalAlign | undefined;
     private _columnHeaderBackgroundColor: GridSettings.Color | undefined;
     private _columnHeaderForegroundColor: GridSettings.Color | undefined;
     private _columnHeaderSelectionFont: string | undefined;
     private _columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
     private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
-    private _horizontalAlign: Halign | undefined;
-    private _verticalOffset: number | undefined;
     private _font: string | undefined;
-    private _textTruncateType: TextTruncateType | undefined | null;
-    private _textStrikeThrough: boolean | undefined;
+    private _horizontalAlign: HorizontalAlign | undefined;
     private _editorClickCursorName: string | undefined | null;
-
-    constructor(gridSettings: StandardGridSettings) {
-        super(gridSettings);
-    }
 
     get cellPadding() { return this._cellPadding !== undefined ? this._cellPadding : this.gridSettings.cellPadding; }
     set cellPadding(value: number) {
         if (value !== this._cellPadding) {
             this.beginChange();
             this._cellPadding = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -57,7 +48,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
             } else {
                 this._cellFocusedBorderColor = value;
             }
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -76,7 +67,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
             } else {
                 this._cellHoverBackgroundColor = value;
             }
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -95,7 +86,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
             } else {
                 this._columnHoverBackgroundColor = value;
             }
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -104,18 +95,18 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
         if (value !== this._columnHeaderFont) {
             this.beginChange();
             this._columnHeaderFont = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
     get columnHeaderHorizontalAlign() {
         return this._columnHeaderHorizontalAlign !== undefined ? this._columnHeaderHorizontalAlign : this.gridSettings.columnHeaderHorizontalAlign;
     }
-    set columnHeaderHorizontalAlign(value: Halign) {
+    set columnHeaderHorizontalAlign(value: HorizontalAlign) {
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
             this._columnHeaderHorizontalAlign = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -124,7 +115,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
         if (value !== this._columnHeaderBackgroundColor) {
             this.beginChange();
             this._columnHeaderBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -133,7 +124,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
         if (value !== this._columnHeaderForegroundColor) {
             this.beginChange();
             this._columnHeaderForegroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -142,7 +133,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
         if (value !== this._columnHeaderSelectionFont) {
             this.beginChange();
             this._columnHeaderSelectionFont = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -153,7 +144,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
         if (value !== this._columnHeaderSelectionBackgroundColor) {
             this.beginChange();
             this._columnHeaderSelectionBackgroundColor = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -164,25 +155,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
         if (value !== this._columnHeaderSelectionForegroundColor) {
             this.beginChange();
             this._columnHeaderSelectionForegroundColor = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get horizontalAlign() { return this._horizontalAlign !== undefined ? this._horizontalAlign : this.gridSettings.horizontalAlign; }
-    set horizontalAlign(value: Halign) {
-        if (value !== this._horizontalAlign) {
-            this.beginChange();
-            this._horizontalAlign = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-    get verticalOffset() { return this._verticalOffset !== undefined ? this._verticalOffset : this.gridSettings.verticalOffset; }
-    set verticalOffset(value: number) {
-        if (value !== this._verticalOffset) {
-            this.beginChange();
-            this._verticalOffset = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -191,39 +164,19 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
         if (value !== this._font) {
             this.beginChange();
             this._font = value;
-            this.notifyChangedViewRender();
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get textTruncateType() {
-        if (this._textTruncateType === null) {
-            return undefined;
-        } else {
-            return this._textTruncateType !== undefined ? this._textTruncateType : this.gridSettings.textTruncateType;
-        }
-    }
-    set textTruncateType(value: TextTruncateType | undefined) {
-        if (value !== this._textTruncateType) {
+    get horizontalAlign() { return this._horizontalAlign !== undefined ? this._horizontalAlign : this.gridSettings.horizontalAlign; }
+    set horizontalAlign(value: HorizontalAlign) {
+        if (value !== this._horizontalAlign) {
             this.beginChange();
-            if (value === undefined) {
-                this._textTruncateType = null;
-            } else {
-                this._textTruncateType = value;
-            }
-            this.notifyChangedViewRender();
+            this._horizontalAlign = value;
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get textStrikeThrough() { return this._textStrikeThrough !== undefined ? this._textStrikeThrough : this.gridSettings.textStrikeThrough; }
-    set textStrikeThrough(value: boolean) {
-        if (value !== this._textStrikeThrough) {
-            this.beginChange();
-            this._textStrikeThrough = value;
-            this.notifyChangedViewRender();
-            this.endChange();
-        }
-    }
-
     get editorClickCursorName() {
         if (this._editorClickCursorName === null) {
             return undefined;
@@ -239,7 +192,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
             } else {
                 this._editorClickCursorName = value;
             }
-            this.notifyChanged(GridSettingChangeInvalidateTypeId.None);
+            this.flagChanged(GridSettingChangeInvalidateTypeId.None);
             this.endChange();
         }
     }
@@ -255,55 +208,88 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
             const columnSettingsKey = key as keyof StandardOnlyColumnSettings;
             switch (columnSettingsKey) {
                 case 'cellPadding':
-                    this._cellPadding = requiredSettings.cellPadding;
+                    if (this._cellPadding !== requiredSettings.cellPadding) {
+                        this._cellPadding = requiredSettings.cellPadding;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'cellFocusedBorderColor':
-                    this._cellFocusedBorderColor = requiredSettings.cellFocusedBorderColor;
+                    if (this._cellFocusedBorderColor !== requiredSettings.cellFocusedBorderColor) {
+                        this._cellFocusedBorderColor = requiredSettings.cellFocusedBorderColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'cellHoverBackgroundColor':
-                    this._cellHoverBackgroundColor = requiredSettings.cellHoverBackgroundColor;
+                    if (this._cellHoverBackgroundColor !== requiredSettings.cellHoverBackgroundColor) {
+                        this._cellHoverBackgroundColor = requiredSettings.cellHoverBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHoverBackgroundColor':
-                    this._columnHoverBackgroundColor = requiredSettings.columnHoverBackgroundColor;
+                    if (this._columnHoverBackgroundColor !== requiredSettings.columnHoverBackgroundColor) {
+                        this._columnHoverBackgroundColor = requiredSettings.columnHoverBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderFont':
-                    this._columnHeaderFont = requiredSettings.columnHeaderFont;
+                    if (this._columnHeaderFont !== requiredSettings.columnHeaderFont) {
+                        this._columnHeaderFont = requiredSettings.columnHeaderFont;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderHorizontalAlign':
-                    this._columnHeaderHorizontalAlign = requiredSettings.columnHeaderHorizontalAlign;
+                    if (this._columnHeaderHorizontalAlign !== requiredSettings.columnHeaderHorizontalAlign) {
+                        this._columnHeaderHorizontalAlign = requiredSettings.columnHeaderHorizontalAlign;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderBackgroundColor':
-                    this._columnHeaderBackgroundColor = requiredSettings.columnHeaderBackgroundColor;
+                    if (this._columnHeaderBackgroundColor !== requiredSettings.columnHeaderBackgroundColor) {
+                        this._columnHeaderBackgroundColor = requiredSettings.columnHeaderBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderForegroundColor':
-                    this._columnHeaderForegroundColor = requiredSettings.columnHeaderForegroundColor;
+                    if (this._columnHeaderForegroundColor !== requiredSettings.columnHeaderForegroundColor) {
+                        this._columnHeaderForegroundColor = requiredSettings.columnHeaderForegroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderSelectionFont':
-                    this._columnHeaderSelectionFont = requiredSettings.columnHeaderSelectionFont;
+                    if (this._columnHeaderSelectionFont !== requiredSettings.columnHeaderSelectionFont) {
+                        this._columnHeaderSelectionFont = requiredSettings.columnHeaderSelectionFont;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderSelectionBackgroundColor':
-                    this._columnHeaderSelectionBackgroundColor = requiredSettings.columnHeaderSelectionBackgroundColor;
+                    if (this._columnHeaderSelectionBackgroundColor !== requiredSettings.columnHeaderSelectionBackgroundColor) {
+                        this._columnHeaderSelectionBackgroundColor = requiredSettings.columnHeaderSelectionBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'columnHeaderSelectionForegroundColor':
-                    this._columnHeaderSelectionForegroundColor = requiredSettings.columnHeaderSelectionForegroundColor;
-                    break;
-                case 'horizontalAlign':
-                    this._horizontalAlign = requiredSettings.horizontalAlign;
-                    break;
-                case 'verticalOffset':
-                    this._verticalOffset = requiredSettings.verticalOffset;
+                    if (this._columnHeaderSelectionForegroundColor !== requiredSettings.columnHeaderSelectionForegroundColor) {
+                        this._columnHeaderSelectionForegroundColor = requiredSettings.columnHeaderSelectionForegroundColor;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'font':
-                    this._font = requiredSettings.font;
+                    if (this._font !== requiredSettings.font) {
+                        this._font = requiredSettings.font;
+                        this.flagChangedViewRender();
+                    }
                     break;
-                case 'textTruncateType':
-                    this._textTruncateType = requiredSettings.textTruncateType;
-                    break;
-                case 'textStrikeThrough':
-                    this._textStrikeThrough = requiredSettings.textStrikeThrough;
+                case 'horizontalAlign':
+                    if (this._horizontalAlign !== requiredSettings.horizontalAlign) {
+                        this._horizontalAlign = requiredSettings.horizontalAlign;
+                        this.flagChangedViewRender();
+                    }
                     break;
                 case 'editorClickCursorName':
-                    this._editorClickCursorName = requiredSettings.editorClickCursorName;
+                    if (this._editorClickCursorName !== requiredSettings.editorClickCursorName) {
+                        this._editorClickCursorName = requiredSettings.editorClickCursorName;
+                        this.flagChanged(GridSettingChangeInvalidateTypeId.None);
+                    }
                     break;
 
                 default:
@@ -311,7 +297,7 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
             }
         }
 
-        this.endChange();
+        return this.endChange();
     }
 
     override clone() {

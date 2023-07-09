@@ -27,8 +27,6 @@ export class MainCellPainter
         const gc = this._renderingContext;
         const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
 
-        const altRow = subgridRowIndex % 2 === 1;
-
         const foreColor = gridSettings.color;
 
         let bkgdColor: string;
@@ -39,9 +37,11 @@ export class MainCellPainter
             bkgdColor = gridSettings.focusedRowBackgroundColor;
         } else {
             //  bkgdColor = config.backgroundColor;
-            bkgdColor = altRow
-                ? gridSettings.alternateBackgroundColor
-                : gridSettings.backgroundColor;
+            if (prefillColor !== undefined) {
+                bkgdColor = prefillColor;
+            } else {
+                bkgdColor = gridSettings.backgroundColor;
+            }
         }
 
         /* if (altRow) {
@@ -266,7 +266,7 @@ export class MainCellPainter
             } else {
                 gc.cache.fillStyle = foreColor;
                 gc.cache.font = foreFont;
-                return this.renderSingleLineText(bounds, foreText, cellPadding, cellPadding);
+                return this.renderSingleLineText(bounds, foreText, cellPadding, cellPadding, columnSettings.horizontalAlign);
             }
         }
     }
