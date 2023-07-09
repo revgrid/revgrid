@@ -81,7 +81,8 @@ There are many excellent alternative JavaScript grid libraries (both paid and fr
 
  Version | Date        | Details
 ---------|-------------|---------
- 0.1.13  | 19 Jun 2023 | A major rewrite of this library.  Substantial changes to API.
- 0.1.14  | 19 Jun 2023 | Fix dev dependency issue
- 0.1.15  | 20 Jun 2023 | SchemaField is now independent of SchemaServer and includes column Settings. Refactor settings.
+ 0.1.17  | 09 Jul 2023 | Separate text settings from standard settings<br>Change AllowEvents to Active<br>Move horizontalAlign from Text to Standard settings<br>Export ViewLayout to public<br>Improve Refactor AutoSizeColumnWidth<br>Implement settings.merge<br>Implement rowStripeBackgroundColor<br>Add Focus row changed event<br>Implement single and multi heading DataRowArray server sets<br>Make some Revgrid constructor parameters public<br>Rename container element to host element<br>Rename UiBehavior to UiController
  0.1.16  | 21 Jun 2023 | Remove column settings from field and implement merge settings.
+ 0.1.15  | 20 Jun 2023 | SchemaField is now independent of SchemaServer and includes column Settings. Refactor settings.
+ 0.1.14  | 19 Jun 2023 | Fix dev dependency issue
+ 0.1.13  | 19 Jun 2023 | A major rewrite of this library.  Substantial changes to API.
