@@ -2503,6 +2503,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     hideActiveColumn(activeColumnIndex: number, ui?: boolean): void;
     // (undocumented)
+    readonly horizontalScroller: Scroller<BGS>;
+    // (undocumented)
     readonly hostElement: HTMLElement;
     // (undocumented)
     isColumnOrRowSelected(): boolean;
@@ -2628,6 +2630,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     swapColumns(source: number, target: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     updateSize(): void;
+    // (undocumented)
+    readonly verticalScroller: Scroller<BGS>;
     // (undocumented)
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
     waitModelRendered(): Promise<number>;

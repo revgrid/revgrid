@@ -48,6 +48,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly columnsManager: ColumnsManager<BCS, SF>;
     readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
+    readonly horizontalScroller: Scroller<BGS>;
+    readonly verticalScroller: Scroller<BGS>;
 
     readonly schemaServer: SchemaServer<SF>;
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
@@ -62,10 +64,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /** @internal */
     private readonly _renderer: Renderer<BGS, BCS, SF>;
-    /** @internal */
-    private readonly _horizontalScroller: Scroller<BGS>;
-    /** @internal */
-    private readonly _verticalScroller: Scroller<BGS>;
 
     /** @internal */
     private readonly _focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
@@ -139,8 +137,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.subgridsManager = this._componentsManager.subgridsManager;
         this.viewLayout = this._componentsManager.viewLayout;
         this._renderer = this._componentsManager.renderer;
-        this._horizontalScroller = this._componentsManager.horizontalScroller;
-        this._verticalScroller = this._componentsManager.verticalScroller;
+        this.horizontalScroller = this._componentsManager.horizontalScroller;
+        this.verticalScroller = this._componentsManager.verticalScroller;
 
         this.mainSubgrid = this.subgridsManager.mainSubgrid;
         this.mainDataServer = this.mainSubgrid.dataServer;
@@ -157,8 +155,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.selection,
             this.mouse,
             this._renderer,
-            this._horizontalScroller,
-            this._verticalScroller,
+            this.horizontalScroller,
+            this.verticalScroller,
             descendantEventer,
         );
 
@@ -179,8 +177,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.viewLayout,
             this._renderer,
             this.mouse,
-            this._horizontalScroller,
-            this._verticalScroller,
+            this.horizontalScroller,
+            this.verticalScroller,
             this._focusScrollBehavior,
             this._focusSelectBehavior,
             this._rowPropertiesBehavior,
