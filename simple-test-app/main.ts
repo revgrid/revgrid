@@ -3,8 +3,8 @@ import { SimpleGrid } from './simple-grid';
 
 export class Main {
     private readonly _grid: SimpleGrid;
-    constructor() {
 
+    constructor() {
         const gridHostElement = document.querySelector('#gridHost') as HTMLElement | null;
         if (gridHostElement === null) {
             throw new Error('gridHost not found');

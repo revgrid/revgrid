@@ -83,15 +83,14 @@ export class SimpleGrid extends Revgrid<
         this._textCellPainter = new StandardAlphaTextCellPainter(this, mainDataServer);
     }
 
-    get schemaServer() { return this._serverSet.schemaServer; }
-    get headerAdapter() { return this._serverSet.headerDataServer; }
+    get headerDataServer() { return this._serverSet.headerDataServer; }
 
     get fieldCount(): number { return this.schemaServer.getFields().length; }
 
     get columnCount(): number { return this.activeColumnCount; }
 
     get headerRowCount(): number {
-        return this.headerAdapter.getRowCount();
+        return this.headerDataServer.getRowCount();
     }
 
     protected override descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined) {

@@ -49,6 +49,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
 
+    readonly schemaServer: SchemaServer<SF>;
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     readonly mainDataServer: DataServer<SF>;
 
@@ -118,6 +119,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         if (typeof schemaServer === 'function') {
             schemaServer = new schemaServer();
         }
+
+        this.schemaServer = schemaServer;
 
         this._componentsManager = new ComponentsManager(
             settings,
