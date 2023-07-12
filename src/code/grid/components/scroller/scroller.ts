@@ -1,5 +1,6 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { numberToPixels } from '../../types-utils/utils';
 import { ScrollDimension } from '../view/scroll-dimension';
 
 // Following is the sole style requirement for bar and thumb elements.
@@ -176,7 +177,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         bar.addEventListener('click', this._barClickListener);
         bar.appendChild(thumb);
 
-        this.setAfterInsideOffset(0);
+        this.setAfterInsideOffset(Scroller.defaultInsideOffset);
 
         this.applySettings();
 
@@ -368,28 +369,33 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     }
 
     get thickness() {
-        const computedStyle = window.getComputedStyle(this.bar);
-        return computedStyle[this._axisProperties.thickness];
+        return this.bar[this._axisProperties.thickness];
+    }
+
+    get insideOverlap() {
+        const crossLeadingPropertyKey = this._axisProperties.crossLeading;
+        const crossOffsetLeadingPropertyKey = this._axisProperties.crossOffsetLeading;
+        const thicknessPropertyKey = this._axisProperties.thickness;
+        if (this.bar.style[crossLeadingPropertyKey] === '') {
+            // Must be trailing
+            return this.bar.offsetParent[thicknessPropertyKey] - this.bar[crossOffsetLeadingPropertyKey];
+        } else {
+            return this.bar[crossOffsetLeadingPropertyKey] + this.bar[thicknessPropertyKey];
+        }
     }
 
     setBeforeInsideOffset(offset: number) {
-        if (this.axis === 'horizontal') {
-            this.bar.style.bottom = '';
-            this.bar.style.top = offset.toString(10) + 'px';
-        } else {
-            this.bar.style.right = '';
-            this.bar.style.left = offset.toString(10) + 'px';
-        }
+        const crossLeadingPropertyKey = this._axisProperties.crossLeading;
+        this.bar.style[crossLeadingPropertyKey] = numberToPixels(offset);
+        const crossTrailingPropertyKey = this._axisProperties.crossTrailing;
+        this.bar.style[crossTrailingPropertyKey] = '';
     }
 
     setAfterInsideOffset(offset: number) {
-        if (this.axis === 'horizontal') {
-            this.bar.style.top = '';
-            this.bar.style.bottom = offset.toString(10) + 'px';
-        } else {
-            this.bar.style.left = '';
-            this.bar.style.right = offset.toString(10) + 'px';
-        }
+        const crossLeadingPropertyKey = this._axisProperties.crossLeading;
+        this.bar.style[crossLeadingPropertyKey] = '';
+        const crossTrailingPropertyKey = this._axisProperties.crossTrailing;
+        this.bar.style[crossTrailingPropertyKey] = numberToPixels(offset);
     }
 
     temporarilyGiveThumbFullVisibility(timePeriod: number) {
@@ -762,15 +768,15 @@ export class Scroller<BGS extends BehavioredGridSettings> {
             if (spaceAccomodatedScroller.hidden) {
                 return leadingTrailing;
             } else {
-                const thickness = spaceAccomodatedScroller.thickness;
+                const insideOverlap = spaceAccomodatedScroller.insideOverlap;
                 const leadingKey = this._axisProperties['leading'];
                 const trailingKey = this._axisProperties['trailing'];
                 if (spaceAccomodatedScroller.trailing) {
-                    leadingTrailing[leadingKey] = '';
-                    leadingTrailing[trailingKey] = thickness;
+                    leadingTrailing[leadingKey] = '0';
+                    leadingTrailing[trailingKey] = numberToPixels(insideOverlap);
                 } else {
-                    leadingTrailing[leadingKey] = thickness;
-                    leadingTrailing[trailingKey] = '';
+                    leadingTrailing[leadingKey] = numberToPixels(insideOverlap);
+                    leadingTrailing[trailingKey] = '0';
                 }
                 return leadingTrailing;
             }
@@ -843,6 +849,8 @@ export namespace Scroller {
     export const defaultClassPrefix = 'revgrid';
     export const barElementIdBase = '-revgrid-scroller-bar-';
     export const thumbElementIdBase = '-revgrid-scroller-thumb-';
+
+    export const defaultInsideOffset = 3;
 
     export interface Action {
         readonly type: Action.TypeEnum;
@@ -960,13 +968,15 @@ interface AxisProperties {
     client: 'clientX' | 'clientY';
     page: 'pageX' | 'pageY';
     size: 'width' | 'height';
-    outside: 'bottom' | 'right';
-    inside: 'top' | 'left';
     leading: 'left' | 'top';
     trailing: 'right' | 'bottom';
+    crossLeading: 'left' | 'top';
+    crossTrailing: 'right' | 'bottom';
     marginLeading: 'marginLeft' | 'marginTop';
     marginTrailing: 'marginRight' | 'marginBottom';
-    thickness: 'height' | 'width';
+    offsetLeading: 'offsetLeft' | 'offsetTop';
+    crossOffsetLeading: 'offsetLeft' | 'offsetTop';
+    thickness: 'offsetWidth' | 'offsetHeight';
     delta: Scroller.DeltaProp;
 }
 
@@ -975,30 +985,34 @@ type AxesProperties = { [axis in keyof typeof ScrollDimension.AxisEnum]: AxisPro
 
 const axesProperties: AxesProperties = {
     vertical: {
-        client:         'clientY',
-        page:           'pageY',
-        size:           'height',
-        outside:        'right',
-        inside:         'left',
-        leading:        'top',
-        trailing:       'bottom',
-        marginLeading:  'marginTop',
-        marginTrailing: 'marginBottom',
-        thickness:      'width',
-        delta:          'deltaY'
+        client:             'clientY',
+        page:               'pageY',
+        size:               'height',
+        leading:            'top',
+        trailing:           'bottom',
+        crossLeading:       'left',
+        crossTrailing:      'right',
+        marginLeading:      'marginTop',
+        marginTrailing:     'marginBottom',
+        offsetLeading:      'offsetTop',
+        crossOffsetLeading: 'offsetLeft',
+        thickness:          'offsetWidth',
+        delta:              'deltaY'
     },
     horizontal: {
-        client:         'clientX',
-        page:           'pageX',
-        size:           'width',
-        outside:        'bottom',
-        inside:         'top',
-        leading:        'left',
-        trailing:       'right',
-        marginLeading:  'marginLeft',
-        marginTrailing: 'marginRight',
-        thickness:      'height',
-        delta:          'deltaX'
+        client:             'clientX',
+        page:               'pageX',
+        size:               'width',
+        leading:            'left',
+        trailing:           'right',
+        crossLeading:       'top',
+        crossTrailing:      'bottom',
+        marginLeading:      'marginLeft',
+        marginTrailing:     'marginRight',
+        offsetLeading:      'offsetLeft',
+        crossOffsetLeading: 'offsetTop',
+        thickness:          'offsetHeight',
+        delta:              'deltaX'
     }
 };
 
