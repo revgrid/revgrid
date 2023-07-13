@@ -25,11 +25,11 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
         }
     }
 
-    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleClick(_event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         return cell;
     }
 
-    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleDblClick(_event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         return cell;
     }
 

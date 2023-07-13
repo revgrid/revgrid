@@ -10,10 +10,10 @@ export class ColumnSortingUiController<BGS extends BehavioredGridSettings, BCS e
     readonly typeName = ColumnSortingUiController.typeName;
 
     override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (cell === undefined) {
+        if (cell === null) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell === null) {
+        if (cell === undefined) {
             return super.handleClick(event, cell);
         } else {
             if (this.checkSort(event, cell, false)) {
@@ -25,16 +25,16 @@ export class ColumnSortingUiController<BGS extends BehavioredGridSettings, BCS e
     }
 
     override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (cell === undefined) {
+        if (cell === null) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell === null) {
-            return super.handleClick(event, cell);
+        if (cell === undefined) {
+            return super.handleDblClick(event, cell);
         } else {
             if (this.checkSort(event, cell, true)) {
                 return cell;
             } else {
-                return super.handleClick(event, cell);
+                return super.handleDblClick(event, cell);
             }
         }
     }
@@ -42,10 +42,10 @@ export class ColumnSortingUiController<BGS extends BehavioredGridSettings, BCS e
     override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
-            if (hoverCell === undefined) {
+            if (hoverCell === null) {
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (hoverCell !== null && LinedHoverCell.isMouseOverLine(hoverCell)) {
+            if (hoverCell !== undefined && LinedHoverCell.isMouseOverLine(hoverCell)) {
                 const viewCell = hoverCell.viewCell;
                 if (viewCell.isHeaderOrRowFixed) {
                     const columnSettings = viewCell.columnSettings;

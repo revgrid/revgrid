@@ -19,7 +19,7 @@ export class HoverUiController<BGS extends BehavioredGridSettings, BCS extends B
             y: event.offsetY,
         };
 
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
         const viewCell = this.getViewCellFromHoverCell(hoverCell);
@@ -38,7 +38,7 @@ export class HoverUiController<BGS extends BehavioredGridSettings, BCS extends B
             y: event.offsetY,
         };
 
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
         const viewCell = this.getViewCellFromHoverCell(hoverCell);
@@ -51,8 +51,8 @@ export class HoverUiController<BGS extends BehavioredGridSettings, BCS extends B
         return super.handlePointerLeaveOut(event, cell);
     }
 
-    private getViewCellFromHoverCell(cell: LinedHoverCell<BCS, SF> | null): ViewCell<BCS, SF> | undefined {
-        if (cell === null) {
+    private getViewCellFromHoverCell(cell: LinedHoverCell<BCS, SF> | undefined): ViewCell<BCS, SF> | undefined {
+        if (cell === undefined) {
             return undefined;
         } else {
             if (LinedHoverCell.isMouseOverLine(cell)) {

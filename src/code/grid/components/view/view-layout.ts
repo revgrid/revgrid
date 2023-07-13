@@ -1031,7 +1031,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /**
      * @desc Answer specific data cell coordinates given mouse coordinates in pixels.
      * @param point
-     * @returns Cell coordinates
+     * @returns Cell coordinates or undefined
      */
     findLinedHoverCellAtCanvasOffset(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS, SF> | undefined {
         this.ensureValidOutsideAnimationFrame();

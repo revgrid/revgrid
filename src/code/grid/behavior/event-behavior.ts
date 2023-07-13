@@ -14,6 +14,7 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../types-utils/point';
+import { AssertError } from '../types-utils/revgrid-error';
 import { ListChangedTypeId } from '../types-utils/types';
 
 /** @public */
@@ -251,7 +252,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     private processClickEvent(event: MouseEvent) {
         let cell = this.uiClickEventer(event);
         if (this._dispatchEnabled) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
@@ -267,7 +268,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     private processDblClickEvent(event: MouseEvent) {
         let cell = this.uiDblClickEventer(event);
         if (this._dispatchEnabled) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
@@ -283,7 +284,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     private processPointerEnterEvent(event: PointerEvent) {
         let cell = this.uiPointerEnterEventer(event);
         if (this._dispatchEnabled) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
@@ -299,7 +300,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     private processPointerDownEvent(event: PointerEvent) {
         let cell = this.uiPointerDownEventer(event);
         if (this._dispatchEnabled) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
@@ -315,7 +316,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     private processPointerUpCancelEvent(event: PointerEvent) {
         let cell = this.uiPointerUpCancelEventer(event);
         if (this._dispatchEnabled) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
@@ -331,7 +332,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     private processPointerMoveEvent(event: PointerEvent) {
         let cell = this.uiPointerMoveEventer(event);
         if (this._dispatchEnabled) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
@@ -347,7 +348,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     private processPointerLeaveOutEvent(event: PointerEvent) {
         let cell = this.uiPointerLeaveOutEventer(event);
         if (this._dispatchEnabled) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
@@ -363,7 +364,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     private processWheelMoveEvent(event: WheelEvent) {
         let cell = this.uiWheelMoveEventer(event);
         if (this._dispatchEnabled) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
@@ -384,7 +385,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     private processContextMenuEvent(event: MouseEvent) {
         let cell = this.uiContextMenuEventer(event);
         if (this._dispatchEnabled) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
         }
@@ -574,7 +575,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     /** @internal */
     private dispatchMouseHoverCellEvent<T extends DispatchableEvent.Name.MouseHoverCell>(eventName: T, event: MouseEvent | WheelEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (cell === null) {
-            cell = undefined;
+            throw new AssertError('EVDMHCE50697');
         } else {
             if (cell !== undefined) {
                 cell = {
@@ -583,10 +584,10 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
                     mouseOverTopLine: cell.mouseOverTopLine,
                 }
             }
+            const detail = event as DispatchableEvent.Name.DetailMap<BCS, SF>[T];
+            detail.revgridHoverCell = cell;
+            return this.dispatchCustomEvent(eventName, false, detail);
         }
-        const detail = event as DispatchableEvent.Name.DetailMap<BCS, SF>[T];
-        detail.revgridHoverCell = cell;
-        return this.dispatchCustomEvent(eventName, false, detail);
     }
 }
 

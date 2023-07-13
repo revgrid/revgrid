@@ -15,10 +15,10 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
     override handlePointerMove(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
-            if (cell === undefined) {
+            if (cell === null) {
                 cell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (cell !== null) {
+            if (cell !== undefined) {
                 const link = false// cell.columnSettings.link;
                 const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
@@ -31,10 +31,10 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell === null || hoverCell.viewCell.isMain) {
+        if (hoverCell === undefined || hoverCell.viewCell.isMain) {
             return super.handleClick(event, hoverCell);
         } else {
             if (this.openLink(hoverCell.viewCell) !== undefined) {

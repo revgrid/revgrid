@@ -299,13 +299,8 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null {
-        const cell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
-        if (cell === undefined) {
-            return null;
-        } else {
-            return cell;
-        }
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | undefined {
+        return this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
     }
 }
 

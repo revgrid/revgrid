@@ -14,20 +14,20 @@ export class CellEditingUiController<BGS extends BehavioredGridSettings, BCS ext
     readonly typeName = CellEditingUiController.typeName;
 
     override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell !== null) {
+        if (hoverCell !== undefined) {
             this.edit(hoverCell.viewCell, false);
         }
         return super.handleClick(event, hoverCell);
     }
 
     override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
-        if (cell === undefined) {
+        if (cell === null) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell !== null) {
+        if (cell !== undefined) {
             this.edit(cell?.viewCell, true);
         }
         return super.handleDblClick(event, cell);

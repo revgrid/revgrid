@@ -54,11 +54,11 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         if (!this.gridSettings.columnsReorderable) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
-            if (hoverCell === undefined) {
+            if (hoverCell === null) {
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
 
-            if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+            if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
                 return super.handlePointerDragStart(event, hoverCell);
             } else {
                 const viewCell = hoverCell.viewCell;
@@ -117,10 +117,10 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (this.gridSettings.columnsReorderable) {
-                if (hoverCell === undefined) {
+                if (hoverCell === null) {
                     hoverCell = this.tryGetHoverCellFromMouseEvent(event);
                 }
-                if (hoverCell !== null && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+                if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) {
                     const viewCell = hoverCell.viewCell;
                     if (!viewCell.isColumnFixed && viewCell.isHeaderOrRowFixed) {
                         sharedState.locationCursorName = this.gridSettings.columnMoveDragPossibleCursorName;

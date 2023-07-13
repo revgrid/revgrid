@@ -167,11 +167,11 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         if (this._enabled) {
             this._sharedState.locationCursorName = undefined;
             this._sharedState.locationTitleText = undefined;
-            const cell = this._firstUiController.handlePointerMove(event, undefined);
+            const cell = this._firstUiController.handlePointerMove(event, null);
             this._mouse.setLocation(this._sharedState.locationCursorName, this._sharedState.locationTitleText);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 
@@ -182,10 +182,10 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      */
     private handleClickEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiController.handleClick(event, undefined);
+            const cell = this._firstUiController.handleClick(event, null);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 
@@ -195,10 +195,10 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      */
     private handleContextMenuEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiController.handleContextMenu(event, undefined);
+            const cell = this._firstUiController.handleContextMenu(event, null);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 
@@ -208,10 +208,10 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      */
     private handleWheelMovedEvent(event: WheelEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiController.handleWheelMove(event, undefined);
+            const cell = this._firstUiController.handleWheelMove(event, null);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 
@@ -222,16 +222,16 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      */
     private handlePointerUpCancelEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiController.handlePointerUpCancel(event, undefined);
+            const cell = this._firstUiController.handlePointerUpCancel(event, null);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 
     private handlePointerDragStartEvent(event: DragEvent): EventBehavior.UiPointerDragStartResult<BCS, SF> {
         if (this._enabled) {
-            return this._firstUiController.handlePointerDragStart(event, undefined);
+            return this._firstUiController.handlePointerDragStart(event, null);
         } else {
             return {
                 started: false,
@@ -242,19 +242,19 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
 
     private handlePointerDragEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiController.handlePointerDrag(event, undefined);
+            const cell = this._firstUiController.handlePointerDrag(event, null);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 
     private handlePointerDragEndEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiController.handlePointerDragEnd(event, undefined);
+            const cell = this._firstUiController.handlePointerDragEnd(event, null);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 
@@ -267,11 +267,11 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         if (this._enabled) {
             this._sharedState.locationCursorName = undefined;
             this._sharedState.locationTitleText = undefined;
-            const cell = this._firstUiController.handleDblClick(event, undefined);
+            const cell = this._firstUiController.handleDblClick(event, null);
             this._mouse.setLocation(this._sharedState.locationCursorName, this._sharedState.locationTitleText);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
     /**
@@ -281,10 +281,10 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      */
     private handlePointerDownEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiController.handlePointerDown(event, undefined);
+            const cell = this._firstUiController.handlePointerDown(event, null);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 
@@ -294,10 +294,10 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      */
     private handlePointerEnterEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiController.handlePointerEnter(event, undefined);
+            const cell = this._firstUiController.handlePointerEnter(event, null);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 
@@ -307,10 +307,10 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      */
     private handlePointerLeaveOutEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            const cell = this._firstUiController.handlePointerLeaveOut(event, undefined);
+            const cell = this._firstUiController.handlePointerLeaveOut(event, null);
             return cell;
         } else {
-            return undefined;
+            return null;
         }
     }
 

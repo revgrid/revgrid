@@ -51,11 +51,11 @@ export class RecordGrid extends Revgrid<
     }
 
     protected override descendantProcessClick(event: MouseEvent, hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, GridField> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
         }
 
-        if (hoverCell !== null && hoverCell !== undefined) {
+        if (hoverCell !== undefined) {
             if (!LinedHoverCell.isMouseOverLine(hoverCell) && this.cellClickEventer !== undefined) {
                 const viewCell = hoverCell.viewCell;
                 this.cellClickEventer(viewCell);
@@ -64,11 +64,11 @@ export class RecordGrid extends Revgrid<
     }
 
     protected override descendantProcessDblClick(event: MouseEvent, hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, GridField> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
         }
 
-        if (hoverCell !== null && hoverCell !== undefined) {
+        if (hoverCell !== undefined) {
             if (!LinedHoverCell.isMouseOverLine(hoverCell) && this.cellDblClickEventer !== undefined) {
                 const viewCell = hoverCell.viewCell;
                 this.cellDblClickEventer(viewCell);

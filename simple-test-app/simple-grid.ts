@@ -104,15 +104,13 @@ export class SimpleGrid extends Revgrid<
         hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingDataRowArraySchemaField> | null | undefined
     ) {
         if (this.clickEventer !== undefined) {
-            if (hoverCell !== null) {
-                if (hoverCell === undefined) {
-                    hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
-                }
-                if (hoverCell !== undefined) {
-                    if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
-                        const viewCell = hoverCell.viewCell;
-                        this.clickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
-                    }
+            if (hoverCell === null) {
+                hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
+            }
+            if (hoverCell !== undefined) {
+                if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
+                    const viewCell = hoverCell.viewCell;
+                    this.clickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
                 }
             }
         }
@@ -123,15 +121,13 @@ export class SimpleGrid extends Revgrid<
         hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingDataRowArraySchemaField> | null | undefined
     ) {
         if (this.dblClickEventer !== undefined) {
-            if (hoverCell !== null) {
-                if (hoverCell === undefined) {
-                    hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
-                }
-                if (hoverCell !== undefined) {
-                    if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
-                        const viewCell = hoverCell.viewCell;
-                        this.dblClickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
-                    }
+            if (hoverCell === null) {
+                hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
+            }
+            if (hoverCell !== undefined) {
+                if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
+                    const viewCell = hoverCell.viewCell;
+                    this.dblClickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
                 }
             }
         }

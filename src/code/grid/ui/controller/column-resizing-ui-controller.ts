@@ -65,11 +65,11 @@ export class ColumnResizingUiController<BGS extends BehavioredGridSettings, BCS 
     }
 
     override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS, SF> {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
 
-        if (hoverCell === null) {
+        if (hoverCell === undefined) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
             const viewCell = hoverCell.viewCell;
@@ -210,10 +210,10 @@ export class ColumnResizingUiController<BGS extends BehavioredGridSettings, BCS 
     override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (this._dragColumn === undefined) {
             if (this.sharedState.locationCursorName === undefined) {
-                if (hoverCell === undefined) {
+                if (hoverCell === null) {
                     hoverCell = this.tryGetHoverCellFromMouseEvent(event);
                 }
-                if (hoverCell !== null) {
+                if (hoverCell !== undefined) {
                     this.checkSetLocation(event, hoverCell.viewCell);
                 }
             }
@@ -222,10 +222,10 @@ export class ColumnResizingUiController<BGS extends BehavioredGridSettings, BCS 
     }
 
     override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell === null) {
+        if (hoverCell === undefined) {
             return super.handleDblClick(event, hoverCell);
         } else {
             const viewCell = hoverCell.viewCell;
@@ -278,7 +278,7 @@ export class ColumnResizingUiController<BGS extends BehavioredGridSettings, BCS 
 
                     // cell may have changed
                     hoverCell = this.tryGetHoverCellFromMouseEvent(event);
-                    if (hoverCell !== null) {
+                    if (hoverCell !== undefined) {
                         this.checkSetLocation(event, hoverCell.viewCell);
                     }
 
