@@ -2413,6 +2413,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     endSelectionChange(): void;
     // (undocumented)
     get fieldColumns(): readonly Column<BCS, SF>[];
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    findLinedHoverCellAtCanvasOffset(offsetX: number, offsetY: number): LinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
     get fixedColumnsViewWidth(): number;
     // (undocumented)
@@ -2460,8 +2462,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getFieldColumnRange(begin?: number, end?: number): Column<BCS, SF>[];
     // (undocumented)
     getFocusedViewCell(useAllCells: boolean): ViewCell<BCS, SF> | undefined;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    getGridCellFromMousePoint(mouse: Point): LinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
     getHiddenColumns(): Column<BCS, SF>[];
     // (undocumented)
@@ -3898,7 +3898,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     // (undocumented)
     protected readonly subgridsManager: SubgridsManager<BCS, SF>;
     // @internal (undocumented)
-    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null;
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
     abstract readonly typeName: string;
     // (undocumented)

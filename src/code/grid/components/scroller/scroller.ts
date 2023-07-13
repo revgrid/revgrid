@@ -199,21 +199,11 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
         this._gridSettings.subscribeChangedEvent(this._settingsChangedListener);
 
-        this._scrollDimension.changedEventer = () => {
-            this.resize();
-
-            if (this._indexMode) {
-                const index = this.index;
-                this.index = index; // re-clamp
-            } else {
-                this.setThumbSize();
-            }
-        }
-
+        this._scrollDimension.changedEventer = () => this.resize();
         this._scrollDimension.scrollerTargettedViewportStartChangedEventer = () => this.setThumbPositionFromViewportSize();
 
         if (this._spaceAccomodatedScroller !== undefined) {
-            this._spaceAccomodatedScroller.visibilityChangedEventer = () => this.adjustLeadingTrailingForSpaceAccomodatedScroller();
+            this._spaceAccomodatedScroller.visibilityChangedEventer = () => this.resize();
         }
 
         this._hostElement.appendChild(bar);
@@ -445,77 +435,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
     //     this.content.style[this.oh.leading] = -scroll + 'px';
     // }
 
-    /**
-     * @summary Recalculate thumb position.
-     *
-     * @desc This method recalculates the thumb size and position. Call it once after inserting your scrollbar into the DOM, and repeatedly while resizing the scrollbar (which typically happens when the scrollbar's parent is resized by user.
-     *
-     * > This function shifts args if first arg omitted.
-     *
-     * @param {number} [increment=this.increment] - Resets {@link FooBar#increment|increment} (see).
-     *
-     * @param {finbarStyles} [barStyles=this.barStyles] - (See type definition for details.) Scrollbar styles to be applied to the bar element.
-     *
-     * Only specify a `barStyles` object when you need to override stylesheet values. If provided, becomes the new default (`this.barStyles`), for use as a default on subsequent calls.
-     *
-     * It is generally the case that the scrollbar's new position is sufficiently described by the current styles. Therefore, it is unusual to need to provide a `barStyles` object on every call to `resize`.
-     *
-     * @returns Self for chaining.
-     */
-    private resize() {
-        // const bar = this.bar;
-
-        // if (!bar.parentNode) {
-        //     return undefined; // not in DOM yet so nothing to do
-        // }
-
-        // const container = /* this.container ||*/ bar.parentElement;
-        // const containerRect = container.getBoundingClientRect();
-
-        // shift args if if 1st arg omitted
-        // let increment: number | undefined;
-        // if (typeof incrementOrBarStyles === 'object') {
-        //     barStyles = incrementOrBarStyles;
-        //     increment = undefined;
-        // } else {
-        //     increment = incrementOrBarStyles;
-        // }
-
-        // this.barStyles = (barStyles ?? this.barStyles);
-        // this.style = this.barStyles;
-        // this.style = {}; // update height/width from any shorten
-
-        // Bound to real content: Content was given but no onchange handler.
-        // Set up .onchange, .containerSize, and .increment.
-        // Note this only makes sense if your index unit is pixels.
-        // if (this.content) {
-        //     if (!this.onchange) {
-        //         this.onchange = this.scrollRealContent;
-        //         this.contentSize = this.content[this.oh.size];
-        //         this._min = 0;
-        //         this._max = this.contentSize - 1;
-        //     }
-        // }
-        // if (this.onchange === this.scrollRealContent) {
-        //     this.containerSize = containerRect[this.oh.size];
-        //     this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
-        // } else {
-            // this._scrollDimension.viewportSize = 1;
-            // this.increment = increment || this.increment;
-        // }
-
-        // if (this._indexMode) {
-        //     this._scrollDimension.viewportSize = 1;
-        // }
-
-        this.adjustLeadingTrailingForSpaceAccomodatedScroller();
-        const index = this.index;
-        this.setThumbSize();
-        if (this._indexMode) {
-            this.index = index;
-        }
-    }
-
     private setThumbPositionFromViewportSize() {
         const viewportStart = this._scrollDimension.viewportStart;
         this.setThumbPosition(viewportStart);
@@ -528,7 +447,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      * @param barPosition - The new thumb position in pixels and scaled relative to the containing {@link Scroller#bar|bar} element, i.e., a proportional number in the range `0`..`thumbMax`.
      */
     private setThumbPosition(viewportStart: number | undefined) {
-        if (viewportStart !== undefined) {
+        if (this._scrollDimension.overflowed && viewportStart !== undefined) {
             // Move the thumb
             let thumbPosition: number;
             if (this._indexMode) {
@@ -750,24 +669,32 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         event.preventDefault();
     }
 
-    private adjustLeadingTrailingForSpaceAccomodatedScroller() {
+    private resize() {
         const leadingTrailing = this.calculateLeadingTrailingForSpaceAccomodatedScroller();
-        for (const key in leadingTrailing) {
-            this.bar.style.setProperty(key, leadingTrailing[key]);
+        if (leadingTrailing !== undefined) {
+            for (const key in leadingTrailing) {
+                this.bar.style.setProperty(key, leadingTrailing[key]);
+            }
         }
-        this.setThumbSize();
-        this.setThumbPositionFromViewportSize();
+
+        if (this._indexMode) {
+            const index = this.index;
+            this.index = index; // re-clamp
+        } else {
+            this.setThumbSize();
+            this.setThumbPositionFromViewportSize();
+        }
     }
 
-    private calculateLeadingTrailingForSpaceAccomodatedScroller(): LeadingTrailing {
-        const leadingTrailing: LeadingTrailing = {};
+    private calculateLeadingTrailingForSpaceAccomodatedScroller(): LeadingTrailing | undefined {
         const spaceAccomodatedScroller = this._spaceAccomodatedScroller;
         if (spaceAccomodatedScroller === undefined) {
-            return leadingTrailing;
+            return undefined;
         } else {
             if (spaceAccomodatedScroller.hidden) {
-                return leadingTrailing;
+                return undefined;
             } else {
+                const leadingTrailing: LeadingTrailing = {};
                 const insideOverlap = spaceAccomodatedScroller.insideOverlap;
                 const leadingKey = this._axisProperties['leading'];
                 const trailingKey = this._axisProperties['trailing'];
