@@ -189,21 +189,25 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             options.customUiControllerDefinitions,
         );
 
-        this.canvasManager.start();
-        this._renderer.start();
+        // this.canvasManager.start();
+        // this._renderer.start();
 
-        this.canvasManager.resize(false); // Will invalidate all and cause a repaint
+        // this.canvasManager.resize(false); // Will invalidate all and cause a repaint
     }
 
     get active() { return this._behaviorManager.active; }
     set active(value: boolean) {
         this._behaviorManager.active = value;
-        if (value){
-            this._uiManager.enable();
-        } else {
+        if (!value){
+            this._renderer.stop();
+            this.canvasManager.stop();
             this._uiManager.disable();
+        } else {
+            this._uiManager.enable();
+            this.canvasManager.start();
+            this._renderer.start();
+            this.canvasManager.resize(false); // Will invalidate all and cause a repaint
         }
-        this.viewLayout.invalidateAll(true);
     }
 
     get canvasBounds() { return this.canvasManager.bounds; }
@@ -214,6 +218,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * canvase paint loop will continue to run
      */
     destroy() {
+        this.deactivate();
+
         this._behaviorManager.destroy();
 
         const hostElement = this.hostElement;
@@ -565,10 +571,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /**
      * @summary Answer which data cell is under a pixel value mouse point.
-     * @param mouse - The mouse point to interrogate.
+     * @param offset - The mouse point to interrogate.
      */
-    getGridCellFromMousePoint(mouse: Point) {
-        return this.viewLayout.findLinedHoverCellAtCanvasOffset(mouse.x, mouse.y);
+    findLinedHoverCellAtCanvasOffset(offsetX: number, offsetY: number) {
+        return this.viewLayout.findLinedHoverCellAtCanvasOffset(offsetX, offsetY);
     }
 
     /**
