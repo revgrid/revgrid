@@ -1,4 +1,5 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { CssClassName } from '../../types-utils/html-types';
 import { UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { numberToPixels } from '../../types-utils/utils';
 import { ScrollDimension } from '../view/scroll-dimension';
@@ -10,6 +11,7 @@ import { ScrollDimension } from '../view/scroll-dimension';
 /** @public */
 export class Scroller<BGS extends BehavioredGridSettings> {
     readonly bar: HTMLDivElement;
+    readonly barCssClass: string;
 
     /**
      * @summary Callback for scroll events.
@@ -50,8 +52,6 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      * Caveat: Note that a 2-finger drag on an Apple trackpad emits events with _both_ `deltaX ` and `deltaY` data so you might want to delay making the above adjustment until you can determine that you are getting Y data only with no X data at all (which is a sure bet you on a mouse wheel rather than a trackpad).
      */
     private readonly _deltaProp: Scroller.DeltaProp;
-
-    private readonly _classPrefix: string;
 
     /**
      * @summary Maximum offset of thumb's leading edge.
@@ -149,17 +149,17 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         private _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
         deltaXFactor: number,
         deltaYFactor: number,
-        classPrefix: string | undefined,
+        classPrefix: string,
         private readonly _spaceAccomodatedScroller: Scroller<BGS> | undefined,
     ) {
         this._axisProperties = axesProperties[this.axis];
 
         const thumb = document.createElement('div');
         this._thumb = thumb;
-        thumb.id = axis + Scroller.thumbElementIdBase + instanceId.toString(10);
+        thumb.id = `${CssClassName.gridHostElementCssIdBase}-${axis}-${Scroller.thumbElementIdBase}${instanceId.toString(10)}`;
         thumb.style.position = 'absolute';
 
-        thumb.classList.add('thumb');
+        thumb.classList.add(Scroller.thumbCssClass);
         thumb.addEventListener('click', this._thumbClickListener);
         thumb.addEventListener('pointerenter', this._thumbPointerEnterListener);
         thumb.addEventListener('pointerleave', this._thumbPointerLeaveListener);
@@ -167,7 +167,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
         const bar = document.createElement('div');
         this.bar = bar;
-        bar.id = axis + Scroller.barElementIdBase + instanceId.toString();
+        bar.id = `${CssClassName.gridHostElementCssIdBase}-${axis}-${Scroller.barElementIdBase}${instanceId.toString(10)}`;
         bar.style.position = 'absolute';
         const leadingKey = this._axisProperties['leading'];
         bar.style.setProperty(leadingKey, '0');
@@ -184,12 +184,8 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         this._hostElement.addEventListener('wheel', this._hostWheelListener);
         // presets
         this.axis = axis;
-        if (classPrefix === undefined || classPrefix === '') {
-            this._classPrefix = Scroller.defaultClassPrefix;
-        } else {
-            this._classPrefix = classPrefix;
-        }
-        bar.classList.add(`${this._classPrefix}-${axis}`);
+        this.barCssClass = `${axis}-${Scroller.barCssClassBase}`;
+        bar.classList.add(this.barCssClass);
         this._deltaProp = this._axisProperties.delta;
         this.increment = 1;
         this._deltaProp = (this.axis === 'vertical' ? Scroller.DeltaPropEnum.deltaY : Scroller.DeltaPropEnum.deltaX);
@@ -773,9 +769,10 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
 /** @public */
 export namespace Scroller {
-    export const defaultClassPrefix = 'revgrid';
-    export const barElementIdBase = '-revgrid-scroller-bar-';
-    export const thumbElementIdBase = '-revgrid-scroller-thumb-';
+    export const barCssClassBase = 'scroller';
+    export const thumbCssClass = 'thumb';
+    export const barElementIdBase = 'scroller-bar';
+    export const thumbElementIdBase = 'scroller-thumb';
 
     export const defaultInsideOffset = 3;
 

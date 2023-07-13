@@ -210,11 +210,11 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');
-        this.canvasElement.id = CanvasManager.canvasElementIdBase + this.instanceId.toString();
+        this.canvasElement.id = `${CssClassName.gridHostElementCssIdBase}-${CanvasManager.canvasElementIdBase}${this.instanceId.toString(10)}`;
         this.canvasElement.draggable = true;
         this.canvasElement.tabIndex = 0;
         this.canvasElement.style.outline = 'none';
-        this.canvasElement.classList.add(CssClassName.gridElementCssClass);
+        this.canvasElement.classList.add(CanvasManager.canvasCssClass);
 
         this.gc = createCachedContext(this.canvasElement, canvasRenderingContext2DSettings);
 
@@ -867,7 +867,8 @@ export namespace CanvasManager {
     //     }
     // }
 
-    export const canvasElementIdBase = 'revgrid-canvas-';
+    export const canvasElementIdBase = 'canvas';
+    export const canvasCssClass = 'canvas';
 }
 
 let instanceId = 0;
