@@ -138,7 +138,7 @@ export class Main {
         this._mainCellPainter = new MainCellPainter(grid, this._mainDataServer);
         this._headerCellPainter = new StandardHeaderTextCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>(grid, this._headerDataServer);
 
-        grid.focusChangedEventer = (newPoint, oldPoint) => this.handleFocusChanged(newPoint, oldPoint)
+        grid.cellFocusChangedEventer = (newPoint, oldPoint) => this.handleCellFocusChanged(newPoint, oldPoint)
         grid.cellClickEventer = (cell) => this.handleCellFocusClick(cell);
         grid.cellDblClickEventer = (cell) => this.handleRecordFocusDblClick(cell);
         grid.columnSortEventer = (headerOrFixedRowCell) => this.handleColumnSort(headerOrFixedRowCell);
@@ -206,7 +206,7 @@ export class Main {
         // }
     }
 
-    private handleFocusChanged(newPoint: Point | undefined, oldPoint: Point | undefined): void {
+    private handleCellFocusChanged(newPoint: Point | undefined, oldPoint: Point | undefined): void {
         const newText = newPoint === undefined ? '()' : `(${newPoint.x}, ${newPoint.y})`;
         const oldText = oldPoint === undefined ? '()' : `(${oldPoint.x}, ${oldPoint.y})`;
         console.log(`Focus for Record: New: ${newText} Old: ${oldText}`);

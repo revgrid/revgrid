@@ -26,12 +26,25 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<BCS, SF> | undefined) {
-        if (this.isXScrollabe(x) && this.isYScrollabe(y)) {
-            this._viewLayout.ensureColumnRowAreInView(x, y, true)
-            this._focus.setXY(x, y, cell, undefined, undefined);
+        const xScrollable = this.isXScrollabe(x);
+        const yScrollable = this.isYScrollabe(y);
+        if (xScrollable) {
+            if (yScrollable) {
+                this._viewLayout.ensureColumnRowAreInView(x, y, true)
+                this._focus.setXY(x, y, cell, undefined, undefined);
+            } else {
+                this._viewLayout.ensureColumnIsInView(x, true)
+                this._focus.setX(x, undefined, undefined);
+            }
             return true;
         } else {
-            return false;
+            if (yScrollable) {
+                this._viewLayout.ensureRowIsInView(y, true)
+                this._focus.setY(y, undefined, undefined);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
