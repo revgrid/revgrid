@@ -170,9 +170,8 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     resizedEventDebounceExtendedWhenPossible: false,
     resizedEventDebounceInterval: 100, // milliseconds
 
-    //for immediate painting, set these values to 0, true respectively
-    repaintFramesPerSecond: 60,
-    repaintImmediately: false,
+    minimumAnimateTimeInterval: 80,
+    backgroundAnimateTimeInterval: undefined, // Set to 0 to repaint continuously.  Set to positive integer to repaint regularly (ie polling instead of being event driven)
     useHiDPI: true,
     fixedColumnCount: 0,
     fixedRowCount: 0,

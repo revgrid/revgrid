@@ -76,8 +76,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _mouseRowSelection: boolean;
     private _multipleSelectionAreas: boolean;
     private _primarySelectionAreaType: SelectionAreaType;
-    private _repaintImmediately: boolean;
-    private _repaintFramesPerSecond: number;
+    private _minimumAnimateTimeInterval: number;
+    private _backgroundAnimateTimeInterval: number | undefined;
     private _resizeColumnInPlace: boolean;
     private _resizedEventDebounceExtendedWhenPossible: boolean;
     private _resizedEventDebounceInterval: number;
@@ -742,22 +742,22 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
-    get repaintImmediately() { return this._repaintImmediately; }
-    set repaintImmediately(value: boolean) {
-        if (value !== this._repaintImmediately) {
+    get minimumAnimateTimeInterval() { return this._minimumAnimateTimeInterval; }
+    set minimumAnimateTimeInterval(value: number) {
+        if (value !== this._minimumAnimateTimeInterval) {
             this.beginChange();
-            this._repaintImmediately = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.repaintImmediately;
+            this._minimumAnimateTimeInterval = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.minimumAnimateTimeInterval;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
-    get repaintFramesPerSecond() { return this._repaintFramesPerSecond; }
-    set repaintFramesPerSecond(value: number) {
-        if (value !== this._repaintFramesPerSecond) {
+    get backgroundAnimateTimeInterval() { return this._backgroundAnimateTimeInterval; }
+    set backgroundAnimateTimeInterval(value: number | undefined) {
+        if (value !== this._backgroundAnimateTimeInterval) {
             this.beginChange();
-            this._repaintFramesPerSecond = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.repaintFramesPerSecond;
+            this._backgroundAnimateTimeInterval = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.backgroundAnimateTimeInterval;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1385,16 +1385,16 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.primarySelectionAreaType);
                     }
                     break;
-                case 'repaintImmediately':
-                    if (this._repaintImmediately !== requiredSettings.repaintImmediately) {
-                        this._repaintImmediately = requiredSettings.repaintImmediately;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.repaintImmediately);
+                case 'minimumAnimateTimeInterval':
+                    if (this._minimumAnimateTimeInterval !== requiredSettings.minimumAnimateTimeInterval) {
+                        this._minimumAnimateTimeInterval = requiredSettings.minimumAnimateTimeInterval;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.minimumAnimateTimeInterval);
                     }
                     break;
-                case 'repaintFramesPerSecond':
-                    if (this._repaintFramesPerSecond !== requiredSettings.repaintFramesPerSecond) {
-                        this._repaintFramesPerSecond = requiredSettings.repaintFramesPerSecond;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.repaintFramesPerSecond);
+                case 'backgroundAnimateTimeInterval':
+                    if (this._backgroundAnimateTimeInterval !== requiredSettings.backgroundAnimateTimeInterval) {
+                        this._backgroundAnimateTimeInterval = requiredSettings.backgroundAnimateTimeInterval;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.backgroundAnimateTimeInterval);
                     }
                     break;
                 case 'resizeColumnInPlace':

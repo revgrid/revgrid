@@ -1338,6 +1338,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get addToggleSelectionAreaModifierKeyDoesToggle(): boolean;
     set addToggleSelectionAreaModifierKeyDoesToggle(value: boolean);
     // (undocumented)
+    get backgroundAnimateTimeInterval(): number | undefined;
+    set backgroundAnimateTimeInterval(value: number | undefined);
+    // (undocumented)
     get backgroundColor(): GridSettings.Color;
     set backgroundColor(value: GridSettings.Color);
     // (undocumented)
@@ -1489,6 +1492,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     merge(settings: Partial<GridSettings>): boolean;
     // (undocumented)
+    get minimumAnimateTimeInterval(): number;
+    set minimumAnimateTimeInterval(value: number);
+    // (undocumented)
     get minimumColumnWidth(): number;
     set minimumColumnWidth(value: number);
     // (undocumented)
@@ -1506,12 +1512,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get primarySelectionAreaType(): SelectionAreaType;
     set primarySelectionAreaType(value: SelectionAreaType);
-    // (undocumented)
-    get repaintFramesPerSecond(): number;
-    set repaintFramesPerSecond(value: number);
-    // (undocumented)
-    get repaintImmediately(): boolean;
-    set repaintImmediately(value: boolean);
     // (undocumented)
     get resizeColumnInPlace(): boolean;
     set resizeColumnInPlace(value: boolean);
@@ -2021,6 +2021,7 @@ export type OnlyColumnSettings = Pick<OnlyGridSettings, 'backgroundColor' | 'col
 export interface OnlyGridSettings {
     addToggleSelectionAreaModifierKey: ModifierKeyEnum;
     addToggleSelectionAreaModifierKeyDoesToggle: boolean;
+    backgroundAnimateTimeInterval: number | undefined;
     // (undocumented)
     backgroundColor: OnlyGridSettings.Color;
     // (undocumented)
@@ -2103,6 +2104,7 @@ export interface OnlyGridSettings {
     horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
     // (undocumented)
     maximumColumnWidth: number | undefined;
+    minimumAnimateTimeInterval: number;
     // (undocumented)
     minimumColumnWidth: number;
     mouseColumnSelection: boolean;
@@ -2110,14 +2112,6 @@ export interface OnlyGridSettings {
     mouseRowSelection: boolean;
     multipleSelectionAreas: boolean;
     primarySelectionAreaType: SelectionAreaType;
-    // (undocumented)
-    repaintFramesPerSecond: number;
-    // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-    // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-    // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-    // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-    // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-    repaintImmediately: boolean;
     // (undocumented)
     resizeColumnInPlace: boolean;
     resizedEventDebounceExtendedWhenPossible: boolean;
