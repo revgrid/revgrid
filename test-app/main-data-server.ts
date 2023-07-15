@@ -115,7 +115,7 @@ export class MainDataServer implements DataServer<AppSchemaField> {
             this._data.sort((left: MainRecord, right: MainRecord) => MainRecord.compareField(field.name, left, right));
             this._notificationsClient.invalidateAll();
         } finally {
-            this._notificationsClient.postReindex();
+            this._notificationsClient.postReindex(true);
         }
     }
 
