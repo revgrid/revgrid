@@ -31,14 +31,14 @@ export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
 
     }
 
-    unstash() {
+    unstash(allRowsKept: boolean) {
         if (--this._requestNestCount === 0) {
             if (this._focusStash === undefined || this._selectionStash === undefined) {
                 throw new AssertError('RSMUU13360');
             } else {
-                this._focus.restoreStash(this._focusStash);
+                this._focus.restoreStash(this._focusStash, allRowsKept);
                 this._focusStash = undefined;
-                this._selection.restoreStash(this._selectionStash);
+                this._selection.restoreStash(this._selectionStash, allRowsKept);
                 this._selectionStash = undefined;
             }
         } else {

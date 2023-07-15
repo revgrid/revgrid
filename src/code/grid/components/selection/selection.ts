@@ -109,13 +109,13 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         };
     }
 
-    restoreStash(stash: Selection.Stash<BCS, SF>) {
+    restoreStash(stash: Selection.Stash<BCS, SF>, allRowsKept: boolean) {
         this.beginChange();
         try {
             this.clear();
             this._subgrid = stash.subgrid;
             this._allRowsSelected = stash.allRowsSelected;
-            this.restoreLastRectangleFirstCellStash(stash.lastRectangleFirstCell)
+            this.restoreLastRectangleFirstCellStash(stash.lastRectangleFirstCell, allRowsKept);
             this.restoreRowsStash(stash.rowIds);
             this.restoreColumnsStash(stash.columnNames);
         } finally {
@@ -1006,7 +1006,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    private restoreLastRectangleFirstCellStash(lastRectangleFirstCellStash: Selection.LastRectangleFirstCellStash | undefined) {
+    private restoreLastRectangleFirstCellStash(lastRectangleFirstCellStash: Selection.LastRectangleFirstCellStash | undefined, allRowsKept: boolean) {
         if (lastRectangleFirstCellStash !== undefined) {
             const subgrid = this._subgrid;
             if (subgrid === undefined) {
@@ -1021,6 +1021,10 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                         const subgridRowIndex = dataServer.getRowIndexFromId(stashedRowId);
                         if (subgridRowIndex !== undefined) {
                             this.selectRectangle(activeColumnIndex, subgridRowIndex, 1, 1, subgrid, true);
+                        } else {
+                            if (allRowsKept) {
+                                throw new AssertError('SRLRFCS31071');
+                            }
                         }
                     } else {
                         if (dataServer.getRowIdFromIndex !== undefined) {
@@ -1029,8 +1033,11 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                                 const rowId = dataServer.getRowIdFromIndex(subgridRowIndex);
                                 if (rowId === stashedRowId) {
                                     this.selectRectangle(activeColumnIndex, subgridRowIndex, 1, 1, subgrid, true);
-                                    break;
+                                    return;
                                 }
+                            }
+                            if (allRowsKept) {
+                                throw new AssertError('SRLRFCS31071');
                             }
                         }
                     }

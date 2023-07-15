@@ -64,7 +64,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
                 invalidateRowCells: (rowIndex, schemaColumnIndexes) => this.handleInvalidateRowCells(dataServer, rowIndex, schemaColumnIndexes),
                 invalidateCell: (schemaColumnIndex, rowIndex) => this.handleInvalidateCell(dataServer, schemaColumnIndex, rowIndex),
                 preReindex:  () => this.handleDataPreReindex(),
-                postReindex: () => this.handleDataPostReindex(),
+                postReindex: (allRowsKept) => this.handleDataPostReindex(allRowsKept),
             };
 
             subgrid.setDataNotificationsClient(notificationsClient);
@@ -373,9 +373,9 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleDataPostReindex() {
+    private handleDataPostReindex(allRowsKept: boolean) {
         if (!this._destroyed) {
-            this._reindexStashManager.unstash();
+            this._reindexStashManager.unstash(allRowsKept);
             this._viewLayout.invalidateVerticalAll(false);
             this._renderer.modelUpdated();
         }

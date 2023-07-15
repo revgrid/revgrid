@@ -104,7 +104,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
 
                 this.endGridScrolling();
                 this.endDragColumn(dragAction);
-                this.reindexBehavior.unstash();
+                this.reindexBehavior.unstash(true);
                 this.hostElement.removeChild(dragOverlay);
                 // requestAnimationFrame(() => this.render(undefined));
                 this.setMouseDragging(false);

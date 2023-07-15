@@ -763,7 +763,7 @@ export namespace DataServer {
         // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
         // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
         // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-        postReindex: (this: void) => void;
+        postReindex: (this: void, allRowsKept: boolean) => void;
         // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
         // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
         preReindex: (this: void) => void;
@@ -1006,7 +1006,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // @internal (undocumented)
     reset(): void;
     // @internal (undocumented)
-    restoreStash(stash: Focus.Stash): void;
+    restoreStash(stash: Focus.Stash, allRowsKept: boolean): void;
     // Warning: (ae-forgotten-export) The symbol "PartialPoint" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)

@@ -82,7 +82,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     clear() {
         this.closeFocus();
-        this._previous = this._current;
+        this._previous = undefined;
         this._current = undefined;
     }
 
@@ -500,14 +500,14 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    restoreStash(stash: Focus.Stash) {
+    restoreStash(stash: Focus.Stash, allRowsKept: boolean) {
         this.clear();
 
         if (stash.current !== undefined) {
-            this._current = this.createPointFromStash(stash.current);
+            this._current = this.createPointFromStash(stash.current, allRowsKept);
         }
         if (stash.previous !== undefined) {
-            this._previous = this.createPointFromStash(stash.previous);
+            this._previous = this.createPointFromStash(stash.previous, allRowsKept);
         }
     }
 
@@ -669,7 +669,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private createPointFromStash(stashPoint: Focus.Stash.Point): Point | undefined {
+    private createPointFromStash(stashPoint: Focus.Stash.Point, allRowsKept: boolean): Point | undefined {
         const { fieldName, rowId: stashedRowId } = stashPoint;
         const activeColumnIndex = this._columnsManager.getActiveColumnIndexByFieldName(fieldName);
         if (activeColumnIndex < 0) {
@@ -679,7 +679,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             if (dataServer.getRowIndexFromId !== undefined) {
                 const rowIndex = dataServer.getRowIndexFromId(stashedRowId);
                 if (rowIndex === undefined) {
-                    throw new AssertError('FCPFSI50884'); // reindex should not lose row
+                    if (allRowsKept) {
+                        throw new AssertError('FCPFSI50884');
+                    } else {
+                        return undefined;
+                    }
                 } else {
                     return {
                         x: activeColumnIndex,
@@ -698,7 +702,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                             };
                         }
                     }
-                    throw new AssertError('FCPFSL50884'); // reindex should not lose row
+                    if (allRowsKept) {
+                        throw new AssertError('FCPFSL50884');
+                    } else {
+                        return undefined;
+                    }
                 } else {
                     return undefined;
                 }

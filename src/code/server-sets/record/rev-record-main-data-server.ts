@@ -467,7 +467,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
             }
         } finally {
             if (continuousSortingOrFilteringActive) {
-                this._callbackListener.postReindex();
+                this._callbackListener.postReindex(false);
                 this._callbackListener.endChange();
             }
         }
@@ -558,7 +558,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
                     }
                 } finally {
                     if (continuousSortingOrFilteringActive) {
-                        this._callbackListener.postReindex();
+                        this._callbackListener.postReindex(false);
                         this._callbackListener.endChange();
                     }
                 }
@@ -588,7 +588,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
             }
         } finally {
             if (continuousSortingOrFilteringActive) {
-                this._callbackListener.postReindex();
+                this._callbackListener.postReindex(true);
                 this._callbackListener.endChange();
             }
         }
@@ -676,7 +676,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
                     }
                 } finally {
                     if (continuousSortingOrFilteringActive) {
-                        this._callbackListener.postReindex();
+                        this._callbackListener.postReindex(true);
                         this._callbackListener.endChange();
                     }
                 }
@@ -803,7 +803,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
             try {
                 this._recordRowMap.sortRows(this._comparer);
             } finally {
-                this._callbackListener.postReindex();
+                this._callbackListener.postReindex(true);
                 this._recentChanges.processPostReindex(true);
                 this._callbackListener.invalidateAll();
                 this._callbackListener.endChange();
@@ -1000,7 +1000,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
 
         } finally {
             this._recentChanges.processPostReindex(allRowsKept);
-            this._callbackListener.postReindex();
+            this._callbackListener.postReindex(allRowsKept);
             this._callbackListener.invalidateAll();
             this._callbackListener.endChange();
         }
