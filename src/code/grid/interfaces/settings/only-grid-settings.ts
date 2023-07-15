@@ -153,9 +153,9 @@ export interface OnlyGridSettings {
     selectionExtendDragActiveCursorName: string | undefined;
     selectionExtendDragActiveTitleText: string | undefined;
     /** Stroke color for last selection overlay. */
-    selectionRegionOutlineColor: OnlyGridSettings.Color;
+    selectionRegionOutlineColor: OnlyGridSettings.Color | undefined;
     /** Fill color for last selection overlay. */
-    selectionRegionOverlayColor: OnlyGridSettings.Color;
+    selectionRegionOverlayColor: OnlyGridSettings.Color | undefined;
     showFilterRow: boolean;
     showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
     /** Sort column on double-click rather than single-click. */

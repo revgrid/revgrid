@@ -193,14 +193,14 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
      * @default
      * @type {cssColor}
      */
-    selectionRegionOverlayColor: 'transparent', // 'rgba(0, 0, 48, 0.2)',
+    selectionRegionOverlayColor: undefined, // 'rgba(0, 0, 48, 0.2)',
 
     /**
      * @summary Stroke color for last selection overlay.
      * @default
      * @type {string}
      */
-    selectionRegionOutlineColor: 'transparent', // rgb(69, 69, 69)',
+    selectionRegionOutlineColor: undefined, // rgb(69, 69, 69)',
 
     /**
      * @summary Whether to automatically expand column width to accommodate widest rendered value.

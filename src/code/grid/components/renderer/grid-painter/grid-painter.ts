@@ -205,45 +205,52 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
     }
 
     checkPaintLastSelection() {
-        const lastSelectionBounds = this.calculateLastSelectionBounds();
+        const gridSettings = this.gridSettings;
+        let selectionRegionOverlayColor = gridSettings.selectionRegionOverlayColor;
+        let selectionRegionOutlineColor = gridSettings.selectionRegionOutlineColor;
 
-        if (lastSelectionBounds !== undefined) {
-            // Render the selection model around the last selection bounds
+        if (selectionRegionOverlayColor !== undefined || selectionRegionOutlineColor !== undefined) {
+            if (selectionRegionOverlayColor === undefined || this.partial) {
+                selectionRegionOverlayColor = 'transparent';
+            }
+            if (selectionRegionOutlineColor === undefined) {
+                selectionRegionOutlineColor = 'transparent';
+            }
             const gc = this._renderingContext;
-            const gridProps = this.gridSettings;
-            const selectionRegionOverlayColor = this.partial ? 'transparent' : gridProps.selectionRegionOverlayColor;
-            const selectionRegionOutlineColor = gridProps.selectionRegionOutlineColor;
-
             const visOverlay = gc.alpha(selectionRegionOverlayColor) > 0;
             const visOutline = gc.alpha(selectionRegionOutlineColor) > 0;
 
             if (visOverlay || visOutline) {
-                const bounds = lastSelectionBounds;
-                const x = bounds.x;
-                const y = bounds.y;
-                const width = bounds.width;
-                const height = bounds.height;
+                const lastSelectionBounds = this.calculateLastSelectionBounds();
 
-                gc.beginPath();
+                if (lastSelectionBounds !== undefined) {
+                    // Render the selection model around the last selection bounds
+                    const x = lastSelectionBounds.x;
+                    const y = lastSelectionBounds.y;
+                    const width = lastSelectionBounds.width;
+                    const height = lastSelectionBounds.height;
 
-                gc.rect(x, y, width, height);
+                    gc.beginPath();
 
-                if (visOverlay) {
-                    gc.cache.fillStyle = selectionRegionOverlayColor;
-                    gc.fill();
+                    gc.rect(x, y, width, height);
+
+                    if (visOverlay) {
+                        gc.cache.fillStyle = selectionRegionOverlayColor;
+                        gc.fill();
+                    }
+
+                    if (visOutline) {
+                        gc.cache.lineWidth = 1;
+                        gc.cache.strokeStyle = selectionRegionOutlineColor;
+                        gc.stroke();
+                    }
+
+                    gc.closePath();
+
+                    // if (this._gridPainter.key === 'by-cells') {
+                    //     this._gridPainter.reset = true; // fixes GRID-490
+                    // }
                 }
-
-                if (visOutline) {
-                    gc.cache.lineWidth = 1;
-                    gc.cache.strokeStyle = selectionRegionOutlineColor;
-                    gc.stroke();
-                }
-
-                gc.closePath();
-
-                // if (this._gridPainter.key === 'by-cells') {
-                //     this._gridPainter.reset = true; // fixes GRID-490
-                // }
             }
         }
     }
@@ -267,80 +274,74 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         if (selectionArea === undefined) {
             return undefined; // no selection
         } else {
-            // todo not sure what this is for; might be defunct logic
-            if (selectionArea.topLeft.x === -1) {
-                // no selected area, lets exit
+            const firstScrollableColumnIndex = this.viewLayout.firstScrollableColumnIndex;
+            const firstScrollableRowIndex = this.viewLayout.firstScrollableRowIndex;
+            if (firstScrollableColumnIndex === undefined || firstScrollableRowIndex === undefined) {
+                // selection needs scrollable data
                 return undefined;
             } else {
-                const firstScrollableColumnIndex = this.viewLayout.firstScrollableColumnIndex;
-                const firstScrollableRowIndex = this.viewLayout.firstScrollableRowIndex;
-                if (firstScrollableColumnIndex === undefined || firstScrollableRowIndex === undefined) {
-                    // selection needs scrollable data
+                let vc: ViewLayoutColumn<BCS, SF>;
+                let vr: ViewLayoutRow<BCS, SF>;
+                const lastScrollableColumn = columns[columnCount - 1]; // last column in scrollable section
+                const lastScrollableRow = rows[rowCount - 1]; // last row in scrollable data section
+                const firstScrollableColumn = columns[firstScrollableColumnIndex];
+                const firstScrollableActiveColumnIndex = firstScrollableColumn.activeColumnIndex;
+                const firstScrollableRow = rows[firstScrollableRowIndex];
+                const firstScrollableSubgridRowIndex = firstScrollableRow.subgridRowIndex;
+                const fixedColumnCount = gridProps.fixedColumnCount;
+                const fixedRowCount = gridProps.fixedRowCount;
+                const preMainRowCount = this.subgridsManager.calculatePreMainRowCount();
+
+                if (
+                    // entire selection scrolled out of view to left of visible columns; or
+                    (vc = columns[0]) && selectionArea.inclusiveRight < vc.activeColumnIndex ||
+
+                    // entire selection scrolled out of view between fixed columns and scrollable columns; or
+                    fixedColumnCount > 0 &&
+                    (vc = columns[fixedColumnCount - 1]) &&
+                    selectionArea.left > vc.activeColumnIndex &&
+                    selectionArea.inclusiveRight < firstScrollableColumn.activeColumnIndex ||
+
+                    // entire selection scrolled out of view to right of visible columns; or
+                    lastScrollableColumn &&
+                    selectionArea.left > lastScrollableColumn.activeColumnIndex ||
+
+                    // entire selection scrolled out of view above visible rows; or
+                    (vr = rows[preMainRowCount]) &&
+                    selectionArea.inclusiveBottom < vr.subgridRowIndex ||
+
+                    // entire selection scrolled out of view between fixed rows and scrollable rows; or
+                    fixedRowCount > 0 &&
+                    firstScrollableRow !== undefined &&
+                    (vr = rows[preMainRowCount + fixedRowCount - 1]) &&
+                    selectionArea.top > vr.subgridRowIndex &&
+                    selectionArea.inclusiveBottom < firstScrollableRow.subgridRowIndex ||
+
+                    // entire selection scrolled out of view below visible rows
+                    lastScrollableRow &&
+                    selectionArea.top > lastScrollableRow.subgridRowIndex
+                ) {
                     return undefined;
                 } else {
-                    let vc: ViewLayoutColumn<BCS, SF>;
-                    let vr: ViewLayoutRow<BCS, SF>;
-                    const lastScrollableColumn = columns[columnCount - 1]; // last column in scrollable section
-                    const lastScrollableRow = rows[rowCount - 1]; // last row in scrollable data section
-                    const firstScrollableColumn = columns[firstScrollableColumnIndex];
-                    const firstScrollableActiveColumnIndex = firstScrollableColumn.activeColumnIndex;
-                    const firstScrollableRow = rows[firstScrollableRowIndex];
-                    const firstScrollableSubgridRowIndex = firstScrollableRow.subgridRowIndex;
-                    const fixedColumnCount = gridProps.fixedColumnCount;
-                    const fixedRowCount = gridProps.fixedRowCount;
-                    const preMainRowCount = this.subgridsManager.calculatePreMainRowCount();
+                    const scrolledColumnCount = firstScrollableActiveColumnIndex - 1;
+                    const scrolledRowCount = firstScrollableSubgridRowIndex - 1;
 
-                    if (
-                        // entire selection scrolled out of view to left of visible columns; or
-                        (vc = columns[0]) &&
-                        selectionArea.exclusiveBottomRight.x < vc.activeColumnIndex ||
+                    const vcOrigin = columns[selectionArea.left - scrolledColumnCount];
+                    const vrOrigin = rows[selectionArea.top - scrolledRowCount];
+                    const vcCorner = columns[selectionArea.inclusiveRight - scrolledColumnCount];
+                    const vrCorner = rows[selectionArea.inclusiveBottom - scrolledRowCount];
 
-                        // entire selection scrolled out of view between fixed columns and scrollable columns; or
-                        fixedColumnCount &&
-                        (vc = columns[fixedColumnCount - 1]) &&
-                        selectionArea.topLeft.x > vc.activeColumnIndex &&
-                        selectionArea.exclusiveBottomRight.x < firstScrollableColumn.activeColumnIndex ||
-
-                        // entire selection scrolled out of view to right of visible columns; or
-                        lastScrollableColumn &&
-                        selectionArea.topLeft.x > lastScrollableColumn.activeColumnIndex ||
-
-                        // entire selection scrolled out of view above visible rows; or
-                        (vr = rows[preMainRowCount]) &&
-                        selectionArea.exclusiveBottomRight.y < vr.subgridRowIndex ||
-
-                        // entire selection scrolled out of view between fixed rows and scrollable rows; or
-                        fixedRowCount &&
-                        firstScrollableRow !== undefined &&
-                        (vr = rows[preMainRowCount + fixedRowCount - 1]) &&
-                        selectionArea.topLeft.y > vr.subgridRowIndex &&
-                        selectionArea.exclusiveBottomRight.y < firstScrollableRow.subgridRowIndex ||
-
-                        // entire selection scrolled out of view below visible rows
-                        lastScrollableRow &&
-                        selectionArea.topLeft.y > lastScrollableRow.subgridRowIndex
-                    ) {
+                    if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
                         return undefined;
                     } else {
-                        const vcOrigin = columns[selectionArea.topLeft.x - firstScrollableActiveColumnIndex] || firstScrollableColumn;
-                        const vrOrigin = rows[selectionArea.topLeft.y - firstScrollableSubgridRowIndex] || firstScrollableRow;
-                        const vcCorner = columns[selectionArea.exclusiveBottomRight.x - firstScrollableActiveColumnIndex] ||
-                            (selectionArea.exclusiveBottomRight.x > lastScrollableColumn.activeColumnIndex ? lastScrollableColumn : firstScrollableColumn);
-                        const vrCorner = rows[selectionArea.exclusiveBottomRight.y - firstScrollableSubgridRowIndex] ||
-                            (selectionArea.exclusiveBottomRight.y > lastScrollableRow.subgridRowIndex ? lastScrollableRow : firstScrollableRow);
+                        const bounds: Rectangle = {
+                            x: vcOrigin.left,
+                            y: vrOrigin.top,
+                            width: vcCorner.rightPlus1 - vcOrigin.left,
+                            height: vrCorner.bottomPlus1 - vrOrigin.top
+                        };
 
-                        if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
-                            return undefined;
-                        } else {
-                            const bounds: Rectangle = {
-                                x: vcOrigin.left,
-                                y: vrOrigin.top,
-                                width: vcCorner.rightPlus1 - vcOrigin.left,
-                                height: vrCorner.bottomPlus1 - vrOrigin.top
-                            };
-
-                            return bounds;
-                        }
+                        return bounds;
                     }
                 }
             }

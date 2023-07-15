@@ -96,12 +96,14 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     }
 
     createStash(): Selection.Stash<BCS, SF> {
+        const lastRectangleFirstCell = this.createLastRectangleFirstCellStash();
         const rowIds = this.createRowsStash();
         const columnNames = this.createColumnsStash();
 
         return {
             subgrid: this._subgrid,
             allRowsSelected: this.allRowsSelected,
+            lastRectangleFirstCell,
             rowIds,
             columnNames,
         };
@@ -113,6 +115,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             this.clear();
             this._subgrid = stash.subgrid;
             this._allRowsSelected = stash.allRowsSelected;
+            this.restoreLastRectangleFirstCellStash(stash.lastRectangleFirstCell)
             this.restoreRowsStash(stash.rowIds);
             this.restoreColumnsStash(stash.columnNames);
         } finally {
@@ -977,6 +980,65 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    private createLastRectangleFirstCellStash(): Selection.LastRectangleFirstCellStash | undefined {
+        const subgrid = this._subgrid;
+        if (subgrid === undefined) {
+            return undefined;
+        } else {
+            const rectangle = this.rectangleList.getLastRectangle();
+            if (rectangle === undefined) {
+                return undefined;
+            } else {
+                const cellPoint = rectangle.inclusiveFirst;
+
+                const dataServer = subgrid.dataServer;
+                if (dataServer.getRowIdFromIndex === undefined) {
+                    return undefined;
+                } else {
+                    const activeColumnIndex = cellPoint.x;
+                    const subgridRowIndex = cellPoint.y;
+                    return {
+                        fieldName: this._columnsManager.getActiveColumn(activeColumnIndex).field.name,
+                        rowId: dataServer.getRowIdFromIndex(subgridRowIndex),
+                    };
+                }
+            }
+        }
+    }
+
+    private restoreLastRectangleFirstCellStash(lastRectangleFirstCellStash: Selection.LastRectangleFirstCellStash | undefined) {
+        if (lastRectangleFirstCellStash !== undefined) {
+            const subgrid = this._subgrid;
+            if (subgrid === undefined) {
+                throw new AssertError('SRLRFC10987');
+            } else {
+                const { fieldName, rowId: stashedRowId } = lastRectangleFirstCellStash;
+
+                const activeColumnIndex = this._columnsManager.getActiveColumnIndexByFieldName(fieldName);
+                if (activeColumnIndex >= 0) {
+                    const dataServer = subgrid.dataServer;
+                    if (dataServer.getRowIndexFromId !== undefined) {
+                        const subgridRowIndex = dataServer.getRowIndexFromId(stashedRowId);
+                        if (subgridRowIndex !== undefined) {
+                            this.selectRectangle(activeColumnIndex, subgridRowIndex, 1, 1, subgrid, true);
+                        }
+                    } else {
+                        if (dataServer.getRowIdFromIndex !== undefined) {
+                            const rowCount = subgrid.getRowCount();
+                            for (let subgridRowIndex = 0; subgridRowIndex < rowCount; subgridRowIndex++) {
+                                const rowId = dataServer.getRowIdFromIndex(subgridRowIndex);
+                                if (rowId === stashedRowId) {
+                                    this.selectRectangle(activeColumnIndex, subgridRowIndex, 1, 1, subgrid, true);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Save underlying data row indexes backing current grid row selections in `grid.selectedDataRowIndexes`.
      *
@@ -1127,7 +1189,13 @@ export namespace Selection {
     export interface Stash<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         readonly subgrid: Subgrid<BCS, SF> | undefined;
         readonly allRowsSelected: boolean,
+        readonly lastRectangleFirstCell: LastRectangleFirstCellStash | undefined;
         readonly rowIds: unknown[] | undefined,
         readonly columnNames: string[] | undefined,
+    }
+
+    export interface LastRectangleFirstCellStash {
+        fieldName: string;
+        rowId: unknown;
     }
 }

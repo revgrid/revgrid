@@ -91,8 +91,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _secondarySelectionAreaType: SelectionAreaType;
     private _selectionExtendDragActiveCursorName: string | undefined;
     private _selectionExtendDragActiveTitleText: string | undefined;
-    private _selectionRegionOutlineColor: GridSettings.Color;
-    private _selectionRegionOverlayColor: GridSettings.Color;
+    private _selectionRegionOutlineColor: GridSettings.Color | undefined;
+    private _selectionRegionOverlayColor: GridSettings.Color | undefined;
     private _showFilterRow: boolean;
     private _showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
     private _sortOnDoubleClick: boolean;
@@ -893,7 +893,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         }
     }
     get selectionRegionOutlineColor() { return this._selectionRegionOutlineColor; }
-    set selectionRegionOutlineColor(value: GridSettings.Color) {
+    set selectionRegionOutlineColor(value: GridSettings.Color | undefined) {
         if (value !== this._selectionRegionOutlineColor) {
             this.beginChange();
             this._selectionRegionOutlineColor = value;
@@ -903,7 +903,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         }
     }
     get selectionRegionOverlayColor() { return this._selectionRegionOverlayColor; }
-    set selectionRegionOverlayColor(value: GridSettings.Color) {
+    set selectionRegionOverlayColor(value: GridSettings.Color | undefined) {
         if (value !== this._selectionRegionOverlayColor) {
             this.beginChange();
             this._selectionRegionOverlayColor = value;

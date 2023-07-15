@@ -75,8 +75,19 @@ export class MainDataServer implements DataServer<AppSchemaField> {
         this._notificationsClient.invalidateCell(field.index, rowIndex);
     }
 
-    getRowId(rowIndex: number): number {
+    getRowIdFromIndex(rowIndex: number): number {
         return this._data[rowIndex].id;
+    }
+
+    getRowIndexFromId(rowId: unknown): number | undefined {
+        const recordCount = this._data.length;
+        for (let i = 0; i < recordCount; i++) {
+            const record = this._data[i];
+            if (record.id === rowId) {
+                return i;
+            }
+        }
+        return undefined;
     }
 
     getTitleText(field: AppSchemaField, rowIndex: number) {

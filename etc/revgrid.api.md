@@ -1552,11 +1552,11 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get selectionExtendDragActiveTitleText(): string | undefined;
     set selectionExtendDragActiveTitleText(value: string | undefined);
     // (undocumented)
-    get selectionRegionOutlineColor(): GridSettings.Color;
-    set selectionRegionOutlineColor(value: GridSettings.Color);
+    get selectionRegionOutlineColor(): GridSettings.Color | undefined;
+    set selectionRegionOutlineColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get selectionRegionOverlayColor(): GridSettings.Color;
-    set selectionRegionOverlayColor(value: GridSettings.Color);
+    get selectionRegionOverlayColor(): GridSettings.Color | undefined;
+    set selectionRegionOverlayColor(value: GridSettings.Color | undefined);
     // (undocumented)
     get showFilterRow(): boolean;
     set showFilterRow(value: boolean);
@@ -2131,8 +2131,8 @@ export interface OnlyGridSettings {
     selectionExtendDragActiveCursorName: string | undefined;
     // (undocumented)
     selectionExtendDragActiveTitleText: string | undefined;
-    selectionRegionOutlineColor: OnlyGridSettings.Color;
-    selectionRegionOverlayColor: OnlyGridSettings.Color;
+    selectionRegionOutlineColor: OnlyGridSettings.Color | undefined;
+    selectionRegionOverlayColor: OnlyGridSettings.Color | undefined;
     // (undocumented)
     showFilterRow: boolean;
     // (undocumented)
