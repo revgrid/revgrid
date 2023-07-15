@@ -2317,7 +2317,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     calculateRowCount(): number;
     // (undocumented)
-    get canvasBounds(): InexclusiveRectangle;
+    get canvasBounds(): Rectangle;
     // (undocumented)
     readonly canvasManager: CanvasManager<BGS>;
     clearAllCellProperties(x?: number): void;
@@ -4074,8 +4074,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     getVisibleRow(rowIndex: number): ViewLayoutRow<BCS, SF>;
-    // (undocumented)
-    get horizontalScrollableOverflowed(): boolean | undefined;
     // Warning: (ae-forgotten-export) The symbol "HorizontalScrollDimension" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -4157,7 +4155,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // (undocumented)
     get scrollableCanvasBounds(): InexclusiveRectangle | undefined;
     // (undocumented)
-    get scrollableCanvasLeft(): number | undefined;
+    get scrollableCanvasLeft(): number;
     // (undocumented)
     get scrollableColumnCount(): number;
     // (undocumented)

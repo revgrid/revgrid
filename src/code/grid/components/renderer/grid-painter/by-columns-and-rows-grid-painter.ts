@@ -77,7 +77,7 @@ export class ByColumnsAndRowsGridPainter<BGS extends BehavioredGridSettings, BCS
             const viewWidth = lastVisibleColumnRightPlus1 - firstVisibleColumnLeft;
             const viewHeight = viewLayoutRows[rowCount - 1].bottomPlus1;
 
-            const canvasBounds = this.canvasManager.bounds;
+            const canvasBounds = this.canvasManager.flooredBounds;
             gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
             if (!columnCount || !rowCount) { return; }

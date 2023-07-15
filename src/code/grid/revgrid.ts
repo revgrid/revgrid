@@ -210,7 +210,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         }
     }
 
-    get canvasBounds() { return this.canvasManager.bounds; }
+    get canvasBounds() { return this.canvasManager.flooredBounds; }
 
     /**
      * Be a responsible citizen and call this function on instance disposal!

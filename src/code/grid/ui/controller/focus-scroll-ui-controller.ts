@@ -161,7 +161,7 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
         if (gridSettings.scrollingEnabled) {
             const viewLayout = this.viewLayout;
 
-            if (viewLayout.horizontalScrollDimension.overflowed && this.isHorizontalWheelScrollingAllowed(event)) {
+            if (viewLayout.horizontalScrollDimension.scrollable && this.isHorizontalWheelScrollingAllowed(event)) {
                 const deltaX = event.deltaX;
                 if (deltaX !== 0) {
                     if (gridSettings.scrollHorizontallySmoothly) {
@@ -172,7 +172,7 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
                 }
             }
 
-            if (viewLayout.verticalScrollDimension.overflowed) {
+            if (viewLayout.verticalScrollDimension.scrollable) {
                 const deltaY = event.deltaY;
                 if (deltaY !== 0) {
                     this.viewLayout.scrollRowsBy(Math.sign(deltaY)); // Update when Vertical scrolling improved

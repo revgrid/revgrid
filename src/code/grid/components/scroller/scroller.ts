@@ -443,7 +443,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      * @param barPosition - The new thumb position in pixels and scaled relative to the containing {@link Scroller#bar|bar} element, i.e., a proportional number in the range `0`..`thumbMax`.
      */
     private setThumbPosition(viewportStart: number | undefined) {
-        if (this._scrollDimension.overflowed && viewportStart !== undefined) {
+        if (this._scrollDimension.scrollable && viewportStart !== undefined) {
             // Move the thumb
             let thumbPosition: number;
             if (this._indexMode) {
@@ -469,7 +469,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         const barSize = this.bar.getBoundingClientRect()[oh.size];
 
         const oldHidden = this.hidden;
-        if (this._scrollDimension.overflowed === true) {
+        if (this._scrollDimension.scrollable) {
             this._thumbScaling = barSize / this._scrollDimension.size;
             const thumbSize = Math.max(20, barSize * this._scrollDimension.viewportSize / this._scrollDimension.size);
             this._thumb.style[oh.size] = thumbSize.toString(10) + 'px';
@@ -667,10 +667,8 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
     private resize() {
         const leadingTrailing = this.calculateLeadingTrailingForSpaceAccomodatedScroller();
-        if (leadingTrailing !== undefined) {
-            for (const key in leadingTrailing) {
-                this.bar.style.setProperty(key, leadingTrailing[key]);
-            }
+        for (const key in leadingTrailing) {
+            this.bar.style.setProperty(key, leadingTrailing[key]);
         }
 
         if (this._indexMode) {
@@ -682,18 +680,20 @@ export class Scroller<BGS extends BehavioredGridSettings> {
         }
     }
 
-    private calculateLeadingTrailingForSpaceAccomodatedScroller(): LeadingTrailing | undefined {
+    private calculateLeadingTrailingForSpaceAccomodatedScroller(): LeadingTrailing {
+        const leadingTrailing: LeadingTrailing = {};
+        const leadingKey = this._axisProperties['leading'];
+        const trailingKey = this._axisProperties['trailing'];
         const spaceAccomodatedScroller = this._spaceAccomodatedScroller;
         if (spaceAccomodatedScroller === undefined) {
-            return undefined;
+            leadingTrailing[leadingKey] = '0';
+            leadingTrailing[trailingKey] = '0';
         } else {
             if (spaceAccomodatedScroller.hidden) {
-                return undefined;
-            } else {
-                const leadingTrailing: LeadingTrailing = {};
+                leadingTrailing[leadingKey] = '0';
+                leadingTrailing[trailingKey] = '0';
+                } else {
                 const insideOverlap = spaceAccomodatedScroller.insideOverlap;
-                const leadingKey = this._axisProperties['leading'];
-                const trailingKey = this._axisProperties['trailing'];
                 if (spaceAccomodatedScroller.trailing) {
                     leadingTrailing[leadingKey] = '0';
                     leadingTrailing[trailingKey] = numberToPixels(insideOverlap);
@@ -701,9 +701,9 @@ export class Scroller<BGS extends BehavioredGridSettings> {
                     leadingTrailing[leadingKey] = numberToPixels(insideOverlap);
                     leadingTrailing[trailingKey] = '0';
                 }
-                return leadingTrailing;
             }
         }
+        return leadingTrailing;
     }
 
     private updateThumbVisibility() {
@@ -950,8 +950,10 @@ const axesProperties: AxesProperties = {
 // };
 
 interface LeadingTrailing {
-    leading?: string; // left/top as pixel string
-    trailing?: string; // right/bottom as pixel string
+    left?: string; // leading - left/top as pixel string
+    top?: string; // leading - left/top as pixel string
+    right?: string; // trailing - right/bottom as pixel string
+    bottom?: string; // trailing - right/bottom as pixel string
 }
 
 export const enum ThumbVisibilityState {

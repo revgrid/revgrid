@@ -315,46 +315,50 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         if (this._documentHidden) {
             return false;
         } else {
-            if (!this._destroyed) {
+            const flooredBounds = this._canvasManager.flooredBounds;
+            if (flooredBounds.width === 0 || flooredBounds.height === 0) {
+                return false;
+            } else {
+                if (!this._destroyed) {
+                    const renderActions = this._renderActionQueue.takeActions();
+                    const actionsCount = renderActions.length;
+                    if (renderActions.length > 0) {
+                        const gc = this._canvasManager.gc;
+                        try {
+                            gc.cache.save();
 
-                const renderActions = this._renderActionQueue.takeActions();
-                const actionsCount = renderActions.length;
-                if (renderActions.length > 0) {
-                    const gc = this._canvasManager.gc;
-                    try {
-                        gc.cache.save();
+                            this._viewLayout.ensureValidInsideAnimationFrame();
 
-                        this._viewLayout.ensureValidInsideAnimationFrame();
-
-                        for (let i = 0; i < actionsCount; i++) {
-                            const action = renderActions[i];
-                            switch (action.type) {
-                                case RenderAction.Type.PaintAll: {
-                                    this.paintAll();
-                                    break;
+                            for (let i = 0; i < actionsCount; i++) {
+                                const action = renderActions[i];
+                                switch (action.type) {
+                                    case RenderAction.Type.PaintAll: {
+                                        this.paintAll();
+                                        break;
+                                    }
+                                    default:
+                                        throw new UnreachableCaseError('RCPRA30816', action.type);
                                 }
-                                default:
-                                    throw new UnreachableCaseError('RCPRA30816', action.type);
                             }
+
+                            setTimeout(() => this.renderedEventer(), 0); // process outside frame animation
+
+                            const lastModelUpdateId = this._lastModelUpdateId;
+                            if (this._lastRenderedModelUpdateId !== lastModelUpdateId) {
+                                this._lastRenderedModelUpdateId = lastModelUpdateId;
+                                // do not resolve in animation frame call back
+                                setTimeout(() => this.resolveWaitModelRendered(lastModelUpdateId), 0); // process outside frame animation
+                            }
+
+                        } catch (e) {
+                            console.error(e);
+                        } finally {
+                            gc.cache.restore();
                         }
-
-                        setTimeout(() => this.renderedEventer(), 0); // process outside frame animation
-
-                        const lastModelUpdateId = this._lastModelUpdateId;
-                        if (this._lastRenderedModelUpdateId !== lastModelUpdateId) {
-                            this._lastRenderedModelUpdateId = lastModelUpdateId;
-                            // do not resolve in animation frame call back
-                            setTimeout(() => this.resolveWaitModelRendered(lastModelUpdateId), 0); // process outside frame animation
-                        }
-
-                    } catch (e) {
-                        console.error(e);
-                    } finally {
-                        gc.cache.restore();
                     }
                 }
+                return true;
             }
-            return true;
         }
     }
 
