@@ -12,9 +12,12 @@ import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-colu
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from '../interfaces/settings/column-settings';
 import { CellMetaSettingsImplementation } from '../settings/cell-meta-settings-implementation';
+import { RevgridObject } from '../types-utils/revgrid-object';
 
-export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
         private readonly _subgridsManger: SubgridsManager<BCS, SF>,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,

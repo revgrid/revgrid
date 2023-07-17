@@ -10,6 +10,7 @@ import { ViewLayout } from '../components/view/view-layout';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevgridObject } from '../types-utils/revgrid-object';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
 import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
@@ -19,27 +20,8 @@ import { ReindexBehavior } from './reindex-behavior';
 import { RowPropertiesBehavior } from './row-properties-behavior';
 import { ServerNotificationBehavior } from './server-notification-behavior';
 
-/**
- * @mixes cellProperties.behaviorMixin
- * @mixes rowProperties.mixin
- * @mixes subgrids.mixin
- * @mixes dataModel.mixin
- * @constructor
- * @desc A controller for the data model.
- * > This constructor (actually `initialize`) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
- * @param {Revgrid} grid
- * @param {object} [options] - _(Passed to {@link Behavior#reset reset})._
- * @param {DataServer} [options.dataModel] - _Per {@link BehaviorManager#reset reset}._
- * @param {object} [options.metadata] - _Per {@link BehaviorManager#reset reset}._
- * @param {function} [options.DataModel=require('datasaur-local')] - _Per {@link BehaviorManager#reset reset}._
- * @param {function|object[]} [options.data] - _Per {@link BehaviorManager#setData setData}._
- * @param {function|menuItem[]} [options.schema] - _Per {@link BehaviorManager#setData setData}._
- * @param {subgridSpec[]} [options.subgrids=this.grid.properties.subgrids] - _Per {@link BehaviorManager#setData setData}._
- * @param {boolean} [options.apply=true] - _Per {@link BehaviorManager#setData setData}._
- * @abstract
- */
 /** @internal */
-export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
     readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
     readonly eventBehavior: EventBehavior<BGS, BCS, SF>;
@@ -51,6 +33,8 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
     private readonly _serverNotificationBehavior: ServerNotificationBehavior<BGS, BCS, SF>;
 
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
         columnsManager: ColumnsManager<BCS, SF>,
@@ -65,6 +49,8 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         descendantEventer: EventBehavior.DescendantEventer<BCS, SF>,
     ) {
         this.eventBehavior = new EventBehavior(
+            this.revgridId,
+            this,
             gridSettings.eventDispatchEnabled,
             canvasManager,
             columnsManager,
@@ -80,11 +66,15 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         );
 
         this.reindexBehavior = new ReindexBehavior(
+            this.revgridId,
+            this,
             focus,
             selection
         );
 
         this._serverNotificationBehavior = new ServerNotificationBehavior(
+            this.revgridId,
+            this,
             columnsManager,
             subgridsManager,
             viewLayout,
@@ -95,6 +85,8 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         );
 
         this.focusScrollBehavior = new FocusScrollBehavior(
+            this.revgridId,
+            this,
             gridSettings,
             columnsManager,
             subgridsManager,
@@ -103,6 +95,8 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         );
 
         this.focusSelectBehavior = new FocusSelectBehavior(
+            this.revgridId,
+            this,
             gridSettings,
             selection,
             focus,
@@ -115,16 +109,22 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         );
 
         this.rowPropertiesBehavior = new RowPropertiesBehavior(
+            this.revgridId,
+            this,
             viewLayout,
         );
 
         this.cellPropertiesBehavior = new CellPropertiesBehavior(
+            this.revgridId,
+            this,
             columnsManager,
             subgridsManager,
             viewLayout,
         );
 
         this.dataExtractBehavior = new DataExtractBehavior(
+            this.revgridId,
+            this,
             selection,
             columnsManager
         );

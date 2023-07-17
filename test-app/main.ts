@@ -201,7 +201,7 @@ export class Main {
             ],
         };
 
-        this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings, this._getSettingsForNewColumnListener);
+        this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings, this._getSettingsForNewColumnListener, { externalParent: this });
 
         this._headerCellPainter = new StandardHeaderTextCellPainter(this._grid, this._headerDataServer);
         this._textCellPainter = new StandardAlphaTextCellPainter(this._grid, this._mainDataServer);

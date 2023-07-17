@@ -10,9 +10,10 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { SchemaServer } from '../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevgridObject } from '../types-utils/revgrid-object';
 import { ReindexBehavior } from './reindex-behavior';
 
-export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     private readonly _schemaServer: SchemaServer<SF>;
     private readonly _subgrids: SubgridImplementation<BCS, SF>[];
     private readonly _mainDataServer: DataServer<SF>;
@@ -33,6 +34,8 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,

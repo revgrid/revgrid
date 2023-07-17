@@ -1,5 +1,5 @@
+import { BehaviorManager } from './behavior/behavior-manager';
 import { CellPropertiesBehavior } from './behavior/cell-properties-behavior';
-import { BehaviorManager } from './behavior/component-behavior-manager';
 import { DataExtractBehavior } from './behavior/data-extract-behavior';
 import { EventBehavior } from './behavior/event-behavior';
 import { FocusScrollBehavior } from './behavior/focus-scroll-behavior';
@@ -16,6 +16,7 @@ import { Scroller } from './components/scroller/scroller';
 import { Selection } from './components/selection/selection';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
+import { IdRegistry } from './id-registry';
 import { CellMetaSettings } from './interfaces/data/cell-meta-settings';
 import { DataServer } from './interfaces/data/data-server';
 import { LinedHoverCell } from './interfaces/data/hover-cell';
@@ -33,12 +34,17 @@ import { CssClassName } from './types-utils/html-types';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { ApiError, AssertError } from './types-utils/revgrid-error';
+import { RevgridObject } from './types-utils/revgrid-object';
 import { ListChangedTypeId, SelectionAreaType } from './types-utils/types';
 import { UiController } from './ui/controller/ui-controller';
 import { UiManager } from './ui/ui-controller-manager';
 
 /** @public */
-export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    readonly id: string;
+    readonly revgridId: string;
+    readonly internalParent = undefined;
+    readonly externalParent: unknown | undefined;
     readonly hostElement: HTMLElement;
 
     readonly mouse: Mouse<BGS, BCS, SF>;
@@ -108,10 +114,15 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         getSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>,
         options?: Revgrid.Options<BGS, BCS, SF>
     ) {
-        options = options ?? {};
-
         //Set up the host for a grid instance
         this.hostElement = this.prepareHost(hostElement);
+
+        options = options ?? {};
+
+        const id = Revgrid.idRegistry.createOrRegisterId(options.id ?? this.hostElement.id);
+        this.id = id;
+        this.revgridId = this.id;
+        this.externalParent = options.externalParent;
 
         let schemaServer = definition.schemaServer;
         if (typeof schemaServer === 'function') {
@@ -121,6 +132,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.schemaServer = schemaServer;
 
         this._componentsManager = new ComponentsManager(
+            this.revgridId,
+            this,
             settings,
             this.hostElement,
             schemaServer,
@@ -146,6 +159,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         const descendantEventer = this.createDescendantEventer();
 
         this._behaviorManager = new BehaviorManager(
+            this.revgridId,
+            this,
             this.settings,
             this.canvasManager,
             this.columnsManager,
@@ -167,6 +182,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._dataExtractBehavior = this._behaviorManager.dataExtractBehavior;
 
         this._uiManager = new UiManager(
+            this.revgridId,
+            this,
             this.hostElement,
             this.settings,
             this.canvasManager,
@@ -228,6 +245,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             hostElement.removeChild(firstChild);
             firstChild = hostElement.firstChild;
         }
+
+        Revgrid.idRegistry.deregisterId(this.id);
 
         this._destroyed = true;
     }
@@ -1972,10 +1991,16 @@ export namespace Revgrid {
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
 
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+        /** Used to distinguish between Revgrid instances in an application.  If undefined, will use host element id or create an internal id */
+        id?: string;
+        /** Optional link to Revgrid instance's parent Javascript object. Is used to set externalParent which is not used within Revgrid however may be helpful with debugging */
+        externalParent?: unknown;
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
 	}
+
+    export const idRegistry = new IdRegistry();
 }
 
 // Begin Selection functions

@@ -39,6 +39,7 @@ export class SimpleGrid extends Revgrid<
 
     constructor(
         gridElement: HTMLElement,
+        externalParent: unknown,
     ) {
         const gridSettings: StandardBehavioredGridSettings = {
             ...readonlyDefaultStandardBehavioredGridSettings,
@@ -75,7 +76,7 @@ export class SimpleGrid extends Revgrid<
             ],
         };
 
-        super(gridElement, definition, gridSettings, () => readonlyDefaultStandardBehavioredColumnSettings);
+        super(gridElement, definition, gridSettings, () => readonlyDefaultStandardBehavioredColumnSettings, { externalParent });
 
         this._serverSet = serverSet;
 

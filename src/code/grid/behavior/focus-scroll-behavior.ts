@@ -11,11 +11,14 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../interfaces/settings/grid-settings';
+import { RevgridObject } from '../types-utils/revgrid-object';
 
-export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     private readonly _mainSubgrid: MainSubgrid<BCS, SF>;
 
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         private readonly _gridSettings: GridSettings,
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,

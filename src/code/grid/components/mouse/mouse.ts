@@ -3,11 +3,12 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../../types-utils/point';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     /** @internal */
     cellEnteredEventer: Mouse.CellEnteredExitedEventer<BCS, SF>;
     /** @internal */
@@ -31,6 +32,8 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
         /** @internal */

@@ -7,8 +7,7 @@
   },
 
   "include": [
-    "grid-public-api.ts",
-    "revgrid.ts",
+    "*.ts",
   ],
 
   "references": [

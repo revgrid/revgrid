@@ -362,10 +362,12 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaF
 // @public (undocumented)
 export type ColumnSettings = OnlyColumnSettings;
 
+// Warning: (ae-forgotten-export) The symbol "RevgridObject" needs to be exported by the entry point public-api.d.ts
+//
 // @public (undocumented)
-export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // @internal
-    constructor(schemaServer: SchemaServer<SF>, gridSettings: GridSettings, getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>);
+    constructor(revgridId: string, internalParent: RevgridObject, schemaServer: SchemaServer<SF>, gridSettings: GridSettings, getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>);
     // (undocumented)
     get activeColumnCount(): number;
     // @internal (undocumented)
@@ -428,6 +430,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     hideActiveColumn(activeColumnIndex: number, ui: boolean): void;
     // (undocumented)
     hideColumns(indexesAreActive: boolean, columnIndexOrIndices: number | number[] | undefined, ui: boolean): void;
+    // (undocumented)
+    readonly internalParent: RevgridObject;
     // @internal (undocumented)
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     // (undocumented)
@@ -454,6 +458,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     newColumn(field: SF): Column<BCS, SF>;
     // @internal (undocumented)
     removeBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener): void;
+    // (undocumented)
+    readonly revgridId: string;
     // @internal (undocumented)
     schemaColumnsChanged(): void;
     // @internal (undocumented)
@@ -932,11 +938,11 @@ export namespace DispatchableEvent {
 }
 
 // @public (undocumented)
-export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // Warning: (ae-forgotten-export) The symbol "CanvasManager" needs to be exported by the entry point public-api.d.ts
     //
     // @internal
-    constructor(
+    constructor(revgridId: string, internalParent: RevgridObject,
     _gridSettings: GridSettings,
     _canvasManager: CanvasManager<BGS>,
     _mainSubgrid: MainSubgrid<BCS, SF>,
@@ -990,6 +996,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // (undocumented)
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF> | undefined;
     // (undocumented)
+    readonly internalParent: RevgridObject;
+    // (undocumented)
     isActiveColumnFocused(activeColumnIndex: number): boolean;
     // (undocumented)
     isCellFocused(cell: ViewCell<BCS, SF>): boolean;
@@ -1007,6 +1015,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     reset(): void;
     // @internal (undocumented)
     restoreStash(stash: Focus.Stash, allRowsKept: boolean): void;
+    // (undocumented)
+    readonly revgridId: string;
     // Warning: (ae-forgotten-export) The symbol "PartialPoint" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -1913,9 +1923,9 @@ export const enum ModifierKeyEnum {
 }
 
 // @public (undocumented)
-export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // @internal
-    constructor(
+    constructor(revgridId: string, internalParent: RevgridObject,
     _canvasManager: CanvasManager<BGS>,
     _viewLayout: ViewLayout<BGS, BCS, SF>);
     // (undocumented)
@@ -1926,8 +1936,12 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     cellExitedEventer: Mouse.CellEnteredExitedEventer<BCS, SF>;
     // (undocumented)
     get hoverCell(): ViewCell<BCS, SF> | undefined;
+    // (undocumented)
+    readonly internalParent: RevgridObject;
     // @internal (undocumented)
     reset(): void;
+    // (undocumented)
+    readonly revgridId: string;
     // @internal (undocumented)
     setActiveDragType(value: Mouse.DragTypeEnum | undefined): void;
     // @internal (undocumented)
@@ -2267,7 +2281,7 @@ export namespace Rectangle {
 }
 
 // @public (undocumented)
-export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     constructor(hostElement: string | HTMLElement | undefined, definition: Revgrid.Definition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: Revgrid.Options<BGS, BCS, SF>);
     // (undocumented)
     activate(): void;
@@ -2406,6 +2420,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get destroyed(): boolean;
     endSelectionChange(): void;
     // (undocumented)
+    readonly externalParent: unknown | undefined;
+    // (undocumented)
     get fieldColumns(): readonly Column<BCS, SF>[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     findLinedHoverCellAtCanvasOffset(offsetX: number, offsetY: number): LinedHoverCell<BCS, SF> | undefined;
@@ -2501,6 +2517,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly hostElement: HTMLElement;
     // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly internalParent: undefined;
+    // (undocumented)
     isColumnOrRowSelected(): boolean;
     // (undocumented)
     isColumnVisible(activeIndex: number): boolean;
@@ -2548,6 +2568,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
     reset(): void;
+    // (undocumented)
+    readonly revgridId: string;
     // (undocumented)
     readonly schemaServer: SchemaServer<SF>;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -2647,7 +2669,13 @@ export namespace Revgrid {
         canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         // (undocumented)
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
+        externalParent?: unknown;
+        id?: string;
     }
+    const // Warning: (ae-forgotten-export) The symbol "IdRegistry" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    idRegistry: IdRegistry;
 }
 
 // @public (undocumented)
@@ -3660,9 +3688,9 @@ export namespace Subgrid {
 }
 
 // @public (undocumented)
-export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // @internal
-    constructor(
+    constructor(revgridId: string, internalParent: RevgridObject,
     _gridSettings: GridSettings,
     _columnsManager: ColumnsManager<BCS, SF>, definitions: Subgrid.Definition<BCS, SF>[]);
     // (undocumented)
@@ -3702,7 +3730,11 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
     // (undocumented)
     readonly headerSubgrid: Subgrid<BCS, SF> | undefined;
     // (undocumented)
+    readonly internalParent: RevgridObject;
+    // (undocumented)
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
+    // (undocumented)
+    readonly revgridId: string;
     // Warning: (ae-forgotten-export) The symbol "SubgridImplementation" needs to be exported by the entry point public-api.d.ts
     //
     // @internal (undocumented)
@@ -3782,7 +3814,7 @@ export const enum TextTruncateType {
 export type UiableListChangedEventHandler = (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
 
 // @public
-export abstract class UiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export abstract class UiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // Warning: (ae-forgotten-export) The symbol "UiControllerServices" needs to be exported by the entry point public-api.d.ts
     constructor(services: UiControllerServices<BGS, BCS, SF>);
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -3865,6 +3897,8 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     // @internal (undocumented)
     initialise(): void;
     // (undocumented)
+    readonly internalParent: RevgridObject;
+    // (undocumented)
     protected readonly mainSubgrid: MainSubgrid<BCS, SF>;
     // (undocumented)
     protected readonly mouse: Mouse<BGS, BCS, SF>;
@@ -3877,6 +3911,8 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     //
     // (undocumented)
     protected readonly renderer: Renderer<BGS, BCS, SF>;
+    // (undocumented)
+    readonly revgridId: string;
     // Warning: (ae-forgotten-export) The symbol "RowPropertiesBehavior" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -3939,9 +3975,9 @@ export namespace ViewCell {
 }
 
 // @public (undocumented)
-export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // @internal
-    constructor(
+    constructor(revgridId: string, internalParent: RevgridObject,
     _gridSettings: BGS,
     _canvasManager: CanvasManager<BGS>,
     _columnsManager: ColumnsManager<BCS, SF>,
@@ -4072,6 +4108,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     //
     // (undocumented)
     get horizontalScrollDimension(): HorizontalScrollDimension<BGS, BCS, SF>;
+    // (undocumented)
+    readonly internalParent: RevgridObject;
     // @internal (undocumented)
     invalidate(action: ViewLayout.InvalidateAction): void;
     // @internal (undocumented)
@@ -4138,6 +4176,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     resetAllCellPaintFingerprints(): void;
     // (undocumented)
     resetAllCellPropertiesCaches(): void;
+    // (undocumented)
+    readonly revgridId: string;
     // (undocumented)
     get rowColumnCellPoolComputationInvalid(): boolean;
     // (undocumented)
@@ -4379,7 +4419,7 @@ export namespace WritablePoint {
 
 // Warnings were encountered during analysis:
 //
-// src/code/grid/components/selection/selection.ts:23:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+// src/code/grid/components/selection/selection.ts:24:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 

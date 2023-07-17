@@ -34,7 +34,7 @@ export class Main {
     }
 
     private createGrid(hostElement: HTMLElement) {
-        const grid = new SimpleGrid(hostElement);
+        const grid = new SimpleGrid(hostElement, this);
 
         grid.cellFocusEventer = (newPoint, oldPoint) => this.handleCellFocusEvent(newPoint, oldPoint)
         grid.clickEventer = (columnIndex, recordIndex) => this.handleCellClickEvent(columnIndex, recordIndex);

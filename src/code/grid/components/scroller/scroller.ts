@@ -1,6 +1,7 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CssClassName } from '../../types-utils/html-types';
 import { UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 import { numberToPixels } from '../../types-utils/utils';
 import { ScrollDimension } from '../view/scroll-dimension';
 
@@ -9,7 +10,7 @@ import { ScrollDimension } from '../view/scroll-dimension';
 // const BAR_STYLE = 'position: absolute;';
 
 /** @public */
-export class Scroller<BGS extends BehavioredGridSettings> {
+export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObject {
     readonly bar: HTMLDivElement;
     readonly barCssClass: string;
 
@@ -140,10 +141,11 @@ export class Scroller<BGS extends BehavioredGridSettings> {
      * @param options - Options object. See the type definition for member details.
      */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         private readonly _gridSettings: BGS,
         private readonly _hostElement: HTMLElement, // Revgrid host element
         private readonly _scrollDimension: ScrollDimension<BGS>,
-        instanceId: number,
         private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
         private readonly axis: ScrollDimension.Axis,
         private _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
@@ -156,7 +158,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
         const thumb = document.createElement('div');
         this._thumb = thumb;
-        thumb.id = `${CssClassName.gridHostElementCssIdBase}-${axis}-${Scroller.thumbElementIdBase}${instanceId.toString(10)}`;
+        thumb.id = `${revgridId}-${CssClassName.gridHostElementCssIdBase}-${axis}-${Scroller.thumbElementIdBase}`;
         thumb.style.position = 'absolute';
 
         thumb.classList.add(Scroller.thumbCssClass);
@@ -167,7 +169,7 @@ export class Scroller<BGS extends BehavioredGridSettings> {
 
         const bar = document.createElement('div');
         this.bar = bar;
-        bar.id = `${CssClassName.gridHostElementCssIdBase}-${axis}-${Scroller.barElementIdBase}${instanceId.toString(10)}`;
+        bar.id = `${revgridId}-${CssClassName.gridHostElementCssIdBase}-${axis}-${Scroller.barElementIdBase}`;
         bar.style.position = 'absolute';
         const leadingKey = this._axisProperties['leading'];
         bar.style.setProperty(leadingKey, '0');

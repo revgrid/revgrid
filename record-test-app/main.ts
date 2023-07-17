@@ -120,6 +120,7 @@ export class Main {
         };
 
         const options: Revgrid.Options<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField> = {
+            externalParent: this,
             canvasRenderingContext2DSettings: {
                 alpha: false,
             }

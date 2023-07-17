@@ -7,11 +7,14 @@ import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-colu
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../interfaces/settings/grid-settings';
 import { AssertError } from '../types-utils/revgrid-error';
+import { RevgridObject } from '../types-utils/revgrid-object';
 import { StartLength } from '../types-utils/start-length';
 import { SelectionAreaType } from '../types-utils/types';
 
-export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         private readonly _gridSettings: GridSettings,
         private readonly _selection: Selection<BCS, SF>,
         private readonly _focus: Focus<BGS, BCS, SF>,

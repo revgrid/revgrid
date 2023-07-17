@@ -15,10 +15,11 @@ import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-colu
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../types-utils/point';
 import { AssertError } from '../types-utils/revgrid-error';
+import { RevgridObject } from '../types-utils/revgrid-object';
 import { ListChangedTypeId } from '../types-utils/types';
 
 /** @public */
-export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     /** @internal */
     uiKeyDownEventer: EventBehavior.UiKeyDownEventer;
     /** @internal */
@@ -67,6 +68,8 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
 
     /** @internal */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         dispatchEnabled: boolean,
         /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,

@@ -7,6 +7,7 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils/types';
 import { calculateNumberArrayUniqueCount } from '../../types-utils/utils';
 import { ColumnsManager } from '../column/columns-manager';
@@ -23,7 +24,7 @@ import { SelectionRectangleList } from './selection-rectangle-list';
  * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
  */
 
-export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     changedEventerForRenderer: Selection.ChangedEventer;
     changedEventerForEventBehavior: Selection.ChangedEventer;
 
@@ -42,6 +43,8 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     private _snapshot: Selection<BCS, SF> | undefined;
 
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         private readonly _gridSettings: GridSettings,
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
@@ -125,6 +128,8 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
 
     saveSnapshot() {
         this._snapshot = new Selection(
+            this.revgridId,
+            this.internalParent,
             this._gridSettings,
             this._columnsManager,
         );

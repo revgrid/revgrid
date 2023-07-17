@@ -17,9 +17,10 @@ import { CssClassName } from '../../types-utils/html-types';
 import { Point } from '../../types-utils/point';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 
 /** @public */
-export class CanvasManager<BGS extends BehavioredGridSettings> {
+export class CanvasManager<BGS extends BehavioredGridSettings> implements RevgridObject {
     resizedEventerForViewLayout: CanvasManager.ResizedEventer;
     resizedEventerForEventBehavior: CanvasManager.ResizedEventer;
 
@@ -62,7 +63,6 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     // private _repeatKey: string | undefined;
     // private _repeatKeyStartTime = 0;
 
-    readonly instanceId = getNextInstanceId();
     readonly canvasElement: HTMLCanvasElement;
     /** @internal */
     readonly gc: CachedCanvasRenderingContext2D;
@@ -80,6 +80,8 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         width: 0,
         height: 0,
     } as const;
+    /** @internal */
+    private _hasBounds = false;
     /** @internal */
     private _devicePixelRatio = 1;
     /** @internal */
@@ -209,13 +211,15 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     }
 
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         readonly hostElement: HTMLElement,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         private readonly _gridSettings: BGS,
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');
-        this.canvasElement.id = `${CssClassName.gridHostElementCssIdBase}-${CanvasManager.canvasElementIdBase}${this.instanceId.toString(10)}`;
+        this.canvasElement.id = `${revgridId}-${CssClassName.gridHostElementCssIdBase}-${CanvasManager.canvasElementIdBase}`;
         this.canvasElement.draggable = true;
         this.canvasElement.tabIndex = 0;
         this.canvasElement.style.outline = 'none';
@@ -339,6 +343,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         });
     }
 
+    get hasBounds() { return this._hasBounds; }
     get flooredBounds() { return this._flooredBounds; }
     get flooredWidth() { return this._flooredWidth; }
     get flooredHeight() { return this._flooredHeight; }
@@ -419,6 +424,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
             width: flooredWidth,
             height: flooredHeight
         } as const;
+        this._hasBounds = flooredWidth > 0 && flooredHeight > 0;
 
         if (this._started) {
             this.checkFireResizedEvents(debounceEvent);
@@ -875,10 +881,4 @@ export namespace CanvasManager {
 
     export const canvasElementIdBase = 'canvas';
     export const canvasCssClass = 'canvas';
-}
-
-let instanceId = 0;
-
-function getNextInstanceId() {
-    return ++instanceId;
 }

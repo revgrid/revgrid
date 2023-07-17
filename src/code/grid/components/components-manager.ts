@@ -4,6 +4,7 @@ import { SchemaServer } from '../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../types-utils/revgrid-error';
+import { RevgridObject } from '../types-utils/revgrid-object';
 import { CanvasManager } from './canvas/canvas-manager';
 import { ColumnsManager } from './column/columns-manager';
 import { Focus } from './focus/focus';
@@ -15,7 +16,7 @@ import { SubgridsManager } from './subgrid/subgrids-manager';
 import { ViewLayout } from './view/view-layout';
 
 /** @internal */
-export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     readonly canvasManager: CanvasManager<BGS>;
     readonly focus: Focus<BGS, BCS, SF>;
     readonly selection: Selection<BCS, SF>;
@@ -29,6 +30,8 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
     readonly verticalScroller: Scroller<BGS>;
 
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         gridSettings: BGS,
         hostElement: HTMLElement,
         schemaServer: SchemaServer<SF>,
@@ -43,12 +46,16 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         // }
 
         this.canvasManager = new CanvasManager(
+            this.revgridId,
+            this,
             hostElement,
             canvasRenderingContext2DSettings,
             gridSettings,
         );
 
         this.columnsManager = new ColumnsManager<BCS, SF>(
+            this.revgridId,
+            this,
             schemaServer,
             gridSettings,
             getSettingsForNewColumnEventer,
@@ -58,12 +65,16 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             throw new AssertError('CBM43330', 'Adapter set missing Subgrid specs');
         } else {
             this.subgridsManager = new SubgridsManager(
+                this.revgridId,
+                this,
                 gridSettings,
                 this.columnsManager,
                 subgridDefinitions,
             );
 
             this.viewLayout = new ViewLayout(
+                this.revgridId,
+                this,
                 gridSettings,
                 this.canvasManager,
                 this.columnsManager,
@@ -71,6 +82,8 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.focus = new Focus(
+                this.revgridId,
+                this,
                 gridSettings,
                 this.canvasManager,
                 this.subgridsManager.mainSubgrid,
@@ -79,16 +92,22 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.selection = new Selection(
+                this.revgridId,
+                this,
                 gridSettings,
                 this.columnsManager,
             );
 
             this.mouse = new Mouse(
+                this.revgridId,
+                this,
                 this.canvasManager,
                 this.viewLayout,
             );
 
             this.renderer = new Renderer(
+                this.revgridId,
+                this,
                 gridSettings,
                 this.canvasManager,
                 this.columnsManager,
@@ -100,10 +119,11 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.verticalScroller = new Scroller(
+                this.revgridId,
+                this,
                 gridSettings,
                 hostElement,
                 this.viewLayout.verticalScrollDimension,
-                this.canvasManager.instanceId,
                 false,
                 'vertical',
                 true,
@@ -114,10 +134,11 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.horizontalScroller = new Scroller(
+                this.revgridId,
+                this,
                 gridSettings,
                 hostElement,
                 this.viewLayout.horizontalScrollDimension,
-                this.canvasManager.instanceId,
                 false,
                 'horizontal',
                 true,

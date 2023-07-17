@@ -20,5 +20,6 @@
     { "path": "./subgrid/tsconfig.grid-components-subgrid.json" },
     { "path": "./column/tsconfig.grid-components-column.json" },
     { "path": "./canvas/tsconfig.grid-components-canvas.json" },
+    { "path": "../types-utils/tsconfig.grid-types-utils.json" },
   ]
 }

@@ -19,6 +19,7 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { AssertError } from '../types-utils/revgrid-error';
+import { RevgridObject } from '../types-utils/revgrid-object';
 import { CellClickUiController } from './controller/cell-click-ui-controller';
 import { ClipboardUiController } from './controller/clipboard-ui-controller';
 import { ColumnMovingUiController } from './controller/column-moving-ui-controller';
@@ -35,17 +36,26 @@ import { TouchScrollingUiController } from './controller/touch-scrolling-ui-cont
 import { UiController } from './controller/ui-controller';
 import { UiControllerFactory } from './ui-controller-factory';
 
-/** @internal */
-export class UiManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+/** @public */
+export class UiManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    /** @internal */
     private readonly _uiControllerFactory = new UiControllerFactory<BGS, BCS, SF>();
+    /** @internal */
     private readonly _uiControllerMap = new Map<string, UiController<BGS, BCS, SF>>();
+    /** @internal */
     private readonly _sharedState: UiControllerSharedState; // Will be initialised in constructor
+    /** @internal */
     private readonly _services: UiControllerServices<BGS, BCS, SF>;
 
+    /** @internal */
     private _firstUiController: UiController<BGS, BCS, SF>;
+    /** @internal */
     private _enabled = false;
 
+    /** @internal */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         hostElement: HTMLElement,
         private readonly _gridSettings: BGS,
         canvasManager: CanvasManager<BGS>,
@@ -73,6 +83,8 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         };
 
         this._services = new UiControllerServices(
+            this.revgridId,
+            this.internalParent,
             this._sharedState,
             hostElement,
             this._gridSettings,
@@ -229,6 +241,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
+    /** @internal */
     private handlePointerDragStartEvent(event: DragEvent): EventBehavior.UiPointerDragStartResult<BCS, SF> {
         if (this._enabled) {
             return this._firstUiController.handlePointerDragStart(event, null);
@@ -240,6 +253,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
+    /** @internal */
     private handlePointerDragEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handlePointerDrag(event, null);
@@ -249,6 +263,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
+    /** @internal */
     private handlePointerDragEndEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handlePointerDragEnd(event, null);
@@ -354,18 +369,21 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
 
+    /** @internal */
     private handleHorizontalScrollerActionEvent(eventDetail: Scroller.Action) {
         if (this._enabled) {
             this._firstUiController.handleHorizontalScrollerAction(eventDetail);
         }
     }
 
+    /** @internal */
     private handleVerticalScrollerActionEvent(eventDetail: Scroller.Action) {
         if (this._enabled) {
             this._firstUiController.handleVerticalScrollerAction(eventDetail);
         }
     }
 
+    /** @internal */
     private createAndLinkUiControllers(customUiControllerDefinitions: UiController.Definition<BGS, BCS, SF>[] | undefined) {
         /**
          * @summary Controller chain of command.

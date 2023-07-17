@@ -9,12 +9,13 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
 import { AssertError } from '../../types-utils/revgrid-error';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF> | undefined;
     editorKeyDownEventer: Focus.EditorKeyDownEventer;
 
@@ -46,6 +47,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         /** @internal */
         private readonly _gridSettings: GridSettings,
         /** @internal */
