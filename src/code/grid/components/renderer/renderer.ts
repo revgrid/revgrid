@@ -6,6 +6,7 @@ import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '.
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
 import { Mouse } from '../mouse/mouse';
@@ -20,7 +21,7 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 /** @public */
-export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     /** @internal */
     renderedEventer: Renderer.RenderedEventer;
 
@@ -56,6 +57,8 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
@@ -211,32 +214,40 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateViewRender() {
-        this._renderActionQueue.invalidateViewRender();
+        if (this._canvasManager.hasBounds) {
+            this._renderActionQueue.invalidateViewRender();
+        }
     }
 
     /** @internal */
     invalidateViewCellRender(cell: ViewCell<BCS, SF>) {
-        this._renderActionQueue.invalidateViewCellRender(cell);
+        if (this._canvasManager.hasBounds) {
+            this._renderActionQueue.invalidateViewCellRender(cell);
+        }
     }
 
     /** @internal */
     invalidateAllData() {
-        this._renderActionQueue.invalidateAllData();
+        if (this._canvasManager.hasBounds) {
+            this._renderActionQueue.invalidateAllData();
+        }
     }
 
     /** @internal */
     invalidateDataRows(rowIndex: number, count: number) {
-        const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-        if (firstScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('RIDRSF33321');
-        } else {
-            if ((rowIndex + count) > firstScrollableSubgridRowIndex) {
-                const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('RIDRSL33321');
-                } else {
-                    if (rowIndex <= lastScrollableSubgridRowIndex) {
-                        this._renderActionQueue.invalidateDataRows(rowIndex, count);
+        if (this._canvasManager.hasBounds) {
+            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
+            if (firstScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('RIDRSF33321');
+            } else {
+                if ((rowIndex + count) > firstScrollableSubgridRowIndex) {
+                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
+                    if (lastScrollableSubgridRowIndex === undefined) {
+                        throw new AssertError('RIDRSL33321');
+                    } else {
+                        if (rowIndex <= lastScrollableSubgridRowIndex) {
+                            this._renderActionQueue.invalidateDataRows(rowIndex, count);
+                        }
                     }
                 }
             }
@@ -245,17 +256,19 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateDataRow(rowIndex: number) {
-        const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-        if (firstScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('RIDRF33321');
-        } else {
-            if (rowIndex >= firstScrollableSubgridRowIndex) {
-                const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('RIDRL33321');
-                } else {
-                    if (rowIndex <= lastScrollableSubgridRowIndex) {
-                        this._renderActionQueue.invalidateDataRow(rowIndex);
+        if (this._canvasManager.hasBounds) {
+            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
+            if (firstScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('RIDRF33321');
+            } else {
+                if (rowIndex >= firstScrollableSubgridRowIndex) {
+                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
+                    if (lastScrollableSubgridRowIndex === undefined) {
+                        throw new AssertError('RIDRL33321');
+                    } else {
+                        if (rowIndex <= lastScrollableSubgridRowIndex) {
+                            this._renderActionQueue.invalidateDataRow(rowIndex);
+                        }
                     }
                 }
             }
@@ -264,17 +277,19 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateDataRowCells(rowIndex: number, allColumnIndexes: number[]) {
-        const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-        if (firstScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('RIDRCSF33321');
-        } else {
-            if (rowIndex >= firstScrollableSubgridRowIndex) {
-                const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('RIDRCSL33321');
-                } else {
-                    if (rowIndex <= lastScrollableSubgridRowIndex) {
-                        this._renderActionQueue.invalidateDataRowCells(rowIndex, allColumnIndexes);
+        if (this._canvasManager.hasBounds) {
+            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
+            if (firstScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('RIDRCSF33321');
+            } else {
+                if (rowIndex >= firstScrollableSubgridRowIndex) {
+                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
+                    if (lastScrollableSubgridRowIndex === undefined) {
+                        throw new AssertError('RIDRCSL33321');
+                    } else {
+                        if (rowIndex <= lastScrollableSubgridRowIndex) {
+                            this._renderActionQueue.invalidateDataRowCells(rowIndex, allColumnIndexes);
+                        }
                     }
                 }
             }
@@ -283,18 +298,20 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateDataCell(allColumnIndex: number, rowIndex: number) {
-        const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-        if (firstScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('RIDRCFR33321');
-        } else {
-            if (rowIndex >= firstScrollableSubgridRowIndex) {
-                const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('RIDRCLR33321');
-                } else {
-                    if (rowIndex <= lastScrollableSubgridRowIndex) {
-                        // add support for (active) columns
-                        this._renderActionQueue.invalidateDataCell(allColumnIndex, rowIndex);
+        if (this._canvasManager.hasBounds) {
+            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
+            if (firstScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('RIDRCFR33321');
+            } else {
+                if (rowIndex >= firstScrollableSubgridRowIndex) {
+                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
+                    if (lastScrollableSubgridRowIndex === undefined) {
+                        throw new AssertError('RIDRCLR33321');
+                    } else {
+                        if (rowIndex <= lastScrollableSubgridRowIndex) {
+                            // add support for (active) columns
+                            this._renderActionQueue.invalidateDataCell(allColumnIndex, rowIndex);
+                        }
                     }
                 }
             }
@@ -305,7 +322,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private handlePageVisibilityChange() {
         const documentHidden = document.hidden;
         this._documentHidden = documentHidden;
-        if (!documentHidden && this._renderActionQueue.actionsQueued) {
+        if (!documentHidden && this._renderActionQueue.actionsQueued && this._canvasManager.hasBounds) {
             this.flagAnimateRequired();
         }
     }
@@ -339,8 +356,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         if (this._documentHidden) {
             return false;
         } else {
-            const flooredBounds = this._canvasManager.flooredBounds;
-            if (flooredBounds.width === 0 || flooredBounds.height === 0) {
+            if (!this._canvasManager.hasBounds) {
                 return false;
             } else {
                 const renderActions = this._renderActionQueue.takeActions();

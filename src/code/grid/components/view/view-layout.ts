@@ -12,6 +12,7 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 import { ColumnsManager } from '../column/columns-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { HorizontalScrollDimension } from './horizontal-scroll-dimension';
@@ -21,7 +22,7 @@ import { ViewCellImplementation } from './view-cell-implementation';
 
 
 /** @public */
-export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     /** @internal */
     layoutInvalidatedEventer: ViewLayout.LayoutInvalidatedEventer;
     /** @internal */
@@ -138,6 +139,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     /** @internal */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
@@ -527,9 +530,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     invalidateActiveColumnsDeleted(index: number, count: number) {
         const horizontalScrollDimension = this.horizontalScrollDimension;
-        if (this._canvasManager.flooredWidth === 0) {
-            horizontalScrollDimension.invalidate();
-        } else {
+        if (this._canvasManager.flooredWidth > 0) {
             let affected = !horizontalScrollDimension.overflowed;
             if (!affected) {
                 const viewLayoutColumns = this.columns;
@@ -587,9 +588,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     invalidateDataRowsInserted(index: number, count: number) {
         const verticalScrollDimension = this.verticalScrollDimension;
-        if (this._canvasManager.flooredHeight === 0) {
-            verticalScrollDimension.invalidate();
-        } else {
+        if (this._canvasManager.flooredHeight > 0) {
             let lastScrollableSubgridRowIndex: number | undefined;
             const affected =
                 !verticalScrollDimension.overflowed || // this is not correct as scrollbar thumb is affected
@@ -621,9 +620,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     invalidateDataRowsDeleted(index: number, count: number) {
         const verticalScrollDimension = this.verticalScrollDimension;
-        if (this._canvasManager.flooredHeight === 0) {
-            verticalScrollDimension.invalidate();
-        } else {
+        if (this._canvasManager.flooredHeight > 0) {
             let affected = !verticalScrollDimension.overflowed;
             if (!affected) {
                 const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
@@ -679,9 +676,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     invalidateDataRowsMoved(oldRowIndex: number, newRowIndex: number, rowCount: number) {
         const verticalScrollDimension = this.verticalScrollDimension;
-        if (this._canvasManager.flooredHeight === 0) {
-            verticalScrollDimension.invalidate();
-        } else {
+        if (this._canvasManager.flooredHeight > 0) {
             let affected = !verticalScrollDimension.overflowed;
             if (!affected) {
                 const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
