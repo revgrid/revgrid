@@ -83,7 +83,7 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     scrollerThumbColor: '#d3d3d3',
     scrollerThumbReducedVisibilityOpacity: 0.4,
     showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum.Control,
-    scrollHorizontallySmoothly: false,
+    scrollHorizontallySmoothly: true,
     scrollingEnabled: true,
     horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed.CtrlKeyDown,
     verticalScrollbarClassPrefix: '',
@@ -146,7 +146,7 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
      */
     maximumColumnWidth: undefined,
 
-    visibleColumnWidthAdjust: false,
+    visibleColumnWidthAdjust: true,
 
     /**
      * Resizing a column through the UI (by clicking and dragging on the column's
