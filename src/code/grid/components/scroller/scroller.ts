@@ -70,6 +70,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private _thumbScaling: number;
     private _pinOffset: number;
 
+    private _pointerOverBar = false;
     private _pointerOverThumb = false;
     private _temporaryThumbFullVisibilityTimePeriod: number | undefined; // milliseconds
     private _temporaryThumbFullVisibilityTimeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -92,21 +93,13 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private readonly _thumbPointerEnterListener = () => this.handleThumbPointerEnterEvent();
     private readonly _thumbPointerLeaveListener = () => this.handleThumbPointerLeaveEvent();
     private readonly _thumbTransitionEndListener = () => this.handleThumbTransitionEndEvent();
+    private readonly _barPointerEnterListener = () => this.handleBarPointerEnterEvent();
+    private readonly _barPointerLeaveListener = () => this.handleBarPointerLeaveEvent();
     private readonly _barPointerDownListener = (event: PointerEvent) => this.handleBarPointerDownEvent(event);
     private _barPointerMoveListener: Scroller.PointerEventListener | undefined;
     private _barPointerUpListener: Scroller.PointerEventListener | undefined;
     private _barPointerCancelListener: Scroller.PointerEventListener | undefined;
-
-    /**
-     * @name increment
-     * @summary Number of scrollbar index units representing a pageful. Used exclusively for paging up and down and for setting thumb size relative to content size.
-     * @desc Set by the constructor. See the similarly named property in the {@link finbarOptions} object.
-     *
-     * Can also be given as a parameter to the {@link Scroller#resize|resize} method, which is pertinent because content area size changes affect the definition of a "pageful." However, you only need to do this if this value is being used. It not used when:
-     * * you define `paging.up` and `paging.down`
-     * * your scrollbar is using `scrollRealContent`
-     */
-    private increment: number;
+    private _barPointerCaptured = false;
 
     /**
      * Default value of multiplier for `WheelEvent#deltaX` (horizontal scrolling delta).
@@ -180,6 +173,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         bar.style.setProperty(leadingKey, '0');
         const trailingKey = this._axisProperties['trailing'];
         bar.style.setProperty(trailingKey, '0');
+        bar.addEventListener('pointerenter', this._barPointerEnterListener);
+        bar.addEventListener('pointerleave', this._barPointerLeaveListener);
         bar.addEventListener('pointerdown', this._barPointerDownListener);
         bar.addEventListener('click', this._barClickListener);
         bar.appendChild(thumb);
@@ -194,7 +189,6 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this.barCssClass = `${axis}-${Scroller.barCssClassBase}`;
         bar.classList.add(this.barCssClass);
         this._deltaProp = this._axisProperties.delta;
-        this.increment = 1;
         this._deltaProp = (this.axis === 'vertical' ? Scroller.DeltaPropEnum.deltaY : Scroller.DeltaPropEnum.deltaX);
         this.deltaXFactor = deltaXFactor;
         this.deltaYFactor = deltaYFactor;
@@ -224,6 +218,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this._hostElement.removeEventListener('wheel', this._hostWheelListener);
 
         this._gridSettings.unsubscribeChangedEvent(this._settingsChangedListener);
+        this.bar.removeEventListener('pointerenter', this._barPointerEnterListener);
+        this.bar.removeEventListener('pointerleave', this._barPointerLeaveListener);
         this.bar.removeEventListener('click', this._barClickListener);
         this.bar.removeEventListener('pointerdown', this._barPointerDownListener);
         this._thumb.removeEventListener('click', this._thumbClickListener);
@@ -238,118 +234,6 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     get trailing() { return this._trailing; }
 
-    /**
-     * @summary The scrollbar orientation.
-     * @desc Set by the constructor to either `'vertical'` or `'horizontal'`. See the similarly named property in the {@link finbarOptions} object.
-     *
-     * Useful values are `'vertical'` (the default) or `'horizontal'`.
-     *
-     * Setting this property resets `this.oh` and `this.deltaProp` and changes the class names so as to reposition the scrollbar as per the CSS rules for the new orientation.
-     */
-    // set orientation(orientation: Scroller.Orientation) {
-    //     if (orientation === this._orientation) {
-    //         return;
-    //     }
-
-    //     this._orientation = orientation;
-
-    //     this._orientationHash = orientationHashes[this._orientation];
-
-    //     if (!this._orientationHash) {
-    //         error('Invalid value for `options._orientation.');
-    //     }
-
-    //     this._deltaProp = this._orientationHash.delta;
-
-    //     this.bar.className = this.bar.className.replace(/(vertical|horizontal)/g, orientation);
-
-    //     if (this.bar.style.cssText !== BAR_STYLE || this._thumb.style.cssText !== THUMB_STYLE) {
-    //         this.bar.setAttribute('style', BAR_STYLE);
-    //         this._thumb.setAttribute('style', THUMB_STYLE);
-    //         this.resize();
-    //     }
-    // }
-
-    // get orientation() {
-    //     return this._orientation;
-    // }
-
-    /**
-     * @name style
-     * @summary Additional scrollbar styles.
-     * @desc See type definition for more details. These styles are applied directly to the scrollbar's `bar` element.
-     *
-     * Values are adjusted as follows before being applied to the element:
-     * 1. Included "pseudo-property" names from the scrollbar's orientation hash, {@link Scroller#_axisProperties|oh}, are translated to actual property names before being applied.
-     * 2. When there are margins, percentages are translated to absolute pixel values because CSS ignores margins in its percentage calculations.
-     * 3. If you give a value without a unit (a raw number), "px" unit is appended.
-     *
-     * General notes:
-     * 1. It is always preferable to specify styles via a stylesheet. Only set this property when you need to specifically override (a) stylesheet value(s).
-     * 2. Can be set directly or via calls to the {@link Scroller#resize|resize} method.
-     * 3. Should only be set after the scrollbar has been inserted into the DOM.
-     * 4. Before applying these new values to the element, _all_ in-line style values are reset (by removing the element's `style` attribute), exposing inherited values (from stylesheets).
-     * 5. Empty object has no effect.
-     * 6. Falsey value in place of object has no effect.
-     *
-     * > CAVEAT: Do not attempt to treat the object you assign to this property as if it were `this.bar.style`. Specifically, changing this object after assigning it will have no effect on the scrollbar. You must assign it again if you want it to have an effect.
-     *
-     * @see {@link Scroller#barStyles|barStyles}
-     */
-    // set style(styles: Scroller.BarStyles) {
-    //     styles = extend({}, styles, this._spaceAccomodatedScrollerVisibilityStyles)
-    //     const keys = Object.keys(styles);
-
-    //     if (keys.length) {
-    //         const bar = this.bar;
-    //         const barRect = bar.getBoundingClientRect();
-    //         const container = /*this.container ||*/ bar.parentElement;
-    //         if (container === null) {
-    //             throw new AssertError('F23334');
-    //         } else {
-    //             const containerRect = container.getBoundingClientRect();
-    //             const oh = this._orientationHash;
-
-    //             // Before applying new styles, revert all styles to values inherited from stylesheets
-    //             bar.setAttribute('style', BAR_STYLE);
-
-    //             keys.forEach((key) => {
-    //                 let val = styles[key];
-
-    //                 if (key in oh) {
-    //                     key = oh[key as keyof OrientationHash];
-    //                 }
-
-    //                 if (!isNaN(Number(val))) {
-    //                     val = (val || 0) + 'px';
-    //                 } else if (/%$/.test(val)) {
-    //                     // When bar size given as percentage of container, if bar has margins, restate size in pixels less margins.
-    //                     // (If left as percentage, CSS's calculation will not exclude margins.)
-    //                     const oriented = axis[key as keyof typeof axis];
-    //                     const margins = barRect[(oriented.marginLeading)] + barRect[(oriented.marginTrailing)];
-    //                     if (margins) {
-    //                         val = parseInt(val, 10) / 100 * containerRect[oriented.size] - margins + 'px';
-    //                     }
-    //                 }
-
-    //                 bar.style.setProperty(key, val);
-    //             });
-    //         }
-    //     }
-    // }
-
-    /**
-     * @summary Index value of the scrollbar.
-     * @desc This is the position of the scroll thumb.
-     *
-     * Setting this value clamps it to {@link Scroller#min|min}..{@link Scroller#max|max}, scroll the content, and moves thumb.
-     *
-     * Getting this value returns the current index. The returned value will be in the range `min`..`max`. It is intentionally not rounded.
-     *
-     * Use this value as an alternative to (or in addition to) using the {@link Scroller#onchange|onchange} callback function.
-     *
-     * @see {@link Scroller#setThumbPosition|_setScroll}
-     */
     set index(idx: number | undefined) {
         if (idx !== undefined) {
             idx = Math.min(this._scrollDimension.finish, Math.max(this._scrollDimension.start, idx)); // clamp it
@@ -410,32 +294,6 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this._thumb.style.backgroundColor = this._gridSettings.scrollerThumbColor;
         this._thumb.style.opacity = this._gridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
     }
-
-
-    // scrollBy(delta: number) {
-    //     const viewportStart = this._scrollDimension.viewportStart;
-    //     if (viewportStart !== undefined) {
-    //         // make sure does not go beyond end edge
-    //         let newViewportStart = viewportStart + delta;
-    //         if (newViewportStart < this._scrollDimension.start) {
-    //             newViewportStart = this._scrollDimension.start;
-    //         } else {
-    //             const viewportNext = newViewportStart + this._scrollDimension.viewportSize;
-    //             if (viewportNext > this._scrollDimension.after) {
-    //                 newViewportStart = this._scrollDimension.after - this._scrollDimension.viewportSize;
-    //             }
-    //         }
-    //         this.setThumbPosition(newViewportStart);
-    //     }
-    // }
-
-    // scrollIndexBy(delta: number) {
-    //     const viewportStart = this._scrollDimension.viewportStart;
-    //     if (viewportStart !== undefined) {
-    //         // same as scroll(). Separate call for VScroller. Remove when VScroller uses Viewport
-    //         this.index = viewportStart + delta;
-    //     }
-    // }
 
     /**
      * @summary Move the thumb.
@@ -521,38 +379,39 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         if (this._pointerScrollingState === Scroller.PointerScrollingState.ClickWaiting) {
             this.updatePointerScrolling(Scroller.PointerScrollingState.Inactive, undefined);
         } else {
-            const index = this.index;
-            if (index !== undefined) {
-                const thumbBox = this._thumb.getBoundingClientRect();
-                const goingUp = evt[this._axisProperties.client] < thumbBox[this._axisProperties.leading];
+            if (evt.target === this.bar) {
+                const index = this.index;
+                if (index !== undefined) {
+                    const thumbBox = this._thumb.getBoundingClientRect();
+                    const goingUp = evt[this._axisProperties.client] < thumbBox[this._axisProperties.leading];
 
+                    let actionType: Scroller.Action.TypeEnum;
+                    if (goingUp) {
+                        if (evt.altKey) {
+                            actionType = Scroller.Action.TypeEnum.StepBack;
+                        } else {
+                            actionType = Scroller.Action.TypeEnum.PageBack;
+                        }
+                    } else {
+                        if (evt.altKey) {
+                            actionType = Scroller.Action.TypeEnum.StepForward;
+                        } else {
+                            actionType = Scroller.Action.TypeEnum.PageForward;
+                        }
+                    }
+                    const action: Scroller.Action = {
+                        type: actionType,
+                        viewportStart: undefined,
+                    };
 
-                let actionType: Scroller.Action.TypeEnum;
-                if (goingUp) {
-                    if (evt.altKey) {
-                        actionType = Scroller.Action.TypeEnum.StepBack;
-                    } else {
-                        actionType = Scroller.Action.TypeEnum.PageBack;
-                    }
-                } else {
-                    if (evt.altKey) {
-                        actionType = Scroller.Action.TypeEnum.StepForward;
-                    } else {
-                        actionType = Scroller.Action.TypeEnum.PageForward;
-                    }
+                    this.actionEventer(action);
+
+                    // make the thumb glow momentarily
+                    const temporaryThumbFullVisibilityTimePeriod = this.isThumbVisibilityTransitionSpecified() ? 0 : 300;
+                    this.temporarilyGiveThumbFullVisibility(temporaryThumbFullVisibilityTimePeriod);
+
+                    evt.stopPropagation();
                 }
-                const action: Scroller.Action = {
-                    type: actionType,
-                    viewportStart: undefined,
-                };
-
-                this.actionEventer(action);
-
-                // make the thumb glow momentarily
-                const temporaryThumbFullVisibilityTimePeriod = this.isThumbVisibilityTransitionSpecified() ? 0 : 300;
-                this.temporarilyGiveThumbFullVisibility(temporaryThumbFullVisibilityTimePeriod);
-
-                evt.stopPropagation();
             }
         }
     }
@@ -574,6 +433,18 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
             this._thumbVisibilityState = ThumbVisibilityState.Full;
             this.updateThumbVisibility();
         }
+    }
+
+    private handleBarPointerEnterEvent() {
+        this.bar.classList.add('hover');
+        this._pointerOverBar = true;
+        this.updateThumbVisibility();
+    }
+
+    private handleBarPointerLeaveEvent() {
+        this.bar.classList.remove('hover');
+        this._pointerOverBar = false;
+        this.updateThumbVisibility();
     }
 
     private handleBarPointerDownEvent(event: PointerEvent) {
@@ -609,26 +480,9 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                 }
             }
             possiblyFractionalViewportStart = thumbPosition / this._thumbScaling + this._scrollDimension.start;
-
-            // // make sure does not go beyond end edge
-            // const viewportNext = viewportStart + this._scrollDimension.viewportSize;
-            // if (viewportNext > this._scrollDimension.after) {
-            //     viewportStart = this._scrollDimension.after - this._scrollDimension.viewportSize;
-            //     barPosition = undefined;
-            // }
         }
 
         const viewportStart = Math.round(possiblyFractionalViewportStart);
-        // if (viewportStart === this._scrollDimension.viewportStart) {
-        //     if (thumbPosition < this._currentThumbPosition) {
-        //         viewportStart--;
-        //     } else {
-        //         if (viewportStart > this._currentThumbPosition) {
-        //             viewportStart++;
-        //         }
-        //     }
-        // }
-        // this._currentThumbPosition = thumbPosition;
 
         this.setThumbPosition(viewportStart);
 
@@ -638,8 +492,6 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         };
 
         this.actionEventer(action);
-
-        // this._setScroll(viewportStart, barPosition, true);
 
         evt.stopPropagation();
         evt.preventDefault();
@@ -712,14 +564,14 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                         break;
                     case Scroller.PointerScrollingState.Active:
                         // weird
-                        this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
                         if (event === undefined) {
                             throw new AssertError('SUPSIA50521')
                         } else {
+                            this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
                             this.armPointerScrolling(event);
+                            this._pointerScrollingState = Scroller.PointerScrollingState.Active;
+                            this.activatePointerScrolling(event);
                         }
-                        this._pointerScrollingState = Scroller.PointerScrollingState.Active;
-                        this.activatePointerScrolling();
                         break;
                     case Scroller.PointerScrollingState.ClickWaiting:
                         throw new AssertError('SUPSIC50521');
@@ -741,8 +593,12 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     case Scroller.PointerScrollingState.Armed:
                         break; // no change
                     case Scroller.PointerScrollingState.Active:
-                        this._pointerScrollingState = Scroller.PointerScrollingState.Active;
-                        this.activatePointerScrolling();
+                        if (event === undefined) {
+                            throw new AssertError('SUPSRA50521')
+                        } else {
+                            this._pointerScrollingState = Scroller.PointerScrollingState.Active;
+                            this.activatePointerScrolling(event);
+                        }
                         break;
                     case Scroller.PointerScrollingState.ClickWaiting:
                         throw new AssertError('SUPSRC50521')
@@ -811,7 +667,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                             this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
                             this.armPointerScrolling(event);
                             this._pointerScrollingState = Scroller.PointerScrollingState.Active;
-                            this.activatePointerScrolling();
+                            this.activatePointerScrolling(event);
                         }
                         break;
                     case Scroller.PointerScrollingState.ClickWaiting:
@@ -836,12 +692,14 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this.bar.addEventListener('pointerup', this._barPointerUpListener);
         this._barPointerCancelListener = (cancelEvent: PointerEvent) => this.handleBarPointerUpCancelEvent(cancelEvent)
         this.bar.addEventListener('pointercancel', this._barPointerCancelListener);
-        this.bar.setPointerCapture(event.pointerId);
 
         this.updateThumbVisibility();
     }
 
-    activatePointerScrolling() {
+    activatePointerScrolling(event: PointerEvent) {
+        this.bar.setPointerCapture(event.pointerId);
+        this._barPointerCaptured = true;
+
         this._viewLayout.beginUiControlTracking();
         this._viewLayoutTrackingActive = true;
         this.updateThumbVisibility();
@@ -861,7 +719,10 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
             this._barPointerCancelListener = undefined;
         }
 
-        this.bar.releasePointerCapture(event.pointerId);
+        if (this._barPointerCaptured) {
+            this.bar.releasePointerCapture(event.pointerId);
+            this._barPointerCaptured = false;
+        }
 
         if (this._viewLayoutTrackingActive) {
             this._viewLayout.endUiControlTracking();
@@ -912,6 +773,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     private wantThumbFullVisibility() {
         return (
+            this._pointerOverBar ||
             this._pointerOverThumb ||
             this._pointerScrollingState === Scroller.PointerScrollingState.Armed ||
             this._pointerScrollingState === Scroller.PointerScrollingState.Active ||

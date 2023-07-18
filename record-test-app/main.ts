@@ -87,6 +87,7 @@ export class Main {
             grayedOutForegroundColor: '#595959',
             focusedRowBackgroundColor: '#6e6835',
             focusedRowBorderColor: '#C8B900',
+            scrollerThumbColor: '#858585',
 
             valueRecentlyModifiedBorderColor: '#8C5F46',
             valueRecentlyModifiedUpBorderColor: '#4646FF',

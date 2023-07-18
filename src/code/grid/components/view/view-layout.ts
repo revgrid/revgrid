@@ -323,7 +323,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         this.ensureVerticalValidOutsideAnimationFrame();
         return this._lastScrollableRowIndex;
     }
-    get lastScrollableSubgridRowIndex() {
+    get lastScrollableRowSubgridRowIndex() {
         this.ensureVerticalValidOutsideAnimationFrame();
         const lastScrollableRowIndex = this._lastScrollableRowIndex;
         if (lastScrollableRowIndex === undefined) {
@@ -585,11 +585,11 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateDataRowsInserted(index: number, count: number) {
         const verticalScrollDimension = this.verticalScrollDimension;
         if (this._canvasManager.flooredHeight > 0) {
-            let lastScrollableSubgridRowIndex: number | undefined;
+            let lastScrollableRowSubgridRowIndex: number | undefined;
             const affected =
                 !verticalScrollDimension.overflowed || // this is not correct as scrollbar thumb is affected
-                (lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex) === undefined ||
-                index <= lastScrollableSubgridRowIndex;
+                (lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex) === undefined ||
+                index <= lastScrollableRowSubgridRowIndex;
 
             let action: ViewLayout.DataRangeInsertedInvalidateAction;
             if (affected) {
@@ -619,11 +619,11 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (this._canvasManager.flooredHeight > 0) {
             let affected = !verticalScrollDimension.overflowed;
             if (!affected) {
-                const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
+                const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
+                if (lastScrollableRowSubgridRowIndex === undefined) {
                     throw new AssertError('VLIDRD33321');
                 } else {
-                    affected = index <= lastScrollableSubgridRowIndex; // this is not correct as scrollbar thumb is affected
+                    affected = index <= lastScrollableRowSubgridRowIndex; // this is not correct as scrollbar thumb is affected
                 }
             }
 
@@ -675,11 +675,11 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (this._canvasManager.flooredHeight > 0) {
             let affected = !verticalScrollDimension.overflowed;
             if (!affected) {
-                const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
+                const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
+                if (lastScrollableRowSubgridRowIndex === undefined) {
                     throw new AssertError('VLIDRM33321');
                 } else {
-                    affected = oldRowIndex <= lastScrollableSubgridRowIndex || newRowIndex <= lastScrollableSubgridRowIndex; // this is not correct as scrollbar thumb is affected
+                    affected = oldRowIndex <= lastScrollableRowSubgridRowIndex || newRowIndex <= lastScrollableRowSubgridRowIndex; // this is not correct as scrollbar thumb is affected
                 }
             }
 
@@ -915,15 +915,15 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                     this.setRowScrollAnchor(mainSubgridRowIndex, 0);
                     return true;
                 } else {
-                    const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
-                    if (lastScrollableSubgridRowIndex === undefined) {
+                    const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
+                    if (lastScrollableRowSubgridRowIndex === undefined) {
                         throw new AssertError('SBSXTMV82224'); // if first then must be last
                     } else {
-                        if (mainSubgridRowIndex < lastScrollableSubgridRowIndex) {
+                        if (mainSubgridRowIndex < lastScrollableRowSubgridRowIndex) {
                             return false;
                         } else {
                             const maximallyButLastLineIsNotMaximal = maximally && !this._verticalScrollDimension.viewportSizeExactMultiple;
-                            if (mainSubgridRowIndex === lastScrollableSubgridRowIndex) {
+                            if (mainSubgridRowIndex === lastScrollableRowSubgridRowIndex) {
                                 if (!maximallyButLastLineIsNotMaximal) {
                                     return false;
                                 } else {
@@ -1596,14 +1596,14 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      * @returns The row to goto for a page down.
      */
     calculatePageDownRowAnchor(): ViewLayout.ScrollAnchor | undefined {
-        const lastScrollableSubgridRowIndex = this.lastScrollableSubgridRowIndex;
-        if (lastScrollableSubgridRowIndex === undefined) {
+        const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
+        if (lastScrollableRowSubgridRowIndex === undefined) {
             return undefined;
         } else {
-            let rowIndex = lastScrollableSubgridRowIndex;
+            let rowIndex = lastScrollableRowSubgridRowIndex;
             const finishLimitIndex = this.verticalScrollDimension.finishScrollAnchorLimitIndex;
             if (rowIndex > finishLimitIndex) {
-                rowIndex = finishLimitIndex - this.verticalScrollDimension.viewportSize; // assumes row heights do not differ - fix in future
+                rowIndex = finishLimitIndex; // assumes row heights do not differ - fix in future
             }
             const startLimitIndex = this.verticalScrollDimension.startScrollAnchorLimitIndex;
             if (rowIndex < startLimitIndex) {

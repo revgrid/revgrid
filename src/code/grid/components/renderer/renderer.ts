@@ -241,11 +241,11 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
                 throw new AssertError('RIDRSF33321');
             } else {
                 if ((rowIndex + count) > firstScrollableSubgridRowIndex) {
-                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                    if (lastScrollableSubgridRowIndex === undefined) {
+                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+                    if (lastScrollableRowSubgridRowIndex === undefined) {
                         throw new AssertError('RIDRSL33321');
                     } else {
-                        if (rowIndex <= lastScrollableSubgridRowIndex) {
+                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
                             this._renderActionQueue.invalidateDataRows(rowIndex, count);
                         }
                     }
@@ -262,11 +262,11 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
                 throw new AssertError('RIDRF33321');
             } else {
                 if (rowIndex >= firstScrollableSubgridRowIndex) {
-                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                    if (lastScrollableSubgridRowIndex === undefined) {
+                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+                    if (lastScrollableRowSubgridRowIndex === undefined) {
                         throw new AssertError('RIDRL33321');
                     } else {
-                        if (rowIndex <= lastScrollableSubgridRowIndex) {
+                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
                             this._renderActionQueue.invalidateDataRow(rowIndex);
                         }
                     }
@@ -283,11 +283,11 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
                 throw new AssertError('RIDRCSF33321');
             } else {
                 if (rowIndex >= firstScrollableSubgridRowIndex) {
-                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                    if (lastScrollableSubgridRowIndex === undefined) {
+                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+                    if (lastScrollableRowSubgridRowIndex === undefined) {
                         throw new AssertError('RIDRCSL33321');
                     } else {
-                        if (rowIndex <= lastScrollableSubgridRowIndex) {
+                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
                             this._renderActionQueue.invalidateDataRowCells(rowIndex, allColumnIndexes);
                         }
                     }
@@ -304,11 +304,11 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
                 throw new AssertError('RIDRCFR33321');
             } else {
                 if (rowIndex >= firstScrollableSubgridRowIndex) {
-                    const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                    if (lastScrollableSubgridRowIndex === undefined) {
+                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+                    if (lastScrollableRowSubgridRowIndex === undefined) {
                         throw new AssertError('RIDRCLR33321');
                     } else {
-                        if (rowIndex <= lastScrollableSubgridRowIndex) {
+                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
                             // add support for (active) columns
                             this._renderActionQueue.invalidateDataCell(allColumnIndex, rowIndex);
                         }

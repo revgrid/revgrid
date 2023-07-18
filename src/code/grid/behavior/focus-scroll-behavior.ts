@@ -164,7 +164,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     tryPageFocusDown() {
         let focusY = this._focus.currentY;
         if (focusY === undefined) {
-            focusY = this._viewLayout.lastScrollableSubgridRowIndex;
+            focusY = this._viewLayout.lastScrollableRowSubgridRowIndex;
         }
         if (focusY === undefined) {
             return false;

@@ -600,13 +600,13 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
 
         if (subgrid === this.focus.subgrid && !this.gridSettings.scrollingEnabled) {
             const lastVisibleScrollableActiveColumnIndex = this.viewLayout.lastScrollableActiveColumnIndex;
-            const lastVisableScrollableSubgridRowIndex = this.viewLayout.lastScrollableSubgridRowIndex;
+            const lastVisibleScrollableSubgridRowIndex = this.viewLayout.lastScrollableRowSubgridRowIndex;
 
             if (lastVisibleScrollableActiveColumnIndex !== undefined) {
                 lastActiveColumnIndex = Math.min(lastActiveColumnIndex, lastVisibleScrollableActiveColumnIndex);
             }
-            if (lastVisableScrollableSubgridRowIndex !== undefined) {
-                lastSubgridRowIndex = Math.min(lastSubgridRowIndex, lastVisableScrollableSubgridRowIndex);
+            if (lastVisibleScrollableSubgridRowIndex !== undefined) {
+                lastSubgridRowIndex = Math.min(lastSubgridRowIndex, lastVisibleScrollableSubgridRowIndex);
             }
         }
 

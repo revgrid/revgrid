@@ -4165,7 +4165,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // (undocumented)
     get lastScrollableRowIndex(): number | undefined;
     // (undocumented)
-    get lastScrollableSubgridRowIndex(): number | undefined;
+    get lastScrollableRowSubgridRowIndex(): number | undefined;
     // (undocumented)
     get lastScrollableVisibleColumnMaximallyVisible(): boolean;
     // @internal (undocumented)
