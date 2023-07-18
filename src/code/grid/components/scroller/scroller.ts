@@ -1,16 +1,19 @@
+import { SchemaField } from '../../interfaces/schema/schema-field';
+import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CssClassName } from '../../types-utils/html-types';
-import { UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { numberToPixels } from '../../types-utils/utils';
 import { ScrollDimension } from '../view/scroll-dimension';
+import { ViewLayout } from '../view/view-layout';
 
 // Following is the sole style requirement for bar and thumb elements.
 // Maintained in code so not dependent being in stylesheet.
 // const BAR_STYLE = 'position: absolute;';
 
 /** @public */
-export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObject {
+export class Scroller<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     readonly bar: HTMLDivElement;
     readonly barCssClass: string;
 
@@ -70,8 +73,8 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
     private _pointerOverThumb = false;
     private _temporaryThumbFullVisibilityTimePeriod: number | undefined; // milliseconds
     private _temporaryThumbFullVisibilityTimeoutId: ReturnType<typeof setTimeout> | undefined;
-    private _dragging = false;
-    private _dragged = false;
+    private _pointerScrollingState = Scroller.PointerScrollingState.Inactive;
+    private _viewLayoutTrackingActive = false;
     private _thumbVisibilityState = ThumbVisibilityState.Reduced;
     /**
      * Wheel metric normalization, applied equally to all three axes.
@@ -90,8 +93,9 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
     private readonly _thumbPointerLeaveListener = () => this.handleThumbPointerLeaveEvent();
     private readonly _thumbTransitionEndListener = () => this.handleThumbTransitionEndEvent();
     private readonly _barPointerDownListener = (event: PointerEvent) => this.handleBarPointerDownEvent(event);
-    private readonly _barPointerMoveListener = (event: PointerEvent) => this.handleBarPointerMoveEvent(event);
-    private readonly _barPointerUpListener = (event: PointerEvent) => this.handleBarPointerUpEvent(event);
+    private _barPointerMoveListener: Scroller.PointerEventListener | undefined;
+    private _barPointerUpListener: Scroller.PointerEventListener | undefined;
+    private _barPointerCancelListener: Scroller.PointerEventListener | undefined;
 
     /**
      * @name increment
@@ -146,13 +150,14 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
         private readonly _gridSettings: BGS,
         private readonly _hostElement: HTMLElement, // Revgrid host element
         private readonly _scrollDimension: ScrollDimension<BGS>,
+        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
         private readonly axis: ScrollDimension.Axis,
         private _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
         deltaXFactor: number,
         deltaYFactor: number,
         classPrefix: string,
-        private readonly _spaceAccomodatedScroller: Scroller<BGS> | undefined,
+        private readonly _spaceAccomodatedScroller: Scroller<BGS, BCS, SF> | undefined,
     ) {
         this._axisProperties = axesProperties[this.axis];
 
@@ -198,7 +203,11 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
         this._gridSettings.subscribeChangedEvent(this._settingsChangedListener);
 
         this._scrollDimension.changedEventer = () => this.resize();
-        this._scrollDimension.scrollerTargettedViewportStartChangedEventer = () => this.setThumbPositionFromViewportSize();
+        this._scrollDimension.scrollerTargettedViewportStartChangedEventer = () => {
+            if (this._pointerScrollingState !== Scroller.PointerScrollingState.Active) {
+                this.setThumbPosition(this._scrollDimension.viewportStart);
+            }
+        }
 
         if (this._spaceAccomodatedScroller !== undefined) {
             this._spaceAccomodatedScroller.visibilityChangedEventer = () => this.resize();
@@ -365,8 +374,13 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
         const crossOffsetLeadingPropertyKey = this._axisProperties.crossOffsetLeading;
         const thicknessPropertyKey = this._axisProperties.thickness;
         if (this.bar.style[crossLeadingPropertyKey] === '') {
-            // Must be trailing
-            return this.bar.offsetParent[thicknessPropertyKey] - this.bar[crossOffsetLeadingPropertyKey];
+            const parentElement = this.bar.parentElement;
+            if (parentElement === null) {
+                throw new AssertError('SIO50184');
+            } else {
+                // Must be trailing
+                return parentElement[thicknessPropertyKey] - this.bar[crossOffsetLeadingPropertyKey];
+            }
         } else {
             return this.bar[crossOffsetLeadingPropertyKey] + this.bar[thicknessPropertyKey];
         }
@@ -422,21 +436,6 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
     //         this.index = viewportStart + delta;
     //     }
     // }
-
-    // scrollRealContent(idx: number) {
-    //     const containerRect = this.content.parentElement.getBoundingClientRect();
-    //     const sizeProp = this.oh.size;
-    //     const maxScroll = Math.max(0, this.content[sizeProp] - containerRect[sizeProp]);
-    //     //scroll = Math.min(idx, maxScroll);
-    //     const scroll = (idx - this._min) / (this._max - this._min) * maxScroll;
-    //     //console.log('scroll: ' + scroll);
-    //     this.content.style[this.oh.leading] = -scroll + 'px';
-    // }
-
-    private setThumbPositionFromViewportSize() {
-        const viewportStart = this._scrollDimension.viewportStart;
-        this.setThumbPosition(viewportStart);
-    }
 
     /**
      * @summary Move the thumb.
@@ -502,15 +501,26 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
     private handleHostWheelEvent(evt: WheelEvent) {
         const index = this.index;
         if (index !== undefined) {
-            this.index = index + evt[this._deltaProp] * this[this._deltaProp + 'Factor'] /* * this.normal */;
+            this.index = index + evt[this._deltaProp] * this.getDeltaPropFactor() /* * this.normal */;
             evt.stopPropagation();
             evt.preventDefault();
         }
     }
 
+    private getDeltaPropFactor() {
+        switch (this._deltaProp) {
+            case 'deltaX': return this.deltaXFactor;
+            case 'deltaY': return this.deltaYFactor;
+            case 'deltaZ': return this.deltaXFactor;
+            default:
+                throw new UnreachableCaseError('SGDPF23330', this._deltaProp);
+        }
+    }
+
     private handleBarClickEvent(evt: MouseEvent) {
-        if (!this._dragged) {
-            this._dragged = false;
+        if (this._pointerScrollingState === Scroller.PointerScrollingState.ClickWaiting) {
+            this.updatePointerScrolling(Scroller.PointerScrollingState.Inactive, undefined);
+        } else {
             const index = this.index;
             if (index !== undefined) {
                 const thumbBox = this._thumb.getBoundingClientRect();
@@ -567,25 +577,14 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
     }
 
     private handleBarPointerDownEvent(event: PointerEvent) {
-        const thumbBox = this._thumb.getBoundingClientRect();
-        this._pinOffset = event[this._axisProperties.page] - thumbBox[this._axisProperties.leading] + this.bar.getBoundingClientRect()[this._axisProperties.leading] + this._thumbMarginLeading;
-        document.documentElement.style.cursor = 'default';
-
-        this.bar.addEventListener('pointermove', this._barPointerMoveListener);
-        this.bar.addEventListener('pointerup', this._barPointerUpListener);
-        this.bar.setPointerCapture(event.pointerId);
-
-        this._dragging = false;
-        this._dragged = false;
-        this.updateThumbVisibility();
+        this.updatePointerScrolling(Scroller.PointerScrollingState.Armed, event);
 
         event.stopPropagation();
         event.preventDefault();
     }
 
     private handleBarPointerMoveEvent(evt: PointerEvent) {
-        this._dragging = true;
-        this.updateThumbVisibility();
+        this.updatePointerScrolling(Scroller.PointerScrollingState.Active, evt);
 
         // if (!(evt.buttons & 1)) {
         //     // mouse button may have been released without `onmouseup` triggering (see
@@ -604,6 +603,10 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
             if (thumbPosition < 0) {
                 // make sure does not go beyond start edge
                 thumbPosition = 0;
+            } else {
+                if (thumbPosition > this._thumbMax) {
+                    thumbPosition = this._thumbMax;
+                }
             }
             possiblyFractionalViewportStart = thumbPosition / this._thumbScaling + this._scrollDimension.start;
 
@@ -627,6 +630,8 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
         // }
         // this._currentThumbPosition = thumbPosition;
 
+        this.setThumbPosition(viewportStart);
+
         const action: Scroller.Action = {
             type: Scroller.Action.TypeEnum.newViewportStart,
             viewportStart,
@@ -640,28 +645,8 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
         evt.preventDefault();
     }
 
-    private handleBarPointerUpEvent(event: PointerEvent) {
-        this.bar.removeEventListener('pointermove', this._barPointerMoveListener);
-        this.bar.removeEventListener('pointerup', this._barPointerUpListener);
-        this.bar.releasePointerCapture(event.pointerId);
-
-        if (this._dragging) {
-            this._dragging = false;
-            this._dragged = true;
-            this.updateThumbVisibility();
-        }
-
-        document.documentElement.style.cursor = 'auto';
-
-        const thumbBox = this._thumb.getBoundingClientRect();
-        if (
-            thumbBox.left <= event.clientX && event.clientX <= thumbBox.right &&
-            thumbBox.top <= event.clientY && event.clientY <= thumbBox.bottom
-        ) {
-            // this.handleThumbPointerEnterEvent();
-        } else {
-            // this.handleThumbPointerLeaveEvent();
-        }
+    private handleBarPointerUpCancelEvent(event: PointerEvent) {
+        this.updatePointerScrolling(Scroller.PointerScrollingState.Inactive, event)
 
         event.stopPropagation();
         event.preventDefault();
@@ -670,7 +655,10 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
     private resize() {
         const leadingTrailing = this.calculateLeadingTrailingForSpaceAccomodatedScroller();
         for (const key in leadingTrailing) {
-            this.bar.style.setProperty(key, leadingTrailing[key]);
+            const value = leadingTrailing[key];
+            if (value !== undefined) {
+                this.bar.style.setProperty(key, value);
+            }
         }
 
         if (this._indexMode) {
@@ -678,7 +666,7 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
             this.index = index; // re-clamp
         } else {
             this.setThumbSize();
-            this.setThumbPositionFromViewportSize();
+            this.setThumbPosition(this._scrollDimension.viewportStart);
         }
     }
 
@@ -706,6 +694,184 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
             }
         }
         return leadingTrailing;
+    }
+
+    private updatePointerScrolling(newState: Scroller.PointerScrollingState, event: PointerEvent | undefined) {
+        switch (this._pointerScrollingState) {
+            case Scroller.PointerScrollingState.Inactive: {
+                switch (newState) {
+                    case Scroller.PointerScrollingState.Inactive:
+                        break; // no change
+                    case Scroller.PointerScrollingState.Armed:
+                        this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
+                        if (event === undefined) {
+                            throw new AssertError('SUPSIR50521')
+                        } else {
+                            this.armPointerScrolling(event);
+                        }
+                        break;
+                    case Scroller.PointerScrollingState.Active:
+                        // weird
+                        this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
+                        if (event === undefined) {
+                            throw new AssertError('SUPSIA50521')
+                        } else {
+                            this.armPointerScrolling(event);
+                        }
+                        this._pointerScrollingState = Scroller.PointerScrollingState.Active;
+                        this.activatePointerScrolling();
+                        break;
+                    case Scroller.PointerScrollingState.ClickWaiting:
+                        throw new AssertError('SUPSIC50521');
+                    default:
+                        throw new UnreachableCaseError('SUPSDI50521', newState);
+                }
+                break;
+            }
+            case Scroller.PointerScrollingState.Armed:
+                switch (newState) {
+                    case Scroller.PointerScrollingState.Inactive:
+                        this._pointerScrollingState = Scroller.PointerScrollingState.Inactive;
+                        if (event === undefined) {
+                            throw new AssertError('SUPSRI50521')
+                        } else {
+                            this.deactivatePointerScrolling(event);
+                        }
+                        break;
+                    case Scroller.PointerScrollingState.Armed:
+                        break; // no change
+                    case Scroller.PointerScrollingState.Active:
+                        this._pointerScrollingState = Scroller.PointerScrollingState.Active;
+                        this.activatePointerScrolling();
+                        break;
+                    case Scroller.PointerScrollingState.ClickWaiting:
+                        throw new AssertError('SUPSRC50521')
+                        // this._pointerScrollingState = Scroller.PointerScrollingState.ClickWaiting;
+                        // this.deactivatePointerScrolling(event);
+                        break;
+                    default:
+                        throw new UnreachableCaseError('SUPSRD50521', newState);
+                }
+                break;
+            case Scroller.PointerScrollingState.Active:
+                switch (newState) {
+                    case Scroller.PointerScrollingState.Inactive:
+                        // Since we are active, we want to ignore the next click
+                        this._pointerScrollingState = Scroller.PointerScrollingState.ClickWaiting;
+                        if (event === undefined) {
+                            throw new AssertError('SUPSAI50521')
+                        } else {
+                            this.deactivatePointerScrolling(event);
+                        }
+                        break;
+                    case Scroller.PointerScrollingState.Armed:
+                        // weird
+                        if (event === undefined) {
+                            throw new AssertError('SUPSAR50521')
+                        } else {
+                            this._pointerScrollingState = Scroller.PointerScrollingState.Inactive;
+                            this.deactivatePointerScrolling(event);
+                            this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
+                            this.armPointerScrolling(event);
+                        }
+                        break;
+                    case Scroller.PointerScrollingState.Active:
+                        break; // no change
+                    case Scroller.PointerScrollingState.ClickWaiting:
+                        this._pointerScrollingState = Scroller.PointerScrollingState.ClickWaiting;
+                        if (event === undefined) {
+                            throw new AssertError('SUPSAC50521')
+                        } else {
+                            this.deactivatePointerScrolling(event);
+                        }
+                        break;
+                    default:
+                        throw new UnreachableCaseError('SUPSAD50521', newState);
+                }
+                break;
+            case Scroller.PointerScrollingState.ClickWaiting:
+                switch (newState) {
+                    case Scroller.PointerScrollingState.Inactive:
+                        this._pointerScrollingState = Scroller.PointerScrollingState.Inactive;
+                        break;
+                    case Scroller.PointerScrollingState.Armed:
+                        // must have lost a click event
+                        this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
+                        if (event === undefined) {
+                            throw new AssertError('SUPSCR50521')
+                        } else {
+                            this.armPointerScrolling(event);
+                        }
+                        break;
+                    case Scroller.PointerScrollingState.Active:
+                        // weird
+                        if (event === undefined) {
+                            throw new AssertError('SUPSCA50521')
+                        } else {
+                            this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
+                            this.armPointerScrolling(event);
+                            this._pointerScrollingState = Scroller.PointerScrollingState.Active;
+                            this.activatePointerScrolling();
+                        }
+                        break;
+                    case Scroller.PointerScrollingState.ClickWaiting:
+                        break; // no action
+                    default:
+                        throw new UnreachableCaseError('SUPSCD50521', newState);
+                }
+                break;
+            default:
+                throw new UnreachableCaseError('SUPSDD50521', this._pointerScrollingState);
+        }
+    }
+
+    private armPointerScrolling(event: PointerEvent) {
+        const thumbBox = this._thumb.getBoundingClientRect();
+        this._pinOffset = event[this._axisProperties.page] - thumbBox[this._axisProperties.leading] + this.bar.getBoundingClientRect()[this._axisProperties.leading] + this._thumbMarginLeading;
+        document.documentElement.style.cursor = 'default';
+
+        this._barPointerMoveListener = (moveEvent) => this.handleBarPointerMoveEvent(moveEvent);
+        this.bar.addEventListener('pointermove', this._barPointerMoveListener);
+        this._barPointerUpListener = (upEvent: PointerEvent) => this.handleBarPointerUpCancelEvent(upEvent)
+        this.bar.addEventListener('pointerup', this._barPointerUpListener);
+        this._barPointerCancelListener = (cancelEvent: PointerEvent) => this.handleBarPointerUpCancelEvent(cancelEvent)
+        this.bar.addEventListener('pointercancel', this._barPointerCancelListener);
+        this.bar.setPointerCapture(event.pointerId);
+
+        this.updateThumbVisibility();
+    }
+
+    activatePointerScrolling() {
+        this._viewLayout.beginUiControlTracking();
+        this._viewLayoutTrackingActive = true;
+        this.updateThumbVisibility();
+    }
+
+    deactivatePointerScrolling(event: PointerEvent) {
+        if (this._barPointerMoveListener !== undefined) {
+            this.bar.removeEventListener('pointermove', this._barPointerMoveListener);
+            this._barPointerMoveListener = undefined;
+        }
+        if (this._barPointerUpListener !== undefined) {
+            this.bar.removeEventListener('pointerup', this._barPointerUpListener);
+            this._barPointerUpListener = undefined;
+        }
+        if (this._barPointerCancelListener !== undefined) {
+            this.bar.removeEventListener('pointercancel', this._barPointerCancelListener);
+            this._barPointerCancelListener = undefined;
+        }
+
+        this.bar.releasePointerCapture(event.pointerId);
+
+        if (this._viewLayoutTrackingActive) {
+            this._viewLayout.endUiControlTracking();
+            this._viewLayoutTrackingActive = false;
+        }
+
+        document.documentElement.style.cursor = 'auto';
+
+        this.updateThumbVisibility();
+        this.setThumbPosition(this._scrollDimension.viewportStart);
     }
 
     private updateThumbVisibility() {
@@ -747,7 +913,8 @@ export class Scroller<BGS extends BehavioredGridSettings> implements RevgridObje
     private wantThumbFullVisibility() {
         return (
             this._pointerOverThumb ||
-            this._dragging ||
+            this._pointerScrollingState === Scroller.PointerScrollingState.Armed ||
+            this._pointerScrollingState === Scroller.PointerScrollingState.Active ||
             this._temporaryThumbFullVisibilityTimePeriod !== undefined
         );
     }
@@ -811,6 +978,14 @@ export namespace Scroller {
 
     export type ActionEventer = (this: void, action: Scroller.Action) => void;
     export type VisibilityChangedEventer = (this: void) => void;
+    export type PointerEventListener = (event: PointerEvent) => void;
+
+    export const enum PointerScrollingState {
+        Inactive,
+        Armed,
+        Active,
+        ClickWaiting,
+    }
 }
 
 // function extend(obj: Record<string, string>, styles: Record<string, string> | undefined, auxStyles: Record<string, string> | undefined) {
@@ -951,11 +1126,15 @@ const axesProperties: AxesProperties = {
 //     width:  orientationHashes.horizontal
 // };
 
-interface LeadingTrailing {
-    left?: string; // leading - left/top as pixel string
-    top?: string; // leading - left/top as pixel string
-    right?: string; // trailing - right/bottom as pixel string
-    bottom?: string; // trailing - right/bottom as pixel string
+const enum LeadingTrailingKey {
+    left,
+    top,
+    right,
+    bottom,
+}
+
+type LeadingTrailing = {
+    -readonly [key in keyof typeof LeadingTrailingKey]?: string;
 }
 
 export const enum ThumbVisibilityState {

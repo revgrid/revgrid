@@ -26,8 +26,8 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
     readonly renderer: Renderer<BGS, BCS, SF>;
     readonly mouse: Mouse<BGS, BCS, SF>;
 
-    readonly horizontalScroller: Scroller<BGS>;
-    readonly verticalScroller: Scroller<BGS>;
+    readonly horizontalScroller: Scroller<BGS, BCS, SF>;
+    readonly verticalScroller: Scroller<BGS, BCS, SF>;
 
     constructor(
         readonly revgridId: string,
@@ -124,6 +124,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 gridSettings,
                 hostElement,
                 this.viewLayout.verticalScrollDimension,
+                this.viewLayout,
                 false,
                 'vertical',
                 true,
@@ -139,6 +140,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 gridSettings,
                 hostElement,
                 this.viewLayout.horizontalScrollDimension,
+                this.viewLayout,
                 false,
                 'horizontal',
                 true,

@@ -54,8 +54,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly columnsManager: ColumnsManager<BCS, SF>;
     readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
-    readonly horizontalScroller: Scroller<BGS>;
-    readonly verticalScroller: Scroller<BGS>;
+    readonly horizontalScroller: Scroller<BGS, BCS, SF>;
+    readonly verticalScroller: Scroller<BGS, BCS, SF>;
 
     readonly schemaServer: SchemaServer<SF>;
     readonly mainSubgrid: MainSubgrid<BCS, SF>;

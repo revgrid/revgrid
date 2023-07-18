@@ -2513,7 +2513,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     hideActiveColumn(activeColumnIndex: number, ui?: boolean): void;
     // (undocumented)
-    readonly horizontalScroller: Scroller<BGS>;
+    readonly horizontalScroller: Scroller<BGS, BCS, SF>;
     // (undocumented)
     readonly hostElement: HTMLElement;
     // (undocumented)
@@ -2647,7 +2647,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     updateSize(): void;
     // (undocumented)
-    readonly verticalScroller: Scroller<BGS>;
+    readonly verticalScroller: Scroller<BGS, BCS, SF>;
     // (undocumented)
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
     waitModelRendered(): Promise<number>;
@@ -3891,7 +3891,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     // @internal (undocumented)
     handleWheelMove(event: WheelEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
-    protected readonly horizontalScroller: Scroller<BGS>;
+    protected readonly horizontalScroller: Scroller<BGS, BCS, SF>;
     // (undocumented)
     protected readonly hostElement: HTMLElement;
     // @internal (undocumented)
@@ -3932,7 +3932,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     // (undocumented)
     abstract readonly typeName: string;
     // (undocumented)
-    protected readonly verticalScroller: Scroller<BGS>;
+    protected readonly verticalScroller: Scroller<BGS, BCS, SF>;
     // (undocumented)
     protected readonly viewLayout: ViewLayout<BGS, BCS, SF>;
 }
@@ -3983,6 +3983,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     _columnsManager: ColumnsManager<BCS, SF>,
     _subgridsManager: SubgridsManager<BCS, SF>);
     // (undocumented)
+    beginUiControlTracking(): void;
+    // (undocumented)
     calculateHorizontalScrollableLeft(): number;
     // (undocumented)
     calculatePageDownRowAnchor(): ViewLayout.ScrollAnchor | undefined;
@@ -4010,6 +4012,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     columnsViewWidthsChangedEventer: ViewLayout.ColumnsViewWidthsChangedEventer;
     // @internal (undocumented)
     createUnusedSpaceColumn(): ViewLayoutColumn<BCS, SF> | undefined;
+    // (undocumented)
+    endUiControlTracking(): void;
     // (undocumented)
     ensureColumnIsInView(activeColumnIndex: number, maximally: boolean): boolean;
     // (undocumented)
@@ -4222,6 +4226,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     tryGetColumnWithFieldIndex(columnIndex: number): ViewLayoutColumn<BCS, SF> | undefined;
+    // (undocumented)
+    get uiControlTracking(): boolean;
     // (undocumented)
     get unanchoredColumnOverflow(): number | undefined;
     // Warning: (ae-forgotten-export) The symbol "VerticalScrollDimension" needs to be exported by the entry point public-api.d.ts

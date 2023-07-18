@@ -128,14 +128,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     private _lastScrollableRowIndex: number | undefined;
 
-    //the shared single item "pooled" cell object for drawing each cell
     /** @internal */
-    private cell = {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0
-    }
+    private _uiControlTracking = false;
 
     /** @internal */
     constructor(
@@ -376,6 +370,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             return this._unanchoredColumnOverflow === undefined || this._unanchoredColumnOverflow === 0;
         }
     }
+
+    get uiControlTracking() { return this._uiControlTracking; }
 
     get columnRowCellPoolComputationInvalid() { return this._columnRowOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
     get rowColumnCellPoolComputationInvalid() { return this._rowColumnOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
@@ -1717,6 +1713,22 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     resetAllCellPropertiesCaches() {
         this.resetPoolAllCellPropertiesCaches(this._columnRowOrderedCellPool);
         this.resetPoolAllCellPropertiesCaches(this._rowColumnOrderedCellPool);
+    }
+
+    beginUiControlTracking() {
+        if (this._uiControlTracking) {
+            throw new AssertError('VLBUCT11198');
+        } else {
+            this._uiControlTracking = true;
+        }
+    }
+
+    endUiControlTracking() {
+        if (!this._uiControlTracking) {
+            throw new AssertError('VLEUCT11198');
+        } else {
+            this._uiControlTracking = false;
+        }
     }
 
     /** @internal */

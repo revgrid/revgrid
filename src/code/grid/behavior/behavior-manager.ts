@@ -44,8 +44,8 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         selection: Selection<BCS, SF>,
         mouse: Mouse<BGS, BCS, SF>,
         renderer: Renderer<BGS, BCS, SF>,
-        horizontalScroller: Scroller<BGS>,
-        verticalScroller: Scroller<BGS>,
+        horizontalScroller: Scroller<BGS, BCS, SF>,
+        verticalScroller: Scroller<BGS, BCS, SF>,
         descendantEventer: EventBehavior.DescendantEventer<BCS, SF>,
     ) {
         this.eventBehavior = new EventBehavior(

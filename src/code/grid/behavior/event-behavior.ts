@@ -86,9 +86,9 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         /** @internal */
         private readonly _renderer: Renderer<BGS, BCS, SF>,
         /** @internal */
-        private readonly _horizontalScroller: Scroller<BGS>,
+        private readonly _horizontalScroller: Scroller<BGS, BCS, SF>,
         /** @internal */
-        private readonly _verticalScroller: Scroller<BGS>,
+        private readonly _verticalScroller: Scroller<BGS, BCS, SF>,
         /** @internal */
         private readonly _descendantEventer: EventBehavior.DescendantEventer<BCS, SF>,
         /** @internal */

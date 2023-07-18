@@ -49,8 +49,8 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     protected readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>;
 
     protected readonly mouse: Mouse<BGS, BCS, SF>;
-    protected readonly horizontalScroller: Scroller<BGS>;
-    protected readonly verticalScroller: Scroller<BGS>;
+    protected readonly horizontalScroller: Scroller<BGS, BCS, SF>;
+    protected readonly verticalScroller: Scroller<BGS, BCS, SF>;
 
     protected readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
     protected readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
