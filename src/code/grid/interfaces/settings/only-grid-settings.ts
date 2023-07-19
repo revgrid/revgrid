@@ -139,10 +139,10 @@ export interface OnlyGridSettings {
     rowResize: boolean;
     /** Repeating pattern of property overrides for grid rows. */
     rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
+    /** Height or width (depending on orientation) in either pixels (px) or Em (em) */
+    scrollerThickness: string; // size with units
     scrollerThumbColor: string;
     scrollerThumbReducedVisibilityOpacity: number;
-        // thumb.style.backgroundColor = this._onlyGridSettings.scrollerThumbColor;
-        // thumb.style.opacity = this._onlyGridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
     /** Anchor column does not need to align with edge of grid */
     scrollHorizontallySmoothly: boolean;
     scrollingEnabled: boolean;

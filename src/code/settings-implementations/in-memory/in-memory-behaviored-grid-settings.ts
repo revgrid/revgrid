@@ -84,6 +84,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _rowResize: boolean;
     private _rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
     private _scrollHorizontallySmoothly: boolean;
+    private _scrollerThickness: string;
     private _scrollerThumbColor: string;
     private _scrollerThumbReducedVisibilityOpacity: number;
     private _scrollingEnabled: boolean;
@@ -822,6 +823,16 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
+    get scrollerThickness() { return this._scrollerThickness; }
+    set scrollerThickness(value: string) {
+        if (value !== this._scrollerThickness) {
+            this.beginChange();
+            this._scrollerThickness = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollerThickness;
+            this.flagChanged(invalidateType);
+            this.endChange();
+        }
+    }
     get scrollerThumbColor() { return this._scrollerThumbColor; }
     set scrollerThumbColor(value: string) {
         if (value !== this._scrollerThumbColor) {
@@ -1425,6 +1436,12 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     if (this._rowStripeBackgroundColor !== requiredSettings.rowStripeBackgroundColor) {
                         this._rowStripeBackgroundColor = requiredSettings.rowStripeBackgroundColor;
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.rowStripeBackgroundColor);
+                    }
+                    break;
+                case 'scrollerThickness':
+                    if (this._scrollerThickness !== requiredSettings.scrollerThickness) {
+                        this._scrollerThickness = requiredSettings.scrollerThickness;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.scrollerThickness);
                     }
                     break;
                 case 'scrollerThumbColor':

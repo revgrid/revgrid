@@ -80,6 +80,7 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     filterEditor: 'TextField',
     filterable: true,
     showFilterRow: false,
+    scrollerThickness: '0.7em',
     scrollerThumbColor: '#d3d3d3',
     scrollerThumbReducedVisibilityOpacity: 0.4,
     showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum.Control,

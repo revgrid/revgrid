@@ -4,7 +4,10 @@ import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-gri
 import { CssClassName } from '../../types-utils/html-types';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
+import { SizeUnitEnum } from '../../types-utils/size-unit';
+import { SizeWithUnit } from '../../types-utils/size-with-unit';
 import { numberToPixels } from '../../types-utils/utils';
+import { CanvasManager } from '../canvas/canvas-manager';
 import { ScrollDimension } from '../view/scroll-dimension';
 import { ViewLayout } from '../view/view-layout';
 
@@ -142,6 +145,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         readonly internalParent: RevgridObject,
         private readonly _gridSettings: BGS,
         private readonly _hostElement: HTMLElement, // Revgrid host element
+        private readonly _canvasManager: CanvasManager<BGS>,
         private readonly _scrollDimension: ScrollDimension<BGS>,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
@@ -250,13 +254,13 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     get thickness() {
-        return this.bar[this._axisProperties.thickness];
+        return this.bar[this._axisProperties.offsetThickness];
     }
 
     get insideOverlap() {
         const crossLeadingPropertyKey = this._axisProperties.crossLeading;
         const crossOffsetLeadingPropertyKey = this._axisProperties.crossOffsetLeading;
-        const thicknessPropertyKey = this._axisProperties.thickness;
+        const thicknessPropertyKey = this._axisProperties.offsetThickness;
         if (this.bar.style[crossLeadingPropertyKey] === '') {
             const parentElement = this.bar.parentElement;
             if (parentElement === null) {
@@ -293,6 +297,39 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private applySettings() {
         this._thumb.style.backgroundColor = this._gridSettings.scrollerThumbColor;
         this._thumb.style.opacity = this._gridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
+        this.applyThumbThickness(this._gridSettings.scrollerThickness);
+    }
+
+    private applyThumbThickness(value: string) {
+        let thicknessSizeWithUnit = SizeWithUnit.tryParse(value);
+        if (thicknessSizeWithUnit === undefined) {
+            thicknessSizeWithUnit = {
+                size: 7,
+                sizeUnit: SizeUnitEnum.Pixel,
+            }
+        }
+
+        let pixelsSize: number;
+        switch (thicknessSizeWithUnit.sizeUnit) {
+            case SizeUnitEnum.Pixel:
+                pixelsSize = thicknessSizeWithUnit.size;
+                break;
+            case SizeUnitEnum.Em: {
+                const emWidth = this._canvasManager.gc.getEmWidth();
+                pixelsSize = Math.ceil(thicknessSizeWithUnit.size * emWidth);
+                break;
+            }
+            case SizeUnitEnum.Fractional:
+            case SizeUnitEnum.Percent: {
+                throw new AssertError('SATT83210', thicknessSizeWithUnit.sizeUnit);
+            }
+            default:
+                throw new UnreachableCaseError('SATTD83210', thicknessSizeWithUnit.sizeUnit);
+        }
+
+        const propertyName = this._axisProperties.thickness;
+        const propertyValue = numberToPixels(pixelsSize);
+        this.bar.style.setProperty(propertyName, propertyValue);
     }
 
     /**
@@ -939,7 +976,8 @@ interface AxisProperties {
     marginTrailing: 'marginRight' | 'marginBottom';
     offsetLeading: 'offsetLeft' | 'offsetTop';
     crossOffsetLeading: 'offsetLeft' | 'offsetTop';
-    thickness: 'offsetWidth' | 'offsetHeight';
+    thickness: 'width' | 'height';
+    offsetThickness: 'offsetWidth' | 'offsetHeight';
     delta: Scroller.DeltaProp;
 }
 
@@ -959,7 +997,8 @@ const axesProperties: AxesProperties = {
         marginTrailing:     'marginBottom',
         offsetLeading:      'offsetTop',
         crossOffsetLeading: 'offsetLeft',
-        thickness:          'offsetWidth',
+        thickness:          'width',
+        offsetThickness:    'offsetWidth',
         delta:              'deltaY'
     },
     horizontal: {
@@ -974,7 +1013,8 @@ const axesProperties: AxesProperties = {
         marginTrailing:     'marginRight',
         offsetLeading:      'offsetLeft',
         crossOffsetLeading: 'offsetTop',
-        thickness:          'offsetHeight',
+        thickness:          'height',
+        offsetThickness:    'offsetHeight',
         delta:              'deltaX'
     }
 };

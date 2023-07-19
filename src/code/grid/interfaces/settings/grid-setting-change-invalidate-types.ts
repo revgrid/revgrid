@@ -160,6 +160,7 @@ export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateType
     rowResize: GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension,
     rowStripeBackgroundColor: GridSettingChangeInvalidateTypeId.ViewRender,
     scrollHorizontallySmoothly: GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension,
+    scrollerThickness: GridSettingChangeInvalidateTypeId.None,
     scrollerThumbColor: GridSettingChangeInvalidateTypeId.None,
     scrollerThumbReducedVisibilityOpacity: GridSettingChangeInvalidateTypeId.None,
     scrollingEnabled: GridSettingChangeInvalidateTypeId.None,

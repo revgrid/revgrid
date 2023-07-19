@@ -1538,6 +1538,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get rowStripeBackgroundColor(): OnlyGridSettings.Color | undefined;
     set rowStripeBackgroundColor(value: OnlyGridSettings.Color | undefined);
     // (undocumented)
+    get scrollerThickness(): string;
+    set scrollerThickness(value: string);
+    // (undocumented)
     get scrollerThumbColor(): string;
     set scrollerThumbColor(value: string);
     // (undocumented)
@@ -2132,6 +2135,7 @@ export interface OnlyGridSettings {
     resizedEventDebounceInterval: number;
     rowResize: boolean;
     rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
+    scrollerThickness: string;
     // (undocumented)
     scrollerThumbColor: string;
     // (undocumented)
@@ -4220,6 +4224,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     setHorizontalViewportStart(value: number): boolean;
     // (undocumented)
     setRowScrollAnchor(index: number, offset: number): boolean;
+    // (undocumented)
+    setRowScrollAnchorToLimit(): void;
     // (undocumented)
     setVerticalViewportStart(viewportStart: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration

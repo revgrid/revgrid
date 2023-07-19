@@ -1,3 +1,4 @@
+
 /** @internal */
 export function numberToPixels(value: number) {
     return value.toString() + 'px';
@@ -92,4 +93,48 @@ export function getErrorMessage(e: unknown): string {
             return 'Unknown Error';
         }
     }
+}
+
+/** @internal */
+export interface SplitStringAtFirstNonNumericCharResult {
+    numericPart: string;
+    firstNonNumericCharPart: string;
+}
+
+/** @internal */
+export function splitStringAtFirstNonNumericChar(value: string): SplitStringAtFirstNonNumericCharResult {
+    value = value.trimStart();
+
+    const length = value.length;
+    if (length === 0) {
+        return { numericPart: '', firstNonNumericCharPart: '' }
+    } else {
+        let firstNonDigitPartIndex = length;
+        let gotDecimalPoint = false;
+        for (let i = 0; i < length; i++) {
+            const char = value[i];
+            if (!isDigit(char)) {
+                if (char !== '.') {
+                    firstNonDigitPartIndex = i;
+                    break;
+                } else {
+                    if (gotDecimalPoint) {
+                        firstNonDigitPartIndex = i;
+                        break;
+                    } else {
+                        gotDecimalPoint = true;
+                    }
+                }
+            }
+        }
+        const digitsPart = value.substring(0, firstNonDigitPartIndex);
+        const firstNonDigitPart = value.substring(firstNonDigitPartIndex).trim();
+
+        return { numericPart: digitsPart, firstNonNumericCharPart: firstNonDigitPart };
+    }
+}
+
+/** @internal */
+export function isDigit(char: string) {
+    return char >= '0' && char <= '9';
 }
