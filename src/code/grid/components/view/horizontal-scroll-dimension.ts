@@ -8,12 +8,13 @@ import { ScrollDimension } from './scroll-dimension';
 
 export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends ScrollDimension<BGS> {
     constructor(
-        private readonly _gridSettings: GridSettings,
+        gridSettings: GridSettings,
         canvasManager: CanvasManager<BGS>,
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
         super(
             ScrollDimension.AxisEnum.horizontal,
+            gridSettings,
             canvasManager,
         );
     }
@@ -38,8 +39,8 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
     calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean): ScrollDimension.Anchor {
         this.ensureComputedOutsideAnimationFrame();
 
-        const gridProperties = this._gridSettings;
-        const gridLinesVWidth = gridProperties.verticalGridLinesWidth;
+        const gridSettings = this._gridSettings;
+        const gridLinesVWidth = gridSettings.verticalGridLinesWidth;
         let index: number;
         let offset: number;
 
@@ -64,7 +65,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
                 // column finishes exactly at viewportFinish.
                 offset = 0;
             } else {
-                if (gridProperties.scrollHorizontallySmoothly) {
+                if (gridSettings.scrollHorizontallySmoothly) {
                     // can display this column partially
                     offset = rightPlus1 - viewportFinishPlus1;
                 } else {
@@ -96,7 +97,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
                 // column starts exactly at viewportStart.
                 offset = 0;
             } else {
-                if (gridProperties.scrollHorizontallySmoothly) {
+                if (gridSettings.scrollHorizontallySmoothly) {
                     // can display this column partially
                     offset = viewportStart - left;
                 } else {
@@ -111,57 +112,6 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
             index,
             offset
         }
-    }
-
-    isScrollAnchorWithinStartLimit(index: number, offset: number) {
-        const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
-        if (index > startScrollAnchorLimitIndex) {
-            return true;
-        } else {
-            if (index < startScrollAnchorLimitIndex) {
-                return false;
-            } else {
-                if (this._gridSettings.gridRightAligned) {
-                    return offset <= this.startScrollAnchorLimitOffset;
-                } else {
-                    return offset >= this.startScrollAnchorLimitOffset;
-                }
-            }
-        }
-    }
-
-    isScrollAnchorWithinFinishLimit(index: number, offset: number) {
-        const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
-        if (index < finishScrollAnchorLimitIndex) {
-            return true;
-        } else {
-            if (index > finishScrollAnchorLimitIndex) {
-                return false;
-            } else {
-                if (this._gridSettings.gridRightAligned) {
-                    return offset >= this.finishScrollAnchorLimitOffset;
-                } else {
-                    return offset <= this.finishScrollAnchorLimitOffset;
-                }
-            }
-        }
-    }
-
-    calculateLimitedScrollAnchor(index: number, offset: number): ScrollDimension.Anchor {
-        if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
-            index = this.startScrollAnchorLimitIndex;
-            offset = this.startScrollAnchorLimitOffset;
-        } else {
-            if (!this.isScrollAnchorWithinFinishLimit(index, offset)) {
-                index = this.finishScrollAnchorLimitIndex;
-                offset = this.finishScrollAnchorLimitOffset;
-            }
-        }
-
-        return {
-            index,
-            offset
-        };
     }
 
     protected override compute() {

@@ -1,4 +1,5 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { CanvasManager } from '../canvas/canvas-manager';
 
@@ -25,6 +26,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
 
     constructor(
         public readonly horizontalVertical: ScrollDimension.AxisEnum,
+        protected readonly _gridSettings: GridSettings,
         protected readonly _canvasManager: CanvasManager<BGS>,
     ) {
 
@@ -132,6 +134,57 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
                 this.notifyViewportStartChanged();
             }
         }
+    }
+
+    isScrollAnchorWithinStartLimit(index: number, offset: number) {
+        const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
+        if (index > startScrollAnchorLimitIndex) {
+            return true;
+        } else {
+            if (index < startScrollAnchorLimitIndex) {
+                return false;
+            } else {
+                if (this._gridSettings.gridRightAligned) {
+                    return offset <= this.startScrollAnchorLimitOffset;
+                } else {
+                    return offset >= this.startScrollAnchorLimitOffset;
+                }
+            }
+        }
+    }
+
+    isScrollAnchorWithinFinishLimit(index: number, offset: number) {
+        const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
+        if (index < finishScrollAnchorLimitIndex) {
+            return true;
+        } else {
+            if (index > finishScrollAnchorLimitIndex) {
+                return false;
+            } else {
+                if (this._gridSettings.gridRightAligned) {
+                    return offset >= this.finishScrollAnchorLimitOffset;
+                } else {
+                    return offset <= this.finishScrollAnchorLimitOffset;
+                }
+            }
+        }
+    }
+
+    calculateLimitedScrollAnchor(index: number, offset: number): ScrollDimension.Anchor {
+        if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
+            index = this.startScrollAnchorLimitIndex;
+            offset = this.startScrollAnchorLimitOffset;
+        } else {
+            if (!this.isScrollAnchorWithinFinishLimit(index, offset)) {
+                index = this.finishScrollAnchorLimitIndex;
+                offset = this.finishScrollAnchorLimitOffset;
+            }
+        }
+
+        return {
+            index,
+            offset
+        };
     }
 
     protected setComputedValues(

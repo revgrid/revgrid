@@ -9,17 +9,18 @@ import { ScrollDimension } from './scroll-dimension';
 
 export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends ScrollDimension<BGS> {
     constructor(
-        private readonly _gridSettings: GridSettings,
+        gridSettings: GridSettings,
         canvasManager: CanvasManager<BGS>,
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,
     ) {
         super(
             ScrollDimension.AxisEnum.vertical,
+            gridSettings,
             canvasManager,
         );
     }
 
-    calculateLimitedScrollAnchor(index: number, _offset: number): ScrollDimension.Anchor {
+    override calculateLimitedScrollAnchor(index: number, _offset: number): ScrollDimension.Anchor {
         const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
         if (index < startScrollAnchorLimitIndex) {
             return {
@@ -112,4 +113,3 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
         this.setComputedValues(start, size, viewportSize, viewportSizeExactMultiple, overflowed, anchorLimits);
     }
 }
-
