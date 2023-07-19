@@ -196,6 +196,6 @@ export namespace DataServer {
          * ```
          * This event is not cancelable.
          */
-        postReindex: (this: void) => void;
+        postReindex: (this: void, allRowsKept: boolean) => void;
     }
 }

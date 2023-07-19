@@ -6,12 +6,13 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 import { ColumnsManager } from '../column/columns-manager';
 import { MainSubgridImplementation } from './main-subgrid-implementation';
 import { SubgridImplementation } from './subgrid-implementation';
 
 /** @public */
-export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     readonly subgrids: Subgrid<BCS, SF>[];
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     readonly headerSubgrid: Subgrid<BCS, SF> | undefined;
@@ -25,6 +26,8 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
 
     /** @internal */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         /** @internal */
         private readonly _gridSettings: GridSettings,
         /** @internal */

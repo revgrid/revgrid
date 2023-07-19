@@ -21,6 +21,7 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 import { UiControllerServices } from './common/ui-controller-services';
 import { UiControllerSharedState } from './common/ui-controller-shared-state';
 
@@ -28,7 +29,10 @@ import { UiControllerSharedState } from './common/ui-controller-shared-state';
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @public
  */
-export abstract class UiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export abstract class UiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    readonly revgridId: string;
+    readonly internalParent: RevgridObject;
+
     abstract readonly typeName: string;
 
     protected readonly sharedState: UiControllerSharedState;
@@ -45,8 +49,8 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     protected readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>;
 
     protected readonly mouse: Mouse<BGS, BCS, SF>;
-    protected readonly horizontalScroller: Scroller<BGS>;
-    protected readonly verticalScroller: Scroller<BGS>;
+    protected readonly horizontalScroller: Scroller<BGS, BCS, SF>;
+    protected readonly verticalScroller: Scroller<BGS, BCS, SF>;
 
     protected readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
     protected readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
@@ -58,6 +62,9 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     protected readonly mainSubgrid: MainSubgrid<BCS, SF>;
 
     constructor(services: UiControllerServices<BGS, BCS, SF>) {
+        this.revgridId = services.revgridId;
+        this.internalParent = services.internalParent;
+
         this.sharedState = services.sharedState;
         this.hostElement = services.hostElement;
 
@@ -299,13 +306,8 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null {
-        const cell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
-        if (cell === undefined) {
-            return null;
-        } else {
-            return cell;
-        }
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | undefined {
+        return this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
     }
 }
 

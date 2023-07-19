@@ -13,6 +13,8 @@ export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends 
     private _firstActionQueued = false;
     private _beginChangeCount = 0;
 
+    get actionsQueued() { return this._queuedActions.length > 0; }
+
     beginChange() {
         this._beginChangeCount++;
     }

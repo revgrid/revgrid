@@ -1,4 +1,3 @@
-import { Animation } from '../../components/canvas/animation';
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
 import { ViewCell } from '../../interfaces/data/view-cell';
@@ -7,11 +6,14 @@ import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '.
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
 import { Mouse } from '../mouse/mouse';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ViewLayout } from '../view/view-layout';
+import { Animation } from './animation';
+import { Animator } from './animator';
 import { ByColumnsAndRowsGridPainter } from './grid-painter/by-columns-and-rows-grid-painter';
 import { GridPainter } from './grid-painter/grid-painter';
 import { GridPainterRepository } from './grid-painter/grid-painter-repository';
@@ -19,16 +21,16 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 /** @public */
-export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     /** @internal */
     renderedEventer: Renderer.RenderedEventer;
 
     /** @internal */
     private readonly _gridPainterRepository: GridPainterRepository<BGS, BCS, SF>;
     /** @internal */
-    private readonly _animator: Animation.Animator;
-    /** @internal */
     private readonly _renderActionQueue = new RenderActionQueue()
+    /** @internal */
+    private readonly _gridSettingsChangedListener = () => this.handleGridSettingsChanged();
 
     /** @internal */
     private _documentHidden = false;
@@ -44,6 +46,8 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private _destroyed = false;
 
     /** @internal */
+    private _animator: Animator | undefined;
+    /** @internal */
     private _gridPainter: GridPainter<BGS, BCS, SF>;
     /** @internal */
     private _allGridPainter: GridPainter<BGS, BCS, SF> | undefined;
@@ -53,6 +57,8 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
@@ -81,22 +87,9 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
             () => this.repaintAll(),
         );
 
-        this._animator = {
-            isContinuous: this._gridSettings.enableContinuousRepaint, // TODO properties should update this dynamically
-            framesPerSecond: this._gridSettings.repaintFramesPerSecond, // TODO properties should update this dynamically
-            dirty: false,
-            animating: false,
-            animate: () => this.processRenderActionQueue(),
-            onTick: undefined,
-            // internal
-            lastAnimateTime: 0,
-            currentAnimateCount: 0,
-            currentFPS: 0,
-            lastFPSComputeTime: 0,
-        }
+        this._renderActionQueue.actionsQueuedEventer = () => this.flagAnimateRequired();
 
-        this._renderActionQueue.actionsQueuedEventer = () => this._animator.dirty = true;
-
+        this._gridSettings.subscribeChangedEvent(this._gridSettingsChangedListener);
         this._gridSettings.viewRenderInvalidatedEventer = () => {
             this._viewLayout.resetAllCellPaintFingerprints();
             this.invalidateViewRender();
@@ -110,14 +103,20 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this.setGridPainter('by-columns-and-rows');
     }
 
-    get painting() { return this._animator.animating; }
+    get painting() {
+        const animator = this._animator;
+        return animator !== undefined && animator.animating;
+    }
     get lastModelUpdateId() { return this._lastModelUpdateId; }
 
     /** @internal */
     destroy() {
+        this.stop(); // in case revgrid was not deactivated by application
+
         this.resolveWaitModelRendered(invalidModelUpdateId);
 
         document.removeEventListener('visibilitychange', this._pageVisibilityChangeListener);
+        this._gridSettings.unsubscribeChangedEvent(this._gridSettingsChangedListener);
 
         this._destroyed = true;
     }
@@ -163,12 +162,27 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     start() {
-        Animation.registerAnimator(this._animator);
+        if (this._animator !== undefined) {
+            throw new AssertError('RSA69107');
+        } else {
+            this._animator = Animation.animation.createAnimator(
+                this._gridSettings.minimumAnimateTimeInterval,
+                this._gridSettings.backgroundAnimateTimeInterval,
+                () => this.processRenderActionQueue(),
+            );
+
+            if (this._renderActionQueue.actionsQueued) {
+                this._animator.flagAnimateRequired();
+            }
+        }
     }
 
     /** @internal */
     stop() {
-        Animation.deregisterAnimator(this._animator);
+        if (this._animator !== undefined) {
+            Animation.animation.destroyAnimator(this._animator);
+            this._animator = undefined;
+        }
     }
 
     /** @internal */
@@ -200,32 +214,40 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateViewRender() {
-        this._renderActionQueue.invalidateViewRender();
+        if (this._canvasManager.hasBounds) {
+            this._renderActionQueue.invalidateViewRender();
+        }
     }
 
     /** @internal */
     invalidateViewCellRender(cell: ViewCell<BCS, SF>) {
-        this._renderActionQueue.invalidateViewCellRender(cell);
+        if (this._canvasManager.hasBounds) {
+            this._renderActionQueue.invalidateViewCellRender(cell);
+        }
     }
 
     /** @internal */
     invalidateAllData() {
-        this._renderActionQueue.invalidateAllData();
+        if (this._canvasManager.hasBounds) {
+            this._renderActionQueue.invalidateAllData();
+        }
     }
 
     /** @internal */
     invalidateDataRows(rowIndex: number, count: number) {
-        const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-        if (firstScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('RIDRSF33321');
-        } else {
-            if ((rowIndex + count) > firstScrollableSubgridRowIndex) {
-                const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('RIDRSL33321');
-                } else {
-                    if (rowIndex <= lastScrollableSubgridRowIndex) {
-                        this._renderActionQueue.invalidateDataRows(rowIndex, count);
+        if (this._canvasManager.hasBounds) {
+            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
+            if (firstScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('RIDRSF33321');
+            } else {
+                if ((rowIndex + count) > firstScrollableSubgridRowIndex) {
+                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+                    if (lastScrollableRowSubgridRowIndex === undefined) {
+                        throw new AssertError('RIDRSL33321');
+                    } else {
+                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
+                            this._renderActionQueue.invalidateDataRows(rowIndex, count);
+                        }
                     }
                 }
             }
@@ -234,17 +256,19 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateDataRow(rowIndex: number) {
-        const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-        if (firstScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('RIDRF33321');
-        } else {
-            if (rowIndex >= firstScrollableSubgridRowIndex) {
-                const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('RIDRL33321');
-                } else {
-                    if (rowIndex <= lastScrollableSubgridRowIndex) {
-                        this._renderActionQueue.invalidateDataRow(rowIndex);
+        if (this._canvasManager.hasBounds) {
+            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
+            if (firstScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('RIDRF33321');
+            } else {
+                if (rowIndex >= firstScrollableSubgridRowIndex) {
+                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+                    if (lastScrollableRowSubgridRowIndex === undefined) {
+                        throw new AssertError('RIDRL33321');
+                    } else {
+                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
+                            this._renderActionQueue.invalidateDataRow(rowIndex);
+                        }
                     }
                 }
             }
@@ -253,17 +277,19 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateDataRowCells(rowIndex: number, allColumnIndexes: number[]) {
-        const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-        if (firstScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('RIDRCSF33321');
-        } else {
-            if (rowIndex >= firstScrollableSubgridRowIndex) {
-                const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('RIDRCSL33321');
-                } else {
-                    if (rowIndex <= lastScrollableSubgridRowIndex) {
-                        this._renderActionQueue.invalidateDataRowCells(rowIndex, allColumnIndexes);
+        if (this._canvasManager.hasBounds) {
+            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
+            if (firstScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('RIDRCSF33321');
+            } else {
+                if (rowIndex >= firstScrollableSubgridRowIndex) {
+                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+                    if (lastScrollableRowSubgridRowIndex === undefined) {
+                        throw new AssertError('RIDRCSL33321');
+                    } else {
+                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
+                            this._renderActionQueue.invalidateDataRowCells(rowIndex, allColumnIndexes);
+                        }
                     }
                 }
             }
@@ -272,18 +298,20 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateDataCell(allColumnIndex: number, rowIndex: number) {
-        const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-        if (firstScrollableSubgridRowIndex === undefined) {
-            throw new AssertError('RIDRCFR33321');
-        } else {
-            if (rowIndex >= firstScrollableSubgridRowIndex) {
-                const lastScrollableSubgridRowIndex = this._viewLayout.lastScrollableSubgridRowIndex;
-                if (lastScrollableSubgridRowIndex === undefined) {
-                    throw new AssertError('RIDRCLR33321');
-                } else {
-                    if (rowIndex <= lastScrollableSubgridRowIndex) {
-                        // add support for (active) columns
-                        this._renderActionQueue.invalidateDataCell(allColumnIndex, rowIndex);
+        if (this._canvasManager.hasBounds) {
+            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
+            if (firstScrollableSubgridRowIndex === undefined) {
+                throw new AssertError('RIDRCFR33321');
+            } else {
+                if (rowIndex >= firstScrollableSubgridRowIndex) {
+                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+                    if (lastScrollableRowSubgridRowIndex === undefined) {
+                        throw new AssertError('RIDRCLR33321');
+                    } else {
+                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
+                            // add support for (active) columns
+                            this._renderActionQueue.invalidateDataCell(allColumnIndex, rowIndex);
+                        }
                     }
                 }
             }
@@ -291,13 +319,18 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    getCurrentFPS() {
-        return this._animator.currentFPS;
+    private handlePageVisibilityChange() {
+        const documentHidden = document.hidden;
+        this._documentHidden = documentHidden;
+        if (!documentHidden && this._renderActionQueue.actionsQueued && this._canvasManager.hasBounds) {
+            this.flagAnimateRequired();
+        }
     }
 
-    /** @internal */
-    private handlePageVisibilityChange() {
-        this._documentHidden = document.hidden;
+    private handleGridSettingsChanged() {
+        if (this._animator !== undefined) {
+            this._animator.setAnimateTimeIntervals(this._gridSettings.minimumAnimateTimeInterval, this._gridSettings.backgroundAnimateTimeInterval);
+        }
     }
 
     /** @internal */
@@ -311,12 +344,21 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
+    private flagAnimateRequired() {
+        const animator = this._animator;
+        if (animator !== undefined) {
+            animator.flagAnimateRequired();
+        }
+    }
+
+    /** @internal */
     private processRenderActionQueue() {
         if (this._documentHidden) {
             return false;
         } else {
-            if (!this._destroyed) {
-
+            if (!this._canvasManager.hasBounds) {
+                return false;
+            } else {
                 const renderActions = this._renderActionQueue.takeActions();
                 const actionsCount = renderActions.length;
                 if (renderActions.length > 0) {
@@ -353,8 +395,9 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
                         gc.cache.restore();
                     }
                 }
+
+                return true;
             }
-            return true;
         }
     }
 

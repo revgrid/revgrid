@@ -39,6 +39,7 @@ export class SimpleGrid extends Revgrid<
 
     constructor(
         gridElement: HTMLElement,
+        externalParent: unknown,
     ) {
         const gridSettings: StandardBehavioredGridSettings = {
             ...readonlyDefaultStandardBehavioredGridSettings,
@@ -75,7 +76,7 @@ export class SimpleGrid extends Revgrid<
             ],
         };
 
-        super(gridElement, definition, gridSettings, () => readonlyDefaultStandardBehavioredColumnSettings);
+        super(gridElement, definition, gridSettings, () => readonlyDefaultStandardBehavioredColumnSettings, { externalParent });
 
         this._serverSet = serverSet;
 
@@ -83,15 +84,14 @@ export class SimpleGrid extends Revgrid<
         this._textCellPainter = new StandardAlphaTextCellPainter(this, mainDataServer);
     }
 
-    get schemaServer() { return this._serverSet.schemaServer; }
-    get headerAdapter() { return this._serverSet.headerDataServer; }
+    get headerDataServer() { return this._serverSet.headerDataServer; }
 
     get fieldCount(): number { return this.schemaServer.getFields().length; }
 
     get columnCount(): number { return this.activeColumnCount; }
 
     get headerRowCount(): number {
-        return this.headerAdapter.getRowCount();
+        return this.headerDataServer.getRowCount();
     }
 
     protected override descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined) {
@@ -105,15 +105,13 @@ export class SimpleGrid extends Revgrid<
         hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingDataRowArraySchemaField> | null | undefined
     ) {
         if (this.clickEventer !== undefined) {
-            if (hoverCell !== null) {
-                if (hoverCell === undefined) {
-                    hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
-                }
-                if (hoverCell !== undefined) {
-                    if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
-                        const viewCell = hoverCell.viewCell;
-                        this.clickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
-                    }
+            if (hoverCell === null) {
+                hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
+            }
+            if (hoverCell !== undefined) {
+                if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
+                    const viewCell = hoverCell.viewCell;
+                    this.clickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
                 }
             }
         }
@@ -124,15 +122,13 @@ export class SimpleGrid extends Revgrid<
         hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingDataRowArraySchemaField> | null | undefined
     ) {
         if (this.dblClickEventer !== undefined) {
-            if (hoverCell !== null) {
-                if (hoverCell === undefined) {
-                    hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
-                }
-                if (hoverCell !== undefined) {
-                    if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
-                        const viewCell = hoverCell.viewCell;
-                        this.dblClickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
-                    }
+            if (hoverCell === null) {
+                hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
+            }
+            if (hoverCell !== undefined) {
+                if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
+                    const viewCell = hoverCell.viewCell;
+                    this.dblClickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
                 }
             }
         }

@@ -31,6 +31,14 @@ export class RecordIndexGridField extends GridField {
         throw new Error('Cannot modify index value');
     }
 
+    compare(left: RecordStore.Record, right: RecordStore.Record): number {
+        return left.index - right.index;
+    }
+
+    compareDesc(left: RecordStore.Record, right: RecordStore.Record): number {
+        return right.index - left.index;
+    }
+
     override modifyValue(): RevRecordValueRecentChangeTypeId | undefined {
         return undefined;
     }

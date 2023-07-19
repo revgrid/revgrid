@@ -1,5 +1,5 @@
+import { BehaviorManager } from './behavior/behavior-manager';
 import { CellPropertiesBehavior } from './behavior/cell-properties-behavior';
-import { BehaviorManager } from './behavior/component-behavior-manager';
 import { DataExtractBehavior } from './behavior/data-extract-behavior';
 import { EventBehavior } from './behavior/event-behavior';
 import { FocusScrollBehavior } from './behavior/focus-scroll-behavior';
@@ -16,6 +16,7 @@ import { Scroller } from './components/scroller/scroller';
 import { Selection } from './components/selection/selection';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
+import { IdRegistry } from './id-registry';
 import { CellMetaSettings } from './interfaces/data/cell-meta-settings';
 import { DataServer } from './interfaces/data/data-server';
 import { LinedHoverCell } from './interfaces/data/hover-cell';
@@ -33,12 +34,17 @@ import { CssClassName } from './types-utils/html-types';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { ApiError, AssertError } from './types-utils/revgrid-error';
+import { RevgridObject } from './types-utils/revgrid-object';
 import { ListChangedTypeId, SelectionAreaType } from './types-utils/types';
 import { UiController } from './ui/controller/ui-controller';
 import { UiManager } from './ui/ui-controller-manager';
 
 /** @public */
-export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    readonly id: string;
+    readonly revgridId: string;
+    readonly internalParent = undefined;
+    readonly externalParent: unknown | undefined;
     readonly hostElement: HTMLElement;
 
     readonly mouse: Mouse<BGS, BCS, SF>;
@@ -48,7 +54,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly columnsManager: ColumnsManager<BCS, SF>;
     readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
+    readonly horizontalScroller: Scroller<BGS, BCS, SF>;
+    readonly verticalScroller: Scroller<BGS, BCS, SF>;
 
+    readonly schemaServer: SchemaServer<SF>;
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     readonly mainDataServer: DataServer<SF>;
 
@@ -61,10 +70,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /** @internal */
     private readonly _renderer: Renderer<BGS, BCS, SF>;
-    /** @internal */
-    private readonly _horizontalScroller: Scroller<BGS>;
-    /** @internal */
-    private readonly _verticalScroller: Scroller<BGS>;
 
     /** @internal */
     private readonly _focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
@@ -109,17 +114,26 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         getSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>,
         options?: Revgrid.Options<BGS, BCS, SF>
     ) {
-        options = options ?? {};
-
         //Set up the host for a grid instance
         this.hostElement = this.prepareHost(hostElement);
+
+        options = options ?? {};
+
+        const id = Revgrid.idRegistry.createOrRegisterId(options.id ?? this.hostElement.id);
+        this.id = id;
+        this.revgridId = this.id;
+        this.externalParent = options.externalParent;
 
         let schemaServer = definition.schemaServer;
         if (typeof schemaServer === 'function') {
             schemaServer = new schemaServer();
         }
 
+        this.schemaServer = schemaServer;
+
         this._componentsManager = new ComponentsManager(
+            this.revgridId,
+            this,
             settings,
             this.hostElement,
             schemaServer,
@@ -136,8 +150,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.subgridsManager = this._componentsManager.subgridsManager;
         this.viewLayout = this._componentsManager.viewLayout;
         this._renderer = this._componentsManager.renderer;
-        this._horizontalScroller = this._componentsManager.horizontalScroller;
-        this._verticalScroller = this._componentsManager.verticalScroller;
+        this.horizontalScroller = this._componentsManager.horizontalScroller;
+        this.verticalScroller = this._componentsManager.verticalScroller;
 
         this.mainSubgrid = this.subgridsManager.mainSubgrid;
         this.mainDataServer = this.mainSubgrid.dataServer;
@@ -145,6 +159,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         const descendantEventer = this.createDescendantEventer();
 
         this._behaviorManager = new BehaviorManager(
+            this.revgridId,
+            this,
             this.settings,
             this.canvasManager,
             this.columnsManager,
@@ -154,8 +170,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.selection,
             this.mouse,
             this._renderer,
-            this._horizontalScroller,
-            this._verticalScroller,
+            this.horizontalScroller,
+            this.verticalScroller,
             descendantEventer,
         );
 
@@ -166,6 +182,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._dataExtractBehavior = this._behaviorManager.dataExtractBehavior;
 
         this._uiManager = new UiManager(
+            this.revgridId,
+            this,
             this.hostElement,
             this.settings,
             this.canvasManager,
@@ -176,8 +194,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.viewLayout,
             this._renderer,
             this.mouse,
-            this._horizontalScroller,
-            this._verticalScroller,
+            this.horizontalScroller,
+            this.verticalScroller,
             this._focusScrollBehavior,
             this._focusSelectBehavior,
             this._rowPropertiesBehavior,
@@ -188,24 +206,28 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             options.customUiControllerDefinitions,
         );
 
-        this.canvasManager.start();
-        this._renderer.start();
+        // this.canvasManager.start();
+        // this._renderer.start();
 
-        this.canvasManager.resize(false); // Will invalidate all and cause a repaint
+        // this.canvasManager.resize(false); // Will invalidate all and cause a repaint
     }
 
     get active() { return this._behaviorManager.active; }
     set active(value: boolean) {
         this._behaviorManager.active = value;
-        if (value){
-            this._uiManager.enable();
-        } else {
+        if (!value){
+            this._renderer.stop();
+            this.canvasManager.stop();
             this._uiManager.disable();
+        } else {
+            this._uiManager.enable();
+            this.canvasManager.start();
+            this._renderer.start();
+            this.canvasManager.resize(false); // Will invalidate all and cause a repaint
         }
-        this.viewLayout.invalidateAll(true);
     }
 
-    get canvasBounds() { return this.canvasManager.bounds; }
+    get canvasBounds() { return this.canvasManager.flooredBounds; }
 
     /**
      * Be a responsible citizen and call this function on instance disposal!
@@ -213,6 +235,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * canvase paint loop will continue to run
      */
     destroy() {
+        this.deactivate();
+
         this._behaviorManager.destroy();
 
         const hostElement = this.hostElement;
@@ -221,6 +245,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             hostElement.removeChild(firstChild);
             firstChild = hostElement.firstChild;
         }
+
+        Revgrid.idRegistry.deregisterId(this.id);
 
         this._destroyed = true;
     }
@@ -564,10 +590,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /**
      * @summary Answer which data cell is under a pixel value mouse point.
-     * @param mouse - The mouse point to interrogate.
+     * @param offset - The mouse point to interrogate.
      */
-    getGridCellFromMousePoint(mouse: Point) {
-        return this.viewLayout.findLinedHoverCellAtCanvasOffset(mouse.x, mouse.y);
+    findLinedHoverCellAtCanvasOffset(offsetX: number, offsetY: number) {
+        return this.viewLayout.findLinedHoverCellAtCanvasOffset(offsetX, offsetY);
     }
 
     /**
@@ -1965,10 +1991,16 @@ export namespace Revgrid {
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
 
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+        /** Used to distinguish between Revgrid instances in an application.  If undefined, will use host element id or create an internal id */
+        id?: string;
+        /** Optional link to Revgrid instance's parent Javascript object. Is used to set externalParent which is not used within Revgrid however may be helpful with debugging */
+        externalParent?: unknown;
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
 	}
+
+    export const idRegistry = new IdRegistry();
 }
 
 // Begin Selection functions

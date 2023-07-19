@@ -14,12 +14,13 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 import { CssClassName } from '../../types-utils/html-types';
-import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Point } from '../../types-utils/point';
+import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevgridObject } from '../../types-utils/revgrid-object';
 
 /** @public */
-export class CanvasManager<BGS extends BehavioredGridSettings> {
+export class CanvasManager<BGS extends BehavioredGridSettings> implements RevgridObject {
     resizedEventerForViewLayout: CanvasManager.ResizedEventer;
     resizedEventerForEventBehavior: CanvasManager.ResizedEventer;
 
@@ -62,19 +63,25 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     // private _repeatKey: string | undefined;
     // private _repeatKeyStartTime = 0;
 
-    readonly instanceId = getNextInstanceId();
     readonly canvasElement: HTMLCanvasElement;
     /** @internal */
     readonly gc: CachedCanvasRenderingContext2D;
     /** @internal */
     private _started = false;
     /** @internal */
-    private _flooredHostWidth: number;
+    private _flooredWidth: number;
     /** @internal */
-    private _flooredHostHeight: number;
+    private _flooredHeight: number;
     // bodyZoomFactor: number;
     /** @internal */
-    private _bounds = new InexclusiveRectangle(0, 0, 0, 0);
+    private _flooredBounds: Rectangle = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+    } as const;
+    /** @internal */
+    private _hasBounds = false;
     /** @internal */
     private _devicePixelRatio = 1;
     /** @internal */
@@ -204,17 +211,19 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
     }
 
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         readonly hostElement: HTMLElement,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         private readonly _gridSettings: BGS,
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');
-        this.canvasElement.id = CanvasManager.canvasElementIdBase + this.instanceId.toString();
+        this.canvasElement.id = `${revgridId}-${CssClassName.gridHostElementCssIdBase}-${CanvasManager.canvasElementIdBase}`;
         this.canvasElement.draggable = true;
         this.canvasElement.tabIndex = 0;
         this.canvasElement.style.outline = 'none';
-        this.canvasElement.classList.add(CssClassName.gridElementCssClass);
+        this.canvasElement.classList.add(CanvasManager.canvasCssClass);
 
         this.gc = createCachedContext(this.canvasElement, canvasRenderingContext2DSettings);
 
@@ -334,10 +343,11 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         });
     }
 
-    get bounds() { return this._bounds; }
+    get hasBounds() { return this._hasBounds; }
+    get flooredBounds() { return this._flooredBounds; }
+    get flooredWidth() { return this._flooredWidth; }
+    get flooredHeight() { return this._flooredHeight; }
     get devicePixelRatio() { return this._devicePixelRatio; }
-    get flooredHostWidth() { return this._flooredHostWidth; }
-    get flooredHostHeight() { return this._flooredHostHeight; }
     get emptyImage() { return this._emptyImage; }
 
     addExternalEventListener(eventName: string, listener: CanvasManager.EventListener) {
@@ -373,8 +383,8 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
             hostRect = this.getHostBoundingClientRect();
         }
 
-        const oldWidth = this._bounds.width;
-        const oldHeight = this._bounds.height;
+        const oldWidth = this._flooredBounds.width;
+        const oldHeight = this._flooredBounds.height;
         let imageData: ImageData | undefined;
         if (oldWidth > 0 && oldHeight > 0) {
            imageData = this.gc.getImageData(0, 0, oldWidth * this._devicePixelRatio, oldHeight * this._devicePixelRatio);
@@ -383,11 +393,11 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         this._hostWidth = hostRect.width;
         this._hostHeight = hostRect.height;
 
-        const width = Math.floor(this._hostWidth);
-        const height = Math.floor(this._hostHeight);
+        const flooredWidth = Math.floor(this._hostWidth);
+        const flooredHeight = Math.floor(this._hostHeight);
 
-        this._flooredHostWidth = width;
-        this._flooredHostHeight = height;
+        this._flooredWidth = flooredWidth;
+        this._flooredHeight = flooredHeight;
 
         // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
         const ratio = this._gridSettings.useHiDPI ? window.devicePixelRatio : 1;
@@ -396,11 +406,11 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
         this._devicePixelRatio = ratio;
         // this._devicePixelRatio = ratio *= this.bodyZoomFactor;
 
-        this.canvasElement.width = Math.floor(width * ratio);
-        this.canvasElement.height = Math.floor(height * ratio);
+        this.canvasElement.width = Math.floor(flooredWidth * ratio);
+        this.canvasElement.height = Math.floor(flooredHeight * ratio);
 
-        this.canvasElement.style.width = width.toString(10) + 'px';
-        this.canvasElement.style.height = height.toString(10) + 'px';
+        this.canvasElement.style.width = flooredWidth.toString(10) + 'px';
+        this.canvasElement.style.height = flooredHeight.toString(10) + 'px';
 
         if (imageData !== undefined && !ratioChanged) {
             this.gc.putImageData(imageData, 0, 0);
@@ -408,7 +418,13 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
 
         this.gc.scale(ratio, ratio);
 
-        this._bounds = new InexclusiveRectangle(0, 0, width, height);
+        this._flooredBounds = {
+            x: 0,
+            y: 0,
+            width: flooredWidth,
+            height: flooredHeight
+        } as const;
+        this._hasBounds = flooredWidth > 0 && flooredHeight > 0;
 
         if (this._started) {
             this.checkFireResizedEvents(debounceEvent);
@@ -442,10 +458,6 @@ export class CanvasManager<BGS extends BehavioredGridSettings> {
 
     //     this.resize();
     // }
-
-    getBounds() {
-        return this._bounds;
-    }
 
     // /**
     //  * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
@@ -867,11 +879,6 @@ export namespace CanvasManager {
     //     }
     // }
 
-    export const canvasElementIdBase = 'revgrid-canvas-';
-}
-
-let instanceId = 0;
-
-function getNextInstanceId() {
-    return ++instanceId;
+    export const canvasElementIdBase = 'canvas';
+    export const canvasCssClass = 'canvas';
 }

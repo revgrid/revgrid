@@ -76,14 +76,15 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _mouseRowSelection: boolean;
     private _multipleSelectionAreas: boolean;
     private _primarySelectionAreaType: SelectionAreaType;
-    private _repaintImmediately: boolean;
-    private _repaintFramesPerSecond: number;
+    private _minimumAnimateTimeInterval: number;
+    private _backgroundAnimateTimeInterval: number | undefined;
     private _resizeColumnInPlace: boolean;
     private _resizedEventDebounceExtendedWhenPossible: boolean;
     private _resizedEventDebounceInterval: number;
     private _rowResize: boolean;
     private _rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
     private _scrollHorizontallySmoothly: boolean;
+    private _scrollerThickness: string;
     private _scrollerThumbColor: string;
     private _scrollerThumbReducedVisibilityOpacity: number;
     private _scrollingEnabled: boolean;
@@ -91,8 +92,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _secondarySelectionAreaType: SelectionAreaType;
     private _selectionExtendDragActiveCursorName: string | undefined;
     private _selectionExtendDragActiveTitleText: string | undefined;
-    private _selectionRegionOutlineColor: GridSettings.Color;
-    private _selectionRegionOverlayColor: GridSettings.Color;
+    private _selectionRegionOutlineColor: GridSettings.Color | undefined;
+    private _selectionRegionOverlayColor: GridSettings.Color | undefined;
     private _showFilterRow: boolean;
     private _showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
     private _sortOnDoubleClick: boolean;
@@ -742,22 +743,22 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
-    get repaintImmediately() { return this._repaintImmediately; }
-    set repaintImmediately(value: boolean) {
-        if (value !== this._repaintImmediately) {
+    get minimumAnimateTimeInterval() { return this._minimumAnimateTimeInterval; }
+    set minimumAnimateTimeInterval(value: number) {
+        if (value !== this._minimumAnimateTimeInterval) {
             this.beginChange();
-            this._repaintImmediately = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.repaintImmediately;
+            this._minimumAnimateTimeInterval = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.minimumAnimateTimeInterval;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
-    get repaintFramesPerSecond() { return this._repaintFramesPerSecond; }
-    set repaintFramesPerSecond(value: number) {
-        if (value !== this._repaintFramesPerSecond) {
+    get backgroundAnimateTimeInterval() { return this._backgroundAnimateTimeInterval; }
+    set backgroundAnimateTimeInterval(value: number | undefined) {
+        if (value !== this._backgroundAnimateTimeInterval) {
             this.beginChange();
-            this._repaintFramesPerSecond = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.repaintFramesPerSecond;
+            this._backgroundAnimateTimeInterval = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.backgroundAnimateTimeInterval;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -818,6 +819,16 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._scrollHorizontallySmoothly = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.scrollHorizontallySmoothly;
+            this.flagChanged(invalidateType);
+            this.endChange();
+        }
+    }
+    get scrollerThickness() { return this._scrollerThickness; }
+    set scrollerThickness(value: string) {
+        if (value !== this._scrollerThickness) {
+            this.beginChange();
+            this._scrollerThickness = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollerThickness;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -893,7 +904,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         }
     }
     get selectionRegionOutlineColor() { return this._selectionRegionOutlineColor; }
-    set selectionRegionOutlineColor(value: GridSettings.Color) {
+    set selectionRegionOutlineColor(value: GridSettings.Color | undefined) {
         if (value !== this._selectionRegionOutlineColor) {
             this.beginChange();
             this._selectionRegionOutlineColor = value;
@@ -903,7 +914,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         }
     }
     get selectionRegionOverlayColor() { return this._selectionRegionOverlayColor; }
-    set selectionRegionOverlayColor(value: GridSettings.Color) {
+    set selectionRegionOverlayColor(value: GridSettings.Color | undefined) {
         if (value !== this._selectionRegionOverlayColor) {
             this.beginChange();
             this._selectionRegionOverlayColor = value;
@@ -1385,16 +1396,16 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.primarySelectionAreaType);
                     }
                     break;
-                case 'repaintImmediately':
-                    if (this._repaintImmediately !== requiredSettings.repaintImmediately) {
-                        this._repaintImmediately = requiredSettings.repaintImmediately;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.repaintImmediately);
+                case 'minimumAnimateTimeInterval':
+                    if (this._minimumAnimateTimeInterval !== requiredSettings.minimumAnimateTimeInterval) {
+                        this._minimumAnimateTimeInterval = requiredSettings.minimumAnimateTimeInterval;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.minimumAnimateTimeInterval);
                     }
                     break;
-                case 'repaintFramesPerSecond':
-                    if (this._repaintFramesPerSecond !== requiredSettings.repaintFramesPerSecond) {
-                        this._repaintFramesPerSecond = requiredSettings.repaintFramesPerSecond;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.repaintFramesPerSecond);
+                case 'backgroundAnimateTimeInterval':
+                    if (this._backgroundAnimateTimeInterval !== requiredSettings.backgroundAnimateTimeInterval) {
+                        this._backgroundAnimateTimeInterval = requiredSettings.backgroundAnimateTimeInterval;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.backgroundAnimateTimeInterval);
                     }
                     break;
                 case 'resizeColumnInPlace':
@@ -1425,6 +1436,12 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     if (this._rowStripeBackgroundColor !== requiredSettings.rowStripeBackgroundColor) {
                         this._rowStripeBackgroundColor = requiredSettings.rowStripeBackgroundColor;
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.rowStripeBackgroundColor);
+                    }
+                    break;
+                case 'scrollerThickness':
+                    if (this._scrollerThickness !== requiredSettings.scrollerThickness) {
+                        this._scrollerThickness = requiredSettings.scrollerThickness;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.scrollerThickness);
                     }
                     break;
                 case 'scrollerThumbColor':

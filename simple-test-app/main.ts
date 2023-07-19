@@ -3,8 +3,8 @@ import { SimpleGrid } from './simple-grid';
 
 export class Main {
     private readonly _grid: SimpleGrid;
-    constructor() {
 
+    constructor() {
         const gridHostElement = document.querySelector('#gridHost') as HTMLElement | null;
         if (gridHostElement === null) {
             throw new Error('gridHost not found');
@@ -34,7 +34,7 @@ export class Main {
     }
 
     private createGrid(hostElement: HTMLElement) {
-        const grid = new SimpleGrid(hostElement);
+        const grid = new SimpleGrid(hostElement, this);
 
         grid.cellFocusEventer = (newPoint, oldPoint) => this.handleCellFocusEvent(newPoint, oldPoint)
         grid.clickEventer = (columnIndex, recordIndex) => this.handleCellClickEvent(columnIndex, recordIndex);

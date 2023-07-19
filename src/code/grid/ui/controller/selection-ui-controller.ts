@@ -41,10 +41,10 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
             this.selection.clear();
             return super.handlePointerDown(event, hoverCell);
         } else {
-            if (hoverCell === undefined) {
+            if (hoverCell === null) {
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+            if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
                 return super.handlePointerDown(event, hoverCell);
             } else {
                 const viewCell = hoverCell.viewCell;
@@ -74,10 +74,10 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         if (!event.altKey || isSecondaryMouseButton(event)) {
             return super.handleClick(event, hoverCell);
         } else {
-            if (hoverCell === undefined) {
+            if (hoverCell === null) {
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+            if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
                 return super.handleClick(event, hoverCell);
             } else {
                 let selectSucceeded: boolean;
@@ -109,10 +109,10 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         if (!event.altKey || isSecondaryMouseButton(event)) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
-            if (hoverCell === undefined) {
+            if (hoverCell === null) {
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+            if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
                 return super.handlePointerDragStart(event, hoverCell);
             } else {
                 const viewCell = hoverCell.viewCell;
@@ -165,10 +165,10 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
             if (stepScrolled) {
                 return cell;
             } else {
-                if (cell === undefined) {
+                if (cell === null) {
                     cell = this.tryGetHoverCellFromMouseEvent(event);
                 }
-                if (cell !== null) {
+                if (cell !== undefined) {
                     this.tryUpdateLastSelectionArea(cell.viewCell);
                 }
                 return cell;
@@ -600,13 +600,13 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
 
         if (subgrid === this.focus.subgrid && !this.gridSettings.scrollingEnabled) {
             const lastVisibleScrollableActiveColumnIndex = this.viewLayout.lastScrollableActiveColumnIndex;
-            const lastVisableScrollableSubgridRowIndex = this.viewLayout.lastScrollableSubgridRowIndex;
+            const lastVisibleScrollableSubgridRowIndex = this.viewLayout.lastScrollableRowSubgridRowIndex;
 
             if (lastVisibleScrollableActiveColumnIndex !== undefined) {
                 lastActiveColumnIndex = Math.min(lastActiveColumnIndex, lastVisibleScrollableActiveColumnIndex);
             }
-            if (lastVisableScrollableSubgridRowIndex !== undefined) {
-                lastSubgridRowIndex = Math.min(lastSubgridRowIndex, lastVisableScrollableSubgridRowIndex);
+            if (lastVisibleScrollableSubgridRowIndex !== undefined) {
+                lastSubgridRowIndex = Math.min(lastSubgridRowIndex, lastVisibleScrollableSubgridRowIndex);
             }
         }
 

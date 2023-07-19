@@ -1,4 +1,5 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { CanvasManager } from '../canvas/canvas-manager';
 
@@ -8,129 +9,120 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     scrollerTargettedViewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer;
     eventBehaviorTargettedViewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer;
 
-    private _start: number | undefined;
-    private _size: number | undefined;
-    private _viewportSize: number | undefined;
-    private _viewportSizeExact: boolean;
-    private _overflowed: boolean | undefined;
+    private _start = ScrollDimension.resetStart;
+    private _size = ScrollDimension.resetSize;
+    private _viewportSize = ScrollDimension.resetViewportSize;
+    private _viewportSizeExactMultiple = ScrollDimension.resetViewportSizeExactMultiple;
+    private _overflowed = ScrollDimension.resetOverflowed;
 
-    private _valid = false;
+    private _startScrollAnchorLimitIndex = ScrollDimension.resetStartScrollAnchorLimitIndex;
+    private _startScrollAnchorLimitOffset = ScrollDimension.resetStartScrollAnchorLimitOffset;
+    private _finishScrollAnchorLimitIndex = ScrollDimension.resetFinishScrollAnchorLimitIndex;
+    private _finishScrollAnchorLimitOffset = ScrollDimension.resetFinishScrollAnchorLimitOffset;
 
-    private _startScrollAnchorLimitIndex: number;
-    private _startScrollAnchorLimitOffset: number;
-    private _finishScrollAnchorLimitIndex: number;
-    private _finishScrollAnchorLimitOffset: number;
+    private _viewportStart: number | undefined = ScrollDimension.resetViewportStart;
 
-    private _viewportStart: number | undefined;
+    private _computed = ScrollDimension.resetComputed;
 
     constructor(
         public readonly horizontalVertical: ScrollDimension.AxisEnum,
-        protected readonly _canvasEx: CanvasManager<BGS>,
+        protected readonly _gridSettings: GridSettings,
+        protected readonly _canvasManager: CanvasManager<BGS>,
     ) {
 
     }
 
-    get valid() { return this._valid; }
-
-    get exists() { return this._overflowed !== undefined; }
-
     get start() {
-        this.ensureValidOutsideAnimationFrame();
-        if (this._start === undefined) {
-            throw new AssertError('SPDST60998');
-        } else {
-            return this._start;
-        }
+        this.ensureComputedOutsideAnimationFrame();
+        return this._start;
     }
     get size() {
-        this.ensureValidOutsideAnimationFrame();
-        if (this._size === undefined) {
-            throw new AssertError('SPDSI60998');
-        } else {
-            return this._size;
-        }
+        this.ensureComputedOutsideAnimationFrame();
+        return this._size;
     }
     get finish() {
-        this.ensureValidOutsideAnimationFrame();
-        if (this._start === undefined || this._size === undefined) {
-            throw new AssertError('SPDF60998');
-        } else {
-            return this._start + this._size - 1;
-        }
+        this.ensureComputedOutsideAnimationFrame();
+        return this._start + this._size - 1;
     }
     get after() {
-        this.ensureValidOutsideAnimationFrame();
-        if (this._start === undefined || this._size === undefined) {
-            throw new AssertError('SPDA60998');
-        } else {
-            return this._start + this._size;
-        }
+        this.ensureComputedOutsideAnimationFrame();
+        return this._start + this._size;
     }
 
     get viewportStart() {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
         return this._viewportStart;
     }
 
     get viewportSize() {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
         const viewportSize = this._viewportSize;
-        if (viewportSize === undefined) {
-            throw new AssertError('SPDVSI60998');
-        } else {
-            return viewportSize;
-        }
+        return viewportSize;
     }
 
-    get viewportSizeExact() { return this._viewportSizeExact; }
+    get viewportSizeExactMultiple() { return this._viewportSizeExactMultiple; }
 
     get viewportFinish() {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
         const viewportStart = this._viewportStart;
-        const viewportSize = this._viewportSize;
-        if (viewportStart === undefined || viewportSize === undefined) {
+        if (viewportStart === undefined) {
             throw new AssertError('SPDVF60998');
         } else {
-            return viewportStart + viewportSize - 1;
+            return viewportStart + this._viewportSize - 1;
         }
     }
 
     get startScrollAnchorLimitIndex() {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
         return this._startScrollAnchorLimitIndex;
     }
     get startScrollAnchorLimitOffset() {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
         return this._startScrollAnchorLimitOffset;
     }
     get finishScrollAnchorLimitIndex() {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
         return this._finishScrollAnchorLimitIndex;
     }
     get finishScrollAnchorLimitOffset() {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
         return this._finishScrollAnchorLimitOffset;
     }
 
     get overflowed() {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
         return this._overflowed;
     }
 
+    get scrollable() {
+        this.ensureComputedOutsideAnimationFrame();
+        return this._viewportSize > 0 && this._overflowed;
+    }
+
     reset() {
-        this._valid = false;
+        this._start = ScrollDimension.resetStart;
+        this._size = ScrollDimension.resetSize;
+        this._viewportSize = ScrollDimension.resetViewportSize;
+        this._viewportSizeExactMultiple = ScrollDimension.resetViewportSizeExactMultiple;
+        this._overflowed = ScrollDimension.resetOverflowed;
+        this._startScrollAnchorLimitIndex = ScrollDimension.resetStartScrollAnchorLimitIndex;
+        this._startScrollAnchorLimitOffset = ScrollDimension.resetStartScrollAnchorLimitOffset;
+        this._finishScrollAnchorLimitIndex = ScrollDimension.resetFinishScrollAnchorLimitIndex;
+        this._finishScrollAnchorLimitOffset = ScrollDimension.resetFinishScrollAnchorLimitOffset;
+        this._viewportStart = ScrollDimension.resetViewportStart;
+        this._computed = ScrollDimension.resetComputed;
     }
 
     invalidate() {
-        this._valid = false;
+        this._computed = false;
     }
 
-    ensureValidOutsideAnimationFrame() {
-        return this.ensureValid(false);
+    ensureComputedOutsideAnimationFrame() {
+        return this.ensureComputed(false);
     }
 
-    ensureValidInsideAnimationFrame() {
-        return this.ensureValid(true);
+    ensureComputedInsideAnimationFrame() {
+        return this.ensureComputed(true);
     }
 
     setViewportStart(value: number | undefined, withinAnimationFrame: boolean) {
@@ -144,19 +136,70 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
         }
     }
 
-    protected setDimensionValues(
-        start: number | undefined,
-        size: number | undefined,
-        viewportSize: number | undefined,
-        viewportSizeExact: boolean,
-        overflowed: boolean | undefined,
+    isScrollAnchorWithinStartLimit(index: number, offset: number) {
+        const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
+        if (index > startScrollAnchorLimitIndex) {
+            return true;
+        } else {
+            if (index < startScrollAnchorLimitIndex) {
+                return false;
+            } else {
+                if (this._gridSettings.gridRightAligned) {
+                    return offset <= this.startScrollAnchorLimitOffset;
+                } else {
+                    return offset >= this.startScrollAnchorLimitOffset;
+                }
+            }
+        }
+    }
+
+    isScrollAnchorWithinFinishLimit(index: number, offset: number) {
+        const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
+        if (index < finishScrollAnchorLimitIndex) {
+            return true;
+        } else {
+            if (index > finishScrollAnchorLimitIndex) {
+                return false;
+            } else {
+                if (this._gridSettings.gridRightAligned) {
+                    return offset >= this.finishScrollAnchorLimitOffset;
+                } else {
+                    return offset <= this.finishScrollAnchorLimitOffset;
+                }
+            }
+        }
+    }
+
+    calculateLimitedScrollAnchor(index: number, offset: number): ScrollDimension.Anchor {
+        if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
+            index = this.startScrollAnchorLimitIndex;
+            offset = this.startScrollAnchorLimitOffset;
+        } else {
+            if (!this.isScrollAnchorWithinFinishLimit(index, offset)) {
+                index = this.finishScrollAnchorLimitIndex;
+                offset = this.finishScrollAnchorLimitOffset;
+            }
+        }
+
+        return {
+            index,
+            offset
+        };
+    }
+
+    protected setComputedValues(
+        start: number,
+        size: number,
+        viewportSize: number,
+        viewportSizeExactMultiple: boolean,
+        overflowed: boolean,
         anchorLimits: ScrollDimension.ScrollAnchorLimits
     ) {
         // set within animation frame
         this._start = start;
         this._size = size;
         this._viewportSize = viewportSize;
-        this._viewportSizeExact = viewportSizeExact;
+        this._viewportSizeExactMultiple = viewportSizeExactMultiple;
         this._overflowed = overflowed;
 
         this._startScrollAnchorLimitIndex = anchorLimits.startAnchorLimitIndex;
@@ -167,12 +210,12 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
 
     protected abstract compute(): void;
 
-    private ensureValid(withinAnimationFrame: boolean) {
-        if (this._valid) {
+    private ensureComputed(withinAnimationFrame: boolean) {
+        if (this._computed) {
             return true;
         } else {
             this.compute();
-            this._valid = true;
+            this._computed = true;
             const viewportStart = this.computedEventer(withinAnimationFrame);
             const viewportStartChanged = viewportStart !== this._viewportStart;
             this._viewportStart = viewportStart;
@@ -223,9 +266,21 @@ export namespace ScrollDimension {
         finishAnchorLimitOffset: number;
     }
 
-    export interface ScrollableSizeAndAnchorLimits {
-        scrollableSize: number;
+    export interface ScrollSizeAndAnchorLimits {
+        scrollSize: number;
         overflowed: boolean;
         anchorLimits: ScrollAnchorLimits;
     }
+
+    export const resetStart = 0;
+    export const resetSize = 0;
+    export const resetViewportSize = 0;
+    export const resetViewportSizeExactMultiple = true;
+    export const resetOverflowed = false;
+    export const resetComputed = true;
+    export const resetStartScrollAnchorLimitIndex = 0;
+    export const resetStartScrollAnchorLimitOffset = 0;
+    export const resetFinishScrollAnchorLimitIndex = 0;
+    export const resetFinishScrollAnchorLimitOffset = 0;
+    export const resetViewportStart = undefined;
 }

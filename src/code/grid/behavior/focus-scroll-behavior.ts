@@ -11,11 +11,14 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../interfaces/settings/grid-settings';
+import { RevgridObject } from '../types-utils/revgrid-object';
 
-export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     private readonly _mainSubgrid: MainSubgrid<BCS, SF>;
 
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         private readonly _gridSettings: GridSettings,
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,
@@ -26,12 +29,25 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<BCS, SF> | undefined) {
-        if (this.isXScrollabe(x) && this.isYScrollabe(y)) {
-            this._viewLayout.ensureColumnRowAreInView(x, y, true)
-            this._focus.setXY(x, y, cell, undefined, undefined);
+        const xScrollable = this.isXScrollabe(x);
+        const yScrollable = this.isYScrollabe(y);
+        if (xScrollable) {
+            if (yScrollable) {
+                this._viewLayout.ensureColumnRowAreInView(x, y, true)
+                this._focus.setXY(x, y, cell, undefined, undefined);
+            } else {
+                this._viewLayout.ensureColumnIsInView(x, true)
+                this._focus.setX(x, undefined, undefined);
+            }
             return true;
         } else {
-            return false;
+            if (yScrollable) {
+                this._viewLayout.ensureRowIsInView(y, true)
+                this._focus.setY(y, undefined, undefined);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -148,7 +164,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     tryPageFocusDown() {
         let focusY = this._focus.currentY;
         if (focusY === undefined) {
-            focusY = this._viewLayout.lastScrollableSubgridRowIndex;
+            focusY = this._viewLayout.lastScrollableRowSubgridRowIndex;
         }
         if (focusY === undefined) {
             return false;

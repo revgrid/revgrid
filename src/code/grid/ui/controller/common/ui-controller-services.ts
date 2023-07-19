@@ -18,13 +18,16 @@ import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
+import { RevgridObject } from '../../../types-utils/revgrid-object';
 import { UiControllerSharedState } from './ui-controller-shared-state';
 
 /** @public */
-export class UiControllerServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-
+export class UiControllerServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     /** @internal */
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
+
         readonly sharedState: UiControllerSharedState,
         readonly hostElement: HTMLElement,
         readonly gridSettings: GridSettings,
@@ -37,8 +40,8 @@ export class UiControllerServices<BGS extends BehavioredGridSettings, BCS extend
         readonly renderer: Renderer<BGS, BCS, SF>,
 
         readonly mouse: Mouse<BGS, BCS, SF>,
-        readonly horizontalScroller: Scroller<BGS>,
-        readonly verticalScroller: Scroller<BGS>,
+        readonly horizontalScroller: Scroller<BGS, BCS, SF>,
+        readonly verticalScroller: Scroller<BGS, BCS, SF>,
 
         readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>,
         readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>,

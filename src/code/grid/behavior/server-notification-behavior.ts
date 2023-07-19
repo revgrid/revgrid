@@ -10,9 +10,10 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { SchemaServer } from '../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevgridObject } from '../types-utils/revgrid-object';
 import { ReindexBehavior } from './reindex-behavior';
 
-export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     private readonly _schemaServer: SchemaServer<SF>;
     private readonly _subgrids: SubgridImplementation<BCS, SF>[];
     private readonly _mainDataServer: DataServer<SF>;
@@ -33,6 +34,8 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     constructor(
+        readonly revgridId: string,
+        readonly internalParent: RevgridObject,
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
@@ -64,7 +67,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
                 invalidateRowCells: (rowIndex, schemaColumnIndexes) => this.handleInvalidateRowCells(dataServer, rowIndex, schemaColumnIndexes),
                 invalidateCell: (schemaColumnIndex, rowIndex) => this.handleInvalidateCell(dataServer, schemaColumnIndex, rowIndex),
                 preReindex:  () => this.handleDataPreReindex(),
-                postReindex: () => this.handleDataPostReindex(),
+                postReindex: (allRowsKept) => this.handleDataPostReindex(allRowsKept),
             };
 
             subgrid.setDataNotificationsClient(notificationsClient);
@@ -373,9 +376,9 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleDataPostReindex() {
+    private handleDataPostReindex(allRowsKept: boolean) {
         if (!this._destroyed) {
-            this._reindexStashManager.unstash();
+            this._reindexStashManager.unstash(allRowsKept);
             this._viewLayout.invalidateVerticalAll(false);
             this._renderer.modelUpdated();
         }

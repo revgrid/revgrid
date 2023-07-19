@@ -8,7 +8,7 @@
 
   "include": [
     "*.ts"
-  ],
+, "../renderer/animator.ts", "../renderer/animation.ts"  ],
 
   "references": [
     { "path": "../../settings/tsconfig.grid-settings.json" },

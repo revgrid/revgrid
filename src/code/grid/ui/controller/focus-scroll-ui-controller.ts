@@ -13,10 +13,10 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
     readonly typeName = FocusScrollUiController.typeName;
 
     override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell !== null && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+        if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) {
             const viewCell = hoverCell.viewCell;
             if (viewCell.subgrid.isMain) {
                 this.focusScrollBehavior.tryFocusXYAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, viewCell);
@@ -26,10 +26,10 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
     }
 
     override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell !== null && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+        if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) {
             const viewCell = hoverCell.viewCell;
             if (viewCell === this.focus.cell) {
                 const editorPointerLocationInfo = this.focus.checkEditorProcessPointerMoveEvent(event, viewCell);
@@ -53,10 +53,10 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
 
 
     override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+        if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
             return super.handleClick(event, hoverCell);
         } else {
             const viewCell = hoverCell.viewCell;
@@ -73,10 +73,10 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
     }
 
     override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+        if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
             return super.handleDblClick(event, hoverCell);
         } else {
             const viewCell = hoverCell.viewCell;
@@ -161,7 +161,7 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
         if (gridSettings.scrollingEnabled) {
             const viewLayout = this.viewLayout;
 
-            if (viewLayout.horizontalScrollDimension.overflowed && this.isHorizontalWheelScrollingAllowed(event)) {
+            if (viewLayout.horizontalScrollDimension.scrollable && this.isHorizontalWheelScrollingAllowed(event)) {
                 const deltaX = event.deltaX;
                 if (deltaX !== 0) {
                     if (gridSettings.scrollHorizontallySmoothly) {
@@ -172,7 +172,7 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
                 }
             }
 
-            if (viewLayout.verticalScrollDimension.overflowed) {
+            if (viewLayout.verticalScrollDimension.scrollable) {
                 const deltaY = event.deltaY;
                 if (deltaY !== 0) {
                     this.viewLayout.scrollRowsBy(Math.sign(deltaY)); // Update when Vertical scrolling improved

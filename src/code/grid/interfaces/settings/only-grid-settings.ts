@@ -123,11 +123,13 @@ export interface OnlyGridSettings {
     multipleSelectionAreas: boolean;
     /** The area type that is added to a selection by default in a UI operation. Can also be specified in API calls which add an area to a Selection. */
     primarySelectionAreaType: SelectionAreaType;
-    /**
-     * Normally multiple calls to {@link Hypergrid#repaint grid.repaint()}, {@link Hypergrid#reindex grid.reindex()}, {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()}, and/or {@link Hypergrid#behaviorStateChanged grid.behaviorStateChanged()} defer their actions until just before the next scheduled render. For debugging purposes, set `repaintImmediately` to truthy to carry out these actions immediately while leaving the paint loop running for when you resume execution. Alternatively, call {@link Canvas#stopPaintLoop grid.canvas.stopPaintLoop()}. Caveat: Both these modes are for debugging purposes only and may not render the grid perfectly for all interactions.
-     */
-    repaintImmediately: boolean;
-    repaintFramesPerSecond: number;
+    /** The minimum time interval (in milliseconds) between call requestAnimationFrame to paint grid. Set low value for minimum latency. Set high value to reduce resource usage.*/
+    minimumAnimateTimeInterval: number;
+    /** Specifies the interval (in milliseconds) between regular calls of requestAnimationFrame to paint grid. Set to undefined for no regular calls of requestAnimationFrame.
+     * This is normally not required (undefined) as the grid will automatically detect when a repaint and automatically immediately initiate a repaint.  However this can be used to force continuous
+     * repaints (set to 0) for debugging purpose. It can also be used when data server invalidate callbacks to grid do not notify all data changes and repaints should be triggered by polling.
+    */
+    backgroundAnimateTimeInterval: number | undefined;
     resizeColumnInPlace: boolean;
     /** Reduce resize processing even more by increasing debounce when lots of resize observer call backs are occurring */
     resizedEventDebounceExtendedWhenPossible: boolean;
@@ -137,10 +139,10 @@ export interface OnlyGridSettings {
     rowResize: boolean;
     /** Repeating pattern of property overrides for grid rows. */
     rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
+    /** Height or width (depending on orientation) in either pixels (px) or Em (em) */
+    scrollerThickness: string; // size with units
     scrollerThumbColor: string;
     scrollerThumbReducedVisibilityOpacity: number;
-        // thumb.style.backgroundColor = this._onlyGridSettings.scrollerThumbColor;
-        // thumb.style.opacity = this._onlyGridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
     /** Anchor column does not need to align with edge of grid */
     scrollHorizontallySmoothly: boolean;
     scrollingEnabled: boolean;
@@ -151,9 +153,9 @@ export interface OnlyGridSettings {
     selectionExtendDragActiveCursorName: string | undefined;
     selectionExtendDragActiveTitleText: string | undefined;
     /** Stroke color for last selection overlay. */
-    selectionRegionOutlineColor: OnlyGridSettings.Color;
+    selectionRegionOutlineColor: OnlyGridSettings.Color | undefined;
     /** Fill color for last selection overlay. */
-    selectionRegionOverlayColor: OnlyGridSettings.Color;
+    selectionRegionOverlayColor: OnlyGridSettings.Color | undefined;
     showFilterRow: boolean;
     showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
     /** Sort column on double-click rather than single-click. */

@@ -54,11 +54,11 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         if (!this.gridSettings.columnsReorderable) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
-            if (hoverCell === undefined) {
+            if (hoverCell === null) {
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
 
-            if (hoverCell === null || LinedHoverCell.isMouseOverLine(hoverCell)) {
+            if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
                 return super.handlePointerDragStart(event, hoverCell);
             } else {
                 const viewCell = hoverCell.viewCell;
@@ -78,8 +78,8 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                     this.hostElement.appendChild(this._dragOverlay);
 
                     this._dragColumn = viewCell.viewLayoutColumn;
-                    this._dragOverlay.width = this.canvasManager.flooredHostWidth;
-                    this._dragOverlay.height = this.canvasManager.flooredHostHeight;
+                    this._dragOverlay.width = this.canvasManager.flooredWidth;
+                    this._dragOverlay.height = this.canvasManager.flooredHeight;
                     this._dragOverlay.style.display = '';
 
                     return {
@@ -104,7 +104,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
 
                 this.endGridScrolling();
                 this.endDragColumn(dragAction);
-                this.reindexBehavior.unstash();
+                this.reindexBehavior.unstash(true);
                 this.hostElement.removeChild(dragOverlay);
                 // requestAnimationFrame(() => this.render(undefined));
                 this.setMouseDragging(false);
@@ -117,10 +117,10 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (this.gridSettings.columnsReorderable) {
-                if (hoverCell === undefined) {
+                if (hoverCell === null) {
                     hoverCell = this.tryGetHoverCellFromMouseEvent(event);
                 }
-                if (hoverCell !== null && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+                if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) {
                     const viewCell = hoverCell.viewCell;
                     if (!viewCell.isColumnFixed && viewCell.isHeaderOrRowFixed) {
                         sharedState.locationCursorName = this.gridSettings.columnMoveDragPossibleCursorName;
@@ -196,9 +196,9 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                 if (dragContext === null) {
                     throw new AssertError('CMR18887');
                 } else {
-                    dragOverlay.width = this.canvasManager.flooredHostWidth;
-                    dragOverlay.height = this.canvasManager.flooredHostHeight;
-                    dragContext.clearRect(0, 0, this.canvasManager.flooredHostWidth, this.canvasManager.flooredHostHeight);
+                    dragOverlay.width = this.canvasManager.flooredWidth;
+                    dragOverlay.height = this.canvasManager.flooredHeight;
+                    dragContext.clearRect(0, 0, this.canvasManager.flooredWidth, this.canvasManager.flooredHeight);
 
                     if (dragAction !== undefined) {
 
@@ -207,7 +207,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                                 ? dragAction.target.left
                                 : dragAction.target.rightPlus1;
                             dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
-                            dragContext.fillRect(indicatorX, 0, 2, this.canvasManager.flooredHostHeight);
+                            dragContext.fillRect(indicatorX, 0, 2, this.canvasManager.flooredHeight);
                         }
 
                         const dragCol = this.viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex);
@@ -216,7 +216,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                             dragContext.fillStyle = hideAction
                                 ? 'rgba(255, 50, 50, 0.2)'
                                 : 'rgba(50, 50, 255, 0.2)';
-                            dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasManager.flooredHostHeight);
+                            dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasManager.flooredHeight);
                         }
                     }
                 }
@@ -246,13 +246,14 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
     }
 
     private getDragAction(event: MouseEvent, dragColumn: ViewLayoutColumn<BCS, SF>): ColumnDragAction<BCS, SF> {
-        const firstScrollableColumnViewLeft = this.viewLayout.scrollableCanvasLeft;
-        if (firstScrollableColumnViewLeft === undefined) {
+        const viewLayout = this.viewLayout;
+        if (!viewLayout.horizontalScrollDimension.scrollable) {
             return {
                 type: DragActionType.None
             };
         } else {
-            const updatedDragColumn = this.viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex)
+            const firstScrollableColumnViewLeft = viewLayout.scrollableCanvasLeft;
+            const updatedDragColumn = viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex)
             const sourceDragColumn = updatedDragColumn !== undefined ? updatedDragColumn : dragColumn;
             const offsetX = event.offsetX;
             if (offsetX < firstScrollableColumnViewLeft) {
@@ -263,7 +264,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                     source: sourceDragColumn
                 };
             } else {
-                const gridWidth = this.canvasManager.bounds.width;
+                const gridWidth = this.canvasManager.flooredBounds.width;
                 if (offsetX >= gridWidth) {
                     return {
                         type: DragActionType.Scroll,

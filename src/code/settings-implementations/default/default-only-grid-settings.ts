@@ -80,10 +80,11 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     filterEditor: 'TextField',
     filterable: true,
     showFilterRow: false,
+    scrollerThickness: '0.7em',
     scrollerThumbColor: '#d3d3d3',
     scrollerThumbReducedVisibilityOpacity: 0.4,
     showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum.Control,
-    scrollHorizontallySmoothly: false,
+    scrollHorizontallySmoothly: true,
     scrollingEnabled: true,
     horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed.CtrlKeyDown,
     verticalScrollbarClassPrefix: '',
@@ -146,7 +147,7 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
      */
     maximumColumnWidth: undefined,
 
-    visibleColumnWidthAdjust: false,
+    visibleColumnWidthAdjust: true,
 
     /**
      * Resizing a column through the UI (by clicking and dragging on the column's
@@ -170,9 +171,8 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     resizedEventDebounceExtendedWhenPossible: false,
     resizedEventDebounceInterval: 100, // milliseconds
 
-    //for immediate painting, set these values to 0, true respectively
-    repaintFramesPerSecond: 60,
-    repaintImmediately: false,
+    minimumAnimateTimeInterval: 80,
+    backgroundAnimateTimeInterval: undefined, // Set to 0 to repaint continuously.  Set to positive integer to repaint regularly (ie polling instead of being event driven)
     useHiDPI: true,
     fixedColumnCount: 0,
     fixedRowCount: 0,
@@ -194,14 +194,14 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
      * @default
      * @type {cssColor}
      */
-    selectionRegionOverlayColor: 'transparent', // 'rgba(0, 0, 48, 0.2)',
+    selectionRegionOverlayColor: undefined, // 'rgba(0, 0, 48, 0.2)',
 
     /**
      * @summary Stroke color for last selection overlay.
      * @default
      * @type {string}
      */
-    selectionRegionOutlineColor: 'transparent', // rgb(69, 69, 69)',
+    selectionRegionOutlineColor: undefined, // rgb(69, 69, 69)',
 
     /**
      * @summary Whether to automatically expand column width to accommodate widest rendered value.

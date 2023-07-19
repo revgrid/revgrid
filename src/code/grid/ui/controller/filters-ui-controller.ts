@@ -57,10 +57,10 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
     handleDOWN = this.moveDown;
 
     override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (hoverCell === undefined) {
+        if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell !== null && hoverCell.viewCell.isFilter) {
+        if (hoverCell !== undefined && hoverCell.viewCell.isFilter) {
             // this.grid.onEditorActivate(cell);
             return hoverCell;
         } else {
@@ -69,10 +69,10 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
     }
 
     override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (cell === undefined) {
+        if (cell === null) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (cell !== null && cell.viewCell.isFilter) {
+        if (cell !== undefined && cell.viewCell.isFilter) {
             // this.grid.onEditorActivate(cell);
             return cell;
         } else {

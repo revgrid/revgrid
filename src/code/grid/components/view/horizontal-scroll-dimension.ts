@@ -8,22 +8,23 @@ import { ScrollDimension } from './scroll-dimension';
 
 export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends ScrollDimension<BGS> {
     constructor(
-        private readonly _gridSettings: GridSettings,
+        gridSettings: GridSettings,
         canvasManager: CanvasManager<BGS>,
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
         super(
             ScrollDimension.AxisEnum.horizontal,
+            gridSettings,
             canvasManager,
         );
     }
 
-    override reset() {
-        const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
-        this.setDimensionValues(undefined, undefined, undefined, false, undefined, anchorLimits);
+    // override reset() {
+    //     const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
+    //     this.setComputedValues(undefined, undefined, undefined, false, undefined, anchorLimits);
 
-        super.reset();
-    }
+    //     super.reset();
+    // }
 
     calculateLimitedScrollAnchorFromViewportStart(viewportStart: number): ScrollDimension.Anchor {
         const anchor = this.calculateScrollAnchorFromViewportStart(viewportStart);
@@ -36,10 +37,10 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
      * @returns Scroll Anchor which will ensure the column is displayed
      */
     calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean): ScrollDimension.Anchor {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
 
-        const gridProperties = this._gridSettings;
-        const gridLinesVWidth = gridProperties.verticalGridLinesWidth;
+        const gridSettings = this._gridSettings;
+        const gridLinesVWidth = gridSettings.verticalGridLinesWidth;
         let index: number;
         let offset: number;
 
@@ -64,7 +65,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
                 // column finishes exactly at viewportFinish.
                 offset = 0;
             } else {
-                if (gridProperties.scrollHorizontallySmoothly) {
+                if (gridSettings.scrollHorizontallySmoothly) {
                     // can display this column partially
                     offset = rightPlus1 - viewportFinishPlus1;
                 } else {
@@ -96,7 +97,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
                 // column starts exactly at viewportStart.
                 offset = 0;
             } else {
-                if (gridProperties.scrollHorizontallySmoothly) {
+                if (gridSettings.scrollHorizontallySmoothly) {
                     // can display this column partially
                     offset = viewportStart - left;
                 } else {
@@ -113,76 +114,32 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         }
     }
 
-    isScrollAnchorWithinStartLimit(index: number, offset: number) {
-        const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
-        if (index > startScrollAnchorLimitIndex) {
-            return true;
-        } else {
-            if (index < startScrollAnchorLimitIndex) {
-                return false;
-            } else {
-                if (this._gridSettings.gridRightAligned) {
-                    return offset <= this.startScrollAnchorLimitOffset;
-                } else {
-                    return offset >= this.startScrollAnchorLimitOffset;
-                }
-            }
-        }
-    }
-
-    isScrollAnchorWithinFinishLimit(index: number, offset: number) {
-        const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
-        if (index < finishScrollAnchorLimitIndex) {
-            return true;
-        } else {
-            if (index > finishScrollAnchorLimitIndex) {
-                return false;
-            } else {
-                if (this._gridSettings.gridRightAligned) {
-                    return offset >= this.finishScrollAnchorLimitOffset;
-                } else {
-                    return offset <= this.finishScrollAnchorLimitOffset;
-                }
-            }
-        }
-    }
-
-    calculateLimitedScrollAnchor(index: number, offset: number): ScrollDimension.Anchor {
-        if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
-            index = this.startScrollAnchorLimitIndex;
-            offset = this.startScrollAnchorLimitOffset;
-        } else {
-            if (!this.isScrollAnchorWithinFinishLimit(index, offset)) {
-                index = this.finishScrollAnchorLimitIndex;
-                offset = this.finishScrollAnchorLimitOffset;
-            }
-        }
-
-        return {
-            index,
-            offset
-        };
-    }
-
     protected override compute() {
         // called within Animation Frame
 
-        const canvasBounds = this._canvasEx.getBounds();
-
         const scrollStart = this.calculateScrollStart();
-        const viewportSize = canvasBounds.width - scrollStart;
+        let scrollSize = this.calculateActiveNonFixedColumnsWidth();
+        let viewportSize = this._canvasManager.flooredWidth - scrollStart;
+
+        let overflowed: boolean;
+        let anchorLimits: ScrollDimension.ScrollAnchorLimits
 
         if (viewportSize <= 0) {
-            const anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
-            this.setDimensionValues(undefined, undefined, undefined, true, undefined, anchorLimits);
+            viewportSize = 0;
+            overflowed = scrollSize > 0;
+            anchorLimits = this.calculateColumnScrollInactiveAnchorLimits();
         } else {
-            const contentSizeAndAnchorLimits = this.calculateScrollableSizeAndAnchorLimits(
+            const contentSizeAndAnchorLimits = this.calculateScrollSizeAndAnchorLimits(
                 scrollStart,
+                scrollSize,
                 viewportSize,
             );
-            const { scrollableSize, overflowed, anchorLimits } = contentSizeAndAnchorLimits;
-            this.setDimensionValues(scrollStart, scrollableSize, viewportSize, true, overflowed, anchorLimits);
+
+            scrollSize = contentSizeAndAnchorLimits.scrollSize;
+            overflowed = contentSizeAndAnchorLimits.overflowed;
+            anchorLimits = contentSizeAndAnchorLimits.anchorLimits;
         }
+        this.setComputedValues(scrollStart, scrollSize, viewportSize, true, overflowed, anchorLimits);
     }
 
     private calculateScrollStart (): number {
@@ -197,19 +154,19 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         }
     }
 
-    private calculateScrollableSizeAndAnchorLimits(
-        scrollableStart: number, // Fixed columns width + fixed gridline width
+    private calculateScrollSizeAndAnchorLimits(
+        scrollStart: number, // Fixed columns width + fixed gridline width
+        scrollSize: number, // unadjusted scrollSize
         viewportSize: number,
-    ): ScrollDimension.ScrollableSizeAndAnchorLimits {
+    ): ScrollDimension.ScrollSizeAndAnchorLimits {
         const gridSettings = this._gridSettings;
         const gridRightAligned = gridSettings.gridRightAligned;
         const fixedColumnCount = gridSettings.fixedColumnCount;
         const columnCount = this._columnsManager.activeColumnCount;
 
-        let scrollableSize = this.calculateActiveNonFixedColumnsWidth();
         let anchorLimits: ScrollDimension.ScrollAnchorLimits;
 
-        const overflowed = scrollableSize > viewportSize && columnCount > fixedColumnCount
+        const overflowed = scrollSize > viewportSize && columnCount > fixedColumnCount
         if (overflowed) {
             let leftAnchorLimitIndex: number;
             let leftAnchorLimitOffset: number;
@@ -220,7 +177,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
             if (gridRightAligned) {
                 rightAnchorLimitIndex = columnCount - 1;
                 rightAnchorLimitOffset = 0;
-                let prevColumnGridLineFinish = scrollableStart - 1;
+                let prevColumnGridLineFinish = scrollStart - 1;
                 const lowestViewportFinish = prevColumnGridLineFinish + viewportSize;
                 let lowestViewportStartColumnIndex = fixedColumnCount;
                 let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this._columnsManager.getActiveColumnRoundedWidth(lowestViewportStartColumnIndex);
@@ -234,7 +191,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
                 if (!this._gridSettings.scrollHorizontallySmoothly) {
                     // Since we cannot show a partial column on right, this may prevent leftmost columns from being displayed in viewport
                     // Extend scrollable size (content size) so that the previous column can be shown on end when viewport is at start of content.
-                    scrollableSize += (lowestViewportFinish - prevColumnGridLineFinish);
+                    scrollSize += (lowestViewportFinish - prevColumnGridLineFinish);
                     if (leftAnchorLimitOffset !== 0) {
                         leftAnchorLimitOffset = 0;
                         if (leftAnchorLimitIndex > fixedColumnCount) {
@@ -246,8 +203,8 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
                 const leftAnchor = this.calculateLeftMostAnchorLimit();
                 leftAnchorLimitIndex = leftAnchor.index;
                 leftAnchorLimitOffset = leftAnchor.offset;
-                const highestViewportStart = scrollableSize - viewportSize;
-                let nextColumnLeft = scrollableSize;
+                const highestViewportStart = scrollSize - viewportSize;
+                let nextColumnLeft = scrollSize;
                 let highestViewportStartColumnIndex = columnCount - 1;
                 let highestViewportStartColumnLeft = nextColumnLeft - this._columnsManager.getActiveColumnRoundedWidth(highestViewportStartColumnIndex);
                 while (highestViewportStartColumnLeft > highestViewportStart) {
@@ -260,7 +217,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
                 if (!this._gridSettings.scrollHorizontallySmoothly) {
                     // Since we cannot show a partial column on left, this may prevent rightmost columns from being displayed in viewport
                     // Extend scrollable size (content size) so that the subsequent column can be shown on start when viewport is at end of content.
-                    scrollableSize += (nextColumnLeft - highestViewportStart);
+                    scrollSize += (nextColumnLeft - highestViewportStart);
                     if (rightAnchorLimitOffset !== 0) {
                         rightAnchorLimitOffset = 0;
                         if (rightAnchorLimitIndex < columnCount - 1) {
@@ -281,7 +238,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         }
 
         return {
-            scrollableSize,
+            scrollSize,
             overflowed,
             anchorLimits,
         };
@@ -360,7 +317,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
     }
 
     private calculateScrollAnchorFromViewportStart(viewportStart: number): ScrollDimension.Anchor {
-        this.ensureValidOutsideAnimationFrame();
+        this.ensureComputedOutsideAnimationFrame();
 
         viewportStart = Math.round(viewportStart);
 

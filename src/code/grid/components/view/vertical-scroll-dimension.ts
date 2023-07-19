@@ -9,17 +9,18 @@ import { ScrollDimension } from './scroll-dimension';
 
 export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends ScrollDimension<BGS> {
     constructor(
-        private readonly _gridSettings: GridSettings,
+        gridSettings: GridSettings,
         canvasManager: CanvasManager<BGS>,
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,
     ) {
         super(
             ScrollDimension.AxisEnum.vertical,
+            gridSettings,
             canvasManager,
         );
     }
 
-    calculateLimitedScrollAnchor(index: number, _offset: number): ScrollDimension.Anchor {
+    override calculateLimitedScrollAnchor(index: number, _offset: number): ScrollDimension.Anchor {
         const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
         if (index < startScrollAnchorLimitIndex) {
             return {
@@ -47,32 +48,30 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
 
         const gridSettings = this._gridSettings;
         const fixedRowCount = gridSettings.fixedRowCount;
+        const mainSubgrid = this._subgridsManager.mainSubgrid;
         const preMainPlusFixedRowsHeight = this._subgridsManager.calculatePreMainPlusFixedRowsHeight();
         const postMainHeight = this._subgridsManager.calculatePostMainHeight();
-        const scrollableHeight = this._canvasEx.flooredHostHeight - (preMainPlusFixedRowsHeight + postMainHeight);
 
-        let start: number | undefined;
-        let size: number | undefined;
-        let viewportSize: number | undefined;
-        let viewportSizeExact: boolean;
-        let overflowed: boolean | undefined;
-        let anchorLimits: ScrollDimension.ScrollAnchorLimits;
+        const subgridRowCount = mainSubgrid.getRowCount();
+        const start = fixedRowCount;
+        const size = subgridRowCount - start;
 
-        if (scrollableHeight <= 0) {
-            start = undefined;
-            size = undefined;
-            viewportSize = undefined;
-            viewportSizeExact = false;
-            overflowed = undefined
-            anchorLimits = {
-                startAnchorLimitIndex: fixedRowCount,
-                startAnchorLimitOffset: 0,
-                finishAnchorLimitIndex: fixedRowCount,
-                finishAnchorLimitOffset: 0,
-            }
+        let viewportSize = this._canvasManager.flooredHeight - (preMainPlusFixedRowsHeight + postMainHeight);
+        let viewportSizeExactMultiple: boolean;
+        let overflowed: boolean;
+
+        if (viewportSize <= 0) {
+            viewportSize = 0;
+            viewportSizeExactMultiple = true;
+            overflowed = size > 0;
+            // anchorLimits = {
+            //     startAnchorLimitIndex: fixedRowCount,
+            //     startAnchorLimitOffset: 0,
+            //     finishAnchorLimitIndex: fixedRowCount,
+            //     finishAnchorLimitOffset: 0,
+            // }
 
         } else {
-            const mainSubgrid = this._subgridsManager.mainSubgrid;
             if (mainSubgrid.rowHeightsCanDiffer) {
                 throw new AssertError('VSDC07339', 'Differing row heights in MainSubgrid not yet implemented');
                 // const lineGap = gridSettings.gridLinesHWidth;
@@ -88,38 +87,29 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
 
                 // const finish = Math.max(0, mainSubgridRowCount - gridSettings.fixedRowCount - lastPageRowCount);
             } else {
-                const subgridRowCount = mainSubgrid.getRowCount();
-                start = fixedRowCount;
-                size = subgridRowCount - start;
                 const mainRowHeight = mainSubgrid.getDefaultRowHeight();
                 const gridLinesHWidth = this._gridSettings.horizontalGridLinesWidth;
                 // Rearrangement of scrollableHeight = (viewportSize - 1) * (mainRowHeight + gridLinesHWidth) + mainRowHeight
-                const possiblyFractionalViewportSize = (scrollableHeight - mainRowHeight) / (mainRowHeight + gridLinesHWidth) + 1;
+                const possiblyFractionalViewportSize = (viewportSize - mainRowHeight) / (mainRowHeight + gridLinesHWidth) + 1;
                 viewportSize = Math.floor(possiblyFractionalViewportSize);
-                viewportSizeExact = viewportSize === possiblyFractionalViewportSize;
+                viewportSizeExactMultiple = viewportSize === possiblyFractionalViewportSize;
                 overflowed = viewportSize < size;
-                // overflowed = (viewportSize < size) || (viewportSize === size && !viewportSizeExact);
-                // let finishAnchorLimitIndex = size - viewportSize;
-                // if (!viewportSizeExact) {
-                //     finishAnchorLimitIndex++;
-                // }
-                let finishAnchorLimitIndex: number;
-                if (overflowed) {
-                    finishAnchorLimitIndex = size - viewportSize;
-                } else {
-                    finishAnchorLimitIndex = subgridRowCount - 1;
-                }
-
-                anchorLimits = {
-                    startAnchorLimitIndex: fixedRowCount,
-                    startAnchorLimitOffset: 0,
-                    finishAnchorLimitIndex,
-                    finishAnchorLimitOffset: 0,
-                }
             }
         }
-        // Viewport size and overflowed cannot currently be calculated.  Set to -1 and undefined
-        this.setDimensionValues(start, size, viewportSize, viewportSizeExact, overflowed, anchorLimits);
+
+        let finishAnchorLimitIndex: number;
+        if (overflowed) {
+            finishAnchorLimitIndex = size - viewportSize;
+        } else {
+            finishAnchorLimitIndex = fixedRowCount;
+        }
+
+        const anchorLimits: ScrollDimension.ScrollAnchorLimits = {
+            startAnchorLimitIndex: fixedRowCount,
+            startAnchorLimitOffset: 0,
+            finishAnchorLimitIndex,
+            finishAnchorLimitOffset: 0,
+        }
+        this.setComputedValues(start, size, viewportSize, viewportSizeExactMultiple, overflowed, anchorLimits);
     }
 }
-
