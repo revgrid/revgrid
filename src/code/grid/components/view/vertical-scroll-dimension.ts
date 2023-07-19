@@ -101,7 +101,7 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
         if (overflowed) {
             finishAnchorLimitIndex = size - viewportSize;
         } else {
-            finishAnchorLimitIndex = subgridRowCount - 1;
+            finishAnchorLimitIndex = fixedRowCount;
         }
 
         const anchorLimits: ScrollDimension.ScrollAnchorLimits = {
