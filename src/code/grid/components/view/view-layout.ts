@@ -887,6 +887,11 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
+    setRowScrollAnchorToLimit() {
+        const dimension = this.verticalScrollDimension;
+        this.setRowScrollAnchor(dimension.startScrollAnchorLimitIndex, dimension.startScrollAnchorLimitOffset);
+    }
+
     scrollRowsBy(rowScrollCount: number) {
         const newIndex = this._rowScrollAnchorIndex + rowScrollCount;
         return this.setRowScrollAnchor(newIndex, 0);
@@ -1768,6 +1773,20 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (this._canvasManager.flooredHeight === 0) {
             return undefined;
         } else {
+            if (verticalScrollDimension.overflowed) {
+                if (!this.verticalScrollDimension.isScrollAnchorWithinStartLimit(this._rowScrollAnchorIndex, this._rowScrollAnchorOffset)) {
+                    this._rowScrollAnchorIndex = this.verticalScrollDimension.startScrollAnchorLimitIndex;
+                    this._rowScrollAnchorOffset = this.verticalScrollDimension.startScrollAnchorLimitOffset;
+                } else {
+                    if (!this.verticalScrollDimension.isScrollAnchorWithinFinishLimit(this._rowScrollAnchorIndex, this._rowScrollAnchorOffset)) {
+                        this._rowScrollAnchorIndex = this.verticalScrollDimension.finishScrollAnchorLimitIndex;
+                        this._rowScrollAnchorOffset = this.verticalScrollDimension.finishScrollAnchorLimitOffset;
+                    }
+                }
+            } else {
+                this.setRowScrollAnchorToLimit();
+            }
+
             const viewportStart = Math.min(this.rowScrollAnchorIndex, verticalScrollDimension.finishScrollAnchorLimitIndex);
             if (withinAnimationFrame) {
                 setTimeout(() => this.invalidateVerticalAll(false), 0);
