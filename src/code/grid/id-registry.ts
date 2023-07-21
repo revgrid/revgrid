@@ -1,42 +1,24 @@
-import { AssertError, OptionsError } from './types-utils/revgrid-error';
 
 export class IdRegistry {
-    private readonly _registeredIds = new Array<string>();
-    private _nextInternallyCreatedIdNumber = 1;
+    private readonly _baseIds = new Map<string, number>();
 
-    createOrRegisterId(id: string | undefined) {
-        if (id === undefined || id === '') {
-            id = this.createAndRegisterId();
+    resolveId(optionsId: string | undefined, hostElementId: string) {
+        if (optionsId !== undefined) {
+            const baseIdCount = this._baseIds.get(optionsId);
+            if (baseIdCount === undefined) {
+                this._baseIds.set(optionsId, 1);
+            }
+            return optionsId;
         } else {
-            this.registerId(id);
-        }
-        return id;
-    }
-
-    private createAndRegisterId() {
-        let id: string;
-        do {
-            const idNumber = this._nextInternallyCreatedIdNumber++;
-            id = idNumber.toString(10);
-        } while (this._registeredIds.includes(id));
-        this._registeredIds.push(id);
-        return id;
-    }
-
-    private registerId(id: string) {
-        if (this._registeredIds.includes(id)) {
-            throw new OptionsError('IRRI20691', `id is not unique "${id}`);
-        } else {
-            this._registeredIds.push(id);
-        }
-    }
-
-    deregisterId(id: string) {
-        const index = this._registeredIds.findIndex((registeredId) => registeredId === id);
-        if (index < 0) {
-            throw new AssertError('IRDI20691', id.toString());
-        } else {
-            this._registeredIds.splice(index, 1);
+            // create a unique Id based on host element
+            let baseCreateCount = this._baseIds.get(hostElementId);
+            if (baseCreateCount === undefined) {
+                this._baseIds.set(hostElementId, 1);
+                return hostElementId;
+            } else {
+                this._baseIds.set(hostElementId, ++baseCreateCount);
+                return hostElementId + baseCreateCount.toString(10);
+            }
         }
     }
 }

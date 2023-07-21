@@ -119,7 +119,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
         options = options ?? {};
 
-        const id = Revgrid.idRegistry.createOrRegisterId(options.id ?? this.hostElement.id);
+        const id = Revgrid.idRegistry.resolveId(options.id, this.hostElement.id);
         this.id = id;
         this.revgridId = this.id;
         this.externalParent = options.externalParent;
@@ -245,8 +245,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             hostElement.removeChild(firstChild);
             firstChild = hostElement.firstChild;
         }
-
-        Revgrid.idRegistry.deregisterId(this.id);
 
         this._destroyed = true;
     }
