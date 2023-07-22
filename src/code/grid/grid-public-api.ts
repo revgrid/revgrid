@@ -30,7 +30,7 @@ export { OnlyColumnSettings } from './interfaces/settings/only-column-settings';
 export { OnlyGridSettings } from './interfaces/settings/only-grid-settings';
 export { Revgrid } from './revgrid';
 export { CachedCanvasRenderingContext2D } from './types-utils/cached-canvas-rendering-context-2d';
-export { CssClassName } from './types-utils/html-types';
+export { CssTypes } from './types-utils/css-types';
 export { InexclusiveRectangle } from './types-utils/inexclusive-rectangle';
 export { ModifierKey, ModifierKeyEnum } from './types-utils/modifier-key';
 export { Point, WritablePoint } from './types-utils/point';

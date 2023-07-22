@@ -513,13 +513,42 @@ export namespace ColumnsManager {
 }
 
 // @public (undocumented)
-export namespace CssClassName {
+export namespace CssTypes {
     const // (undocumented)
-    gridElementCssClass = "revgrid";
-    const // (undocumented)
-    gridHostElementCssIdBase = "revgrid";
-    const // (undocumented)
-    gridHostElementCssClass = "revgrid-host";
+    libraryName = "revgrid";
+    // (undocumented)
+    export const enum Display {
+        // (undocumented)
+        block = "block",
+        // (undocumented)
+        inline = "inline"
+    }
+    // (undocumented)
+    export const enum Overflow {
+        // (undocumented)
+        auto = "auto",
+        // (undocumented)
+        clip = "clip",
+        // (undocumented)
+        hidden = "hidden",
+        // (undocumented)
+        scroll = "scroll",
+        // (undocumented)
+        visible = "visible"
+    }
+    // (undocumented)
+    export const enum Position {
+        // (undocumented)
+        absolute = "absolute",
+        // (undocumented)
+        fixed = "fixed",
+        // (undocumented)
+        relative = "relative",
+        // (undocumented)
+        static = "static",
+        // (undocumented)
+        sticky = "sticky"
+    }
 }
 
 // @public (undocumented)
@@ -2670,16 +2699,20 @@ export namespace Revgrid {
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
     // (undocumented)
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+        // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "canvasOverflowOverride"
+        canvasOverflowOverride?: CssTypes.Overflow;
         canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         // (undocumented)
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
         externalParent?: unknown;
+        // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "firstGeneratedIdFromBaseIsAlsoNumbered"
+        firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
         id?: string;
     }
-    const // Warning: (ae-forgotten-export) The symbol "IdRegistry" needs to be exported by the entry point public-api.d.ts
+    const // Warning: (ae-forgotten-export) The symbol "IdGenerator" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    idRegistry: IdRegistry;
+    idGenerator: IdGenerator;
 }
 
 // @public (undocumented)

@@ -16,7 +16,7 @@ import { Scroller } from './components/scroller/scroller';
 import { Selection } from './components/selection/selection';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
-import { IdRegistry } from './id-registry';
+import { IdGenerator } from './id-generator';
 import { CellMetaSettings } from './interfaces/data/cell-meta-settings';
 import { DataServer } from './interfaces/data/data-server';
 import { LinedHoverCell } from './interfaces/data/hover-cell';
@@ -30,7 +30,7 @@ import { SchemaServer } from './interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from './interfaces/settings/column-settings';
-import { CssClassName } from './types-utils/html-types';
+import { CssTypes } from './types-utils/css-types';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { ApiError, AssertError } from './types-utils/revgrid-error';
@@ -119,7 +119,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
         options = options ?? {};
 
-        const id = Revgrid.idRegistry.resolveId(options.id, this.hostElement.id);
+        const id = Revgrid.idGenerator.generateId(options.id, this.hostElement.id, options.firstGeneratedIdFromBaseIsAlsoNumbered);
         this.id = id;
         this.revgridId = this.id;
         this.externalParent = options.externalParent;
@@ -138,6 +138,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.hostElement,
             schemaServer,
             definition.subgrids,
+            options.canvasOverflowOverride,
             options.canvasRenderingContext2DSettings,
             getSettingsForNewColumnEventer,
         );
@@ -516,11 +517,17 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     private prepareHost(hostElement: string | HTMLElement | undefined): HTMLElement {
         let resolvedHostElement: HTMLElement;
         if (hostElement === undefined) {
-            let foundOrCreatedElement = document.getElementById(CssClassName.gridHostElementCssIdBase);
+            let foundOrCreatedElement = document.getElementById(CssTypes.libraryName);
 
             if (foundOrCreatedElement === null || foundOrCreatedElement.childElementCount > 0) {
                 // is not found or being used.  Create a new host
                 foundOrCreatedElement = document.createElement('div');
+                foundOrCreatedElement.style.display = CssTypes.Display.inline; // other display values would probably also work
+                foundOrCreatedElement.style.position = CssTypes.Position.relative; // allow scrollers to be positioned
+                foundOrCreatedElement.style.margin = '0'; // size of canvas must match host
+                foundOrCreatedElement.style.padding = '0'; // size of canvas must match host
+                foundOrCreatedElement.style.height = '100%', // take up all space
+                foundOrCreatedElement.style.width = '100%', // take up all space
                 document.body.appendChild(foundOrCreatedElement);
             }
             resolvedHostElement = foundOrCreatedElement;
@@ -536,20 +543,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
                 resolvedHostElement = hostElement;
             }
         }
-
-        // Default Position and height to ensure DnD works
-        if (!resolvedHostElement.style.position) {
-            resolvedHostElement.style.position = ''; // revert to stylesheet value
-        }
-
-        if (resolvedHostElement.clientHeight < 1) {
-            resolvedHostElement.style.height = ''; // revert to stylesheet value
-        }
-
-        resolvedHostElement.removeAttribute('tabindex');
-
-        resolvedHostElement.classList.add(CssClassName.gridHostElementCssClass);
-        resolvedHostElement.id = resolvedHostElement.id || CssClassName.gridHostElementCssIdBase + (document.querySelectorAll('.' + CssClassName.gridHostElementCssClass).length - 1 || '');
 
         return resolvedHostElement;
     }
@@ -1989,16 +1982,26 @@ export namespace Revgrid {
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
 
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-        /** Used to distinguish between Revgrid instances in an application.  If undefined, will use host element id or create an internal id */
+        /** Used to distinguish between Revgrid instances in an application.  If undefined, will generate an id from host element */
         id?: string;
+        /** Internally generated ids are numbered using the host HTML element's id as a base and suffixing it with a number. Normally the first id generated from a host element
+         * base Id is not numbered.  Subsequent ids generated from that base id are suffixed with numbers beginning with 2. This works well if host elements all have different Ids (so
+         * there suffices are not used).  However If host elements have the same id or no id, then it may be better for all internally generated ids to be suffixed with a number (starting
+         * from 1).  Set {@link firstGeneratedIdFromBaseIsAlsoNumbered} to true to suffix all internally generated ids.
+         */
+        firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
         /** Optional link to Revgrid instance's parent Javascript object. Is used to set externalParent which is not used within Revgrid however may be helpful with debugging */
         externalParent?: unknown;
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
+        /** Normally the canvas HTML element created by Revgrid on which to draw the grid has its `overflow` property set to `clip`.  However it may be helpful to set its overflow property
+         * to `visible` when debugging painters. The {@link canvasOverflowOverride} can be used to override the default value of this property.
+         */
+        canvasOverflowOverride?: CssTypes.Overflow;
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
 	}
 
-    export const idRegistry = new IdRegistry();
+    export const idGenerator = new IdGenerator();
 }
 
 // Begin Selection functions
