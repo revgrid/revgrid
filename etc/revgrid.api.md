@@ -4022,8 +4022,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // (undocumented)
     beginUiControlTracking(): void;
     // (undocumented)
-    calculateHorizontalScrollableLeft(): number;
-    // (undocumented)
     calculatePageDownRowAnchor(): ViewLayout.ScrollAnchor | undefined;
     // (undocumented)
     calculatePageLeftColumnAnchor(): ViewLayout.ScrollAnchor | undefined;
@@ -4055,10 +4053,10 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     ensureColumnIsInView(activeColumnIndex: number, maximally: boolean): boolean;
     // (undocumented)
     ensureColumnRowAreInView(activeColumnIndex: number, mainSubgridRowIndex: number, maximally: boolean): boolean;
+    // @internal (undocumented)
+    ensureComputedInsideAnimationFrame(): void;
     // (undocumented)
     ensureRowIsInView(mainSubgridRowIndex: number, maximally: boolean): boolean;
-    // @internal (undocumented)
-    ensureValidInsideAnimationFrame(): void;
     // (undocumented)
     findCellAtCanvasOffset(x: number, y: number): ViewCell<BCS, SF> | undefined;
     // @internal (undocumented)

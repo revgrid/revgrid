@@ -366,7 +366,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     try {
                         gc.cache.save();
 
-                        this._viewLayout.ensureValidInsideAnimationFrame();
+                        this._viewLayout.ensureComputedInsideAnimationFrame();
 
                         for (let i = 0; i < actionsCount; i++) {
                             const action = renderActions[i];
@@ -416,7 +416,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         // Mostly important on first render after setData. Note that stack overflow
         // will not happen because this will only be called once per data change.
         if (this._columnsManager.checkAllColumnsAutoWidthSizing(true, true)) {
-            this._viewLayout.ensureValidInsideAnimationFrame();
+            this._viewLayout.ensureComputedInsideAnimationFrame();
             this._gridPainter.paintCells();
         }
 
