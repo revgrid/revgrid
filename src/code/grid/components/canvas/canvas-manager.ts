@@ -223,6 +223,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         this.canvasElement.id = `${revgridId}-${CanvasManager.canvasCssSuffix}`;
         this.canvasElement.draggable = true;
         this.canvasElement.tabIndex = 0;
+        this.canvasElement.style.display = CssTypes.Display.block;
         this.canvasElement.style.outline = 'none';
         this.canvasElement.style.margin = '0';
         this.canvasElement.style.padding = '0';
