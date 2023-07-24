@@ -43,7 +43,7 @@ import { UiManager } from './ui/ui-controller-manager';
 export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     readonly id: string;
     readonly revgridId: string;
-    readonly internalParent = undefined;
+    readonly internalParent: RevgridObject | undefined = undefined;
     readonly externalParent: unknown | undefined;
     readonly hostElement: HTMLElement;
 
@@ -54,6 +54,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly columnsManager: ColumnsManager<BCS, SF>;
     readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
+    readonly renderer: Renderer<BGS, BCS, SF>;
     readonly horizontalScroller: Scroller<BGS, BCS, SF>;
     readonly verticalScroller: Scroller<BGS, BCS, SF>;
 
@@ -67,9 +68,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     private readonly _behaviorManager: BehaviorManager<BGS, BCS, SF>;
     /** @internal */
     private readonly _uiManager: UiManager<BGS, BCS, SF>;
-
-    /** @internal */
-    private readonly _renderer: Renderer<BGS, BCS, SF>;
 
     /** @internal */
     private readonly _focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
@@ -150,7 +148,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.columnsManager = this._componentsManager.columnsManager;
         this.subgridsManager = this._componentsManager.subgridsManager;
         this.viewLayout = this._componentsManager.viewLayout;
-        this._renderer = this._componentsManager.renderer;
+        this.renderer = this._componentsManager.renderer;
         this.horizontalScroller = this._componentsManager.horizontalScroller;
         this.verticalScroller = this._componentsManager.verticalScroller;
 
@@ -170,7 +168,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.focus,
             this.selection,
             this.mouse,
-            this._renderer,
+            this.renderer,
             this.horizontalScroller,
             this.verticalScroller,
             descendantEventer,
@@ -193,7 +191,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.columnsManager,
             this.subgridsManager,
             this.viewLayout,
-            this._renderer,
+            this.renderer,
             this.mouse,
             this.horizontalScroller,
             this.verticalScroller,
@@ -217,13 +215,13 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     set active(value: boolean) {
         this._behaviorManager.active = value;
         if (!value){
-            this._renderer.stop();
+            this.renderer.stop();
             this.canvasManager.stop();
             this._uiManager.disable();
         } else {
             this._uiManager.enable();
             this.canvasManager.start();
-            this._renderer.start();
+            this.renderer.start();
             this.canvasManager.resize(false); // Will invalidate all and cause a repaint
         }
     }
@@ -424,7 +422,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // }
 
     registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>) {
-        this._renderer.registerGridPainter(key, constructor)
+        this.renderer.registerGridPainter(key, constructor)
     }
 
     /**
@@ -507,11 +505,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             subgrid = this.mainSubgrid;
         }
         this._componentsManager.setValue(x, y, value, subgrid);
-    }
-
-    /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update */
-    waitModelRendered() {
-        return this._renderer.waitLastServerNotificationRendered();
     }
 
     private prepareHost(hostElement: string | HTMLElement | undefined): HTMLElement {

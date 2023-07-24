@@ -2549,7 +2549,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly id: string;
     // (undocumented)
-    readonly internalParent: undefined;
+    readonly internalParent: RevgridObject | undefined;
     // (undocumented)
     isColumnOrRowSelected(): boolean;
     // (undocumented)
@@ -2594,6 +2594,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     removeEventListener(eventName: string, listener: CanvasManager.EventListener): void;
+    // Warning: (ae-forgotten-export) The symbol "Renderer" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    readonly renderer: Renderer<BGS, BCS, SF>;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
@@ -2680,7 +2684,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly verticalScroller: Scroller<BGS, BCS, SF>;
     // (undocumented)
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
-    waitModelRendered(): Promise<number>;
 }
 
 // @public (undocumented)
@@ -3944,8 +3947,6 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     //
     // (undocumented)
     protected readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>;
-    // Warning: (ae-forgotten-export) The symbol "Renderer" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     protected readonly renderer: Renderer<BGS, BCS, SF>;
     // (undocumented)

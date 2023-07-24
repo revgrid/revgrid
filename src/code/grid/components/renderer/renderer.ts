@@ -190,9 +190,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         ++this._lastServerNotificationId;
     }
 
-    /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update
-     * @internal
-    */
+    /** Promise resolves after paint renders the last server notification (change) for the first time. Columns and rows will then reflect server data and schema */
     waitLastServerNotificationRendered(): Promise<ServerNotificationId> {
         const lastRenderedServerNotificationId = this._lastRenderedServerNotificationId;
         if (lastRenderedServerNotificationId === this._lastServerNotificationId) {
