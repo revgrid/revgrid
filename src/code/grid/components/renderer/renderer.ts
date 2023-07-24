@@ -2,7 +2,7 @@ import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
-import { ModelUpdateId, invalidModelUpdateId, lowestValidModelUpdateId } from '../../interfaces/schema/schema-server';
+import { ServerNotificationId, invalidServerNotificationId, lowestValidServerNotificationId } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
@@ -36,11 +36,11 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private _documentHidden = false;
 
     /** @internal */
-    private _lastModelUpdateId: ModelUpdateId = lowestValidModelUpdateId;
+    private _lastServerNotificationId: ServerNotificationId = lowestValidServerNotificationId;
     /** @internal */
-    private _lastRenderedModelUpdateId: ModelUpdateId = lowestValidModelUpdateId;
+    private _lastRenderedServerNotificationId: ServerNotificationId = lowestValidServerNotificationId;
     /** @internal */
-    private _waitModelRenderedResolves = new Array<Renderer.WaitModelRenderedResolve>();
+    private _waitLastServerNotificationRenderedResolves = new Array<Renderer.WaitModelRenderedResolve>();
 
     /** @internal */
     private _destroyed = false;
@@ -107,13 +107,13 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         const animator = this._animator;
         return animator !== undefined && animator.animating;
     }
-    get lastModelUpdateId() { return this._lastModelUpdateId; }
+    get lastServerNotificationId() { return this._lastServerNotificationId; }
 
     /** @internal */
     destroy() {
         this.stop(); // in case revgrid was not deactivated by application
 
-        this.resolveWaitModelRendered(invalidModelUpdateId);
+        this.resolveWaitLastServerNotificationRendered(invalidServerNotificationId);
 
         document.removeEventListener('visibilitychange', this._pageVisibilityChangeListener);
         this._gridSettings.unsubscribeChangedEvent(this._gridSettingsChangedListener);
@@ -186,19 +186,19 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    modelUpdated() {
-        ++this._lastModelUpdateId;
+    serverNotified() {
+        ++this._lastServerNotificationId;
     }
 
     /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update
      * @internal
     */
-    waitModelRendered(): Promise<ModelUpdateId> {
-        const lastRenderedModelUpdateId = this._lastRenderedModelUpdateId;
-        if (lastRenderedModelUpdateId === this._lastModelUpdateId) {
-            return Promise.resolve(lastRenderedModelUpdateId); // latest model already rendered
+    waitLastServerNotificationRendered(): Promise<ServerNotificationId> {
+        const lastRenderedServerNotificationId = this._lastRenderedServerNotificationId;
+        if (lastRenderedServerNotificationId === this._lastServerNotificationId) {
+            return Promise.resolve(lastRenderedServerNotificationId); // latest model already rendered
         } else {
-            return new Promise<ModelUpdateId>((resolve) => { this._waitModelRenderedResolves.push(resolve); });
+            return new Promise<ServerNotificationId>((resolve) => { this._waitLastServerNotificationRenderedResolves.push(resolve); });
         }
     }
 
@@ -334,12 +334,12 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    private resolveWaitModelRendered(lastModelUpdateId: number) {
-        if (this._waitModelRenderedResolves.length > 0) {
-            for (const resolve of this._waitModelRenderedResolves) {
-                resolve(lastModelUpdateId);
+    private resolveWaitLastServerNotificationRendered(lastServerNotificationId: ServerNotificationId) {
+        if (this._waitLastServerNotificationRenderedResolves.length > 0) {
+            for (const resolve of this._waitLastServerNotificationRenderedResolves) {
+                resolve(lastServerNotificationId);
             }
-            this._waitModelRenderedResolves.length = 0;
+            this._waitLastServerNotificationRenderedResolves.length = 0;
         }
     }
 
@@ -382,11 +382,11 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
                         setTimeout(() => this.renderedEventer(), 0); // process outside frame animation
 
-                        const lastModelUpdateId = this._lastModelUpdateId;
-                        if (this._lastRenderedModelUpdateId !== lastModelUpdateId) {
-                            this._lastRenderedModelUpdateId = lastModelUpdateId;
+                        const lastServerNotificationId = this._lastServerNotificationId;
+                        if (this._lastRenderedServerNotificationId !== lastServerNotificationId) {
+                            this._lastRenderedServerNotificationId = lastServerNotificationId;
                             // do not resolve in animation frame call back
-                            setTimeout(() => this.resolveWaitModelRendered(lastModelUpdateId), 0); // process outside frame animation
+                            setTimeout(() => this.resolveWaitLastServerNotificationRendered(lastServerNotificationId), 0); // process outside frame animation
                         }
 
                     } catch (e) {
@@ -429,7 +429,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 /** @public */
 export namespace Renderer {
     /** @internal */
-    export type WaitModelRenderedResolve = (this: void, id: ModelUpdateId) => void;
+    export type WaitModelRenderedResolve = (this: void, id: ServerNotificationId) => void;
     /** @internal */
     export type RenderedEventer = (this: void) => void;
 }

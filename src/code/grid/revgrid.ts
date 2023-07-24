@@ -511,7 +511,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /** Promise resolves when last model update is rendered. Columns and rows will then reflect last model update */
     waitModelRendered() {
-        return this._renderer.waitModelRendered();
+        return this._renderer.waitLastServerNotificationRendered();
     }
 
     private prepareHost(hostElement: string | HTMLElement | undefined): HTMLElement {

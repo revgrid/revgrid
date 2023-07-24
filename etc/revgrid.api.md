@@ -1823,7 +1823,7 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
 }
 
 // @public (undocumented)
-export const invalidModelUpdateId = -1;
+export const invalidServerNotificationId = -1;
 
 // @public (undocumented)
 export interface LinedHoverCell<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
@@ -1859,7 +1859,7 @@ export const enum ListChangedTypeId {
 }
 
 // @public (undocumented)
-export const lowestValidModelUpdateId = 0;
+export const lowestValidServerNotificationId = 0;
 
 // @public (undocumented)
 export interface MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Subgrid<BCS, SF> {
@@ -1927,9 +1927,6 @@ export namespace MetaModel {
         __ROW?: RowProperties;
     }
 }
-
-// @public (undocumented)
-export type ModelUpdateId = number;
 
 // @public (undocumented)
 export type ModifierKey = keyof typeof ModifierKeyEnum;
@@ -3234,6 +3231,9 @@ export const enum SelectionAreaTypeSpecifier {
     // (undocumented)
     Secondary = 1
 }
+
+// @public (undocumented)
+export type ServerNotificationId = number;
 
 // @public (undocumented)
 export class SingleHeadingDataRowArrayHeaderDataServer<SF extends SingleHeadingDataRowArraySchemaField> implements DataServer<SF> {

@@ -19,7 +19,7 @@ export { DatalessSubgrid } from './interfaces/dataless/dataless-subgrid';
 export { DatalessViewCell } from './interfaces/dataless/dataless-view-cell';
 export { DatalessViewLayoutRow } from './interfaces/dataless/dataless-view-layout-row';
 export { SchemaField } from './interfaces/schema/schema-field';
-export { ModelUpdateId, SchemaServer, invalidModelUpdateId, lowestValidModelUpdateId } from './interfaces/schema/schema-server';
+export { SchemaServer, ServerNotificationId, invalidServerNotificationId, lowestValidServerNotificationId } from './interfaces/schema/schema-server';
 export { BehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
 export { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
 export { BehavioredSettings } from './interfaces/settings/behaviored-settings';
