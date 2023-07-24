@@ -8,6 +8,7 @@ Its main features are:
 
 * Speed
 * Virtual (supporting display of very large data sets)
+* Event driven (low CPU usage)
 * Multiple selections (rectangle, row and column)
 * Focus
 * Smooth horizontal scrolling
@@ -81,6 +82,7 @@ There are many excellent alternative JavaScript grid libraries (both paid and fr
 
  Version | Date        | Details
 ---------|-------------|---------
+ 0.2.0   | 25 Jul 2023 | Rework revgridId so works with ShadowDom<br>Add options: firstGeneratedIdFromBaseIsAlsoNumbered and canvasOverflowOverride<br>Set canvas display style to block<br>Rework Host, Canvas and Scroller CSS<br>Refactor ScrollDimensionComputedEvent handlers<br>Rename ModelUpdateId to ServerNotificationId<br>Make Revgrid.renderer public<br>
  0.2.0   | 19 Jul 2023 | Expose SchemaServer in Revgrid<br>Make Scrollers public in Revgrid<br>Fix scroller inside overlap<br>Change UiController LinedHoverCell to be initialised to null<br>Move start and stop into Revgrid.active<br>Fix Scroller resize logic<br>Change Canvas and Scroller CSS class and id<br>Fix focus row/column only<br>Make ScrollDimension start, size and viewportSize never undefined<br>Fix painting animation<br>Restore LastRectangleFirstCellStash<br>Fix calculateLastSelectionBounds()<br>Fix reindex<br>Add revgridId and internalParent to classes<br>Prevent invalidation if canvas does not have bounds<br>ViewLayout tracks Scroller<br>Change settings default for scrollHorizontallySmoothly and visibleColumnWidthAdjust<br>Fix vertical click scroll<br>Fix rows loaded adjusting scroll anchor<br>Add scrollerThickness grid setting<br>Fix VerticalScrollAnchor finishAnchorLimitIndex
  0.1.17  | 09 Jul 2023 | Separate text settings from standard settings<br>Change AllowEvents to Active<br>Move horizontalAlign from Text to Standard settings<br>Export ViewLayout to public<br>Improve Refactor AutoSizeColumnWidth<br>Implement settings.merge<br>Implement rowStripeBackgroundColor<br>Add Focus row changed event<br>Implement single and multi heading DataRowArray server sets<br>Make some Revgrid constructor parameters public<br>Rename container element to host element<br>Rename UiBehavior to UiController
  0.1.16  | 21 Jun 2023 | Remove column settings from field and implement merge settings.

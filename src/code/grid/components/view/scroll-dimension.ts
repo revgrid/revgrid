@@ -136,6 +136,51 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
         }
     }
 
+    calculateLimitedScrollAnchorIfRequired(index: number, offset: number, gridRightAlignedPossible: boolean): ScrollDimension.Anchor | undefined {
+        // only called directly after scroll dimension computed so will not trigger another compute
+        if (this.overflowed) {
+            if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
+                return {
+                    index: this._startScrollAnchorLimitIndex,
+                    offset: this._startScrollAnchorLimitOffset,
+                };
+            } else {
+                if (!this.isScrollAnchorWithinFinishLimit(index, offset)) {
+                    return {
+                        index: this._finishScrollAnchorLimitIndex,
+                        offset: this._finishScrollAnchorLimitOffset,
+                    };
+                } else {
+                    return undefined;
+                }
+            }
+        } else {
+            if (gridRightAlignedPossible && this._gridSettings.gridRightAligned) {
+                const finishScrollAnchorLimitIndex = this._finishScrollAnchorLimitIndex;
+                const finishScrollAnchorLimitOffset = this._finishScrollAnchorLimitOffset;
+                if (index !== finishScrollAnchorLimitIndex || offset !== finishScrollAnchorLimitOffset) {
+                    return {
+                        index: finishScrollAnchorLimitIndex,
+                        offset: finishScrollAnchorLimitOffset
+                    };
+                } else {
+                    return undefined;
+                }
+            } else {
+                const startScrollAnchorLimitIndex = this._startScrollAnchorLimitIndex;
+                const startScrollAnchorLimitOffset = this._startScrollAnchorLimitOffset;
+                if (index !== startScrollAnchorLimitIndex || offset !== startScrollAnchorLimitOffset) {
+                    return {
+                        index: startScrollAnchorLimitIndex,
+                        offset: startScrollAnchorLimitOffset
+                    };
+                } else {
+                    return undefined;
+                }
+            }
+        }
+    }
+
     isScrollAnchorWithinStartLimit(index: number, offset: number) {
         const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
         if (index > startScrollAnchorLimitIndex) {

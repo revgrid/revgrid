@@ -151,7 +151,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this.beginSchemaChange();
             try {
-                this._renderer.modelUpdated();
+                this._renderer.serverNotified();
                 this._columnsManager.schemaFieldsInserted(index, count);
                 // Currently cannot calculate active Column Index of added columns so cannot advise SelectionModel of change
                 // or advise Renderer of column index
@@ -167,7 +167,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this.beginSchemaChange();
             try {
-                this._renderer.modelUpdated();
+                this._renderer.serverNotified();
                 this._columnsManager.schemaFieldsDeleted(index, count);
                 const nextRange = index + count;
                 for (let i = index; i < nextRange; i++) {
@@ -190,7 +190,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this.beginSchemaChange();
             try {
-                this._renderer.modelUpdated();
+                this._renderer.serverNotified();
                 this._columnsManager.allSchemaColumnsDeleted();
                 this._focus.clear();
                 this._selection.clear();
@@ -206,7 +206,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this.beginSchemaChange();
             try {
-                this._renderer.modelUpdated();
+                this._renderer.serverNotified();
                 this._columnsManager.schemaColumnsChanged();
                 this._focus.clear();
                 this._selection.clear();
@@ -243,7 +243,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     /** @internal */
     private handleInvalidateAll(dataServer: DataServer<SF>) {
         if (!this._destroyed) {
-            this._renderer.modelUpdated();
+            this._renderer.serverNotified();
             this._renderer.invalidateAllData();
         }
     }
@@ -251,7 +251,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     /** @internal */
     private handleInvalidateRows(_dataServer: DataServer<SF>, rowIndex: number, count: number) {
         if (!this._destroyed) {
-            this._renderer.modelUpdated();
+            this._renderer.serverNotified();
             this._renderer.invalidateDataRows(rowIndex, count);
         }
     }
@@ -259,7 +259,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     /** @internal */
     private handleInvalidateRow(_dataServer: DataServer<SF>, rowIndex: number) {
         if (!this._destroyed) {
-            this._renderer.modelUpdated();
+            this._renderer.serverNotified();
             this._renderer.invalidateDataRow(rowIndex);
         }
     }
@@ -267,15 +267,15 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     /** @internal */
     private handleInvalidateRowColumns(_dataServer: DataServer<SF>, rowIndex: number, _schemaColumnIndex: number, _columnCount: number) {
         if (!this._destroyed) {
-            this._renderer.modelUpdated();
-            this._renderer.invalidateDataRow(rowIndex); // this should be improved to use this._renderer.invalidateRowColumns()
+            this._renderer.serverNotified();
+            this._renderer.invalidateDataRow(rowIndex); // this should be improved to use tshis._renderer.invalidateRowColumns()
         }
     }
 
     /** @internal */
     private handleInvalidateRowCells(_dataServer: DataServer<SF>, rowIndex: number, schemaColumnIndexes: number[]) {
         if (!this._destroyed) {
-            this._renderer.modelUpdated();
+            this._renderer.serverNotified();
             this._renderer.invalidateDataRowCells(rowIndex, schemaColumnIndexes);
         }
     }
@@ -283,7 +283,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     /** @internal */
     private handleInvalidateCell(_dataServer: DataServer<SF>, schemaColumnIndex: number, rowIndex: number) {
         if (!this._destroyed) {
-            this._renderer.modelUpdated();
+            this._renderer.serverNotified();
             this._renderer.invalidateDataCell(schemaColumnIndex, rowIndex);
         }
     }
@@ -293,7 +293,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._renderer.serverNotified();
                 this._focus.adjustForRowsInserted(index, count, dataServer);
                 this._selection.adjustForRowsInserted(index, count, dataServer);
                 this._viewLayout.invalidateDataRowsInserted(index, count);
@@ -308,7 +308,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._renderer.serverNotified();
                 this._focus.adjustForRowsDeleted(index, count, dataServer);
                 this._selection.adjustForRowsDeleted(index, count, dataServer);
                 this._viewLayout.invalidateDataRowsDeleted(index, count);
@@ -323,7 +323,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._renderer.serverNotified();
                 if (dataServer === this._mainDataServer) {
                     this._focus.clear();
                     this._selection.clear();
@@ -340,7 +340,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._renderer.serverNotified();
                 this._focus.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount, dataServer);
                 this._selection.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount, dataServer);
                 this._viewLayout.invalidateDataRowsMoved(oldRowIndex, newRowIndex, rowCount);
@@ -355,7 +355,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this.beginDataChange();
             try {
-                this._renderer.modelUpdated();
+                this._renderer.serverNotified();
                 if (dataServer === this._mainDataServer) {
                     this._focus.clear();
                     this._selection.clear();
@@ -371,7 +371,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     private handleDataPreReindex() {
         if (!this._destroyed) {
             this._reindexStashManager.stash();
-            this._renderer.modelUpdated();
+            this._renderer.serverNotified();
         }
     }
 
@@ -380,7 +380,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         if (!this._destroyed) {
             this._reindexStashManager.unstash(allRowsKept);
             this._viewLayout.invalidateVerticalAll(false);
-            this._renderer.modelUpdated();
+            this._renderer.serverNotified();
         }
     }
 

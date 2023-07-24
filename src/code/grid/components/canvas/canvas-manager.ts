@@ -13,7 +13,7 @@
 
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
-import { CssClassName } from '../../types-utils/html-types';
+import { CssTypes } from '../../types-utils/css-types';
 import { Point } from '../../types-utils/point';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
@@ -214,16 +214,21 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
         readonly hostElement: HTMLElement,
+        canvasOverflowOverride: CssTypes.Overflow | undefined,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         private readonly _gridSettings: BGS,
     ) {
         // create and append the canvas
         this.canvasElement = document.createElement('canvas');
-        this.canvasElement.id = `${revgridId}-${CssClassName.gridHostElementCssIdBase}-${CanvasManager.canvasElementIdBase}`;
+        this.canvasElement.id = `${revgridId}-${CanvasManager.canvasCssSuffix}`;
         this.canvasElement.draggable = true;
         this.canvasElement.tabIndex = 0;
+        this.canvasElement.style.display = CssTypes.Display.block;
         this.canvasElement.style.outline = 'none';
-        this.canvasElement.classList.add(CanvasManager.canvasCssClass);
+        this.canvasElement.style.margin = '0';
+        this.canvasElement.style.padding = '0';
+        this.canvasElement.style.overflow = canvasOverflowOverride === undefined ? CssTypes.Overflow.clip : canvasOverflowOverride;
+        this.canvasElement.classList.add(`${CssTypes.libraryName}-${CanvasManager.canvasCssSuffix}`);
 
         this.gc = createCachedContext(this.canvasElement, canvasRenderingContext2DSettings);
 
@@ -879,6 +884,5 @@ export namespace CanvasManager {
     //     }
     // }
 
-    export const canvasElementIdBase = 'canvas';
-    export const canvasCssClass = 'canvas';
+    export const canvasCssSuffix = 'canvas';
 }

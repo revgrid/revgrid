@@ -1,4 +1,5 @@
 
+import { EventBehavior } from '../../behavior/event-behavior';
 import { Focus } from '../../components/focus/focus';
 import { Mouse } from '../../components/mouse/mouse';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
@@ -8,7 +9,6 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { isSecondaryMouseButton } from '../../types-utils/html-types';
 import { Point } from '../../types-utils/point';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
@@ -37,7 +37,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     private _lastRowStepScrollDragTime: number | undefined;
 
     override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (isSecondaryMouseButton(event)) {
+        if (EventBehavior.isSecondaryMouseButton(event)) {
             this.selection.clear();
             return super.handlePointerDown(event, hoverCell);
         } else {
@@ -71,7 +71,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
-        if (!event.altKey || isSecondaryMouseButton(event)) {
+        if (!event.altKey || EventBehavior.isSecondaryMouseButton(event)) {
             return super.handleClick(event, hoverCell);
         } else {
             if (hoverCell === null) {
@@ -106,7 +106,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (!event.altKey || isSecondaryMouseButton(event)) {
+        if (!event.altKey || EventBehavior.isSecondaryMouseButton(event)) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
             if (hoverCell === null) {

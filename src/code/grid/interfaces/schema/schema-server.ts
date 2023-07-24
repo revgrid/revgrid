@@ -100,8 +100,8 @@ export namespace SchemaServer {
 }
 
 /** @public */
-export type ModelUpdateId = number; // also applies to DataModel
+export type ServerNotificationId = number; // also applies to DataModel
 /** @public */
-export const lowestValidModelUpdateId = 0;
+export const lowestValidServerNotificationId = 0;
 /** @public */
-export const invalidModelUpdateId = -1;
+export const invalidServerNotificationId = -1;

@@ -176,7 +176,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     get rows() {
-        this.ensureVerticalValidOutsideAnimationFrame();
+        this.ensureVerticalComputedOutsideAnimationFrame();
         return this._rows;
     }
 
@@ -289,19 +289,19 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     get scrollableRowCount() {
-        this.ensureVerticalValidOutsideAnimationFrame();
+        this.ensureVerticalComputedOutsideAnimationFrame();
         return this._rows.length - this._gridSettings.fixedRowCount;
     }
     get rowScrollAnchorIndex() {
-        this.ensureVerticalValidOutsideAnimationFrame();
+        this.ensureVerticalComputedOutsideAnimationFrame();
         return this._rowScrollAnchorIndex;
     }
     get firstScrollableRowIndex() {
-        this.ensureVerticalValidOutsideAnimationFrame();
+        this.ensureVerticalComputedOutsideAnimationFrame();
         return this._firstScrollableRowIndex;
     }
     get firstScrollableSubgridRowIndex() {
-        this.ensureVerticalValidOutsideAnimationFrame();
+        this.ensureVerticalComputedOutsideAnimationFrame();
         const firstScrollableRowIndex = this._firstScrollableRowIndex;
         if (firstScrollableRowIndex === undefined) {
             return undefined;
@@ -310,7 +310,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
     get firstScrollableRowViewTop() {
-        this.ensureVerticalValidOutsideAnimationFrame();
+        this.ensureVerticalComputedOutsideAnimationFrame();
         const firstScrollableRowIndex = this._firstScrollableRowIndex;
         if (firstScrollableRowIndex === undefined) {
             return undefined
@@ -320,11 +320,11 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     get lastScrollableRowIndex() {
-        this.ensureVerticalValidOutsideAnimationFrame();
+        this.ensureVerticalComputedOutsideAnimationFrame();
         return this._lastScrollableRowIndex;
     }
     get lastScrollableRowSubgridRowIndex() {
-        this.ensureVerticalValidOutsideAnimationFrame();
+        this.ensureVerticalComputedOutsideAnimationFrame();
         const lastScrollableRowIndex = this._lastScrollableRowIndex;
         if (lastScrollableRowIndex === undefined) {
             return undefined;
@@ -698,7 +698,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /** @internal */
-    ensureValidInsideAnimationFrame() {
+    ensureComputedInsideAnimationFrame() {
         if (!this._horizontalScrollDimension.ensureComputedInsideAnimationFrame()) {
             // was previously not valid
             this._horizontalComputed = false;
@@ -872,7 +872,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     setRowScrollAnchor(index: number, offset: number) {
-        this.ensureVerticalValidOutsideAnimationFrame();
+        this.ensureVerticalComputedOutsideAnimationFrame();
 
         const { index: limitedIndex, offset: limitedOffset } = this.verticalScrollDimension.calculateLimitedScrollAnchor(index, offset);
 
@@ -946,19 +946,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                     }
                 }
             }
-        }
-    }
-
-    calculateHorizontalScrollableLeft(): number {
-        // this is now calculated in columns and kept in ScrollablePlane ViewportStart
-        this.ensureHorizontalComputedOutsideAnimationFrame();
-
-        const gridRightAligned = this._gridSettings.gridRightAligned;
-        if (gridRightAligned) {
-            const finish = this.calculateScrollableViewRightUsingDimensionFinish();
-            return finish - this._horizontalScrollDimension.viewportSize + 1;
-        } else {
-            return this.calculateScrollableViewLeftUsingDimensionStart();
         }
     }
 
@@ -1743,21 +1730,17 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (this._canvasManager.flooredWidth === 0) {
             return undefined;
         } else {
-            if (horizontalScrollDimension.overflowed) {
-                if (!this.horizontalScrollDimension.isScrollAnchorWithinStartLimit(this._columnScrollAnchorIndex, this._columnScrollAnchorOffset)) {
-                    this._columnScrollAnchorIndex = this.horizontalScrollDimension.startScrollAnchorLimitIndex;
-                    this._columnScrollAnchorOffset = this.horizontalScrollDimension.startScrollAnchorLimitOffset;
-                } else {
-                    if (!this.horizontalScrollDimension.isScrollAnchorWithinFinishLimit(this._columnScrollAnchorIndex, this._columnScrollAnchorOffset)) {
-                        this._columnScrollAnchorIndex = this.horizontalScrollDimension.finishScrollAnchorLimitIndex;
-                        this._columnScrollAnchorOffset = this.horizontalScrollDimension.finishScrollAnchorLimitOffset;
-                    }
-                }
-            } else {
-                this.setColumnScrollAnchorToLimit();
+            const limitedAnchor = horizontalScrollDimension.calculateLimitedScrollAnchorIfRequired(
+                this._columnScrollAnchorIndex,
+                this._columnScrollAnchorOffset,
+                true,
+            );
+            if (limitedAnchor !== undefined) {
+                this._columnScrollAnchorIndex = limitedAnchor.index;
+                this._columnScrollAnchorOffset = limitedAnchor.offset;
             }
 
-            const viewportStart = this.calculateHorizontalScrollableLeft();
+            const viewportStart = horizontalScrollDimension.calculateHorizontalScrollableLeft(this._columnScrollAnchorIndex, this._columnScrollAnchorOffset);
             if (withinAnimationFrame) {
                 setTimeout(() => this.invalidateHorizontalAll(false), 0);
             } else {
@@ -1773,21 +1756,17 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (this._canvasManager.flooredHeight === 0) {
             return undefined;
         } else {
-            if (verticalScrollDimension.overflowed) {
-                if (!this.verticalScrollDimension.isScrollAnchorWithinStartLimit(this._rowScrollAnchorIndex, this._rowScrollAnchorOffset)) {
-                    this._rowScrollAnchorIndex = this.verticalScrollDimension.startScrollAnchorLimitIndex;
-                    this._rowScrollAnchorOffset = this.verticalScrollDimension.startScrollAnchorLimitOffset;
-                } else {
-                    if (!this.verticalScrollDimension.isScrollAnchorWithinFinishLimit(this._rowScrollAnchorIndex, this._rowScrollAnchorOffset)) {
-                        this._rowScrollAnchorIndex = this.verticalScrollDimension.finishScrollAnchorLimitIndex;
-                        this._rowScrollAnchorOffset = this.verticalScrollDimension.finishScrollAnchorLimitOffset;
-                    }
-                }
-            } else {
-                this.setRowScrollAnchorToLimit();
+            const limitedAnchor = verticalScrollDimension.calculateLimitedScrollAnchorIfRequired(
+                this._rowScrollAnchorIndex,
+                this._rowScrollAnchorOffset,
+                false,
+            );
+            if (limitedAnchor !== undefined) {
+                this._rowScrollAnchorIndex = limitedAnchor.index;
+                this._rowScrollAnchorOffset = limitedAnchor.offset;
             }
 
-            const viewportStart = Math.min(this.rowScrollAnchorIndex, verticalScrollDimension.finishScrollAnchorLimitIndex);
+            const viewportStart = Math.min(this._rowScrollAnchorIndex, verticalScrollDimension.finishScrollAnchorLimitIndex);
             if (withinAnimationFrame) {
                 setTimeout(() => this.invalidateVerticalAll(false), 0);
             } else {
@@ -1802,57 +1781,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         this.cellPoolComputedEventerForFocus();
         this.cellPoolComputedEventerForMouse();
     }
-
-    /** @internal */
-    private calculateScrollableViewLeftUsingDimensionStart() {
-        const dimensionStart = this._horizontalScrollDimension.start;
-        const gridLinesVWidth = this._gridSettings.verticalGridLinesWidth;
-        const columnCount = this._columnsManager.activeColumnCount;
-        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
-        const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
-        let result = dimensionStart;
-        for (let i = fixedColumnCount; i < columnCount; i++) {
-            if (i === columnScrollAnchorIndex) {
-                break;
-            } else {
-                result += (this._columnsManager.getActiveColumnRoundedWidth(i) + gridLinesVWidth);
-            }
-        }
-
-        result += this._columnScrollAnchorOffset;
-
-        return result;
-    }
-
-    /** @internal */
-    private calculateScrollableViewRightUsingDimensionFinish() {
-        const dimensionFinish = this._horizontalScrollDimension.finish;
-
-        const gridLinesVWidth = this._gridSettings.verticalGridLinesWidth;
-        const columnCount = this._columnsManager.activeColumnCount;
-        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
-        const columnScrollAnchorIndex = this._columnScrollAnchorIndex;
-        let result = dimensionFinish;
-        for (let i = columnCount - 1; i > fixedColumnCount; i--) {
-            if (i === columnScrollAnchorIndex) {
-                break;
-            } else {
-                result -= this._columnsManager.getActiveColumnRoundedWidth(i);
-            }
-        }
-
-        if (gridLinesVWidth > 0) {
-            const anchorColumnCount = columnCount - columnScrollAnchorIndex;
-            if (anchorColumnCount > 1) {
-                result -= (anchorColumnCount - 1) * gridLinesVWidth;
-            }
-        }
-
-        result -= this._columnScrollAnchorOffset;
-
-        return result;
-    }
-
 
     /**
      * This function creates several data structures:
@@ -2298,7 +2226,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /** @internal */
-    private ensureVerticalValidOutsideAnimationFrame() {
+    private ensureVerticalComputedOutsideAnimationFrame() {
         if (!this._verticalScrollDimension.ensureComputedOutsideAnimationFrame()) {
             // was previously not valid
             this._verticalComputed = false;

@@ -114,6 +114,16 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         }
     }
 
+    calculateHorizontalScrollableLeft(columnScrollAnchorIndex: number, columnScrollAnchorOffset: number): number {
+        const gridRightAligned = this._gridSettings.gridRightAligned;
+        if (gridRightAligned) {
+            const finish = this.calculateScrollableViewRightUsingDimensionFinish(columnScrollAnchorIndex, columnScrollAnchorOffset);
+            return finish - this.viewportSize + 1;
+        } else {
+            return this.calculateScrollableViewLeftUsingDimensionStart(columnScrollAnchorIndex, columnScrollAnchorOffset);
+        }
+    }
+
     protected override compute() {
         // called within Animation Frame
 
@@ -410,5 +420,53 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
                 offset: 0,
             };
         }
+    }
+
+    /** @internal */
+    private calculateScrollableViewLeftUsingDimensionStart(columnScrollAnchorIndex: number, columnScrollAnchorOffset: number) {
+        const dimensionStart = this.start;
+        const gridLinesVWidth = this._gridSettings.verticalGridLinesWidth;
+        const columnCount = this._columnsManager.activeColumnCount;
+        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
+        let result = dimensionStart;
+        for (let i = fixedColumnCount; i < columnCount; i++) {
+            if (i === columnScrollAnchorIndex) {
+                break;
+            } else {
+                result += (this._columnsManager.getActiveColumnRoundedWidth(i) + gridLinesVWidth);
+            }
+        }
+
+        result += columnScrollAnchorOffset;
+
+        return result;
+    }
+
+    /** @internal */
+    private calculateScrollableViewRightUsingDimensionFinish(columnScrollAnchorIndex: number, columnScrollAnchorOffset: number) {
+        const dimensionFinish = this.finish;
+
+        const gridLinesVWidth = this._gridSettings.verticalGridLinesWidth;
+        const columnCount = this._columnsManager.activeColumnCount;
+        const fixedColumnCount = this._columnsManager.getFixedColumnCount();
+        let result = dimensionFinish;
+        for (let i = columnCount - 1; i > fixedColumnCount; i--) {
+            if (i === columnScrollAnchorIndex) {
+                break;
+            } else {
+                result -= this._columnsManager.getActiveColumnRoundedWidth(i);
+            }
+        }
+
+        if (gridLinesVWidth > 0) {
+            const anchorColumnCount = columnCount - columnScrollAnchorIndex;
+            if (anchorColumnCount > 1) {
+                result -= (anchorColumnCount - 1) * gridLinesVWidth;
+            }
+        }
+
+        result -= columnScrollAnchorOffset;
+
+        return result;
     }
 }

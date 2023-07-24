@@ -1,7 +1,7 @@
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { CssClassName } from '../../types-utils/html-types';
+import { CssTypes } from '../../types-utils/css-types';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { SizeUnitEnum } from '../../types-utils/size-unit';
@@ -19,6 +19,8 @@ import { ViewLayout } from '../view/view-layout';
 export class Scroller<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     readonly bar: HTMLDivElement;
     readonly barCssClass: string;
+    readonly axisBarCssClass: string;
+    readonly thumbCssClass: string;
 
     /**
      * @summary Callback for scroll events.
@@ -160,10 +162,11 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
         const thumb = document.createElement('div');
         this._thumb = thumb;
-        thumb.id = `${revgridId}-${CssClassName.gridHostElementCssIdBase}-${axis}-${Scroller.thumbElementIdBase}`;
+        thumb.id = `${revgridId}-${axis}-${Scroller.thumbCssSuffix}`;
         thumb.style.position = 'absolute';
 
-        thumb.classList.add(Scroller.thumbCssClass);
+        this.thumbCssClass = `${CssTypes.libraryName}-${Scroller.thumbCssSuffix}`;
+        thumb.classList.add(this.thumbCssClass);
         thumb.addEventListener('click', this._thumbClickListener);
         thumb.addEventListener('pointerenter', this._thumbPointerEnterListener);
         thumb.addEventListener('pointerleave', this._thumbPointerLeaveListener);
@@ -171,7 +174,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
         const bar = document.createElement('div');
         this.bar = bar;
-        bar.id = `${revgridId}-${CssClassName.gridHostElementCssIdBase}-${axis}-${Scroller.barElementIdBase}`;
+        bar.id = `${revgridId}-${axis}-${Scroller.barCssSuffix}`;
         bar.style.position = 'absolute';
         const leadingKey = this._axisProperties['leading'];
         bar.style.setProperty(leadingKey, '0');
@@ -190,8 +193,10 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this._hostElement.addEventListener('wheel', this._hostWheelListener);
         // presets
         this.axis = axis;
-        this.barCssClass = `${axis}-${Scroller.barCssClassBase}`;
+        this.barCssClass = `${CssTypes.libraryName}-${Scroller.barCssSuffix}`;
+        this.axisBarCssClass = `${CssTypes.libraryName}-${axis}-${Scroller.barCssSuffix}`;
         bar.classList.add(this.barCssClass);
+        bar.classList.add(this.axisBarCssClass);
         this._deltaProp = this._axisProperties.delta;
         this._deltaProp = (this.axis === 'vertical' ? Scroller.DeltaPropEnum.deltaY : Scroller.DeltaPropEnum.deltaX);
         this.deltaXFactor = deltaXFactor;
@@ -837,10 +842,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
 /** @public */
 export namespace Scroller {
-    export const barCssClassBase = 'scroller';
-    export const thumbCssClass = 'thumb';
-    export const barElementIdBase = 'scroller-bar';
-    export const thumbElementIdBase = 'scroller-thumb';
+    export const barCssSuffix = 'scroller';
+    export const thumbCssSuffix = 'scroller-thumb';
 
     export const defaultInsideOffset = 3;
 

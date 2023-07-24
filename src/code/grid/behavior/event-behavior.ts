@@ -710,4 +710,9 @@ export namespace EventBehavior {
     export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
     /** @internal */
     export type UiScrollerActionEventer = (this: void, action: Scroller.Action) => void;
+
+    /** @internal */
+    export function isSecondaryMouseButton(event: MouseEvent) {
+        return event.button === 2;
+    }
 }

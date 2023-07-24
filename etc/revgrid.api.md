@@ -513,13 +513,42 @@ export namespace ColumnsManager {
 }
 
 // @public (undocumented)
-export namespace CssClassName {
+export namespace CssTypes {
     const // (undocumented)
-    gridElementCssClass = "revgrid";
-    const // (undocumented)
-    gridHostElementCssIdBase = "revgrid";
-    const // (undocumented)
-    gridHostElementCssClass = "revgrid-host";
+    libraryName = "revgrid";
+    // (undocumented)
+    export const enum Display {
+        // (undocumented)
+        block = "block",
+        // (undocumented)
+        inline = "inline"
+    }
+    // (undocumented)
+    export const enum Overflow {
+        // (undocumented)
+        auto = "auto",
+        // (undocumented)
+        clip = "clip",
+        // (undocumented)
+        hidden = "hidden",
+        // (undocumented)
+        scroll = "scroll",
+        // (undocumented)
+        visible = "visible"
+    }
+    // (undocumented)
+    export const enum Position {
+        // (undocumented)
+        absolute = "absolute",
+        // (undocumented)
+        fixed = "fixed",
+        // (undocumented)
+        relative = "relative",
+        // (undocumented)
+        static = "static",
+        // (undocumented)
+        sticky = "sticky"
+    }
 }
 
 // @public (undocumented)
@@ -1794,7 +1823,7 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
 }
 
 // @public (undocumented)
-export const invalidModelUpdateId = -1;
+export const invalidServerNotificationId = -1;
 
 // @public (undocumented)
 export interface LinedHoverCell<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
@@ -1830,7 +1859,7 @@ export const enum ListChangedTypeId {
 }
 
 // @public (undocumented)
-export const lowestValidModelUpdateId = 0;
+export const lowestValidServerNotificationId = 0;
 
 // @public (undocumented)
 export interface MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Subgrid<BCS, SF> {
@@ -1898,9 +1927,6 @@ export namespace MetaModel {
         __ROW?: RowProperties;
     }
 }
-
-// @public (undocumented)
-export type ModelUpdateId = number;
 
 // @public (undocumented)
 export type ModifierKey = keyof typeof ModifierKeyEnum;
@@ -2523,7 +2549,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly id: string;
     // (undocumented)
-    readonly internalParent: undefined;
+    readonly internalParent: RevgridObject | undefined;
     // (undocumented)
     isColumnOrRowSelected(): boolean;
     // (undocumented)
@@ -2568,6 +2594,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     removeEventListener(eventName: string, listener: CanvasManager.EventListener): void;
+    // Warning: (ae-forgotten-export) The symbol "Renderer" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    readonly renderer: Renderer<BGS, BCS, SF>;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
@@ -2654,7 +2684,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly verticalScroller: Scroller<BGS, BCS, SF>;
     // (undocumented)
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
-    waitModelRendered(): Promise<number>;
 }
 
 // @public (undocumented)
@@ -2670,16 +2699,20 @@ export namespace Revgrid {
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
     // (undocumented)
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+        // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "canvasOverflowOverride"
+        canvasOverflowOverride?: CssTypes.Overflow;
         canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         // (undocumented)
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
         externalParent?: unknown;
+        // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "firstGeneratedIdFromBaseIsAlsoNumbered"
+        firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
         id?: string;
     }
-    const // Warning: (ae-forgotten-export) The symbol "IdRegistry" needs to be exported by the entry point public-api.d.ts
+    const // Warning: (ae-forgotten-export) The symbol "IdGenerator" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    idRegistry: IdRegistry;
+    idGenerator: IdGenerator;
 }
 
 // @public (undocumented)
@@ -3201,6 +3234,9 @@ export const enum SelectionAreaTypeSpecifier {
     // (undocumented)
     Secondary = 1
 }
+
+// @public (undocumented)
+export type ServerNotificationId = number;
 
 // @public (undocumented)
 export class SingleHeadingDataRowArrayHeaderDataServer<SF extends SingleHeadingDataRowArraySchemaField> implements DataServer<SF> {
@@ -3911,8 +3947,6 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     //
     // (undocumented)
     protected readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>;
-    // Warning: (ae-forgotten-export) The symbol "Renderer" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     protected readonly renderer: Renderer<BGS, BCS, SF>;
     // (undocumented)
@@ -3989,8 +4023,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // (undocumented)
     beginUiControlTracking(): void;
     // (undocumented)
-    calculateHorizontalScrollableLeft(): number;
-    // (undocumented)
     calculatePageDownRowAnchor(): ViewLayout.ScrollAnchor | undefined;
     // (undocumented)
     calculatePageLeftColumnAnchor(): ViewLayout.ScrollAnchor | undefined;
@@ -4022,10 +4054,10 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     ensureColumnIsInView(activeColumnIndex: number, maximally: boolean): boolean;
     // (undocumented)
     ensureColumnRowAreInView(activeColumnIndex: number, mainSubgridRowIndex: number, maximally: boolean): boolean;
+    // @internal (undocumented)
+    ensureComputedInsideAnimationFrame(): void;
     // (undocumented)
     ensureRowIsInView(mainSubgridRowIndex: number, maximally: boolean): boolean;
-    // @internal (undocumented)
-    ensureValidInsideAnimationFrame(): void;
     // (undocumented)
     findCellAtCanvasOffset(x: number, y: number): ViewCell<BCS, SF> | undefined;
     // @internal (undocumented)

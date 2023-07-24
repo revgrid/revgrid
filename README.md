@@ -8,6 +8,7 @@ Its main features are:
 
 * Speed
 * Virtual (supporting display of very large data sets)
+* Event driven (low CPU usage)
 * Multiple selections (rectangle, row and column)
 * Focus
 * Smooth horizontal scrolling

@@ -3,6 +3,7 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { SchemaServer } from '../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { CssTypes } from '../types-utils/css-types';
 import { AssertError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
 import { CanvasManager } from './canvas/canvas-manager';
@@ -36,6 +37,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         hostElement: HTMLElement,
         schemaServer: SchemaServer<SF>,
         subgridDefinitions: Subgrid.Definition<BCS, SF>[],
+        canvasOverflowOverride: CssTypes.Overflow | undefined,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
     ) {
@@ -49,6 +51,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             this.revgridId,
             this,
             hostElement,
+            canvasOverflowOverride,
             canvasRenderingContext2DSettings,
             gridSettings,
         );
