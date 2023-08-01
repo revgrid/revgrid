@@ -19,6 +19,9 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
     readonly filterSubgrid: Subgrid<BCS, SF> | undefined;
     readonly summarySubgrid: Subgrid<BCS, SF> | undefined;
     readonly footerSubgrid: Subgrid<BCS, SF> | undefined;
+
+    readonly mainDataServer: DataServer<SF>;
+
     /** @internal */
     readonly subgridImplementations = new Array<SubgridImplementation<BCS, SF>>();
     /** @internal */
@@ -56,12 +59,35 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
 
         if (this.mainSubgrid === undefined) {
             throw new AssertError('SMSS98224', 'Subgrid Specs does not include main');
+        } else {
+            this.mainDataServer = this.mainSubgrid.dataServer;
         }
     }
 
     /** @internal */
     destroy() {
         this.destroySubgrids();
+    }
+
+    getSubgridWithDataServer(dataServer: DataServer<SF>): Subgrid<BCS, SF> {
+        return this.getSubgridImplementationWithDataServer(dataServer);
+    }
+
+    /** @internal */
+    getSubgridImplementationWithDataServer(dataServer: DataServer<SF>): Subgrid<BCS, SF> {
+        if (dataServer === this.mainDataServer) {
+            return this.mainSubgrid;
+        } else {
+            const subgridImplementations = this.subgridImplementations;
+            const count = subgridImplementations.length;
+            for (let i = 0; i < count; i++) {
+                const subgrid = subgridImplementations[i];
+                if (subgrid.dataServer === dataServer) {
+                    return subgrid;
+                }
+            }
+            throw new AssertError('SMGSWDS98224');
+        }
     }
 
     /** @internal */

@@ -1,5 +1,7 @@
 import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
+import { DataServer } from '../../interfaces/data/data-server';
+import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { ServerNotificationId, invalidServerNotificationId, lowestValidServerNotificationId } from '../../interfaces/schema/schema-server';
@@ -26,6 +28,8 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     renderedEventer: Renderer.RenderedEventer;
 
     /** @internal */
+    private readonly _mainDataServer: DataServer<SF>;
+    /** @internal */
     private readonly _gridPainterRepository: GridPainterRepository<BGS, BCS, SF>;
     /** @internal */
     private readonly _renderActionQueue = new RenderActionQueue()
@@ -41,9 +45,6 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private _lastRenderedServerNotificationId: ServerNotificationId = lowestValidServerNotificationId;
     /** @internal */
     private _waitLastServerNotificationRenderedResolves = new Array<Renderer.WaitModelRenderedResolve>();
-
-    /** @internal */
-    private _destroyed = false;
 
     /** @internal */
     private _animator: Animator | undefined;
@@ -76,6 +77,8 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         /** @internal */
         private readonly _mouse: Mouse<BGS, BCS, SF>,
     ) {
+        this._mainDataServer = this._subgridsManager.mainSubgrid.dataServer;
+
         this._gridPainterRepository = new GridPainterRepository(
             this._gridSettings,
             this._canvasManager,
@@ -92,12 +95,12 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this._gridSettings.subscribeChangedEvent(this._gridSettingsChangedListener);
         this._gridSettings.viewRenderInvalidatedEventer = () => {
             this._viewLayout.resetAllCellPaintFingerprints();
-            this.invalidateViewRender();
+            this.invalidateView();
         }
         this._viewLayout.layoutInvalidatedEventer = (action) => this._renderActionQueue.processViewLayoutInvalidateAction(action);
-        this._focus.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCellRender(cell)
-        this._selection.changedEventerForRenderer = () => this.invalidateViewRender();
-        this._mouse.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCellRender(cell);
+        this._focus.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCell(cell)
+        this._selection.changedEventerForRenderer = () => this.invalidateView();
+        this._mouse.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCell(cell);
 
         document.addEventListener('visibilitychange', this._pageVisibilityChangeListener);
         this.setGridPainter('by-columns-and-rows');
@@ -117,8 +120,6 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
         document.removeEventListener('visibilitychange', this._pageVisibilityChangeListener);
         this._gridSettings.unsubscribeChangedEvent(this._gridSettingsChangedListener);
-
-        this._destroyed = true;
     }
 
     /** @internal */
@@ -211,41 +212,84 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    invalidateViewRender() {
+    invalidateView() {
         if (this._canvasManager.hasBounds) {
-            this._renderActionQueue.invalidateViewRender();
+            this._renderActionQueue.invalidateView();
         }
     }
 
     /** @internal */
-    invalidateViewCellRender(cell: ViewCell<BCS, SF>) {
+    invalidateViewCell(cell: ViewCell<BCS, SF>) {
         if (this._canvasManager.hasBounds) {
-            this._renderActionQueue.invalidateViewCellRender(cell);
+            this._renderActionQueue.invalidateViewCell(cell.viewLayoutColumn.index, cell.viewLayoutRow.index);
         }
     }
 
     /** @internal */
-    invalidateAllData() {
+    invalidateSubgrid(subgrid: Subgrid<BCS, SF>) {
         if (this._canvasManager.hasBounds) {
-            this._renderActionQueue.invalidateAllData();
+            const viewRowCount = subgrid.viewRowCount;
+            if (viewRowCount > 0) {
+                this._renderActionQueue.invalidateViewRows(subgrid.firstViewRowIndex, subgrid.viewRowCount);
+            }
         }
     }
 
     /** @internal */
-    invalidateDataRows(rowIndex: number, count: number) {
+    invalidateSubgridRows(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, count: number) {
         if (this._canvasManager.hasBounds) {
-            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-            if (firstScrollableSubgridRowIndex === undefined) {
-                throw new AssertError('RIDRSF33321');
-            } else {
-                if ((rowIndex + count) > firstScrollableSubgridRowIndex) {
-                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
-                    if (lastScrollableRowSubgridRowIndex === undefined) {
-                        throw new AssertError('RIDRSL33321');
+            const subgridViewRowCount = subgrid.viewRowCount;
+            if (subgridViewRowCount > 0) {
+                const subgridViewRowIndex = subgridRowIndex - subgrid.firstViewableSubgridRowIndex;
+                if ((subgridViewRowIndex + count) >= 0 && subgridViewRowIndex < subgridViewRowCount) {
+                    const subgridFirstViewRowIndex = subgrid.firstViewRowIndex;
+                    const invalidateViewRowIndex = subgridViewRowIndex < 0 ? subgridFirstViewRowIndex : subgridFirstViewRowIndex + subgridViewRowIndex;
+                    const subgridAfterViewRowIndex = subgridFirstViewRowIndex + subgridViewRowCount;
+                    let invalidateCount: number;
+                    if (invalidateViewRowIndex + count > subgridAfterViewRowIndex) {
+                        invalidateCount = subgridAfterViewRowIndex - invalidateViewRowIndex;
                     } else {
-                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
-                            this._renderActionQueue.invalidateDataRows(rowIndex, count);
+                        invalidateCount = count;
+                    }
+                    this._renderActionQueue.invalidateViewRows(invalidateViewRowIndex, invalidateCount);
+                }
+            }
+        }
+    }
+
+    /** @internal */
+    invalidateSubgridRow(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number) {
+        if (this._canvasManager.hasBounds) {
+            const subgridViewRowCount = subgrid.viewRowCount;
+            if (subgridViewRowCount > 0) {
+                const subgridViewRowIndex = subgridRowIndex - subgrid.firstViewableSubgridRowIndex;
+                if (subgridViewRowIndex >= 0 && subgridViewRowIndex < subgridViewRowCount) {
+                    this._renderActionQueue.invalidateViewRow(subgrid.firstViewRowIndex + subgridViewRowIndex);
+                }
+            }
+        }
+    }
+
+    /** @internal */
+    invalidateSubgridRowCells(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, activeColumnIndices: number[]) {
+        if (this._canvasManager.hasBounds) {
+            const subgridViewRowCount = subgrid.viewRowCount;
+            if (subgridViewRowCount > 0) {
+                const subgridViewRowIndex = subgridRowIndex - subgrid.firstViewableSubgridRowIndex;
+                if (subgridViewRowIndex >= 0 && subgridViewRowIndex < subgridViewRowCount) {
+                    const maxColumnCount = activeColumnIndices.length;
+                    const columnIndices = new Array<number>(maxColumnCount);
+                    let count = 0;
+                    for (let i = 0; i < maxColumnCount; i++) {
+                        const activeColumnIndex = activeColumnIndices[i];
+                        const viewColumn = this._viewLayout.findColumnWithActiveIndex(activeColumnIndex);
+                        if (viewColumn !== undefined) {
+                            columnIndices[count++] = viewColumn.index;
                         }
+                    }
+                    if (count > 0) {
+                        columnIndices.length = count;
+                        this._renderActionQueue.invalidateViewRowCells(subgrid.firstViewRowIndex + subgridViewRowIndex, columnIndices);
                     }
                 }
             }
@@ -253,63 +297,15 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    invalidateDataRow(rowIndex: number) {
+    invalidateSubgridCell(subgrid: Subgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number) {
         if (this._canvasManager.hasBounds) {
-            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-            if (firstScrollableSubgridRowIndex === undefined) {
-                throw new AssertError('RIDRF33321');
-            } else {
-                if (rowIndex >= firstScrollableSubgridRowIndex) {
-                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
-                    if (lastScrollableRowSubgridRowIndex === undefined) {
-                        throw new AssertError('RIDRL33321');
-                    } else {
-                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
-                            this._renderActionQueue.invalidateDataRow(rowIndex);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /** @internal */
-    invalidateDataRowCells(rowIndex: number, allColumnIndexes: number[]) {
-        if (this._canvasManager.hasBounds) {
-            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-            if (firstScrollableSubgridRowIndex === undefined) {
-                throw new AssertError('RIDRCSF33321');
-            } else {
-                if (rowIndex >= firstScrollableSubgridRowIndex) {
-                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
-                    if (lastScrollableRowSubgridRowIndex === undefined) {
-                        throw new AssertError('RIDRCSL33321');
-                    } else {
-                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
-                            this._renderActionQueue.invalidateDataRowCells(rowIndex, allColumnIndexes);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /** @internal */
-    invalidateDataCell(allColumnIndex: number, rowIndex: number) {
-        if (this._canvasManager.hasBounds) {
-            const firstScrollableSubgridRowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
-            if (firstScrollableSubgridRowIndex === undefined) {
-                throw new AssertError('RIDRCFR33321');
-            } else {
-                if (rowIndex >= firstScrollableSubgridRowIndex) {
-                    const lastScrollableRowSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
-                    if (lastScrollableRowSubgridRowIndex === undefined) {
-                        throw new AssertError('RIDRCLR33321');
-                    } else {
-                        if (rowIndex <= lastScrollableRowSubgridRowIndex) {
-                            // add support for (active) columns
-                            this._renderActionQueue.invalidateDataCell(allColumnIndex, rowIndex);
-                        }
+            const subgridViewRowCount = subgrid.viewRowCount;
+            if (subgridViewRowCount > 0) {
+                const subgridViewRowIndex = subgridRowIndex - subgrid.firstViewableSubgridRowIndex;
+                if (subgridViewRowIndex >= 0 && subgridViewRowIndex < subgridViewRowCount) {
+                    const viewColumn = this._viewLayout.findColumnWithActiveIndex(activeColumnIndex);
+                    if (viewColumn !== undefined) {
+                        this._renderActionQueue.invalidateViewCell(viewColumn.index, subgrid.firstViewRowIndex + subgridViewRowIndex);
                     }
                 }
             }

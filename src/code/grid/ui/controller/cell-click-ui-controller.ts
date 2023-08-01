@@ -122,7 +122,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
         if (result) {
             const column = viewCell.viewLayoutColumn.column;
             this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', CellClickUiController.linkVisitedColor, subgrid, viewCell);
-            this.renderer.invalidateViewCellRender(viewCell);
+            this.renderer.invalidateViewCell(viewCell);
         }
 
         return result;

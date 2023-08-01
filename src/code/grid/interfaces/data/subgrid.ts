@@ -14,6 +14,13 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends Schema
     readonly dataServer: DataServer<SF>;
     readonly metaModel: MetaModel | undefined;
 
+    /** Only valid if {@link viewRowCount} > 0 */
+    readonly firstViewRowIndex: number;
+    /** Only valid if {@link viewRowCount} > 0 */
+    readonly firstViewableSubgridRowIndex: number;
+    /** Number of Subgrid rows visible in viewport */
+    readonly viewRowCount: number;
+
     getRowCount(): number;
     getSingletonViewDataRow(rowIndex: number): DataServer.ViewRow;
 

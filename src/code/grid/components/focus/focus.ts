@@ -10,6 +10,7 @@ import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
+import { calculateAdjustmentForRangeMoved } from '../../types-utils/utils';
 import { CanvasManager } from '../canvas/canvas-manager';
 import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
@@ -42,6 +43,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private _editor: CellEditor<BCS, SF> | undefined;
+    /** @internal */
+    private _editorSubgridRowIndex: number | undefined;
+    /** @internal */
+    private _editorActiveColumnIndex: number | undefined;
     /** @internal */
     private _cell: ViewCell<BCS, SF> | undefined;
 
@@ -290,13 +295,16 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     closeEditor(cancel: boolean, focusCanvas: boolean) {
         const editor = this._editor;
         if (editor !== undefined) {
-            const focusedPoint = this._current;
-            if (focusedPoint === undefined) {
-                throw new AssertError('FCE11198');
+            const activeColumnIndex = this._editorActiveColumnIndex;
+            const subgridRowIndex = this._editorSubgridRowIndex;
+            if (activeColumnIndex === undefined || subgridRowIndex === undefined) {
+                throw new AssertError('FCE40199');
             } else {
-                const column = this._columnsManager.getActiveColumn(focusedPoint.x);
                 this._editor = undefined;
-                editor.close(column.field, focusedPoint.y, cancel);
+                this._editorActiveColumnIndex = undefined;
+                this._editorSubgridRowIndex = undefined;
+                const column = this._columnsManager.getActiveColumn(activeColumnIndex);
+                editor.closeCell(column.field, subgridRowIndex, cancel);
                 this.finaliseEditor(editor);
 
                 if (this._cell !== undefined) {
@@ -336,7 +344,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             } else {
                 const column = this._columnsManager.getActiveColumn(focusPoint.x);
                 const subgridRowIndex = focusPoint.y;
-                const consumed = editor.processKeyDownEvent(event, fromEditor, column.field, subgridRowIndex);
+                const consumed = editor.processGridKeyDownEvent(event, fromEditor, column.field, subgridRowIndex);
                 if (consumed) {
                     return true;
                 } else {
@@ -369,10 +377,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                     return this.tryOpenEditorAtFocusedCell(focusedCell, undefined, event);
                 }
             } else {
-                if (editor.processClickEvent === undefined) {
+                if (editor.processGridClickEvent === undefined) {
                     return false;
                 } else {
-                    return editor.processClickEvent(event, focusedCell);
+                    return editor.processGridClickEvent(event, focusedCell);
                 }
             }
         }
@@ -386,10 +394,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             if (editor === undefined) {
                 return undefined;
             } else {
-                if (editor.processPointerMoveEvent === undefined) {
+                if (editor.processGridPointerMoveEvent === undefined) {
                     return undefined;
                 } else {
-                    return editor.processPointerMoveEvent(event, focusedCell);
+                    return editor.processGridPointerMoveEvent(event, focusedCell);
                 }
             }
         }
@@ -403,6 +411,12 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             }
             if (this._previous !== undefined) {
                 Point.adjustForYRangeInserted(this._previous, rowIndex, rowCount);
+            }
+
+            if (this._editorSubgridRowIndex !== undefined) {
+                if (rowIndex <= this._editorSubgridRowIndex) {
+                    this._editorSubgridRowIndex += rowCount;
+                }
             }
 
             this._canvasY = undefined;
@@ -425,6 +439,17 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 }
             }
 
+            const editorSubgridRowIndex = this._editorSubgridRowIndex;
+            if (editorSubgridRowIndex !== undefined) {
+                if (rowIndex <= editorSubgridRowIndex) {
+                    if ((rowIndex + rowCount) <= editorSubgridRowIndex) {
+                        this._editorSubgridRowIndex = editorSubgridRowIndex - rowCount;
+                    } else {
+                        this.closeEditor(false, true)
+                    }
+                }
+            }
+
             this._canvasY = undefined;
         }
     }
@@ -439,6 +464,12 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 Point.adjustForYRangeMoved(this._previous, oldRowIndex, newRowIndex, count);
             }
 
+            const editorSubgridRowIndex = this._editorSubgridRowIndex;
+            if (editorSubgridRowIndex !== undefined) {
+                const adjustment = calculateAdjustmentForRangeMoved(editorSubgridRowIndex, oldRowIndex, newRowIndex, count);
+                this._editorSubgridRowIndex = editorSubgridRowIndex - adjustment;
+            }
+
             this._canvasY = undefined;
         }
     }
@@ -450,6 +481,12 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
         if (this._previous !== undefined) {
             Point.adjustForXRangeInserted(this._previous, columnIndex, columnCount);
+        }
+
+        if (this._editorActiveColumnIndex !== undefined) {
+            if (columnIndex <= this._editorActiveColumnIndex) {
+                this._editorActiveColumnIndex += columnCount;
+            }
         }
 
         this._canvasX = undefined;
@@ -470,6 +507,17 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             }
         }
 
+        const editorActiveColumnIndex = this._editorActiveColumnIndex;
+        if (editorActiveColumnIndex !== undefined) {
+            if (columnIndex <= editorActiveColumnIndex) {
+                if ((columnIndex + columnCount) <= editorActiveColumnIndex) {
+                    this._editorActiveColumnIndex = editorActiveColumnIndex - columnCount;
+                } else {
+                    this.closeEditor(false, true)
+                }
+            }
+        }
+
         this._canvasX = undefined;
     }
 
@@ -482,7 +530,103 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             Point.adjustForXRangeMoved(this._previous, oldColumnIndex, newColumnIndex, count);
         }
 
+        const editorActiveColumnIndex = this._editorActiveColumnIndex;
+        if (editorActiveColumnIndex !== undefined) {
+            const adjustment = calculateAdjustmentForRangeMoved(editorActiveColumnIndex, oldColumnIndex, newColumnIndex, count);
+            this._editorActiveColumnIndex = editorActiveColumnIndex - adjustment;
+        }
+
         this._canvasX = undefined;
+    }
+
+    /** @internal */
+    invalidateSubgrid(subgrid: Subgrid<BCS, SF>) {
+        if (this._editor !== undefined && this._editor.invalidateValue !== undefined && subgrid === this.subgrid) {
+            this._editor.invalidateValue();
+        }
+    }
+
+    /** @internal */
+    invalidateSubgridRows(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, count: number) {
+        if (
+            this._editor !== undefined &&
+            subgrid === this.subgrid &&
+            this._editor.invalidateValue !== undefined
+        ) {
+            const editorSubgridRowIndex = this._editorSubgridRowIndex;
+            if (editorSubgridRowIndex === undefined) {
+                throw new AssertError('FISRS40199');
+            } else {
+                if (editorSubgridRowIndex >= subgridRowIndex && editorSubgridRowIndex < (subgridRowIndex + count)) {
+                    this._editor.invalidateValue();
+                }
+            }
+        }
+    }
+
+    /** @internal */
+    invalidateSubgridRow(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number) {
+        if (
+            this._editor !== undefined &&
+            subgrid === this.subgrid &&
+            this._editor.invalidateValue !== undefined
+        ) {
+            const editorSubgridRowIndex = this._editorSubgridRowIndex;
+            if (editorSubgridRowIndex === undefined) {
+                throw new AssertError('FISR40199');
+            } else {
+                if (subgridRowIndex === editorSubgridRowIndex) {
+                    this._editor.invalidateValue();
+                }
+            }
+        }
+    }
+
+    /** @internal */
+    invalidateSubgridRowCells(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, activeColumnIndices: number[]) {
+        if (
+            this._editor !== undefined &&
+            subgrid === this.subgrid &&
+            this._editor.invalidateValue !== undefined
+        ) {
+            const editorSubgridRowIndex = this._editorSubgridRowIndex;
+            if (editorSubgridRowIndex === undefined) {
+                throw new AssertError('FISCS40199');
+            } else {
+                if (subgridRowIndex === editorSubgridRowIndex) {
+                    const editorActiveColumnIndex = this._editorActiveColumnIndex;
+                    if (editorActiveColumnIndex === undefined) {
+                        throw new AssertError('FISCS40199');
+                    } else {
+                        for (const activeColumnIndex of activeColumnIndices) {
+                            if (activeColumnIndex === editorActiveColumnIndex) {
+                                this._editor.invalidateValue();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /** @internal */
+    invalidateSubgridCell(subgrid: Subgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number) {
+        if (
+            this._editor !== undefined &&
+            subgrid === this.subgrid &&
+            this._editor.invalidateValue !== undefined
+        ) {
+            const editorSubgridRowIndex = this._editorSubgridRowIndex;
+            const editorActiveColumnIndex = this._editorActiveColumnIndex;
+            if (editorSubgridRowIndex === undefined || editorActiveColumnIndex === undefined) {
+                throw new AssertError('FISC40199');
+            } else {
+                if (subgridRowIndex === editorSubgridRowIndex && activeColumnIndex === editorActiveColumnIndex) {
+                    this._editor.invalidateValue();
+                }
+            }
+        }
     }
 
     /** @internal */
@@ -586,18 +730,21 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                     if (editor === undefined) {
                         return false;
                     } else {
-                        editor.pullValueEventer = () => this.getFocusedEditValue();
+                        editor.pullCellValueEventer = () => this.getFocusedEditValue();
                         if (!readonly) {
-                            editor.pushValueEventer = (value) => this.setFocusedEditValue(value);
+                            editor.pushCellValueEventer = (value) => this.setFocusedEditValue(value);
                         }
                         editor.keyDownEventer = (event) => this.editorKeyDownEventer(event);
-                        editor.closedEventer = (value) => this.handleEditorClosed(value);
+                        editor.cellClosedEventer = (value) => this.handleEditorClosed(value);
                         this._editor = editor;
-                        if (!editor.tryOpen(focusedCell, keyDownEvent, clickEvent)) {
+                        if (!editor.tryOpenCell(focusedCell, keyDownEvent, clickEvent)) {
                             this.finaliseEditor(editor)
                             this._editor = undefined;
                             return false;
                         } else {
+                            this._editorSubgridRowIndex = subgridRowIndex;
+                            this._editorActiveColumnIndex = focusedPoint.x;
+
                             if (editor.setBounds !== undefined) {
                                 editor.setBounds(focusedCell.bounds);
                             } else {
@@ -614,10 +761,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     private finaliseEditor(editor: CellEditor<BCS, SF>) {
-        editor.pullValueEventer = undefined;
-        editor.pushValueEventer = undefined;
+        editor.pullCellValueEventer = undefined;
+        editor.pushCellValueEventer = undefined;
         editor.keyDownEventer = undefined;
-        editor.closedEventer = undefined;
+        editor.cellClosedEventer = undefined;
     }
 
     /** @internal */

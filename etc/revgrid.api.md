@@ -287,25 +287,25 @@ export namespace CachedCanvasRenderingContext2D {
 //
 // @public (undocumented)
 export interface CellEditor<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends CellPossiblyPaintable<BCS, SF> {
-    close(field: SF, subgridRowIndex: number, cancel: boolean): void;
-    closedEventer?: CellEditor.ClosedEventer;
+    cellClosedEventer?: CellEditor.CellClosedEventer;
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     focus?(): void;
     invalidateValue?(): void;
     keyDownEventer?: CellEditor.KeyDownEventer;
-    processClickEvent?(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
-    processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
-    processPointerMoveEvent?(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
-    pullValueEventer?: CellEditor.PullDataEventer;
-    pushValueEventer?: CellEditor.PushDataEventer;
+    processGridClickEvent?(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
+    processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    processGridPointerMoveEvent?(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
+    pullCellValueEventer?: CellEditor.PullCellValueEventer;
+    pushCellValueEventer?: CellEditor.PushCellValueEventer;
     readonly: boolean;
     setBounds?(bounds: Rectangle | undefined): void;
-    tryOpen(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
 export namespace CellEditor {
     // (undocumented)
-    export type ClosedEventer = (this: void, value: DataServer.ViewValue | undefined) => void;
+    export type CellClosedEventer = (this: void, value: DataServer.ViewValue | undefined) => void;
     // (undocumented)
     export type KeyDownEventer = (this: void, event: KeyboardEvent) => void;
     // (undocumented)
@@ -316,9 +316,9 @@ export namespace CellEditor {
         locationTitleText: string | undefined;
     }
     // (undocumented)
-    export type PullDataEventer = (this: void) => DataServer.ViewValue;
+    export type PullCellValueEventer = (this: void) => DataServer.ViewValue;
     // (undocumented)
-    export type PushDataEventer = (this: void, value: DataServer.ViewValue) => void;
+    export type PushCellValueEventer = (this: void, value: DataServer.ViewValue) => void;
 }
 
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -1026,6 +1026,16 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF> | undefined;
     // (undocumented)
     readonly internalParent: RevgridObject;
+    // @internal (undocumented)
+    invalidateSubgrid(subgrid: Subgrid<BCS, SF>): void;
+    // @internal (undocumented)
+    invalidateSubgridCell(subgrid: Subgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number): void;
+    // @internal (undocumented)
+    invalidateSubgridRow(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number): void;
+    // @internal (undocumented)
+    invalidateSubgridRowCells(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, activeColumnIndices: number[]): void;
+    // @internal (undocumented)
+    invalidateSubgridRows(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, count: number): void;
     // (undocumented)
     isActiveColumnFocused(activeColumnIndex: number): boolean;
     // (undocumented)
@@ -3354,17 +3364,17 @@ export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BC
 export class StandardCheckboxCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardPaintCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
-    close(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
+    closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
     // (undocumented)
     _painter: StandardCheckboxCellPainter<BGS, BCS, SF>;
     // (undocumented)
     processClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
     // (undocumented)
-    processKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
     // (undocumented)
     processPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
     // (undocumented)
-    tryOpen(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public
@@ -3427,9 +3437,9 @@ export namespace StandardCheckboxCellPainter {
 export class StandardColorInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
-    close(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpen(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -3440,9 +3450,9 @@ export interface StandardColumnSettings extends StandardOnlyColumnSettings, Text
 export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
-    close(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpen(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -3465,9 +3475,9 @@ export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSet
 export class StandardNumberInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
-    close(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpen(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -3510,9 +3520,9 @@ export interface StandardOnlyGridSettings {
 export class StandardRangeInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
-    close(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpen(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -3660,15 +3670,21 @@ export namespace StandardTextCellPainter {
 export class StandardTextInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
-    close(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpen(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
 export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends DatalessSubgrid {
     // (undocumented)
     readonly dataServer: DataServer<SF>;
+    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
+    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "viewRowCount"
+    readonly firstViewableSubgridRowIndex: number;
+    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
+    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "viewRowCount"
+    readonly firstViewRowIndex: number;
     // (undocumented)
     getCellPainterEventer(viewCell: DatalessViewCell<BCS, SF>): CellPainter<BCS, SF>;
     // (undocumented)
@@ -3699,6 +3715,7 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends Schema
     setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined): boolean;
     // (undocumented)
     setRowProperty(y: number, key: string, isHeight: boolean, value: unknown): boolean;
+    readonly viewRowCount: number;
 }
 
 // @public (undocumented)
@@ -3766,11 +3783,17 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
     // @internal (undocumented)
     getSubgridByHandle(handle: SubgridImplementation.Handle): SubgridImplementation<BCS, SF> | undefined;
     // @internal (undocumented)
+    getSubgridImplementationWithDataServer(dataServer: DataServer<SF>): Subgrid<BCS, SF>;
+    // (undocumented)
+    getSubgridWithDataServer(dataServer: DataServer<SF>): Subgrid<BCS, SF>;
+    // @internal (undocumented)
     readonly _handledSubgrids: (SubgridImplementation<BCS, SF> | undefined)[];
     // (undocumented)
     readonly headerSubgrid: Subgrid<BCS, SF> | undefined;
     // (undocumented)
     readonly internalParent: RevgridObject;
+    // (undocumented)
+    readonly mainDataServer: DataServer<SF>;
     // (undocumented)
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     // (undocumented)
