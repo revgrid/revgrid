@@ -16,14 +16,14 @@ export class StandardCheckboxCellEditor<
         super(grid, dataServer, painter);
     }
 
-    override tryOpen(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined) {
             return false;
         } else {
             if (openingKeyDownEvent !== undefined) {
                 // Trying to be opened by key down.  Allow open if key is consumed
-                return this.processKeyDownEvent(openingKeyDownEvent, false, cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
+                return this.processGridKeyDownEvent(openingKeyDownEvent, false, cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
             } else {
                 if (openingClickEvent !== undefined) {
                     // Trying to be opened by click.  Allow open if click is consumed
@@ -35,11 +35,11 @@ export class StandardCheckboxCellEditor<
         }
     }
 
-    override close(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean) {
+    override closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean) {
         // nothing to do
     }
 
-    override processKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number) {
+    override processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number) {
         const key = event.key;
         if (!this.isToggleKey(key)) {
             return false;

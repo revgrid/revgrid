@@ -15,13 +15,13 @@ export abstract class StandardElementCellEditor<
         element.style.position = 'absolute';
     }
 
-    override tryOpen(_viewCell: DatalessViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(_viewCell: DatalessViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         this._grid.canvasManager.hostElement.appendChild(this.element);
         this.element.focus();
         return true;
     }
 
-    override close(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean) {
+    override closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean) {
         this.element.blur(); // make sure it does not have focus
         this._grid.canvasManager.hostElement.removeChild(this.element);
     }

@@ -6,9 +6,9 @@ export abstract class StandardCellEditor<
     BCS extends StandardBehavioredColumnSettings,
     SF extends SchemaField
 > implements CellEditor<BCS, SF> {
-    pullValueEventer: CellEditor.PullDataEventer;
-    pushValueEventer: CellEditor.PushDataEventer;
-    closedEventer: CellEditor.ClosedEventer;
+    pullCellValueEventer: CellEditor.PullCellValueEventer;
+    pushCellValueEventer: CellEditor.PushCellValueEventer;
+    cellClosedEventer: CellEditor.CellClosedEventer;
 
     private _readonly: boolean;
 
@@ -23,10 +23,10 @@ export abstract class StandardCellEditor<
         this._readonly = value;
     }
 
-    abstract tryOpen(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
-    abstract close(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    abstract tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    abstract closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
 
-    abstract processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
 
     protected isToggleKey(key: string) {
         return key === Focus.ActionKeyboardKey.Enter || key === ' ';

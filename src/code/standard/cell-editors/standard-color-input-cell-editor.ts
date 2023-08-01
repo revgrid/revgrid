@@ -13,7 +13,7 @@ export class StandardColorInputCellEditor<
         this.element.classList.add('revgrid-color-input-editor');
     }
 
-    override tryOpen(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined) {
             return false;
@@ -27,7 +27,7 @@ export class StandardColorInputCellEditor<
                 }
             }
 
-            const result = super.tryOpen(cell, openingKeyDownEvent, _openingClickEvent);
+            const result = super.tryOpenCell(cell, openingKeyDownEvent, _openingClickEvent);
 
             if (result && key === undefined) {
                 // was not opened by keyboard
@@ -44,10 +44,10 @@ export class StandardColorInputCellEditor<
         }
     }
 
-    override close(field: SF, subgridRowIndex: number, cancel: boolean) {
+    override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
         if (!cancel && !this.readonly && this._dataServer.setEditValue !== undefined) {
             this._dataServer.setEditValue(field, subgridRowIndex, this.element.value);
         }
-        super.close(field, subgridRowIndex, cancel);
+        super.closeCell(field, subgridRowIndex, cancel);
     }
 }

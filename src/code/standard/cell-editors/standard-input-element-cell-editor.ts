@@ -26,20 +26,20 @@ export abstract class StandardInputElementCellEditor<
         this.element.readOnly = value;
     }
 
-    override tryOpen(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
-        const result = super.tryOpen(viewCell, openingKeyDownEvent, openingClickEvent);
+    override tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
+        const result = super.tryOpenCell(viewCell, openingKeyDownEvent, openingClickEvent);
         if (result) {
             this.element.addEventListener('keydown', this.keyDownEventer);
         }
         return result;
     }
 
-    override close(field: SF, subgridRowIndex: number, cancel: boolean) {
+    override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
         this.element.removeEventListener('keydown', this.keyDownEventer);
-        super.close(field, subgridRowIndex, cancel);
+        super.closeCell(field, subgridRowIndex, cancel);
     }
 
-    override processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _subgridRowIndex: number) {
+    override processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _subgridRowIndex: number) {
         if (fromEditor) {
             // Event was emitted by this editor.  Any key it can consume has effectively already been consumed
             return this.canConsumeKey(event.key);

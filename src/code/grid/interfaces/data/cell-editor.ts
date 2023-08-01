@@ -17,27 +17,27 @@ export interface CellEditor<
     readonly: boolean;
 
     /** Provide the initial data to the editor. This is done after all events have been subscribed to - so editor can start running */
-    tryOpen(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
     /** Close the editor - returns data that was in editor or undefined if cancel specified */
-    close(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
 
     /** Server data value has changed since being provided to editor or pulled by editor */
     invalidateValue?(): void;
 
     /** See if the editor wants the key down event.  If fromEditor is true, then this editor generated the event in the first place */
-    processKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
     /** See if the editor wants the mouse down event.  If fromEditor is true, then this editor generated the event in the first place */
-    processClickEvent?(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
-    /** See if the editor wants the mouse down event.  If fromEditor is true, then this editor generated the event in the first place */
-    processPointerMoveEvent?(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
+    processGridClickEvent?(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
+    /** See if the editor wants the mouse move event.  If fromEditor is true, then this editor generated the event in the first place */
+    processGridPointerMoveEvent?(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
 
     /** Get latest data from data server */
-    pullValueEventer?: CellEditor.PullDataEventer;
+    pullCellValueEventer?: CellEditor.PullCellValueEventer;
     /** Save data to data server. Optional. If not supplied then editor is read only */
-    pushValueEventer?: CellEditor.PushDataEventer;
+    pushCellValueEventer?: CellEditor.PushCellValueEventer;
 
     /** Editor can optionally use this eventer to notify Grid that it has completed */
-    closedEventer?: CellEditor.ClosedEventer;
+    cellClosedEventer?: CellEditor.CellClosedEventer;
 
     // HTML Element methods and events
 
@@ -51,9 +51,9 @@ export interface CellEditor<
 
 /** @public */
 export namespace CellEditor {
-    export type PullDataEventer = (this: void) => DataServer.ViewValue;
-    export type PushDataEventer = (this: void, value: DataServer.ViewValue) => void;
-    export type ClosedEventer = (this: void, value: DataServer.ViewValue | undefined) => void;
+    export type PullCellValueEventer = (this: void) => DataServer.ViewValue;
+    export type PushCellValueEventer = (this: void, value: DataServer.ViewValue) => void;
+    export type CellClosedEventer = (this: void, value: DataServer.ViewValue | undefined) => void;
     export type KeyDownEventer = (this: void, event: KeyboardEvent) => void;
 
     export interface PointerLocationInfo {
