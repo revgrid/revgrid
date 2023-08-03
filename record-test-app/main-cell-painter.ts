@@ -25,18 +25,17 @@ export class MainCellPainter
         this.setColumnSettings(columnSettings);
 
         const gc = this._renderingContext;
+        const subgrid = cell.subgrid;
         const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
+        const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
 
         const foreColor = gridSettings.color;
 
         let bkgdColor: string;
-        const subgrid = cell.subgrid;
-        const isMainSubgrid = subgrid.isMain;
-        const isRowFocused = isMainSubgrid && grid.focus.isMainSubgridRowFocused(subgridRowIndex);
-        if (isRowFocused && gridSettings.focusedRowBackgroundColor !== undefined) {
-            bkgdColor = gridSettings.focusedRowBackgroundColor;
+        const selectionBackgroundColor = this._gridSettings.selectionBackgroundColor;
+        if (selectionBackgroundColor !== undefined && grid.selection.isCellSelectedWithOthers(activeColumnIndex, subgridRowIndex, subgrid)) {
+            bkgdColor = selectionBackgroundColor;
         } else {
-            //  bkgdColor = config.backgroundColor;
             if (prefillColor !== undefined) {
                 bkgdColor = prefillColor;
             } else {
@@ -44,25 +43,29 @@ export class MainCellPainter
             }
         }
 
-        /* if (altRow) {
-            foreColor = _settings.colorMap.foreBaseAlt;
-        } else {
-            foreColor = _settings.colorMap.foreBase;
-        }*/
-
-        const graphicId = GraphicId.None;
-        let proportionBarGraphic: ProportionBarGraphic | undefined;
-
         const field = cell.viewLayoutColumn.column.field;
         const foreText = this._dataServer.getViewValue(field, subgridRowIndex) as string;
         const foreFont = gridSettings.font;
-        let internalBorderRowOnly: boolean;
+        let internalBorderRowOnly = false;
 
         const valueRecentChangeTypeId = this._dataServer.getValueRecentChangeTypeId(field, subgridRowIndex);
 
+        const focus = grid.focus;
         let internalBorderColor: string | undefined;
+        let focusedCellBorderColor: string | undefined;
+        const rowFocused = focus.isMainSubgridRowFocused(subgridRowIndex);
+        if (rowFocused) {
+            if (gridSettings.focusedRowBorderColor !== undefined) {
+                internalBorderColor = gridSettings.focusedRowBorderColor;
+                internalBorderRowOnly = true;
+            }
+
+            if (focus.isCellFocused(cell)) {
+                focusedCellBorderColor = gridSettings.focusedCellBorderColor;
+            }
+        }
+
         if (valueRecentChangeTypeId !== undefined) {
-            internalBorderRowOnly = false;
             switch (valueRecentChangeTypeId) {
                 case RevRecordValueRecentChangeTypeId.Update:
                     internalBorderColor = gridSettings.valueRecentlyModifiedBorderColor;
@@ -76,11 +79,10 @@ export class MainCellPainter
                 default:
                     throw new UnreachableCaseError('TCPPRVCTU02775', valueRecentChangeTypeId);
             }
+            internalBorderRowOnly = false;
         } else {
             const rowRecentChangeTypeId = this._dataServer.getRecordRecentChangeTypeId(subgridRowIndex);
             if (rowRecentChangeTypeId !== undefined) {
-                internalBorderRowOnly = true;
-
                 switch (rowRecentChangeTypeId) {
                     case RevRecordRecentChangeTypeId.Update:
                         internalBorderColor = gridSettings.recordRecentlyUpdatedBorderColor;
@@ -94,10 +96,7 @@ export class MainCellPainter
                     default:
                         throw new UnreachableCaseError('TCPPRRCTU02775', rowRecentChangeTypeId);
                 }
-
-            } else {
-                internalBorderRowOnly = false;
-                internalBorderColor = undefined;
+                internalBorderRowOnly = true;
             }
         }
 
@@ -121,14 +120,11 @@ export class MainCellPainter
                     internalBorderProcessingRequired = true;
                 } else {
                     bkgdRenderingRequired = false;
-                    textProcessingRequired =
-                        fingerprint.foreColor !== foreColor
-                        || fingerprint.foreText !== foreText
-                        || graphicId !== GraphicId.None;
+                    textProcessingRequired = fingerprint.foreColor !== foreColor || fingerprint.foreText !== foreText;
                     internalBorderProcessingRequired =
-                        fingerprint.internalBorderColor !== internalBorderColor
-                        || fingerprint.internalBorderRowOnly !== internalBorderRowOnly
-                        || graphicId !== GraphicId.None;
+                        fingerprint.internalBorderColor !== internalBorderColor ||
+                        fingerprint.internalBorderRowOnly !== internalBorderRowOnly ||
+                        fingerprint.focusedCellBorderColor !== focusedCellBorderColor;
                 }
             }
         }
@@ -145,6 +141,7 @@ export class MainCellPainter
                 foreColor,
                 internalBorderColor,
                 internalBorderRowOnly,
+                focusedCellBorderColor,
                 foreText,
             };
 
@@ -161,105 +158,37 @@ export class MainCellPainter
                 gc.fillRect(x, y, width, height);
             }
 
-            if (isRowFocused && gridSettings.focusedRowBorderColor !== undefined) {
-                const borderWidth = gridSettings.focusedRowBorderWidth;
-                gc.cache.strokeStyle = gridSettings.focusedRowBorderColor;
-                gc.cache.lineWidth = borderWidth;
-                const midOffset = borderWidth / 2;
-                gc.beginPath();
-                gc.moveTo(x, y + midOffset);
-                gc.lineTo(x + width, y + midOffset);
-                gc.stroke();
+            if (internalBorderProcessingRequired) {
+                if (internalBorderColor !== undefined) {
+                    gc.cache.strokeStyle = internalBorderColor;
+                    gc.cache.lineWidth = 1;
+                    gc.cache.lineDash = [];
+                    if (internalBorderRowOnly) {
+                        gc.beginPath();
+                        gc.moveTo(x, y + 0.5);
+                        gc.lineTo(x + width, y + 0.5);
+                        gc.stroke();
 
-                gc.beginPath();
-                gc.moveTo(x, y + height - midOffset);
-                gc.lineTo(x + width, y + height - midOffset);
-                gc.stroke();
-            }
+                        gc.beginPath();
+                        gc.moveTo(x, y + height - 0.5);
+                        gc.lineTo(x + width, y + height - 0.5);
+                        gc.stroke();
+                    } else {
+                        gc.beginPath();
+                        gc.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
+                    }
+                }
 
-            if (
-                internalBorderProcessingRequired &&
-                internalBorderColor !== undefined
-            ) {
-                gc.cache.strokeStyle = internalBorderColor;
-                gc.cache.lineWidth = 1;
-                if (internalBorderRowOnly) {
-                    gc.beginPath();
-                    gc.moveTo(x, y + 0.5);
-                    gc.lineTo(x + width, y + 0.5);
-                    gc.stroke();
-
-                    gc.beginPath();
-                    gc.moveTo(x, y + height - 0.5);
-                    gc.lineTo(x + width, y + height - 0.5);
-                    gc.stroke();
-                } else {
+                if (focusedCellBorderColor !== undefined) {
+                    gc.cache.strokeStyle = focusedCellBorderColor;
+                    gc.cache.lineWidth = 1;
+                    gc.cache.lineDash = [2, 1];
                     gc.beginPath();
                     gc.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
                 }
             }
 
             const cellPadding = gridSettings.cellPadding;
-
-            if (graphicId !== GraphicId.None) {
-                switch (graphicId) {
-                    case GraphicId.UndefinedColor: {
-                        const paddedLeftX = x + cellPadding;
-                        const paddedRightX = x + width - cellPadding;
-                        const paddedTopY = y + cellPadding;
-                        const paddedBottomY = y + height - cellPadding;
-
-                        gc.cache.strokeStyle = foreColor;
-                        gc.beginPath();
-                        gc.moveTo(paddedLeftX, paddedTopY);
-                        gc.lineTo(paddedRightX, paddedBottomY);
-                        gc.stroke();
-                        gc.beginPath();
-                        gc.moveTo(paddedRightX, paddedTopY);
-                        gc.lineTo(paddedLeftX, paddedBottomY);
-                        gc.stroke();
-                        break;
-                    }
-
-                    case GraphicId.InheritColor: {
-                        const inheritColorCenterY = y + height / 2 - 0.5;
-
-                        gc.cache.strokeStyle = foreColor;
-                        gc.beginPath();
-                        gc.moveTo(x + cellPadding + 2, inheritColorCenterY);
-                        gc.lineTo(
-                            x + width - cellPadding - 2,
-                            inheritColorCenterY
-                        );
-                        gc.stroke();
-                        break;
-                    }
-
-                    case GraphicId.ProportionBar: {
-                        if (proportionBarGraphic !== undefined) {
-                            const barWidth =
-                                proportionBarGraphic.proportion * width;
-                            gc.cache.fillStyle = proportionBarGraphic.color;
-                            gc.fillRect(x, y, barWidth, height);
-                        }
-                        break;
-                    }
-
-                    case GraphicId.LineThrough: {
-                        const lineThroughcenterY = y + height / 2 - 0.5;
-
-                        gc.cache.strokeStyle = foreColor;
-                        gc.beginPath();
-                        gc.moveTo(x, lineThroughcenterY);
-                        gc.lineTo(x + width, lineThroughcenterY);
-                        gc.stroke();
-                        break;
-                    }
-
-                    default:
-                        throw new UnreachableCaseError('GCRDGCRP2284', graphicId);
-                }
-            }
 
             if (textProcessingRequired && foreText === '') {
                 return undefined;
@@ -277,26 +206,15 @@ export namespace AppCellPainter {
     export type GetRecordRecentChangeTypeIdEventer = (this: void, subgridRowIndex: number) => RevRecordRecentChangeTypeId;
 }
 
-const enum GraphicId {
-    None,
-    UndefinedColor,
-    InheritColor,
-    ProportionBar,
-    LineThrough,
-}
-
 interface PaintFingerprintInterface {
     bkgdColor: string;
     foreColor: string;
     internalBorderColor: string | undefined;
     internalBorderRowOnly: boolean;
+    focusedCellBorderColor: string | undefined;
     foreText: string;
 }
 
 type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
 
-interface ProportionBarGraphic {
-    color: string;
-    proportion: number;
-}
 type IndexSignatureHack<T> = { [K in keyof T]: IndexSignatureHack<T[K]> };
