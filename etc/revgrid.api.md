@@ -1003,7 +1003,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // (undocumented)
     clear(): void;
     // (undocumented)
-    closeEditor(cancel: boolean, focusCanvas: boolean): void;
+    closeEditor(editor: CellEditor<BCS, SF>, cancel: boolean, focusCanvas: boolean): void;
     // @internal (undocumented)
     createStash(): Focus.Stash;
     // (undocumented)
@@ -1039,9 +1039,9 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // (undocumented)
     isActiveColumnFocused(activeColumnIndex: number): boolean;
     // (undocumented)
-    isCellFocused(cell: ViewCell<BCS, SF>): boolean;
+    isCellFocused(cell: DatalessViewCell<BCS, SF>): boolean;
     // (undocumented)
-    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>): boolean;
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): boolean;
     // (undocumented)
     isMainSubgridGridPointFocused(activeColumnIndex: number, mainSubgridRowIndex: number): boolean;
     // (undocumented)
@@ -1530,9 +1530,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get horizontalGridLinesWidth(): number;
     set horizontalGridLinesWidth(value: number);
     // (undocumented)
-    get horizontalScrollbarClassPrefix(): string;
-    set horizontalScrollbarClassPrefix(value: string);
-    // (undocumented)
     get horizontalWheelScrollingAllowed(): HorizontalWheelScrollingAllowed;
     set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed);
     // (undocumented)
@@ -1547,14 +1544,29 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get minimumColumnWidth(): number;
     set minimumColumnWidth(value: number);
     // (undocumented)
-    get mouseColumnSelection(): boolean;
-    set mouseColumnSelection(value: boolean);
+    get mouseColumnSelectionEnabled(): boolean;
+    set mouseColumnSelectionEnabled(value: boolean);
     // (undocumented)
-    get mouseRectangleSelection(): boolean;
-    set mouseRectangleSelection(value: boolean);
+    get mouseColumnSelectionModifierKey(): ModifierKeyEnum | undefined;
+    set mouseColumnSelectionModifierKey(value: ModifierKeyEnum | undefined);
     // (undocumented)
-    get mouseRowSelection(): boolean;
-    set mouseRowSelection(value: boolean);
+    get mouseMultiCellRectangleSelectionDragActiveCursorName(): string | undefined;
+    set mouseMultiCellRectangleSelectionDragActiveCursorName(value: string | undefined);
+    // (undocumented)
+    get mouseMultiCellRectangleSelectionDragActiveTitleText(): string | undefined;
+    set mouseMultiCellRectangleSelectionDragActiveTitleText(value: string | undefined);
+    // (undocumented)
+    get mouseMultiCellRectangleSelectionEnabled(): boolean;
+    set mouseMultiCellRectangleSelectionEnabled(value: boolean);
+    // (undocumented)
+    get mouseMultiCellRectangleSelectionModifierKey(): ModifierKeyEnum | undefined;
+    set mouseMultiCellRectangleSelectionModifierKey(value: ModifierKeyEnum | undefined);
+    // (undocumented)
+    get mouseRowSelectionEnabled(): boolean;
+    set mouseRowSelectionEnabled(value: boolean);
+    // (undocumented)
+    get mouseRowSelectionModifierKey(): ModifierKeyEnum | undefined;
+    set mouseRowSelectionModifierKey(value: ModifierKeyEnum | undefined);
     // (undocumented)
     get multipleSelectionAreas(): boolean;
     set multipleSelectionAreas(value: boolean);
@@ -1598,12 +1610,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get secondarySelectionAreaTypeSpecifierModifierKey(): ModifierKeyEnum | undefined;
     set secondarySelectionAreaTypeSpecifierModifierKey(value: ModifierKeyEnum | undefined);
     // (undocumented)
-    get selectionExtendDragActiveCursorName(): string | undefined;
-    set selectionExtendDragActiveCursorName(value: string | undefined);
-    // (undocumented)
-    get selectionExtendDragActiveTitleText(): string | undefined;
-    set selectionExtendDragActiveTitleText(value: string | undefined);
-    // (undocumented)
     get selectionRegionOutlineColor(): GridSettings.Color | undefined;
     set selectionRegionOutlineColor(value: GridSettings.Color | undefined);
     // (undocumented)
@@ -1642,9 +1648,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get verticalGridLinesWidth(): number;
     set verticalGridLinesWidth(value: number);
-    // (undocumented)
-    get verticalScrollbarClassPrefix(): string;
-    set verticalScrollbarClassPrefix(value: string);
     // (undocumented)
     get visibleColumnWidthAdjust(): boolean;
     set visibleColumnWidthAdjust(value: boolean);
@@ -2152,17 +2155,24 @@ export interface OnlyGridSettings {
     horizontalGridLinesVisible: boolean;
     horizontalGridLinesWidth: number;
     // (undocumented)
-    horizontalScrollbarClassPrefix: string;
-    // (undocumented)
     horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
     // (undocumented)
     maximumColumnWidth: number | undefined;
     minimumAnimateTimeInterval: number;
     // (undocumented)
     minimumColumnWidth: number;
-    mouseColumnSelection: boolean;
-    mouseRectangleSelection: boolean;
-    mouseRowSelection: boolean;
+    mouseColumnSelectionEnabled: boolean;
+    // (undocumented)
+    mouseColumnSelectionModifierKey: ModifierKeyEnum | undefined;
+    mouseMultiCellRectangleSelectionDragActiveCursorName: string | undefined;
+    // (undocumented)
+    mouseMultiCellRectangleSelectionDragActiveTitleText: string | undefined;
+    mouseMultiCellRectangleSelectionEnabled: boolean;
+    // (undocumented)
+    mouseMultiCellRectangleSelectionModifierKey: ModifierKeyEnum | undefined;
+    mouseRowSelectionEnabled: boolean;
+    // (undocumented)
+    mouseRowSelectionModifierKey: ModifierKeyEnum | undefined;
     multipleSelectionAreas: boolean;
     primarySelectionAreaType: SelectionAreaType;
     // (undocumented)
@@ -2182,9 +2192,6 @@ export interface OnlyGridSettings {
     // (undocumented)
     secondarySelectionAreaType: SelectionAreaType;
     secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
-    selectionExtendDragActiveCursorName: string | undefined;
-    // (undocumented)
-    selectionExtendDragActiveTitleText: string | undefined;
     selectionRegionOutlineColor: OnlyGridSettings.Color | undefined;
     selectionRegionOverlayColor: OnlyGridSettings.Color | undefined;
     // (undocumented)
@@ -2206,8 +2213,6 @@ export interface OnlyGridSettings {
     // (undocumented)
     verticalGridLinesVisible: boolean;
     verticalGridLinesWidth: number;
-    // (undocumented)
-    verticalScrollbarClassPrefix: string;
     // (undocumented)
     visibleColumnWidthAdjust: boolean;
     // (undocumented)
@@ -2345,9 +2350,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    addEventListener(eventName: string, listener: CanvasManager.EventListener): void;
+    // (undocumented)
+    addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     // (undocumented)
     autoSizeActiveColumnWidths(widenOnly: boolean): void;
     // (undocumented)
@@ -2601,9 +2605,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>): void;
     // (undocumented)
     removeAttribute(attribute: string): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    removeEventListener(eventName: string, listener: CanvasManager.EventListener): void;
+    // (undocumented)
+    removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     // Warning: (ae-forgotten-export) The symbol "Renderer" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -2688,8 +2691,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly subgridsManager: SubgridsManager<BCS, SF>;
     // (undocumented)
     swapColumns(source: number, target: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    updateSize(): void;
     // (undocumented)
     readonly verticalScroller: Scroller<BGS, BCS, SF>;
     // (undocumented)

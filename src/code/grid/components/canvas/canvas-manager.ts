@@ -1,16 +1,3 @@
-// if (typeof window.CustomEvent !== 'function') {
-//     // @ts-ignore
-//     window.CustomEvent = function(event, params) {
-//         params = params || { bubbles: false, cancelable: false, detail: undefined };
-//         var evt = document.createEvent('CustomEvent');
-//         evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-//         return evt;
-//     };
-
-//     // @ts-ignore
-//     window.CustomEvent.prototype = window.Event.prototype;
-// }
-
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 import { CssTypes } from '../../types-utils/css-types';
@@ -21,51 +8,72 @@ import { RevgridObject } from '../../types-utils/revgrid-object';
 
 /** @public */
 export class CanvasManager<BGS extends BehavioredGridSettings> implements RevgridObject {
+    readonly canvasElement: HTMLCanvasElement;
+    readonly gc: CachedCanvasRenderingContext2D;
+
+    /** @internal */
     resizedEventerForViewLayout: CanvasManager.ResizedEventer;
+    /** @internal */
     resizedEventerForEventBehavior: CanvasManager.ResizedEventer;
 
+    /** @internal */
     repaintEventer: CanvasManager.RepaintEventer;
 
+    /** @internal */
     focusEventer: CanvasManager.FocusEventer;
+    /** @internal */
     blurEventer: CanvasManager.FocusEventer;
 
+    /** @internal */
     keyDownEventer: CanvasManager.KeyEventer;
+    /** @internal */
     keyUpEventer: CanvasManager.KeyEventer;
 
+    /** @internal */
     pointerEnterEventer: CanvasManager.PointerEventer;
+    /** @internal */
     pointerDownEventer: CanvasManager.PointerEventer;
+    /** @internal */
     pointerMoveEventer: CanvasManager.PointerEventer;
+    /** @internal */
     pointerUpCancelEventer: CanvasManager.PointerEventer;
+    /** @internal */
     pointerLeaveOutEventer: CanvasManager.PointerEventer;
+    /** @internal */
     pointerDragStartEventer: CanvasManager.PointerDragStartEventer;
+    /** @internal */
     pointerDragEventer: CanvasManager.PointerDragEventer;
+    /** @internal */
     pointerDragEndEventer: CanvasManager.PointerDragEventer;
+    /** @internal */
     wheelMoveEventer: CanvasManager.WheelEventer;
+    /** @internal */
     clickEventer: CanvasManager.MouseEventer;
+    /** @internal */
     dblClickEventer: CanvasManager.MouseEventer;
+    /** @internal */
     contextMenuEventer: CanvasManager.MouseEventer;
 
+    /** @internal */
     touchStartEventer: CanvasManager.TouchEventer;
+    /** @internal */
     touchMoveEventer: CanvasManager.TouchEventer;
+    /** @internal */
     touchEndEventer: CanvasManager.TouchEventer;
 
+    /** @internal */
     copyEventer: CanvasManager.ClipboardEventer;
 
+    /** @internal */
     dragStartEventer: CanvasManager.DragEventer;
 
-    private _mouseLocation = Point.create(-1, -1);
-    // origin = null;
+    /** @internal */
     private _pointerEntered = false;
+    /** @internal */
     private _pointerDownState: CanvasManager.PointerDownState = CanvasManager.PointerDownState.NotDown;
+    /** @internal */
     private _pointerDragInternal: boolean;
 
-    // private _repeatKeyCount = 0;
-    // private _repeatKey: string | undefined;
-    // private _repeatKeyStartTime = 0;
-
-    readonly canvasElement: HTMLCanvasElement;
-    /** @internal */
-    readonly gc: CachedCanvasRenderingContext2D;
     /** @internal */
     private _started = false;
     /** @internal */
@@ -92,6 +100,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
     /** @internal
      * Used in dragging when no drag image is wanted
      */
+    /** @internal */
     private _emptyImage: HTMLImageElement;
 
     /** @internal */
@@ -102,6 +111,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         setTimeout(() => this.resize(true), 0); // do not process within observer callback
     })
 
+    /** @internal */
     private pointerUpCancelEventListener = (event: PointerEvent) => {
         // event.preventDefault(); // no mouse event
 
@@ -128,6 +138,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         }
     };
 
+    /** @internal */
     private pointerLeaveOutListener = (event: PointerEvent) => {
         // event.preventDefault(); // no mouse event
 
@@ -137,6 +148,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         }
     }
 
+    /** @internal */
     private keyDownEventListener = (e: KeyboardEvent) => {
         if (this.hasFocus()) {
             this.checkPreventDefault(e);
@@ -160,6 +172,8 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
             this.keyDownEventer(e);
         }
     }
+
+    /** @internal */
     private keyUpEventListener = (e: KeyboardEvent) => {
         if (this.hasFocus()) {
             this.checkPreventDefault(e);
@@ -173,13 +187,17 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         }
     }
 
+    /** @internal */
     private focusEventListener = (e: FocusEvent) => {
         this.focusEventer(e);
     }
+
+    /** @internal */
     private blurEventListener = (e: FocusEvent) => {
         this.blurEventer(e);
     }
 
+    /** @internal */
     private clickEventListener = (e: MouseEvent) => {
         if (this._pointerDownState === CanvasManager.PointerDownState.IgnoreClickAfterDrag) {
             this.setPointerDownState(CanvasManager.PointerDownState.NotDown, undefined);
@@ -187,35 +205,43 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
             this.clickEventer(e);
         }
     };
+    /** @internal */
     private dblClickEventListener = (e: MouseEvent) => {
         this.dblClickEventer(e);
     };
+    /** @internal */
     private contextMenuEventListener = (e: MouseEvent) => {
         this.contextMenuEventer(e);
     };
 
+    /** @internal */
     private touchStartEventListener = (e: TouchEvent) => {
         this.touchStartEventer(e);
     }
+    /** @internal */
     private touchMoveEventListener = (e: TouchEvent) => {
         this.touchMoveEventer(e);
     }
+    /** @internal */
     private touchEndEventListener = (e: TouchEvent) => {
         this.touchEndEventer(e);
     }
 
+    /** @internal */
     private copyEventListener = (e: ClipboardEvent) => {
         if (this.hasFocus()) {
             this.copyEventer(e);
         }
     }
 
+    /** @internal */
     constructor(
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
         readonly hostElement: HTMLElement,
         canvasOverflowOverride: CssTypes.Overflow | undefined,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
+        /** @internal */
         private readonly _gridSettings: BGS,
     ) {
         // create and append the canvas
@@ -230,7 +256,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         this.canvasElement.style.overflow = canvasOverflowOverride === undefined ? CssTypes.Overflow.clip : canvasOverflowOverride;
         this.canvasElement.classList.add(`${CssTypes.libraryName}-${CanvasManager.canvasCssSuffix}`);
 
-        this.gc = createCachedContext(this.canvasElement, canvasRenderingContext2DSettings);
+        this.gc = this.createCachedContext(this.canvasElement, canvasRenderingContext2DSettings);
 
         this.hostElement.appendChild(this.canvasElement);
 
@@ -353,22 +379,24 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
     get flooredWidth() { return this._flooredWidth; }
     get flooredHeight() { return this._flooredHeight; }
     get devicePixelRatio() { return this._devicePixelRatio; }
-    get emptyImage() { return this._emptyImage; }
+    get emptyImage() { return this._emptyImage; } // may use for dragging in future
 
-    addExternalEventListener(eventName: string, listener: CanvasManager.EventListener) {
-        this.canvasElement.addEventListener(eventName, listener as EventListener);
+    addExternalEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
+        this.canvasElement.addEventListener(eventName, listener, options);
     }
 
-    removeExternalEventListener(eventName: string, listener: CanvasManager.EventListener) {
-        this.canvasElement.removeEventListener(eventName, listener);
+    removeExternalEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) {
+        this.canvasElement.removeEventListener(eventName, listener, options);
     }
 
+    /** @internal */
     start() {
         this._gridSettings.resizeEventer = () => this.resize(false);
         this._resizeObserver.observe(this.hostElement);
         this._started = true;
     }
 
+    /** @internal */
     stop() {
         this._resizeObserver.disconnect();
         this._gridSettings.resizeEventer = undefined;
@@ -464,74 +492,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
     //     this.resize();
     // }
 
-    // /**
-    //  * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
-    //  * @this CanvasType
-    //  */
-    // private dispatchNewEvent<T extends EventName>(eventName: T, detail?: EventName.DetailMap[T]) {
-    //     const event = newEvent(eventName, detail);
-    //     return this.canvas.dispatchEvent(event);
-    // }
-
-    // finkeydown(e: KeyboardEvent) {
-    //     if (!this.hasFocus()) {
-    //         return;
-    //     }
-
-    //     this.checkPreventDefault(e);
-
-    //     const key = e.key;
-
-    //     if (e.repeat) {
-    //         if (this.repeatKey === key) {
-    //             this.repeatKeyCount++;
-    //         } else {
-    //             this.repeatKey = key;
-    //             this.repeatKeyStartTime = Date.now();
-    //         }
-    //     } else {
-    //         this.repeatKey = undefined;
-    //         this.repeatKeyCount = 0;
-    //         this.repeatKeyStartTime = 0;
-    //     }
-
-
-    //     const keyboardDetail = e as CanvasEx.WritableEventDetailKeyboard;
-    //     keyboardDetail.revgrid_nowTime = Date.now();
-    //     keyboardDetail.revgrid_repeatCount = this.repeatKeyCount;
-    //     keyboardDetail.revgrid_repeatStartTime = this.repeatKeyStartTime;
-
-    //     this.dispatchNewEvent('rev-canvas-keydown', keyboardDetail);
-    // }
-
-    // finkeyup(e: KeyboardEvent) {
-    //     if (!this.hasFocus()) {
-    //         return;
-    //     }
-
-    //     this.checkPreventDefault(e);
-
-    //     this.repeatKeyCount = 0;
-    //     this.repeatKey = undefined;
-    //     this.repeatKeyStartTime = 0;
-
-    //     const keyboardDetail: EventDetail.Keyboard = /*this.defKeysProp(e, 'currentKeys',*/ {
-    //         time: Date.now(),
-    //         primitiveEvent: e,
-    //         // legacyChar: e.legacyKey,
-    //         // code: e.charCode,
-    //         // key: e.keyCode,
-    //         repeat: this.repeatKeyCount,
-    //         repeatStartTime: this.repeatKeyStartTime,
-    //     };
-
-    //     this.dispatchNewEvent('rev-canvas-keyup', keyboardDetail);
-    // }
-
-    /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
-     * @this CanvasType
-     */
+    /** @internal */
     getOffsetPoint<T extends MouseEvent|Touch>(mouseEventOrTouch: T) {
         const rect = this.getCanvasBoundingClientRect();
 
@@ -543,14 +504,12 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         return offsetPoint;
     }
 
+    /** @internal */
     hasFocus() {
         return document.activeElement === this.canvasElement;
     }
 
-    /**
-     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672}
-     * @this CanvasType
-     */
+    /** @internal */
     takeFocus() {
         if (!this.hasFocus()) {
             setTimeout(() => {
@@ -559,10 +518,12 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         }
     }
 
+    /** @internal */
     dispatchEvent(e: Event) {
         return this.canvasElement.dispatchEvent(e);
     }
 
+    /** @internal */
     setCursor(cursorName: string | undefined) {
         if (cursorName === undefined) {
             this.canvasElement.style.cursor = '';
@@ -571,10 +532,27 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         }
     }
 
+    /** @internal */
     setTitleText(titleText: string) {
         this.canvasElement.title = titleText;
     }
 
+    /** @internal */
+    private createCachedContext(
+        canvasElement: HTMLCanvasElement,
+        canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined // lookup getContextAttributes for more info
+    ) {
+        const canvasRenderingContext2D = canvasElement.getContext('2d', canvasRenderingContext2DSettings);
+
+        if (canvasRenderingContext2D === null) {
+            throw new AssertError('CGCC74443');
+        } else {
+            const gc = new CachedCanvasRenderingContext2D(canvasRenderingContext2D);
+            return gc;
+        }
+    }
+
+    /** @internal */
     private checkFireResizedEvents(debounce: boolean): void {
         if (!debounce) {
             this.checkClearResizeTimeout();
@@ -596,11 +574,13 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         }
     }
 
+    /** @internal */
     private fireResizedEvents() {
         this.resizedEventerForViewLayout();
         this.resizedEventerForEventBehavior();
     }
 
+    /** @internal */
     private checkClearResizeTimeout() {
         if (this._resizeTimeoutId !== undefined) {
             clearTimeout(this._resizeTimeoutId);
@@ -608,6 +588,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         }
     }
 
+    /** @internal */
     private setPointerDownState(state: CanvasManager.PointerDownState, event: PointerEvent | undefined) {
         switch (state) {
             case CanvasManager.PointerDownState.NotDown:
@@ -640,6 +621,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         this._pointerDownState = state;
     }
 
+    /** @internal */
     private checkPreventDefault(e: KeyboardEvent) {
         // prevent TAB from moving focus off the canvas element
         switch (e.key) {
@@ -650,211 +632,46 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         }
     }
 
+    /** @internal */
     private getHostBoundingClientRect() {
         return this.hostElement.getBoundingClientRect();
     }
 
+    /** @internal */
     private getCanvasBoundingClientRect() {
         return this.canvasElement.getBoundingClientRect();
     }
-
-    // private createKeyboardEventDetail(e: KeyboardEvent): CanvasManager.RevgridKeyboardEvent {
-    //     const keyboardDetail = e as CanvasManager.WritableEventDetailKeyboard;
-    //     keyboardDetail.revgrid_nowTime = Date.now();
-    //     keyboardDetail.revgrid_repeatCount = this._repeatKeyCount;
-    //     keyboardDetail.revgrid_repeatStartTime = this._repeatKeyStartTime;
-
-    //     keyboardDetail.revgrid_navigateKey = this.createKeyboardNavigateKey(e.key);
-
-    //     return keyboardDetail;
-    // }
-
-    // private createKeyboardNavigateKey(code: string) {
-    //     switch (code) {
-    //         case 'ArrowLeft': return CanvasManager.Keyboard.NavigateKey.left;
-    //         case 'ArrowRight': return CanvasManager.Keyboard.NavigateKey.right;
-    //         case 'ArrowUp': return CanvasManager.Keyboard.NavigateKey.up;
-    //         case 'ArrowDown': return CanvasManager.Keyboard.NavigateKey.down;
-    //         case 'PageUp': return CanvasManager.Keyboard.NavigateKey.pageUp;
-    //         case 'PageDown': return CanvasManager.Keyboard.NavigateKey.pageDown;
-    //         case 'Home': return CanvasManager.Keyboard.NavigateKey.home;
-    //         case 'End': return CanvasManager.Keyboard.NavigateKey.end;
-    //         default:
-    //             return undefined;
-    //     }
-    // }
 }
-    // fixCurrentKeys(keyChar: string, keydown: boolean) {
-    //     const index = this.currentKeys.indexOf(keyChar);
-
-    //     if (!keydown && index >= 0) {
-    //         this.currentKeys.splice(index, 1);
-    //     }
-
-    //     if (keyChar === 'SHIFT') {
-    //         // on keydown, replace unshifted keys with shifted keys
-    //         // on keyup, vice-versa
-    //         this.currentKeys.forEach((key, index, currentKeys) => {
-    //             const foundPair = Canvas.charMap.find((pair) => {
-    //                 return pair[keydown ? 0 : 1] === key;
-    //             });
-    //             if (foundPair) {
-    //                 currentKeys[index] = foundPair[keydown ? 1 : 0];
-    //             }
-    //         });
-    //     }
-
-    //     if (keydown && index < 0) {
-    //         this.currentKeys.push(keyChar);
-    //     }
-    // }
-
-    // private fixCurrentKeysFromEvent(event: KeyboardEvent) {
-    //     let shiftKey: boolean;
-    //     if ('shiftKey' in event) {
-    //         shiftKey = event.shiftKey;
-    //         this.fixCurrentKeys('SHIFT', shiftKey);
-    //     } else {
-    //         shiftKey = this.currentKeys.indexOf('SHIFT') >= 0;
-    //     }
-    //     const SHIFT = shiftKey ? 'SHIFT' : '';
-    //     if ('ctrlKey' in event) {
-    //         this.fixCurrentKeys('CTRL' + SHIFT, event.ctrlKey);
-    //     }
-    //     if ('altKey' in event) {
-    //         this.fixCurrentKeys('ALT' + SHIFT, event.altKey);
-    //     }
-    // }
-// }
-
-// function paintLoopFunction(now: number) {
-//     if (paintRequestAnimationFrameHandle !== undefined) {
-//         paintables.forEach(
-//             (paintable) => {
-//                 try {
-//                     paintable.tickPainter(now);
-//                 } catch (e) {
-//                     console.error(e);
-//                 }
-
-//                 if (paintable.component.tickNotification) {
-//                     paintable.component.tickNotification();
-//                 }
-//             }
-//         );
-//         paintRequestAnimationFrameHandle = requestAnimationFrame(paintLoopFunction);
-//     }
-// }
-// function restartPaintLoop() {
-//     if (paintRequestAnimationFrameHandle === undefined) {
-//         paintRequestAnimationFrameHandle = requestAnimationFrame(paintLoopFunction);
-//     }
-// }
-
-// // eslint-disable-next-line @typescript-eslint/no-unused-vars
-// function stopPaintLoop() {
-//     if (paintRequestAnimationFrameHandle !== undefined) {
-//         cancelAnimationFrame(paintRequestAnimationFrameHandle);
-//         paintRequestAnimationFrameHandle = undefined;
-//     }
-// }
-// restartPaintLoop();
-
-// function resizablesLoopFunction() {
-//     if (resizeSetIntervalHandle !== undefined) {
-//         for (let i = 0; i < resizables.length; i++) {
-//             try {
-//                 resizables[i].tickResizer();
-//             } catch (e) {
-//                 console.error(e);
-//             }
-//         }
-//     }
-// }
-// function restartResizeLoop() {
-//     if (resizeSetIntervalHandle === undefined) {
-//         resizeSetIntervalHandle = setInterval(resizablesLoopFunction, RESIZE_POLLING_INTERVAL);
-//     }
-// }
-
-// // eslint-disable-next-line @typescript-eslint/no-unused-vars
-// function stopResizeLoop() {
-//     if (resizeSetIntervalHandle !== undefined) {
-//         clearInterval(resizeSetIntervalHandle);
-//         resizeSetIntervalHandle = undefined;
-//     }
-// }
-// restartResizeLoop();
-
-function createCachedContext(
-    canvasElement: HTMLCanvasElement,
-    canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined // lookup getContextAttributes for more info
-) {
-    const canvasRenderingContext2D = canvasElement.getContext('2d', canvasRenderingContext2DSettings);
-    // const props = {};
-    // let values = {};
-
-    // // Stub out all the prototype members of the canvas 2D graphics context:
-    // Object.keys(Object.getPrototypeOf(canvasRenderingContext2D)).forEach(makeStub);
-
-    // // Some older browsers (e.g., Chrome 40) did not have all members of canvas
-    // // 2D graphics context in the prototype so we make this additional call:
-    // Object.keys(canvasRenderingContext2D).forEach(makeStub);
-
-    // function makeStub(key: string) {
-    //     if (
-    //         !(key in props) &&
-    //         !/^(webkit|moz|ms|o)[A-Z]/.test(key) &&
-    //         typeof canvasRenderingContext2D[key] !== 'function'
-    //     ) {
-    //         Object.defineProperty(props, key, {
-    //             get: function() {
-    //                 return (values[key] = values[key] || canvasRenderingContext2D[key]);
-    //             },
-    //             set: function(value) {
-    //                 if (value !== values[key]) {
-    //                     canvasRenderingContext2D[key] = values[key] = value;
-    //                 }
-    //             }
-    //         });
-    //     }
-    // }
-
-    if (canvasRenderingContext2D === null) {
-        throw new AssertError('CGCC74443');
-    } else {
-        const gc = new CachedCanvasRenderingContext2D(canvasRenderingContext2D);
-
-        // Object.getOwnPropertyNames(Canvas.graphicsContextAliases).forEach(function(alias) {
-        //     gc[alias] = gc[Canvas.graphicsContextAliases[alias]];
-        // });
-
-        return gc;
-    }
-}
-
-// Canvas.graphicsContextAliases = {
-//     simpleText: 'fillText'
-// };
 
 /** @public */
 export namespace CanvasManager {
-    export type EventListener = (this: void, event: Event) => void;
-
+    /** @internal */
     export type ResizedEventer = (this: void) => void;
+    /** @internal */
     export type RepaintEventer = (this: void) => void;
 
+    /** @internal */
     export type FocusEventer = (this: void, event: FocusEvent) => void;
+    /** @internal */
     export type MouseEventer = (this: void, event: MouseEvent) => void;
+    /** @internal */
     export type PointerEventer = (this: void, event: PointerEvent) => void;
+    /** @internal */
     export type PointerDragStartEventer = (this: void, event: DragEvent) => boolean | undefined; // internal (true), external (false), not started (undefined)
+    /** @internal */
     export type PointerDragEventer = (this: void, event: PointerEvent, internal: boolean) => void;
+    /** @internal */
     export type WheelEventer = (this: void, event: WheelEvent) => void;
+    /** @internal */
     export type KeyEventer = (this: void, event: KeyboardEvent) => void;
+    /** @internal */
     export type TouchEventer = (this: void, event: TouchEvent) => void;
+    /** @internal */
     export type ClipboardEventer = (this: void, event: ClipboardEvent) => void;
+    /** @internal */
     export type DragEventer = (this: void, event: DragEvent) => void;
 
+    /** @internal */
     export const enum PointerDownState {
         NotDown,
         NotDragging,
@@ -862,27 +679,6 @@ export namespace CanvasManager {
         Dragging,
         IgnoreClickAfterDrag,
     }
-    // export type WritableEventDetailKeyboard = Writable<RevgridKeyboardEvent>;
-
-    // export interface RevgridKeyboardEvent extends KeyboardEvent {
-    //     readonly revgrid_nowTime: number;
-    //     readonly revgrid_repeatCount: number;
-    //     readonly revgrid_repeatStartTime: number;
-    //     readonly revgrid_navigateKey: Keyboard.NavigateKey | undefined;
-    // }
-
-    // export namespace Keyboard {
-    //     export const enum NavigateKey {
-    //         left,
-    //         right,
-    //         up,
-    //         down,
-    //         pageUp,
-    //         pageDown,
-    //         home,
-    //         end,
-    //     }
-    // }
 
     export const canvasCssSuffix = 'canvas';
 }

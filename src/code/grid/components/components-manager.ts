@@ -134,7 +134,6 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 true,
                 1,
                 gridSettings.wheelVFactor,
-                gridSettings.verticalScrollbarClassPrefix,
                 undefined,
             );
 
@@ -151,7 +150,6 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 true,
                 gridSettings.wheelHFactor,
                 1,
-                gridSettings.horizontalScrollbarClassPrefix,
                 this.verticalScroller,
             );
         }

@@ -1124,14 +1124,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this.viewLayout.getRowsCount();
     }
 
-    /**
-     * @desc Update the size of a grid instance.
-     */
-    updateSize() {
-        this.canvasManager.checksize();
-    }
-
-
     swapColumns(source: number, target: number) {
         //Turns out this is called during dragged 'i.e' when the floater column is reshuffled
         //by the currently dragged column. The column positions are constantly reshuffled
@@ -1168,63 +1160,12 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._cellPropertiesBehavior.clearAllCellProperties(column)
     }
 
-    // decorateColumnArray(array) {
-    //     if (!this.columnArrayDecorations) {
-    //         var grid = this;
-    //         this.columnArrayDecorations = {
-    //             findWithNeg: {
-    //                 // Like the Array.prototype version except searches the negative indexes as well.
-    //                 value: function(iteratee, context) {
-    //                     for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
-    //                         if (!this[i]) {
-    //                             continue;
-    //                         }
-    //                         if (iteratee.call(context, this[i], i, this)) {
-    //                             return this[i];
-    //                         }
-    //                     }
-    //                     return this.find(iteratee, context);
-    //                 }
-    //             },
-    //             forEachWithNeg: {
-    //                 // Like the Array.prototype version except it iterates the negative indexes as well.
-    //                 value: function(iteratee, context) {
-    //                     for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
-    //                         if (!this[i]) {
-    //                             continue;
-    //                         }
-    //                         iteratee.call(context, this[i], i, this);
-    //                     }
-    //                     return this.forEach(iteratee, context);
-    //                 }
-
-    //             }
-    //         };
-    //     }
-    //     return Object.defineProperties(array || [], this.columnArrayDecorations);
-    // }
-
-
-    // Begin Events Mixin
-    /**
-     * @summary Add an event listener to me.
-     * @desc Listeners added by this method should only be removed by {@link Revgrid#removeEventListener|grid.removeEventListener} (or {@link Revgrid#removeAllEventListeners|grid.removeAllEventListeners}).
-     * @param eventName - The type of event we are interested in.
-     * @param listener - The event handler.
-     */
-    addEventListener(eventName: string, listener: CanvasManager.EventListener) {
-        this.canvasManager.addExternalEventListener(eventName, listener);
+    addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
+        this.canvasManager.addExternalEventListener(eventName, listener, options);
     }
 
-    /**
-     * @summary Remove an event listeners.
-     * @desc Removes the event listener with matching name and function that was added by {@link Revgrid#addEventListener|grid.addEventListener}.
-     *
-     * NOTE: This method cannot remove event listeners added by other means.
-     */
-
-    removeEventListener(eventName: string, listener: CanvasManager.EventListener) {
-        this.canvasManager.removeExternalEventListener(eventName, listener);
+    removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) {
+        this.canvasManager.removeExternalEventListener(eventName, listener, options);
     }
 
     protected descendantProcessCellFocusChanged(_newPoint: Point | undefined, _oldPoint: Point | undefined) {

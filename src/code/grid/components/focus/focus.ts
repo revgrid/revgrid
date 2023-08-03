@@ -3,6 +3,8 @@ import { DataServer } from '../../interfaces/data/data-server';
 import { MainSubgrid } from '../../interfaces/data/main-subgrid';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
+import { DatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
+import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -267,11 +269,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         return this._current !== undefined && mainSubgridRowIndex === this._current.y;
     }
 
-    isCellFocused(cell: ViewCell<BCS, SF>) {
+    isCellFocused(cell: DatalessViewCell<BCS, SF>) {
         return cell === this._cell;
     }
 
-    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid) {
         return subgrid === this._mainSubgrid && this.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
     }
 
@@ -292,28 +294,25 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
-    closeEditor(cancel: boolean, focusCanvas: boolean) {
-        const editor = this._editor;
-        if (editor !== undefined) {
-            const activeColumnIndex = this._editorActiveColumnIndex;
-            const subgridRowIndex = this._editorSubgridRowIndex;
-            if (activeColumnIndex === undefined || subgridRowIndex === undefined) {
-                throw new AssertError('FCE40199');
-            } else {
-                this._editor = undefined;
-                this._editorActiveColumnIndex = undefined;
-                this._editorSubgridRowIndex = undefined;
-                const column = this._columnsManager.getActiveColumn(activeColumnIndex);
-                editor.closeCell(column.field, subgridRowIndex, cancel);
-                this.finaliseEditor(editor);
+    closeEditor(editor: CellEditor<BCS, SF>, cancel: boolean, focusCanvas: boolean) {
+        const activeColumnIndex = this._editorActiveColumnIndex;
+        const subgridRowIndex = this._editorSubgridRowIndex;
+        if (activeColumnIndex === undefined || subgridRowIndex === undefined) {
+            throw new AssertError('FCE40199');
+        } else {
+            this._editor = undefined;
+            this._editorActiveColumnIndex = undefined;
+            this._editorSubgridRowIndex = undefined;
+            const column = this._columnsManager.getActiveColumn(activeColumnIndex);
+            editor.closeCell(column.field, subgridRowIndex, cancel);
+            this.finaliseEditor(editor);
 
-                if (this._cell !== undefined) {
-                    this.viewCellRenderInvalidatedEventer(this._cell);
-                }
+            if (this._cell !== undefined) {
+                this.viewCellRenderInvalidatedEventer(this._cell);
+            }
 
-                if (focusCanvas) {
-                    this._canvasManager.canvasElement.focus();
-                }
+            if (focusCanvas) {
+                this._canvasManager.canvasElement.focus();
             }
         }
     }
@@ -350,11 +349,11 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 } else {
                     switch (key) {
                         case Focus.ActionKeyboardKey.Enter: {
-                            this.closeEditor(false, true);
+                            this.closeEditor(editor, false, true);
                             return true;
                         }
                         case Focus.ActionKeyboardKey.Escape: {
-                            this.closeEditor(true, true);
+                            this.closeEditor(editor, true, true);
                             return true;
                         }
                         default:
@@ -445,7 +444,9 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                     if ((rowIndex + rowCount) <= editorSubgridRowIndex) {
                         this._editorSubgridRowIndex = editorSubgridRowIndex - rowCount;
                     } else {
-                        this.closeEditor(false, true)
+                        if (this._editor !== undefined) {
+                            this.closeEditor(this._editor, false, true)
+                        }
                     }
                 }
             }
@@ -513,7 +514,9 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 if ((columnIndex + columnCount) <= editorActiveColumnIndex) {
                     this._editorActiveColumnIndex = editorActiveColumnIndex - columnCount;
                 } else {
-                    this.closeEditor(false, true)
+                    if (this._editor !== undefined) {
+                        this.closeEditor(this._editor, false, true)
+                    }
                 }
             }
         }
@@ -796,7 +799,9 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     private closeFocus() {
         // in future, there may be scenarios where focus is not transferred to canvas if editor is closed
-        this.closeEditor(false, true);
+        if (this._editor !== undefined) {
+            this.closeEditor(this._editor, false, true)
+        }
 
         const cell = this._cell;
         if (cell !== undefined) {

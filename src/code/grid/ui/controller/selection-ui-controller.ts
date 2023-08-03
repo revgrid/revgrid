@@ -9,6 +9,7 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { ModifierKey } from '../../types-utils/modifier-key';
 import { Point } from '../../types-utils/point';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
@@ -24,11 +25,13 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     private _activeDragType: Mouse.DragTypeEnum | undefined;
     /**
      * a millisecond value representing the previous time an autoscroll started
+     * Probably not used
      */
     private _sbLastAuto = 0;
 
     /**
      * a millisecond value representing the time the current autoscroll started
+     * Probably not used
      */
     private _sbAutoStart = 0;
     private _stepScrollDragTickTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
@@ -58,7 +61,8 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
                     if (!viewCell.isScrollable) {
                         return super.handlePointerDown(event, hoverCell);
                     } else {
-                        selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, viewCell, event.altKey);
+                        const mouseMultiCellRectangleSelectionAllowed = this.isMouseMultiCellRectangleSelectionAllowed(event);
+                        selectSucceeded = this.trySelectFromMouseDownInScrollableMain(event, viewCell, mouseMultiCellRectangleSelectionAllowed);
                         if (!selectSucceeded) {
                             return super.handlePointerDown(event, hoverCell);
                         } else {
@@ -71,7 +75,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
-        if (!event.altKey || EventBehavior.isSecondaryMouseButton(event)) {
+        if (EventBehavior.isSecondaryMouseButton(event)) {
             return super.handleClick(event, hoverCell);
         } else {
             if (hoverCell === null) {
@@ -80,6 +84,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
             if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
                 return super.handleClick(event, hoverCell);
             } else {
+                // Only check for Fixed Column or Fixed Row select here.  Rectangle select is checked for in Pointer Down
                 let selectSucceeded: boolean;
                 const viewCell = hoverCell.viewCell;
                 if (viewCell.isColumnFixed) {
@@ -106,7 +111,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (!event.altKey || EventBehavior.isSecondaryMouseButton(event)) {
+        if (EventBehavior.isSecondaryMouseButton(event) || !this.isMouseMultiCellRectangleSelectionAllowed(event)) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
             if (hoverCell === null) {
@@ -200,7 +205,20 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         super.handleKeyDown(event, fromEditor);
     }
 
-    private trySelectFromMouseDownInScrollableMain(event: MouseEvent, cell: ViewCell<BCS, SF>, extendAddAllowed: boolean) {
+    private isMouseMultiCellRectangleSelectionAllowed(event: MouseEvent) {
+        return (
+            this.gridSettings.mouseMultiCellRectangleSelectionEnabled &&
+            (
+                this.gridSettings.mouseMultiCellRectangleSelectionModifierKey === undefined ||
+                ModifierKey.isDownInEvent(this.gridSettings.mouseMultiCellRectangleSelectionModifierKey, event)
+            )
+        );
+    }
+
+    private trySelectFromMouseDownInScrollableMain(
+        event: MouseEvent, cell: ViewCell<BCS, SF>,
+        mouseMultiCellRectangleSelectionAllowed: boolean
+    ) {
         // const areaTypeSpecifier = GridSettings.getSelectionAreaTypeSpecifierFromEvent(this.gridSettings, event);
         const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
 
@@ -211,8 +229,8 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
             const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
             const selection = this.selection;
-            const addToggleModifier = extendAddAllowed && GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
-            const extendModifier = extendAddAllowed && GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
+            const addToggleModifier = mouseMultiCellRectangleSelectionAllowed && GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
+            const extendModifier = mouseMultiCellRectangleSelectionAllowed && GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event);
             const lastArea = this.selection.lastArea;
 
             if (extendModifier && !addToggleModifier) {
@@ -248,7 +266,13 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     private trySelectFromMouseDownInHeaderOrFixedRow(event: MouseEvent, cell: ViewCell<BCS, SF>) {
-        if (!this.gridSettings.mouseColumnSelection) {
+        const allowed = this.gridSettings.mouseColumnSelectionEnabled &&
+        (
+            this.gridSettings.mouseColumnSelectionModifierKey === undefined ||
+            ModifierKey.isDownInEvent(this.gridSettings.mouseColumnSelectionModifierKey, event)
+        );
+
+        if (!allowed) {
             return false;
         } else {
             const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
@@ -292,7 +316,13 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     private trySelectFromMouseDownInFixedColumn(event: MouseEvent, cell: ViewCell<BCS, SF>) {
-        if (!this.gridSettings.mouseRowSelection) {
+        const allowed = this.gridSettings.mouseRowSelectionEnabled &&
+        (
+            this.gridSettings.mouseRowSelectionModifierKey === undefined ||
+            ModifierKey.isDownInEvent(this.gridSettings.mouseRowSelectionModifierKey, event)
+        );
+
+        if (!allowed) {
             return false;
         } else {
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
@@ -637,7 +667,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         if (dragType === undefined) {
             this.mouse.setOperation(undefined, undefined);
         } else {
-            this.mouse.setOperation(this.gridSettings.selectionExtendDragActiveCursorName, this.gridSettings.selectionExtendDragActiveTitleText);
+            this.mouse.setOperation(this.gridSettings.mouseMultiCellRectangleSelectionDragActiveCursorName, this.gridSettings.mouseMultiCellRectangleSelectionDragActiveTitleText);
         }
     }
 

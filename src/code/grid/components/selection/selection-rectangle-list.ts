@@ -24,6 +24,39 @@ export class SelectionRectangleList implements SelectionAreaList {
     }
 
     isEmpty() { return this.rectangles.length === 0; }
+    hasPoints() { return this.rectangles.length > 0; }
+
+    hasMoreThanOnePoint() {
+        const rectangles = this.rectangles;
+        let gotOne = false;
+        for (const rectangle of rectangles) {
+            if (rectangle.width === 1 && rectangle.height === 1) {
+                if (gotOne) {
+                    return true;
+                } else {
+                    gotOne = true;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    hasPointOtherThan(x: number, y: number) {
+        const rectangles = this.rectangles;
+        for (const rectangle of rectangles) {
+            if (rectangle.width > 1 || rectangle.height > 1) {
+                return true;
+            } else {
+                const onlyPoint = rectangle.topLeft;
+                if (onlyPoint.x !== x || onlyPoint.y !== y) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     clear() {
         this.rectangles.length = 0;

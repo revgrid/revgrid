@@ -23,6 +23,27 @@ export class ContiguousIndexRangeList {
         return this.ranges.length === 0;
     }
 
+    hasIndices() {
+        return this.ranges.length > 0;
+    }
+
+    hasMoreThanOneIndex() {
+        const ranges = this.ranges;
+        let gotOne = false;
+        for (const range of ranges) {
+            if (range.length === 1) {
+                if (gotOne) {
+                    return true;
+                } else {
+                    gotOne = true;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
     add(exclusiveStart: number, length: number) {
         let start: number;
         let after: number;

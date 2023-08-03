@@ -43,8 +43,8 @@ export class SimpleGrid extends Revgrid<
     ) {
         const gridSettings: StandardBehavioredGridSettings = {
             ...readonlyDefaultStandardBehavioredGridSettings,
-            mouseColumnSelection: false,
-            mouseRowSelection: false,
+            mouseColumnSelectionEnabled: false,
+            mouseRowSelectionEnabled: false,
             multipleSelectionAreas: false,
         };
 
