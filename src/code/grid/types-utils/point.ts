@@ -192,10 +192,10 @@ export namespace Point {
         } else {
             const positionInDeletionRange = pointX - deletionIndex;
             if (positionInDeletionRange < deletionCount) {
-                moveX(point, positionInDeletionRange);
+                moveX(point, -positionInDeletionRange);
                 return positionInDeletionRange;
             } else {
-                moveX(point, deletionCount);
+                moveX(point, -deletionCount);
                 return undefined;
             }
         }
@@ -208,10 +208,10 @@ export namespace Point {
         } else {
             const positionInDeletionRange = pointY - deletionIndex;
             if (positionInDeletionRange < deletionCount) {
-                moveY(point, positionInDeletionRange);
+                moveY(point, -positionInDeletionRange);
                 return positionInDeletionRange;
             } else {
-                moveY(point, deletionCount);
+                moveY(point, -deletionCount);
                 return undefined;
             }
         }
