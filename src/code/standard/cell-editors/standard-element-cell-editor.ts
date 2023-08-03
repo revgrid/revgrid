@@ -2,6 +2,7 @@ import { DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '.
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellEditor } from './standard-cell-editor';
 
+/** @public */
 export abstract class StandardElementCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,

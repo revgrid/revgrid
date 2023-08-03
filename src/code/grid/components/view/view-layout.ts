@@ -182,10 +182,12 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     get rowsColumnsComputationId() { return this._rowsColumnsComputationId; }
 
+    /** @internal */
     get horizontalScrollDimension() {
         return this._horizontalScrollDimension;
     }
 
+    /** @internal */
     get verticalScrollDimension() {
         return this._verticalScrollDimension;
     }

@@ -29,8 +29,10 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      * This event handler is called whenever the value of the scrollbar is changed through user interaction. The typical use case is when the content is scrolled. It is called with the `FinBar` object as its context and the current value of the scrollbar (its index, rounded) as the only parameter.
      *
      * Set this property to `null` to stop emitting such events.
+     * @internal
      */
     actionEventer: Scroller.ActionEventer;
+    /** @internal */
     visibilityChangedEventer: Scroller.VisibilityChangedEventer;
 
     /**
@@ -38,6 +40,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      * @desc The thumb element's parent element is always the {@link Scroller#bar|bar} element.
      *
      * This property is typically referenced internally only. The size and position of the thumb element is maintained by `_calcThumb()`.
+     * @internal
      */
     private _thumb: HTMLDivElement;
     /**
@@ -48,6 +51,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      * This object is used internally to access scrollbars' DOM element properties in a generalized way without needing to constantly query the scrollbar orientation. For example, instead of explicitly coding `this.bar.top` for a vertical scrollbar and `this.bar.left` for a horizontal scrollbar, simply code `this.bar[this.oh.leading]` instead. See the {@link orientationHashType} definition for details.
      *
      * This object is useful externally for coding generalized {@link finbarOnChange} event handler functions that serve both horizontal and vertical scrollbars.
+     * @internal
      */
     private readonly _axisProperties: AxisProperties;
     /**
@@ -59,6 +63,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      * The mouse wheel is one-dimensional and only emits events with `deltaY` data. This property is provided so that you can override the default of `'deltaX'` with a value of `'deltaY'` on your horizontal scrollbar primarily to accommodate certain "panoramic" interface designs where the mouse wheel should control horizontal rather than vertical scrolling. Just give `{ deltaProp: 'deltaY' }` in your horizontal scrollbar instantiation.
      *
      * Caveat: Note that a 2-finger drag on an Apple trackpad emits events with _both_ `deltaX ` and `deltaY` data so you might want to delay making the above adjustment until you can determine that you are getting Y data only with no X data at all (which is a sure bet you on a mouse wheel rather than a trackpad).
+     * @internal
      */
     private readonly _deltaProp: Scroller.DeltaProp;
 
@@ -69,18 +74,29 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      * This value takes into account the newly calculated size of the thumb element (including its margins) and the inner size of the scrollbar (the thumb's containing element, including _its_ margins).
      *
      * NOTE: Scrollbar padding is not taken into account and assumed to be 0 in the current implementation and is assumed to be `0`; use thumb margins in place of scrollbar padding.
+     * @internal
      */
     private _thumbMax: number;
+    /** @internal */
     private _thumbMarginLeading: number;
+    /** @internal */
     private _thumbScaling: number;
+    /** @internal */
     private _pinOffset: number;
 
+    /** @internal */
     private _pointerOverBar = false;
+    /** @internal */
     private _pointerOverThumb = false;
+    /** @internal */
     private _temporaryThumbFullVisibilityTimePeriod: number | undefined; // milliseconds
+    /** @internal */
     private _temporaryThumbFullVisibilityTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    /** @internal */
     private _pointerScrollingState = Scroller.PointerScrollingState.Inactive;
+    /** @internal */
     private _viewLayoutTrackingActive = false;
+    /** @internal */
     private _thumbVisibilityState = ThumbVisibilityState.Reduced;
     /**
      * Wheel metric normalization, applied equally to all three axes.
@@ -91,36 +107,53 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      */
     // normal: number;
 
+    /** @internal */
     private readonly _settingsChangedListener = () => this.applySettings();
+    /** @internal */
     private readonly _hostWheelListener = (event: WheelEvent) => this.handleHostWheelEvent(event);
+    /** @internal */
     private readonly _barClickListener = (event: MouseEvent) => this.handleBarClickEvent(event);
+    /** @internal */
     private readonly _thumbClickListener = (event: MouseEvent) => this.handleThumbClickEvent(event);
+    /** @internal */
     private readonly _thumbPointerEnterListener = () => this.handleThumbPointerEnterEvent();
+    /** @internal */
     private readonly _thumbPointerLeaveListener = () => this.handleThumbPointerLeaveEvent();
+    /** @internal */
     private readonly _thumbTransitionEndListener = () => this.handleThumbTransitionEndEvent();
+    /** @internal */
     private readonly _barPointerEnterListener = () => this.handleBarPointerEnterEvent();
+    /** @internal */
     private readonly _barPointerLeaveListener = () => this.handleBarPointerLeaveEvent();
+    /** @internal */
     private readonly _barPointerDownListener = (event: PointerEvent) => this.handleBarPointerDownEvent(event);
+    /** @internal */
     private _barPointerMoveListener: Scroller.PointerEventListener | undefined;
+    /** @internal */
     private _barPointerUpListener: Scroller.PointerEventListener | undefined;
+    /** @internal */
     private _barPointerCancelListener: Scroller.PointerEventListener | undefined;
+    /** @internal */
     private _barPointerCaptured = false;
 
     /**
      * Default value of multiplier for `WheelEvent#deltaX` (horizontal scrolling delta).
      * Not used
+     * @internal
      */
     private deltaXFactor: number;
 
     /**
      * Default value of multiplier for `WheelEvent#deltaY` (vertical scrolling delta).
      * Not used
+     * @internal
      */
     private deltaYFactor: number;
 
     /**
      * Default value of multiplier for `WheelEvent#deltaZ` (delpth scrolling delta).
      * Not used
+     * @internal
      */
     private deltaZFactor: number;
 
@@ -141,20 +174,30 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      * Set `options.content` to the "real" content element but omit `options.onchange`. This will cause the scrollbar to use the built-in event handler (`this.scrollRealContent`) which implements smooth scrolling of the content element within the container.
      *
      * @param options - Options object. See the type definition for member details.
+     * @internal
      */
     constructor(
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
+        /** @internal */
         private readonly _gridSettings: BGS,
+        /** @internal */
         private readonly _hostElement: HTMLElement, // Revgrid host element
+        /** @internal */
         private readonly _canvasManager: CanvasManager<BGS>,
+        /** @internal */
         private readonly _scrollDimension: ScrollDimension<BGS>,
+        /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        /** @internal */
         private readonly _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
+        /** @internal */
         private readonly axis: ScrollDimension.Axis,
+        /** @internal */
         private _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
         deltaXFactor: number,
         deltaYFactor: number,
+        /** @internal */
         private readonly _spaceAccomodatedScroller: Scroller<BGS, BCS, SF> | undefined,
     ) {
         this._axisProperties = axesProperties[this.axis];
@@ -221,6 +264,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /**
      * @summary Remove the scrollbar.
      * @desc Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
+     * @internal
      */
     destroy() {
         this._hostElement.removeEventListener('wheel', this._hostWheelListener);
@@ -242,6 +286,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     get trailing() { return this._trailing; }
 
+    /** @internal */
     set index(idx: number | undefined) {
         if (idx !== undefined) {
             idx = Math.min(this._scrollDimension.finish, Math.max(this._scrollDimension.start, idx)); // clamp it
@@ -298,12 +343,14 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this.updateThumbVisibility();
     }
 
+    /** @internal */
     private applySettings() {
         this._thumb.style.backgroundColor = this._gridSettings.scrollerThumbColor;
         this._thumb.style.opacity = this._gridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
         this.applyThumbThickness(this._gridSettings.scrollerThickness);
     }
 
+    /** @internal */
     private applyThumbThickness(value: string) {
         let thicknessSizeWithUnit = SizeWithUnit.tryParse(value);
         if (thicknessSizeWithUnit === undefined) {
@@ -341,6 +388,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      * @desc Also displays the index value in the test panel and invokes the callback.
      * @param viewportStart - The new scroll index, a value in the range `min`..`max`.
      * @param barPosition - The new thumb position in pixels and scaled relative to the containing {@link Scroller#bar|bar} element, i.e., a proportional number in the range `0`..`thumbMax`.
+     * @internal
      */
     private setThumbPosition(viewportStart: number | undefined) {
         if (this._scrollDimension.scrollable && viewportStart !== undefined) {
@@ -359,6 +407,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /**
      * @summary Sets the proportional thumb size and hides thumb when 100%.
      * @desc The thumb size has an absolute minimum of 20 (pixels).
+     * @internal
      */
     private setThumbSize() {
         const oh = this._axisProperties;
@@ -393,10 +442,12 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this._thumbMarginLeading = thumbMarginLeading; // used in pointerdown
     }
 
+    /** @internal */
     private handleThumbClickEvent(evt: MouseEvent) {
         evt.stopPropagation();
     }
 
+    /** @internal */
     private handleHostWheelEvent(evt: WheelEvent) {
         const index = this.index;
         if (index !== undefined) {
@@ -406,6 +457,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     private getDeltaPropFactor() {
         switch (this._deltaProp) {
             case 'deltaX': return this.deltaXFactor;
@@ -416,6 +468,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     private handleBarClickEvent(evt: MouseEvent) {
         if (this._pointerScrollingState === Scroller.PointerScrollingState.ClickWaiting) {
             this.updatePointerScrolling(Scroller.PointerScrollingState.Inactive, undefined);
@@ -457,18 +510,21 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     private handleThumbPointerEnterEvent() {
         this._thumb.classList.add('hover');
         this._pointerOverThumb = true;
         this.updateThumbVisibility();
     }
 
+    /** @internal */
     private handleThumbPointerLeaveEvent() {
         this._thumb.classList.remove('hover');
         this._pointerOverThumb = false;
         this.updateThumbVisibility();
     }
 
+    /** @internal */
     private handleThumbTransitionEndEvent() {
         if (this._thumbVisibilityState === ThumbVisibilityState.ToFullTransitioning) {
             this._thumbVisibilityState = ThumbVisibilityState.Full;
@@ -476,18 +532,21 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     private handleBarPointerEnterEvent() {
         this.bar.classList.add('hover');
         this._pointerOverBar = true;
         this.updateThumbVisibility();
     }
 
+    /** @internal */
     private handleBarPointerLeaveEvent() {
         this.bar.classList.remove('hover');
         this._pointerOverBar = false;
         this.updateThumbVisibility();
     }
 
+    /** @internal */
     private handleBarPointerDownEvent(event: PointerEvent) {
         this.updatePointerScrolling(Scroller.PointerScrollingState.Armed, event);
 
@@ -495,6 +554,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         event.preventDefault();
     }
 
+    /** @internal */
     private handleBarPointerMoveEvent(evt: PointerEvent) {
         this.updatePointerScrolling(Scroller.PointerScrollingState.Active, evt);
 
@@ -538,6 +598,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         evt.preventDefault();
     }
 
+    /** @internal */
     private handleBarPointerUpCancelEvent(event: PointerEvent) {
         this.updatePointerScrolling(Scroller.PointerScrollingState.Inactive, event)
 
@@ -545,6 +606,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         event.preventDefault();
     }
 
+    /** @internal */
     private resize() {
         const leadingTrailing = this.calculateLeadingTrailingForSpaceAccomodatedScroller();
         for (const key in leadingTrailing) {
@@ -563,6 +625,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     private calculateLeadingTrailingForSpaceAccomodatedScroller(): LeadingTrailing {
         const leadingTrailing: LeadingTrailing = {};
         const leadingKey = this._axisProperties['leading'];
@@ -589,6 +652,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         return leadingTrailing;
     }
 
+    /** @internal */
     private updatePointerScrolling(newState: Scroller.PointerScrollingState, event: PointerEvent | undefined) {
         switch (this._pointerScrollingState) {
             case Scroller.PointerScrollingState.Inactive: {
@@ -722,6 +786,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     private armPointerScrolling(event: PointerEvent) {
         const thumbBox = this._thumb.getBoundingClientRect();
         this._pinOffset = event[this._axisProperties.page] - thumbBox[this._axisProperties.leading] + this.bar.getBoundingClientRect()[this._axisProperties.leading] + this._thumbMarginLeading;
@@ -737,6 +802,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this.updateThumbVisibility();
     }
 
+    /** @internal */
     activatePointerScrolling(event: PointerEvent) {
         this.bar.setPointerCapture(event.pointerId);
         this._barPointerCaptured = true;
@@ -746,6 +812,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this.updateThumbVisibility();
     }
 
+    /** @internal */
     deactivatePointerScrolling(event: PointerEvent) {
         if (this._barPointerMoveListener !== undefined) {
             this.bar.removeEventListener('pointermove', this._barPointerMoveListener);
@@ -776,6 +843,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this.setThumbPosition(this._scrollDimension.viewportStart);
     }
 
+    /** @internal */
     private updateThumbVisibility() {
         switch (this._thumbVisibilityState) {
             case ThumbVisibilityState.Reduced: {
@@ -812,6 +880,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
     }
 
+    /** @internal */
     private wantThumbFullVisibility() {
         return (
             this._pointerOverBar ||
@@ -822,15 +891,18 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         );
     }
 
+    /** @internal */
     private isThumbVisibilityTransitionSpecified() {
         return this._thumb.style.transition.includes('opacity');
     }
 
+    /** @internal */
     private handleTemporaryThumbFullVisibilityTimeout() {
         this._temporaryThumbFullVisibilityTimePeriod = undefined;
         this.updateThumbVisibility();
     }
 
+    /** @internal */
     private cancelTemporaryThumbFullVisibilityTimeout() {
         if (this._temporaryThumbFullVisibilityTimeoutId !== undefined) {
             clearTimeout(this._temporaryThumbFullVisibilityTimeoutId);
@@ -846,11 +918,13 @@ export namespace Scroller {
 
     export const defaultInsideOffset = 3;
 
+    /** @internal */
     export interface Action {
         readonly type: Action.TypeEnum;
         readonly viewportStart: number | undefined;
     }
 
+    /** @internal */
     export namespace Action {
         export const enum TypeEnum {
             StepForward,
@@ -861,26 +935,23 @@ export namespace Scroller {
         }
     }
 
-    export interface Options {
-        indexMode?: boolean;
-        deltaProp?: DeltaProp;
-        deltaXFactor?: number;
-        deltaYFactor?: number;
-        deltaZFactor?: number;
-        classPrefix?: string;
-    }
-
+    /** @internal */
     export const enum DeltaPropEnum {
         deltaX = 'deltaX',
         deltaY = 'deltaY',
         deltaZ = 'deltaZ',
     }
+    /** @internal */
     export type DeltaProp = keyof typeof DeltaPropEnum;
 
+    /** @internal */
     export type ActionEventer = (this: void, action: Scroller.Action) => void;
+    /** @internal */
     export type VisibilityChangedEventer = (this: void) => void;
+    /** @internal */
     export type PointerEventListener = (event: PointerEvent) => void;
 
+    /** @internal */
     export const enum PointerScrollingState {
         Inactive,
         Armed,
@@ -888,83 +959,6 @@ export namespace Scroller {
         ClickWaiting,
     }
 }
-
-// function extend(obj: Record<string, string>, styles: Record<string, string> | undefined, auxStyles: Record<string, string> | undefined) {
-//     if (styles !== undefined) {
-//         for (const key in styles) {
-//             obj[key] = styles[key];
-//         }
-//     }
-//     if (auxStyles !== undefined) {
-//         for (const key in auxStyles) {
-//             obj[key] = auxStyles[key];
-//         }
-//     }
-//     return obj;
-// }
-
-/**
- * Table of wheel normals to webkit.
- *
- * This object is a dictionary of platform dictionaries, keyed by:
- * * `mac` — macOS
- * * `win` — Window
- *
- * Each platform dictionary is keyed by:
- * * `webkit` — Chrome, Opera, Safari
- * * `moz` — Firefox
- * * `ms` — IE 11 _(Windows only)_
- * * `edge` — Edge _(Windows only)_
- *
- * @todo add `linux` platform
- */
-
-// interface Browser {
-//     [browser: string]: number;
-//     webkit: number;
-//     moz: number;
-//     edge?: number;
-// }
-// interface Normals {
-//     [browser: string]: Browser;
-//     mac: Browser;
-//     win: Browser;
-// }
-
-// const defaultNormal = 1.0;
-
-// const normals: Normals = {
-//     mac: {
-//         webkit: 1.0,
-//         moz: 35
-//     },
-//     win: {
-//         webkit: 2.6,
-//         moz: 85,
-//         edge: 2
-//     }
-// };
-
-// function getNormal() {
-//     const nav = window.navigator;
-//     const ua = nav.userAgent;
-//     const platform = nav.platform.substr(0, 3).toLowerCase();
-//     const browser: keyof Browser = /Edge/.test(ua) ? 'edge' :
-//         /Opera|OPR|Chrome|Safari/.test(ua) ? 'webkit' :
-//             /Firefox/.test(ua) ? 'moz' :
-//                 undefined;
-//     const platformDictionary = normals[platform];
-//     if (platformDictionary === undefined) {
-//         return defaultNormal;
-//     } else {
-//         const normalVersion = platformDictionary[browser];
-//         if (normalVersion === undefined) {
-//             return defaultNormal;
-//         } else {
-//             return normalVersion;
-//         }
-//     }
-// }
 
 interface AxisProperties {
     client: 'clientX' | 'clientY';
@@ -1041,7 +1035,7 @@ type LeadingTrailing = {
     -readonly [key in keyof typeof LeadingTrailingKey]?: string;
 }
 
-export const enum ThumbVisibilityState {
+const enum ThumbVisibilityState {
     Reduced,
     ToFullTransitioning,
     Full,

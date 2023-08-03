@@ -88,7 +88,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getSelectedRowCount() { return this.selection.getRowCount(); }
     getSelectedRowIndices() { return this.selection.getRowIndices(); }
     getSelectedColumnIndices() { return this.selection.getColumnIndices(); }
-    getSelectedRectangles() { return this.selection.rectangleList.rectangles; }
+    getSelectedRectangles() { return this.selection.rectangles; }
 
     get destroyed() { return this._destroyed; }
 
@@ -1537,7 +1537,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     selectAllRows() {
-        this.selection.selectAllRows(this.mainSubgrid);
+        this.selection.selectAll(this.mainSubgrid);
     }
 
     // toggleSelectAllRows(forceClearRows = true) {
@@ -1935,6 +1935,7 @@ export namespace Revgrid {
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
 	}
 
+    /** @internal */
     export const idGenerator = new IdGenerator();
 }
 

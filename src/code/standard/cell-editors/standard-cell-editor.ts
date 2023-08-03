@@ -1,6 +1,7 @@
 import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 
+/** @public */
 export abstract class StandardCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
@@ -10,6 +11,7 @@ export abstract class StandardCellEditor<
     pushCellValueEventer: CellEditor.PushCellValueEventer;
     cellClosedEventer: CellEditor.CellClosedEventer;
 
+    /** @internal */
     private _readonly: boolean;
 
     constructor(

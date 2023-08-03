@@ -81,7 +81,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
      * @returns An object that represents the currently selection row.
      */
     getFirstSelectionRectangleTopRowValues() {
-        const rectangles = this._selection.rectangleList.rectangles;
+        const rectangles = this._selection.rectangles;
         if (rectangles.length > 0) {
             const dataServer = this.getDefinedSubgrid().dataServer;
             const columnsManager = this._columnsManager;
@@ -196,7 +196,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
 
     getSelectedValuesByRectangleAndColumn(): DataServer.ObjectViewRow[] {
         const columnsManager = this._columnsManager;
-        const selectionRectangles = this._selection.rectangleList.rectangles;
+        const selectionRectangles = this._selection.rectangles;
         const selectionRectangleCount = selectionRectangles.length;
         const rects = new Array<DataServer.ObjectViewRow>(selectionRectangleCount);
 
@@ -228,7 +228,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
 
     getSelectedValuesByRectangleColumnRowMatrix(): DataServer.ViewValue[][][] {
         const columnsManager = this._columnsManager;
-        const rectangles = this._selection.rectangleList.rectangles;
+        const rectangles = this._selection.rectangles;
         const rectangleCount = rectangles.length;
         const rects = new Array<Array<Array<DataServer.ViewValue>>>(rectangleCount);
 

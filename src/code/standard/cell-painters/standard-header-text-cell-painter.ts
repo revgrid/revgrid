@@ -1,4 +1,5 @@
 
+import { Selection } from '../../grid/components/selection/selection';
 import {
     DatalessViewCell,
     IndexSignatureHack,
@@ -39,12 +40,9 @@ export class StandardHeaderTextCellPainter<
         const valText = value as string;
 
         const subgrid = cell.subgrid;
-        const {
-            rowSelected: isRowSelected,
-            columnSelected: isColumnSelected,
-            cellSelected: isCellSelected
-        } = selection.getCellSelectedAreaTypes(activeColumnIndex, subgridRowIndex, subgrid);
-        const isSelected = isCellSelected || isRowSelected || isColumnSelected;
+        const allCellSelectedTypes = selection.getAllCellSelectedTypes(activeColumnIndex, subgridRowIndex, subgrid);
+        const isSelected = allCellSelectedTypes.length > 0;
+        const isColumnSelected = allCellSelectedTypes.includes(Selection.CellSelectedType.Column);
 
         const textFont = isColumnSelected ? columnSettings.columnHeaderSelectionFont : columnSettings.columnHeaderFont;
 
