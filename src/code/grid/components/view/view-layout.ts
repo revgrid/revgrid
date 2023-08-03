@@ -2063,7 +2063,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         const gridHeight = this._canvasManager.flooredHeight; // horizontal pixel loop limit
 
         const rows = this._rows;
-        const subgrids = this._subgridsManager.subgrids;
+        const subgrids = this._subgridsManager.subgridImplementations;
         const subgridCount = subgrids.length; // subgrid loop index and limit
 
         const { allPostMainSubgridsHeight, footersHeight } = this._subgridsManager.calculatePostMainAndFooterHeights();
@@ -2083,7 +2083,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             fixedOverlapH = fixedGapH - fixedWidthH;
         }
 
-
         let y = 0; // vertical pixel loop index and limit
         let rowIndex = 0; // row loop index
         let mainLastFixedRowIndex: number | undefined;
@@ -2096,7 +2095,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             const subgrid = subgrids[subgridIndex];
             const subgridRowCount = subgrid.getRowCount();
             const isMainSubgrid = subgrid.isMain;
-            const subgridFirstRowIndex = rowIndex;
+
+            subgrid.firstViewRowIndex = rowIndex;
 
             let afterY: number;
             let subgridRowIndex: number;
@@ -2121,6 +2121,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                     }
                 }
             }
+
+            subgrid.firstViewableSubgridRowIndex = subgridRowIndex;
+
             // For each row of each subgrid...
             while (subgridRowIndex < subgridRowCount && y < afterY) {
                 const height = subgrid.getRowHeight(subgridRowIndex);
@@ -2156,12 +2159,15 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 rowIndex++;
             }
 
+            subgrid.viewRowCount = rowIndex - subgrid.firstViewRowIndex;
+
             if (isMainSubgrid) {
                 mainLastFixedRowIndex = undefined;
 
-                if (rowIndex > subgridFirstRowIndex) {
+                const subgridFirstViewRowIndex = subgrid.firstViewRowIndex;
+                if (rowIndex > subgridFirstViewRowIndex) {
                     // at least one row in main subgrid
-                    const maxAfterFixedRowIndex = subgridFirstRowIndex + fixedRowCount; // maximum possible value of RowIndex after fixed rows
+                    const maxAfterFixedRowIndex = subgridFirstViewRowIndex + fixedRowCount; // maximum possible value of RowIndex after fixed rows
                     let afterFixedRowIndex: number; // actual RowIndex of row after fixed rows
                     if (rowIndex <= maxAfterFixedRowIndex) {
                         // only room in grid for fixed rows (if there are some, and maybe not all of them)
@@ -2174,10 +2180,10 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                         viewportStart = rows[afterFixedRowIndex].subgridRowIndex;
                     }
 
-                    if (afterFixedRowIndex > subgridFirstRowIndex) {
+                    if (afterFixedRowIndex > subgridFirstViewRowIndex) {
                         // at least one fixed row
                         let fixedSugridRowIndex = 0;
-                        for (let fixedRowIndex = subgridFirstRowIndex; fixedRowIndex < afterFixedRowIndex; fixedRowIndex++) {
+                        for (let fixedRowIndex = subgridFirstViewRowIndex; fixedRowIndex < afterFixedRowIndex; fixedRowIndex++) {
                             rows[fixedRowIndex].subgridRowIndex = fixedSugridRowIndex++; // make fixed rows point to top rows in subgrid
                         }
                     }

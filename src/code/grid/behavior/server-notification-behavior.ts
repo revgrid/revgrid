@@ -54,18 +54,28 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
             const notificationsClient: DataServer.NotificationsClient = {
                 beginChange: () => this.handleBeginDataChange(),
                 endChange: () => this.handleEndDataChange(),
-                rowsInserted: (rowIndex, rowCount) => this.handleRowsInserted(dataServer, rowIndex, rowCount),
-                rowsDeleted: (rowIndex, rowCount) => this.handleRowsDeleted(dataServer, rowIndex, rowCount),
+                rowsInserted: (subgridRowIndex, rowCount) => this.handleRowsInserted(dataServer, subgridRowIndex, rowCount),
+                rowsDeleted: (subgridRowIndex, rowCount) => this.handleRowsDeleted(dataServer, subgridRowIndex, rowCount),
                 allRowsDeleted: () => this.handleAllRowsDeleted(dataServer),
-                rowsMoved: (oldRowIndex, newRowIndex, rowCount) => this.handleRowsMoved(dataServer, oldRowIndex, newRowIndex, rowCount),
+                rowsMoved: (
+                    oldSubgridRowIndex,
+                    newSubgridRowIndex,
+                    rowCount
+                ) => this.handleRowsMoved(dataServer, oldSubgridRowIndex, newSubgridRowIndex, rowCount),
                 rowsLoaded: () => this.handleRowsLoaded(dataServer),
                 invalidateAll: () => this.handleInvalidateAll(dataServer),
-                invalidateRows: (rowIndex, count) => this.handleInvalidateRows(dataServer, rowIndex, count),
-                invalidateRow: (rowIndex) => this.handleInvalidateRow(dataServer, rowIndex),
-                invalidateRowColumns: (rowIndex, schemaColumnIndex, columnCount) =>
-                    this.handleInvalidateRowColumns(dataServer, rowIndex, schemaColumnIndex, columnCount),
-                invalidateRowCells: (rowIndex, schemaColumnIndexes) => this.handleInvalidateRowCells(dataServer, rowIndex, schemaColumnIndexes),
-                invalidateCell: (schemaColumnIndex, rowIndex) => this.handleInvalidateCell(dataServer, schemaColumnIndex, rowIndex),
+                invalidateRows: (subgridRowIndex, count) => this.handleInvalidateRows(dataServer, subgridRowIndex, count),
+                invalidateRow: (subgridRowIndex) => this.handleInvalidateRow(dataServer, subgridRowIndex),
+                invalidateRowColumns: (subgridRowIndex, schemaColumnIndex, columnCount) =>
+                    this.handleInvalidateRowColumns(dataServer, subgridRowIndex, schemaColumnIndex, columnCount),
+                invalidateRowCells: (
+                    subgridRowIndex,
+                    schemaColumnIndexes
+                ) => this.handleInvalidateRowCells(dataServer, subgridRowIndex, schemaColumnIndexes),
+                invalidateCell: (
+                    schemaColumnIndex,
+                    subgridRowIndex
+                ) => this.handleInvalidateCell(dataServer, schemaColumnIndex, subgridRowIndex),
                 preReindex:  () => this.handleDataPreReindex(),
                 postReindex: (allRowsKept) => this.handleDataPostReindex(allRowsKept),
             };
@@ -170,9 +180,9 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
                 this._renderer.serverNotified();
                 this._columnsManager.schemaFieldsDeleted(index, count);
                 const nextRange = index + count;
-                for (let i = index; i < nextRange; i++) {
+                for (let fieldIndex = index; fieldIndex < nextRange; fieldIndex++) {
                     // In the future, should consolidate into activeIndex ranges instead of doing individually
-                    const activeIndex = this._columnsManager.getActiveColumnIndexByFieldIndex(i);
+                    const activeIndex = this._columnsManager.getActiveColumnIndexByFieldIndex(fieldIndex);
                     if (activeIndex >= 0) {
                         this._focus.adjustForActiveColumnsDeleted(activeIndex, 1);
                         this._selection.adjustForActiveColumnsDeleted(activeIndex, 1);
@@ -244,59 +254,82 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     private handleInvalidateAll(dataServer: DataServer<SF>) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
-            this._renderer.invalidateAllData();
+            const subgrid = this._subgridsManager.getSubgridWithDataServer(dataServer);
+            this._renderer.invalidateSubgrid(subgrid);
+            this._focus.invalidateSubgrid(subgrid);
         }
     }
 
     /** @internal */
-    private handleInvalidateRows(_dataServer: DataServer<SF>, rowIndex: number, count: number) {
+    private handleInvalidateRows(dataServer: DataServer<SF>, subgridRowIndex: number, count: number) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
-            this._renderer.invalidateDataRows(rowIndex, count);
+            const subgrid = this._subgridsManager.getSubgridWithDataServer(dataServer);
+            this._renderer.invalidateSubgridRows(subgrid, subgridRowIndex, count);
+            this._focus.invalidateSubgridRows(subgrid, subgridRowIndex, count);
         }
     }
 
     /** @internal */
-    private handleInvalidateRow(_dataServer: DataServer<SF>, rowIndex: number) {
+    private handleInvalidateRow(dataServer: DataServer<SF>, subgridRowIndex: number) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
-            this._renderer.invalidateDataRow(rowIndex);
+            const subgrid = this._subgridsManager.getSubgridImplementationWithDataServer(dataServer);
+            this._renderer.invalidateSubgridRow(subgrid, subgridRowIndex);
+            this._focus.invalidateSubgridRow(subgrid, subgridRowIndex);
         }
     }
 
     /** @internal */
-    private handleInvalidateRowColumns(_dataServer: DataServer<SF>, rowIndex: number, _schemaColumnIndex: number, _columnCount: number) {
+    private handleInvalidateRowColumns(dataServer: DataServer<SF>, subgridRowIndex: number, schemaColumnIndex: number, columnCount: number) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
-            this._renderer.invalidateDataRow(rowIndex); // this should be improved to use tshis._renderer.invalidateRowColumns()
+            const subgrid = this._subgridsManager.getSubgridImplementationWithDataServer(dataServer);
+            const activeColumnIndices = new Array<number>(columnCount);
+            const afterSchemaColumnIndex = schemaColumnIndex + columnCount;
+            for (let fieldIndex = schemaColumnIndex; fieldIndex < afterSchemaColumnIndex; fieldIndex++) {
+                activeColumnIndices[fieldIndex] = this._columnsManager.getActiveColumnIndexByFieldIndex(fieldIndex);
+            }
+            this._renderer.invalidateSubgridRowCells(subgrid, subgridRowIndex, activeColumnIndices);
+            this._focus.invalidateSubgridRowCells(subgrid, subgridRowIndex, activeColumnIndices);
         }
     }
 
     /** @internal */
-    private handleInvalidateRowCells(_dataServer: DataServer<SF>, rowIndex: number, schemaColumnIndexes: number[]) {
+    private handleInvalidateRowCells(dataServer: DataServer<SF>, subgridRowIndex: number, schemaColumnIndexes: number[]) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
-            this._renderer.invalidateDataRowCells(rowIndex, schemaColumnIndexes);
+            const subgrid = this._subgridsManager.getSubgridImplementationWithDataServer(dataServer);
+            const columnCount = schemaColumnIndexes.length;
+            const activeColumnIndices = new Array<number>(columnCount);
+            for (let i = 0; i < columnCount; i++) {
+                activeColumnIndices[i] = this._columnsManager.getActiveColumnIndexByFieldIndex(schemaColumnIndexes[i]);
+            }
+            this._renderer.invalidateSubgridRowCells(subgrid, subgridRowIndex, activeColumnIndices);
+            this._focus.invalidateSubgridRowCells(subgrid, subgridRowIndex, activeColumnIndices);
         }
     }
 
     /** @internal */
-    private handleInvalidateCell(_dataServer: DataServer<SF>, schemaColumnIndex: number, rowIndex: number) {
+    private handleInvalidateCell(dataServer: DataServer<SF>, schemaColumnIndex: number, subgridRowIndex: number) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
-            this._renderer.invalidateDataCell(schemaColumnIndex, rowIndex);
+            const subgrid = this._subgridsManager.getSubgridImplementationWithDataServer(dataServer);
+            const activeColumnIndex = this._columnsManager.getActiveColumnIndexByFieldIndex(schemaColumnIndex);
+            this._renderer.invalidateSubgridCell(subgrid, activeColumnIndex, subgridRowIndex);
+            this._focus.invalidateSubgridCell(subgrid, activeColumnIndex, subgridRowIndex);
         }
     }
 
     /** @internal */
-    private handleRowsInserted(dataServer: DataServer<SF>, index: number, count: number) {
+    private handleRowsInserted(dataServer: DataServer<SF>, subgridRowIndex: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
                 this._renderer.serverNotified();
-                this._focus.adjustForRowsInserted(index, count, dataServer);
-                this._selection.adjustForRowsInserted(index, count, dataServer);
-                this._viewLayout.invalidateDataRowsInserted(index, count);
+                this._focus.adjustForRowsInserted(subgridRowIndex, count, dataServer);
+                this._selection.adjustForRowsInserted(subgridRowIndex, count, dataServer);
+                this._viewLayout.invalidateDataRowsInserted(subgridRowIndex, count);
             } finally {
                 this.endDataChange();
             }
@@ -304,14 +337,14 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsDeleted(dataServer: DataServer<SF>, index: number, count: number) {
+    private handleRowsDeleted(dataServer: DataServer<SF>, subgridRowIndex: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
                 this._renderer.serverNotified();
-                this._focus.adjustForRowsDeleted(index, count, dataServer);
-                this._selection.adjustForRowsDeleted(index, count, dataServer);
-                this._viewLayout.invalidateDataRowsDeleted(index, count);
+                this._focus.adjustForRowsDeleted(subgridRowIndex, count, dataServer);
+                this._selection.adjustForRowsDeleted(subgridRowIndex, count, dataServer);
+                this._viewLayout.invalidateDataRowsDeleted(subgridRowIndex, count);
             } finally {
                 this.endDataChange();
             }
@@ -336,14 +369,14 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsMoved(dataServer: DataServer<SF>, oldRowIndex: number, newRowIndex: number, rowCount: number) {
+    private handleRowsMoved(dataServer: DataServer<SF>, oldSubgridRowIndex: number, newSubgridRowIndex: number, rowCount: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
                 this._renderer.serverNotified();
-                this._focus.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount, dataServer);
-                this._selection.adjustForRowsMoved(oldRowIndex, newRowIndex, rowCount, dataServer);
-                this._viewLayout.invalidateDataRowsMoved(oldRowIndex, newRowIndex, rowCount);
+                this._focus.adjustForRowsMoved(oldSubgridRowIndex, newSubgridRowIndex, rowCount, dataServer);
+                this._selection.adjustForRowsMoved(oldSubgridRowIndex, newSubgridRowIndex, rowCount, dataServer);
+                this._viewLayout.invalidateDataRowsMoved(oldSubgridRowIndex, newSubgridRowIndex, rowCount);
             } finally {
                 this.endDataChange();
             }
@@ -405,5 +438,4 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         this._selection.endChange();
         this._renderer.endChange();
     }
-
 }

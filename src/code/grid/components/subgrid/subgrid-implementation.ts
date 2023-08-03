@@ -17,6 +17,10 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     readonly isSummary: boolean = false;
     readonly isFooter: boolean = false;
 
+    firstViewRowIndex = -1; // only valid if viewRowCount > 0
+    firstViewableSubgridRowIndex = -1; // only valid if viewRowCount > 0
+    viewRowCount = 0;
+
     /** @internal */
     protected _destroyed = false;
 

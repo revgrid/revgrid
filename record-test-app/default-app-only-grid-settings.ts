@@ -7,6 +7,7 @@ export const defaultAppOnlyGridSettings: AppOnlyGridSettings = {
     grayedOutForegroundColor: '#595959',
     focusedRowBackgroundColor: '#6e6835',
     focusedRowBorderColor: '#C8B900',
+    focusedCellBorderColor: 'DeepSkyBlue',
 
     valueRecentlyModifiedBorderColor: '#8C5F46',
     valueRecentlyModifiedUpBorderColor: '#64FA64',

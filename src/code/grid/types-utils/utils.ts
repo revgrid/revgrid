@@ -138,3 +138,32 @@ export function splitStringAtFirstNonNumericChar(value: string): SplitStringAtFi
 export function isDigit(char: string) {
     return char >= '0' && char <= '9';
 }
+
+/** @internal */
+export function calculateAdjustmentForRangeMoved(value: number, oldRangeIndex: number, newRangeIndex: number, rangeCount: number) {
+    if (newRangeIndex > oldRangeIndex) {
+        if (oldRangeIndex + rangeCount <= value) {
+            if (newRangeIndex + rangeCount > value) {
+                return -rangeCount; // move range up over value
+            }
+        } else {
+            if (value >= oldRangeIndex) {
+                return newRangeIndex - oldRangeIndex; // movement up includes value
+            }
+        }
+    } else {
+        if (newRangeIndex < oldRangeIndex) {
+            if (oldRangeIndex > value) {
+                if (newRangeIndex < value) {
+                    return rangeCount; // move range down over value
+                }
+            } else {
+                if (value < (oldRangeIndex + rangeCount)) {
+                    return newRangeIndex - oldRangeIndex; // movement down includes value
+                }
+            }
+        }
+    }
+
+    return 0; // not affected
+}

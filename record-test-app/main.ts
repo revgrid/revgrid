@@ -69,6 +69,7 @@ export class Main {
             ...defaultAppGridSettings,
             horizontalGridLinesWidth: 0,
             fixedColumnCount: 1,
+            multipleSelectionAreas: true,
 
             font: 'Tahoma, Geneva, sans-serif 13px',
             columnHeaderFont: 'Tahoma, Geneva, sans-serif 12px',
@@ -79,14 +80,13 @@ export class Main {
 
             columnHeaderBackgroundColor: columnHeaderBackgroundColor,
             columnHeaderForegroundColor: columnHeaderForegroundColor,
-            selectionForegroundColor: backgroundColor,
-            selectionBackgroundColor: foregroundColor,
-            selectionRegionOutlineColor: '#D3D3D1',
+            selectionBackgroundColor: 'DarkSlateBlue',
+            // selectionRegionOutlineColor: '#D3D3D1',
             verticalGridLinesColor: '#595959',
             horizontalGridLinesColor: '#595959',
             grayedOutForegroundColor: '#595959',
-            focusedRowBackgroundColor: '#6e6835',
             focusedRowBorderColor: '#C8B900',
+            focusedCellBorderColor: 'magenta',
             scrollerThumbColor: '#858585',
 
             valueRecentlyModifiedBorderColor: '#8C5F46',

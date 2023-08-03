@@ -40,8 +40,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     private _changed = false;
     private _silentlyChanged = false;
 
-    private _snapshot: Selection<BCS, SF> | undefined;
-
     constructor(
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
@@ -126,48 +124,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    saveSnapshot() {
-        this._snapshot = new Selection(
-            this.revgridId,
-            this.internalParent,
-            this._gridSettings,
-            this._columnsManager,
-        );
-        this._snapshot.assign(this);
-    }
-
-    restoreSavedSnapshot() {
-        const snapshot = this._snapshot;
-        if (snapshot === undefined) {
-            throw new AssertError('SRSS50012');
-        } else {
-            this.assign(snapshot);
-        }
-        this._snapshot = undefined;
-    }
-
-    deleteSavedSnapshot() {
-        this._snapshot = undefined;
-    }
-
-    // selectRowsFromCellsOrLastRectangle() {
-    //     if (!this._gridProperties.singleRowSelectionMode) {
-    //         this.selectRowsFromRectangles(0, true);
-    //     } else {
-    //         const last = this.getLastRectangle();
-    //         if (last !== undefined) {
-    //             this.clearRowSelection();
-    //             const columnIndex = last.first.x
-    //             const start = last.origin.y;
-    //             const stop = last.corner.y;
-    //             this.selectRows(start, stop, undefined, columnIndex);
-    //         } else {
-    //             this.clearRowSelection();
-    //         }
-    //     }
-    //     this.changedEventer();
-    // }
-
     getLastRectangle() {
         return this.rectangleList.getLastRectangle();
     }
@@ -184,12 +140,12 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 changed = true;
             }
 
-            if (!this.columns.isEmpty()) {
+            if (this.columns.hasIndices()) {
                 this.columns.clear();
                 changed = true;
             }
 
-            if (!this.rows.isEmpty() || this._allRowsSelected) {
+            if (this.rows.hasIndices() || this._allRowsSelected) {
                 this.rows.clear();
                 this._allRowsSelected = false;
                 changed = true;
@@ -306,10 +262,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, silent = false) {
         this.beginChange();
         try {
-            if (this.areaCount > 0) {
-                this.saveSnapshot(); // may not want this anymore
-            }
-
             if (subgrid !== this._subgrid) {
                 this.clear();
                 this._subgrid = subgrid;
@@ -597,9 +549,58 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
      * @summary Selection query function.
      * @returns The given cell is selected (part of an active selection).
      */
-    isCellSelected(x: number, y: number, subgrid: Subgrid<BCS, SF>): boolean {
-        const { rowSelected, columnSelected, cellSelected } = this.getCellSelectedAreaTypes(x, y, subgrid);
-        return (rowSelected || columnSelected || cellSelected);
+    isCellSelected(x: number, y: number, subgrid: DatalessSubgrid): boolean {
+        if (subgrid !== this._subgrid) {
+            return false;
+        } else {
+            return (
+                this._allRowsSelected ||
+                this.rows.includesIndex(y) ||
+                this.columns.includesIndex(x) ||
+                this.rectangleList.containsPoint(x, y)
+            );
+        }
+    }
+
+    isCellSelectedWithOthers(x: number, y: number, subgrid: DatalessSubgrid): boolean {
+        if (subgrid !== this._subgrid) {
+            return false;
+        } else {
+            const activeColumnCount = this._columnsManager.activeColumnCount;
+            const subgridRowCount = this._subgrid.getRowCount();
+
+            if (this._allRowsSelected) {
+                return activeColumnCount > 1 || subgridRowCount > 1;
+            } else {
+                if (this.rows.includesIndex(y)) {
+                    return (
+                        activeColumnCount > 1 ||
+                        this.rows.hasMoreThanOneIndex() ||
+                        this.columns.hasIndices() && (subgridRowCount > 1) ||
+                        this.rectangleList.hasPointOtherThan(x, y)
+                    );
+                } else {
+                    if (this.columns.includesIndex(x)) {
+                        return (
+                            subgridRowCount > 1 ||
+                            this.columns.hasMoreThanOneIndex() ||
+                            (this.rows.hasIndices() && activeColumnCount > 1) ||
+                            this.rectangleList.hasPointOtherThan(x, y)
+                        );
+                    } else {
+                        if (this.rectangleList.containsPoint(x, y)) {
+                            return (
+                                this.rectangleList.hasMoreThanOnePoint() ||
+                                (this.rows.hasIndices() && activeColumnCount > 1) ||
+                                (this.columns.hasIndices() && subgridRowCount > 1)
+                            );
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     getCellSelectedAreaTypes(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): Selection.CellSelectedAreaTypes {
@@ -663,7 +664,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     }
 
     isColumnOrRowSelected() {
-        return !this.columns.isEmpty() || !this.rows.isEmpty();
+        return this.columns.hasIndices() || this.rows.hasIndices();
     }
 
     // getRectangleFlattenedYs() {
@@ -758,11 +759,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             } finally {
                 this.endChange();
             }
-
-            const snapshot = this._snapshot;
-            if (snapshot !== undefined) {
-                snapshot.adjustForRowsInserted(rowIndex, rowCount, dataServer);
-            }
         }
     }
 
@@ -786,11 +782,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 }
             } finally {
                 this.endChange();
-            }
-
-            const snapshot = this._snapshot;
-            if (snapshot !== undefined) {
-                snapshot.adjustForRowsDeleted(rowIndex, rowCount, dataServer);
             }
         }
     }
@@ -816,11 +807,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             } finally {
                 this.endChange();
             }
-
-            const snapshot = this._snapshot;
-            if (snapshot !== undefined) {
-                snapshot.adjustForRowsMoved(oldRowIndex, newRowIndex, count, dataServer);
-            }
         }
     }
 
@@ -843,11 +829,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         } finally {
             this.endChange();
         }
-
-        const snapshot = this._snapshot;
-        if (snapshot !== undefined) {
-            snapshot.adjustForColumnsInserted(columnIndex, columnCount);
-        }
     }
 
     adjustForActiveColumnsDeleted(columnIndex: number, columnCount: number) {
@@ -869,11 +850,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         } finally {
             this.endChange();
         }
-
-        const snapshot = this._snapshot;
-        if (snapshot !== undefined) {
-            snapshot.adjustForActiveColumnsDeleted(columnIndex, columnCount);
-        }
     }
 
     adjustForColumnsMoved(oldColumnIndex: number, newColumnIndex: number, count: number) {
@@ -894,11 +870,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             }
         } finally {
             this.endChange();
-        }
-
-        const snapshot = this._snapshot;
-        if (snapshot !== undefined) {
-            snapshot.adjustForColumnsMoved(oldColumnIndex, newColumnIndex, count);
         }
     }
 

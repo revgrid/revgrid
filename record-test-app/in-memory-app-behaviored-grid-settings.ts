@@ -12,6 +12,7 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
     private _grayedOutForegroundColor: GridSettings.Color;
     private _focusedRowBackgroundColor: GridSettings.Color | undefined;
     private _focusedRowBorderColor: GridSettings.Color | undefined;
+    private _focusedCellBorderColor: GridSettings.Color;
     private _valueRecentlyModifiedBorderColor: GridSettings.Color;
     private _valueRecentlyModifiedUpBorderColor: GridSettings.Color;
     private _valueRecentlyModifiedDownBorderColor: GridSettings.Color;
@@ -53,6 +54,16 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
         if (value !== this._focusedRowBorderColor) {
             this.beginChange();
             this._focusedRowBorderColor = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+
+    get focusedCellBorderColor() { return this._focusedCellBorderColor; }
+    set focusedCellBorderColor(value: GridSettings.Color) {
+        if (value !== this._focusedCellBorderColor) {
+            this.beginChange();
+            this._focusedCellBorderColor = value;
             this.flagChangedViewRender();
             this.endChange();
         }
@@ -139,6 +150,12 @@ export class InMemoryAppBehavioredGridSettings extends InMemoryStandardBehaviore
                 case 'focusedRowBorderColor':
                     if (this._focusedRowBorderColor !== requiredSettings.focusedRowBorderColor) {
                         this._focusedRowBorderColor = requiredSettings.focusedRowBorderColor;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'focusedCellBorderColor':
+                    if (this._focusedCellBorderColor !== requiredSettings.focusedCellBorderColor) {
+                        this._focusedCellBorderColor = requiredSettings.focusedCellBorderColor;
                         this.flagChangedViewRender();
                     }
                     break;

@@ -98,27 +98,26 @@ export interface OnlyGridSettings {
      * So last column is always visible and the first one visible is dependent on the width of the canvas
      */
     gridRightAligned: boolean;
-    verticalGridLinesVisible: boolean;
     /** Color of horizontal grid lines. */
     horizontalGridLinesColor: OnlyGridSettings.Color;
     /** Thickness of horizontal grid lines (pixels). */
     horizontalGridLinesWidth: number;
     horizontalGridLinesVisible: boolean;
-    /** Color of vertical grid lines. */
-    verticalGridLinesColor: OnlyGridSettings.Color;
-    /** Thickness of vertical grid lines (pixels). */
-    verticalGridLinesWidth: number;
     horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
-    horizontalScrollbarClassPrefix: string;
     minimumColumnWidth: number;
     maximumColumnWidth: number | undefined;
-    visibleColumnWidthAdjust: boolean;
-    /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors. */
-    mouseRectangleSelection: boolean;
-    /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors. */
-    mouseColumnSelection: boolean;
-    /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors. */
-    mouseRowSelection: boolean;
+    /** Cursor to appear when extending a selection with a mouse drag */
+    mouseMultiCellRectangleSelectionDragActiveCursorName: string | undefined;
+    mouseMultiCellRectangleSelectionDragActiveTitleText: string | undefined;
+    /** Allows rectangle selections with more than one cell and/or multiple rectangle selections.  If false, then only focused cell is selected */
+    mouseMultiCellRectangleSelectionEnabled: boolean;
+    mouseMultiCellRectangleSelectionModifierKey: ModifierKeyEnum | undefined;
+    /** Enables column selections with mouse */
+    mouseColumnSelectionEnabled: boolean;
+    mouseColumnSelectionModifierKey: ModifierKeyEnum | undefined;
+    /** Enables row selections with mouse */
+    mouseRowSelectionEnabled: boolean;
+    mouseRowSelectionModifierKey: ModifierKeyEnum | undefined;
     /** Allow multiple cell region selections. */
     multipleSelectionAreas: boolean;
     /** The area type that is added to a selection by default in a UI operation. Can also be specified in API calls which add an area to a Selection. */
@@ -149,9 +148,6 @@ export interface OnlyGridSettings {
     /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a Selection. */
     secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
     secondarySelectionAreaType: SelectionAreaType;
-    /** Cursor to appear when extending a selection with a mouse drag */
-    selectionExtendDragActiveCursorName: string | undefined;
-    selectionExtendDragActiveTitleText: string | undefined;
     /** Stroke color for last selection overlay. */
     selectionRegionOutlineColor: OnlyGridSettings.Color | undefined;
     /** Fill color for last selection overlay. */
@@ -163,7 +159,12 @@ export interface OnlyGridSettings {
     /** Column can be sorted with mouse click on column header */
     sortOnClick: boolean;
     useHiDPI: boolean;
-    verticalScrollbarClassPrefix: string;
+    /** Color of vertical grid lines. */
+    verticalGridLinesColor: OnlyGridSettings.Color;
+    verticalGridLinesVisible: boolean;
+    /** Thickness of vertical grid lines (pixels). */
+    verticalGridLinesWidth: number;
+    visibleColumnWidthAdjust: boolean;
     wheelHFactor: number;
     wheelVFactor: number;
 }

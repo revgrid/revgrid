@@ -7,6 +7,7 @@
  */
 
 import { Writable } from './types';
+import { calculateAdjustmentForRangeMoved } from './utils';
 
 /** @public */
 export interface Point {
@@ -191,10 +192,10 @@ export namespace Point {
         } else {
             const positionInDeletionRange = pointX - deletionIndex;
             if (positionInDeletionRange < deletionCount) {
-                moveX(point, positionInDeletionRange);
+                moveX(point, -positionInDeletionRange);
                 return positionInDeletionRange;
             } else {
-                moveX(point, deletionCount);
+                moveX(point, -deletionCount);
                 return undefined;
             }
         }
@@ -207,66 +208,26 @@ export namespace Point {
         } else {
             const positionInDeletionRange = pointY - deletionIndex;
             if (positionInDeletionRange < deletionCount) {
-                moveX(point, positionInDeletionRange);
+                moveY(point, -positionInDeletionRange);
                 return positionInDeletionRange;
             } else {
-                moveX(point, deletionCount);
+                moveY(point, -deletionCount);
                 return undefined;
             }
         }
     }
 
     export function adjustForXRangeMoved(point: Point, oldIndex: number, newIndex: number, count: number) {
-        const pointX = point.x;
-        if (newIndex > oldIndex) {
-            if (oldIndex + count <= pointX) {
-                if (newIndex + count > pointX) {
-                    moveY(point, -count); // movement up over point
-                }
-            } else {
-                if (pointX >= oldIndex) {
-                    moveY(point, newIndex - oldIndex); // movement up includes point
-                }
-            }
-        } else {
-            if (newIndex < oldIndex) {
-                if (oldIndex > pointX) {
-                    if (newIndex < pointX) {
-                        moveY(point, count); // movement down over point
-                    }
-                } else {
-                    if (pointX < (oldIndex + count)) {
-                        moveY(point, newIndex - oldIndex); // movement down includes point
-                    }
-                }
-            }
+        const adjustment = calculateAdjustmentForRangeMoved(point.x, oldIndex, newIndex, count);
+        if (adjustment !== 0) {
+            moveX(point, adjustment);
         }
     }
 
     export function adjustForYRangeMoved(point: Point, oldIndex: number, newIndex: number, count: number) {
-        const pointY = point.y;
-        if (newIndex > oldIndex) {
-            if (oldIndex + count <= pointY) {
-                if (newIndex + count > pointY) {
-                    moveY(point, -count); // movement up over point
-                }
-            } else {
-                if (pointY >= oldIndex) {
-                    moveY(point, newIndex - oldIndex); // movement up includes point
-                }
-            }
-        } else {
-            if (newIndex < oldIndex) {
-                if (oldIndex > pointY) {
-                    if (newIndex < pointY) {
-                        moveY(point, count); // movement down over point
-                    }
-                } else {
-                    if (pointY < (oldIndex + count)) {
-                        moveY(point, newIndex - oldIndex); // movement down includes point
-                    }
-                }
-            }
+        const adjustment = calculateAdjustmentForRangeMoved(point.y, oldIndex, newIndex, count);
+        if (adjustment !== 0) {
+            moveY(point, adjustment);
         }
     }
 }

@@ -155,7 +155,6 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         private _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
         deltaXFactor: number,
         deltaYFactor: number,
-        classPrefix: string,
         private readonly _spaceAccomodatedScroller: Scroller<BGS, BCS, SF> | undefined,
     ) {
         this._axisProperties = axesProperties[this.axis];

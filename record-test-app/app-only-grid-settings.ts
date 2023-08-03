@@ -16,6 +16,7 @@ export interface AppOnlyGridSettings {
     grayedOutForegroundColor: GridSettings.Color;
     focusedRowBackgroundColor: GridSettings.Color | undefined;
     focusedRowBorderColor: GridSettings.Color | undefined;
+    focusedCellBorderColor: GridSettings.Color;
 
     valueRecentlyModifiedBorderColor: GridSettings.Color;
     valueRecentlyModifiedUpBorderColor: GridSettings.Color;

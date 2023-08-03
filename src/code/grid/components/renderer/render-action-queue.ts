@@ -1,12 +1,9 @@
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { ViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 
 /** @internal */
-export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export class RenderActionQueue {
     actionsQueuedEventer: RenderActioner.ActionsQueuedEventer;
 
     private _queuedActions: RenderAction[] = [];
@@ -49,7 +46,7 @@ export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends 
         }
     }
 
-    invalidateViewRender() {
+    invalidateView() {
         this.beginChange();
         try {
             this.queuePaintAllAction();
@@ -58,7 +55,7 @@ export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends 
         }
     }
 
-    invalidateAllData() {
+    invalidateViewRows(_viewRowIndex: number, _count: number) {
         this.beginChange();
         try {
             this.queuePaintAllAction();
@@ -67,18 +64,7 @@ export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends 
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    invalidateDataRows(_rowIndex: number, _count: number) {
-        this.beginChange();
-        try {
-            this.queuePaintAllAction();
-        } finally {
-            this.endChange();
-        }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    invalidateDataRow(_rowIndex: number) {
+    invalidateViewRow(_viewRowIndex: number) {
         this.beginChange();
         try {
             this.queuePaintAllAction();
@@ -88,7 +74,7 @@ export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends 
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    invalidateDataRowCells(_rowIndex: number, _columnIndexes: number[]) {
+    invalidateViewRowCells(_viewRowIndex: number, _viewColumnIndices: number[]) {
         this.beginChange();
         try {
             this.queuePaintAllAction();
@@ -98,16 +84,7 @@ export class RenderActionQueue<BCS extends BehavioredColumnSettings, SF extends 
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    invalidateDataCell(_columnIndex: number, _rowIndex: number) {
-        this.beginChange();
-        try {
-            this.queuePaintAllAction();
-        } finally {
-            this.endChange();
-        }
-    }
-
-    invalidateViewCellRender(_cell: ViewCell<BCS, SF>) {
+    invalidateViewCell(_viewColumnIndex: number, _viewRowIndex: number) {
         this.beginChange();
         try {
             this.queuePaintAllAction();

@@ -9,8 +9,7 @@ export class Controls {
     private readonly _currentRecordValueSpanElement: HTMLSpanElement; // value of Integer field
     private readonly _previousRecordValueSpanElement: HTMLSpanElement; // value of Integer field
 
-    private readonly _insertRecordIndexSpanElement: HTMLSpanElement;
-    private readonly _insertRecordsIndexSpanElement: HTMLSpanElement;
+    private readonly _insertRecordIndexTextboxElement: HTMLInputElement;
     private readonly _insertManyRecordsIndexSpanElement: HTMLSpanElement;
     private readonly _deleteRecordIndexSpanElement: HTMLSpanElement;
     private readonly _deleteRecordsIndexSpanElement: HTMLSpanElement;
@@ -68,23 +67,18 @@ export class Controls {
         if (insertRecordButtonElement === null) {
             throw new Error('insertRecordButton not found');
         }
-        insertRecordButtonElement.onclick = () => this.handleUiInsertRecordAction()
+        insertRecordButtonElement.onclick = (mouseEvent) => this.handleUiInsertRecordAction(mouseEvent)
 
-        this._insertRecordIndexSpanElement = document.querySelector('#insertRecordIndexSpan') as HTMLSpanElement;
-        if (this._insertRecordIndexSpanElement === null) {
-            throw new Error('insertRecordIndexSpan not found');
+        this._insertRecordIndexTextboxElement = document.querySelector('#insertRecordIndexTextbox') as HTMLInputElement;
+        if (this._insertRecordIndexTextboxElement === null) {
+            throw new Error('insertRecordIndexTextbox not found');
         }
 
         const insertRecordsButtonElement = document.querySelector('#insertRecordsButton') as HTMLButtonElement;
         if (insertRecordsButtonElement === null) {
             throw new Error('insertRecordsButton not found');
         }
-        insertRecordsButtonElement.onclick = () => this.handleUiInsertRecordsAction()
-
-        this._insertRecordsIndexSpanElement = document.querySelector('#insertRecordsIndexSpan') as HTMLSpanElement;
-        if (this._insertRecordsIndexSpanElement === null) {
-            throw new Error('insertRecordsIndexSpan not found');
-        }
+        insertRecordsButtonElement.onclick = (mouseEvent) => this.handleUiInsertRecordsAction(mouseEvent)
 
         const insertManyRecordsButtonElement = document.querySelector('#insertManyRecordsButton') as HTMLButtonElement;
         if (insertManyRecordsButtonElement === null) {
@@ -395,11 +389,18 @@ export class Controls {
     }
 
     // UI Handlers
-    private handleUiInsertRecordAction() {
-        this.insertRandomRecord();
+    private handleUiInsertRecordAction(mouseEvent: MouseEvent) {
+        const recordIndex = parseInt(this._insertRecordIndexTextboxElement.value);
+        if (mouseEvent.shiftKey || isNaN(recordIndex)) {
+            this.insertRandomRecord();
+        } else {
+            const dataRec = this.getRandomRecordData();
+            this._recordStore.insertRecord(recordIndex, dataRec, true, true);
+            this._insertRecordIndexTextboxElement.value = recordIndex.toString();
+        }
     }
 
-    private handleUiInsertRecordsAction() {
+    private handleUiInsertRecordsAction(_mouseEvent: MouseEvent) {
         this.insertFewRandomRecords();
     }
 
@@ -759,7 +760,7 @@ export class Controls {
         }
         const dataRec = this.getRandomRecordData();
         this._recordStore.insertRecord(idx, dataRec, true, true);
-        this._insertRecordIndexSpanElement.textContent = idx.toString();
+        this._insertRecordIndexTextboxElement.value = idx.toString();
     }
 
     private insertRandomRecords(count: number) {
@@ -779,7 +780,7 @@ export class Controls {
     private insertFewRandomRecords() {
         const count = Math.floor(Math.random() * 5) + 1;
         const idx = this.insertRandomRecords(count)
-        this._insertRecordIndexSpanElement.textContent = `${idx}, ${count}`;
+        this._insertRecordIndexTextboxElement.value = `${idx}, ${count}`;
     }
 
     private insertManyRandomRecords() {
