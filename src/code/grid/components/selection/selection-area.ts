@@ -1,23 +1,14 @@
-import { Point } from '../../types-utils/point';
-import { Rectangle } from '../../types-utils/rectangle';
 import { UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaType } from '../../types-utils/types';
-import { Corner } from './corner';
+import { FirstCornerArea } from './first-corner-area';
 
-export interface SelectionArea extends Rectangle {
+/** @public */
+export interface SelectionArea extends FirstCornerArea {
     readonly areaType: SelectionAreaType;
-
-    readonly topLeft: Point;
-    readonly exclusiveBottomRight: Point;
-    readonly firstCorner: Corner;
-
-    readonly inclusiveFirst: Point;
-
-    readonly width: number;
-    readonly height: number;
     readonly size: number;
 }
 
+/** @public */
 export namespace SelectionArea {
     export function isEqual(left: SelectionArea, right: SelectionArea) {
         const leftTopLeft = left.topLeft;

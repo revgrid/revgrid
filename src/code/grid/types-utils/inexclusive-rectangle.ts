@@ -1,8 +1,8 @@
+import { InexclusiveArea } from './inexclusive-area';
 import { Point } from './point';
-import { Rectangle } from './rectangle';
 
 /** @public */
-export class InexclusiveRectangle implements Rectangle {
+export class InexclusiveRectangle implements InexclusiveArea {
     private _x: number;
     private _y: number;
 
