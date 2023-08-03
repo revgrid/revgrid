@@ -2,6 +2,7 @@ import { SelectionAreaType } from '../../types-utils/types';
 import { FirstCornerRectangle } from './first-corner-rectangle';
 import { SelectionArea } from './selection-area';
 
+/** @public */
 export class LastSelectionArea extends FirstCornerRectangle implements SelectionArea {
     constructor(
         readonly areaType: SelectionAreaType,

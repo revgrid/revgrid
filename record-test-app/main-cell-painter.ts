@@ -4,6 +4,7 @@ import {
     RevRecordMainDataServer,
     RevRecordRecentChangeTypeId,
     RevRecordValueRecentChangeTypeId,
+    Selection,
     StandardBehavioredColumnSettings,
     StandardTextCellPainter,
     UnreachableCaseError
@@ -31,18 +32,6 @@ export class MainCellPainter
 
         const foreColor = gridSettings.color;
 
-        let bkgdColor: string;
-        const selectionBackgroundColor = this._gridSettings.selectionBackgroundColor;
-        if (selectionBackgroundColor !== undefined && grid.selection.isCellSelectedWithOthers(activeColumnIndex, subgridRowIndex, subgrid)) {
-            bkgdColor = selectionBackgroundColor;
-        } else {
-            if (prefillColor !== undefined) {
-                bkgdColor = prefillColor;
-            } else {
-                bkgdColor = gridSettings.backgroundColor;
-            }
-        }
-
         const field = cell.viewLayoutColumn.column.field;
         const foreText = this._dataServer.getViewValue(field, subgridRowIndex) as string;
         const foreFont = gridSettings.font;
@@ -54,14 +43,36 @@ export class MainCellPainter
         let internalBorderColor: string | undefined;
         let focusedCellBorderColor: string | undefined;
         const rowFocused = focus.isMainSubgridRowFocused(subgridRowIndex);
+        let cellFocused: boolean;
         if (rowFocused) {
             if (gridSettings.focusedRowBorderColor !== undefined) {
                 internalBorderColor = gridSettings.focusedRowBorderColor;
                 internalBorderRowOnly = true;
             }
 
-            if (focus.isCellFocused(cell)) {
+            cellFocused = focus.isCellFocused(cell);
+            if (cellFocused) {
                 focusedCellBorderColor = gridSettings.focusedCellBorderColor;
+            }
+        } else {
+            cellFocused = false;
+        }
+
+        let bkgdColor: string;
+        const selectionBackgroundColor = this._gridSettings.selectionBackgroundColor;
+        const selection = grid.selection;
+        let cellSelectedType: Selection.CellSelectedType | undefined;
+        if (
+            selectionBackgroundColor !== undefined &&
+            (cellSelectedType = selection.getOneCellSelectedType(activeColumnIndex, subgridRowIndex, subgrid)) !== undefined &&
+            (!cellFocused || !selection.isSelectedCellTheOnlySelectedCell(activeColumnIndex, subgridRowIndex, subgrid, cellSelectedType))
+        ) {
+            bkgdColor = selectionBackgroundColor;
+        } else {
+            if (prefillColor !== undefined) {
+                bkgdColor = prefillColor;
+            } else {
+                bkgdColor = gridSettings.backgroundColor;
             }
         }
 

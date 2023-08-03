@@ -12,7 +12,7 @@ import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils
 import { calculateNumberArrayUniqueCount } from '../../types-utils/utils';
 import { ColumnsManager } from '../column/columns-manager';
 import { ContiguousIndexRange } from './contiguous-index-range';
-import { Corner } from './corner';
+import { FirstCornerArea } from './first-corner-area';
 import { LastSelectionArea } from './last-selection-area';
 import { SelectionArea } from './selection-area';
 import { SelectionRangeList } from './selection-range-list';
@@ -22,39 +22,57 @@ import { SelectionRectangleList } from './selection-rectangle-list';
 /**
  *
  * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
+ * @public
  */
 
 export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    /** @internal */
     changedEventerForRenderer: Selection.ChangedEventer;
+    /** @internal */
     changedEventerForEventBehavior: Selection.ChangedEventer;
 
-    readonly rows = new SelectionRangeList();
-    readonly columns = new SelectionRangeList();
-    readonly rectangleList = new SelectionRectangleList();
+    /** @internal */
+    private readonly _rows = new SelectionRangeList();
+    /** @internal */
+    private readonly _columns = new SelectionRangeList();
+    /** @internal */
+    private readonly _rectangleList = new SelectionRectangleList();
 
+    /** @internal */
     private _subgrid: Subgrid<BCS, SF> | undefined;
+    /** @internal */
     private _lastArea: LastSelectionArea | undefined;
-    private _allRowsSelected = false;
+    /** @internal */
+    private _allSelected = false;
 
+    /** @internal */
     private _beginChangeCount = 0;
+    /** @internal */
     private _changed = false;
+    /** @internal */
     private _silentlyChanged = false;
 
+    /** @internal */
     constructor(
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
+        /** @internal */
         private readonly _gridSettings: GridSettings,
+        /** @internal */
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
     }
 
     get subgrid() { return this._subgrid; }
 
-    get areaCount(): number { return this.rectangleList.areaCount + this.rows.areaCount + this.columns.areaCount; }
+    get areaCount(): number { return this._rectangleList.areaCount + this._rows.areaCount + this._columns.areaCount; }
     get lastArea() { return this._lastArea; }
 
-    get allRowsSelected() { return this._allRowsSelected; }
+    get allSelected() { return this._allSelected; }
 
+    get rectangles(): readonly SelectionRectangle[] { return this._rectangleList.rectangles; }
+
+    /** @internal */
     destroy() {
         //
     }
@@ -88,14 +106,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    assign(other: Selection<BCS, SF>) {
-        this.rectangleList.assign(other.rectangleList);
-        this.rows.assign(other.rows);
-        this.columns.assign(other.columns);
-        this._allRowsSelected = other._allRowsSelected;
-        this._subgrid = other._subgrid;
-    }
-
     createStash(): Selection.Stash<BCS, SF> {
         const lastRectangleFirstCell = this.createLastRectangleFirstCellStash();
         const rowIds = this.createRowsStash();
@@ -103,7 +113,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
 
         return {
             subgrid: this._subgrid,
-            allRowsSelected: this.allRowsSelected,
+            allSelected: this._allSelected,
             lastRectangleFirstCell,
             rowIds,
             columnNames,
@@ -115,7 +125,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         try {
             this.clear();
             this._subgrid = stash.subgrid;
-            this._allRowsSelected = stash.allRowsSelected;
+            this._allSelected = stash.allSelected;
             this.restoreLastRectangleFirstCellStash(stash.lastRectangleFirstCell, allRowsKept);
             this.restoreRowsStash(stash.rowIds);
             this.restoreColumnsStash(stash.columnNames);
@@ -125,7 +135,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     }
 
     getLastRectangle() {
-        return this.rectangleList.getLastRectangle();
+        return this._rectangleList.getLastRectangle();
     }
 
     /**
@@ -135,19 +145,19 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         this.beginChange();
         try {
             let changed = false;
-            if (this.rectangleList.has) {
-                this.rectangleList.clear();
+            if (this._rectangleList.has) {
+                this._rectangleList.clear();
                 changed = true;
             }
 
-            if (this.columns.hasIndices()) {
-                this.columns.clear();
+            if (this._columns.hasIndices()) {
+                this._columns.clear();
                 changed = true;
             }
 
-            if (this.rows.hasIndices() || this._allRowsSelected) {
-                this.rows.clear();
-                this._allRowsSelected = false;
+            if (this._rows.hasIndices() || this._allSelected) {
+                this._rows.clear();
+                this._allSelected = false;
                 changed = true;
             }
 
@@ -272,7 +282,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             }
 
             const rectangle = new SelectionRectangle(firstInexclusiveX, firstInexclusiveY, width, height);
-            this.rectangleList.push(rectangle);
+            this._rectangleList.push(rectangle);
             this._lastArea = new LastSelectionArea(SelectionAreaType.Rectangle, firstInexclusiveX, firstInexclusiveY, width, height);
 
             this.flagChanged(silent);
@@ -286,33 +296,33 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
 
     deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<BCS, SF>) {
         if (subgrid === this._subgrid) {
-            const index = this.rectangleList.findIndex(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            const index = this._rectangleList.findIndex(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
             if (index >= 0) {
                 const lastArea = this._lastArea;
                 if (lastArea !== undefined && Rectangle.isEqual(lastArea, rectangle)) {
                     this._lastArea = undefined;
                 }
-                this.rectangleList.removeAt(index)
+                this._rectangleList.removeAt(index)
             }
         }
     }
 
-    selectOnlyAllRows(subgrid: Subgrid<BCS, SF>) {
+    selectOnlyAll(subgrid: Subgrid<BCS, SF>) {
         this.beginChange();
-        if (subgrid !== this._subgrid || !this._allRowsSelected) {
+        if (subgrid !== this._subgrid || !this._allSelected) {
             this._changed = true;
         }
         this.clear();
         if (this._changed) {
             this._subgrid = subgrid;
-            this._allRowsSelected = true;
+            this._allSelected = true;
         }
         this.endChange();
     }
 
-    selectAllRows(subgrid: Subgrid<BCS, SF>) {
+    selectAll(subgrid: Subgrid<BCS, SF>) {
         this.beginChange();
-        if (!this._allRowsSelected) {
+        if (!this._allSelected) {
             this._changed = true;
         }
         if (subgrid !== this._subgrid) {
@@ -320,23 +330,23 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             this._subgrid = subgrid;
             this._changed = true;
         }
-        this._allRowsSelected = true;
+        this._allSelected = true;
         this.endChange();
     }
 
-    deselectAllRows() {
-        if (this._allRowsSelected) {
+    deselectAll() {
+        if (this._allSelected) {
             this.beginChange();
-            this._allRowsSelected = false;
+            this._allSelected = false;
             this._changed = true;
             this.endChange();
         }
     }
 
-    setAllRowsSelected(value: boolean) {
-        if (value !== this._allRowsSelected) {
+    setAllSelected(value: boolean) {
+        if (value !== this._allSelected) {
             this.beginChange();
-            this._allRowsSelected = value;
+            this._allSelected = value;
             this._changed = true;
             this.endChange();
         }
@@ -355,7 +365,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 this.clear();
             }
 
-            const changed = this.rows.add(inexclusiveY, height);
+            const changed = this._rows.add(inexclusiveY, height);
             const lastArea = new LastSelectionArea(SelectionAreaType.Row, x, inexclusiveY, width, height);
             if (changed) {
                 this._lastArea = lastArea;
@@ -370,7 +380,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
 
     deselectRows(y: number, count: number, subgrid: Subgrid<BCS, SF>) {
         if (subgrid === this._subgrid) {
-            const changed = this.rows.delete(y, count);
+            const changed = this._rows.delete(y, count);
             if (changed) {
                 const lastArea = this._lastArea;
                 if (lastArea !== undefined && lastArea.areaType === SelectionAreaType.Row) {
@@ -378,7 +388,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                     const oldLast = lastArea.exclusiveLast;
                     const oldStart = oldFirst.y;
                     const oldLength = oldLast.y - oldStart;
-                    const overlapRange = this.rows.calculateOverlapRange(oldStart, oldLength);
+                    const overlapRange = this._rows.calculateOverlapRange(oldStart, oldLength);
                     if (overlapRange === undefined) {
                         this._lastArea = undefined;
                     } else {
@@ -420,7 +430,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             this.clear();
         }
 
-        const changed = this.columns.add(inexclusiveX, width);
+        const changed = this._columns.add(inexclusiveX, width);
         const lastArea = new LastSelectionArea(SelectionAreaType.Column, inexclusiveX, y, width, height);
         if (changed) {
             this._lastArea = lastArea;
@@ -433,7 +443,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
 
     deselectColumns(x: number, count: number, subgrid: Subgrid<BCS, SF>) {
         if (subgrid === this._subgrid) {
-            const changed = this.columns.delete(x, count);
+            const changed = this._columns.delete(x, count);
             if (changed) {
                 const lastArea = this._lastArea;
                 if (lastArea !== undefined && lastArea.areaType === SelectionAreaType.Column) {
@@ -441,7 +451,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                     const oldLast = lastArea.exclusiveLast;
                     const oldStart = oldFirst.x;
                     const oldLength = oldLast.x - oldStart;
-                    const overlapRange = this.columns.calculateOverlapRange(oldStart, oldLength);
+                    const overlapRange = this._columns.calculateOverlapRange(oldStart, oldLength);
                     if (overlapRange === undefined) {
                         this._lastArea = undefined;
                     } else {
@@ -543,59 +553,40 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     }
 
     isColumnSelected(activeColumnIndex: number) {
-        return this.columns.includesIndex(activeColumnIndex);
+        return this._columns.includesIndex(activeColumnIndex);
     }
-    /**
-     * @summary Selection query function.
-     * @returns The given cell is selected (part of an active selection).
-     */
+
     isCellSelected(x: number, y: number, subgrid: DatalessSubgrid): boolean {
-        if (subgrid !== this._subgrid) {
-            return false;
+        return this.getOneCellSelectedType(x, y, subgrid) !== undefined;
+    }
+
+    /** Returns undefined if not selected, false if selected with others, true if the only cell selected */
+    isOnlyThisCellSelected(x: number, y: number, subgrid: DatalessSubgrid): boolean | undefined {
+        const selectedType = this.getOneCellSelectedType(x, y, subgrid);
+        if (selectedType === undefined) {
+            return undefined;
         } else {
-            return (
-                this._allRowsSelected ||
-                this.rows.includesIndex(y) ||
-                this.columns.includesIndex(x) ||
-                this.rectangleList.containsPoint(x, y)
-            );
+            return this.isSelectedCellTheOnlySelectedCell(x, y, subgrid, selectedType)
         }
     }
 
-    isCellSelectedWithOthers(x: number, y: number, subgrid: DatalessSubgrid): boolean {
+    getOneCellSelectedType(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): Selection.CellSelectedType | undefined {
         if (subgrid !== this._subgrid) {
-            return false;
+            return undefined;
         } else {
-            const activeColumnCount = this._columnsManager.activeColumnCount;
-            const subgridRowCount = this._subgrid.getRowCount();
-
-            if (this._allRowsSelected) {
-                return activeColumnCount > 1 || subgridRowCount > 1;
+            if (this._allSelected) {
+                return Selection.CellSelectedType.All;
             } else {
-                if (this.rows.includesIndex(y)) {
-                    return (
-                        activeColumnCount > 1 ||
-                        this.rows.hasMoreThanOneIndex() ||
-                        this.columns.hasIndices() && (subgridRowCount > 1) ||
-                        this.rectangleList.hasPointOtherThan(x, y)
-                    );
+                if (this._rows.includesIndex(subgridRowIndex)) {
+                    return Selection.CellSelectedType.Row;
                 } else {
-                    if (this.columns.includesIndex(x)) {
-                        return (
-                            subgridRowCount > 1 ||
-                            this.columns.hasMoreThanOneIndex() ||
-                            (this.rows.hasIndices() && activeColumnCount > 1) ||
-                            this.rectangleList.hasPointOtherThan(x, y)
-                        );
+                    if (this._columns.includesIndex(activeColumnIndex)) {
+                        return Selection.CellSelectedType.Column;
                     } else {
-                        if (this.rectangleList.containsPoint(x, y)) {
-                            return (
-                                this.rectangleList.hasMoreThanOnePoint() ||
-                                (this.rows.hasIndices() && activeColumnCount > 1) ||
-                                (this.columns.hasIndices() && subgridRowCount > 1)
-                            );
+                        if (this._rectangleList.containsPoint(activeColumnIndex, subgridRowIndex)) {
+                            return Selection.CellSelectedType.Rectangle;
                         } else {
-                            return false;
+                            return undefined;
                         }
                     }
                 }
@@ -603,38 +594,80 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    getCellSelectedAreaTypes(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): Selection.CellSelectedAreaTypes {
-        if (subgrid === this._subgrid) {
-            return {
-                rowSelected: this._allRowsSelected || this.rows.includesIndex(subgridRowIndex),
-                columnSelected: this.columns.includesIndex(activeColumnIndex),
-                cellSelected: this.rectangleList.containsPoint(activeColumnIndex, subgridRowIndex),
-            };
+    getAllCellSelectedTypes(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): Selection.CellSelectedType[] {
+        if (subgrid !== this._subgrid) {
+            return [];
         } else {
-            return {
-                rowSelected: false,
-                columnSelected: false,
-                cellSelected: false,
-            };
+            const selectedTypes: Selection.CellSelectedType[] = [];
+            if (this._allSelected) {
+                selectedTypes.push(Selection.CellSelectedType.All);
+            }
+            if (this._rows.includesIndex(subgridRowIndex)) {
+                selectedTypes.push(Selection.CellSelectedType.Row);
+            }
+            if (this._columns.includesIndex(activeColumnIndex)) {
+                selectedTypes.push(Selection.CellSelectedType.Column);
+            }
+            if (this._rectangleList.containsPoint(activeColumnIndex, subgridRowIndex)) {
+                selectedTypes.push(Selection.CellSelectedType.Rectangle);
+            }
+            return selectedTypes;
+        }
+    }
+
+    isSelectedCellTheOnlySelectedCell(
+        activeColumnIndex: number,
+        subgridRowIndex: number,
+        datalessSubgrid: DatalessSubgrid,
+        selectedType: Selection.CellSelectedType
+    ) {
+        const activeColumnCount = this._columnsManager.activeColumnCount;
+        const subgrid = datalessSubgrid as Subgrid<BCS, SF>; // assume this was previously checked by getCellSelectedType
+        const subgridRowCount = subgrid.getRowCount();
+        switch (selectedType) {
+            case Selection.CellSelectedType.All:
+                return activeColumnCount <= 1 && subgridRowCount <= 1;
+            case Selection.CellSelectedType.Row:
+                return (
+                    subgridRowCount <= 1 &&
+                    !this._columns.hasMoreThanOneIndex() &&
+                    (this._rows.isEmpty() || (activeColumnCount <= 1)) &&
+                    !this._rectangleList.hasPointOtherThan(activeColumnIndex, subgridRowIndex)
+                );
+            case Selection.CellSelectedType.Column:
+                return (
+                    activeColumnCount <= 1 &&
+                    !this._rows.hasMoreThanOneIndex() &&
+                    (this._columns.isEmpty() || (subgridRowCount <= 1)) &&
+                    !this._rectangleList.hasPointOtherThan(activeColumnIndex, subgridRowIndex)
+                );
+            case Selection.CellSelectedType.Rectangle:
+                return (
+                    !this._rectangleList.hasMoreThanOnePoint() &&
+                    (this._rows.isEmpty() || activeColumnCount <= 1) &&
+                    (this._columns.isEmpty() || subgridRowCount <= 1)
+                );
+            default:
+                throw new UnreachableCaseError('SISCTOSD30134', selectedType);
         }
     }
 
     getRowCount() {
-        if (this.allRowsSelected) {
+        if (this._allSelected) {
             if (this._subgrid === undefined) {
                 throw new AssertError('SGRC66698');
             } else {
                 return this._subgrid.getRowCount();
             }
         } else {
-            if (this.rows.isEmpty()) {
-                return this.rectangleList.getUniqueXIndices();
+            if (this._rows.isEmpty()) {
+                return this._rectangleList.getUniqueXIndices();
             } else {
-                if (this.rectangleList.isEmpty()) {
-                    return this.rows.getIndexCount();
+                if (this._rectangleList.isEmpty()) {
+                    return this._rows.getIndexCount();
                 } else {
-                    const rangeIndices = this.rows.getIndices();
-                    const rectangleIndices = this.rectangleList.getNonUniqueXIndices();
+                    const rangeIndices = this._rows.getIndices();
+                    const rectangleIndices = this._rectangleList.getNonUniqueXIndices();
                     const allIndices = [...rangeIndices, ...rectangleIndices];
                     return calculateNumberArrayUniqueCount(allIndices);
                 }
@@ -643,7 +676,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     }
 
     getRowIndices() {
-        if (this.allRowsSelected) {
+        if (this._allSelected) {
             if (this._subgrid === undefined) {
                 throw new AssertError('SGRI66698');
             } else {
@@ -655,16 +688,16 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 return result;
             }
         } else {
-            return this.rows.getIndices();
+            return this._rows.getIndices();
         }
     }
 
     getColumnIndices() {
-        return this.columns.getIndices();
+        return this._columns.getIndices();
     }
 
     isColumnOrRowSelected() {
-        return this.columns.hasIndices() || this.rows.hasIndices();
+        return this._columns.hasIndices() || this._rows.hasIndices();
     }
 
     // getRectangleFlattenedYs() {
@@ -676,15 +709,15 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         if (subgrid !== undefined && subgrid !== this._subgrid) {
             result = [];
         } else {
-            if (this._allRowsSelected) {
-                const area = this.createAreaFromAllRows();
+            if (this._allSelected) {
+                const area = this.createAreaFromAll();
                 if (area === undefined) {
                     result = [];
                 } else {
                     result = [area];
                 }
             } else {
-                const range = this.rows.findRangeWithIndex(y);
+                const range = this._rows.findRangeWithIndex(y);
                 if (range === undefined) {
                     result = [];
                 } else {
@@ -693,13 +726,13 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 }
             }
 
-            const columnRange = this.columns.findRangeWithIndex(x);
+            const columnRange = this._columns.findRangeWithIndex(x);
             if (columnRange !== undefined) {
                 const area = this.createAreaFromColumnRange(columnRange);
                 result.push(area);
             }
 
-            const rectangles =  this.rectangleList.getRectanglesContainingPoint(x, y);
+            const rectangles =  this._rectangleList.getRectanglesContainingPoint(x, y);
             for (const rectangle of rectangles) {
                 result.push(rectangle);
             }
@@ -738,6 +771,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    /** @internal */
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
@@ -748,8 +782,8 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                     lastArea.adjustForYRangeInserted(rowIndex, rowCount);
                 }
 
-                let changed = this.rectangleList.adjustForYRangeInserted(rowIndex, rowCount);
-                if (this.rows.adjustForInserted(rowIndex, rowCount)) {
+                let changed = this._rectangleList.adjustForYRangeInserted(rowIndex, rowCount);
+                if (this._rows.adjustForInserted(rowIndex, rowCount)) {
                     changed = true;
                 }
 
@@ -762,6 +796,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    /** @internal */
     adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
@@ -772,8 +807,8 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                     lastArea.adjustForYRangeDeleted(rowIndex, rowCount);
                 }
 
-                let changed = this.rectangleList.adjustForYRangeDeleted(rowIndex, rowCount);
-                if (this.rows.adjustForDeleted(rowIndex, rowCount)) {
+                let changed = this._rectangleList.adjustForYRangeDeleted(rowIndex, rowCount);
+                if (this._rows.adjustForDeleted(rowIndex, rowCount)) {
                     changed = true;
                 }
 
@@ -786,6 +821,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    /** @internal */
     adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
@@ -796,8 +832,8 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                     lastArea.adjustForYRangeMoved(oldRowIndex, newRowIndex, count);
                 }
 
-                let changed = this.rectangleList.adjustForYRangeMoved(oldRowIndex, newRowIndex, count);
-                if (this.rows.adjustForMoved(oldRowIndex, newRowIndex, count)) {
+                let changed = this._rectangleList.adjustForYRangeMoved(oldRowIndex, newRowIndex, count);
+                if (this._rows.adjustForMoved(oldRowIndex, newRowIndex, count)) {
                     changed = true;
                 }
 
@@ -810,6 +846,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    /** @internal */
     adjustForColumnsInserted(columnIndex: number, columnCount: number) {
         this.beginChange();
         try {
@@ -818,8 +855,8 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 lastArea.adjustForXRangeInserted(columnIndex, columnCount);
             }
 
-            let changed = this.rectangleList.adjustForXRangeInserted(columnIndex, columnCount);
-            if (this.columns.adjustForInserted(columnIndex, columnCount)) {
+            let changed = this._rectangleList.adjustForXRangeInserted(columnIndex, columnCount);
+            if (this._columns.adjustForInserted(columnIndex, columnCount)) {
                 changed = true;
             }
 
@@ -831,6 +868,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    /** @internal */
     adjustForActiveColumnsDeleted(columnIndex: number, columnCount: number) {
         this.beginChange();
         try {
@@ -839,8 +877,8 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 lastArea.adjustForXRangeDeleted(columnIndex, columnCount);
             }
 
-            let changed = this.rectangleList.adjustForXRangeDeleted(columnIndex, columnCount);
-            if (this.columns.adjustForDeleted(columnIndex, columnCount)) {
+            let changed = this._rectangleList.adjustForXRangeDeleted(columnIndex, columnCount);
+            if (this._columns.adjustForDeleted(columnIndex, columnCount)) {
                 changed = true;
             }
 
@@ -852,6 +890,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    /** @internal */
     adjustForColumnsMoved(oldColumnIndex: number, newColumnIndex: number, count: number) {
         this.beginChange();
         try {
@@ -861,7 +900,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             }
 
             let changed = false; // this.rectangleList.adjustForColumnsMoved(oldColumnIndex, newColumnIndex, count); // not yet implemented
-            if (this.columns.adjustForMoved(oldColumnIndex, newColumnIndex, count)) {
+            if (this._columns.adjustForMoved(oldColumnIndex, newColumnIndex, count)) {
                 changed = true;
             }
 
@@ -873,6 +912,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    /** @internal */
     private flagChanged(silently: boolean) {
         if (silently) {
             // Can only flag as silently if no other change was silent
@@ -885,7 +925,8 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         this._changed = true;
     }
 
-    private createAreaFromAllRows(): SelectionArea | undefined {
+    /** @internal */
+    private createAreaFromAll(): SelectionArea | undefined {
         const subgrid = this._subgrid;
         if (subgrid === undefined) {
             throw new AssertError('SCAFAR34454');
@@ -906,13 +947,14 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                     topLeft: { x, y },
                     inclusiveFirst: { x, y },
                     exclusiveBottomRight: { x: activeColumnCount, y: rowCount },
-                    firstCorner: Corner.TopLeft,
+                    firstCorner: FirstCornerArea.Corner.TopLeft,
                     size: activeColumnCount * rowCount,
                 };
             }
         }
     }
 
+    /** @internal */
     private createAreaFromRowRange(range: ContiguousIndexRange): SelectionArea {
         const activeColumnCount = this._columnsManager.activeColumnCount;
         const x = 0;
@@ -927,11 +969,12 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             topLeft: { x, y },
             inclusiveFirst: { x, y },
             exclusiveBottomRight: { x: activeColumnCount, y: range.after },
-            firstCorner: Corner.TopLeft,
+            firstCorner: FirstCornerArea.Corner.TopLeft,
             size: activeColumnCount * height,
         };
     }
 
+    /** @internal */
     private createAreaFromColumnRange(range: ContiguousIndexRange): SelectionArea {
         const subgrid = this._subgrid;
         if (subgrid === undefined) {
@@ -950,18 +993,19 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 topLeft: { x, y },
                 inclusiveFirst: { x, y },
                 exclusiveBottomRight: { x: range.after, y: rowCount },
-                firstCorner: Corner.TopLeft,
+                firstCorner: FirstCornerArea.Corner.TopLeft,
                 size: width * rowCount,
             };
         }
     }
 
+    /** @internal */
     private createLastRectangleFirstCellStash(): Selection.LastRectangleFirstCellStash | undefined {
         const subgrid = this._subgrid;
         if (subgrid === undefined) {
             return undefined;
         } else {
-            const rectangle = this.rectangleList.getLastRectangle();
+            const rectangle = this._rectangleList.getLastRectangle();
             if (rectangle === undefined) {
                 return undefined;
             } else {
@@ -982,6 +1026,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    /** @internal */
     private restoreLastRectangleFirstCellStash(lastRectangleFirstCellStash: Selection.LastRectangleFirstCellStash | undefined, allRowsKept: boolean) {
         if (lastRectangleFirstCellStash !== undefined) {
             const subgrid = this._subgrid;
@@ -1027,6 +1072,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
      *
      * This call should be paired with a subsequent call to `reselectRowsByUnderlyingIndexes`.
      * @returns Number of selected rows or `undefined` if `restoreRowSelections` is falsy.
+     * @internal
      */
     private createRowsStash() {
         const subgrid = this._subgrid;
@@ -1044,6 +1090,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    /** @internal */
     private restoreRowsStash(rowIds: unknown[] | undefined) {
         if (rowIds !== undefined) {
             const subgrid = this._subgrid;
@@ -1094,14 +1141,14 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                             const value = rowIndexValues[i];
                             if (value !== previousValue) {
                                 if (value !== previousValuePlus1) {
-                                    this.rows.add(startValue, previousValuePlus1 - startValue);
+                                    this._rows.add(startValue, previousValuePlus1 - startValue);
                                     startValue = value;
                                 }
                                 previousValue = value;
                                 previousValuePlus1 = previousValue + 1;
                             }
                         }
-                        this.rows.add(startValue, previousValuePlus1 - startValue);
+                        this._rows.add(startValue, previousValuePlus1 - startValue);
                     }
                 }
             }
@@ -1113,12 +1160,14 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
      *
      * This call should be paired with a subsequent call to `reselectColumnsByNames`.
      * @returns Number of selected columns or `undefined` if `restoreColumnSelections` is falsy.
+     * @internal
      */
     private createColumnsStash() {
         const selectedColumns = this.getColumnIndices();
         return selectedColumns.map( (selectedColumnIndex) => this._columnsManager.getActiveColumn(selectedColumnIndex).field.name );
     }
 
+    /** @internal */
     private restoreColumnsStash(fieldNames: string[] | undefined) {
         if (fieldNames !== undefined) {
             const fieldNameCount = fieldNames.length;
@@ -1145,14 +1194,14 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                         const value = indexValues[i];
                         if (value !== previousValue) {
                             if (value !== previousValuePlus1) {
-                                this.columns.add(startValue, previousValuePlus1 - startValue);
+                                this._columns.add(startValue, previousValuePlus1 - startValue);
                                 startValue = value;
                             }
                             previousValue = value;
                             previousValuePlus1 = previousValue + 1;
                         }
                     }
-                    this.columns.add(startValue, previousValuePlus1 - startValue);
+                    this._columns.add(startValue, previousValuePlus1 - startValue);
                 }
             }
         }
@@ -1161,17 +1210,20 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
 
 /** @public */
 export namespace Selection {
+    /** @internal */
     export type ChangedEventer = (this: void) => void;
 
-    export interface CellSelectedAreaTypes {
-        rowSelected: boolean;
-        columnSelected: boolean;
-        cellSelected: boolean;
+    export const enum CellSelectedType {
+        All,
+        Row,
+        Column,
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        Rectangle,
     }
 
     export interface Stash<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         readonly subgrid: Subgrid<BCS, SF> | undefined;
-        readonly allRowsSelected: boolean,
+        readonly allSelected: boolean,
         readonly lastRectangleFirstCell: LastRectangleFirstCellStash | undefined;
         readonly rowIds: unknown[] | undefined,
         readonly columnNames: string[] | undefined,

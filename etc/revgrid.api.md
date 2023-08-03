@@ -283,6 +283,150 @@ export namespace CachedCanvasRenderingContext2D {
     }
 }
 
+// @public (undocumented)
+export class CanvasManager<BGS extends BehavioredGridSettings> implements RevgridObject {
+    // @internal
+    constructor(revgridId: string, internalParent: RevgridObject, hostElement: HTMLElement, canvasOverflowOverride: CssTypes.Overflow | undefined, canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
+    _gridSettings: BGS);
+    // (undocumented)
+    addExternalEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    // @internal (undocumented)
+    blurEventer: CanvasManager.FocusEventer;
+    // (undocumented)
+    readonly canvasElement: HTMLCanvasElement;
+    // (undocumented)
+    checksize(): void;
+    // @internal (undocumented)
+    clickEventer: CanvasManager.MouseEventer;
+    // @internal (undocumented)
+    contextMenuEventer: CanvasManager.MouseEventer;
+    // @internal (undocumented)
+    copyEventer: CanvasManager.ClipboardEventer;
+    // @internal (undocumented)
+    dblClickEventer: CanvasManager.MouseEventer;
+    // (undocumented)
+    get devicePixelRatio(): number;
+    // @internal (undocumented)
+    dispatchEvent(e: Event): boolean;
+    // @internal (undocumented)
+    dragStartEventer: CanvasManager.DragEventer;
+    // (undocumented)
+    get emptyImage(): HTMLImageElement;
+    // (undocumented)
+    get flooredBounds(): Rectangle;
+    // (undocumented)
+    get flooredHeight(): number;
+    // (undocumented)
+    get flooredWidth(): number;
+    // @internal (undocumented)
+    focusEventer: CanvasManager.FocusEventer;
+    // (undocumented)
+    readonly gc: CachedCanvasRenderingContext2D;
+    // @internal (undocumented)
+    getOffsetPoint<T extends MouseEvent | Touch>(mouseEventOrTouch: T): Point;
+    // (undocumented)
+    get hasBounds(): boolean;
+    // @internal (undocumented)
+    hasFocus(): boolean;
+    // (undocumented)
+    readonly hostElement: HTMLElement;
+    // (undocumented)
+    readonly internalParent: RevgridObject;
+    // @internal (undocumented)
+    keyDownEventer: CanvasManager.KeyEventer;
+    // @internal (undocumented)
+    keyUpEventer: CanvasManager.KeyEventer;
+    // @internal (undocumented)
+    pointerDownEventer: CanvasManager.PointerEventer;
+    // @internal (undocumented)
+    pointerDragEndEventer: CanvasManager.PointerDragEventer;
+    // @internal (undocumented)
+    pointerDragEventer: CanvasManager.PointerDragEventer;
+    // @internal (undocumented)
+    pointerDragStartEventer: CanvasManager.PointerDragStartEventer;
+    // @internal (undocumented)
+    pointerEnterEventer: CanvasManager.PointerEventer;
+    // @internal (undocumented)
+    pointerLeaveOutEventer: CanvasManager.PointerEventer;
+    // @internal (undocumented)
+    pointerMoveEventer: CanvasManager.PointerEventer;
+    // @internal (undocumented)
+    pointerUpCancelEventer: CanvasManager.PointerEventer;
+    // (undocumented)
+    removeExternalEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    // @internal (undocumented)
+    repaintEventer: CanvasManager.RepaintEventer;
+    // (undocumented)
+    resize(debounceEvent: boolean, hostRect?: DOMRect): void;
+    // @internal (undocumented)
+    resizedEventerForEventBehavior: CanvasManager.ResizedEventer;
+    // @internal (undocumented)
+    resizedEventerForViewLayout: CanvasManager.ResizedEventer;
+    // (undocumented)
+    readonly revgridId: string;
+    // @internal (undocumented)
+    setCursor(cursorName: string | undefined): void;
+    // @internal (undocumented)
+    setTitleText(titleText: string): void;
+    // @internal (undocumented)
+    start(): void;
+    // @internal (undocumented)
+    stop(): void;
+    // @internal (undocumented)
+    takeFocus(): void;
+    // @internal (undocumented)
+    touchEndEventer: CanvasManager.TouchEventer;
+    // @internal (undocumented)
+    touchMoveEventer: CanvasManager.TouchEventer;
+    // @internal (undocumented)
+    touchStartEventer: CanvasManager.TouchEventer;
+    // @internal (undocumented)
+    wheelMoveEventer: CanvasManager.WheelEventer;
+}
+
+// @public (undocumented)
+export namespace CanvasManager {
+    // @internal (undocumented)
+    export type ClipboardEventer = (this: void, event: ClipboardEvent) => void;
+    // @internal (undocumented)
+    export type DragEventer = (this: void, event: DragEvent) => void;
+    // @internal (undocumented)
+    export type FocusEventer = (this: void, event: FocusEvent) => void;
+    // @internal (undocumented)
+    export type KeyEventer = (this: void, event: KeyboardEvent) => void;
+    // @internal (undocumented)
+    export type MouseEventer = (this: void, event: MouseEvent) => void;
+    // @internal (undocumented)
+    export const enum PointerDownState {
+        // (undocumented)
+        Dragging = 3,
+        // (undocumented)
+        DragStarting = 2,
+        // (undocumented)
+        IgnoreClickAfterDrag = 4,
+        // (undocumented)
+        NotDown = 0,
+        // (undocumented)
+        NotDragging = 1
+    }
+    // @internal (undocumented)
+    export type PointerDragEventer = (this: void, event: PointerEvent, internal: boolean) => void;
+    // @internal (undocumented)
+    export type PointerDragStartEventer = (this: void, event: DragEvent) => boolean | undefined;
+    // @internal (undocumented)
+    export type PointerEventer = (this: void, event: PointerEvent) => void;
+    // @internal (undocumented)
+    export type RepaintEventer = (this: void) => void;
+    // @internal (undocumented)
+    export type ResizedEventer = (this: void) => void;
+    // @internal (undocumented)
+    export type TouchEventer = (this: void, event: TouchEvent) => void;
+    // @internal (undocumented)
+    export type WheelEventer = (this: void, event: WheelEvent) => void;
+    const // (undocumented)
+    canvasCssSuffix = "canvas";
+}
+
 // Warning: (ae-forgotten-export) The symbol "CellPossiblyPaintable" needs to be exported by the entry point public-api.d.ts
 //
 // @public (undocumented)
@@ -360,10 +504,16 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaF
 }
 
 // @public (undocumented)
+export interface ColumnAutoSizeableWidth<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    // (undocumented)
+    column: Column<BCS, SF>;
+    // (undocumented)
+    width: number | undefined;
+}
+
+// @public (undocumented)
 export type ColumnSettings = OnlyColumnSettings;
 
-// Warning: (ae-forgotten-export) The symbol "RevgridObject" needs to be exported by the entry point public-api.d.ts
-//
 // @public (undocumented)
 export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // @internal
@@ -474,8 +624,6 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     setActiveColumnsAndWidthsByFieldName(fieldNameAndWidths: ColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean): void;
     // (undocumented)
     setActiveColumnsAutoWidthSizing(value: boolean): void;
-    // Warning: (ae-forgotten-export) The symbol "ColumnAutoSizeableWidth" needs to be exported by the entry point public-api.d.ts
-    //
     // @internal (undocumented)
     setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[], ui: boolean): boolean;
     // @internal (undocumented)
@@ -510,6 +658,18 @@ export namespace ColumnsManager {
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, field: SF) => BCS;
     // @internal (undocumented)
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
+}
+
+// @public (undocumented)
+export const enum Corner {
+    // (undocumented)
+    BottomLeft = 3,
+    // (undocumented)
+    BottomRight = 2,
+    // (undocumented)
+    TopLeft = 0,
+    // (undocumented)
+    TopRight = 1
 }
 
 // @public (undocumented)
@@ -639,8 +799,6 @@ export interface DatalessViewCell<BCS extends BehavioredColumnSettings, SF exten
     paintFingerprint: DatalessViewCell.PaintFingerprint | undefined;
     // (undocumented)
     readonly subgrid: DatalessSubgrid;
-    // Warning: (ae-forgotten-export) The symbol "ViewLayoutColumn" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     readonly viewLayoutColumn: ViewLayoutColumn<BCS, SF>;
     // (undocumented)
@@ -926,8 +1084,6 @@ export namespace DispatchableEvent {
             'rev-grid-resized': undefined;
             // (undocumented)
             'rev-horizontal-scroll-viewport-changed': undefined;
-            // Warning: (ae-forgotten-export) The symbol "Scroller" needs to be exported by the entry point public-api.d.ts
-            //
             // (undocumented)
             'rev-horizontal-scroller-action': Scroller.Action;
             // (undocumented)
@@ -967,9 +1123,62 @@ export namespace DispatchableEvent {
 }
 
 // @public (undocumented)
+export interface FirstCornerArea extends InexclusiveArea {
+    // (undocumented)
+    readonly firstCorner: FirstCornerArea.Corner;
+    // (undocumented)
+    readonly inclusiveFirst: Point;
+}
+
+// @public (undocumented)
+export namespace FirstCornerArea {
+    // (undocumented)
+    export function calculateCornerFromWidthHeight(width: number, height: number): Corner;
+    // (undocumented)
+    export const enum Corner {
+        // (undocumented)
+        BottomLeft = 3,
+        // (undocumented)
+        BottomRight = 2,
+        // (undocumented)
+        TopLeft = 0,
+        // (undocumented)
+        TopRight = 1
+    }
+}
+
+// @public (undocumented)
+export class FirstCornerRectangle extends InexclusiveRectangle implements FirstCornerArea {
+    constructor(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number);
+    // (undocumented)
+    createCopy(): FirstCornerRectangle;
+    get exclusiveFirst(): Point;
+    get exclusiveLast(): Point;
+    // (undocumented)
+    readonly firstCorner: FirstCornerArea.Corner;
+    get inclusiveFirst(): Point;
+    get inclusiveLast(): Point;
+}
+
+// @public (undocumented)
+export namespace FirstCornerRectangle {
+    // (undocumented)
+    export function calculateXYWidthHeightForCorner(left: number, top: number, width: number, height: number, corner: FirstCornerArea.Corner): CornerAdjustedXYWidthHeight;
+    // (undocumented)
+    export interface CornerAdjustedXYWidthHeight {
+        // (undocumented)
+        readonly height: number;
+        // (undocumented)
+        readonly width: number;
+        // (undocumented)
+        readonly x: number;
+        // (undocumented)
+        readonly y: number;
+    }
+}
+
+// @public (undocumented)
 export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
-    // Warning: (ae-forgotten-export) The symbol "CanvasManager" needs to be exported by the entry point public-api.d.ts
-    //
     // @internal
     constructor(revgridId: string, internalParent: RevgridObject,
     _gridSettings: GridSettings,
@@ -1056,8 +1265,6 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     restoreStash(stash: Focus.Stash, allRowsKept: boolean): void;
     // (undocumented)
     readonly revgridId: string;
-    // Warning: (ae-forgotten-export) The symbol "PartialPoint" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     set(newFocusPoint: Point, cell: ViewCell<BCS, SF> | undefined, canvasPoint: PartialPoint | undefined): void;
     // (undocumented)
@@ -1159,8 +1366,11 @@ export const enum GridSettingChangeInvalidateTypeId {
     ViewRender = 1
 }
 
-// Warning: (ae-forgotten-export) The symbol "GridSettingChangeInvalidateTypeIds" needs to be exported by the entry point public-api.d.ts
-//
+// @public (undocumented)
+export type GridSettingChangeInvalidateTypeIds = {
+    [key in keyof GridSettings]: GridSettingChangeInvalidateTypeId;
+};
+
 // @public (undocumented)
 export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateTypeIds;
 
@@ -1222,7 +1432,19 @@ export type IndexSignatureHack<T> = {
 };
 
 // @public (undocumented)
-export class InexclusiveRectangle implements Rectangle {
+export interface InexclusiveArea extends Rectangle {
+    // (undocumented)
+    readonly exclusiveBottomRight: Point;
+    // (undocumented)
+    readonly height: number;
+    // (undocumented)
+    readonly topLeft: Point;
+    // (undocumented)
+    readonly width: number;
+}
+
+// @public (undocumented)
+export class InexclusiveRectangle implements InexclusiveArea {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     constructor(inexclusiveX: number, inexclusiveY: number, width: number, height: number);
@@ -1839,6 +2061,15 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
 export const invalidServerNotificationId = -1;
 
 // @public (undocumented)
+export class LastSelectionArea extends FirstCornerRectangle implements SelectionArea {
+    constructor(areaType: SelectionAreaType, firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number);
+    // (undocumented)
+    readonly areaType: SelectionAreaType;
+    // (undocumented)
+    get size(): number;
+}
+
+// @public (undocumented)
 export interface LinedHoverCell<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     // (undocumented)
     readonly mouseOverLeftLine: boolean;
@@ -2233,6 +2464,15 @@ export class OptionsError extends RevgridError {
 }
 
 // @public (undocumented)
+export type PartialPoint = Partial<Point>;
+
+// @public (undocumented)
+export namespace PartialPoint {
+    // (undocumented)
+    export function create(x: number | undefined, y: number | undefined): PartialPoint;
+}
+
+// @public (undocumented)
 export interface Point {
     readonly x: number;
     readonly y: number;
@@ -2323,6 +2563,77 @@ export namespace Rectangle {
     export function containsXY(rectangle: Rectangle, x: number, y: number): boolean;
     // (undocumented)
     export function isEqual(left: Rectangle, right: Rectangle): boolean;
+}
+
+// @public (undocumented)
+export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    // @internal
+    constructor(revgridId: string, internalParent: RevgridObject,
+    _gridSettings: BGS,
+    _canvasManager: CanvasManager<BGS>,
+    _columnsManager: ColumnsManager<BCS, SF>,
+    _subgridsManager: SubgridsManager<BCS, SF>,
+    _viewLayout: ViewLayout<BGS, BCS, SF>,
+    _focus: Focus<BGS, BCS, SF>,
+    _selection: Selection_2<BCS, SF>,
+    _mouse: Mouse<BGS, BCS, SF>);
+    // @internal (undocumented)
+    beginChange(): void;
+    // @internal (undocumented)
+    destroy(): void;
+    // @internal (undocumented)
+    endChange(): void;
+    // @internal
+    flagColumnRebundlingRequired(): void;
+    // @internal (undocumented)
+    getGridPainter(key: string): GridPainter<BGS, BCS, SF>;
+    // (undocumented)
+    readonly internalParent: RevgridObject;
+    // @internal (undocumented)
+    invalidateSubgrid(subgrid: Subgrid<BCS, SF>): void;
+    // @internal (undocumented)
+    invalidateSubgridCell(subgrid: Subgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number): void;
+    // @internal (undocumented)
+    invalidateSubgridRow(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number): void;
+    // @internal (undocumented)
+    invalidateSubgridRowCells(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, activeColumnIndices: number[]): void;
+    // @internal (undocumented)
+    invalidateSubgridRows(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, count: number): void;
+    // @internal (undocumented)
+    invalidateView(): void;
+    // @internal (undocumented)
+    invalidateViewCell(cell: ViewCell<BCS, SF>): void;
+    // (undocumented)
+    get lastServerNotificationId(): number;
+    // (undocumented)
+    get painting(): boolean;
+    // Warning: (ae-forgotten-export) The symbol "GridPainter" needs to be exported by the entry point public-api.d.ts
+    //
+    // @internal (undocumented)
+    registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>): void;
+    // @internal (undocumented)
+    renderedEventer: Renderer.RenderedEventer;
+    // @internal (undocumented)
+    repaintAll(): void;
+    // (undocumented)
+    readonly revgridId: string;
+    // @internal (undocumented)
+    serverNotified(): void;
+    // @internal (undocumented)
+    setGridPainter(key: string): void;
+    // @internal (undocumented)
+    start(): void;
+    // @internal (undocumented)
+    stop(): void;
+    waitLastServerNotificationRendered(): Promise<ServerNotificationId>;
+}
+
+// @public (undocumented)
+export namespace Renderer {
+    // @internal (undocumented)
+    export type RenderedEventer = (this: void) => void;
+    // @internal (undocumented)
+    export type WaitModelRenderedResolve = (this: void, id: ServerNotificationId) => void;
 }
 
 // @public (undocumented)
@@ -2532,10 +2843,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getSchema(): readonly SchemaField[];
     // (undocumented)
     getSelectedColumnIndices(): number[];
-    // Warning: (ae-forgotten-export) The symbol "SelectionRectangle" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
-    getSelectedRectangles(): SelectionRectangle[];
+    getSelectedRectangles(): readonly SelectionRectangle[];
     // (undocumented)
     getSelectedRowCount(): number;
     // (undocumented)
@@ -2601,14 +2910,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     // Warning: (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.
     // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-    // Warning: (ae-forgotten-export) The symbol "GridPainter" needs to be exported by the entry point public-api.d.ts
     registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>): void;
     // (undocumented)
     removeAttribute(attribute: string): void;
     // (undocumented)
     removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-    // Warning: (ae-forgotten-export) The symbol "Renderer" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     readonly renderer: Renderer<BGS, BCS, SF>;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2627,8 +2933,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     scrollViewHorizontallyBy(delta: number): void;
     // (undocumented)
     selectAllRows(): void;
-    // Warning: (ae-forgotten-export) The symbol "Selection_2" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     readonly selection: Selection_2<BCS, SF>;
     // (undocumented)
@@ -2722,7 +3026,7 @@ export namespace Revgrid {
     }
     const // Warning: (ae-forgotten-export) The symbol "IdGenerator" needs to be exported by the entry point public-api.d.ts
     //
-    // (undocumented)
+    // @internal (undocumented)
     idGenerator: IdGenerator;
 }
 
@@ -2731,6 +3035,14 @@ export abstract class RevgridError extends Error {
     constructor(code: string, message: string | undefined, baseMessage: string);
     // (undocumented)
     readonly code: string;
+}
+
+// @public (undocumented)
+export interface RevgridObject {
+    // (undocumented)
+    internalParent: RevgridObject | undefined;
+    // (undocumented)
+    revgridId: string;
 }
 
 // @public (undocumented)
@@ -3221,6 +3533,312 @@ export namespace SchemaServer {
 }
 
 // @public (undocumented)
+export class Scroller<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (ae-forgotten-export) The symbol "ScrollDimension" needs to be exported by the entry point public-api.d.ts
+    //
+    // @internal
+    constructor(revgridId: string, internalParent: RevgridObject,
+    _gridSettings: BGS,
+    _hostElement: HTMLElement, // Revgrid host element
+    _canvasManager: CanvasManager<BGS>,
+    _scrollDimension: ScrollDimension<BGS>,
+    _viewLayout: ViewLayout<BGS, BCS, SF>,
+    _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
+    axis: ScrollDimension.Axis,
+    _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
+    deltaXFactor: number, deltaYFactor: number,
+    _spaceAccomodatedScroller: Scroller<BGS, BCS, SF> | undefined);
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "finbarOptions"
+    //
+    // @internal
+    actionEventer: Scroller.ActionEventer;
+    // @internal (undocumented)
+    activatePointerScrolling(event: PointerEvent): void;
+    // (undocumented)
+    readonly axisBarCssClass: string;
+    // (undocumented)
+    readonly bar: HTMLDivElement;
+    // (undocumented)
+    readonly barCssClass: string;
+    // @internal (undocumented)
+    deactivatePointerScrolling(event: PointerEvent): void;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    //
+    // @internal
+    destroy(): void;
+    // (undocumented)
+    get hidden(): boolean;
+    // Warning: (ae-setter-with-docs) The doc comment for the property "index" must appear on the getter, not the setter.
+    set index(idx: number | undefined);
+    // (undocumented)
+    get index(): number | undefined;
+    // (undocumented)
+    get insideOverlap(): number;
+    // (undocumented)
+    readonly internalParent: RevgridObject;
+    // (undocumented)
+    readonly revgridId: string;
+    // (undocumented)
+    setAfterInsideOffset(offset: number): void;
+    // (undocumented)
+    setBeforeInsideOffset(offset: number): void;
+    // (undocumented)
+    temporarilyGiveThumbFullVisibility(timePeriod: number): void;
+    // (undocumented)
+    get thickness(): number;
+    // (undocumented)
+    readonly thumbCssClass: string;
+    // (undocumented)
+    get trailing(): boolean;
+    // @internal (undocumented)
+    visibilityChangedEventer: Scroller.VisibilityChangedEventer;
+}
+
+// @public (undocumented)
+export namespace Scroller {
+    const // (undocumented)
+    barCssSuffix = "scroller";
+    const // (undocumented)
+    thumbCssSuffix = "scroller-thumb";
+    const // (undocumented)
+    defaultInsideOffset = 3;
+    // @internal (undocumented)
+    export interface Action {
+        // (undocumented)
+        readonly type: Action.TypeEnum;
+        // (undocumented)
+        readonly viewportStart: number | undefined;
+    }
+    // @internal (undocumented)
+    export namespace Action {
+        // (undocumented)
+        export const enum TypeEnum {
+            // (undocumented)
+            newViewportStart = 4,
+            // (undocumented)
+            PageBack = 3,
+            // (undocumented)
+            PageForward = 2,
+            // (undocumented)
+            StepBack = 1,
+            // (undocumented)
+            StepForward = 0
+        }
+    }
+    // @internal (undocumented)
+    export type ActionEventer = (this: void, action: Scroller.Action) => void;
+    // @internal (undocumented)
+    export type DeltaProp = keyof typeof DeltaPropEnum;
+    // @internal (undocumented)
+    export const enum DeltaPropEnum {
+        // (undocumented)
+        deltaX = "deltaX",
+        // (undocumented)
+        deltaY = "deltaY",
+        // (undocumented)
+        deltaZ = "deltaZ"
+    }
+    // @internal (undocumented)
+    export type PointerEventListener = (event: PointerEvent) => void;
+    // @internal (undocumented)
+    export const enum PointerScrollingState {
+        // (undocumented)
+        Active = 2,
+        // (undocumented)
+        Armed = 1,
+        // (undocumented)
+        ClickWaiting = 3,
+        // (undocumented)
+        Inactive = 0
+    }
+    // @internal (undocumented)
+    export type VisibilityChangedEventer = (this: void) => void;
+}
+
+// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+//
+// @public
+class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    // @internal
+    constructor(revgridId: string, internalParent: RevgridObject,
+    _gridSettings: GridSettings,
+    _columnsManager: ColumnsManager<BCS, SF>);
+    // @internal (undocumented)
+    adjustForActiveColumnsDeleted(columnIndex: number, columnCount: number): void;
+    // @internal (undocumented)
+    adjustForColumnsInserted(columnIndex: number, columnCount: number): void;
+    // @internal (undocumented)
+    adjustForColumnsMoved(oldColumnIndex: number, newColumnIndex: number, count: number): void;
+    // @internal (undocumented)
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>): void;
+    // @internal (undocumented)
+    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>): void;
+    // @internal (undocumented)
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<SF>): void;
+    // (undocumented)
+    get allSelected(): boolean;
+    // (undocumented)
+    get areaCount(): number;
+    beginChange(): void;
+    // (undocumented)
+    calculateAreaTypeFromSpecifier(specifier: SelectionAreaTypeSpecifier): SelectionAreaType;
+    // @internal (undocumented)
+    changedEventerForEventBehavior: Selection_2.ChangedEventer;
+    // @internal (undocumented)
+    changedEventerForRenderer: Selection_2.ChangedEventer;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    clear(): void;
+    // (undocumented)
+    createStash(): Selection_2.Stash<BCS, SF>;
+    // (undocumented)
+    deselectAll(): void;
+    // (undocumented)
+    deselectCellArea(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectColumns(x: number, count: number, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectLastArea(): void;
+    // (undocumented)
+    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRows(y: number, count: number, subgrid: Subgrid<BCS, SF>): void;
+    // @internal (undocumented)
+    destroy(): void;
+    endChange(): void;
+    // (undocumented)
+    getAllCellSelectedTypes(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): Selection_2.CellSelectedType[];
+    // (undocumented)
+    getAreasCoveringCell(x: number, y: number, subgrid: Subgrid<BCS, SF> | undefined): SelectionArea[];
+    // (undocumented)
+    getColumnIndices(): number[];
+    // (undocumented)
+    getLastRectangle(): SelectionRectangle | undefined;
+    // (undocumented)
+    getOneCellSelectedType(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): Selection_2.CellSelectedType | undefined;
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getRowIndices(): number[];
+    // (undocumented)
+    readonly internalParent: RevgridObject;
+    // (undocumented)
+    isCellSelected(x: number, y: number, subgrid: DatalessSubgrid): boolean;
+    // (undocumented)
+    isColumnOrRowSelected(): boolean;
+    // (undocumented)
+    isColumnSelected(activeColumnIndex: number): boolean;
+    isOnlyThisCellSelected(x: number, y: number, subgrid: DatalessSubgrid): boolean | undefined;
+    // (undocumented)
+    isPointInLastArea(x: number, y: number): boolean;
+    // (undocumented)
+    isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, datalessSubgrid: DatalessSubgrid, selectedType: Selection_2.CellSelectedType): boolean;
+    // (undocumented)
+    get lastArea(): LastSelectionArea | undefined;
+    // (undocumented)
+    get rectangles(): readonly SelectionRectangle[];
+    // (undocumented)
+    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): SelectionArea;
+    // (undocumented)
+    replaceLastAreaWithColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    replaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    replaceLastAreaWithRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    restoreStash(stash: Selection_2.Stash<BCS, SF>, allRowsKept: boolean): void;
+    // (undocumented)
+    readonly revgridId: string;
+    // (undocumented)
+    selectAll(subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): SelectionArea;
+    // (undocumented)
+    selectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): void;
+    // (undocumented)
+    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    selectOnlyAll(subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    selectOnlyCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): void;
+    // (undocumented)
+    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, silent?: boolean): LastSelectionArea;
+    selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): boolean;
+    // (undocumented)
+    selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    setAllSelected(value: boolean): void;
+    // (undocumented)
+    get subgrid(): Subgrid<BCS, SF> | undefined;
+}
+
+// @public (undocumented)
+namespace Selection_2 {
+    // (undocumented)
+    const enum CellSelectedType {
+        // (undocumented)
+        All = 0,
+        // (undocumented)
+        Column = 2,
+        // (undocumented)
+        Rectangle = 3,
+        // (undocumented)
+        Row = 1
+    }
+    // @internal (undocumented)
+    type ChangedEventer = (this: void) => void;
+    // (undocumented)
+    interface LastRectangleFirstCellStash {
+        // (undocumented)
+        fieldName: string;
+        // (undocumented)
+        rowId: unknown;
+    }
+    // (undocumented)
+    interface Stash<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+        // (undocumented)
+        readonly allSelected: boolean;
+        // (undocumented)
+        readonly columnNames: string[] | undefined;
+        // (undocumented)
+        readonly lastRectangleFirstCell: LastRectangleFirstCellStash | undefined;
+        // (undocumented)
+        readonly rowIds: unknown[] | undefined;
+        // (undocumented)
+        readonly subgrid: Subgrid<BCS, SF> | undefined;
+    }
+}
+export { Selection_2 as Selection }
+
+// @public (undocumented)
+export interface SelectionArea extends FirstCornerArea {
+    // (undocumented)
+    readonly areaType: SelectionAreaType;
+    // (undocumented)
+    readonly size: number;
+}
+
+// @public (undocumented)
+export namespace SelectionArea {
+    // (undocumented)
+    export function getPriorityCellCoveringSelectionArea(areas: SelectionArea[]): SelectionArea | undefined;
+    // (undocumented)
+    export function isCellCoveringSelectionAreaHigherPriority(area: SelectionArea, referenceArea: SelectionArea): boolean;
+    // (undocumented)
+    export function isEqual(left: SelectionArea, right: SelectionArea): boolean;
+}
+
+// @public (undocumented)
 export const enum SelectionAreaType {
     // (undocumented)
     Column = 1,
@@ -3244,6 +3862,16 @@ export const enum SelectionAreaTypeSpecifier {
     Row = 3,
     // (undocumented)
     Secondary = 1
+}
+
+// @public (undocumented)
+export class SelectionRectangle extends FirstCornerRectangle implements SelectionArea {
+    // (undocumented)
+    readonly areaType = SelectionAreaType.Rectangle;
+    // (undocumented)
+    createCopy(): SelectionRectangle;
+    // (undocumented)
+    get size(): number;
 }
 
 // @public (undocumented)
@@ -3343,6 +3971,34 @@ export namespace StandardButtonCellPainter {
 }
 
 // @public (undocumented)
+export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> implements CellEditor<BCS, SF> {
+    constructor(_grid: Revgrid<BGS, BCS, SF>, _dataServer: DataServer<SF>);
+    // (undocumented)
+    cellClosedEventer: CellEditor.CellClosedEventer;
+    // (undocumented)
+    abstract closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    // (undocumented)
+    protected readonly _dataServer: DataServer<SF>;
+    // (undocumented)
+    protected readonly _grid: Revgrid<BGS, BCS, SF>;
+    // (undocumented)
+    protected isToggleKey(key: string): boolean;
+    // (undocumented)
+    abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    // (undocumented)
+    pullCellValueEventer: CellEditor.PullCellValueEventer;
+    // (undocumented)
+    pushCellValueEventer: CellEditor.PushCellValueEventer;
+    // (undocumented)
+    get readonly(): boolean;
+    set readonly(value: boolean);
+    // (undocumented)
+    abstract tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    // (undocumented)
+    protected tryToggleBoolenValue(field: SF, subgridRowIndex: number): boolean;
+}
+
+// @public (undocumented)
 export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements CellPainter<BCS, SF> {
     constructor(_grid: Revgrid<BGS, BCS, SF>, _dataServer: DataServer<SF>);
     // (undocumented)
@@ -3359,8 +4015,6 @@ export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BC
     protected tryPaintBorder(bounds: Rectangle, borderColor: string | undefined, focus: boolean): void;
 }
 
-// Warning: (ae-forgotten-export) The symbol "StandardPaintCellEditor" needs to be exported by the entry point public-api.d.ts
-//
 // @public (undocumented)
 export class StandardCheckboxCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardPaintCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
@@ -3432,8 +4086,6 @@ export namespace StandardCheckboxCellPainter {
     }
 }
 
-// Warning: (ae-forgotten-export) The symbol "StandardInputElementCellEditor" needs to be exported by the entry point public-api.d.ts
-//
 // @public (undocumented)
 export class StandardColorInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
@@ -3457,6 +4109,21 @@ export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSetti
 }
 
 // @public (undocumented)
+export abstract class StandardElementCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, element: HTMLElement);
+    // (undocumented)
+    closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
+    // (undocumented)
+    protected readonly element: HTMLElement;
+    // (undocumented)
+    focus(): void;
+    // (undocumented)
+    setBounds(bounds: Rectangle | undefined): void;
+    // (undocumented)
+    tryOpenCell(_viewCell: DatalessViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+}
+
+// @public (undocumented)
 export interface StandardGridSettings extends StandardOnlyGridSettings, TextGridSettings {
 }
 
@@ -3470,6 +4137,27 @@ export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSet
     paint(cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
     // (undocumented)
     textWrapping: boolean;
+}
+
+// @public (undocumented)
+export abstract class StandardInputElementCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardElementCellEditor<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, inputType: string);
+    // (undocumented)
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    // (undocumented)
+    protected readonly element: HTMLInputElement;
+    // (undocumented)
+    keyDownEventer: CellEditor.KeyDownEventer;
+    // (undocumented)
+    processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _subgridRowIndex: number): boolean;
+    // Warning: (ae-missing-getter) The property "readonly" has a setter but no getter.
+    //
+    // (undocumented)
+    set readonly(value: boolean);
+    // (undocumented)
+    selectAll(): void;
+    // (undocumented)
+    tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -3515,6 +4203,15 @@ export interface StandardOnlyGridSettings {
     selectionBackgroundColor: GridSettings.Color;
     selectionFont: GridSettings.Color;
     selectionForegroundColor: GridSettings.Color;
+}
+
+// @public (undocumented)
+export abstract class StandardPaintCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> implements CellPainter<BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, _painter: CellPainter<BCS, SF>);
+    // (undocumented)
+    paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    // (undocumented)
+    protected readonly _painter: CellPainter<BCS, SF>;
 }
 
 // @public (undocumented)
@@ -4023,8 +4720,6 @@ export interface ViewCell<BCS extends BehavioredColumnSettings, SF extends Schem
     readonly subgrid: Subgrid<BCS, SF>;
     // (undocumented)
     readonly viewLayoutColumn: ViewLayoutColumn<BCS, SF>;
-    // Warning: (ae-forgotten-export) The symbol "ViewLayoutRow" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     readonly viewLayoutRow: ViewLayoutRow<BCS, SF>;
     // (undocumented)
@@ -4170,7 +4865,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     getVisibleRow(rowIndex: number): ViewLayoutRow<BCS, SF>;
     // Warning: (ae-forgotten-export) The symbol "HorizontalScrollDimension" needs to be exported by the entry point public-api.d.ts
     //
-    // (undocumented)
+    // @internal (undocumented)
     get horizontalScrollDimension(): HorizontalScrollDimension<BGS, BCS, SF>;
     // (undocumented)
     readonly internalParent: RevgridObject;
@@ -4294,7 +4989,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     get unanchoredColumnOverflow(): number | undefined;
     // Warning: (ae-forgotten-export) The symbol "VerticalScrollDimension" needs to be exported by the entry point public-api.d.ts
     //
-    // (undocumented)
+    // @internal (undocumented)
     get verticalScrollDimension(): VerticalScrollDimension<BGS, BCS, SF>;
 }
 
@@ -4368,8 +5063,6 @@ export namespace ViewLayout {
     }
     // @internal (undocumented)
     export interface InvalidateAction {
-        // Warning: (ae-forgotten-export) The symbol "ScrollDimension" needs to be exported by the entry point public-api.d.ts
-        //
         // (undocumented)
         readonly dimension: ScrollDimension.AxisEnum | undefined;
         // (undocumented)
@@ -4472,6 +5165,22 @@ export namespace ViewLayout {
 }
 
 // @public (undocumented)
+export interface ViewLayoutColumn<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    activeColumnIndex: number;
+    // (undocumented)
+    column: Column<BCS, SF>;
+    index: number;
+    left: number;
+    rightPlus1: number;
+    width: number;
+}
+
+// @public (undocumented)
+export interface ViewLayoutRow<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends DatalessViewLayoutRow {
+    subgrid: Subgrid<BCS, SF>;
+}
+
+// @public (undocumented)
 export type Writable<T> = {
     -readonly [P in keyof T]: T[P];
 };
@@ -4484,10 +5193,6 @@ export namespace WritablePoint {
     // (undocumented)
     export function create(x: number, y: number): WritablePoint;
 }
-
-// Warnings were encountered during analysis:
-//
-// src/code/grid/components/selection/selection.ts:24:4 - (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 
 // (No @packageDocumentation comment for this package)
 
