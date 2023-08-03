@@ -918,13 +918,13 @@ export namespace Scroller {
 
     export const defaultInsideOffset = 3;
 
-    /** @internal */
+    /** @public */
     export interface Action {
         readonly type: Action.TypeEnum;
         readonly viewportStart: number | undefined;
     }
 
-    /** @internal */
+    /** @public */
     export namespace Action {
         export const enum TypeEnum {
             StepForward,

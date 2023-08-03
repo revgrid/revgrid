@@ -3607,14 +3607,14 @@ export namespace Scroller {
     thumbCssSuffix = "scroller-thumb";
     const // (undocumented)
     defaultInsideOffset = 3;
-    // @internal (undocumented)
+    // (undocumented)
     export interface Action {
         // (undocumented)
         readonly type: Action.TypeEnum;
         // (undocumented)
         readonly viewportStart: number | undefined;
     }
-    // @internal (undocumented)
+    // (undocumented)
     export namespace Action {
         // (undocumented)
         export const enum TypeEnum {
