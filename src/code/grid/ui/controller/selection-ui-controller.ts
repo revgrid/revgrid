@@ -13,7 +13,8 @@ import { ModifierKey } from '../../types-utils/modifier-key';
 import { Point } from '../../types-utils/point';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { StartLength } from '../../types-utils/start-length';
-import { SelectionAreaType, SelectionAreaTypeSpecifier } from '../../types-utils/types';
+import { SelectionAreaTypeId } from '../../types-utils/selection-area-type';
+import { SelectionAreaTypeSpecifier } from '../../types-utils/types';
 import { UiController } from './ui-controller';
 
 /** @internal */
@@ -234,7 +235,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
             const lastArea = this.selection.lastArea;
 
             if (extendModifier && !addToggleModifier) {
-                if (lastArea !== undefined && lastArea.areaType === SelectionAreaType.Rectangle) {
+                if (lastArea !== undefined && lastArea.areaTypeId === SelectionAreaTypeId.Rectangle) {
                     const origin = lastArea.inclusiveFirst;
                     const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
                     const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
@@ -285,7 +286,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
 
             const focusSelectionBehavior = this.focusSelectBehavior;
             if (extendModifier && !addToggleModifier) {
-                if (lastArea !== undefined && lastArea.areaType === SelectionAreaType.Column) {
+                if (lastArea !== undefined && lastArea.areaTypeId === SelectionAreaTypeId.Column) {
                     const origin = lastArea.inclusiveFirst;
                     const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
                     const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
@@ -335,7 +336,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
 
             const focusSelectionBehavior = this.focusSelectBehavior;
             if (extendModifier && !addToggleModifier) {
-                if (lastArea !== undefined && lastArea.areaType === SelectionAreaType.Row) {
+                if (lastArea !== undefined && lastArea.areaTypeId === SelectionAreaTypeId.Row) {
                     const origin = lastArea.inclusiveFirst;
                     const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, cellActiveColumnIndex);
                     const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
@@ -404,7 +405,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
                 const lastAreaFirstY = lastArea.inclusiveFirst.y;
                 const lastAreaFirstYRowFixed = lastAreaFirstY < this.gridSettings.fixedRowCount;
                 if (cell.isRowFixed === lastAreaFirstYRowFixed) {
-                    if (lastArea.areaType === SelectionAreaType.Column || subgrid === selection.subgrid) {
+                    if (lastArea.areaTypeId === SelectionAreaTypeId.Column || subgrid === selection.subgrid) {
                         const origin = lastArea.inclusiveFirst;
                         const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.x, cell.viewLayoutColumn.activeColumnIndex);
                         const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.y, cell.viewLayoutRow.subgridRowIndex);
@@ -414,7 +415,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
                             xExclusiveStartLength.length,
                             yExclusiveStartLength.length,
                             subgrid,
-                            lastArea.areaType,
+                            lastArea.areaTypeId,
                         );
                     }
                 }
@@ -624,7 +625,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         return stepped;
     }
 
-    private selectOnlyCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType) {
+    private selectOnlyCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
         let lastActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
 
@@ -643,7 +644,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         originX = Math.min(lastActiveColumnIndex, Math.max(0, originX));
         originY = Math.min(lastSubgridRowIndex, Math.max(0, originY));
 
-        this.selection.selectOnlyCell(originX, originY, subgrid, areaType);
+        this.selection.selectOnlyCell(originX, originY, subgrid, areaTypeId);
     }
 
     private getDragTypeFromSelectionLastArea() {
@@ -651,12 +652,14 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         if (lastArea === undefined) {
             return undefined;
         } else {
-            switch (lastArea.areaType) {
-                case SelectionAreaType.Rectangle: return Mouse.DragTypeEnum.LastRectangleSelectionAreaExtending;
-                case SelectionAreaType.Column: return Mouse.DragTypeEnum.LastColumnSelectionAreaExtending;
-                case SelectionAreaType.Row: return Mouse.DragTypeEnum.LastRowSelectionAreaExtending;
+            switch (lastArea.areaTypeId) {
+                case SelectionAreaTypeId.All:
+                    throw new AssertError('SUCGDTFSLA44377');
+                case SelectionAreaTypeId.Rectangle: return Mouse.DragTypeEnum.LastRectangleSelectionAreaExtending;
+                case SelectionAreaTypeId.Column: return Mouse.DragTypeEnum.LastColumnSelectionAreaExtending;
+                case SelectionAreaTypeId.Row: return Mouse.DragTypeEnum.LastRowSelectionAreaExtending;
                 default:
-                    throw new UnreachableCaseError('SUBGDTFSLA59598', lastArea.areaType);
+                    throw new UnreachableCaseError('SUBGDTFSLA59598', lastArea.areaTypeId);
             }
         }
     }
@@ -696,7 +699,7 @@ export namespace SelectionUiController {
     export const scheduleStepScrollDragTickInterval = 20;
 
     export interface ExtendSelectOrigin<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-        readonly areaType: SelectionAreaType,
+        readonly areaTypeId: SelectionAreaTypeId,
         readonly subgrid: Subgrid<BCS, SF>;
         readonly point: Point;
     }

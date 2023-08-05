@@ -1,5 +1,5 @@
 
-import { HorizontalWheelScrollingAllowed, ModifierKeyEnum, OnlyGridSettings, SelectionAreaType } from '../../grid/grid-public-api';
+import { HorizontalWheelScrollingAllowed, ModifierKeyEnum, OnlyGridSettings } from '../../grid/grid-public-api';
 
 /** @public */
 export const defaultOnlyGridSettings: OnlyGridSettings = {
@@ -182,8 +182,8 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     mouseColumnSelectionModifierKey: ModifierKeyEnum.Alt,
     mouseRowSelectionEnabled: true,
     mouseRowSelectionModifierKey: undefined,
-    primarySelectionAreaType: SelectionAreaType.Rectangle,
-    secondarySelectionAreaType: SelectionAreaType.Row,
+    primarySelectionAreaType: 'Rectangle',
+    secondarySelectionAreaType: 'Row',
     secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum.Control,
     extendLastSelectionAreaModifierKey: ModifierKeyEnum.Shift,
     addToggleSelectionAreaModifierKey: ModifierKeyEnum.Control,

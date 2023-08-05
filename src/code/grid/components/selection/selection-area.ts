@@ -1,10 +1,10 @@
 import { UnreachableCaseError } from '../../types-utils/revgrid-error';
-import { SelectionAreaType } from '../../types-utils/types';
+import { SelectionAreaTypeId } from '../../types-utils/selection-area-type';
 import { FirstCornerArea } from './first-corner-area';
 
 /** @public */
 export interface SelectionArea extends FirstCornerArea {
-    readonly areaType: SelectionAreaType;
+    readonly areaTypeId: SelectionAreaTypeId;
     readonly size: number;
 }
 
@@ -21,7 +21,7 @@ export namespace SelectionArea {
         );
     }
 
-    export function getPriorityCellCoveringSelectionArea(areas: SelectionArea[]) {
+    export function getTogglePriorityCellCoveringSelectionArea(areas: SelectionArea[]) {
         const areaCount = areas.length;
         switch (areaCount) {
             case 0: return undefined;
@@ -30,7 +30,7 @@ export namespace SelectionArea {
                 let priorityArea = areas[0];
                 for (let i = 0; i < areaCount; i++) {
                     const area = areas[i];
-                    if (isCellCoveringSelectionAreaHigherPriority(area, priorityArea)) {
+                    if (isCellCoveringSelectionAreaHigherTogglePriority(area, priorityArea)) {
                         priorityArea = area;
                     }
                 }
@@ -39,14 +39,24 @@ export namespace SelectionArea {
         }
     }
 
-    export function isCellCoveringSelectionAreaHigherPriority(area: SelectionArea, referenceArea: SelectionArea) {
-        const type = area.areaType;
-        switch (type) {
-            case SelectionAreaType.Rectangle: return (referenceArea.areaType === SelectionAreaType.Rectangle) && (referenceArea.size !== 1);
-            case SelectionAreaType.Column: return referenceArea.areaType !== SelectionAreaType.Row;
-            case SelectionAreaType.Row: return true;
+    export function isCellCoveringSelectionAreaHigherTogglePriority(area: SelectionArea, referenceArea: SelectionArea) {
+        // Order of priority is:
+        // 1 Row
+        // 2 Column
+        // 3 Rectangle of size 1
+        // 4 Rectangle with size greater than 1
+        // 5 All
+        const typeId = area.areaTypeId;
+        switch (typeId) {
+            case SelectionAreaTypeId.All: return referenceArea.areaTypeId === SelectionAreaTypeId.All;
+            case SelectionAreaTypeId.Rectangle: return (
+                ((referenceArea.areaTypeId === SelectionAreaTypeId.Rectangle) && (referenceArea.size !== 1)) ||
+                referenceArea.areaTypeId === SelectionAreaTypeId.All
+            );
+            case SelectionAreaTypeId.Column: return referenceArea.areaTypeId !== SelectionAreaTypeId.Row;
+            case SelectionAreaTypeId.Row: return true;
             default:
-                throw new UnreachableCaseError('SFICCSAHP35500', type);
+                throw new UnreachableCaseError('SFICCSAHP35500', typeId);
         }
     }
 }

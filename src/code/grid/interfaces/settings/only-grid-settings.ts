@@ -1,5 +1,6 @@
 import { ModifierKeyEnum } from '../../types-utils/modifier-key';
-import { HorizontalWheelScrollingAllowed, SelectionAreaType } from '../../types-utils/types';
+import { SelectionAreaType } from '../../types-utils/selection-area-type';
+import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 
 /** @public */
 export interface OnlyGridSettings {

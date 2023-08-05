@@ -4,7 +4,7 @@ import {
     RevRecordMainDataServer,
     RevRecordRecentChangeTypeId,
     RevRecordValueRecentChangeTypeId,
-    Selection,
+    SelectionAreaTypeId,
     StandardBehavioredColumnSettings,
     StandardTextCellPainter,
     UnreachableCaseError
@@ -61,11 +61,11 @@ export class MainCellPainter
         let bkgdColor: string;
         const selectionBackgroundColor = this._gridSettings.selectionBackgroundColor;
         const selection = grid.selection;
-        let cellSelectedType: Selection.CellSelectedType | undefined;
+        let cellSelectionAreaTypeId: SelectionAreaTypeId | undefined;
         if (
             selectionBackgroundColor !== undefined &&
-            (cellSelectedType = selection.getOneCellSelectedType(activeColumnIndex, subgridRowIndex, subgrid)) !== undefined &&
-            (!cellFocused || !selection.isSelectedCellTheOnlySelectedCell(activeColumnIndex, subgridRowIndex, subgrid, cellSelectedType))
+            (cellSelectionAreaTypeId = selection.getOneCellSelectionAreaTypeId(activeColumnIndex, subgridRowIndex, subgrid)) !== undefined &&
+            (!cellFocused || !selection.isSelectedCellTheOnlySelectedCell(activeColumnIndex, subgridRowIndex, subgrid, cellSelectionAreaTypeId))
         ) {
             bkgdColor = selectionBackgroundColor;
         } else {

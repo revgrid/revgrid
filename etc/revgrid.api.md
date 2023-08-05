@@ -1384,7 +1384,7 @@ export namespace GridSettings {
     // (undocumented)
     export type Color = OnlyGridSettings.Color;
     // (undocumented)
-    export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): SelectionAreaType;
+    export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): "All" | "Rectangle" | "Column" | "Row";
     // (undocumented)
     export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): SelectionAreaTypeSpecifier.Primary | SelectionAreaTypeSpecifier.Secondary;
     // (undocumented)
@@ -1392,7 +1392,7 @@ export namespace GridSettings {
     // (undocumented)
     export function isExtendLastSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
-    export function isMouseSelectionAllowed(gridSettings: GridSettings, selectionAreaType: SelectionAreaType): boolean;
+    export function isMouseSelectionAllowed(gridSettings: GridSettings, selectionAreaTypeId: SelectionAreaTypeId): boolean;
     // (undocumented)
     export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
@@ -2062,9 +2062,9 @@ export const invalidServerNotificationId = -1;
 
 // @public (undocumented)
 export class LastSelectionArea extends FirstCornerRectangle implements SelectionArea {
-    constructor(areaType: SelectionAreaType, firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number);
+    constructor(areaTypeId: SelectionAreaTypeId, firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number);
     // (undocumented)
-    readonly areaType: SelectionAreaType;
+    readonly areaTypeId: SelectionAreaTypeId;
     // (undocumented)
     get size(): number;
 }
@@ -2785,7 +2785,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly focus: Focus<BGS, BCS, SF>;
     // (undocumented)
-    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType?: SelectionAreaType): void;
+    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType?: SelectionAreaTypeId): void;
     // (undocumented)
     getActiveColumn(activeIndex: number): Column<BCS, SF>;
     // (undocumented)
@@ -3685,8 +3685,8 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     get areaCount(): number;
     beginChange(): void;
-    // (undocumented)
-    calculateAreaTypeFromSpecifier(specifier: SelectionAreaTypeSpecifier): SelectionAreaType;
+    // @internal (undocumented)
+    calculateAreaTypeFromSpecifier(specifier: SelectionAreaTypeSpecifier): SelectionAreaTypeId;
     // @internal (undocumented)
     changedEventerForEventBehavior: Selection_2.ChangedEventer;
     // @internal (undocumented)
@@ -3696,7 +3696,7 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     createStash(): Selection_2.Stash<BCS, SF>;
     // (undocumented)
-    deselectAll(): void;
+    deselectAll(subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
     deselectCellArea(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
@@ -3711,7 +3711,9 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     destroy(): void;
     endChange(): void;
     // (undocumented)
-    getAllCellSelectedTypes(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): Selection_2.CellSelectedType[];
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaTypeId[];
+    // (undocumented)
+    getAllRowIndices(): number[];
     // (undocumented)
     getAreasCoveringCell(x: number, y: number, subgrid: Subgrid<BCS, SF> | undefined): SelectionArea[];
     // (undocumented)
@@ -3719,7 +3721,7 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     getLastRectangle(): SelectionRectangle | undefined;
     // (undocumented)
-    getOneCellSelectedType(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): Selection_2.CellSelectedType | undefined;
+    getOneCellSelectionAreaTypeId(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaTypeId | undefined;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
@@ -3736,13 +3738,13 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     isPointInLastArea(x: number, y: number): boolean;
     // (undocumented)
-    isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, datalessSubgrid: DatalessSubgrid, selectedType: Selection_2.CellSelectedType): boolean;
+    isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, datalessSubgrid: DatalessSubgrid, selectedType: SelectionAreaTypeId): boolean;
     // (undocumented)
     get lastArea(): LastSelectionArea | undefined;
     // (undocumented)
     get rectangles(): readonly SelectionRectangle[];
     // (undocumented)
-    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): SelectionArea;
+    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): SelectionArea | undefined;
     // (undocumented)
     replaceLastAreaWithColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
@@ -3756,45 +3758,34 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     selectAll(subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
-    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): SelectionArea;
+    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): SelectionArea | undefined;
     // (undocumented)
-    selectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): void;
+    selectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): void;
     // (undocumented)
     selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
     selectOnlyAll(subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
-    selectOnlyCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): void;
+    selectOnlyCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): void;
     // (undocumented)
     selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
     selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, silent?: boolean): LastSelectionArea;
     selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
-    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaType: SelectionAreaType): boolean;
+    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean;
     // (undocumented)
     selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
     selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
-    setAllSelected(value: boolean): void;
+    setAllSelected(value: boolean, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
     get subgrid(): Subgrid<BCS, SF> | undefined;
 }
 
 // @public (undocumented)
 namespace Selection_2 {
-    // (undocumented)
-    const enum CellSelectedType {
-        // (undocumented)
-        All = 0,
-        // (undocumented)
-        Column = 2,
-        // (undocumented)
-        Rectangle = 3,
-        // (undocumented)
-        Row = 1
-    }
     // @internal (undocumented)
     type ChangedEventer = (this: void) => void;
     // (undocumented)
@@ -3823,7 +3814,7 @@ export { Selection_2 as Selection }
 // @public (undocumented)
 export interface SelectionArea extends FirstCornerArea {
     // (undocumented)
-    readonly areaType: SelectionAreaType;
+    readonly areaTypeId: SelectionAreaTypeId;
     // (undocumented)
     readonly size: number;
 }
@@ -3831,21 +3822,32 @@ export interface SelectionArea extends FirstCornerArea {
 // @public (undocumented)
 export namespace SelectionArea {
     // (undocumented)
-    export function getPriorityCellCoveringSelectionArea(areas: SelectionArea[]): SelectionArea | undefined;
+    export function getTogglePriorityCellCoveringSelectionArea(areas: SelectionArea[]): SelectionArea | undefined;
     // (undocumented)
-    export function isCellCoveringSelectionAreaHigherPriority(area: SelectionArea, referenceArea: SelectionArea): boolean;
+    export function isCellCoveringSelectionAreaHigherTogglePriority(area: SelectionArea, referenceArea: SelectionArea): boolean;
     // (undocumented)
     export function isEqual(left: SelectionArea, right: SelectionArea): boolean;
 }
 
 // @public (undocumented)
-export const enum SelectionAreaType {
+export type SelectionAreaType = keyof typeof SelectionAreaTypeId;
+
+// @public (undocumented)
+export namespace SelectionAreaType {
     // (undocumented)
-    Column = 1,
+    export function toId(type: SelectionAreaType): SelectionAreaTypeId;
+}
+
+// @public (undocumented)
+export const enum SelectionAreaTypeId {
     // (undocumented)
-    Rectangle = 0,
+    All = 0,
     // (undocumented)
-    Row = 2
+    Column = 2,
+    // (undocumented)
+    Rectangle = 1,
+    // (undocumented)
+    Row = 3
 }
 
 // @public (undocumented)
@@ -3867,7 +3869,7 @@ export const enum SelectionAreaTypeSpecifier {
 // @public (undocumented)
 export class SelectionRectangle extends FirstCornerRectangle implements SelectionArea {
     // (undocumented)
-    readonly areaType = SelectionAreaType.Rectangle;
+    readonly areaTypeId = SelectionAreaTypeId.Rectangle;
     // (undocumented)
     createCopy(): SelectionRectangle;
     // (undocumented)

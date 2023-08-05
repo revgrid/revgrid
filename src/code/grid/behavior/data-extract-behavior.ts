@@ -6,7 +6,7 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { AssertError, UnreachableCaseError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
-import { SelectionAreaType } from '../types-utils/types';
+import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
 
 /** @public */
 export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
@@ -28,23 +28,26 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
         if (selectionArea === undefined) {
             return '';
         } else {
-            switch (selectionArea.areaType) {
-                case SelectionAreaType.Rectangle: {
+            switch (selectionArea.areaTypeId) {
+                case SelectionAreaTypeId.All: {
+                    return this.convertDataValueArraysToTsv(this.getAllSelectionMatrix());
+                }
+                case SelectionAreaTypeId.Rectangle: {
                     const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix();
                     const selections = selectionMatrix[selectionMatrix.length - 1];
                     return this.convertDataValueArraysToTsv(selections);
                 }
-                case SelectionAreaType.Row: {
+                case SelectionAreaTypeId.Row: {
                     return this.convertDataValueArraysToTsv(this.getRowSelectionMatrix());
                 }
-                case SelectionAreaType.Column: {
+                case SelectionAreaTypeId.Column: {
                     return this.convertDataValueArraysToTsv(this.getColumnSelectionMatrix());
                 }
                 case undefined: {
                     return '';
                 }
                 default:
-                    throw new UnreachableCaseError('MSGSATSV12998', selectionArea.areaType);
+                    throw new UnreachableCaseError('MSGSATSV12998', selectionArea.areaTypeId);
             }
         }
     }
@@ -121,9 +124,18 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
         return result;
     }
 
+    getAllSelectionMatrix() {
+        const rowIndices = this._selection.getAllRowIndices();
+        return this.getRowIndicesMatrix(rowIndices);
+    }
+
     getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataServer.ViewValue>> {
         const selectedRowIndexes = this._selection.getRowIndices();
-        const selectedRowIndexesCount = selectedRowIndexes.length;
+        return this.getRowIndicesMatrix(selectedRowIndexes, hiddenColumns);
+    }
+
+    getRowIndicesMatrix(rowIndices: number[], hiddenColumns?: boolean | number[] | string[]) {
+        const selectedRowIndexesCount = rowIndices.length;
         const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
         const columnCount = columns.length;
         const result = new Array<Array<DataServer.ViewValue>>(columnCount);
@@ -136,7 +148,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
             const subgrid = this.getDefinedSubgrid();
             for (let rowIndex = 0; rowIndex < selectedRowIndexesCount; rowIndex++) {
                 const dataRow = subgrid.getSingletonViewDataRow(rowIndex);
-                result[rowIndex] = new Array<DataServer.ViewValue>(selectedRowIndexes.length);
+                result[rowIndex] = new Array<DataServer.ViewValue>(rowIndices.length);
                 for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                     const column = columns[columnIndex];
                     result[rowIndex][columnIndex] = subgrid.getViewValueFromDataRowAtColumn(dataRow, column);
