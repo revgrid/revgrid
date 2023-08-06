@@ -35,8 +35,8 @@ import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { ApiError, AssertError } from './types-utils/revgrid-error';
 import { RevgridObject } from './types-utils/revgrid-object';
-import { ListChangedTypeId } from './types-utils/types';
 import { SelectionAreaType, SelectionAreaTypeId } from './types-utils/selection-area-type';
+import { ListChangedTypeId } from './types-utils/types';
 import { UiController } from './ui/controller/ui-controller';
 import { UiManager } from './ui/ui-controller-manager';
 
@@ -1521,11 +1521,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<BCS, SF>);
     }
 
-    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType: SelectionAreaType = 'Rectangle') {
+    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType: SelectionAreaType = 'rectangle') {
         this._focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, SelectionAreaType.toId(areaType));
     }
 
-    selectOnlyCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType: SelectionAreaType = 'Rectangle') {
+    selectOnlyCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType: SelectionAreaType = 'rectangle') {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
@@ -1751,7 +1751,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.viewLayout.scrollHorizontalViewportBy(delta);
     }
 
-    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionAreaTypeId.Rectangle) {
+    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionAreaTypeId.rectangle) {
         this._focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
     }
 

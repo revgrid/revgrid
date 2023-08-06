@@ -2,25 +2,34 @@ import { UnreachableCaseError } from './revgrid-error';
 
 /** @public */
 export const enum SelectionAreaTypeId {
-    All,
-    Rectangle,
-    Column,
-    Row,
+    all,
+    rectangle,
+    row,
+    column,
 }
 
+/** @internal */
+type SelectionAreaTypeObject = typeof SelectionAreaTypeId;
+
 /** @public */
-export type SelectionAreaType = keyof typeof SelectionAreaTypeId;
+export type SelectionAreaType = keyof SelectionAreaTypeObject;
 
 /** @public */
 export namespace SelectionAreaType {
     export function toId(type: SelectionAreaType): SelectionAreaTypeId {
         switch (type) {
-            case 'All': return SelectionAreaTypeId.All;
-            case 'Rectangle': return SelectionAreaTypeId.Rectangle;
-            case 'Column': return SelectionAreaTypeId.Column;
-            case 'Row': return SelectionAreaTypeId.Row;
+            case 'all': return SelectionAreaTypeId.all;
+            case 'rectangle': return SelectionAreaTypeId.rectangle;
+            case 'row': return SelectionAreaTypeId.row;
+            case 'column': return SelectionAreaTypeId.column;
             default:
                 throw new UnreachableCaseError('SATTI10198', type);
         }
     }
 }
+
+/** @internal */
+type RowOrColumnSelectionAreaTypeObject = Pick<SelectionAreaTypeObject, 'row' | 'column'>;
+
+/** @public */
+export type RowOrColumnSelectionAreaType = keyof RowOrColumnSelectionAreaTypeObject;

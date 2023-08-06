@@ -4,6 +4,7 @@ import {
     HorizontalWheelScrollingAllowed,
     ModifierKeyEnum,
     OnlyGridSettings,
+    RowOrColumnSelectionAreaType,
     SelectionAreaType,
     gridSettingChangeInvalidateTypeIds
 } from '../../grid/grid-public-api';
@@ -31,6 +32,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _columnSortPossibleTitleText: string | undefined;
     private _columnsReorderable: boolean;
     private _columnsReorderableHideable: boolean;
+    private _switchNewRectangleSelectionToRowOrColumn: RowOrColumnSelectionAreaType | undefined;
     private _defaultRowHeight: number;
     private _defaultColumnWidth: number;
     private _defaultUiControllerTypeNames: string[];
@@ -290,6 +292,16 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._columnsReorderableHideable = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.columnsReorderableHideable;
+            this.flagChanged(invalidateType);
+            this.endChange();
+        }
+    }
+    get switchNewRectangleSelectionToRowOrColumn() { return this._switchNewRectangleSelectionToRowOrColumn; }
+    set switchNewRectangleSelectionToRowOrColumn(value: RowOrColumnSelectionAreaType | undefined) {
+        if (value !== this._switchNewRectangleSelectionToRowOrColumn) {
+            this.beginChange();
+            this._switchNewRectangleSelectionToRowOrColumn = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.switchNewRectangleSelectionToRowOrColumn;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1135,6 +1147,12 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     if (this._columnsReorderableHideable !== requiredSettings.columnsReorderableHideable) {
                         this._columnsReorderableHideable = requiredSettings.columnsReorderableHideable;
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.columnsReorderableHideable);
+                    }
+                    break;
+                case 'switchNewRectangleSelectionToRowOrColumn':
+                    if (this._switchNewRectangleSelectionToRowOrColumn !== requiredSettings.switchNewRectangleSelectionToRowOrColumn) {
+                        this._switchNewRectangleSelectionToRowOrColumn = requiredSettings.switchNewRectangleSelectionToRowOrColumn;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.switchNewRectangleSelectionToRowOrColumn);
                     }
                     break;
                 case 'defaultRowHeight':

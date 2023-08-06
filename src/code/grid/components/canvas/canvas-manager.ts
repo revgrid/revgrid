@@ -360,7 +360,8 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
 
                 if (
                     this._pointerDownState !== CanvasManager.PointerDownState.NotDragging &&
-                    this._pointerDownState !== CanvasManager.PointerDownState.NotDown // Debugger can cause this unexpected state
+                    this._pointerDownState !== CanvasManager.PointerDownState.NotDown && // Debugger can cause this unexpected state
+                    this._pointerDownState !== CanvasManager.PointerDownState.IgnoreClickAfterDrag // Debugger can cause this unexpected state
                 ) {
                     throw new AssertError('CMCAELDS1220');
                 } else {

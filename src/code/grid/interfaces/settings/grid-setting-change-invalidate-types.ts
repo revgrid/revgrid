@@ -106,6 +106,7 @@ export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateType
     columnSortPossibleTitleText: GridSettingChangeInvalidateTypeId.None,
     columnsReorderable: GridSettingChangeInvalidateTypeId.None,
     columnsReorderableHideable: GridSettingChangeInvalidateTypeId.None,
+    switchNewRectangleSelectionToRowOrColumn: GridSettingChangeInvalidateTypeId.None,
     defaultRowHeight: GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
     defaultColumnAutoSizing: GridSettingChangeInvalidateTypeId.None,
     defaultColumnWidth: GridSettingChangeInvalidateTypeId.None,

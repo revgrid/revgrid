@@ -4,7 +4,7 @@ import { SelectionArea } from './selection-area';
 
 /** @public */
 export class SelectionRectangle extends FirstCornerRectangle implements SelectionArea {
-    readonly areaTypeId = SelectionAreaTypeId.Rectangle;
+    readonly areaTypeId = SelectionAreaTypeId.rectangle;
 
     override createCopy() {
         const { x, y, width, height } = FirstCornerRectangle.calculateXYWidthHeightForCorner(this.x, this.y, this.width, this.height, this.firstCorner);

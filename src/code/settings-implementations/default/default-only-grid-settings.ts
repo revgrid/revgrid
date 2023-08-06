@@ -182,12 +182,13 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     mouseColumnSelectionModifierKey: ModifierKeyEnum.Alt,
     mouseRowSelectionEnabled: true,
     mouseRowSelectionModifierKey: undefined,
-    primarySelectionAreaType: 'Rectangle',
-    secondarySelectionAreaType: 'Row',
+    primarySelectionAreaType: 'rectangle',
+    secondarySelectionAreaType: 'row',
     secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum.Control,
     extendLastSelectionAreaModifierKey: ModifierKeyEnum.Shift,
     addToggleSelectionAreaModifierKey: ModifierKeyEnum.Control,
     addToggleSelectionAreaModifierKeyDoesToggle: true,
+    switchNewRectangleSelectionToRowOrColumn: undefined,
 
     /**
      * @summary Fill color for last selection overlay.

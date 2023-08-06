@@ -1384,7 +1384,7 @@ export namespace GridSettings {
     // (undocumented)
     export type Color = OnlyGridSettings.Color;
     // (undocumented)
-    export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): "All" | "Rectangle" | "Column" | "Row";
+    export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): "all" | "rectangle" | "row" | "column";
     // (undocumented)
     export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): SelectionAreaTypeSpecifier.Primary | SelectionAreaTypeSpecifier.Secondary;
     // (undocumented)
@@ -1849,6 +1849,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get sortOnDoubleClick(): boolean;
     set sortOnDoubleClick(value: boolean);
+    // (undocumented)
+    get switchNewRectangleSelectionToRowOrColumn(): RowOrColumnSelectionAreaType | undefined;
+    set switchNewRectangleSelectionToRowOrColumn(value: RowOrColumnSelectionAreaType | undefined);
     // (undocumented)
     get useHiDPI(): boolean;
     set useHiDPI(value: boolean);
@@ -2431,6 +2434,8 @@ export interface OnlyGridSettings {
     showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
     sortOnClick: boolean;
     sortOnDoubleClick: boolean;
+    // (undocumented)
+    switchNewRectangleSelectionToRowOrColumn: RowOrColumnSelectionAreaType | undefined;
     // (undocumented)
     useHiDPI: boolean;
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
@@ -3490,6 +3495,11 @@ export const enum RevRecordValueRecentChangeTypeId {
     Update = 0
 }
 
+// Warning: (ae-forgotten-export) The symbol "RowOrColumnSelectionAreaTypeObject" needs to be exported by the entry point public-api.d.ts
+//
+// @public (undocumented)
+export type RowOrColumnSelectionAreaType = keyof RowOrColumnSelectionAreaTypeObject;
+
 // @public (undocumented)
 export interface SchemaField {
     // (undocumented)
@@ -3829,8 +3839,10 @@ export namespace SelectionArea {
     export function isEqual(left: SelectionArea, right: SelectionArea): boolean;
 }
 
+// Warning: (ae-forgotten-export) The symbol "SelectionAreaTypeObject" needs to be exported by the entry point public-api.d.ts
+//
 // @public (undocumented)
-export type SelectionAreaType = keyof typeof SelectionAreaTypeId;
+export type SelectionAreaType = keyof SelectionAreaTypeObject;
 
 // @public (undocumented)
 export namespace SelectionAreaType {
@@ -3841,13 +3853,13 @@ export namespace SelectionAreaType {
 // @public (undocumented)
 export const enum SelectionAreaTypeId {
     // (undocumented)
-    All = 0,
+    all = 0,
     // (undocumented)
-    Column = 2,
+    column = 3,
     // (undocumented)
-    Rectangle = 1,
+    rectangle = 1,
     // (undocumented)
-    Row = 3
+    row = 2
 }
 
 // @public (undocumented)
@@ -3869,7 +3881,7 @@ export const enum SelectionAreaTypeSpecifier {
 // @public (undocumented)
 export class SelectionRectangle extends FirstCornerRectangle implements SelectionArea {
     // (undocumented)
-    readonly areaTypeId = SelectionAreaTypeId.Rectangle;
+    readonly areaTypeId = SelectionAreaTypeId.rectangle;
     // (undocumented)
     createCopy(): SelectionRectangle;
     // (undocumented)

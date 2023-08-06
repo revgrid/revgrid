@@ -1,5 +1,5 @@
 import { ModifierKeyEnum } from '../../types-utils/modifier-key';
-import { SelectionAreaType } from '../../types-utils/selection-area-type';
+import { RowOrColumnSelectionAreaType, SelectionAreaType } from '../../types-utils/selection-area-type';
 import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 
 /** @public */
@@ -28,6 +28,7 @@ export interface OnlyGridSettings {
     columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
     columnsReorderableHideable: boolean;
+    switchNewRectangleSelectionToRowOrColumn: RowOrColumnSelectionAreaType | undefined;
     defaultRowHeight: number;
     /** Whether to automatically expand column width to accommodate widest rendered value. */
     defaultColumnAutoSizing: boolean;

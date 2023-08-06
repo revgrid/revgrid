@@ -62,10 +62,10 @@ export namespace GridSettings {
 
     export function isMouseSelectionAllowed(gridSettings: GridSettings, selectionAreaTypeId: SelectionAreaTypeId) {
         switch (selectionAreaTypeId) {
-            case SelectionAreaTypeId.All: return false;
-            case SelectionAreaTypeId.Rectangle: return gridSettings.mouseMultiCellRectangleSelectionEnabled;
-            case SelectionAreaTypeId.Column: return gridSettings.mouseColumnSelectionEnabled;
-            case SelectionAreaTypeId.Row: return gridSettings.mouseRowSelectionEnabled;
+            case SelectionAreaTypeId.all: return false;
+            case SelectionAreaTypeId.rectangle: return gridSettings.mouseMultiCellRectangleSelectionEnabled;
+            case SelectionAreaTypeId.column: return gridSettings.mouseColumnSelectionEnabled;
+            case SelectionAreaTypeId.row: return gridSettings.mouseRowSelectionEnabled;
             default:
                 throw new UnreachableCaseError('GSIMSA67221', selectionAreaTypeId);
         }

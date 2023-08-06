@@ -40,9 +40,9 @@ export class StandardHeaderTextCellPainter<
         const valText = value as string;
 
         const subgrid = cell.subgrid;
-        const allCellSelectedTypes = selection.getAllCellSelectionAreaTypeIds(activeColumnIndex, subgridRowIndex, subgrid);
-        const isSelected = allCellSelectedTypes.length > 0;
-        const isColumnSelected = allCellSelectedTypes.includes(SelectionAreaTypeId.Column);
+        const cellAllSelectionAreaTypeIds = selection.getAllCellSelectionAreaTypeIds(activeColumnIndex, subgridRowIndex, subgrid);
+        const isSelected = cellAllSelectionAreaTypeIds.length > 0;
+        const isColumnSelected = cellAllSelectionAreaTypeIds.includes(SelectionAreaTypeId.column);
 
         const textFont = isColumnSelected ? columnSettings.columnHeaderSelectionFont : columnSettings.columnHeaderFont;
 

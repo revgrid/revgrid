@@ -29,18 +29,18 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
             return '';
         } else {
             switch (selectionArea.areaTypeId) {
-                case SelectionAreaTypeId.All: {
+                case SelectionAreaTypeId.all: {
                     return this.convertDataValueArraysToTsv(this.getAllSelectionMatrix());
                 }
-                case SelectionAreaTypeId.Rectangle: {
+                case SelectionAreaTypeId.rectangle: {
                     const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix();
                     const selections = selectionMatrix[selectionMatrix.length - 1];
                     return this.convertDataValueArraysToTsv(selections);
                 }
-                case SelectionAreaTypeId.Row: {
+                case SelectionAreaTypeId.row: {
                     return this.convertDataValueArraysToTsv(this.getRowSelectionMatrix());
                 }
-                case SelectionAreaTypeId.Column: {
+                case SelectionAreaTypeId.column: {
                     return this.convertDataValueArraysToTsv(this.getColumnSelectionMatrix());
                 }
                 case undefined: {

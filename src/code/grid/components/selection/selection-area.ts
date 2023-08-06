@@ -48,13 +48,13 @@ export namespace SelectionArea {
         // 5 All
         const typeId = area.areaTypeId;
         switch (typeId) {
-            case SelectionAreaTypeId.All: return referenceArea.areaTypeId === SelectionAreaTypeId.All;
-            case SelectionAreaTypeId.Rectangle: return (
-                ((referenceArea.areaTypeId === SelectionAreaTypeId.Rectangle) && (referenceArea.size !== 1)) ||
-                referenceArea.areaTypeId === SelectionAreaTypeId.All
+            case SelectionAreaTypeId.all: return referenceArea.areaTypeId === SelectionAreaTypeId.all;
+            case SelectionAreaTypeId.rectangle: return (
+                ((referenceArea.areaTypeId === SelectionAreaTypeId.rectangle) && (referenceArea.size !== 1)) ||
+                referenceArea.areaTypeId === SelectionAreaTypeId.all
             );
-            case SelectionAreaTypeId.Column: return referenceArea.areaTypeId !== SelectionAreaTypeId.Row;
-            case SelectionAreaTypeId.Row: return true;
+            case SelectionAreaTypeId.column: return referenceArea.areaTypeId !== SelectionAreaTypeId.row;
+            case SelectionAreaTypeId.row: return true;
             default:
                 throw new UnreachableCaseError('SFICCSAHP35500', typeId);
         }

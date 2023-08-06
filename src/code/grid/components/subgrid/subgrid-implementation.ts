@@ -42,14 +42,14 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         /** @internal */
         protected readonly _columnsManager: ColumnsManager<BCS, SF>,
         /** @internal */
-        public readonly handle: SubgridImplementation.Handle,
-        public readonly role: Subgrid.Role,
-        public readonly schemaServer: SchemaServer<SF>,
-        public readonly dataServer: DataServer<SF>,
-        public readonly metaModel: MetaModel | undefined,
-        public readonly selectable: boolean,
-        public readonly defaultRowHeight: number | undefined,
-        public readonly rowHeightsCanDiffer: boolean,
+        readonly handle: SubgridImplementation.Handle,
+        readonly role: Subgrid.Role,
+        readonly schemaServer: SchemaServer<SF>,
+        readonly dataServer: DataServer<SF>,
+        readonly metaModel: MetaModel | undefined,
+        readonly selectable: boolean,
+        readonly definitionDefaultRowHeight: number | undefined,
+        readonly rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
         public getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
     ) {
@@ -228,9 +228,9 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     }
 
     getDefaultRowHeight() {
-        const subgridDefaultRowHeight = this.defaultRowHeight;
-        if (subgridDefaultRowHeight !== undefined) {
-            return subgridDefaultRowHeight;
+        const definitionDefaultRowHeight = this.definitionDefaultRowHeight;
+        if (definitionDefaultRowHeight !== undefined) {
+            return definitionDefaultRowHeight;
         } else {
             return this._gridSettings.defaultRowHeight;
         }

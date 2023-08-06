@@ -49,8 +49,8 @@ export { ModifierKey, ModifierKeyEnum } from './types-utils/modifier-key';
 export { PartialPoint, Point, WritablePoint } from './types-utils/point';
 export { Rectangle } from './types-utils/rectangle';
 export * from './types-utils/revgrid-error';
-export { SelectionAreaType, SelectionAreaTypeId } from './types-utils/selection-area-type';
 export { RevgridObject } from './types-utils/revgrid-object';
+export * from './types-utils/selection-area-type';
 export * from './types-utils/types';
 export { UiController } from './ui/controller/ui-controller';
 
