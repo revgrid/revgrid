@@ -2951,7 +2951,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
     // (undocumented)
-    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): void;
+    setActiveColumnsAndWidthsByFieldName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): void;
     // (undocumented)
     setActiveColumnsAutoWidthSizing(widenOnly: boolean): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration

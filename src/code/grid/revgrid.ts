@@ -618,7 +618,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this.columnsManager.getHiddenColumns();
     }
 
-    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]) {
+    setActiveColumnsAndWidthsByFieldName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]) {
         this.columnsManager.setActiveColumnsAndWidthsByFieldName(columnNameWidths, false);
     }
 
