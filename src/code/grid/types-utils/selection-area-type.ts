@@ -8,7 +8,7 @@ export const enum SelectionAreaTypeId {
     column,
 }
 
-/** @internal */
+/** @public */
 type SelectionAreaTypeObject = typeof SelectionAreaTypeId;
 
 /** @public */
@@ -28,7 +28,7 @@ export namespace SelectionAreaType {
     }
 }
 
-/** @internal */
+/** @public */
 type RowOrColumnSelectionAreaTypeObject = Pick<SelectionAreaTypeObject, 'row' | 'column'>;
 
 /** @public */
