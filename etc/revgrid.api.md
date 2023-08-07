@@ -441,10 +441,8 @@ export interface CellEditor<BCS extends BehavioredColumnSettings, SF extends Sch
     processGridPointerMoveEvent?(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
     pullCellValueEventer?: CellEditor.PullCellValueEventer;
     pushCellValueEventer?: CellEditor.PushCellValueEventer;
-    readonly readonly: boolean;
+    readonly: boolean;
     setBounds?(bounds: Rectangle | undefined): void;
-    // (undocumented)
-    setReadonly(value: boolean): void;
     tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
@@ -4003,8 +4001,9 @@ export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSetti
     pushCellValueEventer: CellEditor.PushCellValueEventer;
     // (undocumented)
     get readonly(): boolean;
+    set readonly(value: boolean);
     // (undocumented)
-    setReadonly(value: boolean): void;
+    protected setReadonly(value: boolean): void;
     // (undocumented)
     abstract tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
     // (undocumented)
