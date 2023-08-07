@@ -3999,7 +3999,8 @@ export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSetti
     pushCellValueEventer: CellEditor.PushCellValueEventer;
     // (undocumented)
     get readonly(): boolean;
-    set readonly(value: boolean);
+    // (undocumented)
+    setReadonly(value: boolean): void;
     // (undocumented)
     abstract tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
     // (undocumented)
@@ -4159,9 +4160,9 @@ export abstract class StandardInputElementCellEditor<BGS extends StandardBehavio
     // (undocumented)
     processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _subgridRowIndex: number): boolean;
     // (undocumented)
-    set readonly(value: boolean);
-    // (undocumented)
     selectAll(): void;
+    // (undocumented)
+    setReadonly(value: boolean): void;
     // (undocumented)
     tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }

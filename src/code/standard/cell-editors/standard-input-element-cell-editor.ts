@@ -22,8 +22,8 @@ export abstract class StandardInputElementCellEditor<
         element.classList.add('revgrid-input-editor');
     }
 
-    override set readonly(value: boolean) {
-        super.readonly = value;
+    override setReadonly(value: boolean) {
+        super.setReadonly(value);
         this.element.readOnly = value;
     }
 

@@ -21,7 +21,7 @@ export abstract class StandardCellEditor<
     }
 
     get readonly() { return this._readonly; }
-    set readonly(value: boolean) {
+    setReadonly(value: boolean) { // make sure this is not a setter as overrided and JavaScript cannot override setters only
         this._readonly = value;
     }
 
