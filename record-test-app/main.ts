@@ -194,7 +194,7 @@ export class Main {
     private tryGetCellEditor(columnName: string, readonly: boolean): CellEditor<StandardBehavioredColumnSettings, GridField> | undefined {
         const editor = this.tryCreateCellEditor(columnName);
         if (editor !== undefined) {
-            editor.readonly = readonly;
+            editor.setReadonly(readonly);
         }
         return editor;
     }

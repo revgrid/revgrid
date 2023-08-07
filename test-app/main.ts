@@ -302,7 +302,7 @@ export class Main {
     private tryGetCellEditor(columnName: keyof MainRecord, readonly: boolean) {
         const editor = this.tryCreateCellEditor(columnName);
         if (editor !== undefined) {
-            editor.readonly = readonly;
+            editor.setReadonly(readonly);
         }
         return editor;
     }

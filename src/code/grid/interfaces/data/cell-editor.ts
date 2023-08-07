@@ -14,7 +14,8 @@ export interface CellEditor<
     // Common properties, methods and events
 
     /** Indicates if editor can only display data */
-    readonly: boolean;
+    readonly readonly: boolean;
+    setReadonly(value: boolean): void; // do not use setter as cannot be overrided in implementing class (Javascript limitation)
 
     /** Provide the initial data to the editor. This is done after all events have been subscribed to - so editor can start running */
     tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
