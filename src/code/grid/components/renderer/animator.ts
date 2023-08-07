@@ -19,8 +19,20 @@ export class Animator {
     get animating() { return this._animating; }
 
     flagAnimateRequired() {
-        this._animateRequired = true;
-        this.animateRequiredEventer();
+        if (!this._animateRequired) {
+            this._animateRequired = true;
+            this.animateRequiredEventer();
+        }
+    }
+
+    makeRequiredAnimateImmediate() {
+        if (this._animateRequired) {
+            const now = performance.now();
+            if (now < this._nextAnimateAllowedTime) {
+                this._nextAnimateAllowedTime = now;
+                this.animateRequiredEventer();
+            }
+        }
     }
 
     checkAnimate(now: DOMHighResTimeStamp): DOMHighResTimeStamp | undefined {

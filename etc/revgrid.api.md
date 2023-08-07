@@ -441,8 +441,10 @@ export interface CellEditor<BCS extends BehavioredColumnSettings, SF extends Sch
     processGridPointerMoveEvent?(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
     pullCellValueEventer?: CellEditor.PullCellValueEventer;
     pushCellValueEventer?: CellEditor.PushCellValueEventer;
-    readonly: boolean;
+    readonly readonly: boolean;
     setBounds?(bounds: Rectangle | undefined): void;
+    // (undocumented)
+    setReadonly(value: boolean): void;
     tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
@@ -2582,6 +2584,8 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     _focus: Focus<BGS, BCS, SF>,
     _selection: Selection_2<BCS, SF>,
     _mouse: Mouse<BGS, BCS, SF>);
+    // (undocumented)
+    animateImmediatelyIfRequired(): void;
     // @internal (undocumented)
     beginChange(): void;
     // @internal (undocumented)
@@ -4032,11 +4036,11 @@ export class StandardCheckboxCellEditor<BGS extends StandardBehavioredGridSettin
     // (undocumented)
     _painter: StandardCheckboxCellPainter<BGS, BCS, SF>;
     // (undocumented)
-    processClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
+    processGridClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
     // (undocumented)
     processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
     // (undocumented)
-    processPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
+    processGridPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
     // (undocumented)
     tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }

@@ -112,6 +112,22 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
     get lastServerNotificationId() { return this._lastServerNotificationId; }
 
+    /** Promise resolves after paint renders the last server notification (change) for the first time. Columns and rows will then reflect server data and schema */
+    waitLastServerNotificationRendered(): Promise<ServerNotificationId> {
+        const lastRenderedServerNotificationId = this._lastRenderedServerNotificationId;
+        if (lastRenderedServerNotificationId === this._lastServerNotificationId) {
+            return Promise.resolve(lastRenderedServerNotificationId); // latest model already rendered
+        } else {
+            return new Promise<ServerNotificationId>((resolve) => { this._waitLastServerNotificationRenderedResolves.push(resolve); });
+        }
+    }
+
+    animateImmediatelyIfRequired() {
+        if (this._animator !== undefined) {
+            this._animator.makeRequiredAnimateImmediate(); // this will process any queued actions immediately
+        }
+    }
+
     /** @internal */
     destroy() {
         this.stop(); // in case revgrid was not deactivated by application
@@ -189,16 +205,6 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /** @internal */
     serverNotified() {
         ++this._lastServerNotificationId;
-    }
-
-    /** Promise resolves after paint renders the last server notification (change) for the first time. Columns and rows will then reflect server data and schema */
-    waitLastServerNotificationRendered(): Promise<ServerNotificationId> {
-        const lastRenderedServerNotificationId = this._lastRenderedServerNotificationId;
-        if (lastRenderedServerNotificationId === this._lastServerNotificationId) {
-            return Promise.resolve(lastRenderedServerNotificationId); // latest model already rendered
-        } else {
-            return new Promise<ServerNotificationId>((resolve) => { this._waitLastServerNotificationRenderedResolves.push(resolve); });
-        }
     }
 
     /** @internal */
