@@ -53,7 +53,7 @@
     "simpletestapp:serve": "webpack serve --mode development --config ./simple-test-app/webpack.config.js"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "7.34.8",
+    "@microsoft/api-extractor": "7.36.3",
     "@typescript-eslint/eslint-plugin": "5.61.0",
     "@typescript-eslint/parser": "5.61.0",
     "copyfiles": "2.4.1",
