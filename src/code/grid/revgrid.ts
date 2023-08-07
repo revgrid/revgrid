@@ -231,7 +231,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /**
      * Be a responsible citizen and call this function on instance disposal!
-     * If multiple grids are used in an application (simultaneously or not), then {@link (Hypgrid:class).destroy} must be called otherwise
+     * If multiple grids are used in an application (simultaneously or not), then {@link (Revgrid:class).destroy} must be called otherwise
      * canvase paint loop will continue to run
      */
     destroy() {
@@ -1922,7 +1922,7 @@ export namespace Revgrid {
         /** Internally generated ids are numbered using the host HTML element's id as a base and suffixing it with a number. Normally the first id generated from a host element
          * base Id is not numbered.  Subsequent ids generated from that base id are suffixed with numbers beginning with 2. This works well if host elements all have different Ids (so
          * there suffices are not used).  However If host elements have the same id or no id, then it may be better for all internally generated ids to be suffixed with a number (starting
-         * from 1).  Set {@link firstGeneratedIdFromBaseIsAlsoNumbered} to true to suffix all internally generated ids.
+         * from 1).  Set {@link Revgrid:namespace.Options.interface.firstGeneratedIdFromBaseIsAlsoNumbered} to true to suffix all internally generated ids.
          */
         firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
         /** Optional link to Revgrid instance's parent Javascript object. Is used to set externalParent which is not used within Revgrid however may be helpful with debugging */
@@ -1930,7 +1930,7 @@ export namespace Revgrid {
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         /** Normally the canvas HTML element created by Revgrid on which to draw the grid has its `overflow` property set to `clip`.  However it may be helpful to set its overflow property
-         * to `visible` when debugging painters. The {@link canvasOverflowOverride} can be used to override the default value of this property.
+         * to `visible` when debugging painters. The {@link Revgrid:namespace.Options.interface.canvasOverflowOverride} can be used to override the default value of this property.
          */
         canvasOverflowOverride?: CssTypes.Overflow;
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];

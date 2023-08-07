@@ -2774,7 +2774,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     protected descendantProcessVerticalScrollViewportStartChanged(): void;
     // (undocumented)
     protected descendantProcessWheelMove(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS, SF> | null | undefined): void;
-    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "Hypgrid"
     destroy(): void;
     // (undocumented)
     get destroyed(): boolean;
@@ -3019,13 +3018,13 @@ export namespace Revgrid {
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
     // (undocumented)
     export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-        // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "canvasOverflowOverride"
+        // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
         canvasOverflowOverride?: CssTypes.Overflow;
         canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         // (undocumented)
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
         externalParent?: unknown;
-        // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "firstGeneratedIdFromBaseIsAlsoNumbered"
+        // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
         firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
         id?: string;
     }
@@ -3560,11 +3559,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
     deltaXFactor: number, deltaYFactor: number,
     _spaceAccomodatedScroller: Scroller<BGS, BCS, SF> | undefined);
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "finbarOptions"
-    //
-    // @internal
+    // @internal (undocumented)
     actionEventer: Scroller.ActionEventer;
     // @internal (undocumented)
     activatePointerScrolling(event: PointerEvent): void;
@@ -3583,10 +3578,9 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     destroy(): void;
     // (undocumented)
     get hidden(): boolean;
-    // Warning: (ae-setter-with-docs) The doc comment for the property "index" must appear on the getter, not the setter.
-    set index(idx: number | undefined);
-    // (undocumented)
+    // @internal (undocumented)
     get index(): number | undefined;
+    set index(idx: number | undefined);
     // (undocumented)
     get insideOverlap(): number;
     // (undocumented)
@@ -4164,8 +4158,6 @@ export abstract class StandardInputElementCellEditor<BGS extends StandardBehavio
     keyDownEventer: CellEditor.KeyDownEventer;
     // (undocumented)
     processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _subgridRowIndex: number): boolean;
-    // Warning: (ae-missing-getter) The property "readonly" has a setter but no getter.
-    //
     // (undocumented)
     set readonly(value: boolean);
     // (undocumented)
@@ -4392,10 +4384,10 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends Schema
     // (undocumented)
     readonly dataServer: DataServer<SF>;
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "viewRowCount"
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     readonly firstViewableSubgridRowIndex: number;
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    // Warning: (ae-unresolved-link) The @link reference could not be resolved: The package "revgrid" does not have an export "viewRowCount"
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     readonly firstViewRowIndex: number;
     // (undocumented)
     getCellPainterEventer(viewCell: DatalessViewCell<BCS, SF>): CellPainter<BCS, SF>;

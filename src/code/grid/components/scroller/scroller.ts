@@ -22,15 +22,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     readonly axisBarCssClass: string;
     readonly thumbCssClass: string;
 
-    /**
-     * @summary Callback for scroll events.
-     * @desc Set by the constructor via the similarly named property in the {@link finbarOptions} object. After instantiation, `this.onchange` may be updated directly.
-     *
-     * This event handler is called whenever the value of the scrollbar is changed through user interaction. The typical use case is when the content is scrolled. It is called with the `FinBar` object as its context and the current value of the scrollbar (its index, rounded) as the only parameter.
-     *
-     * Set this property to `null` to stop emitting such events.
-     * @internal
-     */
+    /** @internal */
     actionEventer: Scroller.ActionEventer;
     /** @internal */
     visibilityChangedEventer: Scroller.VisibilityChangedEventer;
@@ -48,15 +40,12 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      * @summary <u>O</u>rientation <u>h</u>ash for this scrollbar.
      * @desc Set by the `orientation` setter to either the vertical or the horizontal orientation hash. The property should always be synchronized with `orientation`; do not update directly!
      *
-     * This object is used internally to access scrollbars' DOM element properties in a generalized way without needing to constantly query the scrollbar orientation. For example, instead of explicitly coding `this.bar.top` for a vertical scrollbar and `this.bar.left` for a horizontal scrollbar, simply code `this.bar[this.oh.leading]` instead. See the {@link orientationHashType} definition for details.
-     *
-     * This object is useful externally for coding generalized {@link finbarOnChange} event handler functions that serve both horizontal and vertical scrollbars.
+     * This object is used internally to access scrollbars' DOM element properties in a generalized way without needing to constantly query the scrollbar orientation. For example, instead of explicitly coding `this.bar.top` for a vertical scrollbar and `this.bar.left` for a horizontal scrollbar, simply code `this.bar[this.oh.leading]` instead.
      * @internal
      */
     private readonly _axisProperties: AxisProperties;
     /**
      * @summary The name of the `WheelEvent` property this scrollbar should listen to.
-     * @desc Set by the constructor. See the similarly named property in the {@link finbarOptions} object.
      *
      * Useful values are `'deltaX'`, `'deltaY'`, or `'deltaZ'`. A value of `null` means to ignore mouse wheel events entirely.
      *
@@ -287,15 +276,15 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     get trailing() { return this._trailing; }
 
     /** @internal */
+    get index() {
+        return this._scrollDimension.viewportStart;
+    }
     set index(idx: number | undefined) {
         if (idx !== undefined) {
             idx = Math.min(this._scrollDimension.finish, Math.max(this._scrollDimension.start, idx)); // clamp it
             this.setThumbPosition(idx);
         // this._setThumbSize();
         }
-    }
-    get index() {
-        return this._scrollDimension.viewportStart;
     }
 
     get hidden() {
