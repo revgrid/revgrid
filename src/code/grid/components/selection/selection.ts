@@ -711,6 +711,10 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     }
 
     getRowIndices() {
+        return this._rows.getIndices();
+    }
+
+    getRowIndicesIncludeAll() {
         if (this._allSelected) {
             return this.getAllRowIndices();
         } else {
@@ -1124,7 +1128,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 return undefined;
             } else {
                 const boundGetRowIdFromIndexFtn = dataServer.getRowIdFromIndex.bind(dataServer);
-                const selectedRowIndices = this.getRowIndices();
+                const selectedRowIndices = this._rows.getIndices();
                 return selectedRowIndices.map( (selectedRowIndex) => boundGetRowIdFromIndexFtn(selectedRowIndex) );
             }
         }

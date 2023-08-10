@@ -87,7 +87,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get activeColumns(): readonly Column<BCS, SF>[] { return this.columnsManager.activeColumns; }
 
     getSelectedRowCount() { return this.selection.getRowCount(); }
-    getSelectedRowIndices() { return this.selection.getRowIndices(); }
+    getSelectedRowIndicesIncludeAll() { return this.selection.getRowIndicesIncludeAll(); }
     getSelectedColumnIndices() { return this.selection.getColumnIndices(); }
     getSelectedRectangles() { return this.selection.rectangles; }
 

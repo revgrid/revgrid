@@ -104,7 +104,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
     }
 
     getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataServer.ViewRow {
-        const selectedRowIndexes = this._selection.getRowIndices();
+        const selectedRowIndexes = this._selection.getRowIndicesIncludeAll();
         const selectedRowIndexesCount = selectedRowIndexes.length;
         const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
         const result: DataServer.ViewRow = {};
@@ -130,7 +130,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
     }
 
     getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataServer.ViewValue>> {
-        const selectedRowIndexes = this._selection.getRowIndices();
+        const selectedRowIndexes = this._selection.getRowIndicesIncludeAll();
         return this.getRowIndicesMatrix(selectedRowIndexes, hiddenColumns);
     }
 
