@@ -40,33 +40,28 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     private _lastRowStepScrollDragTime: number | undefined;
 
     override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (EventBehavior.isSecondaryMouseButton(event)) {
-            this.selection.clear();
+        if (hoverCell === null) {
+            hoverCell = this.tryGetHoverCellFromMouseEvent(event);
+        }
+        if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
             return super.handlePointerDown(event, hoverCell);
         } else {
-            if (hoverCell === null) {
-                hoverCell = this.tryGetHoverCellFromMouseEvent(event);
-            }
-            if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
+            const viewCell = hoverCell.viewCell;
+            const subgrid = viewCell.subgrid;
+            const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
+
+            if (!isSelectable) {
                 return super.handlePointerDown(event, hoverCell);
             } else {
-                const viewCell = hoverCell.viewCell;
-                const subgrid = viewCell.subgrid;
-                const isSelectable = subgrid.selectable; // && this.cellPropertiesBehavior.getCellProperty(cell.viewLayout.column, cell.viewLayoutRow.subgridRowIndex, 'cellSelection', subgrid);
-
-                if (!isSelectable) {
+                if (!viewCell.isScrollable) {
                     return super.handlePointerDown(event, hoverCell);
                 } else {
-                    if (!viewCell.isScrollable) {
+                    const mouseMultiCellRectangleSelectionAllowed = this.isMouseMultiCellRectangleSelectionAllowed(event);
+                    const selectSucceeded = this.trySelectInScrollableMain(event, viewCell, mouseMultiCellRectangleSelectionAllowed, false);
+                    if (!selectSucceeded) {
                         return super.handlePointerDown(event, hoverCell);
                     } else {
-                        const mouseMultiCellRectangleSelectionAllowed = this.isMouseMultiCellRectangleSelectionAllowed(event);
-                        const selectSucceeded = this.trySelectInScrollableMain(event, viewCell, mouseMultiCellRectangleSelectionAllowed, false);
-                        if (!selectSucceeded) {
-                            return super.handlePointerDown(event, hoverCell);
-                        } else {
-                            return hoverCell;
-                        }
+                        return hoverCell;
                     }
                 }
             }
@@ -110,7 +105,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        if (EventBehavior.isSecondaryMouseButton(event) || !this.isMouseMultiCellRectangleSelectionAllowed(event)) {
+        if (!this.isMouseMultiCellRectangleSelectionAllowed(event)) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
             if (hoverCell === null) {
@@ -206,6 +201,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
 
     private isMouseMultiCellRectangleSelectionAllowed(event: MouseEvent) {
         return (
+            !EventBehavior.isSecondaryMouseButton(event) &&
             this.gridSettings.mouseMultiCellRectangleSelectionEnabled &&
             (
                 this.gridSettings.mouseMultiCellRectangleSelectionModifierKey === undefined ||
