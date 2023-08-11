@@ -844,7 +844,9 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
             try {
                 const lastArea = this._lastArea;
                 if (lastArea !== undefined) {
-                    lastArea.adjustForYRangeDeleted(rowIndex, rowCount);
+                    if (lastArea.adjustForYRangeDeleted(rowIndex, rowCount) === null) {
+                        this._lastArea = undefined;
+                    }
                 }
 
                 let changed = this._rectangleList.adjustForYRangeDeleted(rowIndex, rowCount);
@@ -914,7 +916,9 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         try {
             const lastArea = this._lastArea;
             if (lastArea !== undefined) {
-                lastArea.adjustForXRangeDeleted(columnIndex, columnCount);
+                if (lastArea.adjustForXRangeDeleted(columnIndex, columnCount) === null) {
+                    this._lastArea = undefined;
+                }
             }
 
             let changed = this._rectangleList.adjustForXRangeDeleted(columnIndex, columnCount);
