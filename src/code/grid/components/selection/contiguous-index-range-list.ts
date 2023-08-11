@@ -414,7 +414,7 @@ export class ContiguousIndexRangeList {
                             changed = true;
                         } else {
                             // range full contained in deletion
-                            if (lastRangeFullyEnclosedinDeletionIndex !== undefined) {
+                            if (lastRangeFullyEnclosedinDeletionIndex === undefined) {
                                 lastRangeFullyEnclosedinDeletionIndex = i;
                             }
                         }
