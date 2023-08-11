@@ -710,12 +710,8 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    getRowIndices() {
-        return this._rows.getIndices();
-    }
-
-    getRowIndicesIncludeAll() {
-        if (this._allSelected) {
+    getRowIndices(includeAll = false) {
+        if (includeAll && this._allSelected) {
             return this.getAllRowIndices();
         } else {
             return this._rows.getIndices();

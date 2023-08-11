@@ -2854,7 +2854,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     getSelectedRowCount(): number;
     // (undocumented)
-    getSelectedRowIndices(): number[];
+    getSelectedRowIndices(includeAll?: boolean): number[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     getSingletonViewDataRow(y: number, subgrid?: Subgrid<BCS, SF>): DataServer.ViewRow;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
@@ -3731,7 +3731,7 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
-    getRowIndices(): number[];
+    getRowIndices(includeAll?: boolean): number[];
     // (undocumented)
     readonly internalParent: RevgridObject;
     // (undocumented)

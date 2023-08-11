@@ -19,6 +19,7 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
         if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) {
             const viewCell = hoverCell.viewCell;
             if (viewCell.subgrid.isMain) {
+                // Add code to avoid focus if mouse is extending selection
                 this.focusScrollBehavior.tryFocusXYAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, viewCell);
             }
         }
