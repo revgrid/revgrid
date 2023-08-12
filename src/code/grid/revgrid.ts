@@ -14,6 +14,7 @@ import { GridPainter } from './components/renderer/grid-painter/grid-painter';
 import { Renderer } from './components/renderer/renderer';
 import { Scroller } from './components/scroller/scroller';
 import { Selection } from './components/selection/selection';
+import { SelectionRectangle } from './components/selection/selection-rectangle';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
 import { IdGenerator } from './id-generator';
@@ -89,7 +90,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getSelectedRowCount() { return this.selection.getRowCount(); }
     getSelectedRowIndices(includeAll = false) { return this.selection.getRowIndices(includeAll); }
     getSelectedColumnIndices() { return this.selection.getColumnIndices(); }
-    getSelectedRectangles() { return this.selection.rectangles; }
+    getSelectedRectangles(): readonly SelectionRectangle[] { return this.selection.rectangles; }
 
     get destroyed() { return this._destroyed; }
 
