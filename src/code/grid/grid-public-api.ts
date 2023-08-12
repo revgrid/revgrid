@@ -1,8 +1,5 @@
 // Public API
 
-export { DataExtractBehavior } from './behavior/data-extract-behavior';
-export { FocusScrollBehavior } from './behavior/focus-scroll-behavior';
-export { FocusSelectBehavior } from './behavior/focus-select-behavior';
 export { Canvas } from './components/canvas/canvas';
 export { ColumnsManager } from './components/column/columns-manager';
 export { DispatchableEvent } from './components/dispatchable-event/dispatchable-event';

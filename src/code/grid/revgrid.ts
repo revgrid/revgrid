@@ -64,10 +64,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     readonly mainDataServer: DataServer<SF>;
 
-    readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
-    readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
-    readonly dataExtractBehavior: DataExtractBehavior<BCS, SF>;
-
     /** @internal */
     private readonly _componentsManager: ComponentsManager<BGS, BCS, SF>;
     /** @internal */
@@ -75,6 +71,12 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /** @internal */
     private readonly _uiManager: UiManager<BGS, BCS, SF>;
 
+    /** @internal */
+    private readonly _focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
+    /** @internal */
+    private readonly _focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
+    /** @internal */
+    private readonly _dataExtractBehavior: DataExtractBehavior<BCS, SF>;
     /** @internal */
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>;
     /** @internal */
@@ -174,11 +176,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             descendantEventer,
         );
 
-        this.focusScrollBehavior = this._behaviorManager.focusScrollBehavior;
-        this.focusSelectBehavior = this._behaviorManager.focusSelectBehavior;
+        this._focusScrollBehavior = this._behaviorManager.focusScrollBehavior;
+        this._focusSelectBehavior = this._behaviorManager.focusSelectBehavior;
         this._rowPropertiesBehavior = this._behaviorManager.rowPropertiesBehavior;
         this._cellPropertiesBehavior = this._behaviorManager.cellPropertiesBehavior;
-        this.dataExtractBehavior = this._behaviorManager.dataExtractBehavior;
+        this._dataExtractBehavior = this._behaviorManager.dataExtractBehavior;
 
         this._uiManager = new UiManager(
             this.revgridId,
@@ -195,11 +197,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.mouse,
             this.horizontalScroller,
             this.verticalScroller,
-            this.focusScrollBehavior,
-            this.focusSelectBehavior,
+            this._focusScrollBehavior,
+            this._focusSelectBehavior,
             this._rowPropertiesBehavior,
             this._cellPropertiesBehavior,
-            this.dataExtractBehavior,
+            this._dataExtractBehavior,
             this._behaviorManager.reindexBehavior,
             this._behaviorManager.eventBehavior,
             options.customUiControllerDefinitions,
@@ -220,8 +222,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.canvas.resize(false); // Will invalidate all and cause a repaint
         }
     }
-
-    get canvasBounds() { return this.canvas.flooredBounds; }
 
     /**
      * Be a responsible citizen and call this function on instance disposal!
@@ -262,146 +262,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.canvas.resize(false); // Will invalidate all and cause a repaint
     }
 
-    /** pluginSpec
-     * @desc One of:
-     * * simple API - a plain object with an `install` method
-     * * object API - an object constructor
-     * * array:
-     *    * first element is an optional name for the API or the newly instantiated object
-     *    * next element (or first element when not a string) is the simple or object API
-     *    * remaining arguments are optional arguments for the object constructor
-     * * falsy value such as `undefined` - ignored
-     *
-     * The API may have a `name` or `$$CLASS_NAME` property.
-     */
-    /**
-     * @summary Install plugins.
-     * @desc Plugin installation:
-     * * Each simple API is installed by calling it's `install` method with `this` as first arg + any additional args listed in the `pluginSpec` (when it is an array).
-     * * Each object API is installed by instantiating it's constructor with `this` as first arg + any additional args listed in the `pluginSpec` (when it is an array).
-     *
-     * The resulting plain object or instantiated objects may be named by (in priority order):
-     * 1. if `pluginSpec` contains an array and first element is a string
-     * 2. object has a `name` property
-     * 3. object has a `$$CLASS_NAME` property
-     *
-     * If named, a reference to each object is saved in `this.plugins`. If the plug-in is unnamed, no reference is kept.
-     *
-     * There are two types of plugin installations:
-     * * Preinstalled plugins which are installed on the prototype. These are simple API plugins with a `preinstall` method called with the `installPlugins` calling context as the first argument. Preinstallations are automatically performed whenever a grid is instantiated (at the beginning of the constructor), by calling `installPlugins` with `Hypergrid.prototype` as the calling context.
-     * * Regular plugins which are installed on the instance. These are simple API plugins with an `install` method, as well as all object API plugins (constructors), called with the `installPlugins` calling context as the first argument. These installations are automatically performed whenever a grid is instantiated (at the end of the constructor), called with the new grid instance as the calling context.
-     *
-     * The "`installPlugins` calling context" means either the grid instance or its prototype, depending on how this method is called.
-     *
-     * Plugins may have both `preinstall` _and_ `install` methods, in which case both will be called. However, note that in any case, `install` methods on object API plugins are ignored.
-     * @param {pluginSpec|pluginSpec[]} [plugins] - The plugins to install. If omitted, the call is a no-op.
-     */
-    // installPlugins(plugins) {
-    //     var shared = this === Hypergrid.prototype; // Do shared ("preinstalled") plugins (if any)
-
-    //     if (!plugins) {
-    //         return;
-    //     } else if (!Array.isArray(plugins)) {
-    //         plugins = [plugins];
-    //     }
-
-    //     plugins.forEach(function(plugin) {
-    //         var name, args, hash;
-
-    //         if (!plugin) {
-    //             return; // ignore falsy plugin spec
-    //         }
-
-    //         // set first arg of constructor to `this` (the grid instance)
-    //         // set first arg of `install` method to `this` (the grid instance)
-    //         // set first two args of `preinstall` method to `this` (the Hypergrid prototype) and the Behavior prototype
-    //         args = [this];
-    //         if (shared) {
-    //             args.push(Behavior);
-    //         }
-
-    //         if (Array.isArray(plugin)) {
-    //             if (!plugin.length) {
-    //                 plugin = undefined;
-    //             } else if (typeof plugin[0] !== 'string') {
-    //                 args = args.concat(plugin.slice(1));
-    //                 plugin = plugin[0];
-    //             } else if (plugin.length >= 2) {
-    //                 args = args.concat(plugin.slice(2));
-    //                 name = plugin[0];
-    //                 plugin = plugin[1];
-    //             } else {
-    //                 plugin = undefined;
-    //             }
-    //         }
-
-    //         if (!plugin) {
-    //             return; // ignore empty array or array with single string element
-    //         }
-
-    //         // Derive API name if not given in pluginSpec
-    //         name = name || plugin.name || plugin.$$CLASS_NAME;
-    //         if (name) {
-    //             // Translate first character to lower case
-    //             name = name.substr(0, 1).toLowerCase() + name.substr(1);
-    //         }
-
-    //         if (shared) {
-    //             // Execute the `preinstall` method
-    //             hash = this.constructor.plugins;
-    //             if (plugin.preinstall && !hash[name]) {
-    //                 plugin.preinstall.apply(plugin, args);
-    //             }
-    //         } else { // instance plug-ins:
-    //             hash = this.plugins;
-    //             if (typeof plugin === 'function') {
-    //                 // Install "object API" by instantiating
-    //                 plugin = this.createApply(plugin, args);
-    //             } else if (plugin.install) {
-    //                 // Install "simple API" by calling its `install` method
-    //                 plugin.install.apply(plugin, args);
-    //             } else if (!plugin.preinstall) {
-    //                 throw new Base.HypergridError('Expected plugin (a constructor; or an API with a `preinstall` method and/or an `install` method).');
-    //             }
-    //         }
-
-    //         if (name) {
-    //             hash[name] = plugin;
-    //         }
-
-    //     }, this);
-    // }
-
-    /**
-     * @summary Uninstall all uninstallable plugins or just named plugins.
-     * @desc Calls `uninstall` on plugins that define such a method.
-     *
-     * To uninstall "preinstalled" plugins, call with `Hypergrid.prototype` as context.
-     *
-     * For convenience, the following args are passed to the call:
-     * * `this` - the plugin to be uninstalled
-     * * `grid` - the hypergrid object
-     * * `key` - name of the plugin to be uninstalled (_i.e.,_ key in `plugins`)
-     * * `plugins` - the plugins hash (a.k.a. `grid.plugins`)
-     * @param {string|string[]} [pluginNames] If provided, limit uninstall to the named plugin (string) or plugins (string[]).
-     */
-    // uninstallPlugins(pluginNames) {
-    //     if (!pluginNames) {
-    //         pluginNames = [];
-    //     } else if (!Array.isArray(pluginNames)) {
-    //         pluginNames = [pluginNames];
-    //     }
-    //     _(this.plugins).each(function(plugin, key, plugins) {
-    //         if (
-    //             plugins.hasOwnProperty(key) &&
-    //             pluginNames.indexOf(key) >= 0 &&
-    //             plugin.uninstall
-    //         ) {
-    //             plugin.uninstall(this, key, plugins);
-    //         }
-    //     }, this);
-    // }
-
     registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>) {
         this.renderer.registerGridPainter(key, constructor)
     }
@@ -412,27 +272,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     hasFocus() {
         return this.canvas.hasFocus();
     }
-
-    /**
-     * @summary Set the Behavior object for this grid control.
-     * @desc Called when `options.Behavior` from:
-     * * Hypergrid constructor
-     * * `setData` when not called explicitly before then
-     * @param options - _Per {@link BehaviorManager#setData}._
-     * @param options.Behavior - The behavior (model) is a constructor.
-     * @param options.dataModel - A fully instantiated data model object.
-     * @param options.dataModelConstructor - Data model will be instantiated from this constructor unless `options.dataModel` was given.
-     * @param options.metadata - Value to be passed to `setMetadataStore` if the data model has changed.
-     * @param options.data - _Per {@link constructor#setData}._
-     * @param options.schema - _Per {@link constructor#setData}.
-     */
-    // setBehavior(options: Hypergrid.Options) {
-    //     const constructor = (options?.behaviorConstructor) ?? Behavior;
-    //     this.behavior = new constructor(this, options);
-    //     this.initScrollbars();
-    //     this.refreshProperties();
-    //     this.behavior.reindex();
-    // }
 
     get activeColumnCount() { return this.columnsManager.activeColumnCount; }
 
@@ -1149,6 +988,118 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.canvas.removeExternalEventListener(eventName, listener, options);
     }
 
+    // FocusSelectBehavior
+
+    tryFocusXYAndEnsureInView(x: number, y: number, cell?: ViewCell<BCS, SF>) {
+        this._focusScrollBehavior.tryFocusXYAndEnsureInView(x, y, cell);
+    }
+
+    tryFocusXAndEnsureInView(x: number) {
+        this._focusScrollBehavior.tryFocusXAndEnsureInView(x);
+    }
+
+    tryFocusYAndEnsureInView(y: number) {
+        this._focusScrollBehavior.tryFocusYAndEnsureInView(y);
+    }
+
+    tryMoveFocusLeft() {
+        this._focusScrollBehavior.tryMoveFocusLeft();
+    }
+
+    tryMoveFocusRight() {
+        this._focusScrollBehavior.tryMoveFocusRight();
+    }
+
+    tryMoveFocusUp() {
+        this._focusScrollBehavior.tryMoveFocusUp();
+    }
+
+    tryMoveFocusDown() {
+        this._focusScrollBehavior.tryMoveFocusDown();
+    }
+
+    tryFocusFirstColumn() {
+        this._focusScrollBehavior.tryFocusFirstColumn();
+    }
+
+    tryFocusLastColumn() {
+        this._focusScrollBehavior.tryFocusLastColumn();
+    }
+
+    tryFocusTop() {
+        this._focusScrollBehavior.tryFocusTop();
+    }
+
+    tryFocusBottom() {
+        this._focusScrollBehavior.tryFocusBottom();
+    }
+
+    tryPageFocusLeft() {
+        this._focusScrollBehavior.tryPageFocusLeft();
+    }
+
+    tryPageFocusRight() {
+        this._focusScrollBehavior.tryPageFocusRight();
+    }
+
+    tryPageFocusUp() {
+        this._focusScrollBehavior.tryPageFocusUp();
+    }
+
+    tryPageFocusDown() {
+        this._focusScrollBehavior.tryPageFocusDown();
+    }
+
+    tryScrollLeft() {
+        this._focusScrollBehavior.tryScrollLeft();
+    }
+
+    tryScrollRight() {
+        this._focusScrollBehavior.tryScrollRight();
+    }
+
+    tryScrollUp() {
+        this._focusScrollBehavior.tryScrollUp();
+    }
+
+    tryScrollDown() {
+        this._focusScrollBehavior.tryScrollDown();
+    }
+
+    scrollFirstColumn() {
+        this._focusScrollBehavior.scrollFirstColumn();
+    }
+
+    scrollLastColumn() {
+        this._focusScrollBehavior.scrollLastColumn();
+    }
+
+    scrollTop() {
+        this._focusScrollBehavior.scrollTop();
+    }
+
+    scrollBottom() {
+        this._focusScrollBehavior.scrollBottom();
+    }
+
+    tryScrollPageLeft() {
+        this._focusScrollBehavior.tryScrollPageLeft();
+    }
+
+    tryScrollPageRight() {
+        this._focusScrollBehavior.tryScrollPageRight();
+    }
+
+    tryScrollPageUp() {
+        this._focusScrollBehavior.tryScrollPageUp();
+    }
+
+    tryScrollPageDown() {
+        this._focusScrollBehavior.tryScrollPageDown();
+    }
+
+    // Overridable methods for descendant classes to handle event processing
+
     protected descendantProcessCellFocusChanged(_newPoint: Point | undefined, _oldPoint: Point | undefined) {
         // for descendants
     }
@@ -1498,11 +1449,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
-        this.focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<BCS, SF>);
+        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<BCS, SF>);
     }
 
     selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType: SelectionAreaType = 'rectangle') {
-        this.focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, SelectionAreaType.toId(areaType));
+        this._focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, SelectionAreaType.toId(areaType));
     }
 
     selectOnlyCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType: SelectionAreaType = 'rectangle') {
@@ -1510,11 +1461,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             subgrid = this.focus.subgrid;
         }
 
-        this.focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid<BCS, SF>, SelectionAreaType.toId(areaType));
+        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid<BCS, SF>, SelectionAreaType.toId(areaType));
     }
 
     selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
-        this.focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid<BCS, SF>);
+        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid<BCS, SF>);
     }
 
     selectAllRows() {
@@ -1585,15 +1536,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     //         return colScrolled || rowScrolled;
     //     }
     // }
-
-    /**
-     * @param useAllCells - Search in all rows and columns instead of only rendered ones.
-     * @internal
-     */
-    getFocusedViewCell(useAllCells: boolean) {
-        return this.focusScrollBehavior.getFocusedViewCell(useAllCells);
-    }
-
 
     // end Selection mixin
 
@@ -1733,35 +1675,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionAreaTypeId.rectangle) {
-        this.focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
-    }
-
-    /**
-     * @desc Scroll up one full page.
-     */
-    scrollPageUp() {
-        this.focusScrollBehavior.tryPageFocusUp();
-    }
-
-    /**
-     * @desc Scroll down one full page.
-     */
-    pageDown() {
-        this.focusScrollBehavior.tryPageFocusDown();
-    }
-
-    /**
-     * @desc Not yet implemented.
-     */
-    pageLeft() {
-        this.focusScrollBehavior.tryPageFocusLeft();
-    }
-
-    /**
-     * @desc Not yet implemented.
-     */
-    pageRight() {
-        this.focusScrollBehavior.tryPageFocusRight();
+        this._focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
     }
 
     /** @internal */
