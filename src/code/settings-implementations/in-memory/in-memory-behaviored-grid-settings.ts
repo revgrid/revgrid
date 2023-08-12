@@ -72,8 +72,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _minimumColumnWidth: number;
     private _maximumColumnWidth: number | undefined;
     private _visibleColumnWidthAdjust: boolean;
-    private _mouseMultiCellRectangleSelectionDragActiveCursorName: string | undefined;
-    private _mouseMultiCellRectangleSelectionDragActiveTitleText: string | undefined;
+    private _mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
+    private _mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     private _mouseAddToggleExtendSelectionAreaEnabled: boolean;
     private _mouseAddToggleExtendSelectionAreaDragModifierKey: ModifierKeyEnum | undefined;
     private _mouseColumnSelectionEnabled: boolean;
@@ -716,22 +716,22 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
-    get mouseMultiCellRectangleSelectionDragActiveCursorName() { return this._mouseMultiCellRectangleSelectionDragActiveCursorName; }
-    set mouseMultiCellRectangleSelectionDragActiveCursorName(value: string | undefined) {
-        if (value !== this._mouseMultiCellRectangleSelectionDragActiveCursorName) {
+    get mouseLastSelectionAreaExtendingDragActiveCursorName() { return this._mouseLastSelectionAreaExtendingDragActiveCursorName; }
+    set mouseLastSelectionAreaExtendingDragActiveCursorName(value: string | undefined) {
+        if (value !== this._mouseLastSelectionAreaExtendingDragActiveCursorName) {
             this.beginChange();
-            this._mouseMultiCellRectangleSelectionDragActiveCursorName = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseMultiCellRectangleSelectionDragActiveCursorName;
+            this._mouseLastSelectionAreaExtendingDragActiveCursorName = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
-    get mouseMultiCellRectangleSelectionDragActiveTitleText() { return this._mouseMultiCellRectangleSelectionDragActiveTitleText; }
-    set mouseMultiCellRectangleSelectionDragActiveTitleText(value: string | undefined) {
-        if (value !== this._mouseMultiCellRectangleSelectionDragActiveTitleText) {
+    get mouseLastSelectionAreaExtendingDragActiveTitleText() { return this._mouseLastSelectionAreaExtendingDragActiveTitleText; }
+    set mouseLastSelectionAreaExtendingDragActiveTitleText(value: string | undefined) {
+        if (value !== this._mouseLastSelectionAreaExtendingDragActiveTitleText) {
             this.beginChange();
-            this._mouseMultiCellRectangleSelectionDragActiveTitleText = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseMultiCellRectangleSelectionDragActiveTitleText;
+            this._mouseLastSelectionAreaExtendingDragActiveTitleText = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveTitleText;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1389,16 +1389,16 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.visibleColumnWidthAdjust);
                     }
                     break;
-                case 'mouseMultiCellRectangleSelectionDragActiveCursorName':
-                    if (this._mouseMultiCellRectangleSelectionDragActiveCursorName !== requiredSettings.mouseMultiCellRectangleSelectionDragActiveCursorName) {
-                        this._mouseMultiCellRectangleSelectionDragActiveCursorName = requiredSettings.mouseMultiCellRectangleSelectionDragActiveCursorName;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseMultiCellRectangleSelectionDragActiveCursorName);
+                case 'mouseLastSelectionAreaExtendingDragActiveCursorName':
+                    if (this._mouseLastSelectionAreaExtendingDragActiveCursorName !== requiredSettings.mouseLastSelectionAreaExtendingDragActiveCursorName) {
+                        this._mouseLastSelectionAreaExtendingDragActiveCursorName = requiredSettings.mouseLastSelectionAreaExtendingDragActiveCursorName;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveCursorName);
                     }
                     break;
-                case 'mouseMultiCellRectangleSelectionDragActiveTitleText':
-                    if (this._mouseMultiCellRectangleSelectionDragActiveTitleText !== requiredSettings.mouseMultiCellRectangleSelectionDragActiveTitleText) {
-                        this._mouseMultiCellRectangleSelectionDragActiveTitleText = requiredSettings.mouseMultiCellRectangleSelectionDragActiveTitleText;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseMultiCellRectangleSelectionDragActiveTitleText);
+                case 'mouseLastSelectionAreaExtendingDragActiveTitleText':
+                    if (this._mouseLastSelectionAreaExtendingDragActiveTitleText !== requiredSettings.mouseLastSelectionAreaExtendingDragActiveTitleText) {
+                        this._mouseLastSelectionAreaExtendingDragActiveTitleText = requiredSettings.mouseLastSelectionAreaExtendingDragActiveTitleText;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveTitleText);
                     }
                     break;
                 case 'mouseAddToggleExtendSelectionAreaEnabled':

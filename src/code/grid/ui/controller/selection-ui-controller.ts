@@ -203,13 +203,14 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         viewCell: ViewCell<BCS, SF>,
         forceAddToggleToBeAdd: boolean,
     ) {
-        const switchNewRectangleSelectionToRowOrColumn = this.gridSettings.switchNewRectangleSelectionToRowOrColumn;
-        switch (switchNewRectangleSelectionToRowOrColumn) {
-            case undefined: return this.trySelectRectangleFromCell(event, viewCell, forceAddToggleToBeAdd);
-            case 'row': return this.trySelectRowsFromCell(event, viewCell, forceAddToggleToBeAdd);
-            case 'column': return this.trySelectColumnsFromCell(event, viewCell, forceAddToggleToBeAdd);
+        const allowedAreaTypeId = this.selection.calculateMouseMainSelectAllowedAreaTypeId();
+        switch (allowedAreaTypeId) {
+            case undefined: return false;
+            case SelectionAreaTypeId.rectangle: return this.trySelectRectangleFromCell(event, viewCell, forceAddToggleToBeAdd);
+            case SelectionAreaTypeId.row: return this.trySelectRowsFromCell(event, viewCell, forceAddToggleToBeAdd);
+            case SelectionAreaTypeId.column: return this.trySelectColumnsFromCell(event, viewCell, forceAddToggleToBeAdd);
             default:
-                throw new UnreachableCaseError('SUCHPDS49496', switchNewRectangleSelectionToRowOrColumn);
+                throw new UnreachableCaseError('SUCTSISM', allowedAreaTypeId);
         }
     }
 
@@ -234,13 +235,12 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
                     const origin = lastArea.inclusiveFirst;
                     const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
                     const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
-                    selection.replaceLastArea(
+                    selection.replaceLastAreaWithRectangle(
                         startLengthX.start,
                         startLengthY.start,
                         startLengthX.length,
                         startLengthY.length,
                         subgrid,
-                        areaType
                     );
                 } else {
                     selection.selectCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
@@ -669,7 +669,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         if (dragType === undefined) {
             this.mouse.setOperation(undefined, undefined);
         } else {
-            this.mouse.setOperation(this.gridSettings.mouseMultiCellRectangleSelectionDragActiveCursorName, this.gridSettings.mouseMultiCellRectangleSelectionDragActiveTitleText);
+            this.mouse.setOperation(this.gridSettings.mouseLastSelectionAreaExtendingDragActiveCursorName, this.gridSettings.mouseLastSelectionAreaExtendingDragActiveTitleText);
         }
     }
 

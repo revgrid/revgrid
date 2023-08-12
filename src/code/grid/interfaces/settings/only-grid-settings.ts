@@ -109,8 +109,8 @@ export interface OnlyGridSettings {
     minimumColumnWidth: number;
     maximumColumnWidth: number | undefined;
     /** Cursor to appear when extending a selection with a mouse drag */
-    mouseMultiCellRectangleSelectionDragActiveCursorName: string | undefined;
-    mouseMultiCellRectangleSelectionDragActiveTitleText: string | undefined;
+    mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
+    mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     /** Allows rectangle selections with more than one cell and/or multiple rectangle selections.  If false, then only focused cell is selected */
     mouseAddToggleExtendSelectionAreaEnabled: boolean;
     mouseAddToggleExtendSelectionAreaDragModifierKey: ModifierKeyEnum | undefined;

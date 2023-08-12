@@ -1778,11 +1778,11 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get mouseColumnSelectionModifierKey(): ModifierKeyEnum | undefined;
     set mouseColumnSelectionModifierKey(value: ModifierKeyEnum | undefined);
     // (undocumented)
-    get mouseMultiCellRectangleSelectionDragActiveCursorName(): string | undefined;
-    set mouseMultiCellRectangleSelectionDragActiveCursorName(value: string | undefined);
+    get mouseLastSelectionAreaExtendingDragActiveCursorName(): string | undefined;
+    set mouseLastSelectionAreaExtendingDragActiveCursorName(value: string | undefined);
     // (undocumented)
-    get mouseMultiCellRectangleSelectionDragActiveTitleText(): string | undefined;
-    set mouseMultiCellRectangleSelectionDragActiveTitleText(value: string | undefined);
+    get mouseLastSelectionAreaExtendingDragActiveTitleText(): string | undefined;
+    set mouseLastSelectionAreaExtendingDragActiveTitleText(value: string | undefined);
     // (undocumented)
     get mouseRowSelectionEnabled(): boolean;
     set mouseRowSelectionEnabled(value: boolean);
@@ -2401,9 +2401,9 @@ export interface OnlyGridSettings {
     mouseColumnSelectionEnabled: boolean;
     // (undocumented)
     mouseColumnSelectionModifierKey: ModifierKeyEnum | undefined;
-    mouseMultiCellRectangleSelectionDragActiveCursorName: string | undefined;
+    mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
     // (undocumented)
-    mouseMultiCellRectangleSelectionDragActiveTitleText: string | undefined;
+    mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     mouseRowSelectionEnabled: boolean;
     // (undocumented)
     mouseRowSelectionModifierKey: ModifierKeyEnum | undefined;
@@ -3694,6 +3694,8 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // @internal (undocumented)
     calculateAreaTypeFromSpecifier(specifier: SelectionAreaTypeSpecifier): SelectionAreaTypeId;
     // @internal (undocumented)
+    calculateMouseMainSelectAllowedAreaTypeId(): SelectionAreaTypeId.rectangle | SelectionAreaTypeId.row | SelectionAreaTypeId.column | undefined;
+    // @internal (undocumented)
     changedEventerForEventBehavior: Selection_2.ChangedEventer;
     // @internal (undocumented)
     changedEventerForRenderer: Selection_2.ChangedEventer;
@@ -3781,9 +3783,9 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     selectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean;
     // (undocumented)
-    selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid<BCS, SF>): void;
+    selectToggleColumn(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
-    selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid<BCS, SF>): void;
+    selectToggleRow(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
     setAllSelected(value: boolean, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)

@@ -442,8 +442,12 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    selectToggleRow(x: number, inexclusiveY: number, subgrid: Subgrid<BCS, SF>) {
-        this.selectRows(x, inexclusiveY, 1, 1, subgrid); // implement properly in future
+    selectToggleRow(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
+        if (this._rows.includesIndex(y)) {
+            this.deselectRows(y, 1, subgrid);
+        } else {
+            this.selectRows(x, y, 1, 1, subgrid);
+        }
     }
 
     selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
@@ -508,8 +512,12 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    selectToggleColumn(inexclusiveX: number, y: number, subgrid: Subgrid<BCS, SF>) {
-        this.selectColumns(inexclusiveX, y, 1, 1, subgrid); // implement properly in future
+    selectToggleColumn(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
+        if (this._columns.includesIndex(x)) {
+            this.deselectColumns(x, 1, subgrid);
+        } else {
+            this.selectColumns(x, y, 1, 1, subgrid);
+        }
     }
 
     replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
@@ -812,6 +820,19 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
     }
 
     /** @internal */
+    calculateMouseMainSelectAllowedAreaTypeId() {
+        const areaTypeId = this.calculateMouseMainSelectAreaTypeId();
+        switch (areaTypeId) {
+            case SelectionAreaTypeId.all: throw new AssertError('SCMMSAATI39113');
+            case SelectionAreaTypeId.rectangle: return areaTypeId;
+            case SelectionAreaTypeId.row: return this._gridSettings.mouseRowSelectionEnabled ? areaTypeId : undefined;
+            case SelectionAreaTypeId.column: return this._gridSettings.mouseColumnSelectionEnabled ? areaTypeId : undefined;
+            default:
+                throw new UnreachableCaseError('SCMMSAATI30987', areaTypeId);
+        }
+    }
+
+    /** @internal */
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: DataServer<SF>) {
         const subgrid = this._subgrid;
         if (subgrid !== undefined && dataServer === subgrid.dataServer) {
@@ -1040,6 +1061,18 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 firstCorner: FirstCornerArea.Corner.TopLeft,
                 size: width * rowCount,
             };
+        }
+    }
+
+    /** @internal */
+    private calculateMouseMainSelectAreaTypeId() {
+        const switchNewRectangleSelectionToRowOrColumn = this._gridSettings.switchNewRectangleSelectionToRowOrColumn;
+        switch (switchNewRectangleSelectionToRowOrColumn) {
+            case undefined: return this.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
+            case 'row': return SelectionAreaTypeId.row;
+            case 'column': return SelectionAreaTypeId.column;
+            default:
+                throw new UnreachableCaseError('SCMMSATI30987', switchNewRectangleSelectionToRowOrColumn);
         }
     }
 
