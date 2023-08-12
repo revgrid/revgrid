@@ -187,12 +187,12 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     override handleKeyDown(event: KeyboardEvent, fromEditor: boolean) {
         if (Focus.isNavActionKeyboardKey(event.key)) {
             if (GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event)) {
-                if (this.focusSelectBehavior.extendLastSelectionAreaAsCloseAsPossibleToFocus()) {
+                if (this.focusSelectBehavior.tryExtendLastSelectionAreaAsCloseAsPossibleToFocus()) {
                     this.pingAutoScroll();
                 }
             } else {
                 const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
-                this.focusSelectBehavior.selectOnlyFocusedCell(areaType);
+                this.focusSelectBehavior.trySelectOnlyFocusedCell(areaType);
             }
         }
         super.handleKeyDown(event, fromEditor);
@@ -409,12 +409,12 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
                         const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.x, cell.viewLayoutColumn.activeColumnIndex);
                         const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(origin.y, cell.viewLayoutRow.subgridRowIndex);
                         selection.replaceLastArea(
+                            lastArea.areaTypeId,
                             xExclusiveStartLength.start,
                             yExclusiveStartLength.start,
                             xExclusiveStartLength.length,
                             yExclusiveStartLength.length,
                             subgrid,
-                            lastArea.areaTypeId,
                         );
                     }
                 }

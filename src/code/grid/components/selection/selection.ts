@@ -193,7 +193,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                 this.clear();
                 this._subgrid = subgrid;
             }
-            this.selectArea(x, y, 1, 1, subgrid, areaTypeId);
+            this.selectArea(areaTypeId, x, y, 1, 1, subgrid);
         } finally {
             this.endChange();
         }
@@ -209,7 +209,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         this.deselectRectangle(rectangle, subgrid);
     }
 
-    selectArea(firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
+    selectArea(areaTypeId: SelectionAreaTypeId, firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
         this.beginChange();
         try {
             let area: SelectionArea | undefined;
@@ -520,11 +520,11 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    replaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
+    replaceLastArea(areaTypeId: SelectionAreaTypeId, inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
         this.beginChange();
         try {
             this.deselectLastArea();
-            return this.selectArea(inexclusiveX, inexclusiveY, width, height, subgrid, areaTypeId);
+            return this.selectArea(areaTypeId, inexclusiveX, inexclusiveY, width, height, subgrid);
         } finally {
             this.endChange();
         }

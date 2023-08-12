@@ -36,7 +36,7 @@ import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { ApiError, AssertError } from './types-utils/revgrid-error';
 import { RevgridObject } from './types-utils/revgrid-object';
-import { SelectionAreaType, SelectionAreaTypeId } from './types-utils/selection-area-type';
+import { SelectionAreaType } from './types-utils/selection-area-type';
 import { ListChangedTypeId } from './types-utils/types';
 import { UiController } from './ui/controller/ui-controller';
 import { UiManager } from './ui/ui-controller-manager';
@@ -627,136 +627,136 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return result;
     }
 
-    calculateColumnScrollContentSizeAndAnchorLimits(
-        contentStart: number, // Fixed columns width + fixed gridline width
-        viewportSize: number,
-        gridRightAligned: boolean,
-        columnCount: number,
-        fixedColumnCount: number,
-    ): ViewLayout.ScrollContentSizeAndAnchorLimits {
-        let contentSize = this.calculateActiveNonFixedColumnsWidth();
-        let anchorLimits: ViewLayout.ScrollAnchorLimits;
+    // calculateColumnScrollContentSizeAndAnchorLimits(
+    //     contentStart: number, // Fixed columns width + fixed gridline width
+    //     viewportSize: number,
+    //     gridRightAligned: boolean,
+    //     columnCount: number,
+    //     fixedColumnCount: number,
+    // ): ViewLayout.ScrollContentSizeAndAnchorLimits {
+    //     let contentSize = this.calculateActiveNonFixedColumnsWidth();
+    //     let anchorLimits: ViewLayout.ScrollAnchorLimits;
 
-        const contentOverflowed = contentSize > viewportSize && columnCount > fixedColumnCount
-        if (contentOverflowed) {
-            let leftAnchorLimitIndex: number;
-            let leftAnchorLimitOffset: number;
-            let rightAnchorLimitIndex: number;
-            let rightAnchorLimitOffset: number;
+    //     const contentOverflowed = contentSize > viewportSize && columnCount > fixedColumnCount
+    //     if (contentOverflowed) {
+    //         let leftAnchorLimitIndex: number;
+    //         let leftAnchorLimitOffset: number;
+    //         let rightAnchorLimitIndex: number;
+    //         let rightAnchorLimitOffset: number;
 
-            const gridLinesVWidth = this.settings.verticalGridLinesWidth;
-            if (gridRightAligned) {
-                rightAnchorLimitIndex = columnCount - 1;
-                rightAnchorLimitOffset = 0;
-                let prevColumnGridLineFinish = contentStart - 1;
-                const lowestViewportFinish = prevColumnGridLineFinish + viewportSize;
-                let lowestViewportStartColumnIndex = fixedColumnCount;
-                let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this.getActiveColumnWidth(lowestViewportStartColumnIndex);
-                while (lowestViewportStartColumnFinish <= lowestViewportFinish) {
-                    prevColumnGridLineFinish = lowestViewportStartColumnFinish;
-                    lowestViewportStartColumnIndex++;
-                    lowestViewportStartColumnFinish = prevColumnGridLineFinish + (this.getActiveColumnWidth(lowestViewportStartColumnIndex) + gridLinesVWidth);
-                }
-                leftAnchorLimitIndex = lowestViewportStartColumnIndex;
-                leftAnchorLimitOffset = lowestViewportStartColumnFinish - lowestViewportFinish;
-                if (!this.settings.scrollHorizontallySmoothly) {
-                    // Since we cannot show a partial column on right, this may prevent leftmost columns from being displayed in viewport
-                    // Extend scrollable size (content size) so that the previous column can be shown on end when viewport is at start of content.
-                    contentSize += (lowestViewportFinish - prevColumnGridLineFinish);
-                    if (leftAnchorLimitOffset !== 0) {
-                        leftAnchorLimitOffset = 0;
-                        if (leftAnchorLimitIndex > fixedColumnCount) {
-                            leftAnchorLimitIndex--;
-                        }
-                    }
-                }
-            } else {
-                leftAnchorLimitIndex = fixedColumnCount;
-                leftAnchorLimitOffset = 0;
-                const highestViewportStart = contentSize - viewportSize;
-                let nextColumnLeft = contentSize;
-                let highestViewportStartColumnIndex = columnCount - 1;
-                let highestViewportStartColumnLeft = nextColumnLeft - this.getActiveColumnWidth(highestViewportStartColumnIndex);
-                while (highestViewportStartColumnLeft > highestViewportStart) {
-                    nextColumnLeft = highestViewportStartColumnLeft;
-                    highestViewportStartColumnIndex--;
-                    highestViewportStartColumnLeft = nextColumnLeft - (this.getActiveColumnWidth(highestViewportStartColumnIndex) + gridLinesVWidth);
-                }
-                rightAnchorLimitIndex = highestViewportStartColumnIndex;
-                rightAnchorLimitOffset = highestViewportStart - highestViewportStartColumnLeft;
-                if (!this.settings.scrollHorizontallySmoothly) {
-                    // Since we cannot show a partial column on left, this may prevent rightmost columns from being displayed in viewport
-                    // Extend scrollable size (content size) so that the subsequent column can be shown on start when viewport is at end of content.
-                    contentSize += (nextColumnLeft - highestViewportStart);
-                    if (rightAnchorLimitOffset !== 0) {
-                        rightAnchorLimitOffset = 0;
-                        if (rightAnchorLimitIndex < columnCount - 1) {
-                            rightAnchorLimitIndex++;
-                        }
-                    }
-                }
-            }
+    //         const gridLinesVWidth = this.settings.verticalGridLinesWidth;
+    //         if (gridRightAligned) {
+    //             rightAnchorLimitIndex = columnCount - 1;
+    //             rightAnchorLimitOffset = 0;
+    //             let prevColumnGridLineFinish = contentStart - 1;
+    //             const lowestViewportFinish = prevColumnGridLineFinish + viewportSize;
+    //             let lowestViewportStartColumnIndex = fixedColumnCount;
+    //             let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this.getActiveColumnWidth(lowestViewportStartColumnIndex);
+    //             while (lowestViewportStartColumnFinish <= lowestViewportFinish) {
+    //                 prevColumnGridLineFinish = lowestViewportStartColumnFinish;
+    //                 lowestViewportStartColumnIndex++;
+    //                 lowestViewportStartColumnFinish = prevColumnGridLineFinish + (this.getActiveColumnWidth(lowestViewportStartColumnIndex) + gridLinesVWidth);
+    //             }
+    //             leftAnchorLimitIndex = lowestViewportStartColumnIndex;
+    //             leftAnchorLimitOffset = lowestViewportStartColumnFinish - lowestViewportFinish;
+    //             if (!this.settings.scrollHorizontallySmoothly) {
+    //                 // Since we cannot show a partial column on right, this may prevent leftmost columns from being displayed in viewport
+    //                 // Extend scrollable size (content size) so that the previous column can be shown on end when viewport is at start of content.
+    //                 contentSize += (lowestViewportFinish - prevColumnGridLineFinish);
+    //                 if (leftAnchorLimitOffset !== 0) {
+    //                     leftAnchorLimitOffset = 0;
+    //                     if (leftAnchorLimitIndex > fixedColumnCount) {
+    //                         leftAnchorLimitIndex--;
+    //                     }
+    //                 }
+    //             }
+    //         } else {
+    //             leftAnchorLimitIndex = fixedColumnCount;
+    //             leftAnchorLimitOffset = 0;
+    //             const highestViewportStart = contentSize - viewportSize;
+    //             let nextColumnLeft = contentSize;
+    //             let highestViewportStartColumnIndex = columnCount - 1;
+    //             let highestViewportStartColumnLeft = nextColumnLeft - this.getActiveColumnWidth(highestViewportStartColumnIndex);
+    //             while (highestViewportStartColumnLeft > highestViewportStart) {
+    //                 nextColumnLeft = highestViewportStartColumnLeft;
+    //                 highestViewportStartColumnIndex--;
+    //                 highestViewportStartColumnLeft = nextColumnLeft - (this.getActiveColumnWidth(highestViewportStartColumnIndex) + gridLinesVWidth);
+    //             }
+    //             rightAnchorLimitIndex = highestViewportStartColumnIndex;
+    //             rightAnchorLimitOffset = highestViewportStart - highestViewportStartColumnLeft;
+    //             if (!this.settings.scrollHorizontallySmoothly) {
+    //                 // Since we cannot show a partial column on left, this may prevent rightmost columns from being displayed in viewport
+    //                 // Extend scrollable size (content size) so that the subsequent column can be shown on start when viewport is at end of content.
+    //                 contentSize += (nextColumnLeft - highestViewportStart);
+    //                 if (rightAnchorLimitOffset !== 0) {
+    //                     rightAnchorLimitOffset = 0;
+    //                     if (rightAnchorLimitIndex < columnCount - 1) {
+    //                         rightAnchorLimitIndex++;
+    //                     }
+    //                 }
+    //             }
+    //         }
 
-            anchorLimits = {
-                startAnchorLimitIndex: leftAnchorLimitIndex,
-                startAnchorLimitOffset: leftAnchorLimitOffset,
-                finishAnchorLimitIndex: rightAnchorLimitIndex,
-                finishAnchorLimitOffset: rightAnchorLimitOffset,
-            }
-        } else {
-            anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
-        }
+    //         anchorLimits = {
+    //             startAnchorLimitIndex: leftAnchorLimitIndex,
+    //             startAnchorLimitOffset: leftAnchorLimitOffset,
+    //             finishAnchorLimitIndex: rightAnchorLimitIndex,
+    //             finishAnchorLimitOffset: rightAnchorLimitOffset,
+    //         }
+    //     } else {
+    //         anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
+    //     }
 
-        return {
-            contentSize,
-            contentOverflowed,
-            anchorLimits,
-        };
-    }
+    //     return {
+    //         contentSize,
+    //         contentOverflowed,
+    //         anchorLimits,
+    //     };
+    // }
 
-    calculateColumnScrollInactiveAnchorLimits(
-        gridRightAligned: boolean,
-        columnCount: number,
-        fixedColumnCount: number
-    ): ViewLayout.ScrollAnchorLimits {
-        let startAnchorLimitIndex: number;
-        let finishAnchorLimitIndex: number;
-        if (gridRightAligned) {
-            finishAnchorLimitIndex = columnCount - 1;
-            startAnchorLimitIndex = finishAnchorLimitIndex;
-        } else {
-            startAnchorLimitIndex = fixedColumnCount;
-            finishAnchorLimitIndex = startAnchorLimitIndex;
-        }
-        return {
-            startAnchorLimitIndex,
-            startAnchorLimitOffset: 0,
-            finishAnchorLimitIndex,
-            finishAnchorLimitOffset: 0,
-        };
-    }
+    // calculateColumnScrollInactiveAnchorLimits(
+    //     gridRightAligned: boolean,
+    //     columnCount: number,
+    //     fixedColumnCount: number
+    // ): ViewLayout.ScrollAnchorLimits {
+    //     let startAnchorLimitIndex: number;
+    //     let finishAnchorLimitIndex: number;
+    //     if (gridRightAligned) {
+    //         finishAnchorLimitIndex = columnCount - 1;
+    //         startAnchorLimitIndex = finishAnchorLimitIndex;
+    //     } else {
+    //         startAnchorLimitIndex = fixedColumnCount;
+    //         finishAnchorLimitIndex = startAnchorLimitIndex;
+    //     }
+    //     return {
+    //         startAnchorLimitIndex,
+    //         startAnchorLimitOffset: 0,
+    //         finishAnchorLimitIndex,
+    //         finishAnchorLimitOffset: 0,
+    //     };
+    // }
 
-    getColumnScrollableLeft(activeIndex: number) {
-        const fixedColumnCount = this.columnsManager.getFixedColumnCount();
-        if (activeIndex < fixedColumnCount) {
-            throw new AssertError('HGCSL89933');
-        } else {
-            const gridLinesVWidth = this.settings.verticalGridLinesWidth;
-            let result = 0;
-            for (let i = fixedColumnCount; i < activeIndex; i++) {
-                result += this.getActiveColumnWidth(i);
-            }
+    // getColumnScrollableLeft(activeIndex: number) {
+    //     const fixedColumnCount = this.columnsManager.getFixedColumnCount();
+    //     if (activeIndex < fixedColumnCount) {
+    //         throw new AssertError('HGCSL89933');
+    //     } else {
+    //         const gridLinesVWidth = this.settings.verticalGridLinesWidth;
+    //         let result = 0;
+    //         for (let i = fixedColumnCount; i < activeIndex; i++) {
+    //             result += this.getActiveColumnWidth(i);
+    //         }
 
-            if (gridLinesVWidth > 0) {
-                const scrollableColumnCount = activeIndex - fixedColumnCount;
-                if (scrollableColumnCount > 1) {
-                    result += (scrollableColumnCount - 1) * gridLinesVWidth;
-                }
-            }
+    //         if (gridLinesVWidth > 0) {
+    //             const scrollableColumnCount = activeIndex - fixedColumnCount;
+    //             if (scrollableColumnCount > 1) {
+    //                 result += (scrollableColumnCount - 1) * gridLinesVWidth;
+    //             }
+    //         }
 
-            return result;
-        }
-    }
+    //         return result;
+    //     }
+    // }
 
     getActiveColumn(activeIndex: number) {
         return this.columnsManager.getActiveColumn(activeIndex);
@@ -988,114 +988,114 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.canvas.removeExternalEventListener(eventName, listener, options);
     }
 
-    // FocusSelectBehavior
+    // FocusScrollBehavior
 
     tryFocusXYAndEnsureInView(x: number, y: number, cell?: ViewCell<BCS, SF>) {
-        this._focusScrollBehavior.tryFocusXYAndEnsureInView(x, y, cell);
+        return this._focusScrollBehavior.tryFocusXYAndEnsureInView(x, y, cell);
     }
 
     tryFocusXAndEnsureInView(x: number) {
-        this._focusScrollBehavior.tryFocusXAndEnsureInView(x);
+        return this._focusScrollBehavior.tryFocusXAndEnsureInView(x);
     }
 
     tryFocusYAndEnsureInView(y: number) {
-        this._focusScrollBehavior.tryFocusYAndEnsureInView(y);
+        return this._focusScrollBehavior.tryFocusYAndEnsureInView(y);
     }
 
     tryMoveFocusLeft() {
-        this._focusScrollBehavior.tryMoveFocusLeft();
+        return this._focusScrollBehavior.tryMoveFocusLeft();
     }
 
     tryMoveFocusRight() {
-        this._focusScrollBehavior.tryMoveFocusRight();
+        return this._focusScrollBehavior.tryMoveFocusRight();
     }
 
     tryMoveFocusUp() {
-        this._focusScrollBehavior.tryMoveFocusUp();
+        return this._focusScrollBehavior.tryMoveFocusUp();
     }
 
     tryMoveFocusDown() {
-        this._focusScrollBehavior.tryMoveFocusDown();
+        return this._focusScrollBehavior.tryMoveFocusDown();
     }
 
     tryFocusFirstColumn() {
-        this._focusScrollBehavior.tryFocusFirstColumn();
+        return this._focusScrollBehavior.tryFocusFirstColumn();
     }
 
     tryFocusLastColumn() {
-        this._focusScrollBehavior.tryFocusLastColumn();
+        return this._focusScrollBehavior.tryFocusLastColumn();
     }
 
     tryFocusTop() {
-        this._focusScrollBehavior.tryFocusTop();
+        return this._focusScrollBehavior.tryFocusTop();
     }
 
     tryFocusBottom() {
-        this._focusScrollBehavior.tryFocusBottom();
+        return this._focusScrollBehavior.tryFocusBottom();
     }
 
     tryPageFocusLeft() {
-        this._focusScrollBehavior.tryPageFocusLeft();
+        return this._focusScrollBehavior.tryPageFocusLeft();
     }
 
     tryPageFocusRight() {
-        this._focusScrollBehavior.tryPageFocusRight();
+        return this._focusScrollBehavior.tryPageFocusRight();
     }
 
     tryPageFocusUp() {
-        this._focusScrollBehavior.tryPageFocusUp();
+        return this._focusScrollBehavior.tryPageFocusUp();
     }
 
     tryPageFocusDown() {
-        this._focusScrollBehavior.tryPageFocusDown();
+        return this._focusScrollBehavior.tryPageFocusDown();
     }
 
     tryScrollLeft() {
-        this._focusScrollBehavior.tryScrollLeft();
+        return this._focusScrollBehavior.tryScrollLeft();
     }
 
     tryScrollRight() {
-        this._focusScrollBehavior.tryScrollRight();
+        return this._focusScrollBehavior.tryScrollRight();
     }
 
     tryScrollUp() {
-        this._focusScrollBehavior.tryScrollUp();
+        return this._focusScrollBehavior.tryScrollUp();
     }
 
     tryScrollDown() {
-        this._focusScrollBehavior.tryScrollDown();
+        return this._focusScrollBehavior.tryScrollDown();
     }
 
     scrollFirstColumn() {
-        this._focusScrollBehavior.scrollFirstColumn();
+        return this._focusScrollBehavior.scrollFirstColumn();
     }
 
     scrollLastColumn() {
-        this._focusScrollBehavior.scrollLastColumn();
+        return this._focusScrollBehavior.scrollLastColumn();
     }
 
     scrollTop() {
-        this._focusScrollBehavior.scrollTop();
+        return this._focusScrollBehavior.scrollTop();
     }
 
     scrollBottom() {
-        this._focusScrollBehavior.scrollBottom();
+        return this._focusScrollBehavior.scrollBottom();
     }
 
     tryScrollPageLeft() {
-        this._focusScrollBehavior.tryScrollPageLeft();
+        return this._focusScrollBehavior.tryScrollPageLeft();
     }
 
     tryScrollPageRight() {
-        this._focusScrollBehavior.tryScrollPageRight();
+        return this._focusScrollBehavior.tryScrollPageRight();
     }
 
     tryScrollPageUp() {
-        this._focusScrollBehavior.tryScrollPageUp();
+        return this._focusScrollBehavior.tryScrollPageUp();
     }
 
     tryScrollPageDown() {
-        this._focusScrollBehavior.tryScrollPageDown();
+        return this._focusScrollBehavior.tryScrollPageDown();
     }
 
     // Overridable methods for descendant classes to handle event processing
@@ -1445,237 +1445,99 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this.selection.isColumnOrRowSelected();
     }
 
-    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+    // FocusSelectBehavior
+
+    selectOnlyColumn(activeColumnIndex: number) {
+        return this._focusSelectBehavior.selectOnlyColumn(activeColumnIndex);
+    }
+
+    selectToggleColumn(activeColumnIndex: number) {
+        this._focusSelectBehavior.selectToggleColumn(activeColumnIndex);
+    }
+
+    selectAddColumn(activeColumnIndex: number) {
+        this._focusSelectBehavior.selectAddColumn(activeColumnIndex);
+    }
+
+    selectOnlyRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this._focusSelectBehavior.getDefaultSelectionSubgrid();
+        }
+        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid);
+    }
+
+    selectToggleRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this._focusSelectBehavior.getDefaultSelectionSubgrid();
+        }
+        this._focusSelectBehavior.selectToggleRow(subgridRowIndex, subgrid);
+    }
+
+    selectAddRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this._focusSelectBehavior.getDefaultSelectionSubgrid();
+        }
+        this._focusSelectBehavior.selectAddRow(subgridRowIndex, subgrid);
+    }
+
+    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
-        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<BCS, SF>);
+        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
     }
 
-    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType: SelectionAreaType = 'rectangle') {
-        this._focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, SelectionAreaType.toId(areaType));
-    }
-
-    selectOnlyCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType: SelectionAreaType = 'rectangle') {
+    focusSelectOnlyCell(activeColumnIndex: number, subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>, areaType: SelectionAreaType = 'rectangle') {
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
-
-        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid<BCS, SF>, SelectionAreaType.toId(areaType));
+        const areaTypeId = SelectionAreaType.toId(areaType);
+        this._focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, subgridRowIndex, subgrid, areaTypeId)
     }
 
-    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
-        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid<BCS, SF>);
+    selectOnlyViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number, areaType: SelectionAreaType = 'rectangle') {
+        const areaTypeId = SelectionAreaType.toId(areaType);
+        this._focusSelectBehavior.selectOnlyViewCell(viewLayoutColumnIndex, viewLayoutRowIndex, areaTypeId)
     }
 
-    selectAllRows() {
-        this.selection.selectAll(this.mainSubgrid);
+    focusSelectAddCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType: SelectionAreaType = 'rectangle') {
+        if (subgrid === undefined) {
+            subgrid = this.focus.subgrid;
+        }
+        const areaTypeId = SelectionAreaType.toId(areaType);
+        this._focusSelectBehavior.focusSelectAddCell(x, y, subgrid, areaTypeId);
     }
 
-    // toggleSelectAllRows(forceClearRows = true) {
-    //     this._focusSelectionBehavior.toggleSelectAllRows(forceClearRows);
-    // }
-
-    // selectColumns(x1: number, x2: number) {
-    //     this._focusSelectionBehavior.focusSelectColumns(x1, x2);
-    // }
-
-    // toggleSelectRow(y: number, shiftKeyDown: boolean, subgrid: Subgrid | undefined) {
-    //     this._focusSelectionBehavior.toggleSelectRow(y, shiftKeyDown, subgrid);
-    // }
-
-    // toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
-    //     this._focusSelectionBehavior.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
-    // }
-
-    /** @summary Extend cell selection by offset.
-     * @desc Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
-     * @param offsetX - x coordinate to start at
-     * @param offsetY - y coordinate to start at
-     */
-    // extendRectangleSelect(offsetX: number, offsetY: number) {
-    //     const selection = this.selection;
-    //     const subgrid = selection.focusedSubgrid;
-    //     let maxColumns = this.activeColumnCount - 1;
-    //     let maxRows = subgrid.getRowCount() - 1;
-
-    //     const maxViewableColumns = this.renderer.visibleColumns.length - 1;
-    //     const maxViewableRows = this.renderer.visibleRows.length - 1;
-
-    //     const origin = this._userInterfaceInputBehavior.getMouseDown();
-    //     const extent = this._userInterfaceInputBehavior.getDragExtent();
-
-    //     if (origin === undefined || extent === undefined) {
-    //         throw new AssertError('RGES01034');
-    //     } else {
-    //         let newX = extent.x + offsetX;
-    //         let newY = extent.y + offsetY;
-
-    //         if (!this.properties.scrollingEnabled) {
-    //             maxColumns = Math.min(maxColumns, maxViewableColumns);
-    //             maxRows = Math.min(maxRows, maxViewableRows);
-    //         }
-
-    //         newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
-    //         newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
-
-    //         selection.beginChange();
-    //         try {
-    //             this.clearMostRecentRectangleSelection();
-    //             selection.selectRectangle(origin.x, origin.y, newX, newY, subgrid);
-    //         } finally {
-    //             selection.endChange();
-    //         }
-    //         this._userInterfaceInputBehavior.setDragExtent(Point.create(newX, newY));
-
-    //         const colScrolled = this.ensureModelColIsVisible(newX + origin.x, offsetX);
-    //         const rowScrolled = this.ensureModelRowIsVisible(newY + origin.y, offsetY, subgrid);
-
-    //         this.repaint();
-
-    //         return colScrolled || rowScrolled;
-    //     }
-    // }
-
-    // end Selection mixin
-
-    // Begin Themes mixin
-
-    // /**
-    //  * @summary Get currently active theme.
-    //  * @desc May return a theme name or a theme object.
-    //  * @returns {string|undefined|object} One of:
-    //  * * **string:** Theme name (registered theme).
-    //  * * **object:** Theme object (unregistered anonymous theme).
-    //  * * **undefined:** No theme (i.e., the default theme).
-    //  */
-    // get theme() {
-    //     const themeLayer = this._theme;
-    //     const themeName = themeLayer.themeName;
-    //     return themeName === 'default' || !Object.getOwnPropertyNames(themeLayer).length
-    //         ? undefined // default theme or no theme
-    //         : themeName in registry
-    //             ? themeName // registered theme name
-    //             : themeLayer; // unregistered theme object
-    // }
-
-    // /**
-    //  * @summary Apply a grid theme.
-    //  * @desc Apply props from the given theme object to the grid instance,
-    //  * the instance's `myGrid.themeLayer` layer in the properties hierarchy.
-    //  * @this {Hypergrid}
-    //  * @param {object|string} [theme] - One of:
-    //  * * **string:** A registered theme name.
-    //  * * **object:** An anonymous (unregistered) theme object. Empty object removes grid theme, exposing global theme.
-    //  * * _falsy value:_ Also removes grid theme (like empty object).
-    //  * @param {string|undefined} [theme.themeName=undefined]
-    //  */
-    // set theme(value) {
-    //     applyTheme(value);
-    // }
-
-    // End Themes Mixin
-
-    // Begin Shared Themes Mixin
-    // /**
-    //  * @param {string} [name] - A registry name for the new theme. May be omitted if the theme has an embedded name (in `theme.themeName`).
-    //  * _If omitted, the 2nd parameter (`theme`) is promoted to first position._
-    //  * @param {HypergridThemeObject} [theme]
-    //  * To build a Hypergrid theme object from a loaded {@link https://polymerthemes.com Polymer Theme} CSS stylesheet:
-    //  * ```javascript
-    //  * var myTheme = require('rev-hypergrid-themes').buildTheme();
-    //  * ```
-    //  * If omitted, unregister the theme named in the first parameter.
-    //  *
-    //  * Grid instances that have previously applied the named theme are unaffected by this action (whether re-registering or unregistering).
-    //  */
-    // static registerTheme(name: string, theme: Theme) {
-    //     if (typeof name === 'object') {
-    //         theme = name;
-    //         name = theme.themeName;
-    //     }
-
-    //     if (!name) {
-    //         throw new HypergridError('Cannot register an anonymous theme.');
-    //     }
-
-    //     if (name === 'default') {
-    //         throw new HypergridError('Cannot register or unregister the "default" theme.');
-    //     }
-
-    //     if (theme) {
-    //         theme.themeName = name;
-    //         registry[name] = theme;
-    //     } else {
-    //         delete registry[name];
-    //     }
-    // }
-
-    // /**
-    //  * App developers are free to add in additional themes, such as those in {@link https://github.com/fin-hypergrid/themes/tree/master/js}:
-    //  * ```javascript
-    //  * Hypergrind.registerThemes(require('rev-hypergrid-themes'));
-    //  * ```
-    //  * @param {object} themeCollection
-    //  */
-    // static registerThemes(themeCollection) {
-    //     if (themeCollection) {
-    //         _(themeCollection).each(function(theme, name) {
-    //             this.registerTheme(name, theme);
-    //         }, this);
-    //     } else {
-    //         Object.keys(registry).forEach(function(themeName) {
-    //             this.registerTheme(themeName);
-    //         }, this);
-    //     }
-    // }
-
-    // /**
-    //  * @summary Apply global theme.
-    //  * @desc Apply props from the given theme object to the global theme object,
-    //  * the `defaults` layer at the bottom of the properties hierarchy.
-    //  * @param {object|string} [theme=registry.default] - One of:
-    //  * * **string:** A registered theme name.
-    //  * * **object:** A theme object. Empty object removes global them, restoring defaults.
-    //  * * _falsy value:_ Also restores defaults.
-    //  * @param {string|undefined} [theme.themeName=undefined]
-    //  */
-    // static applyTheme(theme: Theme) {
-    //     var themeObject = applyTheme.call(this, theme);
-    //     images.setTheme(themeObject);
-    // }
-
-    // /**
-    //  * @summary Theme registration and global theme support.
-    //  * @desc Shared properties of `Hypergrid` "class" (_i.e.,_ "static" properties of constructor function) for registering themes and setting a global theme.
-    //  *
-    //  * All members are documented on the {@link Hypergrid} page (annotated as "(static)").
-    //  * @mixin themes.sharedMixin
-    //  */
-    // static get theme() { return defaults; }
-    // static set theme(theme: Theme) { Hypergrid.applyTheme(theme) }
-
-    // // End Shared Mixin
-
-
-
-    // Begin Scrolling Mixin
-
-    /**
-     * @summary Scroll horizontally by the provided offset.
-     * @param offset - Scroll in the x direction this much.
-     * @returns true if scrolled
-     */
-    scrollColumnsBy(offset: number) {
-        return this.viewLayout.scrollColumnsBy(offset);
+    focusSelectToggleCell(originX: number, originY: number, subgrid?: Subgrid<BCS, SF>, areaType: SelectionAreaType = 'rectangle'): boolean {
+        if (subgrid === undefined) {
+            subgrid = this.focus.subgrid;
+        }
+        const areaTypeId = SelectionAreaType.toId(areaType);
+        return this._focusSelectBehavior.focusSelectToggleCell(originX, originY, subgrid, areaTypeId);
     }
 
-    scrollViewHorizontallyBy(delta: number) {
-        this.viewLayout.scrollHorizontalViewportBy(delta);
+    trySelectOnlyFocusedCell(areaType: SelectionAreaType = 'rectangle') {
+        const areaTypeId = SelectionAreaType.toId(areaType);
+        return this._focusSelectBehavior.trySelectOnlyFocusedCell(areaTypeId);
     }
 
-    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionAreaTypeId.rectangle) {
-        this._focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
+    focusReplaceLastArea(areaType: SelectionAreaType, inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.focus.subgrid;
+        }
+        const areaTypeId = SelectionAreaType.toId(areaType);
+        this._focusSelectBehavior.focusReplaceLastArea(areaTypeId, inexclusiveX, inexclusiveY, width, height, subgrid);
+    }
+
+    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.focus.subgrid;
+        }
+        this._focusSelectBehavior.focusReplaceLastAreaWithRectangle(inexclusiveX, inexclusiveY, width, height, subgrid)
+    }
+
+    tryExtendLastSelectionAreaAsCloseAsPossibleToFocus() {
+        return this._focusSelectBehavior.tryExtendLastSelectionAreaAsCloseAsPossibleToFocus();
     }
 
     /** @internal */

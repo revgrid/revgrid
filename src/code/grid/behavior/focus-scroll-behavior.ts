@@ -131,19 +131,25 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
 
     tryPageFocusLeft() {
         const anchor = this._viewLayout.calculatePageLeftColumnAnchor();
-        if (anchor !== undefined) {
+        if (anchor === undefined) {
+            return false;
+        } else {
             const activeColumnIndex = anchor.index;
             this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
             this._focus.setX(activeColumnIndex, undefined, undefined);
+            return true;
         }
     }
 
     tryPageFocusRight() {
         const anchor = this._viewLayout.calculatePageRightColumnAnchor();
-        if (anchor !== undefined) {
+        if (anchor === undefined) {
+            return false;
+        } else {
             const activeColumnIndex = anchor.index;
             this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
             this._focus.setX(activeColumnIndex, undefined, undefined);
+            return true;
         }
     }
 
