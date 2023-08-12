@@ -250,6 +250,19 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         }
     }
 
+    get lastScrollableColumnIndex() {
+        this.ensureHorizontalComputedOutsideAnimationFrame();
+        return this._lastScrollableColumnIndex;
+    }
+    get lastScrollableColumn() {
+        this.ensureHorizontalComputedOutsideAnimationFrame();
+        const lastScrollableColumnIndex = this._lastScrollableColumnIndex;
+        if (lastScrollableColumnIndex === undefined) {
+            return undefined;
+        } else {
+            return this._columns[lastScrollableColumnIndex];
+        }
+    }
     get lastScrollableActiveColumnIndex() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         const lastScrollableColumnIndex = this._lastScrollableColumnIndex;
