@@ -74,8 +74,8 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _visibleColumnWidthAdjust: boolean;
     private _mouseMultiCellRectangleSelectionDragActiveCursorName: string | undefined;
     private _mouseMultiCellRectangleSelectionDragActiveTitleText: string | undefined;
-    private _mouseMultiCellRectangleSelectionEnabled: boolean;
-    private _mouseMultiCellRectangleSelectionModifierKey: ModifierKeyEnum | undefined;
+    private _mouseAddToggleExtendSelectionAreaEnabled: boolean;
+    private _mouseAddToggleExtendSelectionAreaDragModifierKey: ModifierKeyEnum | undefined;
     private _mouseColumnSelectionEnabled: boolean;
     private _mouseColumnSelectionModifierKey: ModifierKeyEnum | undefined;
     private _mouseRowSelectionEnabled: boolean;
@@ -736,22 +736,22 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
-    get mouseMultiCellRectangleSelectionEnabled() { return this._mouseMultiCellRectangleSelectionEnabled; }
-    set mouseMultiCellRectangleSelectionEnabled(value: boolean) {
-        if (value !== this._mouseMultiCellRectangleSelectionEnabled) {
+    get mouseAddToggleExtendSelectionAreaEnabled() { return this._mouseAddToggleExtendSelectionAreaEnabled; }
+    set mouseAddToggleExtendSelectionAreaEnabled(value: boolean) {
+        if (value !== this._mouseAddToggleExtendSelectionAreaEnabled) {
             this.beginChange();
-            this._mouseMultiCellRectangleSelectionEnabled = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseMultiCellRectangleSelectionEnabled;
+            this._mouseAddToggleExtendSelectionAreaEnabled = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaEnabled;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
-    get mouseMultiCellRectangleSelectionModifierKey() { return this._mouseMultiCellRectangleSelectionModifierKey; }
-    set mouseMultiCellRectangleSelectionModifierKey(value: ModifierKeyEnum | undefined) {
-        if (value !== this._mouseMultiCellRectangleSelectionModifierKey) {
+    get mouseAddToggleExtendSelectionAreaDragModifierKey() { return this._mouseAddToggleExtendSelectionAreaDragModifierKey; }
+    set mouseAddToggleExtendSelectionAreaDragModifierKey(value: ModifierKeyEnum | undefined) {
+        if (value !== this._mouseAddToggleExtendSelectionAreaDragModifierKey) {
             this.beginChange();
-            this._mouseMultiCellRectangleSelectionModifierKey = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseMultiCellRectangleSelectionModifierKey;
+            this._mouseAddToggleExtendSelectionAreaDragModifierKey = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaDragModifierKey;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1401,16 +1401,16 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseMultiCellRectangleSelectionDragActiveTitleText);
                     }
                     break;
-                case 'mouseMultiCellRectangleSelectionEnabled':
-                    if (this._mouseMultiCellRectangleSelectionEnabled !== requiredSettings.mouseMultiCellRectangleSelectionEnabled) {
-                        this._mouseMultiCellRectangleSelectionEnabled = requiredSettings.mouseMultiCellRectangleSelectionEnabled;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseMultiCellRectangleSelectionEnabled);
+                case 'mouseAddToggleExtendSelectionAreaEnabled':
+                    if (this._mouseAddToggleExtendSelectionAreaEnabled !== requiredSettings.mouseAddToggleExtendSelectionAreaEnabled) {
+                        this._mouseAddToggleExtendSelectionAreaEnabled = requiredSettings.mouseAddToggleExtendSelectionAreaEnabled;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaEnabled);
                     }
                     break;
-                case 'mouseMultiCellRectangleSelectionModifierKey':
-                    if (this._mouseMultiCellRectangleSelectionModifierKey !== requiredSettings.mouseMultiCellRectangleSelectionModifierKey) {
-                        this._mouseMultiCellRectangleSelectionModifierKey = requiredSettings.mouseMultiCellRectangleSelectionModifierKey;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseMultiCellRectangleSelectionModifierKey);
+                case 'mouseAddToggleExtendSelectionAreaDragModifierKey':
+                    if (this._mouseAddToggleExtendSelectionAreaDragModifierKey !== requiredSettings.mouseAddToggleExtendSelectionAreaDragModifierKey) {
+                        this._mouseAddToggleExtendSelectionAreaDragModifierKey = requiredSettings.mouseAddToggleExtendSelectionAreaDragModifierKey;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaDragModifierKey);
                     }
                     break;
                 case 'mouseColumnSelectionEnabled':

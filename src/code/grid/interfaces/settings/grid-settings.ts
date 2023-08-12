@@ -63,7 +63,7 @@ export namespace GridSettings {
     export function isMouseSelectionAllowed(gridSettings: GridSettings, selectionAreaTypeId: SelectionAreaTypeId) {
         switch (selectionAreaTypeId) {
             case SelectionAreaTypeId.all: return false;
-            case SelectionAreaTypeId.rectangle: return gridSettings.mouseMultiCellRectangleSelectionEnabled;
+            case SelectionAreaTypeId.rectangle: return gridSettings.mouseAddToggleExtendSelectionAreaEnabled;
             case SelectionAreaTypeId.column: return gridSettings.mouseColumnSelectionEnabled;
             case SelectionAreaTypeId.row: return gridSettings.mouseRowSelectionEnabled;
             default:

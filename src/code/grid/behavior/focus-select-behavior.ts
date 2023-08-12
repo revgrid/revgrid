@@ -10,6 +10,7 @@ import { AssertError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
 import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
 import { StartLength } from '../types-utils/start-length';
+import { EventBehavior } from './event-behavior';
 
 export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     constructor(
@@ -169,6 +170,9 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    isMouseAddToggleExtendSelectionAreaAllowed(event: MouseEvent) {
+        return !EventBehavior.isSecondaryMouseButton(event) && this._gridSettings.mouseAddToggleExtendSelectionAreaEnabled;
+    }
 }
 
 export namespace FocusSelectBehavior {

@@ -1,6 +1,7 @@
 import { Focus } from '../../components/focus/focus';
 import { Scroller } from '../../components/scroller/scroller';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
@@ -20,7 +21,9 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
             const viewCell = hoverCell.viewCell;
             if (viewCell.subgrid.isMain) {
                 // Add code to avoid focus if mouse is extending selection
-                this.focusScrollBehavior.tryFocusXYAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, viewCell);
+                if (!this.willSelectionBeExtended(event, viewCell)) {
+                    this.focusScrollBehavior.tryFocusXYAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, viewCell);
+                }
             }
         }
         return super.handlePointerDown(event, hoverCell);
@@ -249,6 +252,13 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
             case HorizontalWheelScrollingAllowed.CtrlKeyDown: return event.ctrlKey;
             default: throw new UnreachableCaseError('TSIHWCA82007', gridSettings.horizontalWheelScrollingAllowed);
         }
+    }
+
+    private willSelectionBeExtended(event: MouseEvent, viewCell: ViewCell<BCS, SF>) {
+        return false;
+        // !this.focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event) ||
+        // GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event)
+
     }
 }
 

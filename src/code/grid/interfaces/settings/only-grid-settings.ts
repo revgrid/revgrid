@@ -112,8 +112,8 @@ export interface OnlyGridSettings {
     mouseMultiCellRectangleSelectionDragActiveCursorName: string | undefined;
     mouseMultiCellRectangleSelectionDragActiveTitleText: string | undefined;
     /** Allows rectangle selections with more than one cell and/or multiple rectangle selections.  If false, then only focused cell is selected */
-    mouseMultiCellRectangleSelectionEnabled: boolean;
-    mouseMultiCellRectangleSelectionModifierKey: ModifierKeyEnum | undefined;
+    mouseAddToggleExtendSelectionAreaEnabled: boolean;
+    mouseAddToggleExtendSelectionAreaDragModifierKey: ModifierKeyEnum | undefined;
     /** Enables column selections with mouse */
     mouseColumnSelectionEnabled: boolean;
     mouseColumnSelectionModifierKey: ModifierKeyEnum | undefined;

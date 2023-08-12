@@ -1766,6 +1766,12 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get minimumColumnWidth(): number;
     set minimumColumnWidth(value: number);
     // (undocumented)
+    get mouseAddToggleExtendSelectionAreaDragModifierKey(): ModifierKeyEnum | undefined;
+    set mouseAddToggleExtendSelectionAreaDragModifierKey(value: ModifierKeyEnum | undefined);
+    // (undocumented)
+    get mouseAddToggleExtendSelectionAreaEnabled(): boolean;
+    set mouseAddToggleExtendSelectionAreaEnabled(value: boolean);
+    // (undocumented)
     get mouseColumnSelectionEnabled(): boolean;
     set mouseColumnSelectionEnabled(value: boolean);
     // (undocumented)
@@ -1777,12 +1783,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get mouseMultiCellRectangleSelectionDragActiveTitleText(): string | undefined;
     set mouseMultiCellRectangleSelectionDragActiveTitleText(value: string | undefined);
-    // (undocumented)
-    get mouseMultiCellRectangleSelectionEnabled(): boolean;
-    set mouseMultiCellRectangleSelectionEnabled(value: boolean);
-    // (undocumented)
-    get mouseMultiCellRectangleSelectionModifierKey(): ModifierKeyEnum | undefined;
-    set mouseMultiCellRectangleSelectionModifierKey(value: ModifierKeyEnum | undefined);
     // (undocumented)
     get mouseRowSelectionEnabled(): boolean;
     set mouseRowSelectionEnabled(value: boolean);
@@ -2395,15 +2395,15 @@ export interface OnlyGridSettings {
     minimumAnimateTimeInterval: number;
     // (undocumented)
     minimumColumnWidth: number;
+    // (undocumented)
+    mouseAddToggleExtendSelectionAreaDragModifierKey: ModifierKeyEnum | undefined;
+    mouseAddToggleExtendSelectionAreaEnabled: boolean;
     mouseColumnSelectionEnabled: boolean;
     // (undocumented)
     mouseColumnSelectionModifierKey: ModifierKeyEnum | undefined;
     mouseMultiCellRectangleSelectionDragActiveCursorName: string | undefined;
     // (undocumented)
     mouseMultiCellRectangleSelectionDragActiveTitleText: string | undefined;
-    mouseMultiCellRectangleSelectionEnabled: boolean;
-    // (undocumented)
-    mouseMultiCellRectangleSelectionModifierKey: ModifierKeyEnum | undefined;
     mouseRowSelectionEnabled: boolean;
     // (undocumented)
     mouseRowSelectionModifierKey: ModifierKeyEnum | undefined;
@@ -4925,6 +4925,10 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     isRowVisible(rowIndex: number): boolean;
     // (undocumented)
     get lastScrollableActiveColumnIndex(): number | undefined;
+    // (undocumented)
+    get lastScrollableColumn(): ViewLayoutColumn<BCS, SF> | undefined;
+    // (undocumented)
+    get lastScrollableColumnIndex(): number | undefined;
     // (undocumented)
     get lastScrollableColumnRightOverflow(): number | undefined;
     // (undocumented)
