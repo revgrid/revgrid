@@ -712,6 +712,40 @@ export namespace CssTypes {
 }
 
 // @public (undocumented)
+export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    // @internal
+    constructor(revgridId: string, internalParent: RevgridObject,
+    _selection: Selection_2<BCS, SF>,
+    _columnsManager: ColumnsManager<BCS, SF>);
+    // (undocumented)
+    convertDataValueArraysToTsv(dataValueArrays: Array<Array<DataServer.ViewValue>>): string;
+    // (undocumented)
+    getAllSelectionMatrix(): unknown[][];
+    // (undocumented)
+    getColumnSelectionMatrix(): DataServer.ViewValue[][];
+    // (undocumented)
+    getFirstSelectionRectangleTopRowValues(): Record<string, unknown> | undefined;
+    // (undocumented)
+    getRowIndicesMatrix(rowIndices: number[], hiddenColumns?: boolean | number[] | string[]): unknown[][];
+    // (undocumented)
+    getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataServer.ViewRow;
+    // (undocumented)
+    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataServer.ViewValue>>;
+    // (undocumented)
+    getSelectedColumnsValues(): DataServer.ObjectViewRow;
+    // (undocumented)
+    getSelectedValuesByRectangleAndColumn(): DataServer.ObjectViewRow[];
+    // (undocumented)
+    getSelectedValuesByRectangleColumnRowMatrix(): DataServer.ViewValue[][][];
+    // (undocumented)
+    getSelectionAsTSV(): string;
+    // (undocumented)
+    readonly internalParent: RevgridObject;
+    // (undocumented)
+    readonly revgridId: string;
+}
+
+// @public (undocumented)
 export interface DatalessSubgrid {
     // (undocumented)
     readonly fixedRowCount: number;
@@ -1337,6 +1371,148 @@ export namespace Focus {
     }
     // @internal (undocumented)
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
+}
+
+// @public (undocumented)
+export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    // @internal
+    constructor(revgridId: string, internalParent: RevgridObject,
+    _gridSettings: GridSettings,
+    _columnsManager: ColumnsManager<BCS, SF>,
+    _subgridsManager: SubgridsManager<BCS, SF>,
+    _viewLayout: ViewLayout<BGS, BCS, SF>,
+    _focus: Focus<BGS, BCS, SF>);
+    // @internal (undocumented)
+    getFocusedViewCell(useAllCells: boolean): ViewCell<BCS, SF> | undefined;
+    // (undocumented)
+    readonly internalParent: RevgridObject;
+    // (undocumented)
+    readonly revgridId: string;
+    // (undocumented)
+    scrollBottom(): boolean;
+    // (undocumented)
+    scrollFirstColumn(): boolean;
+    // (undocumented)
+    scrollLastColumn(): boolean;
+    // (undocumented)
+    scrollTop(): boolean;
+    // (undocumented)
+    tryFocusBottom(): boolean;
+    // (undocumented)
+    tryFocusFirstColumn(): boolean;
+    // (undocumented)
+    tryFocusLastColumn(): boolean;
+    // (undocumented)
+    tryFocusTop(): boolean;
+    // (undocumented)
+    tryFocusXAndEnsureInView(x: number): boolean;
+    // (undocumented)
+    tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<BCS, SF> | undefined): boolean;
+    // (undocumented)
+    tryFocusYAndEnsureInView(y: number): boolean;
+    // (undocumented)
+    tryMoveFocusDown(): boolean;
+    // (undocumented)
+    tryMoveFocusLeft(): boolean;
+    // (undocumented)
+    tryMoveFocusRight(): boolean;
+    // (undocumented)
+    tryMoveFocusUp(): boolean;
+    // (undocumented)
+    tryPageFocusDown(): boolean;
+    // (undocumented)
+    tryPageFocusLeft(): void;
+    // (undocumented)
+    tryPageFocusRight(): void;
+    // (undocumented)
+    tryPageFocusUp(): boolean;
+    // (undocumented)
+    tryScrollDown(): boolean;
+    // (undocumented)
+    tryScrollLeft(): boolean;
+    // (undocumented)
+    tryScrollPageDown(): boolean;
+    // (undocumented)
+    tryScrollPageLeft(): boolean;
+    // (undocumented)
+    tryScrollPageRight(): boolean;
+    // (undocumented)
+    tryScrollPageUp(): boolean;
+    // (undocumented)
+    tryScrollRight(): boolean;
+    // (undocumented)
+    tryScrollUp(): boolean;
+    // @internal (undocumented)
+    tryStepScroll(directionCanvasOffsetX: number, directionCanvasOffsetY: number): boolean;
+    // @internal (undocumented)
+    tryStepScrollColumn(directionCanvasOffsetX: number): boolean;
+    // @internal (undocumented)
+    tryStepScrollRow(directionCanvasOffsetY: number): boolean;
+}
+
+// @public (undocumented)
+export namespace FocusScrollBehavior {
+    // (undocumented)
+    export type ScrollXToMakeVisibleEventer = (this: void, x: number) => void;
+    // (undocumented)
+    export type ScrollXYToMakeVisibleEventer = (this: void, x: number, y: number) => void;
+    // (undocumented)
+    export type ScrollYToMakeVisibleEventer = (this: void, y: number) => void;
+}
+
+// @public (undocumented)
+export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    // @internal
+    constructor(revgridId: string, internalParent: RevgridObject,
+    _gridSettings: GridSettings,
+    _selection: Selection_2<BCS, SF>,
+    _focus: Focus<BGS, BCS, SF>,
+    _viewLayout: ViewLayout<BGS, BCS, SF>,
+    _checkFocusEventer: FocusSelectBehavior.CheckFocusEventer<BCS, SF>);
+    // @internal (undocumented)
+    extendLastSelectionAreaAsCloseAsPossibleToFocus(): boolean;
+    // @internal (undocumented)
+    focusReplaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, areaTypeId: SelectionAreaTypeId, subgrid: Subgrid<BCS, SF>): void;
+    // @internal (undocumented)
+    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): void;
+    // @internal (undocumented)
+    focusSelectAddCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): void;
+    // @internal (undocumented)
+    focusSelectOnlyCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): void;
+    // (undocumented)
+    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>): void;
+    // @internal (undocumented)
+    focusSelectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean;
+    // @internal (undocumented)
+    getDefaultSelectionSubgrid(): Subgrid<BCS, SF>;
+    // (undocumented)
+    readonly internalParent: RevgridObject;
+    // @internal (undocumented)
+    isMouseAddToggleExtendSelectionAreaAllowed(event: MouseEvent): boolean;
+    // (undocumented)
+    readonly revgridId: string;
+    // (undocumented)
+    selectAddColumn(activeColumnIndex: number): void;
+    // (undocumented)
+    selectAddRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    selectOnlyColumn(activeColumnIndex: number): void;
+    // @internal (undocumented)
+    selectOnlyFocusedCell(areaTypeId: SelectionAreaTypeId): void;
+    // (undocumented)
+    selectOnlyRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    // @internal (undocumented)
+    selectOnlyViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number, areaTypeId: SelectionAreaTypeId): void;
+    // (undocumented)
+    selectToggleColumn(activeColumnIndex: number): void;
+    // (undocumented)
+    selectToggleRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+}
+
+// @public (undocumented)
+export namespace FocusSelectBehavior {
+    // (undocumented)
+    export type CheckFocusEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) => void;
 }
 
 // @public (undocumented)
@@ -2702,6 +2878,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // @internal (undocumented)
     createColumns(): void;
     // (undocumented)
+    readonly dataExtractBehavior: DataExtractBehavior<BCS, SF>;
+    // (undocumented)
     deactivate(): void;
     // (undocumented)
     protected descendantEventerBlur(): void;
@@ -2793,6 +2971,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType?: SelectionAreaTypeId): void;
     // (undocumented)
+    readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
+    // (undocumented)
+    readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
+    // (undocumented)
     getActiveColumn(activeIndex: number): Column<BCS, SF>;
     // (undocumented)
     getActiveColumnIndexByFieldIndex(fieldIndex: number): number;
@@ -2831,7 +3013,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getColumnScrollableLeft(activeIndex: number): number;
     // (undocumented)
     getFieldColumnRange(begin?: number, end?: number): Column<BCS, SF>[];
-    // (undocumented)
+    // @internal (undocumented)
     getFocusedViewCell(useAllCells: boolean): ViewCell<BCS, SF> | undefined;
     // (undocumented)
     getHiddenColumns(): Column<BCS, SF>[];
@@ -4600,8 +4782,6 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     protected readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>;
     // (undocumented)
     protected readonly columnsManager: ColumnsManager<BCS, SF>;
-    // Warning: (ae-forgotten-export) The symbol "DataExtractBehavior" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     protected readonly dataExtractBehavior: DataExtractBehavior<BCS, SF>;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -4613,12 +4793,8 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     protected readonly eventBehavior: EventBehavior<BGS, BCS, SF>;
     // (undocumented)
     protected readonly focus: Focus<BGS, BCS, SF>;
-    // Warning: (ae-forgotten-export) The symbol "FocusScrollBehavior" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     protected readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
-    // Warning: (ae-forgotten-export) The symbol "FocusSelectBehavior" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     protected readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
     // (undocumented)

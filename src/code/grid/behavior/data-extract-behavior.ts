@@ -10,10 +10,13 @@ import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
 
 /** @public */
 export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    /** @internal */
     constructor(
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
+        /** @internal */
         private readonly _selection: Selection<BCS, SF>,
+        /** @internal */
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
 

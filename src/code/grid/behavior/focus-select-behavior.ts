@@ -12,14 +12,21 @@ import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
 import { StartLength } from '../types-utils/start-length';
 import { EventBehavior } from './event-behavior';
 
+/** @public */
 export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    /** @internal */
     constructor(
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
+        /** @internal */
         private readonly _gridSettings: GridSettings,
+        /** @internal */
         private readonly _selection: Selection<BCS, SF>,
+        /** @internal */
         private readonly _focus: Focus<BGS, BCS, SF>,
+        /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        /** @internal */
         private readonly _checkFocusEventer: FocusSelectBehavior.CheckFocusEventer<BCS, SF>,
     ) {
     }
@@ -46,7 +53,10 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         this._selection.selectColumns(activeColumnIndex, rowIndex, 1, 1, this._focus.subgrid);
     }
 
-    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
+    selectOnlyRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.getDefaultSelectionSubgrid();
+        }
         const selection = this._selection;
         const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         selection.beginChange();
@@ -58,27 +68,38 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    selectToggleRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
+    selectToggleRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.getDefaultSelectionSubgrid();
+        }
         const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectToggleRow(columnIndex, subgridRowIndex, subgrid);
     }
 
-    selectAddRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
+    selectAddRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.getDefaultSelectionSubgrid();
+        }
         const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectRows(columnIndex, subgridRowIndex, 1, 1, subgrid);
     }
 
-    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
+    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this._focus.subgrid;
+        }
         const area = this._selection.selectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
     }
 
+    /** @internal */
     focusSelectOnlyCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
         this._selection.selectOnlyCell(activeColumnIndex, subgridRowIndex, subgrid, areaTypeId);
         this._checkFocusEventer(activeColumnIndex, subgridRowIndex, subgrid);
     }
 
+    /** @internal */
     selectOnlyViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number, areaTypeId: SelectionAreaTypeId) {
         const viewLayoutColumns = this._viewLayout.columns;
         if (viewLayoutColumnIndex < viewLayoutColumns.length) {
@@ -91,20 +112,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    focusReplaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
-        const area = this._selection.replaceLastArea(inexclusiveX, inexclusiveY, width, height, subgrid, areaTypeId);
-        if (area !== undefined) {
-            const focusPoint = area.inclusiveFirst;
-            this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
-        }
-    }
-
-    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
-        const area = this._selection.replaceLastAreaWithRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
-        const focusPoint = area.inclusiveFirst;
-        this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
-    }
-
+    /** @internal */
     focusSelectAddCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
         this._selection.selectCell(x, y, subgrid, areaTypeId);
 
@@ -113,6 +121,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     focusSelectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean {
         const added = this._selection.selectToggleCell(originX, originY, subgrid, areaTypeId);
         if (added) {
@@ -121,6 +130,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         return added;
     }
 
+    /** @internal */
     selectOnlyFocusedCell(areaTypeId: SelectionAreaTypeId) {
         const focusPoint = this._focus.current;
         if (focusPoint !== undefined) {
@@ -130,6 +140,23 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
+    focusReplaceLastArea(inexclusiveX: number, inexclusiveY: number, width: number, height: number, areaTypeId: SelectionAreaTypeId, subgrid: Subgrid<BCS, SF>) {
+        const area = this._selection.replaceLastArea(inexclusiveX, inexclusiveY, width, height, subgrid, areaTypeId);
+        if (area !== undefined) {
+            const focusPoint = area.inclusiveFirst;
+            this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
+        }
+    }
+
+    /** @internal */
+    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
+        const area = this._selection.replaceLastAreaWithRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
+        const focusPoint = area.inclusiveFirst;
+        this._checkFocusEventer(focusPoint.x, focusPoint.y, subgrid);
+    }
+
+    /** @internal */
     extendLastSelectionAreaAsCloseAsPossibleToFocus() {
         const focusPoint = this._focus.current;
         if (focusPoint === undefined) {
@@ -170,11 +197,23 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
+    getDefaultSelectionSubgrid() {
+        const subgrid = this._selection.subgrid;
+        if (subgrid === undefined) {
+            return this._focus.subgrid;
+        } else {
+            return subgrid;
+        }
+    }
+
+    /** @internal */
     isMouseAddToggleExtendSelectionAreaAllowed(event: MouseEvent) {
         return !EventBehavior.isSecondaryMouseButton(event) && this._gridSettings.mouseAddToggleExtendSelectionAreaEnabled;
     }
 }
 
+/** @public */
 export namespace FocusSelectBehavior {
     export type CheckFocusEventer<
         BCS extends BehavioredColumnSettings,

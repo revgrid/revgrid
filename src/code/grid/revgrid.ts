@@ -64,6 +64,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     readonly mainDataServer: DataServer<SF>;
 
+    readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
+    readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
+    readonly dataExtractBehavior: DataExtractBehavior<BCS, SF>;
+
     /** @internal */
     private readonly _componentsManager: ComponentsManager<BGS, BCS, SF>;
     /** @internal */
@@ -72,15 +76,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     private readonly _uiManager: UiManager<BGS, BCS, SF>;
 
     /** @internal */
-    private readonly _focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
-    /** @internal */
-    private readonly _focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
-    /** @internal */
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>;
     /** @internal */
     private readonly _cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>;
-    /** @internal */
-    private readonly _dataExtractBehavior: DataExtractBehavior<BCS, SF>;
 
     private _destroyed = false;
 
@@ -176,11 +174,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             descendantEventer,
         );
 
-        this._focusScrollBehavior = this._behaviorManager.focusScrollBehavior;
-        this._focusSelectBehavior = this._behaviorManager.focusSelectBehavior;
+        this.focusScrollBehavior = this._behaviorManager.focusScrollBehavior;
+        this.focusSelectBehavior = this._behaviorManager.focusSelectBehavior;
         this._rowPropertiesBehavior = this._behaviorManager.rowPropertiesBehavior;
         this._cellPropertiesBehavior = this._behaviorManager.cellPropertiesBehavior;
-        this._dataExtractBehavior = this._behaviorManager.dataExtractBehavior;
+        this.dataExtractBehavior = this._behaviorManager.dataExtractBehavior;
 
         this._uiManager = new UiManager(
             this.revgridId,
@@ -197,11 +195,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.mouse,
             this.horizontalScroller,
             this.verticalScroller,
-            this._focusScrollBehavior,
-            this._focusSelectBehavior,
+            this.focusScrollBehavior,
+            this.focusSelectBehavior,
             this._rowPropertiesBehavior,
             this._cellPropertiesBehavior,
-            this._dataExtractBehavior,
+            this.dataExtractBehavior,
             this._behaviorManager.reindexBehavior,
             this._behaviorManager.eventBehavior,
             options.customUiControllerDefinitions,
@@ -1519,11 +1517,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         if (subgrid === undefined) {
             subgrid = this.focus.subgrid;
         }
-        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<BCS, SF>);
+        this.focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<BCS, SF>);
     }
 
     selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType: SelectionAreaType = 'rectangle') {
-        this._focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, SelectionAreaType.toId(areaType));
+        this.focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, SelectionAreaType.toId(areaType));
     }
 
     selectOnlyCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType: SelectionAreaType = 'rectangle') {
@@ -1531,11 +1529,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             subgrid = this.focus.subgrid;
         }
 
-        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid<BCS, SF>, SelectionAreaType.toId(areaType));
+        this.focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid<BCS, SF>, SelectionAreaType.toId(areaType));
     }
 
     selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
-        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid<BCS, SF>);
+        this.focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid<BCS, SF>);
     }
 
     selectAllRows() {
@@ -1609,9 +1607,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /**
      * @param useAllCells - Search in all rows and columns instead of only rendered ones.
+     * @internal
      */
     getFocusedViewCell(useAllCells: boolean) {
-        return this._focusScrollBehavior.getFocusedViewCell(useAllCells);
+        return this.focusScrollBehavior.getFocusedViewCell(useAllCells);
     }
 
 
@@ -1753,35 +1752,35 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionAreaTypeId.rectangle) {
-        this._focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
+        this.focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
     }
 
     /**
      * @desc Scroll up one full page.
      */
     scrollPageUp() {
-        this._focusScrollBehavior.tryPageFocusUp();
+        this.focusScrollBehavior.tryPageFocusUp();
     }
 
     /**
      * @desc Scroll down one full page.
      */
     pageDown() {
-        this._focusScrollBehavior.tryPageFocusDown();
+        this.focusScrollBehavior.tryPageFocusDown();
     }
 
     /**
      * @desc Not yet implemented.
      */
     pageLeft() {
-        this._focusScrollBehavior.tryPageFocusLeft();
+        this.focusScrollBehavior.tryPageFocusLeft();
     }
 
     /**
      * @desc Not yet implemented.
      */
     pageRight() {
-        this._focusScrollBehavior.tryPageFocusRight();
+        this.focusScrollBehavior.tryPageFocusRight();
     }
 
     /** @internal */

@@ -13,16 +13,24 @@ import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-s
 import { GridSettings } from '../interfaces/settings/grid-settings';
 import { RevgridObject } from '../types-utils/revgrid-object';
 
+/** @public */
 export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    /** @internal */
     private readonly _mainSubgrid: MainSubgrid<BCS, SF>;
 
+    /** @internal */
     constructor(
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
+        /** @internal */
         private readonly _gridSettings: GridSettings,
+        /** @internal */
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
+        /** @internal */
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,
+        /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        /** @internal */
         private readonly _focus: Focus<BGS, BCS, SF>,
     ) {
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
@@ -186,7 +194,8 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    // probably can get rid of this with a bit more cleanup
+    // probably can get rid of this with a bit more cleanup - probably can get rid of this
+    /** @internal */
     getFocusedViewCell(useAllCells: boolean): ViewCell<BCS, SF> | undefined {
         const focusedPoint = this._focus.current;
         if (focusedPoint === undefined) {
@@ -436,6 +445,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     //     }
     // }
 
+    /** @internal */
     tryStepScroll(directionCanvasOffsetX: number, directionCanvasOffsetY: number) {
         let stepped = this.tryStepScrollColumn(directionCanvasOffsetX);
         if (this.tryStepScrollRow(directionCanvasOffsetY)) {
@@ -444,6 +454,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         return stepped;
     }
 
+    /** @internal */
     tryStepScrollColumn(directionCanvasOffsetX: number) {
         const viewLayout = this._viewLayout;
         const scrollableBounds = viewLayout.scrollableCanvasBounds;
@@ -493,6 +504,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
+    /** @internal */
     tryStepScrollRow(directionCanvasOffsetY: number) {
         const viewLayout = this._viewLayout;
         const scrollableBounds = viewLayout.scrollableCanvasBounds;
@@ -836,16 +848,19 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     //     return result;
     // }
 
+    /** @internal */
     private isXScrollabe(x: number) {
         return x >= this._gridSettings.fixedColumnCount && x < this._columnsManager.activeColumnCount
     }
 
+    /** @internal */
     private isYScrollabe(y: number) {
         return y >= this._gridSettings.fixedRowCount && y < this._mainSubgrid.getRowCount()
     }
 }
 
-export namespace FocusBehavior {
+/** @public */
+export namespace FocusScrollBehavior {
     export type ScrollXToMakeVisibleEventer = (this: void, x: number) => void;
     export type ScrollYToMakeVisibleEventer = (this: void, y: number) => void;
     export type ScrollXYToMakeVisibleEventer = (this: void, x: number, y: number) => void;
