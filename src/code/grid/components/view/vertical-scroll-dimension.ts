@@ -3,20 +3,20 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
-import { CanvasManager } from '../canvas/canvas-manager';
+import { Canvas } from '../canvas/canvas';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ScrollDimension } from './scroll-dimension';
 
 export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends ScrollDimension<BGS> {
     constructor(
         gridSettings: GridSettings,
-        canvasManager: CanvasManager<BGS>,
+        canvas: Canvas<BGS>,
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,
     ) {
         super(
             ScrollDimension.AxisEnum.vertical,
             gridSettings,
-            canvasManager,
+            canvas,
         );
     }
 
@@ -56,7 +56,7 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
         const start = fixedRowCount;
         const size = subgridRowCount - start;
 
-        let viewportSize = this._canvasManager.flooredHeight - (preMainPlusFixedRowsHeight + postMainHeight);
+        let viewportSize = this._canvas.flooredHeight - (preMainPlusFixedRowsHeight + postMainHeight);
         let viewportSizeExactMultiple: boolean;
         let overflowed: boolean;
 

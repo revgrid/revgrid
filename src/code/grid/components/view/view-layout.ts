@@ -1,4 +1,3 @@
-import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { DataServer } from '../../interfaces/data/data-server';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { Subgrid } from '../../interfaces/data/subgrid';
@@ -13,6 +12,7 @@ import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Rectangle } from '../../types-utils/rectangle';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
+import { Canvas } from '../canvas/canvas';
 import { ColumnsManager } from '../column/columns-manager';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { HorizontalScrollDimension } from './horizontal-scroll-dimension';
@@ -138,7 +138,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
-        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _canvas: Canvas<BGS>,
         /** @internal */
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
         /** @internal */
@@ -156,14 +156,14 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             this.resetAllCellPaintFingerprints();
             this.invalidateHorizontalAll(scrollDimensionAsWell);
         }
-        this._canvasManager.resizedEventerForViewLayout = () => {
+        this._canvas.resizedEventerForViewLayout = () => {
             this.resetAllCellPaintFingerprints();
             this.invalidateAll(true);
         }
         this._columnsManager.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell);
-        this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvasManager, this._columnsManager);
+        this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvas, this._columnsManager);
         this._horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
-        this._verticalScrollDimension = new VerticalScrollDimension(this._gridSettings, this._canvasManager, this._subgridsManager);
+        this._verticalScrollDimension = new VerticalScrollDimension(this._gridSettings, this._canvas, this._subgridsManager);
         this._verticalScrollDimension.computedEventer = (withinAnimationFrame: boolean) => this.handleVerticalScrollDimensionComputedEvent(withinAnimationFrame);
 
         this._dummyUnusedColumn = this._columnsManager.createDummyColumn();
@@ -362,7 +362,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 return undefined;
             } else {
                 const width = this._horizontalScrollDimension.viewportSize;
-                const height = this._canvasManager.flooredHeight - y; // this does not handle situation where rows do not fill the view
+                const height = this._canvas.flooredHeight - y; // this does not handle situation where rows do not fill the view
                 return new InexclusiveRectangle(x, y, width, height);
             }
         }
@@ -541,7 +541,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     invalidateActiveColumnsDeleted(index: number, count: number) {
         const horizontalScrollDimension = this.horizontalScrollDimension;
-        if (this._canvasManager.flooredWidth > 0) {
+        if (this._canvas.flooredWidth > 0) {
             let affected = !horizontalScrollDimension.overflowed;
             if (!affected) {
                 const viewLayoutColumns = this.columns;
@@ -599,7 +599,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     invalidateDataRowsInserted(index: number, count: number) {
         const verticalScrollDimension = this.verticalScrollDimension;
-        if (this._canvasManager.flooredHeight > 0) {
+        if (this._canvas.flooredHeight > 0) {
             let lastScrollableRowSubgridRowIndex: number | undefined;
             const affected =
                 !verticalScrollDimension.overflowed || // this is not correct as scrollbar thumb is affected
@@ -631,7 +631,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     invalidateDataRowsDeleted(index: number, count: number) {
         const verticalScrollDimension = this.verticalScrollDimension;
-        if (this._canvasManager.flooredHeight > 0) {
+        if (this._canvas.flooredHeight > 0) {
             let affected = !verticalScrollDimension.overflowed;
             if (!affected) {
                 const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
@@ -687,7 +687,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     invalidateDataRowsMoved(oldRowIndex: number, newRowIndex: number, rowCount: number) {
         const verticalScrollDimension = this.verticalScrollDimension;
-        if (this._canvasManager.flooredHeight > 0) {
+        if (this._canvas.flooredHeight > 0) {
             let affected = !verticalScrollDimension.overflowed;
             if (!affected) {
                 const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
@@ -1266,7 +1266,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             } else {
                 const lastColumn = columns[columnCount - 1];
                 const lastColumnRightPlus1 = lastColumn.rightPlus1;
-                const gridRightPlus1 = this._canvasManager.flooredWidth;
+                const gridRightPlus1 = this._canvas.flooredWidth;
                 if (lastColumnRightPlus1 >= gridRightPlus1) {
                     return undefined;
                 } else {
@@ -1742,7 +1742,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     private handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame: boolean) {
         // called within animation frame
         const horizontalScrollDimension = this.horizontalScrollDimension;
-        if (this._canvasManager.flooredWidth === 0) {
+        if (this._canvas.flooredWidth === 0) {
             return undefined;
         } else {
             const limitedAnchor = horizontalScrollDimension.calculateLimitedScrollAnchorIfRequired(
@@ -1768,7 +1768,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /** @internal */
     private handleVerticalScrollDimensionComputedEvent(withinAnimationFrame: boolean) {
         const verticalScrollDimension = this.verticalScrollDimension;
-        if (this._canvasManager.flooredHeight === 0) {
+        if (this._canvas.flooredHeight === 0) {
             return undefined;
         } else {
             const limitedAnchor = verticalScrollDimension.calculateLimitedScrollAnchorIfRequired(
@@ -1844,7 +1844,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                     fixedWidthV = gridSettings.verticalFixedLineWidth;
                 }
 
-                const gridWidth = this._canvasManager.flooredWidth; // horizontal pixel loop limit
+                const gridWidth = this._canvas.flooredWidth; // horizontal pixel loop limit
 
                 let viewportStart: number | undefined;
                 let startX: number; // horizontal pixel loop index
@@ -2075,7 +2075,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         const fixedRowCount = this._gridSettings.fixedRowCount;
         const gridLinesHWidth = gridSettings.horizontalGridLinesWidth;
 
-        const gridHeight = this._canvasManager.flooredHeight; // horizontal pixel loop limit
+        const gridHeight = this._canvas.flooredHeight; // horizontal pixel loop limit
 
         const rows = this._rows;
         const subgrids = this._subgridsManager.subgridImplementations;

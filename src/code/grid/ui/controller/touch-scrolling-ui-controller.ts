@@ -73,7 +73,7 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
 
     private getTouchedBounds(eventDetail: TouchEvent) {
         const firstTouch = eventDetail.touches[0];
-        const canvasFirstTouchOffsetPoint = this.canvasManager.getOffsetPoint(firstTouch);
+        const canvasFirstTouchOffsetPoint = this.canvas.getOffsetPoint(firstTouch);
         const cell = this.viewLayout.findLinedHoverCellAtCanvasOffset(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
         if (cell === undefined) {
             return undefined;

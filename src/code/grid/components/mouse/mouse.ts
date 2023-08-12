@@ -4,7 +4,7 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../../types-utils/point';
 import { RevgridObject } from '../../types-utils/revgrid-object';
-import { CanvasManager } from '../canvas/canvas-manager';
+import { Canvas } from '../canvas/canvas';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
@@ -35,7 +35,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
         /** @internal */
-        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _canvas: Canvas<BGS>,
         /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
     ) {
@@ -139,19 +139,19 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     private updateHoverCursorAndTitleText() {
         if (this._operationCursorName === undefined && this._locationCursorName === undefined) {
             if (this._hoverCell === undefined) {
-                this._canvasManager.setCursor(undefined);
+                this._canvas.setCursor(undefined);
             } else {
                 const cursorName = this.getCellCursorName();
-                this._canvasManager.setCursor(cursorName);
+                this._canvas.setCursor(cursorName);
             }
         }
 
         if (this._operationTitleText === undefined && this._locationTitleText === undefined) {
             if (this._hoverCell === undefined) {
-                this._canvasManager.setTitleText('');
+                this._canvas.setTitleText('');
             } else {
                 const titleText = this.getCellTitleText();
-                this._canvasManager.setTitleText(titleText);
+                this._canvas.setTitleText(titleText);
             }
         }
     }
@@ -168,7 +168,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 cursorName = this.getCellCursorName();
             }
         }
-        this._canvasManager.setCursor(cursorName);
+        this._canvas.setCursor(cursorName);
 
         let titleText: string;
         if (this._operationTitleText !== undefined) {
@@ -180,7 +180,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 titleText = this.getCellTitleText();
             }
         }
-        this._canvasManager.setTitleText(titleText);
+        this._canvas.setTitleText(titleText);
     }
 
     /** @internal */

@@ -2,20 +2,20 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { CanvasManager } from '../canvas/canvas-manager';
+import { Canvas } from '../canvas/canvas';
 import { ColumnsManager } from '../column/columns-manager';
 import { ScrollDimension } from './scroll-dimension';
 
 export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends ScrollDimension<BGS> {
     constructor(
         gridSettings: GridSettings,
-        canvasManager: CanvasManager<BGS>,
+        canvas: Canvas<BGS>,
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
         super(
             ScrollDimension.AxisEnum.horizontal,
             gridSettings,
-            canvasManager,
+            canvas,
         );
     }
 
@@ -129,7 +129,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
 
         const scrollStart = this.calculateScrollStart();
         let scrollSize = this.calculateActiveNonFixedColumnsWidth();
-        let viewportSize = this._canvasManager.flooredWidth - scrollStart;
+        let viewportSize = this._canvas.flooredWidth - scrollStart;
 
         let overflowed: boolean;
         let anchorLimits: ScrollDimension.ScrollAnchorLimits

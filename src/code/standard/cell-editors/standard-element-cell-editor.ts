@@ -17,14 +17,14 @@ export abstract class StandardElementCellEditor<
     }
 
     override tryOpenCell(_viewCell: DatalessViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
-        this._grid.canvasManager.hostElement.appendChild(this.element);
+        this._grid.canvas.hostElement.appendChild(this.element);
         this.element.focus();
         return true;
     }
 
     override closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean) {
         this.element.blur(); // make sure it does not have focus
-        this._grid.canvasManager.hostElement.removeChild(this.element);
+        this._grid.canvas.hostElement.removeChild(this.element);
     }
 
     focus() {

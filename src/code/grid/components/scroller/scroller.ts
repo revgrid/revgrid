@@ -7,7 +7,7 @@ import { RevgridObject } from '../../types-utils/revgrid-object';
 import { SizeUnitEnum } from '../../types-utils/size-unit';
 import { SizeWithUnit } from '../../types-utils/size-with-unit';
 import { numberToPixels } from '../../types-utils/utils';
-import { CanvasManager } from '../canvas/canvas-manager';
+import { Canvas } from '../canvas/canvas';
 import { ScrollDimension } from '../view/scroll-dimension';
 import { ViewLayout } from '../view/view-layout';
 
@@ -173,7 +173,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         /** @internal */
         private readonly _hostElement: HTMLElement, // Revgrid host element
         /** @internal */
-        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _canvas: Canvas<BGS>,
         /** @internal */
         private readonly _scrollDimension: ScrollDimension<BGS>,
         /** @internal */
@@ -355,7 +355,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                 pixelsSize = thicknessSizeWithUnit.size;
                 break;
             case SizeUnitEnum.Em: {
-                const emWidth = this._canvasManager.gc.getEmWidth();
+                const emWidth = this._canvas.gc.getEmWidth();
                 pixelsSize = Math.ceil(thicknessSizeWithUnit.size * emWidth);
                 break;
             }

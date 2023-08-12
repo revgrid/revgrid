@@ -7,70 +7,70 @@ import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-err
 import { RevgridObject } from '../../types-utils/revgrid-object';
 
 /** @public */
-export class CanvasManager<BGS extends BehavioredGridSettings> implements RevgridObject {
-    readonly canvasElement: HTMLCanvasElement;
+export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject {
+    readonly element: HTMLCanvasElement;
     readonly gc: CachedCanvasRenderingContext2D;
 
     /** @internal */
-    resizedEventerForViewLayout: CanvasManager.ResizedEventer;
+    resizedEventerForViewLayout: Canvas.ResizedEventer;
     /** @internal */
-    resizedEventerForEventBehavior: CanvasManager.ResizedEventer;
+    resizedEventerForEventBehavior: Canvas.ResizedEventer;
 
     /** @internal */
-    repaintEventer: CanvasManager.RepaintEventer;
+    repaintEventer: Canvas.RepaintEventer;
 
     /** @internal */
-    focusEventer: CanvasManager.FocusEventer;
+    focusEventer: Canvas.FocusEventer;
     /** @internal */
-    blurEventer: CanvasManager.FocusEventer;
+    blurEventer: Canvas.FocusEventer;
 
     /** @internal */
-    keyDownEventer: CanvasManager.KeyEventer;
+    keyDownEventer: Canvas.KeyEventer;
     /** @internal */
-    keyUpEventer: CanvasManager.KeyEventer;
+    keyUpEventer: Canvas.KeyEventer;
 
     /** @internal */
-    pointerEnterEventer: CanvasManager.PointerEventer;
+    pointerEnterEventer: Canvas.PointerEventer;
     /** @internal */
-    pointerDownEventer: CanvasManager.PointerEventer;
+    pointerDownEventer: Canvas.PointerEventer;
     /** @internal */
-    pointerMoveEventer: CanvasManager.PointerEventer;
+    pointerMoveEventer: Canvas.PointerEventer;
     /** @internal */
-    pointerUpCancelEventer: CanvasManager.PointerEventer;
+    pointerUpCancelEventer: Canvas.PointerEventer;
     /** @internal */
-    pointerLeaveOutEventer: CanvasManager.PointerEventer;
+    pointerLeaveOutEventer: Canvas.PointerEventer;
     /** @internal */
-    pointerDragStartEventer: CanvasManager.PointerDragStartEventer;
+    pointerDragStartEventer: Canvas.PointerDragStartEventer;
     /** @internal */
-    pointerDragEventer: CanvasManager.PointerDragEventer;
+    pointerDragEventer: Canvas.PointerDragEventer;
     /** @internal */
-    pointerDragEndEventer: CanvasManager.PointerDragEventer;
+    pointerDragEndEventer: Canvas.PointerDragEventer;
     /** @internal */
-    wheelMoveEventer: CanvasManager.WheelEventer;
+    wheelMoveEventer: Canvas.WheelEventer;
     /** @internal */
-    clickEventer: CanvasManager.MouseEventer;
+    clickEventer: Canvas.MouseEventer;
     /** @internal */
-    dblClickEventer: CanvasManager.MouseEventer;
+    dblClickEventer: Canvas.MouseEventer;
     /** @internal */
-    contextMenuEventer: CanvasManager.MouseEventer;
+    contextMenuEventer: Canvas.MouseEventer;
 
     /** @internal */
-    touchStartEventer: CanvasManager.TouchEventer;
+    touchStartEventer: Canvas.TouchEventer;
     /** @internal */
-    touchMoveEventer: CanvasManager.TouchEventer;
+    touchMoveEventer: Canvas.TouchEventer;
     /** @internal */
-    touchEndEventer: CanvasManager.TouchEventer;
+    touchEndEventer: Canvas.TouchEventer;
 
     /** @internal */
-    copyEventer: CanvasManager.ClipboardEventer;
+    copyEventer: Canvas.ClipboardEventer;
 
     /** @internal */
-    dragStartEventer: CanvasManager.DragEventer;
+    dragStartEventer: Canvas.DragEventer;
 
     /** @internal */
     private _pointerEntered = false;
     /** @internal */
-    private _pointerDownState: CanvasManager.PointerDownState = CanvasManager.PointerDownState.NotDown;
+    private _pointerDownState: Canvas.PointerDownState = Canvas.PointerDownState.NotDown;
     /** @internal */
     private _pointerDragInternal: boolean;
 
@@ -116,22 +116,22 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         // event.preventDefault(); // no mouse event
 
         switch (this._pointerDownState) {
-            case CanvasManager.PointerDownState.NotDown:
+            case Canvas.PointerDownState.NotDown:
                 break;
-            case CanvasManager.PointerDownState.NotDragging:
-                this.setPointerDownState(CanvasManager.PointerDownState.NotDown, event);
+            case Canvas.PointerDownState.NotDragging:
+                this.setPointerDownState(Canvas.PointerDownState.NotDown, event);
                 break;
-            case CanvasManager.PointerDownState.DragStarting:
+            case Canvas.PointerDownState.DragStarting:
                 this.pointerUpCancelEventer(event);
-                this.setPointerDownState(CanvasManager.PointerDownState.NotDown, event);
+                this.setPointerDownState(Canvas.PointerDownState.NotDown, event);
                 break;
-            case CanvasManager.PointerDownState.Dragging:
+            case Canvas.PointerDownState.Dragging:
                 this.pointerDragEndEventer(event, this._pointerDragInternal);
                 this.pointerUpCancelEventer(event);
-                this.setPointerDownState(CanvasManager.PointerDownState.IgnoreClickAfterDrag, event);
+                this.setPointerDownState(Canvas.PointerDownState.IgnoreClickAfterDrag, event);
                 break;
-            case CanvasManager.PointerDownState.IgnoreClickAfterDrag:
-                this.setPointerDownState(CanvasManager.PointerDownState.NotDown, event);
+            case Canvas.PointerDownState.IgnoreClickAfterDrag:
+                this.setPointerDownState(Canvas.PointerDownState.NotDown, event);
                 break;
             default:
                 throw new UnreachableCaseError('CMPUCEL34440', this._pointerDownState);
@@ -199,8 +199,8 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
 
     /** @internal */
     private clickEventListener = (e: MouseEvent) => {
-        if (this._pointerDownState === CanvasManager.PointerDownState.IgnoreClickAfterDrag) {
-            this.setPointerDownState(CanvasManager.PointerDownState.NotDown, undefined);
+        if (this._pointerDownState === Canvas.PointerDownState.IgnoreClickAfterDrag) {
+            this.setPointerDownState(Canvas.PointerDownState.NotDown, undefined);
         } else {
             this.clickEventer(e);
         }
@@ -245,42 +245,42 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         private readonly _gridSettings: BGS,
     ) {
         // create and append the canvas
-        this.canvasElement = document.createElement('canvas');
-        this.canvasElement.id = `${revgridId}-${CanvasManager.canvasCssSuffix}`;
-        this.canvasElement.draggable = true;
-        this.canvasElement.tabIndex = 0;
-        this.canvasElement.style.display = CssTypes.Display.block;
-        this.canvasElement.style.outline = 'none';
-        this.canvasElement.style.margin = '0';
-        this.canvasElement.style.padding = '0';
-        this.canvasElement.style.overflow = canvasOverflowOverride === undefined ? CssTypes.Overflow.clip : canvasOverflowOverride;
-        this.canvasElement.classList.add(`${CssTypes.libraryName}-${CanvasManager.canvasCssSuffix}`);
+        this.element = document.createElement('canvas');
+        this.element.id = `${revgridId}-${Canvas.canvasCssSuffix}`;
+        this.element.draggable = true;
+        this.element.tabIndex = 0;
+        this.element.style.display = CssTypes.Display.block;
+        this.element.style.outline = 'none';
+        this.element.style.margin = '0';
+        this.element.style.padding = '0';
+        this.element.style.overflow = canvasOverflowOverride === undefined ? CssTypes.Overflow.clip : canvasOverflowOverride;
+        this.element.classList.add(`${CssTypes.libraryName}-${Canvas.canvasCssSuffix}`);
 
-        this.gc = this.createCachedContext(this.canvasElement, canvasRenderingContext2DSettings);
+        this.gc = this.createCachedContext(this.element, canvasRenderingContext2DSettings);
 
-        this.hostElement.appendChild(this.canvasElement);
+        this.hostElement.appendChild(this.element);
 
         this._emptyImage = document.createElement('img');
         this._emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
-        this.canvasElement.addEventListener('pointerdown', (event) => {
+        this.element.addEventListener('pointerdown', (event) => {
             // event.preventDefault(); // no mouse event
 
             switch (this._pointerDownState) {
-                case CanvasManager.PointerDownState.NotDown:
-                    this.setPointerDownState(CanvasManager.PointerDownState.NotDragging, event);
+                case Canvas.PointerDownState.NotDown:
+                    this.setPointerDownState(Canvas.PointerDownState.NotDragging, event);
                     this.pointerDownEventer(event);
                     break;
-                case CanvasManager.PointerDownState.NotDragging:
+                case Canvas.PointerDownState.NotDragging:
                     // must have lost a pointer up event
                     this.pointerDownEventer(event);
                     break;
-                case CanvasManager.PointerDownState.IgnoreClickAfterDrag:
+                case Canvas.PointerDownState.IgnoreClickAfterDrag:
                     // must have lost a click event
                     this.pointerDownEventer(event);
                     break;
-                case CanvasManager.PointerDownState.DragStarting:
-                case CanvasManager.PointerDownState.Dragging:
+                case Canvas.PointerDownState.DragStarting:
+                case Canvas.PointerDownState.Dragging:
                     // Should normally never occur but debugger can trigger this transition
                     this.pointerUpCancelEventListener(event); // pretend pointer went up
                     this.pointerDownEventer(event);
@@ -290,22 +290,22 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
                     throw new UnreachableCaseError('CMCAELPDU34440', this._pointerDownState);
             }
         });
-        this.canvasElement.addEventListener('pointermove', (event) => {
+        this.element.addEventListener('pointermove', (event) => {
             // event.preventDefault(); // no mouse event
 
             switch (this._pointerDownState) {
-                case CanvasManager.PointerDownState.NotDown:
-                case CanvasManager.PointerDownState.NotDragging:
-                case CanvasManager.PointerDownState.IgnoreClickAfterDrag:
+                case Canvas.PointerDownState.NotDown:
+                case Canvas.PointerDownState.NotDragging:
+                case Canvas.PointerDownState.IgnoreClickAfterDrag:
                     this.pointerMoveEventer(event);
                     break;
-                case CanvasManager.PointerDownState.DragStarting: {
+                case Canvas.PointerDownState.DragStarting: {
                     this.pointerMoveEventer(event);
-                    this.setPointerDownState(CanvasManager.PointerDownState.Dragging, event);
+                    this.setPointerDownState(Canvas.PointerDownState.Dragging, event);
                     this.pointerDragEventer(event, this._pointerDragInternal);
                     break;
                 }
-                case CanvasManager.PointerDownState.Dragging:
+                case Canvas.PointerDownState.Dragging:
                     this.pointerMoveEventer(event);
                     this.pointerDragEventer(event, this._pointerDragInternal);
                     break;
@@ -314,61 +314,61 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
             }
 
         });
-        this.canvasElement.addEventListener('pointerenter', (event) => {
+        this.element.addEventListener('pointerenter', (event) => {
             // event.preventDefault(); // no mouse event
 
             this._pointerEntered = true;
             this.pointerEnterEventer(event);
         });
-        this.canvasElement.addEventListener('pointerleave', (event) => {
+        this.element.addEventListener('pointerleave', (event) => {
             if (this._pointerEntered) {
                 this.pointerLeaveOutEventer(event);
                 this._pointerEntered = false;
             }
         });
-        this.canvasElement.addEventListener('pointerout', (event) => {
+        this.element.addEventListener('pointerout', (event) => {
             if (this._pointerEntered) {
                 this.pointerLeaveOutEventer(event);
                 this._pointerEntered = false;
             }
         });
-        this.canvasElement.addEventListener('pointerup', this.pointerUpCancelEventListener);
-        this.canvasElement.addEventListener('pointercancel', this.pointerUpCancelEventListener);
-        this.canvasElement.addEventListener('wheel', (event) => {
+        this.element.addEventListener('pointerup', this.pointerUpCancelEventListener);
+        this.element.addEventListener('pointercancel', this.pointerUpCancelEventListener);
+        this.element.addEventListener('wheel', (event) => {
             const pointerDownState = this._pointerDownState;
-            if (pointerDownState !== CanvasManager.PointerDownState.Dragging) {
+            if (pointerDownState !== Canvas.PointerDownState.Dragging) {
                 this.wheelMoveEventer(event);
             }
         });
-        this.canvasElement.addEventListener('keydown', this.keyDownEventListener);
-        this.canvasElement.addEventListener('keyup', this.keyUpEventListener);
-        this.canvasElement.addEventListener('focus', this.focusEventListener);
-        this.canvasElement.addEventListener('blur', this.blurEventListener);
-        this.canvasElement.addEventListener('click', this.clickEventListener);
-        this.canvasElement.addEventListener('dblclick', this.dblClickEventListener);
-        this.canvasElement.addEventListener('contextmenu', this.contextMenuEventListener);
-        this.canvasElement.addEventListener('touchstart', this.touchStartEventListener);
-        this.canvasElement.addEventListener('touchmove', this.touchMoveEventListener);
-        this.canvasElement.addEventListener('touchend', this.touchEndEventListener);
-        this.canvasElement.addEventListener('copy', this.copyEventListener);
+        this.element.addEventListener('keydown', this.keyDownEventListener);
+        this.element.addEventListener('keyup', this.keyUpEventListener);
+        this.element.addEventListener('focus', this.focusEventListener);
+        this.element.addEventListener('blur', this.blurEventListener);
+        this.element.addEventListener('click', this.clickEventListener);
+        this.element.addEventListener('dblclick', this.dblClickEventListener);
+        this.element.addEventListener('contextmenu', this.contextMenuEventListener);
+        this.element.addEventListener('touchstart', this.touchStartEventListener);
+        this.element.addEventListener('touchmove', this.touchMoveEventListener);
+        this.element.addEventListener('touchend', this.touchEndEventListener);
+        this.element.addEventListener('copy', this.copyEventListener);
 
-        this.canvasElement.addEventListener('dragstart', (event) => {
+        this.element.addEventListener('dragstart', (event) => {
             this.dragStartEventer(event);
             const dataTransfer = event.dataTransfer;
             if (dataTransfer === null || dataTransfer.items.length === 0) {
                 event.preventDefault();
 
                 if (
-                    this._pointerDownState !== CanvasManager.PointerDownState.NotDragging &&
-                    this._pointerDownState !== CanvasManager.PointerDownState.NotDown && // Debugger can cause this unexpected state
-                    this._pointerDownState !== CanvasManager.PointerDownState.IgnoreClickAfterDrag // Debugger can cause this unexpected state
+                    this._pointerDownState !== Canvas.PointerDownState.NotDragging &&
+                    this._pointerDownState !== Canvas.PointerDownState.NotDown && // Debugger can cause this unexpected state
+                    this._pointerDownState !== Canvas.PointerDownState.IgnoreClickAfterDrag // Debugger can cause this unexpected state
                 ) {
                     throw new AssertError('CMCAELDS1220');
                 } else {
                     const pointerDragInternal = this.pointerDragStartEventer(event);
                     if (pointerDragInternal !== undefined) {
                         this._pointerDragInternal = pointerDragInternal;
-                        this.setPointerDownState(CanvasManager.PointerDownState.DragStarting, undefined);
+                        this.setPointerDownState(Canvas.PointerDownState.DragStarting, undefined);
                     }
                 }
             }
@@ -383,11 +383,11 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
     get emptyImage() { return this._emptyImage; } // may use for dragging in future
 
     addExternalEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
-        this.canvasElement.addEventListener(eventName, listener, options);
+        this.element.addEventListener(eventName, listener, options);
     }
 
     removeExternalEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) {
-        this.canvasElement.removeEventListener(eventName, listener, options);
+        this.element.removeEventListener(eventName, listener, options);
     }
 
     /** @internal */
@@ -440,11 +440,11 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
         this._devicePixelRatio = ratio;
         // this._devicePixelRatio = ratio *= this.bodyZoomFactor;
 
-        this.canvasElement.width = Math.floor(flooredWidth * ratio);
-        this.canvasElement.height = Math.floor(flooredHeight * ratio);
+        this.element.width = Math.floor(flooredWidth * ratio);
+        this.element.height = Math.floor(flooredHeight * ratio);
 
-        this.canvasElement.style.width = flooredWidth.toString(10) + 'px';
-        this.canvasElement.style.height = flooredHeight.toString(10) + 'px';
+        this.element.style.width = flooredWidth.toString(10) + 'px';
+        this.element.style.height = flooredHeight.toString(10) + 'px';
 
         if (imageData !== undefined && !ratioChanged) {
             this.gc.putImageData(imageData, 0, 0);
@@ -507,35 +507,35 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
 
     /** @internal */
     hasFocus() {
-        return document.activeElement === this.canvasElement;
+        return document.activeElement === this.element;
     }
 
     /** @internal */
     takeFocus() {
         if (!this.hasFocus()) {
             setTimeout(() => {
-                this.canvasElement.focus();
+                this.element.focus();
             }, 10);
         }
     }
 
     /** @internal */
     dispatchEvent(e: Event) {
-        return this.canvasElement.dispatchEvent(e);
+        return this.element.dispatchEvent(e);
     }
 
     /** @internal */
     setCursor(cursorName: string | undefined) {
         if (cursorName === undefined) {
-            this.canvasElement.style.cursor = '';
+            this.element.style.cursor = '';
         } else {
-            this.canvasElement.style.cursor = cursorName;
+            this.element.style.cursor = cursorName;
         }
     }
 
     /** @internal */
     setTitleText(titleText: string) {
-        this.canvasElement.title = titleText;
+        this.element.title = titleText;
     }
 
     /** @internal */
@@ -590,29 +590,29 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
     }
 
     /** @internal */
-    private setPointerDownState(state: CanvasManager.PointerDownState, event: PointerEvent | undefined) {
+    private setPointerDownState(state: Canvas.PointerDownState, event: PointerEvent | undefined) {
         switch (state) {
-            case CanvasManager.PointerDownState.NotDown:
-            case CanvasManager.PointerDownState.NotDragging:
-            case CanvasManager.PointerDownState.IgnoreClickAfterDrag:
+            case Canvas.PointerDownState.NotDown:
+            case Canvas.PointerDownState.NotDragging:
+            case Canvas.PointerDownState.IgnoreClickAfterDrag:
                 document.body.style.userSelect = '';
                 if (event !== undefined) {
-                    this.canvasElement.releasePointerCapture(event.pointerId);
+                    this.element.releasePointerCapture(event.pointerId);
                 } else {
-                    if (this._pointerDownState !== CanvasManager.PointerDownState.IgnoreClickAfterDrag) {
+                    if (this._pointerDownState !== Canvas.PointerDownState.IgnoreClickAfterDrag) {
                         throw new AssertError('CMSPDSN68201');
                     }
                 }
                 break;
-            case CanvasManager.PointerDownState.DragStarting:
+            case Canvas.PointerDownState.DragStarting:
                 document.body.style.userSelect = 'none';
                 break;
-            case CanvasManager.PointerDownState.Dragging:
+            case Canvas.PointerDownState.Dragging:
                 document.body.style.userSelect = 'none';
                 if (event === undefined) {
                     throw new AssertError('CMSPDSR68201');
                 } else {
-                    this.canvasElement.setPointerCapture(event.pointerId);
+                    this.element.setPointerCapture(event.pointerId);
                 }
                 break;
             default:
@@ -640,12 +640,12 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
 
     /** @internal */
     private getCanvasBoundingClientRect() {
-        return this.canvasElement.getBoundingClientRect();
+        return this.element.getBoundingClientRect();
     }
 }
 
 /** @public */
-export namespace CanvasManager {
+export namespace Canvas {
     /** @internal */
     export type ResizedEventer = (this: void) => void;
     /** @internal */

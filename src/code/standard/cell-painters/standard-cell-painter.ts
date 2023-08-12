@@ -15,7 +15,7 @@ export abstract class StandardCellPainter<
     ) {
         const grid = this._grid;
         this._gridSettings = grid.settings;
-        this._renderingContext = grid.canvasManager.gc;
+        this._renderingContext = grid.canvas.gc;
     }
 
     abstract paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;

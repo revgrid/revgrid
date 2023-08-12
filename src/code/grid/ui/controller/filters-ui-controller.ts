@@ -114,7 +114,7 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
             this.subgridsManager.calculatePreMainRowCount(),
             SelectionAreaType.toId(this.gridSettings.primarySelectionAreaType)
         );
-        this.canvasManager.takeFocus();
+        this.canvas.takeFocus();
     }
 
 }

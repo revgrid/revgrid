@@ -3,7 +3,7 @@ import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { CanvasManager } from '../../canvas/canvas-manager';
+import { Canvas } from '../../canvas/canvas';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
@@ -35,14 +35,14 @@ import { GridPainter } from './grid-painter';
  *
  * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumns|paintCellsByColumns}.
  * @this {ViewLayout}
- * @param {CanvasManager.CanvasRenderingContext2DEx} gc TODO need to remove any type
+ * @param {Canvas.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
 export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends GridPainter<BGS, BCS, SF> {
     // private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;
 
     constructor(
         gridSettings: GridSettings,
-        canvasManager: CanvasManager<BGS>,
+        canvas: Canvas<BGS>,
         subgridsManager: SubgridsManager<BCS, SF>,
         viewLayout: ViewLayout<BGS, BCS, SF>,
         focus: Focus<BGS, BCS, SF>,
@@ -52,7 +52,7 @@ export class AsNeededGridPainter<BGS extends BehavioredGridSettings, BCS extends
     ) {
         super(
             gridSettings,
-            canvasManager,
+            canvas,
             subgridsManager,
             viewLayout,
             focus,

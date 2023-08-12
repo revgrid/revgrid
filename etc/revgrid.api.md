@@ -284,32 +284,32 @@ export namespace CachedCanvasRenderingContext2D {
 }
 
 // @public (undocumented)
-export class CanvasManager<BGS extends BehavioredGridSettings> implements RevgridObject {
+export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject {
     // @internal
     constructor(revgridId: string, internalParent: RevgridObject, hostElement: HTMLElement, canvasOverflowOverride: CssTypes.Overflow | undefined, canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
     _gridSettings: BGS);
     // (undocumented)
     addExternalEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     // @internal (undocumented)
-    blurEventer: CanvasManager.FocusEventer;
-    // (undocumented)
-    readonly canvasElement: HTMLCanvasElement;
+    blurEventer: Canvas.FocusEventer;
     // (undocumented)
     checksize(): void;
     // @internal (undocumented)
-    clickEventer: CanvasManager.MouseEventer;
+    clickEventer: Canvas.MouseEventer;
     // @internal (undocumented)
-    contextMenuEventer: CanvasManager.MouseEventer;
+    contextMenuEventer: Canvas.MouseEventer;
     // @internal (undocumented)
-    copyEventer: CanvasManager.ClipboardEventer;
+    copyEventer: Canvas.ClipboardEventer;
     // @internal (undocumented)
-    dblClickEventer: CanvasManager.MouseEventer;
+    dblClickEventer: Canvas.MouseEventer;
     // (undocumented)
     get devicePixelRatio(): number;
     // @internal (undocumented)
     dispatchEvent(e: Event): boolean;
     // @internal (undocumented)
-    dragStartEventer: CanvasManager.DragEventer;
+    dragStartEventer: Canvas.DragEventer;
+    // (undocumented)
+    readonly element: HTMLCanvasElement;
     // (undocumented)
     get emptyImage(): HTMLImageElement;
     // (undocumented)
@@ -319,7 +319,7 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
     // (undocumented)
     get flooredWidth(): number;
     // @internal (undocumented)
-    focusEventer: CanvasManager.FocusEventer;
+    focusEventer: Canvas.FocusEventer;
     // (undocumented)
     readonly gc: CachedCanvasRenderingContext2D;
     // @internal (undocumented)
@@ -333,35 +333,35 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
     // (undocumented)
     readonly internalParent: RevgridObject;
     // @internal (undocumented)
-    keyDownEventer: CanvasManager.KeyEventer;
+    keyDownEventer: Canvas.KeyEventer;
     // @internal (undocumented)
-    keyUpEventer: CanvasManager.KeyEventer;
+    keyUpEventer: Canvas.KeyEventer;
     // @internal (undocumented)
-    pointerDownEventer: CanvasManager.PointerEventer;
+    pointerDownEventer: Canvas.PointerEventer;
     // @internal (undocumented)
-    pointerDragEndEventer: CanvasManager.PointerDragEventer;
+    pointerDragEndEventer: Canvas.PointerDragEventer;
     // @internal (undocumented)
-    pointerDragEventer: CanvasManager.PointerDragEventer;
+    pointerDragEventer: Canvas.PointerDragEventer;
     // @internal (undocumented)
-    pointerDragStartEventer: CanvasManager.PointerDragStartEventer;
+    pointerDragStartEventer: Canvas.PointerDragStartEventer;
     // @internal (undocumented)
-    pointerEnterEventer: CanvasManager.PointerEventer;
+    pointerEnterEventer: Canvas.PointerEventer;
     // @internal (undocumented)
-    pointerLeaveOutEventer: CanvasManager.PointerEventer;
+    pointerLeaveOutEventer: Canvas.PointerEventer;
     // @internal (undocumented)
-    pointerMoveEventer: CanvasManager.PointerEventer;
+    pointerMoveEventer: Canvas.PointerEventer;
     // @internal (undocumented)
-    pointerUpCancelEventer: CanvasManager.PointerEventer;
+    pointerUpCancelEventer: Canvas.PointerEventer;
     // (undocumented)
     removeExternalEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     // @internal (undocumented)
-    repaintEventer: CanvasManager.RepaintEventer;
+    repaintEventer: Canvas.RepaintEventer;
     // (undocumented)
     resize(debounceEvent: boolean, hostRect?: DOMRect): void;
     // @internal (undocumented)
-    resizedEventerForEventBehavior: CanvasManager.ResizedEventer;
+    resizedEventerForEventBehavior: Canvas.ResizedEventer;
     // @internal (undocumented)
-    resizedEventerForViewLayout: CanvasManager.ResizedEventer;
+    resizedEventerForViewLayout: Canvas.ResizedEventer;
     // (undocumented)
     readonly revgridId: string;
     // @internal (undocumented)
@@ -375,17 +375,17 @@ export class CanvasManager<BGS extends BehavioredGridSettings> implements Revgri
     // @internal (undocumented)
     takeFocus(): void;
     // @internal (undocumented)
-    touchEndEventer: CanvasManager.TouchEventer;
+    touchEndEventer: Canvas.TouchEventer;
     // @internal (undocumented)
-    touchMoveEventer: CanvasManager.TouchEventer;
+    touchMoveEventer: Canvas.TouchEventer;
     // @internal (undocumented)
-    touchStartEventer: CanvasManager.TouchEventer;
+    touchStartEventer: Canvas.TouchEventer;
     // @internal (undocumented)
-    wheelMoveEventer: CanvasManager.WheelEventer;
+    wheelMoveEventer: Canvas.WheelEventer;
 }
 
 // @public (undocumented)
-export namespace CanvasManager {
+export namespace Canvas {
     // @internal (undocumented)
     export type ClipboardEventer = (this: void, event: ClipboardEvent) => void;
     // @internal (undocumented)
@@ -1216,7 +1216,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // @internal
     constructor(revgridId: string, internalParent: RevgridObject,
     _gridSettings: GridSettings,
-    _canvasManager: CanvasManager<BGS>,
+    _canvas: Canvas<BGS>,
     _mainSubgrid: MainSubgrid<BCS, SF>,
     _columnsManager: ColumnsManager<BCS, SF>,
     _viewLayout: ViewLayout<BGS, BCS, SF>);
@@ -2378,7 +2378,7 @@ export const enum ModifierKeyEnum {
 export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // @internal
     constructor(revgridId: string, internalParent: RevgridObject,
-    _canvasManager: CanvasManager<BGS>,
+    _canvas: Canvas<BGS>,
     _viewLayout: ViewLayout<BGS, BCS, SF>);
     // (undocumented)
     get activeDragType(): Mouse.DragTypeEnum | undefined;
@@ -2751,7 +2751,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     // @internal
     constructor(revgridId: string, internalParent: RevgridObject,
     _gridSettings: BGS,
-    _canvasManager: CanvasManager<BGS>,
+    _canvas: Canvas<BGS>,
     _columnsManager: ColumnsManager<BCS, SF>,
     _subgridsManager: SubgridsManager<BCS, SF>,
     _viewLayout: ViewLayout<BGS, BCS, SF>,
@@ -2863,9 +2863,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     calculateRowCount(): number;
     // (undocumented)
-    get canvasBounds(): Rectangle;
+    readonly canvas: Canvas<BGS>;
     // (undocumented)
-    readonly canvasManager: CanvasManager<BGS>;
+    get canvasBounds(): Rectangle;
     clearAllCellProperties(x?: number): void;
     // (undocumented)
     clearColumns(): void;
@@ -2875,8 +2875,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get columnScrollAnchorOffset(): number;
     // (undocumented)
     readonly columnsManager: ColumnsManager<BCS, SF>;
-    // @internal (undocumented)
-    createColumns(): void;
     // (undocumented)
     readonly dataExtractBehavior: DataExtractBehavior<BCS, SF>;
     // (undocumented)
@@ -3100,8 +3098,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
     registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>): void;
     // (undocumented)
-    removeAttribute(attribute: string): void;
-    // (undocumented)
     removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     // (undocumented)
     readonly renderer: Renderer<BGS, BCS, SF>;
@@ -3140,8 +3136,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, width: number, ui: boolean): void;
-    // (undocumented)
-    setAttribute(attribute: string, value: string): void;
     // (undocumented)
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -3735,7 +3729,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     constructor(revgridId: string, internalParent: RevgridObject,
     _gridSettings: BGS,
     _hostElement: HTMLElement, // Revgrid host element
-    _canvasManager: CanvasManager<BGS>,
+    _canvas: Canvas<BGS>,
     _scrollDimension: ScrollDimension<BGS>,
     _viewLayout: ViewLayout<BGS, BCS, SF>,
     _indexMode: boolean, // legacy - remove when vertical scrollbar is updated to use viewport
@@ -4775,7 +4769,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     attachChain(): void;
     // (undocumented)
-    protected readonly canvasManager: CanvasManager<BGS>;
+    protected readonly canvas: Canvas<BGS>;
     // Warning: (ae-forgotten-export) The symbol "CellPropertiesBehavior" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
@@ -4924,7 +4918,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // @internal
     constructor(revgridId: string, internalParent: RevgridObject,
     _gridSettings: BGS,
-    _canvasManager: CanvasManager<BGS>,
+    _canvas: Canvas<BGS>,
     _columnsManager: ColumnsManager<BCS, SF>,
     _subgridsManager: SubgridsManager<BCS, SF>);
     // (undocumented)

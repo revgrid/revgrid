@@ -8,7 +8,7 @@ import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { OnlyGridSettings } from '../../../interfaces/settings/only-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { Rectangle } from '../../../types-utils/rectangle';
-import { CanvasManager } from '../../canvas/canvas-manager';
+import { Canvas } from '../../canvas/canvas';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
@@ -28,7 +28,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
 
     constructor(
         protected readonly gridSettings: GridSettings,
-        protected readonly canvasManager: CanvasManager<BGS>,
+        protected readonly canvas: Canvas<BGS>,
         protected readonly subgridsManager: SubgridsManager<BCS, SF>,
         protected readonly viewLayout: ViewLayout<BGS, BCS, SF>,
         protected readonly focus: Focus<BGS, BCS, SF>,
@@ -39,7 +39,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         public readonly partial: boolean,
         initialRebundle: boolean | undefined,
     ) {
-        this._renderingContext = this.canvasManager.gc;
+        this._renderingContext = this.canvas.gc;
         if (initialRebundle !== undefined) {
             this.rebundle = initialRebundle;
         }
@@ -424,7 +424,7 @@ export namespace GridPainter {
     export type RepaintAllRequiredEventer = (this: void) => void;
     export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> = new(
         gridSettings: GridSettings,
-        canvasManager: CanvasManager<BGS>,
+        canvas: Canvas<BGS>,
         subgridsManager: SubgridsManager<BCS, SF>,
         viewLayout: ViewLayout<BGS, BCS, SF>,
         focus: Focus<BGS, BCS, SF>,

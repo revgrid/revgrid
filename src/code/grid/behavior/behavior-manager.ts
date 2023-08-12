@@ -1,4 +1,4 @@
-import { CanvasManager } from '../components/canvas/canvas-manager';
+import { Canvas } from '../components/canvas/canvas';
 import { ColumnsManager } from '../components/column/columns-manager';
 import { Focus } from '../components/focus/focus';
 import { Mouse } from '../components/mouse/mouse';
@@ -36,7 +36,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
         gridSettings: BGS,
-        canvasManager: CanvasManager<BGS>,
+        canvas: Canvas<BGS>,
         columnsManager: ColumnsManager<BCS, SF>,
         subgridsManager: SubgridsManager<BCS, SF>,
         viewLayout: ViewLayout<BGS, BCS, SF>,
@@ -52,7 +52,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
             this.revgridId,
             this,
             gridSettings.eventDispatchEnabled,
-            canvasManager,
+            canvas,
             columnsManager,
             viewLayout,
             focus,
@@ -62,7 +62,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
             horizontalScroller,
             verticalScroller,
             descendantEventer,
-            (event) => canvasManager.dispatchEvent(event),
+            (event) => canvas.dispatchEvent(event),
         );
 
         this.reindexBehavior = new ReindexBehavior(

@@ -5,7 +5,7 @@ import { EventBehavior } from './behavior/event-behavior';
 import { FocusScrollBehavior } from './behavior/focus-scroll-behavior';
 import { FocusSelectBehavior } from './behavior/focus-select-behavior';
 import { RowPropertiesBehavior } from './behavior/row-properties-behavior';
-import { CanvasManager } from './components/canvas/canvas-manager';
+import { Canvas } from './components/canvas/canvas';
 import { ColumnsManager } from './components/column/columns-manager';
 import { ComponentsManager } from './components/components-manager';
 import { Focus } from './components/focus/focus';
@@ -52,7 +52,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly mouse: Mouse<BGS, BCS, SF>;
     readonly selection: Selection<BCS, SF>;
     readonly focus: Focus<BGS, BCS, SF>;
-    readonly canvasManager: CanvasManager<BGS>;
+    readonly canvas: Canvas<BGS>;
     readonly columnsManager: ColumnsManager<BCS, SF>;
     readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
@@ -143,7 +143,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
         this.focus = this._componentsManager.focus;
         this.selection = this._componentsManager.selection;
-        this.canvasManager = this._componentsManager.canvasManager;
+        this.canvas = this._componentsManager.canvas;
         this.mouse = this._componentsManager.mouse;
         this.columnsManager = this._componentsManager.columnsManager;
         this.subgridsManager = this._componentsManager.subgridsManager;
@@ -161,7 +161,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.revgridId,
             this,
             this.settings,
-            this.canvasManager,
+            this.canvas,
             this.columnsManager,
             this.subgridsManager,
             this.viewLayout,
@@ -185,7 +185,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this,
             this.hostElement,
             this.settings,
-            this.canvasManager,
+            this.canvas,
             this.focus,
             this.selection,
             this.columnsManager,
@@ -204,11 +204,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this._behaviorManager.eventBehavior,
             options.customUiControllerDefinitions,
         );
-
-        // this.canvasManager.start();
-        // this._renderer.start();
-
-        // this.canvasManager.resize(false); // Will invalidate all and cause a repaint
     }
 
     get active() { return this._behaviorManager.active; }
@@ -216,17 +211,17 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._behaviorManager.active = value;
         if (!value){
             this.renderer.stop();
-            this.canvasManager.stop();
+            this.canvas.stop();
             this._uiManager.disable();
         } else {
             this._uiManager.enable();
-            this.canvasManager.start();
+            this.canvas.start();
             this.renderer.start();
-            this.canvasManager.resize(false); // Will invalidate all and cause a repaint
+            this.canvas.resize(false); // Will invalidate all and cause a repaint
         }
     }
 
-    get canvasBounds() { return this.canvasManager.flooredBounds; }
+    get canvasBounds() { return this.canvas.flooredBounds; }
 
     /**
      * Be a responsible citizen and call this function on instance disposal!
@@ -256,20 +251,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.active = false;
     }
 
-    setAttribute(attribute: string, value: string) {
-        this.hostElement.setAttribute(attribute, value);
-    }
-
-    removeAttribute(attribute: string) {
-        this.hostElement.removeAttribute(attribute);
-    }
-
-    /** @internal */
-    createColumns() {
-        // used by Behavior.addState()
-        this.columnsManager.createColumns();
-    }
-
     /**
      * @desc Clear out all state settings, data (rows), and schema (columns) of a grid instance.
      * @param options
@@ -278,7 +259,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      */
     reset() {
         this._componentsManager.reset();
-        this.canvasManager.resize(false); // Will invalidate all and cause a repaint
+        this.canvas.resize(false); // Will invalidate all and cause a repaint
     }
 
     /** pluginSpec
@@ -429,7 +410,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @returns We have focus.
      */
     hasFocus() {
-        return this.canvasManager.hasFocus();
+        return this.canvas.hasFocus();
     }
 
     /**
@@ -1037,7 +1018,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @returns The HiDPI ratio.
      */
     getHiDPI() {
-        return this.canvasManager.devicePixelRatio;
+        return this.canvas.devicePixelRatio;
     }
 
     /**
@@ -1161,11 +1142,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
-        this.canvasManager.addExternalEventListener(eventName, listener, options);
+        this.canvas.addExternalEventListener(eventName, listener, options);
     }
 
     removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) {
-        this.canvasManager.removeExternalEventListener(eventName, listener, options);
+        this.canvas.removeExternalEventListener(eventName, listener, options);
     }
 
     protected descendantProcessCellFocusChanged(_newPoint: Point | undefined, _oldPoint: Point | undefined) {

@@ -6,7 +6,7 @@ import { FocusScrollBehavior } from '../../behavior/focus-scroll-behavior';
 import { FocusSelectBehavior } from '../../behavior/focus-select-behavior';
 import { ReindexBehavior } from '../../behavior/reindex-behavior';
 import { RowPropertiesBehavior } from '../../behavior/row-properties-behavior';
-import { CanvasManager } from '../../components/canvas/canvas-manager';
+import { Canvas } from '../../components/canvas/canvas';
 import { ColumnsManager } from '../../components/column/columns-manager';
 import { Focus } from '../../components/focus/focus';
 import { Mouse } from '../../components/mouse/mouse';
@@ -39,7 +39,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     protected readonly hostElement: HTMLElement;
 
     protected readonly gridSettings: GridSettings;
-    protected readonly canvasManager: CanvasManager<BGS>;
+    protected readonly canvas: Canvas<BGS>;
     protected readonly selection: Selection<BCS, SF>;
     protected readonly focus: Focus<BGS, BCS, SF>;
     protected readonly columnsManager: ColumnsManager<BCS, SF>;
@@ -69,7 +69,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
         this.hostElement = services.hostElement;
 
         this.gridSettings = services.gridSettings;
-        this.canvasManager = services.canvasManager;
+        this.canvas = services.canvas;
         this.selection = services.selection;
         this.focus = services.focus;
         this.columnsManager = services.columnsManager;

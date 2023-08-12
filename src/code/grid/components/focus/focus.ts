@@ -13,7 +13,7 @@ import { PartialPoint, Point } from '../../types-utils/point';
 import { AssertError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { calculateAdjustmentForRangeMoved } from '../../types-utils/utils';
-import { CanvasManager } from '../canvas/canvas-manager';
+import { Canvas } from '../canvas/canvas';
 import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
@@ -59,7 +59,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         /** @internal */
         private readonly _gridSettings: GridSettings,
         /** @internal */
-        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _canvas: Canvas<BGS>,
         /** @internal */
         private readonly _mainSubgrid: MainSubgrid<BCS, SF>,
         /** @internal */
@@ -312,7 +312,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             }
 
             if (focusCanvas) {
-                this._canvasManager.canvasElement.focus();
+                this._canvas.element.focus();
             }
         }
     }

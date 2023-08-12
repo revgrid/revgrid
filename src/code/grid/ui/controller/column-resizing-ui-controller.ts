@@ -294,7 +294,7 @@ export class ColumnResizingUiController<BGS extends BehavioredGridSettings, BCS 
         const cellLeftOffset = canvasOffsetX - cellLeft;
         const cellRightOffset = cellLeft + cellBounds.width - canvasOffsetX - 1;
 
-        const emWidth = this.canvasManager.gc.getEmWidth();
+        const emWidth = this.canvas.gc.getEmWidth();
         const tolerance = Math.ceil(emWidth / 3);
         if (!this.gridSettings.gridRightAligned) {
             if (cellLeftOffset < cellRightOffset && cell.viewLayoutColumn.index !== 0) {

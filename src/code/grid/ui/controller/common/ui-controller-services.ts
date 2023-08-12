@@ -5,7 +5,7 @@ import { FocusScrollBehavior } from '../../../behavior/focus-scroll-behavior';
 import { FocusSelectBehavior } from '../../../behavior/focus-select-behavior';
 import { ReindexBehavior } from '../../../behavior/reindex-behavior';
 import { RowPropertiesBehavior } from '../../../behavior/row-properties-behavior';
-import { CanvasManager } from '../../../components/canvas/canvas-manager';
+import { Canvas } from '../../../components/canvas/canvas';
 import { ColumnsManager } from '../../../components/column/columns-manager';
 import { Focus } from '../../../components/focus/focus';
 import { Mouse } from '../../../components/mouse/mouse';
@@ -31,7 +31,7 @@ export class UiControllerServices<BGS extends BehavioredGridSettings, BCS extend
         readonly sharedState: UiControllerSharedState,
         readonly hostElement: HTMLElement,
         readonly gridSettings: GridSettings,
-        readonly canvasManager: CanvasManager<BGS>,
+        readonly canvas: Canvas<BGS>,
         readonly selection: Selection<BCS, SF>,
         readonly focus: Focus<BGS, BCS, SF>,
         readonly columnsManager: ColumnsManager<BCS, SF>,

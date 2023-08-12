@@ -1,7 +1,7 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError } from '../../types-utils/revgrid-error';
-import { CanvasManager } from '../canvas/canvas-manager';
+import { Canvas } from '../canvas/canvas';
 
 export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     changedEventer: ScrollDimension.ChangedEventer;
@@ -27,7 +27,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     constructor(
         public readonly horizontalVertical: ScrollDimension.AxisEnum,
         protected readonly _gridSettings: GridSettings,
-        protected readonly _canvasManager: CanvasManager<BGS>,
+        protected readonly _canvas: Canvas<BGS>,
     ) {
 
     }
