@@ -117,7 +117,6 @@ export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateType
     editOnFocusCell: GridSettingChangeInvalidateTypeId.None,
     editOnKeyDown: GridSettingChangeInvalidateTypeId.None,
     editOnClick: GridSettingChangeInvalidateTypeId.None,
-    enableContinuousRepaint: GridSettingChangeInvalidateTypeId.ViewRender,
     extendLastSelectionAreaModifierKey: GridSettingChangeInvalidateTypeId.None,
     eventDispatchEnabled: GridSettingChangeInvalidateTypeId.None,
     filterable: GridSettingChangeInvalidateTypeId.None,

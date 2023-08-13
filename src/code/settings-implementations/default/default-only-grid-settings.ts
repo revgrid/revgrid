@@ -285,7 +285,6 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     sortOnDoubleClick: false,
 
     multipleSelectionAreas: false,
-    enableContinuousRepaint: false,
 
     /** @summary Allow user to move columns .
      * @desc Columns can be reordered through either of two interfaces:

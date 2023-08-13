@@ -42,7 +42,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _editOnDoubleClick: boolean;
     private _editOnFocusCell: boolean;
     private _editOnKeyDown: boolean;
-    private _enableContinuousRepaint: boolean;
     private _extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     private _eventDispatchEnabled: boolean;
     private _filterable: boolean;
@@ -392,16 +391,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._editOnKeyDown = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnKeyDown;
-            this.flagChanged(invalidateType);
-            this.endChange();
-        }
-    }
-    get enableContinuousRepaint() { return this._enableContinuousRepaint; }
-    set enableContinuousRepaint(value: boolean) {
-        if (value !== this._enableContinuousRepaint) {
-            this.beginChange();
-            this._enableContinuousRepaint = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.enableContinuousRepaint;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1207,12 +1196,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     if (this._editOnKeyDown !== requiredSettings.editOnKeyDown) {
                         this._editOnKeyDown = requiredSettings.editOnKeyDown;
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnKeyDown);
-                    }
-                    break;
-                case 'enableContinuousRepaint':
-                    if (this._enableContinuousRepaint !== requiredSettings.enableContinuousRepaint) {
-                        this._enableContinuousRepaint = requiredSettings.enableContinuousRepaint;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.enableContinuousRepaint);
                     }
                     break;
                 case 'extendLastSelectionAreaModifierKey':
