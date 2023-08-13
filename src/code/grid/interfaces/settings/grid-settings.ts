@@ -1,6 +1,4 @@
 import { ModifierKey } from '../../types-utils/modifier-key';
-import { UnreachableCaseError } from '../../types-utils/revgrid-error';
-import { SelectionAreaTypeId } from '../../types-utils/selection-area-type';
 import { SelectionAreaTypeSpecifier } from '../../types-utils/types';
 import { deepExtendValue } from '../../types-utils/utils';
 import { OnlyGridSettings } from './only-grid-settings';
@@ -57,17 +55,6 @@ export namespace GridSettings {
             return SelectionAreaTypeSpecifier.Secondary;
         } else {
             return SelectionAreaTypeSpecifier.Primary;
-        }
-    }
-
-    export function isMouseSelectionAllowed(gridSettings: GridSettings, selectionAreaTypeId: SelectionAreaTypeId) {
-        switch (selectionAreaTypeId) {
-            case SelectionAreaTypeId.all: return false;
-            case SelectionAreaTypeId.rectangle: return gridSettings.mouseAddToggleExtendSelectionAreaEnabled;
-            case SelectionAreaTypeId.column: return gridSettings.mouseColumnSelectionEnabled;
-            case SelectionAreaTypeId.row: return gridSettings.mouseRowSelectionEnabled;
-            default:
-                throw new UnreachableCaseError('GSIMSA67221', selectionAreaTypeId);
         }
     }
 }

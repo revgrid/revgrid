@@ -1392,8 +1392,6 @@ export namespace GridSettings {
     // (undocumented)
     export function isExtendLastSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
-    export function isMouseSelectionAllowed(gridSettings: GridSettings, selectionAreaTypeId: SelectionAreaTypeId): boolean;
-    // (undocumented)
     export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
     // (undocumented)
     export function isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T): boolean;
@@ -1691,9 +1689,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get editOnKeyDown(): boolean;
     set editOnKeyDown(value: boolean);
-    // (undocumented)
-    get enableContinuousRepaint(): boolean;
-    set enableContinuousRepaint(value: boolean);
     // (undocumented)
     get eventDispatchEnabled(): boolean;
     set eventDispatchEnabled(value: boolean);
@@ -2354,8 +2349,6 @@ export interface OnlyGridSettings {
     editOnDoubleClick: boolean;
     editOnFocusCell: boolean;
     editOnKeyDown: boolean;
-    // (undocumented)
-    enableContinuousRepaint: boolean;
     eventDispatchEnabled: boolean;
     extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     filterable: boolean;
@@ -2680,13 +2673,23 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     clearColumns(): void;
     // (undocumented)
+    clearSelectAll(subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    clearSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
     clearSelectColumn(activeColumnIndex: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
+    // (undocumented)
+    clearSelectColumns(activeColumnIndex: number, count: number): void;
+    // (undocumented)
     clearSelection(): void;
+    // (undocumented)
+    clearSelectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
     clearSelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    clearSelectViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number, areaType?: SelectionAreaType): void;
+    clearSelectRows(subgridRowIndex: number, count: number, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    clearSelectViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number): void;
     get columnScrollAnchorIndex(): number;
     get columnScrollAnchorOffset(): number;
     // (undocumented)
@@ -2766,6 +2769,20 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     protected descendantProcessVerticalScrollViewportStartChanged(): void;
     // (undocumented)
     protected descendantProcessWheelMove(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS, SF> | null | undefined): void;
+    // (undocumented)
+    deselectAll(subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectColumn(x: number, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectColumns(x: number, count: number, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRow(y: number, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRows(y: number, count: number, subgrid?: Subgrid<BCS, SF>): void;
     destroy(): void;
     // (undocumented)
     get destroyed(): boolean;
@@ -2781,7 +2798,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly focus: Focus<BGS, BCS, SF>;
     // (undocumented)
-    focusClearSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>, areaType?: SelectionAreaType): void;
+    focusClearSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
     focusClearSelectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
@@ -2789,9 +2806,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    focusSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType?: SelectionAreaType): void;
+    focusSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    focusToggleSelectCell(originX: number, originY: number, subgrid?: Subgrid<BCS, SF>, areaType?: SelectionAreaType): boolean;
+    focusToggleSelectCell(originX: number, originY: number, subgrid?: Subgrid<BCS, SF>): boolean;
     // (undocumented)
     getActiveColumn(activeIndex: number): Column<BCS, SF>;
     // (undocumented)
@@ -2804,6 +2821,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getActiveColumnSettings(activeColumnIndex: number): BCS;
     // (undocumented)
     getActiveColumnWidth(activeIndex: number): number;
+    // (undocumented)
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaType[];
     // (undocumented)
     getAllColumn(allX: number): Column<BCS, SF>;
     // (undocumented)
@@ -2834,6 +2853,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     getHiDPI(): number;
     // (undocumented)
+    getOneCellSelectionAreaType(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaType | undefined;
+    // (undocumented)
     getRenderedData(): unknown[][];
     // (undocumented)
     getRenderedHeight(rowIndex: number): number;
@@ -2844,11 +2865,13 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     getSchema(): readonly SchemaField[];
     // (undocumented)
+    getSelectedAllRowCount(): number;
+    // (undocumented)
+    getSelectedAllRowIndices(): number[];
+    // (undocumented)
     getSelectedColumnIndices(): number[];
     // (undocumented)
-    getSelectedRectangles(): readonly SelectionRectangle[];
-    // (undocumented)
-    getSelectedRowCount(): number;
+    getSelectedRowCount(includeAll?: boolean): number;
     // (undocumented)
     getSelectedRowIndices(includeAll?: boolean): number[];
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
@@ -2876,6 +2899,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly internalParent: RevgridObject | undefined;
     // (undocumented)
+    isCellSelected(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean;
+    // (undocumented)
     isColumnOrRowSelected(): boolean;
     // (undocumented)
     isColumnVisible(activeIndex: number): boolean;
@@ -2885,8 +2910,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     isDataRowVisible(r: number, subgrid?: Subgrid<BCS, SF>): boolean;
     // (undocumented)
     isDataVisible(c: number, rn: number): boolean;
+    isOnlyThisCellSelected(x: number, y: number, subgrid?: DatalessSubgrid): boolean | undefined;
     // (undocumented)
-    isPointSelected(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean;
+    isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, datalessSubgrid: DatalessSubgrid, selectedType?: SelectionAreaType): boolean;
     // (undocumented)
     readonly mainDataServer: DataServer<SF>;
     // (undocumented)
@@ -2924,11 +2950,25 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     scrollTop(): boolean;
     // (undocumented)
+    selectAll(subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    selectAllRows(subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    selectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
     selectColumn(activeColumnIndex: number): void;
+    // (undocumented)
+    selectColumns(activeColumnIndex: number, count: number): void;
     // (undocumented)
     readonly selection: Selection_2<BCS, SF>;
     // (undocumented)
+    get SelectionRectangles(): readonly SelectionRectangle[];
+    // (undocumented)
+    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
     selectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    selectRows(subgridRowIndex: number, count: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
     setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
     // (undocumented)
@@ -2938,6 +2978,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, width: number, ui: boolean): void;
+    // (undocumented)
+    setAllSelected(value: boolean, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -2980,11 +3022,13 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     swapColumns(source: number, target: number): void;
     // (undocumented)
+    toggleSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean;
+    // (undocumented)
     toggleSelectColumn(activeColumnIndex: number): void;
     // (undocumented)
     toggleSelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    tryClearSelectFocusedCell(areaType?: SelectionAreaType): boolean;
+    tryClearSelectFocusedCell(): boolean;
     // (undocumented)
     tryExtendLastSelectionAreaAsCloseAsPossibleToFocus(): boolean;
     // (undocumented)
@@ -3736,7 +3780,7 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     clearSelectAll(subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
-    clearSelectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): void;
+    clearSelectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
     clearSelectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
@@ -3744,7 +3788,7 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     deselectAll(subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
-    deselectCellArea(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
+    deselectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
     deselectColumns(x: number, count: number, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
@@ -3759,6 +3803,8 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaTypeId[];
     // (undocumented)
+    getAllRowCount(): number;
+    // (undocumented)
     getAllRowIndices(): number[];
     // (undocumented)
     getAreasCoveringCell(x: number, y: number, subgrid: Subgrid<BCS, SF> | undefined): SelectionArea[];
@@ -3769,9 +3815,9 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     getOneCellSelectionAreaTypeId(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaTypeId | undefined;
     // (undocumented)
-    getRowCount(): number;
+    getRowCount(includeAll: boolean): number;
     // (undocumented)
-    getRowIndices(includeAll?: boolean): number[];
+    getRowIndices(includeAll: boolean): number[];
     // (undocumented)
     readonly internalParent: RevgridObject;
     // (undocumented)
@@ -3784,7 +3830,7 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     isPointInLastArea(x: number, y: number): boolean;
     // (undocumented)
-    isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, datalessSubgrid: DatalessSubgrid, selectedType: SelectionAreaTypeId): boolean;
+    isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, datalessSubgrid: DatalessSubgrid, selectedTypeId: SelectionAreaTypeId): boolean;
     // (undocumented)
     get lastArea(): LastSelectionArea | undefined;
     // (undocumented)
@@ -3804,9 +3850,11 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     selectAll(subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
+    selectAllRows(x: number, width: number, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
     selectArea(areaTypeId: SelectionAreaTypeId, firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): SelectionArea | undefined;
     // (undocumented)
-    selectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): void;
+    selectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
     selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
@@ -3817,7 +3865,7 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     get subgrid(): Subgrid<BCS, SF> | undefined;
     // (undocumented)
-    toggleSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean;
+    toggleSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>): boolean;
     // (undocumented)
     toggleSelectColumn(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
@@ -3876,6 +3924,10 @@ export type SelectionAreaType = keyof SelectionAreaTypeObject;
 
 // @public (undocumented)
 export namespace SelectionAreaType {
+    // (undocumented)
+    export function arrayFromIds(ids: SelectionAreaTypeId[]): ("all" | "rectangle" | "row" | "column")[];
+    // (undocumented)
+    export function fromId(id: SelectionAreaTypeId): SelectionAreaType;
     // (undocumented)
     export function toId(type: SelectionAreaType): SelectionAreaTypeId;
 }

@@ -26,6 +26,25 @@ export namespace SelectionAreaType {
                 throw new UnreachableCaseError('SATTI10198', type);
         }
     }
+    export function fromId(id: SelectionAreaTypeId): SelectionAreaType {
+        switch (id) {
+            case SelectionAreaTypeId.all: return 'all';
+            case SelectionAreaTypeId.rectangle: return 'rectangle';
+            case SelectionAreaTypeId.row: return 'row';
+            case SelectionAreaTypeId.column: return 'column';
+            default:
+                throw new UnreachableCaseError('SATFI10198', id);
+        }
+    }
+    export function arrayFromIds(ids: SelectionAreaTypeId[]) {
+        const count = ids.length;
+        const typeArray = new Array<SelectionAreaType>(count);
+        for (let i = 0; i < count; i++) {
+            const id = ids[i];
+            typeArray[i] = fromId(id);
+        }
+        return typeArray;
+    }
 }
 
 /** @public */

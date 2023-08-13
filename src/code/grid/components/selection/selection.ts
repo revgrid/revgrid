@@ -10,7 +10,6 @@ import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-err
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { SelectionAreaType, SelectionAreaTypeId } from '../../types-utils/selection-area-type';
 import { SelectionAreaTypeSpecifier } from '../../types-utils/types';
-import { calculateNumberArrayUniqueCount } from '../../types-utils/utils';
 import { ColumnsManager } from '../column/columns-manager';
 import { ContiguousIndexRange } from './contiguous-index-range';
 import { FirstCornerArea } from './first-corner-area';
@@ -176,30 +175,21 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    clearSelectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
+    clearSelectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
         this.beginChange();
         try {
             this.clear();
-            this.selectCell(x, y, subgrid, areaTypeId);
+            return this.selectCell(x, y, subgrid);
         } finally {
             this.endChange();
         }
     }
 
-    selectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
-        this.beginChange();
-        try {
-            if (subgrid !== this._subgrid) {
-                this.clear();
-                this._subgrid = subgrid;
-            }
-            this.selectArea(areaTypeId, x, y, 1, 1, subgrid);
-        } finally {
-            this.endChange();
-        }
+    selectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
+        return this.selectRectangle(x, y, 1, 1, subgrid);
     }
 
-    deselectCellArea(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
+    deselectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
         const rectangle: Rectangle = {
             x,
             y,
@@ -403,6 +393,13 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
+    selectAllRows(x: number, width: number, subgrid: Subgrid<BCS, SF>) {
+        const subgridRowCount = subgrid.getRowCount();
+        if (subgridRowCount > 0) {
+            this.selectRows(x, 0, width, subgridRowCount, subgrid);
+        }
+    }
+
     deselectRows(y: number, count: number, subgrid: Subgrid<BCS, SF>) {
         if (subgrid === this._subgrid) {
             const changed = this._rows.delete(y, count);
@@ -560,11 +557,11 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    toggleSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean {
+    toggleSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>): boolean {
         const cellCoveringSelectionAreas = this.getAreasCoveringCell(originX, originY, subgrid);
         const priorityCoveringArea = SelectionArea.getTogglePriorityCellCoveringSelectionArea(cellCoveringSelectionAreas);
         if (priorityCoveringArea === undefined) {
-            this.selectCell(originX, originY, subgrid, areaTypeId);
+            this.selectCell(originX, originY, subgrid);
             return true;
         } else {
             this.beginChange();
@@ -662,12 +659,12 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         activeColumnIndex: number,
         subgridRowIndex: number,
         datalessSubgrid: DatalessSubgrid,
-        selectedType: SelectionAreaTypeId
+        selectedTypeId: SelectionAreaTypeId
     ) {
         const activeColumnCount = this._columnsManager.activeColumnCount;
         const subgrid = datalessSubgrid as Subgrid<BCS, SF>; // assume this was previously checked by getCellSelectedType
         const subgridRowCount = subgrid.getRowCount();
-        switch (selectedType) {
+        switch (selectedTypeId) {
             case SelectionAreaTypeId.all:
                 return activeColumnCount <= 1 && subgridRowCount <= 1;
             case SelectionAreaTypeId.row:
@@ -691,34 +688,31 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
                     (this._columns.isEmpty() || subgridRowCount <= 1)
                 );
             default:
-                throw new UnreachableCaseError('SISCTOSD30134', selectedType);
+                throw new UnreachableCaseError('SISCTOSD30134', selectedTypeId);
         }
     }
 
-    getRowCount() {
-        if (this._allSelected) {
-            if (this._subgrid === undefined) {
-                throw new AssertError('SGRC66698');
-            } else {
-                return this._subgrid.getRowCount();
-            }
+    isColumnOrRowSelected() {
+        return this._columns.hasIndices() || this._rows.hasIndices();
+    }
+
+    getRowCount(includeAll: boolean) {
+        if (includeAll && this._allSelected) {
+            return this.getAllRowCount();
         } else {
-            if (this._rows.isEmpty()) {
-                return this._rectangleList.getUniqueXIndices();
-            } else {
-                if (this._rectangleList.isEmpty()) {
-                    return this._rows.getIndexCount();
-                } else {
-                    const rangeIndices = this._rows.getIndices();
-                    const rectangleIndices = this._rectangleList.getNonUniqueXIndices();
-                    const allIndices = [...rangeIndices, ...rectangleIndices];
-                    return calculateNumberArrayUniqueCount(allIndices);
-                }
-            }
+            return this._rows.getIndexCount();
         }
     }
 
-    getRowIndices(includeAll = false) {
+    getAllRowCount() {
+        if (this._subgrid === undefined) {
+            throw new AssertError('SGARC66698');
+        } else {
+            return this._subgrid.getRowCount();
+        }
+    }
+
+    getRowIndices(includeAll: boolean) {
         if (includeAll && this._allSelected) {
             return this.getAllRowIndices();
         } else {
@@ -741,10 +735,6 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
 
     getColumnIndices() {
         return this._columns.getIndices();
-    }
-
-    isColumnOrRowSelected() {
-        return this._columns.hasIndices() || this._rows.hasIndices();
     }
 
     // getRectangleFlattenedYs() {

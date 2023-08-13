@@ -5,7 +5,6 @@ import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { SelectionAreaType } from '../../types-utils/selection-area-type';
 import { UiController } from './ui-controller';
 
 // Currently not used - kept in case this feature is re-instated in future
@@ -109,11 +108,7 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         const gridX = cellEvent.viewLayoutColumn.index;
 
         // Select first visible grid cell of this column
-        this.focusSelectBehavior.clearSelectViewCell(
-            gridX,
-            this.subgridsManager.calculatePreMainRowCount(),
-            SelectionAreaType.toId(this.gridSettings.primarySelectionAreaType)
-        );
+        this.focusSelectBehavior.clearSelectViewCell(gridX, this.subgridsManager.calculatePreMainRowCount());
         this.canvas.takeFocus();
     }
 

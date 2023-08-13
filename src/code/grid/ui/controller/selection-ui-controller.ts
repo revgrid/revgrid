@@ -12,7 +12,6 @@ import { ModifierKey } from '../../types-utils/modifier-key';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaTypeId } from '../../types-utils/selection-area-type';
 import { StartLength } from '../../types-utils/start-length';
-import { SelectionAreaTypeSpecifier } from '../../types-utils/types';
 import { UiController } from './ui-controller';
 
 /** @internal */
@@ -191,8 +190,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
                     this.pingAutoScroll();
                 }
             } else {
-                const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
-                this.focusSelectBehavior.tryClearSelectFocusedCell(areaType);
+                this.focusSelectBehavior.tryClearSelectFocusedCell();
             }
         }
         super.handleKeyDown(event, fromEditor);
@@ -216,49 +214,44 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
 
     private trySelectRectangleFromCell(event: MouseEvent, cell: ViewCell<BCS, SF>, forceAddToggleToBeAdd: boolean) {
         const gridSettings = this.gridSettings;
-        const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
 
-        if (!GridSettings.isMouseSelectionAllowed(gridSettings, areaType)) {
-            return false;
+        const subgrid = cell.subgrid as Subgrid<BCS, SF>;
+        const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
+        const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
+        const selection = this.selection;
+        const mouseAddToggleExtendSelectionAreaAllowed = this.focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event);
+        const addToggleModifier = mouseAddToggleExtendSelectionAreaAllowed && GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings, event);
+        const extendModifier = mouseAddToggleExtendSelectionAreaAllowed && GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings, event);
+        const lastArea = this.selection.lastArea;
+
+        if (extendModifier && !addToggleModifier) {
+            if (lastArea !== undefined && lastArea.areaTypeId === SelectionAreaTypeId.rectangle) {
+                const origin = lastArea.inclusiveFirst;
+                const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
+                const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
+                selection.replaceLastAreaWithRectangle(
+                    startLengthX.start,
+                    startLengthY.start,
+                    startLengthX.length,
+                    startLengthY.length,
+                    subgrid,
+                );
+            } else {
+                selection.selectCell(activeColumnIndex, subgridRowIndex, subgrid);
+            }
         } else {
-            const subgrid = cell.subgrid as Subgrid<BCS, SF>;
-            const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
-            const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
-            const selection = this.selection;
-            const mouseAddToggleExtendSelectionAreaAllowed = this.focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event);
-            const addToggleModifier = mouseAddToggleExtendSelectionAreaAllowed && GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings, event);
-            const extendModifier = mouseAddToggleExtendSelectionAreaAllowed && GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings, event);
-            const lastArea = this.selection.lastArea;
-
-            if (extendModifier && !addToggleModifier) {
-                if (lastArea !== undefined && lastArea.areaTypeId === SelectionAreaTypeId.rectangle) {
-                    const origin = lastArea.inclusiveFirst;
-                    const startLengthX = StartLength.createExclusiveFromFirstLast(origin.x, activeColumnIndex);
-                    const startLengthY = StartLength.createExclusiveFromFirstLast(origin.y, subgridRowIndex);
-                    selection.replaceLastAreaWithRectangle(
-                        startLengthX.start,
-                        startLengthY.start,
-                        startLengthX.length,
-                        startLengthY.length,
-                        subgrid,
-                    );
+            if (addToggleModifier && !extendModifier) {
+                if (gridSettings.addToggleSelectionAreaModifierKeyDoesToggle && !forceAddToggleToBeAdd) {
+                    selection.toggleSelectCell(activeColumnIndex, subgridRowIndex, subgrid);
                 } else {
-                    selection.selectCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
+                    selection.selectCell(activeColumnIndex, subgridRowIndex, subgrid);
                 }
             } else {
-                if (addToggleModifier && !extendModifier) {
-                    if (gridSettings.addToggleSelectionAreaModifierKeyDoesToggle && !forceAddToggleToBeAdd) {
-                        selection.toggleSelectCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
-                    } else {
-                        selection.selectCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
-                    }
-                } else {
-                    this.clearSelectCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
-                }
+                this.clearSelectCell(activeColumnIndex, subgridRowIndex, subgrid);
             }
-
-            return true;
         }
+
+        return true;
     }
 
     private trySelectColumnsFromCell(event: MouseEvent, cell: ViewCell<BCS, SF>, forceAddToggleToBeAdd: boolean) {
@@ -624,7 +617,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         return stepped;
     }
 
-    private clearSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
+    private clearSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>) {
         let lastActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
 
@@ -643,7 +636,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         originX = Math.min(lastActiveColumnIndex, Math.max(0, originX));
         originY = Math.min(lastSubgridRowIndex, Math.max(0, originY));
 
-        this.selection.clearSelectCell(originX, originY, subgrid, areaTypeId);
+        this.selection.clearSelectCell(originX, originY, subgrid);
     }
 
     private getDragTypeFromSelectionLastArea() {
