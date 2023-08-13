@@ -176,7 +176,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    selectOnlyCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
+    clearSelectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
         this.beginChange();
         try {
             this.clear();
@@ -273,7 +273,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
+    clearSelectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
         this.beginChange();
         try {
             this.clear();
@@ -333,7 +333,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    selectOnlyAll(subgrid: Subgrid<BCS, SF>) {
+    clearSelectAll(subgrid: Subgrid<BCS, SF>) {
         this.beginChange();
         if (subgrid !== this._subgrid || !this._allSelected) {
             this._changed = true;
@@ -442,7 +442,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    selectToggleRow(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
+    toggleSelectRow(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
         if (this._rows.includesIndex(y)) {
             this.deselectRows(y, 1, subgrid);
         } else {
@@ -512,7 +512,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    selectToggleColumn(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
+    toggleSelectColumn(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
         if (this._columns.includesIndex(x)) {
             this.deselectColumns(x, 1, subgrid);
         } else {
@@ -560,7 +560,7 @@ export class Selection<BCS extends BehavioredColumnSettings, SF extends SchemaFi
         }
     }
 
-    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean {
+    toggleSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean {
         const cellCoveringSelectionAreas = this.getAreasCoveringCell(originX, originY, subgrid);
         const priorityCoveringArea = SelectionArea.getTogglePriorityCellCoveringSelectionArea(cellCoveringSelectionAreas);
         if (priorityCoveringArea === undefined) {

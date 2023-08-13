@@ -2679,8 +2679,14 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     clearAllCellProperties(x?: number): void;
     // (undocumented)
     clearColumns(): void;
+    // (undocumented)
+    clearSelectColumn(activeColumnIndex: number): void;
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     clearSelection(): void;
+    // (undocumented)
+    clearSelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    clearSelectViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number, areaType?: SelectionAreaType): void;
     get columnScrollAnchorIndex(): number;
     get columnScrollAnchorOffset(): number;
     // (undocumented)
@@ -2775,17 +2781,17 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly focus: Focus<BGS, BCS, SF>;
     // (undocumented)
+    focusClearSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>, areaType?: SelectionAreaType): void;
+    // (undocumented)
+    focusClearSelectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
     focusReplaceLastArea(areaType: SelectionAreaType, inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
     focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    focusSelectAddCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType?: SelectionAreaType): void;
+    focusSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType?: SelectionAreaType): void;
     // (undocumented)
-    focusSelectOnlyCell(activeColumnIndex: number, subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>, areaType?: SelectionAreaType): void;
-    // (undocumented)
-    focusSelectOnlyRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>): void;
-    // (undocumented)
-    focusSelectToggleCell(originX: number, originY: number, subgrid?: Subgrid<BCS, SF>, areaType?: SelectionAreaType): boolean;
+    focusToggleSelectCell(originX: number, originY: number, subgrid?: Subgrid<BCS, SF>, areaType?: SelectionAreaType): boolean;
     // (undocumented)
     getActiveColumn(activeIndex: number): Column<BCS, SF>;
     // (undocumented)
@@ -2918,21 +2924,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     scrollTop(): boolean;
     // (undocumented)
-    selectAddColumn(activeColumnIndex: number): void;
-    // (undocumented)
-    selectAddRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    selectColumn(activeColumnIndex: number): void;
     // (undocumented)
     readonly selection: Selection_2<BCS, SF>;
     // (undocumented)
-    selectOnlyColumn(activeColumnIndex: number): void;
-    // (undocumented)
-    selectOnlyRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
-    // (undocumented)
-    selectOnlyViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number, areaType?: SelectionAreaType): void;
-    // (undocumented)
-    selectToggleColumn(activeColumnIndex: number): void;
-    // (undocumented)
-    selectToggleRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    selectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
     setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
     // (undocumented)
@@ -2984,6 +2980,12 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     swapColumns(source: number, target: number): void;
     // (undocumented)
+    toggleSelectColumn(activeColumnIndex: number): void;
+    // (undocumented)
+    toggleSelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    tryClearSelectFocusedCell(areaType?: SelectionAreaType): boolean;
+    // (undocumented)
     tryExtendLastSelectionAreaAsCloseAsPossibleToFocus(): boolean;
     // (undocumented)
     tryFocusBottom(): boolean;
@@ -3031,8 +3033,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     tryScrollRight(): boolean;
     // (undocumented)
     tryScrollUp(): boolean;
-    // (undocumented)
-    trySelectOnlyFocusedCell(areaType?: SelectionAreaType): boolean;
     // (undocumented)
     readonly verticalScroller: Scroller<BGS, BCS, SF>;
     // (undocumented)
@@ -3734,6 +3734,12 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     clear(): void;
     // (undocumented)
+    clearSelectAll(subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    clearSelectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): void;
+    // (undocumented)
+    clearSelectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
     createStash(): Selection_2.Stash<BCS, SF>;
     // (undocumented)
     deselectAll(subgrid: Subgrid<BCS, SF>): void;
@@ -3804,24 +3810,18 @@ class Selection_2<BCS extends BehavioredColumnSettings, SF extends SchemaField> 
     // (undocumented)
     selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
-    selectOnlyAll(subgrid: Subgrid<BCS, SF>): void;
-    // (undocumented)
-    selectOnlyCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): void;
-    // (undocumented)
-    selectOnlyRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
-    // (undocumented)
     selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, silent?: boolean): LastSelectionArea;
     selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
-    // (undocumented)
-    selectToggleCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean;
-    // (undocumented)
-    selectToggleColumn(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
-    // (undocumented)
-    selectToggleRow(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
     setAllSelected(value: boolean, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
     get subgrid(): Subgrid<BCS, SF> | undefined;
+    // (undocumented)
+    toggleSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId): boolean;
+    // (undocumented)
+    toggleSelectColumn(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    toggleSelectRow(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
 }
 
 // @public (undocumented)

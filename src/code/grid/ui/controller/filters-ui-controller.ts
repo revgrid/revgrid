@@ -109,7 +109,7 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         const gridX = cellEvent.viewLayoutColumn.index;
 
         // Select first visible grid cell of this column
-        this.focusSelectBehavior.selectOnlyViewCell(
+        this.focusSelectBehavior.clearSelectViewCell(
             gridX,
             this.subgridsManager.calculatePreMainRowCount(),
             SelectionAreaType.toId(this.gridSettings.primarySelectionAreaType)

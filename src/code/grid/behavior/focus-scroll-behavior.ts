@@ -10,7 +10,6 @@ import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-s
 import { GridSettings } from '../interfaces/settings/grid-settings';
 import { RevgridObject } from '../types-utils/revgrid-object';
 
-/** @internal */
 export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     private readonly _mainSubgrid: MainSubgrid<BCS, SF>;
 
@@ -476,7 +475,6 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 }
 
-/** @internal */
 export namespace FocusScrollBehavior {
     export type ScrollXToMakeVisibleEventer = (this: void, x: number) => void;
     export type ScrollYToMakeVisibleEventer = (this: void, y: number) => void;

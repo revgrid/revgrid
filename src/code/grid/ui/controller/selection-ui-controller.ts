@@ -192,7 +192,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
                 }
             } else {
                 const areaType = this.selection.calculateAreaTypeFromSpecifier(SelectionAreaTypeSpecifier.Primary);
-                this.focusSelectBehavior.trySelectOnlyFocusedCell(areaType);
+                this.focusSelectBehavior.tryClearSelectFocusedCell(areaType);
             }
         }
         super.handleKeyDown(event, fromEditor);
@@ -248,12 +248,12 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
             } else {
                 if (addToggleModifier && !extendModifier) {
                     if (gridSettings.addToggleSelectionAreaModifierKeyDoesToggle && !forceAddToggleToBeAdd) {
-                        selection.selectToggleCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
+                        selection.toggleSelectCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
                     } else {
                         selection.selectCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
                     }
                 } else {
-                    this.selectOnlyCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
+                    this.clearSelectCell(activeColumnIndex, subgridRowIndex, subgrid, areaType);
                 }
             }
 
@@ -295,17 +295,17 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
                         subgrid
                     );
                 } else {
-                    focusSelectionBehavior.selectAddColumn(activeColumnIndex);
+                    focusSelectionBehavior.selectColumn(activeColumnIndex);
                 }
             } else {
                 if (addToggleModifier && !extendModifier) {
                     if (gridSettings.addToggleSelectionAreaModifierKeyDoesToggle && !forceAddToggleToBeAdd) {
-                        focusSelectionBehavior.selectToggleColumn(activeColumnIndex);
+                        focusSelectionBehavior.toggleSelectColumn(activeColumnIndex);
                     } else {
-                        focusSelectionBehavior.selectAddColumn(activeColumnIndex);
+                        focusSelectionBehavior.selectColumn(activeColumnIndex);
                     }
                 } else {
-                    focusSelectionBehavior.selectOnlyColumn(activeColumnIndex);
+                    focusSelectionBehavior.clearSelectColumn(activeColumnIndex);
                 }
             }
 
@@ -347,17 +347,17 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
                         subgrid
                     );
                 } else {
-                    focusSelectionBehavior.selectAddRow(subgridRowIndex, subgrid);
+                    focusSelectionBehavior.selectRow(subgridRowIndex, subgrid);
                 }
             } else {
                 if (addToggleModifier && !extendModifier) {
                     if (gridSettings.addToggleSelectionAreaModifierKeyDoesToggle && !forceAddToggleToBeAdd) {
-                        focusSelectionBehavior.selectToggleRow(subgridRowIndex, subgrid);
+                        focusSelectionBehavior.toggleSelectRow(subgridRowIndex, subgrid);
                     } else {
-                        focusSelectionBehavior.selectAddRow(subgridRowIndex, subgrid);
+                        focusSelectionBehavior.selectRow(subgridRowIndex, subgrid);
                     }
                 } else {
-                    focusSelectionBehavior.selectOnlyRow(subgridRowIndex, subgrid);
+                    focusSelectionBehavior.clearSelectRow(subgridRowIndex, subgrid);
                 }
             }
 
@@ -624,7 +624,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         return stepped;
     }
 
-    private selectOnlyCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
+    private clearSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, areaTypeId: SelectionAreaTypeId) {
         let lastActiveColumnIndex = this.columnsManager.activeColumnCount - 1;
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
 
@@ -643,7 +643,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         originX = Math.min(lastActiveColumnIndex, Math.max(0, originX));
         originY = Math.min(lastSubgridRowIndex, Math.max(0, originY));
 
-        this.selection.selectOnlyCell(originX, originY, subgrid, areaTypeId);
+        this.selection.clearSelectCell(originX, originY, subgrid, areaTypeId);
     }
 
     private getDragTypeFromSelectionLastArea() {
