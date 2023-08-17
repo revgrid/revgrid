@@ -1,5 +1,5 @@
 export class Animator {
-    animateRequiredEventer: Animator.AnimateRequiredEventer;
+    animateRequiredNowEventer: Animator.AnimateRequiredNowEventer;
     backgroundAnimateTimeIntervalChangedEventer: Animator.BackgroundAnimateTimeIntervalChangedEventer;
 
     private _animateRequired = false;
@@ -19,44 +19,30 @@ export class Animator {
     get animating() { return this._animating; }
 
     flagAnimateRequired() {
-        if (!this._animateRequired) {
-            this._animateRequired = true;
-            this.animateRequiredEventer();
+        this._animateRequired = true;
+        const now = performance.now();
+        if (performance.now() >= this._nextAnimateAllowedTime) {
+            this.animateRequiredNowEventer(now);
         }
     }
 
     makeRequiredAnimateImmediate() {
         if (this._animateRequired) {
             const now = performance.now();
-            if (now < this._nextAnimateAllowedTime) {
-                this._nextAnimateAllowedTime = now;
-                this.animateRequiredEventer();
-            }
+            this._nextAnimateAllowedTime = now;
+            this.animateRequiredNowEventer(now);
         }
     }
 
-    checkAnimate(now: DOMHighResTimeStamp): DOMHighResTimeStamp | undefined {
+    getNextAnimateTime(now: DOMHighResTimeStamp): DOMHighResTimeStamp | undefined {
         if (!this._animateRequired) {
             return undefined;
         } else {
-            if (now < this._nextAnimateAllowedTime) {
-                return this._nextAnimateAllowedTime;
-            } else {
-                this.animate(now);
-                return undefined;
-            }
+            return this._nextAnimateAllowedTime;
         }
     }
 
-    setAnimateTimeIntervals(minimumAnimateTimeInterval: number, backgroundAnimateTimeInterval: number | undefined) {
-        const oldBackgroundAnimateTimeInterval = this._backgroundAnimateTimeInterval;
-        this._minimumAnimateTimeInterval = minimumAnimateTimeInterval;
-        this._backgroundAnimateTimeInterval = backgroundAnimateTimeInterval;
-
-        this.backgroundAnimateTimeIntervalChangedEventer(oldBackgroundAnimateTimeInterval);
-    }
-
-    private animate(now: number) {
+    animate() {
         let animated = false;
         this._animating = true;
         try {
@@ -72,10 +58,18 @@ export class Animator {
             this._nextAnimateAllowedTime = performance.now() + this._minimumAnimateTimeInterval;
         }
     }
+
+    setAnimateTimeIntervals(minimumAnimateTimeInterval: number, backgroundAnimateTimeInterval: number | undefined) {
+        const oldBackgroundAnimateTimeInterval = this._backgroundAnimateTimeInterval;
+        this._minimumAnimateTimeInterval = minimumAnimateTimeInterval;
+        this._backgroundAnimateTimeInterval = backgroundAnimateTimeInterval;
+
+        this.backgroundAnimateTimeIntervalChangedEventer(oldBackgroundAnimateTimeInterval);
+    }
 }
 
 export namespace Animator {
     export type AnimateEventer = (this: void) => boolean;
-    export type AnimateRequiredEventer = (this: void) => void;
+    export type AnimateRequiredNowEventer = (this: void, now: DOMHighResTimeStamp) => void;
     export type BackgroundAnimateTimeIntervalChangedEventer = (this: void, oldBackgroundAnimateTimeInterval: number | undefined) => void;
 }
