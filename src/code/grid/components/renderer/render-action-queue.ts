@@ -20,10 +20,10 @@ export class RenderActionQueue {
         if (this._beginChangeCount === 0) {
             if (this._queuedActions.length > 0) {
                 this.actionsQueuedEventer();
-            } else {
-                if (this._beginChangeCount < 0) {
-                    throw new AssertError('RAEC91004', 'Mismatched RenderActioner begin/endChange callback');
-                }
+            }
+        } else {
+            if (this._beginChangeCount < 0) {
+                throw new AssertError('RAEC91004', 'Mismatched RenderActioner begin/endChange callback');
             }
         }
     }
