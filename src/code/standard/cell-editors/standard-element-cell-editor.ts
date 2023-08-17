@@ -1,4 +1,5 @@
 import { DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
+import { numberToPixels } from '../../grid/types-utils/utils';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellEditor } from './standard-cell-editor';
 
@@ -35,10 +36,10 @@ export abstract class StandardElementCellEditor<
         if (bounds === undefined) {
             this.element.style.visibility = 'hidden';
         } else {
-            this.element.style.left = bounds.x + 'px';
-            this.element.style.top = bounds.y + 'px';
-            this.element.style.width = bounds.width + 'px';
-            this.element.style.height = bounds.height + 'px';
+            this.element.style.left = numberToPixels(bounds.x);
+            this.element.style.top = numberToPixels(bounds.y);
+            this.element.style.width = numberToPixels(bounds.width);
+            this.element.style.height = numberToPixels(bounds.height);
             this.element.style.visibility = 'visible';
         }
     }

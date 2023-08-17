@@ -107,7 +107,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
             const viewLayoutRows = this._viewLayout.rows;
             if (viewLayoutRowIndex < viewLayoutRows.length) {
                 const vr = this._viewLayout.rows[viewLayoutRowIndex];
-                this.focusClearSelectCell(vc.activeColumnIndex, vr.subgridRowIndex, vr.subgrid as Subgrid<BCS, SF>);
+                this.focusClearSelectCell(vc.activeColumnIndex, vr.subgridRowIndex, vr.subgrid);
             }
         }
     }

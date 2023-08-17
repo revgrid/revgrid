@@ -215,7 +215,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     private trySelectRectangleFromCell(event: MouseEvent, cell: ViewCell<BCS, SF>, forceAddToggleToBeAdd: boolean) {
         const gridSettings = this.gridSettings;
 
-        const subgrid = cell.subgrid as Subgrid<BCS, SF>;
+        const subgrid = cell.subgrid;
         const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
         const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
         const selection = this.selection;
@@ -368,7 +368,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         if (lastArea === undefined) {
             throw new AssertError('SUBULSA54455');
         } else {
-            const subgrid = cell.subgrid as Subgrid<BCS, SF>;
+            const subgrid = cell.subgrid;
             // let updatePossible: boolean;
 
             // switch (lastArea.areaType) {

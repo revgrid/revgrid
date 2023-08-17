@@ -75,7 +75,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
 
             for (let h = 0; h < height; h++) {
                 for (let w = 0; w < width; w++) {
-                    result += dataValueArrays[w][h] + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
+                    result += (dataValueArrays[w][h] as string) + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
                 }
             }
         }

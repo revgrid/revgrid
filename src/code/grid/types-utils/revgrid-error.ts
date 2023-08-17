@@ -15,7 +15,7 @@ export class AssertError extends RevgridError {
 /** @public */
 export class UnreachableCaseError extends RevgridError {
     constructor(code: string, value: never) {
-        super(code, `"${value}"`, 'Unreachable case');
+        super(code, `"${String(value)}"`, 'Unreachable case');
     }
 }
 

@@ -8,6 +8,7 @@ import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { OnlyGridSettings } from '../../../interfaces/settings/only-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { Rectangle } from '../../../types-utils/rectangle';
+import { getErrorMessage } from '../../../types-utils/utils';
 import { Canvas } from '../../canvas/canvas';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -83,7 +84,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
 
     paintErrorCell(err: Error, vc: ViewLayoutColumn<BCS, SF>, vr: ViewLayoutRow<BCS, SF>) {
         const gc = this._renderingContext;
-        const message = (err && (err.message ?? `${err}`)) ?? 'Unknown error.';
+        const message = getErrorMessage(err);
 
         const bounds: Rectangle = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
 

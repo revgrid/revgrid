@@ -13,7 +13,7 @@ export abstract class StandardInputElementCellEditor<
     declare protected readonly element: HTMLInputElement;
 
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, inputType: string) {
-        const element = document.createElement('input') as HTMLInputElement;
+        const element = document.createElement('input');
         super(grid, dataServer, element);
 
         element.type = inputType;

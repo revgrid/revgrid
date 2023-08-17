@@ -211,7 +211,7 @@ export class ViewCellImplementation<BCS extends BehavioredColumnSettings, SF ext
         // creates new object as needed
         const rowProperties = this.getRowProperties();
         if (rowProperties !== undefined) {
-            (rowProperties[key as keyof MetaModel.RowProperties] as unknown) = value; // todo: call `stateChanged()` after refac-as-flags
+            rowProperties[key as keyof MetaModel.RowProperties] = value; // todo: call `stateChanged()` after refac-as-flags
         }
     }
 

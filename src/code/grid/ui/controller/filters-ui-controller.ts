@@ -53,8 +53,12 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         this.moveLaterally(cellEvent, +1);
     }
 
-    handleUP = this.moveDown;
-    handleDOWN = this.moveDown;
+    handleUP(cellEvent: ViewCell<BCS, SF>) {
+        this.moveDown(cellEvent);
+    }
+    handleDOWN(cellEvent: ViewCell<BCS, SF>) {
+        this.moveDown(cellEvent);
+    }
 
     override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === null) {

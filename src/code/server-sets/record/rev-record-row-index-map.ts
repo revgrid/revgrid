@@ -254,8 +254,6 @@ export class RevRecordRowIndexMap {
         }
 
         if (rightIndex === undefined) {
-            leftIndex = <number>leftIndex;
-
             if (leftIndex > this.ltoref.length) {
                 throw new RangeError('Invalid left index');
             }
@@ -473,18 +471,18 @@ export class RevRecordRowIndexMap {
 
         if (left.length === 0) {
             this.ltoref = [];
-            this.reftor = new Array(right.length).fill(-1);
-            this.rtoref = new Array(right.length).fill(-1);
+            this.reftor = new Array<number>(right.length).fill(-1);
+            this.rtoref = new Array<number>(right.length).fill(-1);
             this.reftol = [];
 
             return;
         }
 
         if (right.length === 0) {
-            this.ltoref = new Array(left.length).fill(-1);
+            this.ltoref = new Array<number>(left.length).fill(-1);
             this.reftor = [];
             this.rtoref = [];
-            this.reftol = new Array(left.length).fill(-1);
+            this.reftol = new Array<number>(left.length).fill(-1);
 
             return;
         }
@@ -502,10 +500,10 @@ export class RevRecordRowIndexMap {
 
         // Pre-fill the right with -1
         // Easier than scanning for records on the right that aren't on the left
-        this.ltoref = new Array(left.length);
-        this.reftor = new Array(right.length).fill(-1);
-        this.reftol = new Array(left.length);
-        this.rtoref = new Array(right.length).fill(-1);
+        this.ltoref = new Array<number>(left.length);
+        this.reftor = new Array<number>(right.length).fill(-1);
+        this.reftol = new Array<number>(left.length);
+        this.rtoref = new Array<number>(right.length).fill(-1);
 
         // Match all the values on the left into the right
         for (let leftIndex = 0; leftIndex < left.length; leftIndex++) {
@@ -556,8 +554,6 @@ export class RevRecordRowIndexMap {
         }
 
         if (rightIndex === undefined) {
-            leftIndex = <number>leftIndex;
-
             if (this.ltoref[leftIndex] !== -1) {
                 throw new RangeError('Right index is invalid');
             }

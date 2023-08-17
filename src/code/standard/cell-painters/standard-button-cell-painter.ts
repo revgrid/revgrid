@@ -50,7 +50,7 @@ export class StandardButtonCellPainter<
         // draw the text
         gc.cache.textBaseline = 'middle';
         gc.cache.fillStyle = '#333333';
-        gc.cache.font = height - 2 + 'px sans-serif';
+        gc.cache.font = (height - 2).toString(10) + 'px sans-serif';
         gc.fillText(val, x + ox, y + oy);
 
         return undefined;

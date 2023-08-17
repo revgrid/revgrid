@@ -838,7 +838,7 @@ export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataS
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
-    getRowMetadata(index: number, prototype?: null): any;
+    getRowMetadata(index: number, prototype?: null): false | MetaModel.RowMetadata;
     // (undocumented)
     getViewRow(index: number): DataRowArrayMainDataServer.DataRow;
     // (undocumented)

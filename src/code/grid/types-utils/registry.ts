@@ -7,7 +7,7 @@
 export class Registry<T> {
     private readonly items = new Map<string, T>();
 
-    get all() { return this.items.values; }
+    get all() { return Array.from(this.items.values()); }
 
     /**
      * @summary Register an item and return it.

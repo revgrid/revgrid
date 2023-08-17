@@ -1,4 +1,3 @@
-import { DataServer } from '../../interfaces/data/data-server';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
@@ -73,6 +72,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
         const rowIndex = viewCell.viewLayoutRow.subgridRowIndex;
         const subgrid = viewCell.subgrid;
         const dataRow = subgrid.getSingletonViewDataRow(rowIndex);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const config = Object.create(viewCell.columnSettings, { dataRow: { value: dataRow } });
         const value = subgrid.getViewValue(viewCell.viewLayoutColumn.column, rowIndex);
         const linkProp: [url: string, target: string] | ((this: void, cellEvent: unknown) => string) = ['', '']// viewCell.columnSettings.link;
@@ -95,7 +95,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
                     if (Array.isArray(dataRow)) {
                         throw new AssertError('CCFOL45455');
                     } else {
-                        unknownUrl = dataRow[link as keyof DataServer.ObjectViewRow];
+                        unknownUrl = dataRow[link];
                     }
                 }
                 break;
@@ -107,6 +107,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
 
         if (unknownUrl) {
             // STEP 3: Decorate the URL
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
             const url = unknownUrl.toString().replace(/%name/g, config.name).replace(/%value/g, value as string);
 
             // STEP 4: Open the URL
