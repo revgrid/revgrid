@@ -1,9 +1,11 @@
 import { Focus } from '../../components/focus/focus';
 import { Scroller } from '../../components/scroller/scroller';
 import { LinedHoverCell } from '../../interfaces/data/hover-cell';
+import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 import { UiController } from './ui-controller';
@@ -19,7 +21,9 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
         if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) {
             const viewCell = hoverCell.viewCell;
             if (viewCell.subgrid.isMain) {
-                this.focusScrollBehavior.tryFocusXYAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, viewCell);
+                if (!this.willSelectionBeExtended(event, viewCell)) {
+                    this.focusScrollBehavior.tryFocusXYAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, viewCell);
+                }
             }
         }
         return super.handlePointerDown(event, hoverCell);
@@ -247,6 +251,23 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
             case HorizontalWheelScrollingAllowed.Always: return true;
             case HorizontalWheelScrollingAllowed.CtrlKeyDown: return event.ctrlKey;
             default: throw new UnreachableCaseError('TSIHWCA82007', gridSettings.horizontalWheelScrollingAllowed);
+        }
+    }
+
+    private willSelectionBeExtended(event: MouseEvent, viewCell: ViewCell<BCS, SF>) {
+        if (!this.focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event)) {
+            return false;
+        } else {
+            const gridSettings = this.gridSettings;
+            if (
+                GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings, event) ||
+                !GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings, event)
+            ) {
+                return false;
+            } else {
+                const allowedAreaTypeId = this.selection.calculateMouseMainSelectAllowedAreaTypeId();
+                return allowedAreaTypeId !== undefined;
+            }
         }
     }
 }

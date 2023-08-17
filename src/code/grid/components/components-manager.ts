@@ -6,7 +6,7 @@ import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-s
 import { CssTypes } from '../types-utils/css-types';
 import { AssertError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
-import { CanvasManager } from './canvas/canvas-manager';
+import { Canvas } from './canvas/canvas';
 import { ColumnsManager } from './column/columns-manager';
 import { Focus } from './focus/focus';
 import { Mouse } from './mouse/mouse';
@@ -18,7 +18,7 @@ import { ViewLayout } from './view/view-layout';
 
 /** @internal */
 export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
-    readonly canvasManager: CanvasManager<BGS>;
+    readonly canvas: Canvas<BGS>;
     readonly focus: Focus<BGS, BCS, SF>;
     readonly selection: Selection<BCS, SF>;
     readonly columnsManager: ColumnsManager<BCS, SF>;
@@ -47,7 +47,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         //     this.gridSettings.merge(optionedGridSettings);
         // }
 
-        this.canvasManager = new CanvasManager(
+        this.canvas = new Canvas(
             this.revgridId,
             this,
             hostElement,
@@ -79,7 +79,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 this.revgridId,
                 this,
                 gridSettings,
-                this.canvasManager,
+                this.canvas,
                 this.columnsManager,
                 this.subgridsManager,
             );
@@ -88,7 +88,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 this.revgridId,
                 this,
                 gridSettings,
-                this.canvasManager,
+                this.canvas,
                 this.subgridsManager.mainSubgrid,
                 this.columnsManager,
                 this.viewLayout,
@@ -104,7 +104,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             this.mouse = new Mouse(
                 this.revgridId,
                 this,
-                this.canvasManager,
+                this.canvas,
                 this.viewLayout,
             );
 
@@ -112,7 +112,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 this.revgridId,
                 this,
                 gridSettings,
-                this.canvasManager,
+                this.canvas,
                 this.columnsManager,
                 this.subgridsManager,
                 this.viewLayout,
@@ -126,7 +126,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 this,
                 gridSettings,
                 hostElement,
-                this.canvasManager,
+                this.canvas,
                 this.viewLayout.verticalScrollDimension,
                 this.viewLayout,
                 false,
@@ -142,7 +142,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 this,
                 gridSettings,
                 hostElement,
-                this.canvasManager,
+                this.canvas,
                 this.viewLayout.horizontalScrollDimension,
                 this.viewLayout,
                 false,
@@ -187,7 +187,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
 
     destroy() {
         this.renderer.stop();
-        this.canvasManager.stop();
+        this.canvas.stop();
         this.horizontalScroller.destroy();
         this.verticalScroller.destroy();
         this.renderer.destroy();

@@ -1,4 +1,5 @@
 import { ApiError } from '../../../grid/grid-public-api';
+import { numberToPixels } from '../../../grid/types-utils/utils';
 /** effectFunction
  * @desc Element to perform transitions upon is `options.el` if defined or `this.el`.
  * @param {object} [options]
@@ -89,7 +90,7 @@ export class ShakerEffect extends Effect {
 
     shake(event?: TransitionEvent) {
         if (!event || event.propertyName === 'left') {
-            this.el.style.left = this.x + this.dx + 'px';
+            this.el.style.left = numberToPixels(this.x + this.dx);
             if (this.shakes-- === 0) {
                 this.destroy();
             }

@@ -4,6 +4,7 @@ import { Animator } from './animator';
 export class Animation {
     private _animationFrameHandle: ReturnType<typeof requestAnimationFrame> | undefined;
     private _nextAnimateTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    private _nextAnimateTime: DOMHighResTimeStamp | undefined;
 
     private _animators: Animator[] = [];
     private _backgroundIntervaliserMap = new Map<number, Animation.BackgroundIntervaliser>();
@@ -15,7 +16,7 @@ export class Animation {
     ) {
         const animator = new Animator(minimumAnimateTimeInterval, backgroundAnimateTimeInterval, animateEventer);
         this._animators.push(animator);
-        animator.animateRequiredEventer = () => this.requestAnimationFrame();
+        animator.animateRequiredNowEventer = () => this.requestAnimationFrame();
         animator.backgroundAnimateTimeIntervalChangedEventer = (oldInterval) => this.processAnimatorBackgroundAnimateTimeIntervalChanged(animator, oldInterval);
 
         if (backgroundAnimateTimeInterval !== undefined) {
@@ -47,6 +48,7 @@ export class Animation {
                 if (this._nextAnimateTimeoutHandle !== undefined) {
                     clearTimeout(this._nextAnimateTimeoutHandle);
                     this._nextAnimateTimeoutHandle = undefined;
+                    this._nextAnimateTime = undefined;
                 }
             }
         }
@@ -60,34 +62,62 @@ export class Animation {
         }
     }
 
-    private frameCallback(now: DOMHighResTimeStamp) {
+    private frameCallback(beforeAnimateNow: DOMHighResTimeStamp) {
         this._animationFrameHandle = undefined;
+
+        const animators = this._animators;
+        const animatorCount =  animators.length;
+        const nowAnimators = new Array<Animator>(animatorCount);
+        let nowAnimatorCount = 0;
+
         let nextAnimateTime: DOMHighResTimeStamp | undefined;
+        beforeAnimateNow = performance.now();
         for (const animator of this._animators) {
-            now = performance.now();
-            const animateRequiredAfterTime = animator.checkAnimate(now);
-            if (animateRequiredAfterTime !== undefined) {
-                if (nextAnimateTime === undefined) {
-                    nextAnimateTime = animateRequiredAfterTime;
+            const animatorNextAnimateTime = animator.getNextAnimateTime(beforeAnimateNow);
+            if (animatorNextAnimateTime !== undefined) {
+                if (animatorNextAnimateTime <= beforeAnimateNow) {
+                    nowAnimators[nowAnimatorCount++] = animator;
                 } else {
-                    if (animateRequiredAfterTime < nextAnimateTime) {
-                        nextAnimateTime = animateRequiredAfterTime;
+                    if (nextAnimateTime === undefined) {
+                        nextAnimateTime = animatorNextAnimateTime;
+                    } else {
+                        if (animatorNextAnimateTime < nextAnimateTime) {
+                            nextAnimateTime = animatorNextAnimateTime;
+                        }
                     }
                 }
             }
         }
 
+        if (nowAnimatorCount > 0) {
+            for (let i = 0; i < nowAnimatorCount; i++) {
+                nowAnimators[i].animate();
+            }
+        }
+
         if (nextAnimateTime !== undefined) {
-            now = performance.now();
-            let timeout = nextAnimateTime - now;
-            if (timeout < 0) {
-                timeout = 0;
+            const afterAnimateTime = performance.now();
+            if (nextAnimateTime < afterAnimateTime) {
+                nextAnimateTime = afterAnimateTime;
             }
 
-            this._nextAnimateTimeoutHandle = setTimeout(() => {
-                this._nextAnimateTimeoutHandle = undefined;
-                this.requestAnimationFrame();
-            }, timeout);
+            if (this._nextAnimateTime !== undefined) {
+                if (nextAnimateTime < this._nextAnimateTime) {
+                    clearTimeout(this._nextAnimateTimeoutHandle);
+                    this._nextAnimateTimeoutHandle = undefined;
+                    this._nextAnimateTime = undefined;
+                }
+            }
+
+            if (this._nextAnimateTimeoutHandle === undefined) {
+                const timeout = nextAnimateTime - afterAnimateTime;
+                this._nextAnimateTime = nextAnimateTime;
+                this._nextAnimateTimeoutHandle = setTimeout(() => {
+                    this._nextAnimateTimeoutHandle = undefined;
+                    this._nextAnimateTime = undefined;
+                    this.requestAnimationFrame();
+                }, timeout);
+            }
         }
     }
 

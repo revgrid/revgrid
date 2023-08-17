@@ -42,12 +42,7 @@ export class StandardAlphaTextCellPainter<
 
 
         const subgrid = cell.subgrid;
-        const {
-            rowSelected: isRowSelected,
-            columnSelected: isColumnSelected,
-            cellSelected: isCellSelected
-        } = selection.getCellSelectedAreaTypes(activeColumnIndex, subgridRowIndex, subgrid);
-        const isSelected = isCellSelected || isRowSelected || isColumnSelected;
+        const isSelected = selection.isCellSelected(activeColumnIndex, subgridRowIndex, subgrid);
 
         const textFont = isSelected ? gridSettings.selectionFont : columnSettings.font;
 

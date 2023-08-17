@@ -1,4 +1,3 @@
-import { CanvasManager } from '../../components/canvas/canvas-manager';
 import { Selection } from '../../components/selection/selection';
 import { DataServer } from '../../interfaces/data/data-server';
 import { Subgrid } from '../../interfaces/data/subgrid';
@@ -9,6 +8,7 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
+import { Canvas } from '../canvas/canvas';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
 import { Mouse } from '../mouse/mouse';
@@ -63,7 +63,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
-        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _canvas: Canvas<BGS>,
         /** @internal */
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
         /** @internal */
@@ -81,7 +81,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
         this._gridPainterRepository = new GridPainterRepository(
             this._gridSettings,
-            this._canvasManager,
+            this._canvas,
             this._subgridsManager,
             this._viewLayout,
             this._focus,
@@ -111,6 +111,22 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         return animator !== undefined && animator.animating;
     }
     get lastServerNotificationId() { return this._lastServerNotificationId; }
+
+    /** Promise resolves after paint renders the last server notification (change) for the first time. Columns and rows will then reflect server data and schema */
+    waitLastServerNotificationRendered(): Promise<ServerNotificationId> {
+        const lastRenderedServerNotificationId = this._lastRenderedServerNotificationId;
+        if (lastRenderedServerNotificationId === this._lastServerNotificationId) {
+            return Promise.resolve(lastRenderedServerNotificationId); // latest model already rendered
+        } else {
+            return new Promise<ServerNotificationId>((resolve) => { this._waitLastServerNotificationRenderedResolves.push(resolve); });
+        }
+    }
+
+    animateImmediatelyIfRequired() {
+        if (this._animator !== undefined) {
+            this._animator.makeRequiredAnimateImmediate(); // this will process any queued actions immediately
+        }
+    }
 
     /** @internal */
     destroy() {
@@ -191,16 +207,6 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         ++this._lastServerNotificationId;
     }
 
-    /** Promise resolves after paint renders the last server notification (change) for the first time. Columns and rows will then reflect server data and schema */
-    waitLastServerNotificationRendered(): Promise<ServerNotificationId> {
-        const lastRenderedServerNotificationId = this._lastRenderedServerNotificationId;
-        if (lastRenderedServerNotificationId === this._lastServerNotificationId) {
-            return Promise.resolve(lastRenderedServerNotificationId); // latest model already rendered
-        } else {
-            return new Promise<ServerNotificationId>((resolve) => { this._waitLastServerNotificationRenderedResolves.push(resolve); });
-        }
-    }
-
     /** @internal */
     beginChange() {
         this._renderActionQueue.beginChange();
@@ -213,21 +219,21 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateView() {
-        if (this._canvasManager.hasBounds) {
+        if (this._canvas.hasBounds) {
             this._renderActionQueue.invalidateView();
         }
     }
 
     /** @internal */
     invalidateViewCell(cell: ViewCell<BCS, SF>) {
-        if (this._canvasManager.hasBounds) {
+        if (this._canvas.hasBounds) {
             this._renderActionQueue.invalidateViewCell(cell.viewLayoutColumn.index, cell.viewLayoutRow.index);
         }
     }
 
     /** @internal */
     invalidateSubgrid(subgrid: Subgrid<BCS, SF>) {
-        if (this._canvasManager.hasBounds) {
+        if (this._canvas.hasBounds) {
             const viewRowCount = subgrid.viewRowCount;
             if (viewRowCount > 0) {
                 this._renderActionQueue.invalidateViewRows(subgrid.firstViewRowIndex, subgrid.viewRowCount);
@@ -237,7 +243,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateSubgridRows(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, count: number) {
-        if (this._canvasManager.hasBounds) {
+        if (this._canvas.hasBounds) {
             const subgridViewRowCount = subgrid.viewRowCount;
             if (subgridViewRowCount > 0) {
                 const subgridViewRowIndex = subgridRowIndex - subgrid.firstViewableSubgridRowIndex;
@@ -259,7 +265,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateSubgridRow(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number) {
-        if (this._canvasManager.hasBounds) {
+        if (this._canvas.hasBounds) {
             const subgridViewRowCount = subgrid.viewRowCount;
             if (subgridViewRowCount > 0) {
                 const subgridViewRowIndex = subgridRowIndex - subgrid.firstViewableSubgridRowIndex;
@@ -272,7 +278,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateSubgridRowCells(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, activeColumnIndices: number[]) {
-        if (this._canvasManager.hasBounds) {
+        if (this._canvas.hasBounds) {
             const subgridViewRowCount = subgrid.viewRowCount;
             if (subgridViewRowCount > 0) {
                 const subgridViewRowIndex = subgridRowIndex - subgrid.firstViewableSubgridRowIndex;
@@ -298,7 +304,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     invalidateSubgridCell(subgrid: Subgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number) {
-        if (this._canvasManager.hasBounds) {
+        if (this._canvas.hasBounds) {
             const subgridViewRowCount = subgrid.viewRowCount;
             if (subgridViewRowCount > 0) {
                 const subgridViewRowIndex = subgridRowIndex - subgrid.firstViewableSubgridRowIndex;
@@ -316,7 +322,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private handlePageVisibilityChange() {
         const documentHidden = document.hidden;
         this._documentHidden = documentHidden;
-        if (!documentHidden && this._renderActionQueue.actionsQueued && this._canvasManager.hasBounds) {
+        if (!documentHidden && this._renderActionQueue.actionsQueued && this._canvas.hasBounds) {
             this.flagAnimateRequired();
         }
     }
@@ -350,13 +356,13 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         if (this._documentHidden) {
             return false;
         } else {
-            if (!this._canvasManager.hasBounds) {
+            if (!this._canvas.hasBounds) {
                 return false;
             } else {
                 const renderActions = this._renderActionQueue.takeActions();
                 const actionsCount = renderActions.length;
                 if (renderActions.length > 0) {
-                    const gc = this._canvasManager.gc;
+                    const gc = this._canvas.gc;
                     try {
                         gc.cache.save();
 

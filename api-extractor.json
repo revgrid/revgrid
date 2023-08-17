@@ -330,7 +330,24 @@
       "default": {
         "logLevel": "warning"
         // "addToApiReportFile": false
-      },
+      }
+
+      // "ae-extra-release-tag": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "ae-missing-getter": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "ae-setter-with-docs": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "ae-unresolved-link": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // }
 
       // "ae-extra-release-tag": {
       //   "logLevel": "warning",
@@ -340,22 +357,6 @@
       // . . .
 
 
-      "ae-extra-release-tag": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "ae-missing-getter": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "ae-setter-with-docs": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "ae-unresolved-link": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      }
     },
 
     /**

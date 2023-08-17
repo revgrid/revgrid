@@ -27,7 +27,7 @@ export class StandardCheckboxCellEditor<
             } else {
                 if (openingClickEvent !== undefined) {
                     // Trying to be opened by click.  Allow open if click is consumed
-                    return this.processClickEvent(openingClickEvent, cell);
+                    return this.processGridClickEvent(openingClickEvent, cell);
                 } else {
                     return true;
                 }
@@ -49,7 +49,7 @@ export class StandardCheckboxCellEditor<
         }
     }
 
-    processClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>) {
+    processGridClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>) {
         const boxBounds = this._painter.calculateClickBox(viewCell);
         if (boxBounds === undefined) {
             return false;
@@ -59,12 +59,13 @@ export class StandardCheckboxCellEditor<
             } else {
                 const column = viewCell.viewLayoutColumn.column;
                 this.tryToggleBoolenValue(column.field, viewCell.viewLayoutRow.subgridRowIndex);
+                this._grid.renderer.animateImmediatelyIfRequired();
                 return true;
             }
         }
     }
 
-    processPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined {
+    processGridPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined {
         const boxBounds = this._painter.calculateClickBox(viewCell);
         if (boxBounds === undefined) {
             return undefined;

@@ -12,10 +12,10 @@ export class CellMetaSettingsImplementation implements CellMetaSettings {
 
     get<T extends keyof ColumnSettings>(key: T): ColumnSettings[T];
     get(key: string | number): MetaModel.CellOwnProperty;
-    get<T extends keyof ColumnSettings>(key: string | number | T) {
+    get<T extends keyof ColumnSettings>(key: string | number) {
         let result: MetaModel.CellOwnProperty | undefined;
         if (this._cellOwnProperties !== undefined) {
-            result = this._cellOwnProperties[key as string | number];
+            result = this._cellOwnProperties[key];
         }
         if (result === undefined) {
             result = this._columnSettings[key as T];

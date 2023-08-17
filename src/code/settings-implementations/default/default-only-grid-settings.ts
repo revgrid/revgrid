@@ -1,5 +1,5 @@
 
-import { HorizontalWheelScrollingAllowed, ModifierKeyEnum, OnlyGridSettings, SelectionAreaType } from '../../grid/grid-public-api';
+import { HorizontalWheelScrollingAllowed, ModifierKeyEnum, OnlyGridSettings } from '../../grid/grid-public-api';
 
 /** @public */
 export const defaultOnlyGridSettings: OnlyGridSettings = {
@@ -174,20 +174,21 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     useHiDPI: true,
     fixedColumnCount: 0,
     fixedRowCount: 0,
-    mouseMultiCellRectangleSelectionDragActiveCursorName: 'cell',
-    mouseMultiCellRectangleSelectionDragActiveTitleText: undefined,
-    mouseMultiCellRectangleSelectionEnabled: true,
-    mouseMultiCellRectangleSelectionModifierKey: undefined,
+    mouseLastSelectionAreaExtendingDragActiveCursorName: 'cell',
+    mouseLastSelectionAreaExtendingDragActiveTitleText: undefined,
+    mouseAddToggleExtendSelectionAreaEnabled: true,
+    mouseAddToggleExtendSelectionAreaDragModifierKey: undefined,
     mouseColumnSelectionEnabled: true,
     mouseColumnSelectionModifierKey: ModifierKeyEnum.Alt,
     mouseRowSelectionEnabled: true,
     mouseRowSelectionModifierKey: undefined,
-    primarySelectionAreaType: SelectionAreaType.Rectangle,
-    secondarySelectionAreaType: SelectionAreaType.Row,
+    primarySelectionAreaType: 'rectangle',
+    secondarySelectionAreaType: 'row',
     secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum.Control,
     extendLastSelectionAreaModifierKey: ModifierKeyEnum.Shift,
     addToggleSelectionAreaModifierKey: ModifierKeyEnum.Control,
     addToggleSelectionAreaModifierKeyDoesToggle: true,
+    switchNewRectangleSelectionToRowOrColumn: undefined,
 
     /**
      * @summary Fill color for last selection overlay.
@@ -283,8 +284,7 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     sortOnClick: true,
     sortOnDoubleClick: false,
 
-    multipleSelectionAreas: false,
-    enableContinuousRepaint: false,
+    multipleSelectionAreas: true,
 
     /** @summary Allow user to move columns .
      * @desc Columns can be reordered through either of two interfaces:

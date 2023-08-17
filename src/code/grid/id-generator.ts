@@ -1,5 +1,6 @@
 import { CssTypes } from './types-utils/css-types';
 
+/** @internal */
 export class IdGenerator {
     // stores count of Id's generated from each base id.
     private readonly _baseIds = new Map<string, number>();

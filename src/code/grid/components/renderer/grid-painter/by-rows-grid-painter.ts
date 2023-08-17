@@ -3,7 +3,7 @@ import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { CanvasManager } from '../../canvas/canvas-manager';
+import { Canvas } from '../../canvas/canvas';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
@@ -30,7 +30,7 @@ import { GridPainter } from './grid-painter';
 export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends GridPainter<BGS, BCS, SF> {
     constructor(
         gridSettings: GridSettings,
-        canvasManager: CanvasManager<BGS>,
+        canvas: Canvas<BGS>,
         subgridsManager: SubgridsManager<BCS, SF>,
         viewLayout: ViewLayout<BGS, BCS, SF>,
         focus: Focus<BGS, BCS, SF>,
@@ -40,7 +40,7 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
     ) {
         super(
             gridSettings,
-            canvasManager,
+            canvas,
             subgridsManager,
             viewLayout,
             focus,
@@ -82,7 +82,7 @@ export class ByRowsGridPainter<BGS extends BehavioredGridSettings, BCS extends B
         const lineColor = gridSettings.horizontalGridLinesColor;
         const drawLines = gridSettings.horizontalGridLinesVisible && lineWidth > 0;
 
-        const canvasBounds = this.canvasManager.flooredBounds;
+        const canvasBounds = this.canvas.flooredBounds;
         gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
         if (!columnCount || !rowCount) { return; }

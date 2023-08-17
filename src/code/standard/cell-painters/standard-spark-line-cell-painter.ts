@@ -25,7 +25,7 @@ export class StandardSparkLineCellPainter<
         const height = config.bounds.height;
 
         gc.beginPath();
-        const val = config.value as number[];
+        const val = config.value;
         if (!val || !val.length) {
             return undefined;
         } else {

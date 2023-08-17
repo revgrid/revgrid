@@ -29,14 +29,19 @@ export class StandardDateInputCellEditor<
 
             const result = super.tryOpenCell(cell, openingKeyDownEvent, _openingClickEvent);
 
-            if (result && key === undefined) {
-                // was not opened by keyboard
-                const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
-                if (Object.prototype.toString.call(value) !== '[object Date]') {
-                    throw new AssertError('STIETO41112', typeof value);
+            if (result) {
+                if (key !== undefined) {
+                    // was opened by keyboard
+                    this.element.value = key;
                 } else {
-                    this.element.valueAsDate = (value as Date);
-                    this.selectAll();
+                    // was not opened by keyboard
+                    const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
+                    if (Object.prototype.toString.call(value) !== '[object Date]') {
+                        throw new AssertError('STIETO41112', typeof value);
+                    } else {
+                        this.element.valueAsDate = (value as Date);
+                        this.selectAll();
+                    }
                 }
             }
 

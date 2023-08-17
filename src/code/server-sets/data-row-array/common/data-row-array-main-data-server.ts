@@ -61,7 +61,7 @@ export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataS
      */
     getRowMetadata(index: number, prototype?: null) {
         const dataRow = this._data[index];
-        return dataRow && (dataRow.__META || (prototype !== undefined && (dataRow.__META = Object.create(prototype))));
+        return dataRow && (dataRow.__META || (prototype !== undefined && (dataRow.__META = Object.create(prototype) as MetaModel.RowMetadata)));
     }
 
     setRowMetadata(index: number, metadata: MetaModel.RowMetadata) {

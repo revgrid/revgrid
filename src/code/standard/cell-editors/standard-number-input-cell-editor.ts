@@ -29,14 +29,19 @@ export class StandardNumberInputCellEditor<
 
             const result = super.tryOpenCell(cell, openingKeyDownEvent, _openingClickEvent);
 
-            if (result && key === undefined) {
-                // was not opened by keyboard
-                const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
-                if (typeof value !== 'number') {
-                    throw new AssertError('SNIETO41112', typeof value);
+            if (result) {
+                if (key !== undefined) {
+                    // was opened by keyboard
+                    this.element.value = key;
                 } else {
-                    this.element.valueAsNumber = value;
-                    this.selectAll();
+                    // was not opened by keyboard
+                    const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
+                    if (typeof value !== 'number') {
+                        throw new AssertError('SNIETO41112', typeof value);
+                    } else {
+                        this.element.valueAsNumber = value;
+                        this.selectAll();
+                    }
                 }
             }
 

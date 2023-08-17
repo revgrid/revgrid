@@ -22,6 +22,7 @@ export class Controls {
     private readonly _fixedColumnTextboxElement: HTMLInputElement;
     private readonly _enableLargeHighlightCheckboxElement: HTMLInputElement;
     private readonly _rowOrderReversedCheckboxElement: HTMLInputElement;
+    private readonly _switchNewRectangleSelectionToRowCheckboxElement: HTMLInputElement;
     private readonly _cellPaddingTextboxElement: HTMLInputElement;
     private readonly _rowHeightTextboxElement: HTMLInputElement;
     // private readonly _vertScrollbarWidthTextboxElement: HTMLInputElement;
@@ -200,6 +201,12 @@ export class Controls {
         }
         this._rowOrderReversedCheckboxElement.onchange = () => this.handleUiRowOrderReversedChange();
 
+        this._switchNewRectangleSelectionToRowCheckboxElement = document.querySelector('#switchNewRectangleSelectionToRowCheckbox') as HTMLInputElement;
+        if (this._switchNewRectangleSelectionToRowCheckboxElement === null) {
+            throw new Error('switchNewRectangleSelectionToRowCheckboxElement not found');
+        }
+        this._switchNewRectangleSelectionToRowCheckboxElement.onchange = () => this.handleUiSwitchNewRectangleSelectionToRowChange();
+
         const decrementCellPaddingButtonElement = document.querySelector('#decrementCellPaddingButton') as HTMLButtonElement;
         if (decrementCellPaddingButtonElement === null) {
             throw new Error('decrementCellPaddingButton not found');
@@ -363,6 +370,7 @@ export class Controls {
         this.handleUiFixedColumnChange();
         this._enableLargeHighlightCheckboxElement.checked = false;
         this._rowOrderReversedCheckboxElement.checked = this._mainDataServer.rowOrderReversed;
+        this._switchNewRectangleSelectionToRowCheckboxElement.checked = this._settings.switchNewRectangleSelectionToRowOrColumn === 'row';
         this._cellPaddingTextboxElement.value = this._settings.cellPadding.toString();
         const rowHeight = this._settings.defaultRowHeight;
         this._rowHeightTextboxElement.value = rowHeight === undefined ? '' : rowHeight.toString();
@@ -507,6 +515,10 @@ export class Controls {
 
     private handleUiRowOrderReversedChange() {
         this._mainDataServer.rowOrderReversed = this._rowOrderReversedCheckboxElement.checked;
+    }
+
+    private handleUiSwitchNewRectangleSelectionToRowChange() {
+        this._settings.switchNewRectangleSelectionToRowOrColumn = this._switchNewRectangleSelectionToRowCheckboxElement.checked ? 'row' : undefined;
     }
 
     private handleUiDecrementCellPaddingAction() {

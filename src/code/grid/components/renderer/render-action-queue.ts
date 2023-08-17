@@ -7,7 +7,6 @@ export class RenderActionQueue {
     actionsQueuedEventer: RenderActioner.ActionsQueuedEventer;
 
     private _queuedActions: RenderAction[] = [];
-    private _firstActionQueued = false;
     private _beginChangeCount = 0;
 
     get actionsQueued() { return this._queuedActions.length > 0; }
@@ -19,12 +18,12 @@ export class RenderActionQueue {
     endChange() {
         this._beginChangeCount--;
         if (this._beginChangeCount === 0) {
-            if (this._firstActionQueued) {
+            if (this._queuedActions.length > 0) {
                 this.actionsQueuedEventer();
-            } else {
-                if (this._beginChangeCount < 0) {
-                    throw new AssertError('RAEC91004', 'Mismatched RenderActioner begin/endChange callback');
-                }
+            }
+        } else {
+            if (this._beginChangeCount < 0) {
+                throw new AssertError('RAEC91004', 'Mismatched RenderActioner begin/endChange callback');
             }
         }
     }
@@ -32,7 +31,6 @@ export class RenderActionQueue {
     takeActions() {
         const actions = this._queuedActions;
         this._queuedActions = [];
-        this._firstActionQueued = false;
         return actions;
     }
 
@@ -100,7 +98,6 @@ export class RenderActionQueue {
                 type: RenderAction.Type.PaintAll,
             };
             this._queuedActions.push(action);
-            this._firstActionQueued = true;
         }
     }
 }

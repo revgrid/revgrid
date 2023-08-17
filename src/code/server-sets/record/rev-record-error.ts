@@ -1,4 +1,5 @@
 import { RevgridError } from '../../grid/grid-public-api';
+import { getErrorMessage } from '../../grid/types-utils/utils';
 
 /** @public */
 export abstract class RevRecordError extends RevgridError {
@@ -29,7 +30,7 @@ export class RevRecordAssertError extends RevRecordInternalError {
 /** @public */
 export class RevRecordUnreachableCaseError extends RevRecordInternalError {
     constructor(code: string, value: never) {
-        super(code, `"${value}"`, 'Unreachable case');
+        super(code, `"${getErrorMessage(value)}"`, 'Unreachable case');
     }
 }
 

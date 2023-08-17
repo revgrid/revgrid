@@ -34,38 +34,38 @@ export class CellEditingUiController<BGS extends BehavioredGridSettings, BCS ext
     }
 
     override handleKeyDown(event: KeyboardEvent, fromEditor: boolean) {
-        const cellEvent = this.focusScrollBehavior.getFocusedViewCell(false);
-        if (cellEvent === undefined) {
-            super.handleKeyDown(event, fromEditor);
-        } else {
-            // const keyboardEvent = eventDetail.primitiveEvent;
-            const keyboardEvent = event;
-            if (cellEvent.columnSettings.editOnKeyDown /*&& !grid.cellEditor*/) {
-                const char = keyboardEvent.key;
-                const isVisibleChar = char.length === 1 && !(keyboardEvent.metaKey || keyboardEvent.ctrlKey);
-                const isDeleteChar = char === 'DELETE' || char === 'BACKSPACE';
+        // const cellEvent = this.focusScrollBehavior.getFocusedViewCell(false);
+        // if (cellEvent === undefined) {
+        //     super.handleKeyDown(event, fromEditor);
+        // } else {
+        //     // const keyboardEvent = eventDetail.primitiveEvent;
+        //     const keyboardEvent = event;
+        //     if (cellEvent.columnSettings.editOnKeyDown /*&& !grid.cellEditor*/) {
+        //         const char = keyboardEvent.key;
+        //         const isVisibleChar = char.length === 1 && !(keyboardEvent.metaKey || keyboardEvent.ctrlKey);
+        //         const isDeleteChar = char === 'DELETE' || char === 'BACKSPACE';
 
-                if (char === 'F2' || isVisibleChar || isDeleteChar) {
-                    // const editor = grid.onEditorActivate(cellEvent);
+        //         if (char === 'F2' || isVisibleChar || isDeleteChar) {
+        //             // const editor = grid.onEditorActivate(cellEvent);
 
-                    // if (editor instanceof CellEditor) {
-                    //     if (isVisibleChar) {
-                    //         const element = editor.el;
-                    //         if (element instanceof HTMLInputElement) {
-                    //             element.value = char;
-                    //         }
-                    //     } else if (isDeleteChar) {
-                    //         editor.setEditorValue('');
-                    //     }
-                    //     keyboardEvent.preventDefault();
-                    // }
-                } else {
-                    super.handleKeyDown(event, fromEditor);
-                }
-            } else {
-                super.handleKeyDown(event, fromEditor);
-            }
-        }
+        //             // if (editor instanceof CellEditor) {
+        //             //     if (isVisibleChar) {
+        //             //         const element = editor.el;
+        //             //         if (element instanceof HTMLInputElement) {
+        //             //             element.value = char;
+        //             //         }
+        //             //     } else if (isDeleteChar) {
+        //             //         editor.setEditorValue('');
+        //             //     }
+        //             //     keyboardEvent.preventDefault();
+        //             // }
+        //         } else {
+        //             super.handleKeyDown(event, fromEditor);
+        //         }
+        //     } else {
+        //         super.handleKeyDown(event, fromEditor);
+        //     }
+        // }
     }
 
     edit(cell: ViewCell<BCS, SF> | null, onDoubleClick: boolean) {

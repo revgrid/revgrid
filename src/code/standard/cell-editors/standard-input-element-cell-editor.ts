@@ -2,6 +2,7 @@ import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField }
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardElementCellEditor } from './standard-element-cell-editor';
 
+/** @public */
 export abstract class StandardInputElementCellEditor<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
@@ -12,7 +13,7 @@ export abstract class StandardInputElementCellEditor<
     declare protected readonly element: HTMLInputElement;
 
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, inputType: string) {
-        const element = document.createElement('input') as HTMLInputElement;
+        const element = document.createElement('input');
         super(grid, dataServer, element);
 
         element.type = inputType;
@@ -21,8 +22,8 @@ export abstract class StandardInputElementCellEditor<
         element.classList.add('revgrid-input-editor');
     }
 
-    override set readonly(value: boolean) {
-        super.readonly = value;
+    override setReadonly(value: boolean) {
+        super.setReadonly(value);
         this.element.readOnly = value;
     }
 

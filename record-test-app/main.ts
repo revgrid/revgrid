@@ -69,7 +69,6 @@ export class Main {
             ...defaultAppGridSettings,
             horizontalGridLinesWidth: 0,
             fixedColumnCount: 1,
-            multipleSelectionAreas: true,
 
             font: 'Tahoma, Geneva, sans-serif 13px',
             columnHeaderFont: 'Tahoma, Geneva, sans-serif 12px',

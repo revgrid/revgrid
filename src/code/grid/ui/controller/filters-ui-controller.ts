@@ -53,8 +53,12 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         this.moveLaterally(cellEvent, +1);
     }
 
-    handleUP = this.moveDown;
-    handleDOWN = this.moveDown;
+    handleUP(cellEvent: ViewCell<BCS, SF>) {
+        this.moveDown(cellEvent);
+    }
+    handleDOWN(cellEvent: ViewCell<BCS, SF>) {
+        this.moveDown(cellEvent);
+    }
 
     override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === null) {
@@ -108,8 +112,8 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         const gridX = cellEvent.viewLayoutColumn.index;
 
         // Select first visible grid cell of this column
-        this.focusSelectBehavior.selectOnlyViewCell(gridX, this.subgridsManager.calculatePreMainRowCount(), this.gridSettings.primarySelectionAreaType);
-        this.canvasManager.takeFocus();
+        this.focusSelectBehavior.clearSelectViewCell(gridX, this.subgridsManager.calculatePreMainRowCount());
+        this.canvas.takeFocus();
     }
 
 }

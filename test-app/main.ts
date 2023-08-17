@@ -170,7 +170,6 @@ export class Main {
         gridSettings.merge(defaultStandardGridSettings);
 
         gridSettings.editable = true;
-        gridSettings.multipleSelectionAreas = true;
         gridSettings.cellPadding = defaultCellPadding;
         gridSettings.horizontalAlign = defaultHorizontalAlign;
         gridSettings.fixedColumnCount = defaultFixedColumnCount;

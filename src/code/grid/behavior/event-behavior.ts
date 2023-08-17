@@ -1,4 +1,4 @@
-import { CanvasManager } from '../components/canvas/canvas-manager';
+import { Canvas } from '../components/canvas/canvas';
 import { ColumnsManager } from '../components/column/columns-manager';
 import { DispatchableEvent } from '../components/dispatchable-event/dispatchable-event';
 import { Focus } from '../components/focus/focus';
@@ -72,7 +72,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
         readonly internalParent: RevgridObject,
         dispatchEnabled: boolean,
         /** @internal */
-        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _canvas: Canvas<BGS>,
         /** @internal */
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
         /** @internal */
@@ -96,29 +96,29 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     ) {
         this._dispatchEnabled = dispatchEnabled;
 
-        this._canvasManager.resizedEventerForEventBehavior = () => this.processCanvasResizedEvent();
+        this._canvas.resizedEventerForEventBehavior = () => this.processCanvasResizedEvent();
 
-        this._canvasManager.focusEventer = (event) => this.processFocusEvent(event);
-        this._canvasManager.blurEventer = (event) => this.processBlurEvent(event);
-        this._canvasManager.keyDownEventer = (event) => this.processKeyDownEvent(event, false);
-        this._canvasManager.keyUpEventer = (event) => this.processKeyUpEvent(event);
-        this._canvasManager.clickEventer = (event) => this.processClickEvent(event);
-        this._canvasManager.dblClickEventer = (event) => this.processDblClickEvent(event);
-        this._canvasManager.pointerEnterEventer = (event) => this.processPointerEnterEvent(event);
-        this._canvasManager.pointerDownEventer = (event) => this.processPointerDownEvent(event);
-        this._canvasManager.pointerUpCancelEventer = (event) => this.processPointerUpCancelEvent(event);
-        this._canvasManager.pointerMoveEventer = (event) => this.processPointerMoveEvent(event);
-        this._canvasManager.pointerLeaveOutEventer = (event) => this.processPointerLeaveOutEvent(event);
-        this._canvasManager.pointerDragStartEventer = (event) => this.processPointerDragStartEvent(event);
-        this._canvasManager.pointerDragEventer = (event, internal) => this.processPointerDragEvent(event, internal);
-        this._canvasManager.pointerDragEndEventer = (event, internal) => this.processPointerDragEndEvent(event, internal);
-        this._canvasManager.wheelMoveEventer = (event) => this.processWheelMoveEvent(event);
-        this._canvasManager.contextMenuEventer = (event) => this.processContextMenuEvent(event);
-        this._canvasManager.touchStartEventer = (event) => this.processTouchStartEvent(event);
-        this._canvasManager.touchMoveEventer = (event) => this.processTouchMoveEvent(event);
-        this._canvasManager.touchEndEventer = (event) => this.processTouchEndEvent(event);
-        this._canvasManager.copyEventer = (event) => this.processCopyEvent(event);
-        this._canvasManager.dragStartEventer = (event) => this.processDragStartEvent(event);
+        this._canvas.focusEventer = (event) => this.processFocusEvent(event);
+        this._canvas.blurEventer = (event) => this.processBlurEvent(event);
+        this._canvas.keyDownEventer = (event) => this.processKeyDownEvent(event, false);
+        this._canvas.keyUpEventer = (event) => this.processKeyUpEvent(event);
+        this._canvas.clickEventer = (event) => this.processClickEvent(event);
+        this._canvas.dblClickEventer = (event) => this.processDblClickEvent(event);
+        this._canvas.pointerEnterEventer = (event) => this.processPointerEnterEvent(event);
+        this._canvas.pointerDownEventer = (event) => this.processPointerDownEvent(event);
+        this._canvas.pointerUpCancelEventer = (event) => this.processPointerUpCancelEvent(event);
+        this._canvas.pointerMoveEventer = (event) => this.processPointerMoveEvent(event);
+        this._canvas.pointerLeaveOutEventer = (event) => this.processPointerLeaveOutEvent(event);
+        this._canvas.pointerDragStartEventer = (event) => this.processPointerDragStartEvent(event);
+        this._canvas.pointerDragEventer = (event, internal) => this.processPointerDragEvent(event, internal);
+        this._canvas.pointerDragEndEventer = (event, internal) => this.processPointerDragEndEvent(event, internal);
+        this._canvas.wheelMoveEventer = (event) => this.processWheelMoveEvent(event);
+        this._canvas.contextMenuEventer = (event) => this.processContextMenuEvent(event);
+        this._canvas.touchStartEventer = (event) => this.processTouchStartEvent(event);
+        this._canvas.touchMoveEventer = (event) => this.processTouchMoveEvent(event);
+        this._canvas.touchEndEventer = (event) => this.processTouchEndEvent(event);
+        this._canvas.copyEventer = (event) => this.processCopyEvent(event);
+        this._canvas.dragStartEventer = (event) => this.processDragStartEvent(event);
 
         this._columnsManager.fieldColumnListChangedEventer = (typeId, index, count, targetIndex) => this.processFieldColumnListChangedEvent(
             typeId, index, count, targetIndex

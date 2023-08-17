@@ -29,13 +29,6 @@ export type ListChangedEventer = (
 ) => void;
 
 /** @public */
-export const enum SelectionAreaType {
-    Rectangle,
-    Column,
-    Row,
-}
-
-/** @public */
 export const enum SelectionAreaTypeSpecifier {
     Primary,
     Secondary,

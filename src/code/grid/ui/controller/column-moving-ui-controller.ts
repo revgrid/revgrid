@@ -78,8 +78,8 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                     this.hostElement.appendChild(this._dragOverlay);
 
                     this._dragColumn = viewCell.viewLayoutColumn;
-                    this._dragOverlay.width = this.canvasManager.flooredWidth;
-                    this._dragOverlay.height = this.canvasManager.flooredHeight;
+                    this._dragOverlay.width = this.canvas.flooredWidth;
+                    this._dragOverlay.height = this.canvas.flooredHeight;
                     this._dragOverlay.style.display = '';
 
                     return {
@@ -196,9 +196,9 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                 if (dragContext === null) {
                     throw new AssertError('CMR18887');
                 } else {
-                    dragOverlay.width = this.canvasManager.flooredWidth;
-                    dragOverlay.height = this.canvasManager.flooredHeight;
-                    dragContext.clearRect(0, 0, this.canvasManager.flooredWidth, this.canvasManager.flooredHeight);
+                    dragOverlay.width = this.canvas.flooredWidth;
+                    dragOverlay.height = this.canvas.flooredHeight;
+                    dragContext.clearRect(0, 0, this.canvas.flooredWidth, this.canvas.flooredHeight);
 
                     if (dragAction !== undefined) {
 
@@ -207,7 +207,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                                 ? dragAction.target.left
                                 : dragAction.target.rightPlus1;
                             dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
-                            dragContext.fillRect(indicatorX, 0, 2, this.canvasManager.flooredHeight);
+                            dragContext.fillRect(indicatorX, 0, 2, this.canvas.flooredHeight);
                         }
 
                         const dragCol = this.viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex);
@@ -216,7 +216,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                             dragContext.fillStyle = hideAction
                                 ? 'rgba(255, 50, 50, 0.2)'
                                 : 'rgba(50, 50, 255, 0.2)';
-                            dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvasManager.flooredHeight);
+                            dragContext.fillRect(dragCol.left, 0, dragCol.width, this.canvas.flooredHeight);
                         }
                     }
                 }
@@ -247,31 +247,59 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
 
     private getDragAction(event: MouseEvent, dragColumn: ViewLayoutColumn<BCS, SF>): ColumnDragAction<BCS, SF> {
         const viewLayout = this.viewLayout;
-        if (!viewLayout.horizontalScrollDimension.scrollable) {
+        const columns = viewLayout.columns;
+        const columnCount = columns.length;
+        if (columnCount === 0) {
             return {
-                type: DragActionType.None
+                type: DragActionType.None,
             };
         } else {
+            const scrollable = viewLayout.horizontalScrollDimension.scrollable;
             const firstScrollableColumnViewLeft = viewLayout.scrollableCanvasLeft;
             const updatedDragColumn = viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex)
             const sourceDragColumn = updatedDragColumn !== undefined ? updatedDragColumn : dragColumn;
             const offsetX = event.offsetX;
             if (offsetX < firstScrollableColumnViewLeft) {
-                return {
-                    type: DragActionType.Scroll,
-                    toRight: false,
-                    mouseOffGrid: offsetX < 0,
-                    source: sourceDragColumn
-                };
-            } else {
-                const gridWidth = this.canvasManager.flooredBounds.width;
-                if (offsetX >= gridWidth) {
+                if (scrollable) {
                     return {
                         type: DragActionType.Scroll,
-                        toRight: true,
-                        mouseOffGrid: true,
+                        toRight: false,
+                        mouseOffGrid: offsetX < 0,
                         source: sourceDragColumn
                     };
+                } else {
+                    const firstScrollableColumn = this.viewLayout.firstScrollableColumn;
+                    if (firstScrollableColumn === undefined) {
+                        return {
+                            type: DragActionType.None,
+                        };
+                    } else {
+                        return {
+                            type: DragActionType.Move,
+                            location: MoveLocation.Before,
+                            source: sourceDragColumn,
+                            target: firstScrollableColumn,
+                        };
+                    }
+                }
+            } else {
+                const lastColumn = columns[columnCount - 1];
+                if (offsetX >= lastColumn.rightPlus1) {
+                    if (scrollable) {
+                        return {
+                            type: DragActionType.Scroll,
+                            toRight: true,
+                            mouseOffGrid: offsetX >= this.canvas.flooredBounds.width,
+                            source: sourceDragColumn
+                        };
+                    } else {
+                        return {
+                            type: DragActionType.Move,
+                            location: MoveLocation.After,
+                            source: sourceDragColumn,
+                            target: lastColumn,
+                        };
+                    }
                 } else {
                     let overCol = this.viewLayout.findLeftGridLineInclusiveColumnOfCanvasOffset(offsetX);
                     if (overCol === undefined) {

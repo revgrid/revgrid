@@ -360,7 +360,7 @@ export class RevRecordRecentChanges {
                     }
                     default: {
                         const switchCompletenessTest: never = change.typeId;
-                        throw new RevRecordAssertError('RCPPROD75529', `${switchCompletenessTest}`);
+                        throw new RevRecordAssertError('RCPPROD75529', `${String(switchCompletenessTest)}`);
                     }
                 }
             }
@@ -404,7 +404,7 @@ export class RevRecordRecentChanges {
                     }
                     default: {
                         const switchCompletenessTest: never = change.typeId;
-                        throw new RevRecordAssertError('RCCEC75529', `${switchCompletenessTest}`);
+                        throw new RevRecordAssertError('RCCEC75529', `${String(switchCompletenessTest)}`);
                     }
                 }
             }
@@ -483,7 +483,7 @@ export class RevRecordRecentChanges {
         let expiredRowChangeCount = 0;
 
         for (let i = 0; i < count; i++) {
-            const change = this._expiryQueue[i] as RevRecordRecentChange;
+            const change = this._expiryQueue[i];
             if (change.expiryTime <= now) {
                 switch (change.typeId) {
                     case RevRecordRecentChange.TypeId.Value: {
@@ -507,7 +507,7 @@ export class RevRecordRecentChanges {
                     }
                     default: {
                         const switchCompletenessTest: never = change.typeId;
-                        throw new RevRecordAssertError('RCEHTD98833', `${switchCompletenessTest}`);
+                        throw new RevRecordAssertError('RCEHTD98833', `${String(switchCompletenessTest)}`);
                     }
                 }
             }

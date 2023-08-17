@@ -5,7 +5,7 @@ import { FocusScrollBehavior } from '../behavior/focus-scroll-behavior';
 import { FocusSelectBehavior } from '../behavior/focus-select-behavior';
 import { ReindexBehavior } from '../behavior/reindex-behavior';
 import { RowPropertiesBehavior } from '../behavior/row-properties-behavior';
-import { CanvasManager } from '../components/canvas/canvas-manager';
+import { Canvas } from '../components/canvas/canvas';
 import { ColumnsManager } from '../components/column/columns-manager';
 import { Focus } from '../components/focus/focus';
 import { Mouse } from '../components/mouse/mouse';
@@ -58,7 +58,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         readonly internalParent: RevgridObject,
         hostElement: HTMLElement,
         private readonly _gridSettings: BGS,
-        canvasManager: CanvasManager<BGS>,
+        canvas: Canvas<BGS>,
         focus: Focus<BGS, BCS, SF>,
         selection: Selection<BCS, SF>,
         columnsManager: ColumnsManager<BCS, SF>,
@@ -88,7 +88,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
             this._sharedState,
             hostElement,
             this._gridSettings,
-            canvasManager,
+            canvas,
             selection,
             focus,
             columnsManager,

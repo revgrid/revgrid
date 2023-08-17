@@ -1,5 +1,6 @@
 import { ModifierKeyEnum } from '../../types-utils/modifier-key';
-import { HorizontalWheelScrollingAllowed, SelectionAreaType } from '../../types-utils/types';
+import { RowOrColumnSelectionAreaType, SelectionAreaType } from '../../types-utils/selection-area-type';
+import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 
 /** @public */
 export interface OnlyGridSettings {
@@ -27,6 +28,7 @@ export interface OnlyGridSettings {
     columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
     columnsReorderableHideable: boolean;
+    switchNewRectangleSelectionToRowOrColumn: RowOrColumnSelectionAreaType | undefined;
     defaultRowHeight: number;
     /** Whether to automatically expand column width to accommodate widest rendered value. */
     defaultColumnAutoSizing: boolean;
@@ -43,7 +45,6 @@ export interface OnlyGridSettings {
     editOnFocusCell: boolean;
     /** Open cell editor for cell when cell focus and certain keys are pushed down */
     editOnKeyDown: boolean;
-    enableContinuousRepaint: boolean;
     /** Modifier key that indicates a UI action should extend the selection area */
     extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     /** Whether grid events are dispatched as DOM events */
@@ -107,11 +108,11 @@ export interface OnlyGridSettings {
     minimumColumnWidth: number;
     maximumColumnWidth: number | undefined;
     /** Cursor to appear when extending a selection with a mouse drag */
-    mouseMultiCellRectangleSelectionDragActiveCursorName: string | undefined;
-    mouseMultiCellRectangleSelectionDragActiveTitleText: string | undefined;
+    mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
+    mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     /** Allows rectangle selections with more than one cell and/or multiple rectangle selections.  If false, then only focused cell is selected */
-    mouseMultiCellRectangleSelectionEnabled: boolean;
-    mouseMultiCellRectangleSelectionModifierKey: ModifierKeyEnum | undefined;
+    mouseAddToggleExtendSelectionAreaEnabled: boolean;
+    mouseAddToggleExtendSelectionAreaDragModifierKey: ModifierKeyEnum | undefined;
     /** Enables column selections with mouse */
     mouseColumnSelectionEnabled: boolean;
     mouseColumnSelectionModifierKey: ModifierKeyEnum | undefined;

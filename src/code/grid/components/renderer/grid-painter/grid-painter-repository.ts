@@ -4,7 +4,7 @@ import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { Registry } from '../../../types-utils/registry';
 import { AssertError } from '../../../types-utils/revgrid-error';
-import { CanvasManager } from '../../canvas/canvas-manager';
+import { Canvas } from '../../canvas/canvas';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
 import { Selection } from '../../selection/selection';
@@ -23,7 +23,7 @@ export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS exten
 
     constructor(
         private readonly _gridSettings: GridSettings,
-        private readonly _canvasManager: CanvasManager<BGS>,
+        private readonly _canvas: Canvas<BGS>,
         private readonly _subgridsManager: SubgridsManager<BCS, SF>,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
         private readonly _focus: Focus<BGS, BCS, SF>,
@@ -48,7 +48,7 @@ export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS exten
             } else {
                 gridPainter = new constructor(
                     this._gridSettings,
-                    this._canvasManager,
+                    this._canvas,
                     this._subgridsManager,
                     this._viewLayout,
                     this._focus,

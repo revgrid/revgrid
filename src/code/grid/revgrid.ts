@@ -5,7 +5,7 @@ import { EventBehavior } from './behavior/event-behavior';
 import { FocusScrollBehavior } from './behavior/focus-scroll-behavior';
 import { FocusSelectBehavior } from './behavior/focus-select-behavior';
 import { RowPropertiesBehavior } from './behavior/row-properties-behavior';
-import { CanvasManager } from './components/canvas/canvas-manager';
+import { Canvas } from './components/canvas/canvas';
 import { ColumnsManager } from './components/column/columns-manager';
 import { ComponentsManager } from './components/components-manager';
 import { Focus } from './components/focus/focus';
@@ -14,6 +14,7 @@ import { GridPainter } from './components/renderer/grid-painter/grid-painter';
 import { Renderer } from './components/renderer/renderer';
 import { Scroller } from './components/scroller/scroller';
 import { Selection } from './components/selection/selection';
+import { SelectionRectangle } from './components/selection/selection-rectangle';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
 import { IdGenerator } from './id-generator';
@@ -25,6 +26,7 @@ import { MetaModel } from './interfaces/data/meta-model';
 import { Subgrid } from './interfaces/data/subgrid';
 import { ViewCell } from './interfaces/data/view-cell';
 import { Column, ColumnAutoSizeableWidth } from './interfaces/dataless/column';
+import { DatalessSubgrid } from './interfaces/dataless/dataless-subgrid';
 import { SchemaField } from './interfaces/schema/schema-field';
 import { SchemaServer } from './interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
@@ -35,7 +37,8 @@ import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { ApiError, AssertError } from './types-utils/revgrid-error';
 import { RevgridObject } from './types-utils/revgrid-object';
-import { ListChangedTypeId, SelectionAreaType } from './types-utils/types';
+import { SelectionAreaType } from './types-utils/selection-area-type';
+import { ListChangedTypeId } from './types-utils/types';
 import { UiController } from './ui/controller/ui-controller';
 import { UiManager } from './ui/ui-controller-manager';
 
@@ -50,7 +53,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly mouse: Mouse<BGS, BCS, SF>;
     readonly selection: Selection<BCS, SF>;
     readonly focus: Focus<BGS, BCS, SF>;
-    readonly canvasManager: CanvasManager<BGS>;
+    readonly canvas: Canvas<BGS>;
     readonly columnsManager: ColumnsManager<BCS, SF>;
     readonly subgridsManager: SubgridsManager<BCS, SF>;
     readonly viewLayout: ViewLayout<BGS, BCS, SF>;
@@ -74,21 +77,16 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /** @internal */
     private readonly _focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
     /** @internal */
+    private readonly _dataExtractBehavior: DataExtractBehavior<BCS, SF>;
+    /** @internal */
     private readonly _rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>;
     /** @internal */
     private readonly _cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>;
-    /** @internal */
-    private readonly _dataExtractBehavior: DataExtractBehavior<BCS, SF>;
 
     private _destroyed = false;
 
     get fieldColumns(): readonly Column<BCS, SF>[] { return this.columnsManager.fieldColumns; }
     get activeColumns(): readonly Column<BCS, SF>[] { return this.columnsManager.activeColumns; }
-
-    getSelectedRowCount() { return this.selection.getRowCount(); }
-    getSelectedRowIndices() { return this.selection.getRowIndices(); }
-    getSelectedColumnIndices() { return this.selection.getColumnIndices(); }
-    getSelectedRectangles() { return this.selection.rectangleList.rectangles; }
 
     get destroyed() { return this._destroyed; }
 
@@ -104,6 +102,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get fixedColumnsViewWidth() { return this.viewLayout.fixedColumnsViewWidth; }
     get nonFixedColumnsViewWidth() { return this.viewLayout.scrollableColumnsViewWidth; }
     get activeColumnsViewWidth() { return this.viewLayout.columnsViewWidth; }
+
+    get SelectionRectangles(): readonly SelectionRectangle[] { return this.selection.rectangles; }
 
     constructor(
         hostElement: string | HTMLElement | undefined,
@@ -143,7 +143,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
         this.focus = this._componentsManager.focus;
         this.selection = this._componentsManager.selection;
-        this.canvasManager = this._componentsManager.canvasManager;
+        this.canvas = this._componentsManager.canvas;
         this.mouse = this._componentsManager.mouse;
         this.columnsManager = this._componentsManager.columnsManager;
         this.subgridsManager = this._componentsManager.subgridsManager;
@@ -161,7 +161,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this.revgridId,
             this,
             this.settings,
-            this.canvasManager,
+            this.canvas,
             this.columnsManager,
             this.subgridsManager,
             this.viewLayout,
@@ -185,7 +185,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this,
             this.hostElement,
             this.settings,
-            this.canvasManager,
+            this.canvas,
             this.focus,
             this.selection,
             this.columnsManager,
@@ -204,11 +204,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             this._behaviorManager.eventBehavior,
             options.customUiControllerDefinitions,
         );
-
-        // this.canvasManager.start();
-        // this._renderer.start();
-
-        // this.canvasManager.resize(false); // Will invalidate all and cause a repaint
     }
 
     get active() { return this._behaviorManager.active; }
@@ -216,21 +211,19 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._behaviorManager.active = value;
         if (!value){
             this.renderer.stop();
-            this.canvasManager.stop();
+            this.canvas.stop();
             this._uiManager.disable();
         } else {
             this._uiManager.enable();
-            this.canvasManager.start();
+            this.canvas.start();
             this.renderer.start();
-            this.canvasManager.resize(false); // Will invalidate all and cause a repaint
+            this.canvas.resize(false); // Will invalidate all and cause a repaint
         }
     }
 
-    get canvasBounds() { return this.canvasManager.flooredBounds; }
-
     /**
      * Be a responsible citizen and call this function on instance disposal!
-     * If multiple grids are used in an application (simultaneously or not), then {@link (Hypgrid:class).destroy} must be called otherwise
+     * If multiple grids are used in an application (simultaneously or not), then {@link (Revgrid:class).destroy} must be called otherwise
      * canvase paint loop will continue to run
      */
     destroy() {
@@ -256,20 +249,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.active = false;
     }
 
-    setAttribute(attribute: string, value: string) {
-        this.hostElement.setAttribute(attribute, value);
-    }
-
-    removeAttribute(attribute: string) {
-        this.hostElement.removeAttribute(attribute);
-    }
-
-    /** @internal */
-    createColumns() {
-        // used by Behavior.addState()
-        this.columnsManager.createColumns();
-    }
-
     /**
      * @desc Clear out all state settings, data (rows), and schema (columns) of a grid instance.
      * @param options
@@ -278,148 +257,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      */
     reset() {
         this._componentsManager.reset();
-        this.canvasManager.resize(false); // Will invalidate all and cause a repaint
+        this.canvas.resize(false); // Will invalidate all and cause a repaint
     }
-
-    /** pluginSpec
-     * @desc One of:
-     * * simple API - a plain object with an `install` method
-     * * object API - an object constructor
-     * * array:
-     *    * first element is an optional name for the API or the newly instantiated object
-     *    * next element (or first element when not a string) is the simple or object API
-     *    * remaining arguments are optional arguments for the object constructor
-     * * falsy value such as `undefined` - ignored
-     *
-     * The API may have a `name` or `$$CLASS_NAME` property.
-     */
-    /**
-     * @summary Install plugins.
-     * @desc Plugin installation:
-     * * Each simple API is installed by calling it's `install` method with `this` as first arg + any additional args listed in the `pluginSpec` (when it is an array).
-     * * Each object API is installed by instantiating it's constructor with `this` as first arg + any additional args listed in the `pluginSpec` (when it is an array).
-     *
-     * The resulting plain object or instantiated objects may be named by (in priority order):
-     * 1. if `pluginSpec` contains an array and first element is a string
-     * 2. object has a `name` property
-     * 3. object has a `$$CLASS_NAME` property
-     *
-     * If named, a reference to each object is saved in `this.plugins`. If the plug-in is unnamed, no reference is kept.
-     *
-     * There are two types of plugin installations:
-     * * Preinstalled plugins which are installed on the prototype. These are simple API plugins with a `preinstall` method called with the `installPlugins` calling context as the first argument. Preinstallations are automatically performed whenever a grid is instantiated (at the beginning of the constructor), by calling `installPlugins` with `Hypergrid.prototype` as the calling context.
-     * * Regular plugins which are installed on the instance. These are simple API plugins with an `install` method, as well as all object API plugins (constructors), called with the `installPlugins` calling context as the first argument. These installations are automatically performed whenever a grid is instantiated (at the end of the constructor), called with the new grid instance as the calling context.
-     *
-     * The "`installPlugins` calling context" means either the grid instance or its prototype, depending on how this method is called.
-     *
-     * Plugins may have both `preinstall` _and_ `install` methods, in which case both will be called. However, note that in any case, `install` methods on object API plugins are ignored.
-     * @param {pluginSpec|pluginSpec[]} [plugins] - The plugins to install. If omitted, the call is a no-op.
-     */
-    // installPlugins(plugins) {
-    //     var shared = this === Hypergrid.prototype; // Do shared ("preinstalled") plugins (if any)
-
-    //     if (!plugins) {
-    //         return;
-    //     } else if (!Array.isArray(plugins)) {
-    //         plugins = [plugins];
-    //     }
-
-    //     plugins.forEach(function(plugin) {
-    //         var name, args, hash;
-
-    //         if (!plugin) {
-    //             return; // ignore falsy plugin spec
-    //         }
-
-    //         // set first arg of constructor to `this` (the grid instance)
-    //         // set first arg of `install` method to `this` (the grid instance)
-    //         // set first two args of `preinstall` method to `this` (the Hypergrid prototype) and the Behavior prototype
-    //         args = [this];
-    //         if (shared) {
-    //             args.push(Behavior);
-    //         }
-
-    //         if (Array.isArray(plugin)) {
-    //             if (!plugin.length) {
-    //                 plugin = undefined;
-    //             } else if (typeof plugin[0] !== 'string') {
-    //                 args = args.concat(plugin.slice(1));
-    //                 plugin = plugin[0];
-    //             } else if (plugin.length >= 2) {
-    //                 args = args.concat(plugin.slice(2));
-    //                 name = plugin[0];
-    //                 plugin = plugin[1];
-    //             } else {
-    //                 plugin = undefined;
-    //             }
-    //         }
-
-    //         if (!plugin) {
-    //             return; // ignore empty array or array with single string element
-    //         }
-
-    //         // Derive API name if not given in pluginSpec
-    //         name = name || plugin.name || plugin.$$CLASS_NAME;
-    //         if (name) {
-    //             // Translate first character to lower case
-    //             name = name.substr(0, 1).toLowerCase() + name.substr(1);
-    //         }
-
-    //         if (shared) {
-    //             // Execute the `preinstall` method
-    //             hash = this.constructor.plugins;
-    //             if (plugin.preinstall && !hash[name]) {
-    //                 plugin.preinstall.apply(plugin, args);
-    //             }
-    //         } else { // instance plug-ins:
-    //             hash = this.plugins;
-    //             if (typeof plugin === 'function') {
-    //                 // Install "object API" by instantiating
-    //                 plugin = this.createApply(plugin, args);
-    //             } else if (plugin.install) {
-    //                 // Install "simple API" by calling its `install` method
-    //                 plugin.install.apply(plugin, args);
-    //             } else if (!plugin.preinstall) {
-    //                 throw new Base.HypergridError('Expected plugin (a constructor; or an API with a `preinstall` method and/or an `install` method).');
-    //             }
-    //         }
-
-    //         if (name) {
-    //             hash[name] = plugin;
-    //         }
-
-    //     }, this);
-    // }
-
-    /**
-     * @summary Uninstall all uninstallable plugins or just named plugins.
-     * @desc Calls `uninstall` on plugins that define such a method.
-     *
-     * To uninstall "preinstalled" plugins, call with `Hypergrid.prototype` as context.
-     *
-     * For convenience, the following args are passed to the call:
-     * * `this` - the plugin to be uninstalled
-     * * `grid` - the hypergrid object
-     * * `key` - name of the plugin to be uninstalled (_i.e.,_ key in `plugins`)
-     * * `plugins` - the plugins hash (a.k.a. `grid.plugins`)
-     * @param {string|string[]} [pluginNames] If provided, limit uninstall to the named plugin (string) or plugins (string[]).
-     */
-    // uninstallPlugins(pluginNames) {
-    //     if (!pluginNames) {
-    //         pluginNames = [];
-    //     } else if (!Array.isArray(pluginNames)) {
-    //         pluginNames = [pluginNames];
-    //     }
-    //     _(this.plugins).each(function(plugin, key, plugins) {
-    //         if (
-    //             plugins.hasOwnProperty(key) &&
-    //             pluginNames.indexOf(key) >= 0 &&
-    //             plugin.uninstall
-    //         ) {
-    //             plugin.uninstall(this, key, plugins);
-    //         }
-    //     }, this);
-    // }
 
     registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>) {
         this.renderer.registerGridPainter(key, constructor)
@@ -429,29 +268,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @returns We have focus.
      */
     hasFocus() {
-        return this.canvasManager.hasFocus();
+        return this.canvas.hasFocus();
     }
-
-    /**
-     * @summary Set the Behavior object for this grid control.
-     * @desc Called when `options.Behavior` from:
-     * * Hypergrid constructor
-     * * `setData` when not called explicitly before then
-     * @param options - _Per {@link BehaviorManager#setData}._
-     * @param options.Behavior - The behavior (model) is a constructor.
-     * @param options.dataModel - A fully instantiated data model object.
-     * @param options.dataModelConstructor - Data model will be instantiated from this constructor unless `options.dataModel` was given.
-     * @param options.metadata - Value to be passed to `setMetadataStore` if the data model has changed.
-     * @param options.data - _Per {@link constructor#setData}._
-     * @param options.schema - _Per {@link constructor#setData}.
-     */
-    // setBehavior(options: Hypergrid.Options) {
-    //     const constructor = (options?.behaviorConstructor) ?? Behavior;
-    //     this.behavior = new constructor(this, options);
-    //     this.initScrollbars();
-    //     this.refreshProperties();
-    //     this.behavior.reindex();
-    // }
 
     get activeColumnCount() { return this.columnsManager.activeColumnCount; }
 
@@ -617,7 +435,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this.columnsManager.getHiddenColumns();
     }
 
-    setActiveColumnsAndWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]) {
+    setActiveColumnsAndWidthsByFieldName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]) {
         this.columnsManager.setActiveColumnsAndWidthsByFieldName(columnNameWidths, false);
     }
 
@@ -807,136 +625,136 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return result;
     }
 
-    calculateColumnScrollContentSizeAndAnchorLimits(
-        contentStart: number, // Fixed columns width + fixed gridline width
-        viewportSize: number,
-        gridRightAligned: boolean,
-        columnCount: number,
-        fixedColumnCount: number,
-    ): ViewLayout.ScrollContentSizeAndAnchorLimits {
-        let contentSize = this.calculateActiveNonFixedColumnsWidth();
-        let anchorLimits: ViewLayout.ScrollAnchorLimits;
+    // calculateColumnScrollContentSizeAndAnchorLimits(
+    //     contentStart: number, // Fixed columns width + fixed gridline width
+    //     viewportSize: number,
+    //     gridRightAligned: boolean,
+    //     columnCount: number,
+    //     fixedColumnCount: number,
+    // ): ViewLayout.ScrollContentSizeAndAnchorLimits {
+    //     let contentSize = this.calculateActiveNonFixedColumnsWidth();
+    //     let anchorLimits: ViewLayout.ScrollAnchorLimits;
 
-        const contentOverflowed = contentSize > viewportSize && columnCount > fixedColumnCount
-        if (contentOverflowed) {
-            let leftAnchorLimitIndex: number;
-            let leftAnchorLimitOffset: number;
-            let rightAnchorLimitIndex: number;
-            let rightAnchorLimitOffset: number;
+    //     const contentOverflowed = contentSize > viewportSize && columnCount > fixedColumnCount
+    //     if (contentOverflowed) {
+    //         let leftAnchorLimitIndex: number;
+    //         let leftAnchorLimitOffset: number;
+    //         let rightAnchorLimitIndex: number;
+    //         let rightAnchorLimitOffset: number;
 
-            const gridLinesVWidth = this.settings.verticalGridLinesWidth;
-            if (gridRightAligned) {
-                rightAnchorLimitIndex = columnCount - 1;
-                rightAnchorLimitOffset = 0;
-                let prevColumnGridLineFinish = contentStart - 1;
-                const lowestViewportFinish = prevColumnGridLineFinish + viewportSize;
-                let lowestViewportStartColumnIndex = fixedColumnCount;
-                let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this.getActiveColumnWidth(lowestViewportStartColumnIndex);
-                while (lowestViewportStartColumnFinish <= lowestViewportFinish) {
-                    prevColumnGridLineFinish = lowestViewportStartColumnFinish;
-                    lowestViewportStartColumnIndex++;
-                    lowestViewportStartColumnFinish = prevColumnGridLineFinish + (this.getActiveColumnWidth(lowestViewportStartColumnIndex) + gridLinesVWidth);
-                }
-                leftAnchorLimitIndex = lowestViewportStartColumnIndex;
-                leftAnchorLimitOffset = lowestViewportStartColumnFinish - lowestViewportFinish;
-                if (!this.settings.scrollHorizontallySmoothly) {
-                    // Since we cannot show a partial column on right, this may prevent leftmost columns from being displayed in viewport
-                    // Extend scrollable size (content size) so that the previous column can be shown on end when viewport is at start of content.
-                    contentSize += (lowestViewportFinish - prevColumnGridLineFinish);
-                    if (leftAnchorLimitOffset !== 0) {
-                        leftAnchorLimitOffset = 0;
-                        if (leftAnchorLimitIndex > fixedColumnCount) {
-                            leftAnchorLimitIndex--;
-                        }
-                    }
-                }
-            } else {
-                leftAnchorLimitIndex = fixedColumnCount;
-                leftAnchorLimitOffset = 0;
-                const highestViewportStart = contentSize - viewportSize;
-                let nextColumnLeft = contentSize;
-                let highestViewportStartColumnIndex = columnCount - 1;
-                let highestViewportStartColumnLeft = nextColumnLeft - this.getActiveColumnWidth(highestViewportStartColumnIndex);
-                while (highestViewportStartColumnLeft > highestViewportStart) {
-                    nextColumnLeft = highestViewportStartColumnLeft;
-                    highestViewportStartColumnIndex--;
-                    highestViewportStartColumnLeft = nextColumnLeft - (this.getActiveColumnWidth(highestViewportStartColumnIndex) + gridLinesVWidth);
-                }
-                rightAnchorLimitIndex = highestViewportStartColumnIndex;
-                rightAnchorLimitOffset = highestViewportStart - highestViewportStartColumnLeft;
-                if (!this.settings.scrollHorizontallySmoothly) {
-                    // Since we cannot show a partial column on left, this may prevent rightmost columns from being displayed in viewport
-                    // Extend scrollable size (content size) so that the subsequent column can be shown on start when viewport is at end of content.
-                    contentSize += (nextColumnLeft - highestViewportStart);
-                    if (rightAnchorLimitOffset !== 0) {
-                        rightAnchorLimitOffset = 0;
-                        if (rightAnchorLimitIndex < columnCount - 1) {
-                            rightAnchorLimitIndex++;
-                        }
-                    }
-                }
-            }
+    //         const gridLinesVWidth = this.settings.verticalGridLinesWidth;
+    //         if (gridRightAligned) {
+    //             rightAnchorLimitIndex = columnCount - 1;
+    //             rightAnchorLimitOffset = 0;
+    //             let prevColumnGridLineFinish = contentStart - 1;
+    //             const lowestViewportFinish = prevColumnGridLineFinish + viewportSize;
+    //             let lowestViewportStartColumnIndex = fixedColumnCount;
+    //             let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this.getActiveColumnWidth(lowestViewportStartColumnIndex);
+    //             while (lowestViewportStartColumnFinish <= lowestViewportFinish) {
+    //                 prevColumnGridLineFinish = lowestViewportStartColumnFinish;
+    //                 lowestViewportStartColumnIndex++;
+    //                 lowestViewportStartColumnFinish = prevColumnGridLineFinish + (this.getActiveColumnWidth(lowestViewportStartColumnIndex) + gridLinesVWidth);
+    //             }
+    //             leftAnchorLimitIndex = lowestViewportStartColumnIndex;
+    //             leftAnchorLimitOffset = lowestViewportStartColumnFinish - lowestViewportFinish;
+    //             if (!this.settings.scrollHorizontallySmoothly) {
+    //                 // Since we cannot show a partial column on right, this may prevent leftmost columns from being displayed in viewport
+    //                 // Extend scrollable size (content size) so that the previous column can be shown on end when viewport is at start of content.
+    //                 contentSize += (lowestViewportFinish - prevColumnGridLineFinish);
+    //                 if (leftAnchorLimitOffset !== 0) {
+    //                     leftAnchorLimitOffset = 0;
+    //                     if (leftAnchorLimitIndex > fixedColumnCount) {
+    //                         leftAnchorLimitIndex--;
+    //                     }
+    //                 }
+    //             }
+    //         } else {
+    //             leftAnchorLimitIndex = fixedColumnCount;
+    //             leftAnchorLimitOffset = 0;
+    //             const highestViewportStart = contentSize - viewportSize;
+    //             let nextColumnLeft = contentSize;
+    //             let highestViewportStartColumnIndex = columnCount - 1;
+    //             let highestViewportStartColumnLeft = nextColumnLeft - this.getActiveColumnWidth(highestViewportStartColumnIndex);
+    //             while (highestViewportStartColumnLeft > highestViewportStart) {
+    //                 nextColumnLeft = highestViewportStartColumnLeft;
+    //                 highestViewportStartColumnIndex--;
+    //                 highestViewportStartColumnLeft = nextColumnLeft - (this.getActiveColumnWidth(highestViewportStartColumnIndex) + gridLinesVWidth);
+    //             }
+    //             rightAnchorLimitIndex = highestViewportStartColumnIndex;
+    //             rightAnchorLimitOffset = highestViewportStart - highestViewportStartColumnLeft;
+    //             if (!this.settings.scrollHorizontallySmoothly) {
+    //                 // Since we cannot show a partial column on left, this may prevent rightmost columns from being displayed in viewport
+    //                 // Extend scrollable size (content size) so that the subsequent column can be shown on start when viewport is at end of content.
+    //                 contentSize += (nextColumnLeft - highestViewportStart);
+    //                 if (rightAnchorLimitOffset !== 0) {
+    //                     rightAnchorLimitOffset = 0;
+    //                     if (rightAnchorLimitIndex < columnCount - 1) {
+    //                         rightAnchorLimitIndex++;
+    //                     }
+    //                 }
+    //             }
+    //         }
 
-            anchorLimits = {
-                startAnchorLimitIndex: leftAnchorLimitIndex,
-                startAnchorLimitOffset: leftAnchorLimitOffset,
-                finishAnchorLimitIndex: rightAnchorLimitIndex,
-                finishAnchorLimitOffset: rightAnchorLimitOffset,
-            }
-        } else {
-            anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
-        }
+    //         anchorLimits = {
+    //             startAnchorLimitIndex: leftAnchorLimitIndex,
+    //             startAnchorLimitOffset: leftAnchorLimitOffset,
+    //             finishAnchorLimitIndex: rightAnchorLimitIndex,
+    //             finishAnchorLimitOffset: rightAnchorLimitOffset,
+    //         }
+    //     } else {
+    //         anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
+    //     }
 
-        return {
-            contentSize,
-            contentOverflowed,
-            anchorLimits,
-        };
-    }
+    //     return {
+    //         contentSize,
+    //         contentOverflowed,
+    //         anchorLimits,
+    //     };
+    // }
 
-    calculateColumnScrollInactiveAnchorLimits(
-        gridRightAligned: boolean,
-        columnCount: number,
-        fixedColumnCount: number
-    ): ViewLayout.ScrollAnchorLimits {
-        let startAnchorLimitIndex: number;
-        let finishAnchorLimitIndex: number;
-        if (gridRightAligned) {
-            finishAnchorLimitIndex = columnCount - 1;
-            startAnchorLimitIndex = finishAnchorLimitIndex;
-        } else {
-            startAnchorLimitIndex = fixedColumnCount;
-            finishAnchorLimitIndex = startAnchorLimitIndex;
-        }
-        return {
-            startAnchorLimitIndex,
-            startAnchorLimitOffset: 0,
-            finishAnchorLimitIndex,
-            finishAnchorLimitOffset: 0,
-        };
-    }
+    // calculateColumnScrollInactiveAnchorLimits(
+    //     gridRightAligned: boolean,
+    //     columnCount: number,
+    //     fixedColumnCount: number
+    // ): ViewLayout.ScrollAnchorLimits {
+    //     let startAnchorLimitIndex: number;
+    //     let finishAnchorLimitIndex: number;
+    //     if (gridRightAligned) {
+    //         finishAnchorLimitIndex = columnCount - 1;
+    //         startAnchorLimitIndex = finishAnchorLimitIndex;
+    //     } else {
+    //         startAnchorLimitIndex = fixedColumnCount;
+    //         finishAnchorLimitIndex = startAnchorLimitIndex;
+    //     }
+    //     return {
+    //         startAnchorLimitIndex,
+    //         startAnchorLimitOffset: 0,
+    //         finishAnchorLimitIndex,
+    //         finishAnchorLimitOffset: 0,
+    //     };
+    // }
 
-    getColumnScrollableLeft(activeIndex: number) {
-        const fixedColumnCount = this.columnsManager.getFixedColumnCount();
-        if (activeIndex < fixedColumnCount) {
-            throw new AssertError('HGCSL89933');
-        } else {
-            const gridLinesVWidth = this.settings.verticalGridLinesWidth;
-            let result = 0;
-            for (let i = fixedColumnCount; i < activeIndex; i++) {
-                result += this.getActiveColumnWidth(i);
-            }
+    // getColumnScrollableLeft(activeIndex: number) {
+    //     const fixedColumnCount = this.columnsManager.getFixedColumnCount();
+    //     if (activeIndex < fixedColumnCount) {
+    //         throw new AssertError('HGCSL89933');
+    //     } else {
+    //         const gridLinesVWidth = this.settings.verticalGridLinesWidth;
+    //         let result = 0;
+    //         for (let i = fixedColumnCount; i < activeIndex; i++) {
+    //             result += this.getActiveColumnWidth(i);
+    //         }
 
-            if (gridLinesVWidth > 0) {
-                const scrollableColumnCount = activeIndex - fixedColumnCount;
-                if (scrollableColumnCount > 1) {
-                    result += (scrollableColumnCount - 1) * gridLinesVWidth;
-                }
-            }
+    //         if (gridLinesVWidth > 0) {
+    //             const scrollableColumnCount = activeIndex - fixedColumnCount;
+    //             if (scrollableColumnCount > 1) {
+    //                 result += (scrollableColumnCount - 1) * gridLinesVWidth;
+    //             }
+    //         }
 
-            return result;
-        }
-    }
+    //         return result;
+    //     }
+    // }
 
     getActiveColumn(activeIndex: number) {
         return this.columnsManager.getActiveColumn(activeIndex);
@@ -1037,7 +855,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      * @returns The HiDPI ratio.
      */
     getHiDPI() {
-        return this.canvasManager.devicePixelRatio;
+        return this.canvas.devicePixelRatio;
     }
 
     /**
@@ -1161,12 +979,124 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
-        this.canvasManager.addExternalEventListener(eventName, listener, options);
+        this.canvas.addExternalEventListener(eventName, listener, options);
     }
 
     removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) {
-        this.canvasManager.removeExternalEventListener(eventName, listener, options);
+        this.canvas.removeExternalEventListener(eventName, listener, options);
     }
+
+    // FocusScrollBehavior
+
+    tryFocusXYAndEnsureInView(x: number, y: number, cell?: ViewCell<BCS, SF>) {
+        return this._focusScrollBehavior.tryFocusXYAndEnsureInView(x, y, cell);
+    }
+
+    tryFocusXAndEnsureInView(x: number) {
+        return this._focusScrollBehavior.tryFocusXAndEnsureInView(x);
+    }
+
+    tryFocusYAndEnsureInView(y: number) {
+        return this._focusScrollBehavior.tryFocusYAndEnsureInView(y);
+    }
+
+    tryMoveFocusLeft() {
+        return this._focusScrollBehavior.tryMoveFocusLeft();
+    }
+
+    tryMoveFocusRight() {
+        return this._focusScrollBehavior.tryMoveFocusRight();
+    }
+
+    tryMoveFocusUp() {
+        return this._focusScrollBehavior.tryMoveFocusUp();
+    }
+
+    tryMoveFocusDown() {
+        return this._focusScrollBehavior.tryMoveFocusDown();
+    }
+
+    tryFocusFirstColumn() {
+        return this._focusScrollBehavior.tryFocusFirstColumn();
+    }
+
+    tryFocusLastColumn() {
+        return this._focusScrollBehavior.tryFocusLastColumn();
+    }
+
+    tryFocusTop() {
+        return this._focusScrollBehavior.tryFocusTop();
+    }
+
+    tryFocusBottom() {
+        return this._focusScrollBehavior.tryFocusBottom();
+    }
+
+    tryPageFocusLeft() {
+        return this._focusScrollBehavior.tryPageFocusLeft();
+    }
+
+    tryPageFocusRight() {
+        return this._focusScrollBehavior.tryPageFocusRight();
+    }
+
+    tryPageFocusUp() {
+        return this._focusScrollBehavior.tryPageFocusUp();
+    }
+
+    tryPageFocusDown() {
+        return this._focusScrollBehavior.tryPageFocusDown();
+    }
+
+    tryScrollLeft() {
+        return this._focusScrollBehavior.tryScrollLeft();
+    }
+
+    tryScrollRight() {
+        return this._focusScrollBehavior.tryScrollRight();
+    }
+
+    tryScrollUp() {
+        return this._focusScrollBehavior.tryScrollUp();
+    }
+
+    tryScrollDown() {
+        return this._focusScrollBehavior.tryScrollDown();
+    }
+
+    scrollFirstColumn() {
+        return this._focusScrollBehavior.scrollFirstColumn();
+    }
+
+    scrollLastColumn() {
+        return this._focusScrollBehavior.scrollLastColumn();
+    }
+
+    scrollTop() {
+        return this._focusScrollBehavior.scrollTop();
+    }
+
+    scrollBottom() {
+        return this._focusScrollBehavior.scrollBottom();
+    }
+
+    tryScrollPageLeft() {
+        return this._focusScrollBehavior.tryScrollPageLeft();
+    }
+
+    tryScrollPageRight() {
+        return this._focusScrollBehavior.tryScrollPageRight();
+    }
+
+    tryScrollPageUp() {
+        return this._focusScrollBehavior.tryScrollPageUp();
+    }
+
+    tryScrollPageDown() {
+        return this._focusScrollBehavior.tryScrollPageDown();
+    }
+
+    // Overridable methods for descendant classes to handle event processing
 
     protected descendantProcessCellFocusChanged(_newPoint: Point | undefined, _oldPoint: Point | undefined) {
         // for descendants
@@ -1469,9 +1399,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._cellPropertiesBehavior.setCellProperty(column, dataY, key, value, subgrid, optionalCell);
     }
 
-    // End GridCellProperties Mixin
-
-    // Begin Selection Mixin
+    // Selection
 
     /** Call before multiple selection changes to consolidate SelectionChange events.
      * Pair with endSelectionChange().
@@ -1487,299 +1415,305 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.selection.endChange();
     }
 
-    /**
-     * @desc Clear all the selections.
-     */
     clearSelection() {
         return this.selection.clear();
-        // const keepRowSelections = this.properties.checkboxOnlyRowSelections;
-        // this.selection.clear(keepRowSelections);
-        // this._userInterfaceInputBehavior.clearMouseDown();
     }
 
-    /**
-     * @returns Given point is selected.
-     * @param x - The horizontal coordinate.
-     * @param y - The vertical coordinate.
-     */
-    isPointSelected(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean {
+    clearSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        return this.selection.clearSelectCell(x, y, subgrid);
+    }
+
+    selectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        return this.selection.selectCell(x, y, subgrid);
+    }
+
+    deselectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
+        const rectangle: Rectangle = {
+            x,
+            y,
+            width: 1,
+            height: 1,
+        }
+        this.selection.deselectRectangle(rectangle, subgrid);
+    }
+
+    toggleSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        return this.selection.toggleSelectCell(x, y, subgrid);
+    }
+
+    clearSelectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        return this.selection.clearSelectRectangle(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
+    }
+
+    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        return this.selection.selectRectangle(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
+    }
+
+    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        return this.selection.deselectRectangle(rectangle, subgrid);
+    }
+
+    clearSelectAll(subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this.selection.clearSelectAll(subgrid);
+    }
+
+    selectAll(subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this.selection.selectAll(subgrid);
+    }
+
+    deselectAll(subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this.selection.deselectAll(subgrid);
+    }
+
+    setAllSelected(value: boolean, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this.selection.setAllSelected(value, subgrid);
+    }
+
+    deselectRow(y: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this.selection.deselectRows(y, 1, subgrid);
+    }
+
+    deselectRows(y: number, count: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this.selection.deselectRows(y, count, subgrid);
+    }
+
+    deselectColumn(x: number, subgrid: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this.selection.deselectColumns(x, 1, subgrid);
+    }
+
+    deselectColumns(x: number, count: number, subgrid: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this.selection.deselectColumns(x, count, subgrid);
+    }
+
+    isCellSelected(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this.selection.isCellSelected(x, y, subgrid);
     }
 
+    /** Returns undefined if not selected, false if selected with others, true if the only cell selected */
+    isOnlyThisCellSelected(x: number, y: number, subgrid?: DatalessSubgrid): boolean | undefined {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        return this.selection.isOnlyThisCellSelected(x, y, subgrid);
+    }
+
+    getOneCellSelectionAreaType(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaType | undefined {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        const typeId = this.selection.getOneCellSelectionAreaTypeId(activeColumnIndex, subgridRowIndex, subgrid);
+
+        if (typeId === undefined) {
+            return undefined;
+        } else {
+            return SelectionAreaType.fromId(typeId);
+        }
+    }
+
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaType[] {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        const typeIds = this.selection.getAllCellSelectionAreaTypeIds(activeColumnIndex, subgridRowIndex, subgrid);
+        return SelectionAreaType.arrayFromIds(typeIds);
+    }
+
+    isSelectedCellTheOnlySelectedCell(
+        activeColumnIndex: number,
+        subgridRowIndex: number,
+        datalessSubgrid: DatalessSubgrid,
+        selectedType: SelectionAreaType = 'rectangle',
+    ) {
+        const selectedTypeId = SelectionAreaType.toId(selectedType);
+        return this.selection.isSelectedCellTheOnlySelectedCell(activeColumnIndex, subgridRowIndex, datalessSubgrid, selectedTypeId)
+    }
+
     isColumnOrRowSelected() {
         return this.selection.isColumnOrRowSelected();
     }
 
-    selectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+    getSelectedRowCount(includeAll = true) {
+        return this.selection.getRowCount(includeAll);
+    }
+
+    getSelectedAllRowCount() {
+        return this.selection.getAllRowCount();
+    }
+
+    getSelectedRowIndices(includeAll = true) {
+        return this.selection.getRowIndices(includeAll);
+    }
+
+    getSelectedAllRowIndices() {
+        return this.selection.getAllRowIndices();
+    }
+
+    getSelectedColumnIndices() {
+        return this.selection.getColumnIndices();
+    }
+
+    // FocusSelectBehavior
+
+    selectColumn(activeColumnIndex: number) {
+        this._focusSelectBehavior.selectColumn(activeColumnIndex);
+    }
+
+    selectColumns(activeColumnIndex: number, count: number) {
+        this._focusSelectBehavior.selectColumns(activeColumnIndex, count);
+    }
+
+    clearSelectColumn(activeColumnIndex: number) {
+        return this._focusSelectBehavior.clearSelectColumn(activeColumnIndex);
+    }
+
+    clearSelectColumns(activeColumnIndex: number, count: number) {
+        return this._focusSelectBehavior.clearSelectColumns(activeColumnIndex, count);
+    }
+
+    toggleSelectColumn(activeColumnIndex: number) {
+        this._focusSelectBehavior.toggleSelectColumn(activeColumnIndex);
+    }
+
+    selectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
-            subgrid = this.focus.subgrid;
+            subgrid = this.mainSubgrid;
         }
-        this._focusSelectBehavior.focusSelectOnlyRectangle(inexclusiveX, inexclusiveY, width, height, subgrid as Subgrid<BCS, SF>);
+        this._focusSelectBehavior.selectRow(subgridRowIndex, subgrid);
     }
 
-    selectViewCell(viewportColumnIndex: number, viewportRowIndex: number, areaType = SelectionAreaType.Rectangle) {
-        this._focusSelectBehavior.selectOnlyViewCell(viewportColumnIndex, viewportRowIndex, areaType);
-    }
-
-    selectOnlyCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, areaType = SelectionAreaType.Rectangle) {
+    selectRows(subgridRowIndex: number, count: number, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
-            subgrid = this.focus.subgrid;
+            subgrid = this.mainSubgrid;
         }
-
-        this._focusSelectBehavior.focusSelectOnlyCell(x, y, subgrid as Subgrid<BCS, SF>, areaType);
+        this._focusSelectBehavior.selectRows(subgridRowIndex, count, subgrid);
     }
 
-    selectOnlyRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
-        this._focusSelectBehavior.selectOnlyRow(subgridRowIndex, subgrid as Subgrid<BCS, SF>);
+    selectAllRows(subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this._focusSelectBehavior.selectAllRows(subgrid);
     }
 
-    selectAllRows() {
-        this.selection.selectAllRows(this.mainSubgrid);
+    clearSelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this._focusSelectBehavior.clearSelectRow(subgridRowIndex, subgrid);
     }
 
-    // toggleSelectAllRows(forceClearRows = true) {
-    //     this._focusSelectionBehavior.toggleSelectAllRows(forceClearRows);
-    // }
-
-    // selectColumns(x1: number, x2: number) {
-    //     this._focusSelectionBehavior.focusSelectColumns(x1, x2);
-    // }
-
-    // toggleSelectRow(y: number, shiftKeyDown: boolean, subgrid: Subgrid | undefined) {
-    //     this._focusSelectionBehavior.toggleSelectRow(y, shiftKeyDown, subgrid);
-    // }
-
-    // toggleSelectColumn(x: number, shiftKeyDown: boolean, ctrlKeyDown: boolean) {
-    //     this._focusSelectionBehavior.toggleSelectColumn(x, shiftKeyDown, ctrlKeyDown);
-    // }
-
-    /** @summary Extend cell selection by offset.
-     * @desc Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
-     * @param offsetX - x coordinate to start at
-     * @param offsetY - y coordinate to start at
-     */
-    // extendRectangleSelect(offsetX: number, offsetY: number) {
-    //     const selection = this.selection;
-    //     const subgrid = selection.focusedSubgrid;
-    //     let maxColumns = this.activeColumnCount - 1;
-    //     let maxRows = subgrid.getRowCount() - 1;
-
-    //     const maxViewableColumns = this.renderer.visibleColumns.length - 1;
-    //     const maxViewableRows = this.renderer.visibleRows.length - 1;
-
-    //     const origin = this._userInterfaceInputBehavior.getMouseDown();
-    //     const extent = this._userInterfaceInputBehavior.getDragExtent();
-
-    //     if (origin === undefined || extent === undefined) {
-    //         throw new AssertError('RGES01034');
-    //     } else {
-    //         let newX = extent.x + offsetX;
-    //         let newY = extent.y + offsetY;
-
-    //         if (!this.properties.scrollingEnabled) {
-    //             maxColumns = Math.min(maxColumns, maxViewableColumns);
-    //             maxRows = Math.min(maxRows, maxViewableRows);
-    //         }
-
-    //         newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
-    //         newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
-
-    //         selection.beginChange();
-    //         try {
-    //             this.clearMostRecentRectangleSelection();
-    //             selection.selectRectangle(origin.x, origin.y, newX, newY, subgrid);
-    //         } finally {
-    //             selection.endChange();
-    //         }
-    //         this._userInterfaceInputBehavior.setDragExtent(Point.create(newX, newY));
-
-    //         const colScrolled = this.ensureModelColIsVisible(newX + origin.x, offsetX);
-    //         const rowScrolled = this.ensureModelRowIsVisible(newY + origin.y, offsetY, subgrid);
-
-    //         this.repaint();
-
-    //         return colScrolled || rowScrolled;
-    //     }
-    // }
-
-    /**
-     * @param useAllCells - Search in all rows and columns instead of only rendered ones.
-     */
-    getFocusedViewCell(useAllCells: boolean) {
-        return this._focusScrollBehavior.getFocusedViewCell(useAllCells);
+    clearSelectRows(subgridRowIndex: number, count: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this._focusSelectBehavior.clearSelectRows(subgridRowIndex, count, subgrid);
     }
 
-
-    // end Selection mixin
-
-    // Begin Themes mixin
-
-    // /**
-    //  * @summary Get currently active theme.
-    //  * @desc May return a theme name or a theme object.
-    //  * @returns {string|undefined|object} One of:
-    //  * * **string:** Theme name (registered theme).
-    //  * * **object:** Theme object (unregistered anonymous theme).
-    //  * * **undefined:** No theme (i.e., the default theme).
-    //  */
-    // get theme() {
-    //     const themeLayer = this._theme;
-    //     const themeName = themeLayer.themeName;
-    //     return themeName === 'default' || !Object.getOwnPropertyNames(themeLayer).length
-    //         ? undefined // default theme or no theme
-    //         : themeName in registry
-    //             ? themeName // registered theme name
-    //             : themeLayer; // unregistered theme object
-    // }
-
-    // /**
-    //  * @summary Apply a grid theme.
-    //  * @desc Apply props from the given theme object to the grid instance,
-    //  * the instance's `myGrid.themeLayer` layer in the properties hierarchy.
-    //  * @this {Hypergrid}
-    //  * @param {object|string} [theme] - One of:
-    //  * * **string:** A registered theme name.
-    //  * * **object:** An anonymous (unregistered) theme object. Empty object removes grid theme, exposing global theme.
-    //  * * _falsy value:_ Also removes grid theme (like empty object).
-    //  * @param {string|undefined} [theme.themeName=undefined]
-    //  */
-    // set theme(value) {
-    //     applyTheme(value);
-    // }
-
-    // End Themes Mixin
-
-    // Begin Shared Themes Mixin
-    // /**
-    //  * @param {string} [name] - A registry name for the new theme. May be omitted if the theme has an embedded name (in `theme.themeName`).
-    //  * _If omitted, the 2nd parameter (`theme`) is promoted to first position._
-    //  * @param {HypergridThemeObject} [theme]
-    //  * To build a Hypergrid theme object from a loaded {@link https://polymerthemes.com Polymer Theme} CSS stylesheet:
-    //  * ```javascript
-    //  * var myTheme = require('rev-hypergrid-themes').buildTheme();
-    //  * ```
-    //  * If omitted, unregister the theme named in the first parameter.
-    //  *
-    //  * Grid instances that have previously applied the named theme are unaffected by this action (whether re-registering or unregistering).
-    //  */
-    // static registerTheme(name: string, theme: Theme) {
-    //     if (typeof name === 'object') {
-    //         theme = name;
-    //         name = theme.themeName;
-    //     }
-
-    //     if (!name) {
-    //         throw new HypergridError('Cannot register an anonymous theme.');
-    //     }
-
-    //     if (name === 'default') {
-    //         throw new HypergridError('Cannot register or unregister the "default" theme.');
-    //     }
-
-    //     if (theme) {
-    //         theme.themeName = name;
-    //         registry[name] = theme;
-    //     } else {
-    //         delete registry[name];
-    //     }
-    // }
-
-    // /**
-    //  * App developers are free to add in additional themes, such as those in {@link https://github.com/fin-hypergrid/themes/tree/master/js}:
-    //  * ```javascript
-    //  * Hypergrind.registerThemes(require('rev-hypergrid-themes'));
-    //  * ```
-    //  * @param {object} themeCollection
-    //  */
-    // static registerThemes(themeCollection) {
-    //     if (themeCollection) {
-    //         _(themeCollection).each(function(theme, name) {
-    //             this.registerTheme(name, theme);
-    //         }, this);
-    //     } else {
-    //         Object.keys(registry).forEach(function(themeName) {
-    //             this.registerTheme(themeName);
-    //         }, this);
-    //     }
-    // }
-
-    // /**
-    //  * @summary Apply global theme.
-    //  * @desc Apply props from the given theme object to the global theme object,
-    //  * the `defaults` layer at the bottom of the properties hierarchy.
-    //  * @param {object|string} [theme=registry.default] - One of:
-    //  * * **string:** A registered theme name.
-    //  * * **object:** A theme object. Empty object removes global them, restoring defaults.
-    //  * * _falsy value:_ Also restores defaults.
-    //  * @param {string|undefined} [theme.themeName=undefined]
-    //  */
-    // static applyTheme(theme: Theme) {
-    //     var themeObject = applyTheme.call(this, theme);
-    //     images.setTheme(themeObject);
-    // }
-
-    // /**
-    //  * @summary Theme registration and global theme support.
-    //  * @desc Shared properties of `Hypergrid` "class" (_i.e.,_ "static" properties of constructor function) for registering themes and setting a global theme.
-    //  *
-    //  * All members are documented on the {@link Hypergrid} page (annotated as "(static)").
-    //  * @mixin themes.sharedMixin
-    //  */
-    // static get theme() { return defaults; }
-    // static set theme(theme: Theme) { Hypergrid.applyTheme(theme) }
-
-    // // End Shared Mixin
-
-
-
-    // Begin Scrolling Mixin
-
-    /**
-     * @summary Scroll horizontally by the provided offset.
-     * @param offset - Scroll in the x direction this much.
-     * @returns true if scrolled
-     */
-    scrollColumnsBy(offset: number) {
-        return this.viewLayout.scrollColumnsBy(offset);
+    toggleSelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this._focusSelectBehavior.toggleSelectRow(subgridRowIndex, subgrid);
     }
 
-    scrollViewHorizontallyBy(delta: number) {
-        this.viewLayout.scrollHorizontalViewportBy(delta);
+    focusClearSelectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this._focusSelectBehavior.focusClearSelectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
     }
 
-    focusCell(activeColumnIndex: number, mainSubgridRowIndex: number, selectionAreaType = SelectionAreaType.Rectangle) {
-        this._focusSelectBehavior.focusSelectOnlyCell(activeColumnIndex, mainSubgridRowIndex, this.focus.subgrid, selectionAreaType);
+    focusClearSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this._focusSelectBehavior.focusClearSelectCell(activeColumnIndex, subgridRowIndex, subgrid)
     }
 
-    /**
-     * @desc Scroll up one full page.
-     */
-    scrollPageUp() {
-        this._focusScrollBehavior.tryPageFocusUp();
+    clearSelectViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number) {
+        this._focusSelectBehavior.clearSelectViewCell(viewLayoutColumnIndex, viewLayoutRowIndex)
     }
 
-    /**
-     * @desc Scroll down one full page.
-     */
-    pageDown() {
-        this._focusScrollBehavior.tryPageFocusDown();
+    focusSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this._focusSelectBehavior.focusSelectCell(x, y, subgrid);
     }
 
-    /**
-     * @desc Not yet implemented.
-     */
-    pageLeft() {
-        this._focusScrollBehavior.tryPageFocusLeft();
+    focusToggleSelectCell(originX: number, originY: number, subgrid?: Subgrid<BCS, SF>): boolean {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        return this._focusSelectBehavior.focusToggleSelectCell(originX, originY, subgrid);
     }
 
-    /**
-     * @desc Not yet implemented.
-     */
-    pageRight() {
-        this._focusScrollBehavior.tryPageFocusRight();
+    tryClearSelectFocusedCell() {
+        return this._focusSelectBehavior.tryClearSelectFocusedCell();
+    }
+
+    focusReplaceLastArea(areaType: SelectionAreaType, inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        const areaTypeId = SelectionAreaType.toId(areaType);
+        this._focusSelectBehavior.focusReplaceLastArea(areaTypeId, inexclusiveX, inexclusiveY, width, height, subgrid);
+    }
+
+    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
+        }
+        this._focusSelectBehavior.focusReplaceLastAreaWithRectangle(inexclusiveX, inexclusiveY, width, height, subgrid)
+    }
+
+    tryExtendLastSelectionAreaAsCloseAsPossibleToFocus() {
+        return this._focusSelectBehavior.tryExtendLastSelectionAreaAsCloseAsPossibleToFocus();
     }
 
     /** @internal */
@@ -1921,7 +1855,7 @@ export namespace Revgrid {
         /** Internally generated ids are numbered using the host HTML element's id as a base and suffixing it with a number. Normally the first id generated from a host element
          * base Id is not numbered.  Subsequent ids generated from that base id are suffixed with numbers beginning with 2. This works well if host elements all have different Ids (so
          * there suffices are not used).  However If host elements have the same id or no id, then it may be better for all internally generated ids to be suffixed with a number (starting
-         * from 1).  Set {@link firstGeneratedIdFromBaseIsAlsoNumbered} to true to suffix all internally generated ids.
+         * from 1).  Set {@link Revgrid:namespace.Options.interface.firstGeneratedIdFromBaseIsAlsoNumbered} to true to suffix all internally generated ids.
          */
         firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
         /** Optional link to Revgrid instance's parent Javascript object. Is used to set externalParent which is not used within Revgrid however may be helpful with debugging */
@@ -1929,12 +1863,13 @@ export namespace Revgrid {
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         /** Normally the canvas HTML element created by Revgrid on which to draw the grid has its `overflow` property set to `clip`.  However it may be helpful to set its overflow property
-         * to `visible` when debugging painters. The {@link canvasOverflowOverride} can be used to override the default value of this property.
+         * to `visible` when debugging painters. The {@link Revgrid:namespace.Options.interface.canvasOverflowOverride} can be used to override the default value of this property.
          */
         canvasOverflowOverride?: CssTypes.Overflow;
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
 	}
 
+    /** @internal */
     export const idGenerator = new IdGenerator();
 }
 

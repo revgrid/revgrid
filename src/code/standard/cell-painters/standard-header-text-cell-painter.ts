@@ -2,7 +2,8 @@
 import {
     DatalessViewCell,
     IndexSignatureHack,
-    SchemaField
+    SchemaField,
+    SelectionAreaTypeId
 } from '../../grid/grid-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardTextCellPainter } from './standard-text-cell-painter';
@@ -39,12 +40,9 @@ export class StandardHeaderTextCellPainter<
         const valText = value as string;
 
         const subgrid = cell.subgrid;
-        const {
-            rowSelected: isRowSelected,
-            columnSelected: isColumnSelected,
-            cellSelected: isCellSelected
-        } = selection.getCellSelectedAreaTypes(activeColumnIndex, subgridRowIndex, subgrid);
-        const isSelected = isCellSelected || isRowSelected || isColumnSelected;
+        const cellAllSelectionAreaTypeIds = selection.getAllCellSelectionAreaTypeIds(activeColumnIndex, subgridRowIndex, subgrid);
+        const isSelected = cellAllSelectionAreaTypeIds.length > 0;
+        const isColumnSelected = cellAllSelectionAreaTypeIds.includes(SelectionAreaTypeId.column);
 
         const textFont = isColumnSelected ? columnSettings.columnHeaderSelectionFont : columnSettings.columnHeaderFont;
 

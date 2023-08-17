@@ -6,14 +6,17 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { AssertError, UnreachableCaseError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
-import { SelectionAreaType } from '../types-utils/types';
+import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
 
 /** @public */
 export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+    /** @internal */
     constructor(
         readonly revgridId: string,
         readonly internalParent: RevgridObject,
+        /** @internal */
         private readonly _selection: Selection<BCS, SF>,
+        /** @internal */
         private readonly _columnsManager: ColumnsManager<BCS, SF>,
     ) {
 
@@ -28,23 +31,26 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
         if (selectionArea === undefined) {
             return '';
         } else {
-            switch (selectionArea.areaType) {
-                case SelectionAreaType.Rectangle: {
+            switch (selectionArea.areaTypeId) {
+                case SelectionAreaTypeId.all: {
+                    return this.convertDataValueArraysToTsv(this.getAllSelectionMatrix());
+                }
+                case SelectionAreaTypeId.rectangle: {
                     const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix();
                     const selections = selectionMatrix[selectionMatrix.length - 1];
                     return this.convertDataValueArraysToTsv(selections);
                 }
-                case SelectionAreaType.Row: {
+                case SelectionAreaTypeId.row: {
                     return this.convertDataValueArraysToTsv(this.getRowSelectionMatrix());
                 }
-                case SelectionAreaType.Column: {
+                case SelectionAreaTypeId.column: {
                     return this.convertDataValueArraysToTsv(this.getColumnSelectionMatrix());
                 }
                 case undefined: {
                     return '';
                 }
                 default:
-                    throw new UnreachableCaseError('MSGSATSV12998', selectionArea.areaType);
+                    throw new UnreachableCaseError('MSGSATSV12998', selectionArea.areaTypeId);
             }
         }
     }
@@ -69,7 +75,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
 
             for (let h = 0; h < height; h++) {
                 for (let w = 0; w < width; w++) {
-                    result += dataValueArrays[w][h] + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
+                    result += (dataValueArrays[w][h] as string) + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
                 }
             }
         }
@@ -81,7 +87,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
      * @returns An object that represents the currently selection row.
      */
     getFirstSelectionRectangleTopRowValues() {
-        const rectangles = this._selection.rectangleList.rectangles;
+        const rectangles = this._selection.rectangles;
         if (rectangles.length > 0) {
             const dataServer = this.getDefinedSubgrid().dataServer;
             const columnsManager = this._columnsManager;
@@ -101,7 +107,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
     }
 
     getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataServer.ViewRow {
-        const selectedRowIndexes = this._selection.getRowIndices();
+        const selectedRowIndexes = this._selection.getRowIndices(true);
         const selectedRowIndexesCount = selectedRowIndexes.length;
         const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
         const result: DataServer.ViewRow = {};
@@ -121,9 +127,18 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
         return result;
     }
 
+    getAllSelectionMatrix() {
+        const rowIndices = this._selection.getAllRowIndices();
+        return this.getRowIndicesMatrix(rowIndices);
+    }
+
     getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataServer.ViewValue>> {
-        const selectedRowIndexes = this._selection.getRowIndices();
-        const selectedRowIndexesCount = selectedRowIndexes.length;
+        const selectedRowIndexes = this._selection.getRowIndices(true);
+        return this.getRowIndicesMatrix(selectedRowIndexes, hiddenColumns);
+    }
+
+    getRowIndicesMatrix(rowIndices: number[], hiddenColumns?: boolean | number[] | string[]) {
+        const selectedRowIndexesCount = rowIndices.length;
         const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
         const columnCount = columns.length;
         const result = new Array<Array<DataServer.ViewValue>>(columnCount);
@@ -136,7 +151,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
             const subgrid = this.getDefinedSubgrid();
             for (let rowIndex = 0; rowIndex < selectedRowIndexesCount; rowIndex++) {
                 const dataRow = subgrid.getSingletonViewDataRow(rowIndex);
-                result[rowIndex] = new Array<DataServer.ViewValue>(selectedRowIndexes.length);
+                result[rowIndex] = new Array<DataServer.ViewValue>(rowIndices.length);
                 for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                     const column = columns[columnIndex];
                     result[rowIndex][columnIndex] = subgrid.getViewValueFromDataRowAtColumn(dataRow, column);
@@ -196,7 +211,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
 
     getSelectedValuesByRectangleAndColumn(): DataServer.ObjectViewRow[] {
         const columnsManager = this._columnsManager;
-        const selectionRectangles = this._selection.rectangleList.rectangles;
+        const selectionRectangles = this._selection.rectangles;
         const selectionRectangleCount = selectionRectangles.length;
         const rects = new Array<DataServer.ObjectViewRow>(selectionRectangleCount);
 
@@ -228,7 +243,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
 
     getSelectedValuesByRectangleColumnRowMatrix(): DataServer.ViewValue[][][] {
         const columnsManager = this._columnsManager;
-        const rectangles = this._selection.rectangleList.rectangles;
+        const rectangles = this._selection.rectangles;
         const rectangleCount = rectangles.length;
         const rects = new Array<Array<Array<DataServer.ViewValue>>>(rectangleCount);
 
