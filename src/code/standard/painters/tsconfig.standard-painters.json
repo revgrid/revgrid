@@ -3,7 +3,7 @@
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../../../tsbuildinfo/standard-cell-painters.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../tsbuildinfo/standard-painters.tsbuildinfo"
   },
 
   "include": [
@@ -12,7 +12,6 @@
 
   "references": [
     { "path": "../settings/tsconfig.standard-settings.json" },
-    { "path": "../../text/tsconfig.text.json" },
     { "path": "../../grid/tsconfig.grid.json" },
   ]
 }

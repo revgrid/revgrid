@@ -1,24 +1,19 @@
-import { CachedCanvasRenderingContext2D, Rectangle, SchemaField, UnreachableCaseError } from '../../grid/grid-public-api';
-import { HorizontalAlign, TextBehavioredColumnSettings, TextBehavioredGridSettings, TextTruncateType } from '../../text/text-public-api';
-import { StandardCellPainter } from './standard-cell-painter';
+import { CachedCanvasRenderingContext2D, Rectangle, UnreachableCaseError } from '../../grid/grid-public-api';
+import { HorizontalAlign, TextTruncateType } from '../../text/text-public-api';
 
 /** @public */
-export abstract class StandardTextCellPainter<
-    BGS extends TextBehavioredGridSettings,
-    BCS extends TextBehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardCellPainter<BGS, BCS, SF> {
-    protected _columnSettings: BCS;
+export class StandardTextPainter {
+    protected _columnSettings: StandardTextPainter.ColumnSettings;
 
-    setColumnSettings(value: BCS) {
+    constructor(private readonly _renderingContext: CachedCanvasRenderingContext2D) {
+
+    }
+
+    setColumnSettings(value: StandardTextPainter.ColumnSettings) {
         this._columnSettings = value;
     }
 
-/**
- * @summary Renders single line text.
- * @param text - The text to render in the cell.
- */
-    protected renderMultiLineText(
+    renderMultiLineText(
         bounds: Rectangle,
         text: string,
         leftPadding: number,
@@ -32,7 +27,7 @@ export abstract class StandardTextCellPainter<
         const y = bounds.y;
         const width = bounds.width;
         const height = bounds.height;
-        const cleanText = text.trim().replace(StandardTextCellPainter.Whitespace, ' '); // trim and squeeze whitespace
+        const cleanText = text.trim().replace(StandardTextPainter.Whitespace, ' '); // trim and squeeze whitespace
         const lines = this.findLines(cleanText.split(' '), width);
 
         if (lines.length === 1) {
@@ -81,7 +76,7 @@ export abstract class StandardTextCellPainter<
      * @summary Renders single line text.
      * @param text - The text to render in the cell.
      */
-    protected renderSingleLineText(
+    renderSingleLineText(
         bounds: Rectangle,
         text: string,
         leftPadding: number,
@@ -266,17 +261,17 @@ export abstract class StandardTextCellPainter<
         truncateType: TextTruncateType | undefined,
         abort: boolean,
         truncateFromEnd: boolean
-    ): StandardTextCellPainter.TruncatedTextWidth {
+    ): StandardTextPainter.TruncatedTextWidth {
         const truncating = truncateType !== undefined;
         let truncString: string | undefined; //, truncWidth, truncAt;
 
         const font = gc.cache.font;
         const textWidthMap = gc.getTextWidthMap(font);
         let ellipsisWidth: number | undefined;
-        ellipsisWidth = textWidthMap.get(StandardTextCellPainter.Ellipsis);
+        ellipsisWidth = textWidthMap.get(StandardTextPainter.Ellipsis);
         if (ellipsisWidth === undefined) {
-            ellipsisWidth = gc.measureText(StandardTextCellPainter.Ellipsis).width;
-            textWidthMap.set(StandardTextCellPainter.Ellipsis, ellipsisWidth);
+            ellipsisWidth = gc.measureText(StandardTextPainter.Ellipsis).width;
+            textWidthMap.set(StandardTextPainter.Ellipsis, ellipsisWidth);
         }
 
         text += ''; // convert to string
@@ -304,7 +299,7 @@ export abstract class StandardTextCellPainter<
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
-                                : truncString = StandardTextCellPainter.Ellipsis + text.substr(truncAt);
+                                : truncString = StandardTextPainter.Ellipsis + text.substr(truncAt);
                             break;
                         }
                         case TextTruncateType.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
@@ -343,7 +338,7 @@ export abstract class StandardTextCellPainter<
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
-                                : truncString = text.substr(0, truncAt) + StandardTextCellPainter.Ellipsis;
+                                : truncString = text.substr(0, truncAt) + StandardTextPainter.Ellipsis;
                             break;
                         }
                         case TextTruncateType.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
@@ -379,7 +374,7 @@ export abstract class StandardTextCellPainter<
 }
 
 /** @public */
-export namespace StandardTextCellPainter {
+export namespace StandardTextPainter {
     export const Whitespace = /\s\s+/g;
     export const Ellipsis = '\u2026' // The "…" (dot-dot-dot) character
 
@@ -388,5 +383,13 @@ export namespace StandardTextCellPainter {
         text: string | undefined,
         /** Width of provided `text` if it fits; width of truncated string if it does not. */
         width: number
+    }
+
+    export interface ColumnSettings {
+        // Properties below must match properties in Grid ColumnSettings interface
+        defaultColumnAutoSizing: boolean;
+        verticalOffset: number;
+        textTruncateType: TextTruncateType | undefined;
+        textStrikeThrough: boolean;
     }
 }

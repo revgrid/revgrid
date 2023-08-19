@@ -2,7 +2,6 @@
   "root": true,
   "ignorePatterns": [
     "projects/**/*",
-    "src/code/standard/cell-painters/ignore/**/*.ts"
   ],
   "overrides": [
     {

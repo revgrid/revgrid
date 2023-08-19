@@ -1,11 +1,10 @@
-import { AssertError, DataServer, DatalessViewCell, Revgrid, SchemaField } from '../../grid/grid-public-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
+import { AssertError, BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardInputElementCellEditor } from './standard-input-element-cell-editor';
 
 /** @public */
 export class StandardRangeInputCellEditor<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
+    BGS extends BehavioredGridSettings,
+    BCS extends BehavioredColumnSettings,
     SF extends SchemaField
 > extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {

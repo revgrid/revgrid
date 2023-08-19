@@ -1,16 +1,15 @@
-import { AssertError, DataServer, DatalessViewCell, Revgrid, SchemaField } from '../../grid/grid-public-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
+import { AssertError, BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardInputElementCellEditor } from './standard-input-element-cell-editor';
 
 /** @public */
-export class StandardTextInputCellEditor<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
+export class StandardNumberInputCellEditor<
+    BGS extends BehavioredGridSettings,
+    BCS extends BehavioredColumnSettings,
     SF extends SchemaField
 > extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
-        super(grid, dataServer, 'text');
-        this.element.classList.add('revgrid-text-input-editor');
+        super(grid, dataServer, 'number');
+        this.element.classList.add('revgrid-number-input-editor');
     }
 
     override tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
@@ -32,14 +31,14 @@ export class StandardTextInputCellEditor<
             if (result) {
                 if (key !== undefined) {
                     // was opened by keyboard
-                    this.element.value = '';
+                    this.element.value = key;
                 } else {
                     // was not opened by keyboard
                     const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
-                    if (typeof value !== 'string') {
-                        throw new AssertError('STIETO41112', typeof value);
+                    if (typeof value !== 'number') {
+                        throw new AssertError('SNIETO41112', typeof value);
                     } else {
-                        this.element.value = value;
+                        this.element.valueAsNumber = value;
                         this.selectAll();
                     }
                 }
@@ -51,7 +50,7 @@ export class StandardTextInputCellEditor<
 
     override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
         if (!cancel && !this.readonly && this._dataServer.setEditValue !== undefined) {
-            this._dataServer.setEditValue(field, subgridRowIndex, this.element.value);
+            this._dataServer.setEditValue(field, subgridRowIndex, this.element.valueAsNumber);
         }
         super.closeCell(field, subgridRowIndex, cancel);
     }

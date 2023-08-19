@@ -1,0 +1,19 @@
+{
+  "extends": "../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../tsbuildinfo/standard-cell-editor.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts",
+  ],
+
+  "references": [
+    { "path": "./effects/tsconfig.standard-cell-editor-effects.json" },
+    { "path": "../cell-painter/tsconfig.standard-cell-painter.json" },
+    { "path": "../settings/tsconfig.standard-settings.json" },
+    { "path": "../../grid/tsconfig.grid.json" },
+  ]
+}

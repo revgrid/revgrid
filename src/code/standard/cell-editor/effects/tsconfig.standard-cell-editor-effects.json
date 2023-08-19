@@ -5,7 +5,7 @@
     "strictNullChecks": false,
     "noImplicitAny": false,
     "composite": true,
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/standard-cell-editors-effects.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/standard-cell-editor-effects.tsbuildinfo"
   },
 
   "include": [

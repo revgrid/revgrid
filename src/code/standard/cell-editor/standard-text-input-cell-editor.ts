@@ -1,16 +1,15 @@
-import { AssertError, DataServer, DatalessViewCell, Revgrid, SchemaField } from '../../grid/grid-public-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
+import { AssertError, BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardInputElementCellEditor } from './standard-input-element-cell-editor';
 
 /** @public */
-export class StandardDateInputCellEditor<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
+export class StandardTextInputCellEditor<
+    BGS extends BehavioredGridSettings,
+    BCS extends BehavioredColumnSettings,
     SF extends SchemaField
 > extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
-        super(grid, dataServer, 'date');
-        this.element.classList.add('revgrid-date-input-editor');
+        super(grid, dataServer, 'text');
+        this.element.classList.add('revgrid-text-input-editor');
     }
 
     override tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
@@ -32,14 +31,14 @@ export class StandardDateInputCellEditor<
             if (result) {
                 if (key !== undefined) {
                     // was opened by keyboard
-                    this.element.value = key;
+                    this.element.value = '';
                 } else {
                     // was not opened by keyboard
                     const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
-                    if (Object.prototype.toString.call(value) !== '[object Date]') {
+                    if (typeof value !== 'string') {
                         throw new AssertError('STIETO41112', typeof value);
                     } else {
-                        this.element.valueAsDate = (value as Date);
+                        this.element.value = value;
                         this.selectAll();
                     }
                 }
@@ -51,7 +50,7 @@ export class StandardDateInputCellEditor<
 
     override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
         if (!cancel && !this.readonly && this._dataServer.setEditValue !== undefined) {
-            this._dataServer.setEditValue(field, subgridRowIndex, this.element.valueAsDate);
+            this._dataServer.setEditValue(field, subgridRowIndex, this.element.value);
         }
         super.closeCell(field, subgridRowIndex, cancel);
     }

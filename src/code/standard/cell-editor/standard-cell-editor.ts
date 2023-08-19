@@ -1,10 +1,9 @@
-import { CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField } from '../../grid/grid-public-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField } from '../../grid/grid-public-api';
 
 /** @public */
 export abstract class StandardCellEditor<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
+    BGS extends BehavioredGridSettings,
+    BCS extends BehavioredColumnSettings,
     SF extends SchemaField
 > implements CellEditor<BCS, SF> {
     pullCellValueEventer: CellEditor.PullCellValueEventer;

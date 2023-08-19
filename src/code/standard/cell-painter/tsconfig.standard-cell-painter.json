@@ -3,7 +3,7 @@
 
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "../../../../tsbuildinfo/standard-cell-editors.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../tsbuildinfo/standard-cell-painter.tsbuildinfo"
   },
 
   "include": [
@@ -11,9 +11,9 @@
   ],
 
   "references": [
-    { "path": "./effects/tsconfig.standard-cell-editors-effects.json" },
-    { "path": "../cell-painters/tsconfig.standard-cell-painters.json" },
+    { "path": "../painters/tsconfig.standard-painters.json" },
     { "path": "../settings/tsconfig.standard-settings.json" },
+    { "path": "../../text/tsconfig.text.json" },
     { "path": "../../grid/tsconfig.grid.json" },
   ]
 }

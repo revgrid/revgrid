@@ -1,12 +1,15 @@
 
 import {
+    DataServer,
     DatalessViewCell,
     IndexSignatureHack,
+    Revgrid,
     SchemaField,
     SelectionAreaTypeId
 } from '../../grid/grid-public-api';
+import { StandardTextPainter } from '../painters/standard-painters-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
-import { StandardTextCellPainter } from './standard-text-cell-painter';
+import { StandardCellPainter } from './standard-cell-painter';
 
 /**
  * @constructor
@@ -22,14 +25,24 @@ export class StandardHeaderTextCellPainter<
     BGS extends StandardBehavioredGridSettings,
     BCS extends StandardBehavioredColumnSettings,
     SF extends SchemaField
-> extends StandardTextCellPainter<BGS, BCS, SF> {
-    textWrapping = false;
+> extends StandardCellPainter<BGS, BCS, SF> {
+    private readonly _textPainter: StandardTextPainter;
+
+    constructor(
+        grid: Revgrid<BGS, BCS, SF>,
+        dataServer: DataServer<SF>,
+    ) {
+        super(grid, dataServer);
+
+        this._textPainter = new StandardTextPainter(this._renderingContext);
+    }
+
 
     override paint(cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
 
         const columnSettings = cell.columnSettings;
-        this.setColumnSettings(columnSettings);
+        this._textPainter.setColumnSettings(columnSettings);
 
         const gc = this._renderingContext;
         const selection = grid.selection;
@@ -77,9 +90,7 @@ export class StandardHeaderTextCellPainter<
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
-            return this.textWrapping
-                ? this.renderMultiLineText(bounds, valText, cellPadding, cellPadding, horizontalAlign, textFont)
-                : this.renderSingleLineText(bounds, valText, cellPadding, cellPadding, horizontalAlign);
+            return this._textPainter.renderSingleLineText(bounds, valText, cellPadding, cellPadding, horizontalAlign);
         }
     }
 }

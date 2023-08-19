@@ -4022,7 +4022,8 @@ export namespace SingleHeadingDataRowArrayServerSet {
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 //
 // @public
-export class StandardAlphaTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardTextCellPainter<BGS, BCS, SF> {
+export class StandardAlphaTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 }
@@ -4067,7 +4068,7 @@ export namespace StandardButtonCellPainter {
 }
 
 // @public (undocumented)
-export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> implements CellEditor<BCS, SF> {
+export abstract class StandardCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements CellEditor<BCS, SF> {
     constructor(_grid: Revgrid<BGS, BCS, SF>, _dataServer: DataServer<SF>);
     // (undocumented)
     cellClosedEventer: CellEditor.CellClosedEventer;
@@ -4130,7 +4131,7 @@ export class StandardCheckboxCellEditor<BGS extends StandardBehavioredGridSettin
     tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
-// @public
+// @public (undocumented)
 export class StandardCheckboxCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, _editable: boolean);
     // (undocumented)
@@ -4139,14 +4140,36 @@ export class StandardCheckboxCellPainter<BGS extends StandardBehavioredGridSetti
     paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 }
 
+// @public
+export class StandardCheckboxPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    constructor(_grid: Revgrid<BGS, BCS, SF>, _dataServer: DataServer<SF>, _editable: boolean, _renderingContext: CachedCanvasRenderingContext2D, _tryPaintBorderEventer: StandardCheckboxPainter.TryPaintBorderEventer);
+    // (undocumented)
+    calculateClickBox(cell: DatalessViewCell<BCS, SF>, columnSettings: StandardCheckboxPainter.ColumnSettings): Rectangle | undefined;
+    // (undocumented)
+    paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined, columnSettings: StandardCheckboxPainter.ColumnSettings): number | undefined;
+}
+
 // @public (undocumented)
-export namespace StandardCheckboxCellPainter {
+export namespace StandardCheckboxPainter {
     const // (undocumented)
     typeName = "Checkbox";
     const // (undocumented)
     minimumBoxSideLength = 5;
     const // (undocumented)
     valueNotBooleanChar = "!";
+    // (undocumented)
+    export interface ColumnSettings {
+        // (undocumented)
+        backgroundColor: GridSettings.Color;
+        // (undocumented)
+        cellFocusedBorderColor: GridSettings.Color | undefined;
+        // (undocumented)
+        cellPadding: number;
+        // (undocumented)
+        color: GridSettings.Color;
+        // (undocumented)
+        font: string;
+    }
     // (undocumented)
     export interface Config {
         // (undocumented)
@@ -4182,10 +4205,12 @@ export namespace StandardCheckboxCellPainter {
         // (undocumented)
         readonly value: boolean | undefined | null;
     }
+    // (undocumented)
+    export type TryPaintBorderEventer = (this: void, bounds: Rectangle, borderColor: string | undefined, focus: boolean) => void;
 }
 
 // @public (undocumented)
-export class StandardColorInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+export class StandardColorInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4198,7 +4223,7 @@ export interface StandardColumnSettings extends StandardOnlyColumnSettings, Text
 }
 
 // @public (undocumented)
-export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+export class StandardDateInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4207,7 +4232,7 @@ export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSetti
 }
 
 // @public (undocumented)
-export abstract class StandardElementCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> {
+export abstract class StandardElementCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, element: HTMLElement);
     // (undocumented)
     closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
@@ -4230,15 +4255,14 @@ export interface StandardGridSettings extends StandardOnlyGridSettings, TextGrid
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 //
 // @public
-export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardTextCellPainter<BGS, BCS, SF> {
+export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     paint(cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
-    // (undocumented)
-    textWrapping: boolean;
 }
 
 // @public (undocumented)
-export abstract class StandardInputElementCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardElementCellEditor<BGS, BCS, SF> {
+export abstract class StandardInputElementCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, inputType: string);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4257,7 +4281,7 @@ export abstract class StandardInputElementCellEditor<BGS extends StandardBehavio
 }
 
 // @public (undocumented)
-export class StandardNumberInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+export class StandardNumberInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4302,7 +4326,7 @@ export interface StandardOnlyGridSettings {
 }
 
 // @public (undocumented)
-export abstract class StandardPaintCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> implements CellPainter<BCS, SF> {
+export abstract class StandardPaintCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> implements CellPainter<BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, _painter: CellPainter<BCS, SF>);
     // (undocumented)
     paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
@@ -4311,7 +4335,7 @@ export abstract class StandardPaintCellEditor<BGS extends StandardBehavioredGrid
 }
 
 // @public (undocumented)
-export class StandardRangeInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+export class StandardRangeInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4428,19 +4452,29 @@ export namespace StandardTagCellPainter {
 }
 
 // @public (undocumented)
-export abstract class StandardTextCellPainter<BGS extends TextBehavioredGridSettings, BCS extends TextBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
+export class StandardTextInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
-    protected _columnSettings: BCS;
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    // (undocumented)
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+}
+
+// @public (undocumented)
+export class StandardTextPainter {
+    constructor(_renderingContext: CachedCanvasRenderingContext2D);
+    // (undocumented)
+    protected _columnSettings: StandardTextPainter.ColumnSettings;
     // (undocumented)
     protected decorateText(): void;
     // (undocumented)
     protected findLines(words: string[], width: number): string[];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    protected renderMultiLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign, font: string): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    protected renderSingleLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign): number;
     // (undocumented)
-    setColumnSettings(value: BCS): void;
+    renderMultiLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign, font: string): number;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    renderSingleLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign): number;
+    // (undocumented)
+    setColumnSettings(value: StandardTextPainter.ColumnSettings): void;
     // (undocumented)
     protected strikeThrough(text: string, x: number, y: number, thickness: number): void;
     // (undocumented)
@@ -4448,25 +4482,27 @@ export abstract class StandardTextCellPainter<BGS extends TextBehavioredGridSett
 }
 
 // @public (undocumented)
-export namespace StandardTextCellPainter {
+export namespace StandardTextPainter {
     const // (undocumented)
     Whitespace: RegExp;
     const // (undocumented)
     Ellipsis = "\u2026";
     // (undocumented)
+    export interface ColumnSettings {
+        // (undocumented)
+        defaultColumnAutoSizing: boolean;
+        // (undocumented)
+        textStrikeThrough: boolean;
+        // (undocumented)
+        textTruncateType: TextTruncateType | undefined;
+        // (undocumented)
+        verticalOffset: number;
+    }
+    // (undocumented)
     export interface TruncatedTextWidth {
         text: string | undefined;
         width: number;
     }
-}
-
-// @public (undocumented)
-export class StandardTextInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
-    // (undocumented)
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
-    // (undocumented)
-    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)

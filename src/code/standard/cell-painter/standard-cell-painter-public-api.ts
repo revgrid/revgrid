@@ -7,5 +7,4 @@ export { StandardSliderCellPainter } from './standard-slider-cell-painter';
 export { StandardSparkBarCellPainter } from './standard-spark-bar-cell-painter';
 export { StandardSparkLineCellPainter } from './standard-spark-line-cell-painter';
 export { StandardTagCellPainter } from './standard-tag-cell-painter';
-export { StandardTextCellPainter } from './standard-text-cell-painter';
 

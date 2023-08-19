@@ -1,5 +1,5 @@
 import { CellEditor, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
-import { StandardCheckboxCellPainter } from '../cell-painters/standard-cell-painters-public-api';
+import { StandardCheckboxCellPainter } from '../cell-painter/standard-cell-painter-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardPaintCellEditor } from './standard-paint-cell-editor';
 

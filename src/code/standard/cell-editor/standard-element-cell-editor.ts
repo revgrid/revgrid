@@ -1,12 +1,11 @@
-import { DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { numberToPixels } from '../../grid/types-utils/utils';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellEditor } from './standard-cell-editor';
 
 /** @public */
 export abstract class StandardElementCellEditor<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
+    BGS extends BehavioredGridSettings,
+    BCS extends BehavioredColumnSettings,
     SF extends SchemaField
 > extends StandardCellEditor<BGS, BCS, SF> {
     protected readonly element: HTMLElement;
