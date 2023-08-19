@@ -535,7 +535,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     // (undocumented)
     calculateFixedColumnsWidth(): number;
     // @internal (undocumented)
-    checkAllColumnsAutoWidthSizing(widenOnly: boolean, withinAnimationFrame: boolean): boolean;
+    checkAutoWidenAllColumns(): boolean;
     // @internal (undocumented)
     clearColumns(): void;
     // @internal (undocumented)
@@ -4989,6 +4989,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateFieldsInserted(index: number, count: number): void;
     // (undocumented)
     invalidateHorizontalAll(scrollDimensionAsWell: boolean): void;
+    // @internal (undocumented)
+    invalidateHorizontalAllAndScrollDimensionWithoutAction(): void;
     // (undocumented)
     invalidateVerticalAll(scrollDimensionAsWell: boolean): void;
     // (undocumented)

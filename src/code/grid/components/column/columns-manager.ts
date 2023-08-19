@@ -584,23 +584,15 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    checkAllColumnsAutoWidthSizing(widenOnly: boolean, withinAnimationFrame: boolean) {
-        let autoWidthSized = false;
+    checkAutoWidenAllColumns() {
+        let autoWidened = false;
 
         for (const column of this._activeColumns) {
-            if (column.checkAutoWidthSizing(widenOnly)) {
-                autoWidthSized = true;
+            if (column.checkAutoWidthSizing(true)) {
+                autoWidened = true;
             }
         }
-
-        if (autoWidthSized) {
-            if (withinAnimationFrame) {
-                setTimeout(() => this.invalidateHorizontalViewLayoutEventer(true), 0);
-            } else {
-                this.invalidateHorizontalViewLayoutEventer(true);
-            }
-        }
-        return autoWidthSized;
+        return autoWidened;
     }
 
     /** @internal */
