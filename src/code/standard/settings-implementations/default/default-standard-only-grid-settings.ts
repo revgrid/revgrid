@@ -1,4 +1,5 @@
-import { StandardOnlyGridSettings, TextTruncateType } from '../../settings/standard-settings-public-api';
+import { TextTruncateType } from '../../painters/standard-painters-public-api';
+import { StandardOnlyGridSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
 export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings = {
