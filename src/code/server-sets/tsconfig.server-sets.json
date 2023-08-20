@@ -12,6 +12,8 @@
 
   "references": [
     { "path": "./record/tsconfig.server-sets-record.json" },
+    { "path": "./single-heading/tsconfig.server-sets-single-heading.json" },
+    { "path": "./multi-heading/tsconfig.server-sets-multi-heading.json" },
     { "path": "./data-row-array/tsconfig.server-sets-data-row-array.json" },
   ]
 }

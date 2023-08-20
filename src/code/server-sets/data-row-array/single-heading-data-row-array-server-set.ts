@@ -1,14 +1,14 @@
-import { ApiError, AssertError, DataServer, SchemaField } from '../../../grid/grid-public-api';
-import { DataRowArrayMainDataServer } from '../common/data-row-array-main-data-server';
-import { DataRowArraySchemaServer } from '../common/server-sets-data-row-array-multi-heading-public-api';
-import { SingleHeadingDataRowArrayHeaderDataServer } from './single-heading-data-row-array-header-data-server';
-import { SingleHeadingDataRowArraySchemaField } from './single-heading-data-row-array-schema-field';
+import { ApiError, AssertError, DataServer, SchemaField } from '../../grid/grid-public-api';
+import { SingleHeadingDataServer } from '../single-heading/single-heading-data-server';
+import { SingleHeadingSchemaField } from '../single-heading/single-heading-schema-field';
+import { DataRowArrayDataServer } from './data-row-array-data-server';
+import { DataRowArraySchemaServer } from './data-row-array-schema-server';
 
 /** @public */
-export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingDataRowArraySchemaField> {
+export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaField> {
     readonly schemaServer = new DataRowArraySchemaServer<SF>;
-    readonly mainDataServer = new DataRowArrayMainDataServer<SF>();
-    readonly headerDataServer = new SingleHeadingDataRowArrayHeaderDataServer<SF>();
+    readonly mainDataServer = new DataRowArrayDataServer<SF>();
+    readonly headerDataServer = new SingleHeadingDataServer<SF>();
 
     constructor(
         /** @private */
@@ -114,12 +114,12 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingDataRowA
 /** @public */
 export namespace SingleHeadingDataRowArrayServerSet {
     export type CreateFieldEventer<SF extends SchemaField> = (this: void, index: number, key: string, heading: string) => SF;
-    export interface DataRow extends DataRowArrayMainDataServer.DataRow {
+    export interface DataRow extends DataRowArrayDataServer.DataRow {
         [fieldName: string]: DataServer.ViewValue | string; // can also have header
     }
 }
 
-interface ExtractSchemaAndMainDataRowsFromDataResult<SF extends SingleHeadingDataRowArraySchemaField> {
+interface ExtractSchemaAndMainDataRowsFromDataResult<SF extends SingleHeadingSchemaField> {
     schema: SF[];
     mainDataRows: SingleHeadingDataRowArrayServerSet.DataRow[];
 }

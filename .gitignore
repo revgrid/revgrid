@@ -22,8 +22,8 @@ debug.log
 /test-app/out-tsc
 /record-test-app/dist
 /record-test-app/out-tsc
-/simple-test-app/dist
-/simple-test-app/out-tsc
+/data-row-array-test-app/dist
+/data-row-array-test-app/out-tsc
 /temp
 /test/dist
 /tsbuildinfo

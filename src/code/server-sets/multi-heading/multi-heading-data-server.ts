@@ -1,9 +1,9 @@
 
-import { AssertError, DataServer } from '../../../grid/grid-public-api';
-import { MultiHeadingDataRowArraySchemaField } from './multi-heading-data-row-array-schema-field';
+import { AssertError, DataServer } from '../../grid/grid-public-api';
+import { MultiHeadingSchemaField } from './multi-heading-schema-field';
 
 /** @public */
-export class MultiHeadingDataRowArrayHeaderDataServer<SF extends MultiHeadingDataRowArraySchemaField> implements DataServer<SF> {
+export class MultiHeadingDataServer<SF extends MultiHeadingSchemaField> implements DataServer<SF> {
     private _rowCount = 0;
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 

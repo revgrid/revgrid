@@ -18,7 +18,7 @@ Its main features are:
 * Plug in cell editors
 * Plug in UI controllers
 
-Note that it is necessary to create a set of server interfaces in order to display data with Revgrid. The library contains 2 pre-built server interface sets and the test programs also demonstrate how to create server sets.
+Note that it is necessary to create a set of server interfaces in order to display data with Revgrid. The library contains 4 pre-built server interface sets and the test programs also demonstrate how to create server sets.
 
 ## Installation
 The library can be installed into an application package with the npm command:\

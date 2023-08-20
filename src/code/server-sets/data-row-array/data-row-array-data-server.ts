@@ -1,8 +1,8 @@
-import { AssertError, DataServer, MetaModel, SchemaField } from '../../../grid/grid-public-api';
+import { AssertError, DataServer, MetaModel, SchemaField } from '../../grid/grid-public-api';
 
 /** @public */
-export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataServer<SF> {
-    private _data: DataRowArrayMainDataServer.DataRow[] = [];
+export class DataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
+    private _data: DataRowArrayDataServer.DataRow[] = [];
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
     subscribeDataNotifications(listener: DataServer.NotificationsClient) {
@@ -26,7 +26,7 @@ export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataS
         this._callbackListeners.forEach((listener) => listener.endChange());
     }
 
-    reset(data?: DataRowArrayMainDataServer.DataRow[]) {
+    reset(data?: DataRowArrayDataServer.DataRow[]) {
         if (data === undefined) {
             this.invalidateAll();
         } else {
@@ -51,7 +51,7 @@ export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataS
      * _Note parameter order is the reverse of `addRow`._
      * @param dataRow - if omitted or otherwise falsy, row renders as blank
      */
-    setViewRow(index: number, dataRow: DataRowArrayMainDataServer.DataRow) {
+    setViewRow(index: number, dataRow: DataRowArrayDataServer.DataRow) {
         this._data[index] = dataRow || undefined;
         this._callbackListeners.forEach((listener) => listener.invalidateRow(index));
     }
@@ -82,15 +82,15 @@ export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataS
      * _Note parameter order is the reverse of `setRow`._
      * @param index - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
      */
-    addRow(dataRow: DataRowArrayMainDataServer.DataRow): void;
-    addRow(index: number, dataRow: DataRowArrayMainDataServer.DataRow): void;
-    addRow(indexOrDataRow: number | DataRowArrayMainDataServer.DataRow, dataRowOrUndefined?: DataRowArrayMainDataServer.DataRow): void {
+    addRow(dataRow: DataRowArrayDataServer.DataRow): void;
+    addRow(index: number, dataRow: DataRowArrayDataServer.DataRow): void;
+    addRow(indexOrDataRow: number | DataRowArrayDataServer.DataRow, dataRowOrUndefined?: DataRowArrayDataServer.DataRow): void {
         const rowCount = this.getRowCount();
         let index: number;
-        let dataRow: DataRowArrayMainDataServer.DataRow;
+        let dataRow: DataRowArrayDataServer.DataRow;
         if (typeof indexOrDataRow === 'number') {
             index = indexOrDataRow;
-            dataRow = dataRowOrUndefined as DataRowArrayMainDataServer.DataRow;
+            dataRow = dataRowOrUndefined as DataRowArrayDataServer.DataRow;
         } else {
             index = rowCount;
             dataRow = indexOrDataRow;
@@ -154,7 +154,7 @@ export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataS
  */
 
 /** @public */
-export namespace DataRowArrayMainDataServer {
+export namespace DataRowArrayDataServer {
     export interface DataRow extends DataServer.ObjectViewRow {
         [fieldName: string]: DataServer.ViewValue;
         __META?: MetaModel.RowMetadata;

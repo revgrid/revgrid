@@ -1,28 +1,28 @@
 import { MultiHeadingDataRowArrayServerSet, Point } from '..';
-import { SimpleGrid } from './simple-grid';
+import { DataRowArrayGrid } from './data-row-array-grid';
 
 export class Main {
-    private readonly _grid: SimpleGrid;
+    private readonly _grid: DataRowArrayGrid;
 
     constructor() {
-        const gridHostElement = document.querySelector('#gridHost') as HTMLElement | null;
+        const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
         if (gridHostElement === null) {
             throw new Error('gridHost not found');
         }
 
-        const loadStocksButtonElement = document.querySelector('#loadStocksButton') as HTMLButtonElement | null;
+        const loadStocksButtonElement = document.querySelector('#loadStocksButton') as HTMLButtonElement;
         if (loadStocksButtonElement === null) {
             throw new Error('loadStocksButton not found');
         }
         loadStocksButtonElement.onclick = () => this.loadStocks();
 
-        const loadPetsButtonElement = document.querySelector('#loadPetsButton') as HTMLButtonElement | null;
+        const loadPetsButtonElement = document.querySelector('#loadPetsButton') as HTMLButtonElement;
         if (loadPetsButtonElement === null) {
             throw new Error('loadPetsButton not found');
         }
         loadPetsButtonElement.onclick = () => this.loadPets();
 
-        const loadManyButtonElement = document.querySelector('#loadManyButton') as HTMLButtonElement | null;
+        const loadManyButtonElement = document.querySelector('#loadManyButton') as HTMLButtonElement;
         if (loadManyButtonElement === null) {
             throw new Error('loadManyButton not found');
         }
@@ -34,7 +34,7 @@ export class Main {
     }
 
     private createGrid(hostElement: HTMLElement) {
-        const grid = new SimpleGrid(hostElement, this);
+        const grid = new DataRowArrayGrid(hostElement, this);
 
         grid.cellFocusEventer = (newPoint, oldPoint) => this.handleCellFocusEvent(newPoint, oldPoint)
         grid.clickEventer = (columnIndex, recordIndex) => this.handleCellClickEvent(columnIndex, recordIndex);

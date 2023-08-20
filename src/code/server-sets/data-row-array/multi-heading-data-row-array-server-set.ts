@@ -1,14 +1,14 @@
-import { AssertError, DataServer } from '../../../grid/grid-public-api';
-import { DataRowArrayMainDataServer } from '../common/data-row-array-main-data-server';
-import { DataRowArraySchemaServer } from '../common/data-row-array-schema-server';
-import { MultiHeadingDataRowArrayHeaderDataServer } from './multi-heading-data-row-array-header-data-server';
-import { MultiHeadingDataRowArraySchemaField } from './multi-heading-data-row-array-schema-field';
+import { AssertError, DataServer } from '../../grid/grid-public-api';
+import { MultiHeadingDataServer } from '../multi-heading/multi-heading-data-server';
+import { MultiHeadingSchemaField } from '../multi-heading/multi-heading-schema-field';
+import { DataRowArrayDataServer } from './data-row-array-data-server';
+import { DataRowArraySchemaServer } from './data-row-array-schema-server';
 
 /** @public */
-export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingDataRowArraySchemaField> {
+export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaField> {
     readonly schemaServer = new DataRowArraySchemaServer<SF>;
-    readonly mainDataServer = new DataRowArrayMainDataServer<SF>();
-    readonly headerDataServer = new MultiHeadingDataRowArrayHeaderDataServer<SF>();
+    readonly mainDataServer = new DataRowArrayDataServer<SF>();
+    readonly headerDataServer = new MultiHeadingDataServer<SF>();
 
     constructor(
         /** @private */
@@ -171,13 +171,13 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingDataRowArr
 
 /** @public */
 export namespace MultiHeadingDataRowArrayServerSet {
-    export type CreateFieldEventer<SF extends MultiHeadingDataRowArraySchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
-    export interface DataRow extends DataRowArrayMainDataServer.DataRow {
+    export type CreateFieldEventer<SF extends MultiHeadingSchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
+    export interface DataRow extends DataRowArrayDataServer.DataRow {
         [fieldName: string]: DataServer.ViewValue | string; // can also have header
     }
 }
 
-interface ExtractSchemaAndMainDataRowsFromDataResult<SF extends MultiHeadingDataRowArraySchemaField> {
+interface ExtractSchemaAndMainDataRowsFromDataResult<SF extends MultiHeadingSchemaField> {
     schema: SF[];
     mainDataRows: MultiHeadingDataRowArrayServerSet.DataRow[];
 }

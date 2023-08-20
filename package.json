@@ -48,9 +48,9 @@
     "recordtestapp": "tsc --project ./record-test-app/tsconfig.json",
     "recordtestapp:build": "webpack --mode development --config ./record-test-app/webpack.config.js",
     "recordtestapp:serve": "webpack serve --mode development --config ./record-test-app/webpack.config.js",
-    "simpletestapp": "tsc --project ./simple-test-app/tsconfig.json",
-    "simpletestapp:build": "webpack --mode development --config ./simple-test-app/webpack.config.js",
-    "simpletestapp:serve": "webpack serve --mode development --config ./simple-test-app/webpack.config.js"
+    "dratestapp": "tsc --project ./data-row-array-test-app/tsconfig.json",
+    "dratestapp:build": "webpack --mode development --config ./data-row-array-test-app/webpack.config.js",
+    "dratestapp:serve": "webpack serve --mode development --config ./data-row-array-test-app/webpack.config.js"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "7.36.4",

@@ -1,4 +1,4 @@
-import { AssertError, SchemaField, SchemaServer } from '../../../grid/grid-public-api';
+import { AssertError, SchemaField, SchemaServer } from '../../grid/grid-public-api';
 
 /** @public */
 export class DataRowArraySchemaServer<SF extends SchemaField> implements SchemaServer<SF> {

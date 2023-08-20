@@ -2,8 +2,8 @@ import {
     DatalessSubgrid,
     DatalessViewCell,
     LinedHoverCell,
-    MultiHeadingDataRowArraySchemaField,
     MultiHeadingDataRowArrayServerSet,
+    MultiHeadingSchemaField,
     Point,
     Revgrid,
     StandardAlphaTextCellPainter,
@@ -14,27 +14,27 @@ import {
     readonlyDefaultStandardBehavioredGridSettings
 } from '..';
 
-export class SimpleGrid extends Revgrid<
+export class DataRowArrayGrid extends Revgrid<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        MultiHeadingDataRowArraySchemaField
+        MultiHeadingSchemaField
     > {
 
-    cellFocusEventer: SimpleGrid.CellFocusEventer | undefined;
-    clickEventer: SimpleGrid.RowFocusClickEventer | undefined;
-    dblClickEventer: SimpleGrid.RowFocusDblClickEventer | undefined;
+    cellFocusEventer: DataRowArrayGrid.CellFocusEventer | undefined;
+    clickEventer: DataRowArrayGrid.RowFocusClickEventer | undefined;
+    dblClickEventer: DataRowArrayGrid.RowFocusDblClickEventer | undefined;
 
-    private readonly _serverSet: MultiHeadingDataRowArrayServerSet<MultiHeadingDataRowArraySchemaField>;
+    private readonly _serverSet: MultiHeadingDataRowArrayServerSet<MultiHeadingSchemaField>;
 
     private readonly _headerCellPainter: StandardHeaderTextCellPainter<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        MultiHeadingDataRowArraySchemaField
+        MultiHeadingSchemaField
     >;
     private readonly _textCellPainter: StandardAlphaTextCellPainter<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
-        MultiHeadingDataRowArraySchemaField
+        MultiHeadingSchemaField
     >;
 
     constructor(
@@ -48,7 +48,7 @@ export class SimpleGrid extends Revgrid<
             multipleSelectionAreas: false,
         };
 
-        const serverSet = new MultiHeadingDataRowArrayServerSet<MultiHeadingDataRowArraySchemaField>(
+        const serverSet = new MultiHeadingDataRowArrayServerSet<MultiHeadingSchemaField>(
             (index, key, headings) => ({
                 index,
                 name: key,
@@ -60,7 +60,7 @@ export class SimpleGrid extends Revgrid<
         const headerDataServer = serverSet.headerDataServer;
         const mainDataServer = serverSet.mainDataServer;
 
-        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, MultiHeadingDataRowArraySchemaField> = {
+        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, MultiHeadingSchemaField> = {
             schemaServer,
             subgrids: [
                 {
@@ -102,7 +102,7 @@ export class SimpleGrid extends Revgrid<
 
     protected override descendantProcessClick(
         event: MouseEvent,
-        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingDataRowArraySchemaField> | null | undefined
+        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField> | null | undefined
     ) {
         if (this.clickEventer !== undefined) {
             if (hoverCell === null) {
@@ -119,7 +119,7 @@ export class SimpleGrid extends Revgrid<
 
     protected override descendantProcessDblClick(
         event: MouseEvent,
-        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingDataRowArraySchemaField> | null | undefined
+        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField> | null | undefined
     ) {
         if (this.dblClickEventer !== undefined) {
             if (hoverCell === null) {
@@ -138,16 +138,16 @@ export class SimpleGrid extends Revgrid<
         this._serverSet.setData(data, headerRowCount)
     }
 
-    private getHeaderCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingDataRowArraySchemaField>) {
+    private getHeaderCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
         return this._headerCellPainter;
     }
 
-    private getMainCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingDataRowArraySchemaField>) {
+    private getMainCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
         return this._textCellPainter;
     }
 }
 
-export namespace SimpleGrid {
+export namespace DataRowArrayGrid {
     export type CellFocusEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
     export type RowFocusClickEventer = (this: void, columnIndex: number, rowIndex: number) => void;
     export type RowFocusDblClickEventer = (this: void, columnIndex: number, rowIndex: number) => void;

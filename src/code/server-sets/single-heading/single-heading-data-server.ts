@@ -1,9 +1,9 @@
 
-import { AssertError, DataServer } from '../../../grid/grid-public-api';
-import { SingleHeadingDataRowArraySchemaField } from './single-heading-data-row-array-schema-field';
+import { AssertError, DataServer } from '../../grid/grid-public-api';
+import { SingleHeadingSchemaField } from './single-heading-schema-field';
 
 /** @public */
-export class SingleHeadingDataRowArrayHeaderDataServer<SF extends SingleHeadingDataRowArraySchemaField> implements DataServer<SF> {
+export class SingleHeadingDataServer<SF extends SingleHeadingSchemaField> implements DataServer<SF> {
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
     subscribeDataNotifications(listener: DataServer.NotificationsClient) {
