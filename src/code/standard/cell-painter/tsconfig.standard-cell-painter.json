@@ -11,9 +11,8 @@
   ],
 
   "references": [
-    { "path": "../painters/tsconfig.standard-painters.json" },
     { "path": "../settings/tsconfig.standard-settings.json" },
-    { "path": "../../text/tsconfig.text.json" },
+    { "path": "../painters/tsconfig.standard-painters.json" },
     { "path": "../../grid/tsconfig.grid.json" },
   ]
 }

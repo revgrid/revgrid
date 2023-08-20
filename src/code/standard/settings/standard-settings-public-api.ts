@@ -1,3 +1,4 @@
+export { TextTruncateType } from '../painters/text-truncate-type';
 export { StandardBehavioredColumnSettings } from './standard-behaviored-column-settings';
 export { StandardBehavioredGridSettings } from './standard-behaviored-grid-settings';
 export { StandardColumnSettings } from './standard-column-settings';

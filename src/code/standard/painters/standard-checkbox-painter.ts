@@ -1,5 +1,16 @@
 
-import { BehavioredColumnSettings, BehavioredGridSettings, CachedCanvasRenderingContext2D, DataServer, DatalessViewCell, GridSettings, IndexSignatureHack, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
+import {
+    BehavioredColumnSettings,
+    BehavioredGridSettings,
+    CachedCanvasRenderingContext2D,
+    DataServer,
+    DatalessViewCell,
+    GridSettings,
+    IndexSignatureHack,
+    Rectangle,
+    Revgrid,
+    SchemaField,
+} from '../../grid/grid-public-api';
 
 /**
  * The default cell rendering function for a button cell.

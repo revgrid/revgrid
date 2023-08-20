@@ -2,11 +2,12 @@ import {
     GridSettingChangeInvalidateTypeId,
     GridSettings,
 } from '../../../grid/grid-public-api';
-import { HorizontalAlign, InMemoryTextBehavioredColumnSettings } from '../../../text/text-public-api';
+import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
+import { HorizontalAlign, TextTruncateType } from '../../painters/standard-painters-public-api';
 import { StandardBehavioredColumnSettings, StandardColumnSettings, StandardGridSettings, StandardOnlyColumnSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavioredColumnSettings implements StandardBehavioredColumnSettings {
+export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
     declare gridSettings: StandardGridSettings;
 
     private _cellPadding: number | undefined;
@@ -22,6 +23,9 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
     private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
     private _font: string | undefined;
     private _horizontalAlign: HorizontalAlign | undefined;
+    private _verticalOffset: number | undefined;
+    private _textTruncateType: TextTruncateType | undefined | null;
+    private _textStrikeThrough: boolean | undefined;
     private _editorClickCursorName: string | undefined | null;
 
     get cellPadding() { return this._cellPadding !== undefined ? this._cellPadding : this.gridSettings.cellPadding; }
@@ -177,6 +181,43 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
             this.endChange();
         }
     }
+    get verticalOffset() { return this._verticalOffset !== undefined ? this._verticalOffset : this.gridSettings.verticalOffset; }
+    set verticalOffset(value: number) {
+        if (value !== this._verticalOffset) {
+            this.beginChange();
+            this._verticalOffset = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+    get textTruncateType() {
+        if (this._textTruncateType === null) {
+            return undefined;
+        } else {
+            return this._textTruncateType !== undefined ? this._textTruncateType : this.gridSettings.textTruncateType;
+        }
+    }
+    set textTruncateType(value: TextTruncateType | undefined) {
+        if (value !== this._textTruncateType) {
+            this.beginChange();
+            if (value === undefined) {
+                this._textTruncateType = null;
+            } else {
+                this._textTruncateType = value;
+            }
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+    get textStrikeThrough() { return this._textStrikeThrough !== undefined ? this._textStrikeThrough : this.gridSettings.textStrikeThrough; }
+    set textStrikeThrough(value: boolean) {
+        if (value !== this._textStrikeThrough) {
+            this.beginChange();
+            this._textStrikeThrough = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
     get editorClickCursorName() {
         if (this._editorClickCursorName === null) {
             return undefined;
@@ -282,6 +323,24 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
                 case 'horizontalAlign':
                     if (this._horizontalAlign !== requiredSettings.horizontalAlign) {
                         this._horizontalAlign = requiredSettings.horizontalAlign;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'verticalOffset':
+                    if (this._verticalOffset !== requiredSettings.verticalOffset) {
+                        this._verticalOffset = requiredSettings.verticalOffset;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'textTruncateType':
+                    if (this._textTruncateType !== requiredSettings.textTruncateType) {
+                        this._textTruncateType = requiredSettings.textTruncateType;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'textStrikeThrough':
+                    if (this._textStrikeThrough !== requiredSettings.textStrikeThrough) {
+                        this._textStrikeThrough = requiredSettings.textStrikeThrough;
                         this.flagChangedViewRender();
                     }
                     break;

@@ -1,4 +1,4 @@
-import { StandardOnlyGridSettings } from '../../settings/standard-settings-public-api';
+import { StandardOnlyGridSettings, TextTruncateType } from '../../settings/standard-settings-public-api';
 
 /** @public */
 export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings = {
@@ -25,6 +25,9 @@ export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings = {
 
     font: '13px Tahoma, Geneva, sans-serif',
     horizontalAlign: 'center',
+    verticalOffset: 0,
+    textTruncateType: TextTruncateType.WithEllipsis,
+    textStrikeThrough: false,
 
     editorClickCursorName: 'pointer',
 } as const;

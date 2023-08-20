@@ -1,5 +1,6 @@
 import { CachedCanvasRenderingContext2D, Rectangle, UnreachableCaseError } from '../../grid/grid-public-api';
-import { HorizontalAlign, TextTruncateType } from '../../text/text-public-api';
+import { HorizontalAlign } from './horizontal-align';
+import { TextTruncateType } from './text-truncate-type';
 
 /** @public */
 export class StandardTextPainter {

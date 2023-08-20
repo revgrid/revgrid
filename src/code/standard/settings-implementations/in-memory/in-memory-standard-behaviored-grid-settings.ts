@@ -2,11 +2,12 @@ import {
     GridSettingChangeInvalidateTypeId,
     GridSettings,
 } from '../../../grid/grid-public-api';
-import { HorizontalAlign, InMemoryTextBehavioredGridSettings } from '../../../text/text-public-api';
+import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/settings-implementations-public-api';
+import { HorizontalAlign, TextTruncateType } from '../../painters/standard-painters-public-api';
 import { StandardBehavioredGridSettings, StandardGridSettings, StandardOnlyGridSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavioredGridSettings implements StandardBehavioredGridSettings {
+export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
     private _cellPadding: number;
     private _cellFocusedBorderColor: GridSettings.Color | undefined;
     private _cellHoverBackgroundColor: GridSettings.Color | undefined;
@@ -24,6 +25,9 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
     private _selectionForegroundColor: GridSettings.Color;
     private _font: string;
     private _horizontalAlign: HorizontalAlign;
+    private _verticalOffset: number;
+    private _textTruncateType: TextTruncateType | undefined;
+    private _textStrikeThrough: boolean;
     private _editorClickCursorName: string | undefined;
 
     get cellPadding() { return this._cellPadding; }
@@ -179,6 +183,34 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
             this.endChange();
         }
     }
+    get verticalOffset() { return this._verticalOffset; }
+    set verticalOffset(value: number) {
+        if (value !== this._verticalOffset) {
+            this.beginChange();
+            this._verticalOffset = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+    get textTruncateType() { return this._textTruncateType; }
+    set textTruncateType(value: TextTruncateType | undefined) {
+        if (value !== this._textTruncateType) {
+            this.beginChange();
+            this._textTruncateType = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+    get textStrikeThrough() { return this._textStrikeThrough; }
+    set textStrikeThrough(value: boolean) {
+        if (value !== this._textStrikeThrough) {
+            this.beginChange();
+            this._textStrikeThrough = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+
     get editorClickCursorName() { return this._editorClickCursorName; }
     set editorClickCursorName(value: string | undefined) {
         if (value !== this._editorClickCursorName) {
@@ -298,6 +330,24 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
                 case 'horizontalAlign':
                     if (this._horizontalAlign !== requiredSettings.horizontalAlign) {
                         this._horizontalAlign = requiredSettings.horizontalAlign;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'verticalOffset':
+                    if (this._verticalOffset !== requiredSettings.verticalOffset) {
+                        this._verticalOffset = requiredSettings.verticalOffset;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'textTruncateType':
+                    if (this._textTruncateType !== requiredSettings.textTruncateType) {
+                        this._textTruncateType = requiredSettings.textTruncateType;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'textStrikeThrough':
+                    if (this._textStrikeThrough !== requiredSettings.textStrikeThrough) {
+                        this._textStrikeThrough = requiredSettings.textStrikeThrough;
                         this.flagChangedViewRender();
                     }
                     break;
