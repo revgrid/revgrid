@@ -1,8 +1,7 @@
 import {
     CellPainter,
-    DataServer,
     DatalessViewCell,
-    RevRecordMainDataServer,
+    RevRecordDataServer,
     RevRecordRecentChangeTypeId,
     RevRecordValueRecentChangeTypeId,
     Revgrid,
@@ -19,13 +18,13 @@ export class MainCellPainter
     extends StandardCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>
     implements CellPainter<StandardBehavioredColumnSettings, GridField> {
 
-    protected declare readonly _dataServer: RevRecordMainDataServer<GridField>;
+    protected declare readonly _dataServer: RevRecordDataServer<GridField>;
 
     private readonly _textPainter: StandardTextPainter;
 
     constructor(
         grid: Revgrid<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>,
-        dataServer: DataServer<GridField>,
+        dataServer: RevRecordDataServer<GridField>,
     ) {
         super(grid, dataServer);
 

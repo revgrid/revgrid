@@ -4,7 +4,7 @@ import {
     DatalessViewCell,
     InMemoryStandardBehavioredColumnSettings,
     Point,
-    RevRecordMainDataServer,
+    RevRecordDataServer,
     RevRecordSchemaServer,
     Revgrid,
     StandardBehavioredColumnSettings,
@@ -37,7 +37,7 @@ export class Main {
     private readonly _recordStore: RecordStore;
     private readonly _schemaServer: RevRecordSchemaServer<GridField>;
     private readonly _headerDataServer: HeaderDataServer;
-    private readonly _mainDataServer: RevRecordMainDataServer<GridField>;
+    private readonly _mainDataServer: RevRecordDataServer<GridField>;
 
     private readonly _mainCellPainter: MainCellPainter;
     private readonly _headerCellPainter: StandardHeaderTextCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>;
@@ -99,7 +99,7 @@ export class Main {
         this._recordStore = new RecordStore();
 
         this._schemaServer = new RevRecordSchemaServer<GridField>();
-        this._mainDataServer = new RevRecordMainDataServer<GridField>(this._schemaServer, this._recordStore);
+        this._mainDataServer = new RevRecordDataServer<GridField>(this._schemaServer, this._recordStore);
         this._headerDataServer = new HeaderDataServer();
 
 

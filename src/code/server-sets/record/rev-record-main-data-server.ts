@@ -11,21 +11,19 @@ import { RevRecordStore } from './rev-record-store';
 import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordValueRecentChangeTypeId } from './rev-record-types';
 
 /** @public */
-export class RevRecordMainDataServer<SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
-    readonly mainDataModel = true;
-
+export class RevRecordDataServer<SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
     private readonly _recordRowBindingKey = Symbol();
 
     private readonly _rows: RevRecordRow[]; // Rows in grid - used for comparison and holding recent change info
     private readonly _recordRowMap: RevRecordRowMap;
-    private readonly _sortFieldSpecifiers: RevRecordMainDataServer.SortFieldSpecifier[] = [];
+    private readonly _sortFieldSpecifiers: RevRecordDataServer.SortFieldSpecifier[] = [];
 
     private _beginChangeCount = 0;
     private _consistencyCheckRequired = false;
 
     private _comparer: RevRecordRow.Comparer | undefined;
     private _maxSortingFieldCount = 3;
-    private _filterCallback: RevRecordMainDataServer.RecordFilterCallback | undefined;
+    private _filterCallback: RevRecordDataServer.RecordFilterCallback | undefined;
     private _continuousFiltering = false;
     private _continuousSortingOrFilteringActive = false;
 
@@ -40,8 +38,8 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
     get rowCount(): number { return this._rows.length; }
     get recordCount(): number { return this._recordStore.recordCount; }
 
-    get filterCallback(): RevRecordMainDataServer.RecordFilterCallback | undefined { return this._filterCallback; }
-    set filterCallback(value: RevRecordMainDataServer.RecordFilterCallback | undefined) {
+    get filterCallback(): RevRecordDataServer.RecordFilterCallback | undefined { return this._filterCallback; }
+    set filterCallback(value: RevRecordDataServer.RecordFilterCallback | undefined) {
         this._filterCallback = value;
         this.updateContinuousSortingOrFilteringActive();
         this.invalidateFiltering();
@@ -55,7 +53,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
 
     get isFiltered(): boolean { return this._filterCallback !== undefined; }
     get sortColumnCount(): number { return this._sortFieldSpecifiers.length; }
-    get sortFieldSpecifiers(): readonly RevRecordMainDataServer.SortFieldSpecifier[] { return this._sortFieldSpecifiers; }
+    get sortFieldSpecifiers(): readonly RevRecordDataServer.SortFieldSpecifier[] { return this._sortFieldSpecifiers; }
     get sortFieldSpecifierCount(): number { return this._sortFieldSpecifiers.length; }
     get rowOrderReversed(): boolean { return this._rowOrderReversed; }
     set rowOrderReversed(value: boolean) {
@@ -271,7 +269,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
         }
     }
 
-    getSortSpecifier(index: number): RevRecordMainDataServer.SortFieldSpecifier {
+    getSortSpecifier(index: number): RevRecordDataServer.SortFieldSpecifier {
         return this._sortFieldSpecifiers[index];
     }
 
@@ -827,7 +825,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
                 }
             }
 
-            const sortSpecifiers = new Array<RevRecordMainDataServer.SortFieldSpecifier>(this._maxSortingFieldCount);
+            const sortSpecifiers = new Array<RevRecordDataServer.SortFieldSpecifier>(this._maxSortingFieldCount);
             sortSpecifiers[0] = {
                 fieldIndex: fieldIndex,
                 ascending: isAscending
@@ -853,7 +851,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
         }
     }
 
-    sortByMany(specifiers: readonly RevRecordMainDataServer.SortFieldSpecifier[]): boolean {
+    sortByMany(specifiers: readonly RevRecordDataServer.SortFieldSpecifier[]): boolean {
         this.updateSortComparer(specifiers);
         if (this._comparer === undefined) {
             return false;
@@ -1008,7 +1006,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
         this.checkConsistency();
     }
 
-    private updateSortComparer(specifiers: readonly RevRecordMainDataServer.SortFieldSpecifier[]): void {
+    private updateSortComparer(specifiers: readonly RevRecordDataServer.SortFieldSpecifier[]): void {
         const specifierCount = specifiers.length;
 
         if (specifiers.length === 0) {
@@ -1016,7 +1014,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
             this._sortFieldSpecifiers.length = 0;
             this._comparer = undefined;
         } else {
-            const comparers = Array<RevRecordMainDataServer.SpecifierComparer>(specifierCount);
+            const comparers = Array<RevRecordDataServer.SpecifierComparer>(specifierCount);
             let comparerCount = 0;
 
             for (let i = 0; i < specifierCount; i++) {
@@ -1060,9 +1058,9 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
         this.updateContinuousSortingOrFilteringActive();
     }
 
-    private getComparerFromSpecifier(specifier: RevRecordMainDataServer.SortFieldSpecifier): RevRecordMainDataServer.SpecifierComparer | undefined {
+    private getComparerFromSpecifier(specifier: RevRecordDataServer.SortFieldSpecifier): RevRecordDataServer.SpecifierComparer | undefined {
         const field = this._schemaServer.fields[specifier.fieldIndex];
-        let comparer: RevRecordMainDataServer.SpecifierComparer | undefined;
+        let comparer: RevRecordDataServer.SpecifierComparer | undefined;
 
         const compareDefined = field.compare !== undefined;
         const compareDescDefined = field.compareDesc !== undefined;
@@ -1306,7 +1304,7 @@ export class RevRecordMainDataServer<SF extends RevRecordField> implements DataS
 }
 
 /** @public */
-export namespace RevRecordMainDataServer {
+export namespace RevRecordDataServer {
     export type SpecifierComparer = (this: void, left: RevRecordRow, right: RevRecordRow) => number;
 
     export type RecordFilterCallback = (this: void, record: RevRecord) => boolean;

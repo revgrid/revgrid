@@ -132,18 +132,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 
     /** @internal */
     clearColumns() {
-        // As part of Typescript conversion, schema is now readonly.
-        // Need to find other way of getting non default name and header to tree and row number columns
-        //
-        // const schema = this.mainDataModel.getSchema();
-
         this._activeColumns.length = 0;
         this._fieldColumns.length = 0;
-
-        // this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = this.grid.properties.propClassLayersMap.NO_ROWS;
-
-        // Signal the renderer to size the now-reset handle column before next render
-        // this.grid.renderer.resetRowHeaderColumnWidth();
     }
 
     /** @internal */

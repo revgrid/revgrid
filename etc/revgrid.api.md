@@ -3132,6 +3132,151 @@ export class RevRecordDataError extends RevRecordExternalError {
 }
 
 // @public (undocumented)
+export class RevRecordDataServer<SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
+    constructor(_schemaServer: RevRecordSchemaServer<SF>, _recordStore: RevRecordStore);
+    // (undocumented)
+    get allChangedRecentDuration(): number;
+    set allChangedRecentDuration(value: number);
+    // (undocumented)
+    allRecordsDeleted(): void;
+    // (undocumented)
+    beginChange(): void;
+    // (undocumented)
+    clearSort(): boolean;
+    // (undocumented)
+    clearSortFieldSpecifiers(): void;
+    // (undocumented)
+    get continuousFiltering(): boolean;
+    set continuousFiltering(value: boolean);
+    // (undocumented)
+    destroy(): void;
+    // (undocumented)
+    endChange(): void;
+    // (undocumented)
+    get filterCallback(): RevRecordDataServer.RecordFilterCallback | undefined;
+    set filterCallback(value: RevRecordDataServer.RecordFilterCallback | undefined);
+    // (undocumented)
+    getEditValue(field: SF, rowIndex: number): DataServer.EditValue;
+    // (undocumented)
+    getFieldSortAscending(field: RevRecordFieldIndex | SF): boolean | undefined;
+    // (undocumented)
+    getFieldSortPriority(field: RevRecordFieldIndex | SF): number | undefined;
+    // (undocumented)
+    getRecordIndexFromRowIndex(rowIndex: number): RevRecordIndex;
+    // (undocumented)
+    getRecordRecentChangeTypeId(rowIndex: number): RevRecordRecentChangeTypeId | undefined;
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getRowIdFromIndex(rowIndex: number): unknown;
+    // (undocumented)
+    getRowIndexFromId(rowId: unknown): number | undefined;
+    // (undocumented)
+    getRowIndexFromRecordIndex(recordIndex: RevRecordIndex): number | undefined;
+    // (undocumented)
+    getSortSpecifier(index: number): RevRecordDataServer.SortFieldSpecifier;
+    // (undocumented)
+    getValueRecentChangeTypeId(field: SF, rowIndex: number): RevRecordValueRecentChangeTypeId | undefined;
+    // (undocumented)
+    getViewValue(field: SF, rowIndex: number): DataServer.ViewValue;
+    // (undocumented)
+    invalidateAll(): void;
+    // (undocumented)
+    invalidateFields(fieldIndexes: readonly RevRecordFieldIndex[]): void;
+    // (undocumented)
+    invalidateFiltering(): void;
+    // (undocumented)
+    invalidateRecord(recordIndex: RevRecordIndex, recent?: boolean): void;
+    // (undocumented)
+    invalidateRecordAndValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[], recordUpdateRecent?: boolean): void;
+    // (undocumented)
+    invalidateRecordFields(recordIndex: RevRecordIndex, fieldIndex: RevRecordFieldIndex, fieldCount: number): void;
+    // (undocumented)
+    invalidateRecords(recordIndex: RevRecordIndex, count: number, recent?: boolean): void;
+    // (undocumented)
+    invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[]): void;
+    // (undocumented)
+    invalidateValue(fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex, valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId): void;
+    // (undocumented)
+    isAnyFieldInRangeSorted(rangeFieldIndex: number, rangeCount: number): boolean;
+    // (undocumented)
+    isAnyFieldSorted(fieldIndexes: readonly RevRecordFieldIndex[]): boolean;
+    // (undocumented)
+    isFieldSorted(fieldIndex: RevRecordFieldIndex): boolean;
+    // (undocumented)
+    get isFiltered(): boolean;
+    // Warning: (ae-forgotten-export) The symbol "RevRecordRecentChanges" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    get recentChanges(): RevRecordRecentChanges;
+    // (undocumented)
+    get recordCount(): number;
+    // (undocumented)
+    recordDeleted(recordIndex: RevRecordIndex): void;
+    // (undocumented)
+    recordInserted(recordIndex: RevRecordIndex, recent?: boolean): void;
+    // (undocumented)
+    get recordInsertedRecentDuration(): number;
+    set recordInsertedRecentDuration(value: number);
+    // (undocumented)
+    recordsDeleted(recordIndex: number, count: number): void;
+    // (undocumented)
+    recordsInserted(firstInsertedRecordIndex: RevRecordIndex, count: number, recent?: boolean): void;
+    // (undocumented)
+    recordsLoaded(recent?: boolean): void;
+    // (undocumented)
+    recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number): void;
+    // (undocumented)
+    get recordUpdatedRecentDuration(): number;
+    set recordUpdatedRecentDuration(value: number);
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    reverseRowIndex(rowIndex: number): number;
+    // (undocumented)
+    reverseRowIndexIfRowOrderReversed(rowIndex: number): number;
+    // (undocumented)
+    get rowCount(): number;
+    // (undocumented)
+    get rowOrderReversed(): boolean;
+    set rowOrderReversed(value: boolean);
+    // (undocumented)
+    setEditValue(field: SF, rowIndex: number, value: DataServer.EditValue): void;
+    // (undocumented)
+    sort(): void;
+    // (undocumented)
+    sortBy(fieldIndex?: number, isAscending?: boolean): boolean;
+    // (undocumented)
+    sortByMany(specifiers: readonly RevRecordDataServer.SortFieldSpecifier[]): boolean;
+    // (undocumented)
+    get sortColumnCount(): number;
+    // (undocumented)
+    get sortFieldSpecifierCount(): number;
+    // (undocumented)
+    get sortFieldSpecifiers(): readonly RevRecordDataServer.SortFieldSpecifier[];
+    // (undocumented)
+    subscribeDataNotifications(value: DataServer.NotificationsClient): void;
+    // (undocumented)
+    get valueChangedRecentDuration(): number;
+    set valueChangedRecentDuration(value: number);
+}
+
+// @public (undocumented)
+export namespace RevRecordDataServer {
+    // (undocumented)
+    export type RecordFilterCallback = (this: void, record: RevRecord) => boolean;
+    // (undocumented)
+    export interface SortFieldSpecifier {
+        // (undocumented)
+        ascending: boolean;
+        // (undocumented)
+        fieldIndex: RevRecordFieldIndex;
+    }
+    // (undocumented)
+    export type SpecifierComparer = (this: void, left: RevRecordRow, right: RevRecordRow) => number;
+}
+
+// @public (undocumented)
 export interface RevRecordDataStore extends RevRecordStore {
     getRecord(index: RevRecordIndex): RevRecordData;
     getRecords(): readonly RevRecordData[];
@@ -3220,153 +3365,6 @@ export interface RevRecordInvalidatedValue {
     fieldIndex: RevRecordFieldIndex;
     // (undocumented)
     typeId?: RevRecordValueRecentChangeTypeId;
-}
-
-// @public (undocumented)
-export class RevRecordMainDataServer<SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
-    constructor(_schemaServer: RevRecordSchemaServer<SF>, _recordStore: RevRecordStore);
-    // (undocumented)
-    get allChangedRecentDuration(): number;
-    set allChangedRecentDuration(value: number);
-    // (undocumented)
-    allRecordsDeleted(): void;
-    // (undocumented)
-    beginChange(): void;
-    // (undocumented)
-    clearSort(): boolean;
-    // (undocumented)
-    clearSortFieldSpecifiers(): void;
-    // (undocumented)
-    get continuousFiltering(): boolean;
-    set continuousFiltering(value: boolean);
-    // (undocumented)
-    destroy(): void;
-    // (undocumented)
-    endChange(): void;
-    // (undocumented)
-    get filterCallback(): RevRecordMainDataServer.RecordFilterCallback | undefined;
-    set filterCallback(value: RevRecordMainDataServer.RecordFilterCallback | undefined);
-    // (undocumented)
-    getEditValue(field: SF, rowIndex: number): DataServer.EditValue;
-    // (undocumented)
-    getFieldSortAscending(field: RevRecordFieldIndex | SF): boolean | undefined;
-    // (undocumented)
-    getFieldSortPriority(field: RevRecordFieldIndex | SF): number | undefined;
-    // (undocumented)
-    getRecordIndexFromRowIndex(rowIndex: number): RevRecordIndex;
-    // (undocumented)
-    getRecordRecentChangeTypeId(rowIndex: number): RevRecordRecentChangeTypeId | undefined;
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getRowIdFromIndex(rowIndex: number): unknown;
-    // (undocumented)
-    getRowIndexFromId(rowId: unknown): number | undefined;
-    // (undocumented)
-    getRowIndexFromRecordIndex(recordIndex: RevRecordIndex): number | undefined;
-    // (undocumented)
-    getSortSpecifier(index: number): RevRecordMainDataServer.SortFieldSpecifier;
-    // (undocumented)
-    getValueRecentChangeTypeId(field: SF, rowIndex: number): RevRecordValueRecentChangeTypeId | undefined;
-    // (undocumented)
-    getViewValue(field: SF, rowIndex: number): DataServer.ViewValue;
-    // (undocumented)
-    invalidateAll(): void;
-    // (undocumented)
-    invalidateFields(fieldIndexes: readonly RevRecordFieldIndex[]): void;
-    // (undocumented)
-    invalidateFiltering(): void;
-    // (undocumented)
-    invalidateRecord(recordIndex: RevRecordIndex, recent?: boolean): void;
-    // (undocumented)
-    invalidateRecordAndValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[], recordUpdateRecent?: boolean): void;
-    // (undocumented)
-    invalidateRecordFields(recordIndex: RevRecordIndex, fieldIndex: RevRecordFieldIndex, fieldCount: number): void;
-    // (undocumented)
-    invalidateRecords(recordIndex: RevRecordIndex, count: number, recent?: boolean): void;
-    // (undocumented)
-    invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[]): void;
-    // (undocumented)
-    invalidateValue(fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex, valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId): void;
-    // (undocumented)
-    isAnyFieldInRangeSorted(rangeFieldIndex: number, rangeCount: number): boolean;
-    // (undocumented)
-    isAnyFieldSorted(fieldIndexes: readonly RevRecordFieldIndex[]): boolean;
-    // (undocumented)
-    isFieldSorted(fieldIndex: RevRecordFieldIndex): boolean;
-    // (undocumented)
-    get isFiltered(): boolean;
-    // (undocumented)
-    readonly mainDataModel = true;
-    // Warning: (ae-forgotten-export) The symbol "RevRecordRecentChanges" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    get recentChanges(): RevRecordRecentChanges;
-    // (undocumented)
-    get recordCount(): number;
-    // (undocumented)
-    recordDeleted(recordIndex: RevRecordIndex): void;
-    // (undocumented)
-    recordInserted(recordIndex: RevRecordIndex, recent?: boolean): void;
-    // (undocumented)
-    get recordInsertedRecentDuration(): number;
-    set recordInsertedRecentDuration(value: number);
-    // (undocumented)
-    recordsDeleted(recordIndex: number, count: number): void;
-    // (undocumented)
-    recordsInserted(firstInsertedRecordIndex: RevRecordIndex, count: number, recent?: boolean): void;
-    // (undocumented)
-    recordsLoaded(recent?: boolean): void;
-    // (undocumented)
-    recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number): void;
-    // (undocumented)
-    get recordUpdatedRecentDuration(): number;
-    set recordUpdatedRecentDuration(value: number);
-    // (undocumented)
-    reset(): void;
-    // (undocumented)
-    reverseRowIndex(rowIndex: number): number;
-    // (undocumented)
-    reverseRowIndexIfRowOrderReversed(rowIndex: number): number;
-    // (undocumented)
-    get rowCount(): number;
-    // (undocumented)
-    get rowOrderReversed(): boolean;
-    set rowOrderReversed(value: boolean);
-    // (undocumented)
-    setEditValue(field: SF, rowIndex: number, value: DataServer.EditValue): void;
-    // (undocumented)
-    sort(): void;
-    // (undocumented)
-    sortBy(fieldIndex?: number, isAscending?: boolean): boolean;
-    // (undocumented)
-    sortByMany(specifiers: readonly RevRecordMainDataServer.SortFieldSpecifier[]): boolean;
-    // (undocumented)
-    get sortColumnCount(): number;
-    // (undocumented)
-    get sortFieldSpecifierCount(): number;
-    // (undocumented)
-    get sortFieldSpecifiers(): readonly RevRecordMainDataServer.SortFieldSpecifier[];
-    // (undocumented)
-    subscribeDataNotifications(value: DataServer.NotificationsClient): void;
-    // (undocumented)
-    get valueChangedRecentDuration(): number;
-    set valueChangedRecentDuration(value: number);
-}
-
-// @public (undocumented)
-export namespace RevRecordMainDataServer {
-    // (undocumented)
-    export type RecordFilterCallback = (this: void, record: RevRecord) => boolean;
-    // (undocumented)
-    export interface SortFieldSpecifier {
-        // (undocumented)
-        ascending: boolean;
-        // (undocumented)
-        fieldIndex: RevRecordFieldIndex;
-    }
-    // (undocumented)
-    export type SpecifierComparer = (this: void, left: RevRecordRow, right: RevRecordRow) => number;
 }
 
 // @public
