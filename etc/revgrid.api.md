@@ -3339,19 +3339,6 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
     setEditValue(_record: RevRecord, _value: DataServer.EditValue): void;
 }
 
-// @public (undocumented)
-export class RevRecordHeaderDataServer<SF extends RevRecordField> implements DataServer<SF> {
-    constructor(_rowCount?: number);
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getViewValue(field: SF, _rowCount: number): string;
-    // (undocumented)
-    invalidateCell(schemaColumnIndex: number, rowIndex?: number): void;
-    // (undocumented)
-    subscribeDataNotifications(value: DataServer.NotificationsClient): void;
-}
-
 // @public
 export type RevRecordIndex = number;
 
@@ -3964,7 +3951,9 @@ export class SingleHeadingDataServer<SF extends SingleHeadingSchemaField> implem
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
-    getViewValue(field: SF, rowIndex: number): string;
+    getViewValue(field: SF): string;
+    // (undocumented)
+    invalidateCell(schemaColumnIndex: number, rowIndex?: number): void;
     // (undocumented)
     reset(): void;
     // (undocumented)

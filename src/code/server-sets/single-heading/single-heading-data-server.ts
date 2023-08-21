@@ -23,15 +23,17 @@ export class SingleHeadingDataServer<SF extends SingleHeadingSchemaField> implem
         return 1;
     }
 
-    getViewValue(field: SF, rowIndex: number) {
-        if (rowIndex !== 0) {
-            return field.name;
-        } else {
-            return field.heading;
-        }
+    getViewValue(field: SF) {
+        return field.heading;
     }
 
     reset() {
         this._callbackListeners.forEach((listener) => listener.rowsLoaded());
+    }
+
+    invalidateCell(schemaColumnIndex: number, rowIndex = 0) {
+        for (const callbackListener of this._callbackListeners) {
+            callbackListener.invalidateCell(schemaColumnIndex, rowIndex);
+        }
     }
 }

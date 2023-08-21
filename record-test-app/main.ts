@@ -7,6 +7,7 @@ import {
     RevRecordDataServer,
     RevRecordSchemaServer,
     Revgrid,
+    SingleHeadingDataServer,
     StandardBehavioredColumnSettings,
     StandardHeaderTextCellPainter,
     Subgrid,
@@ -21,7 +22,6 @@ import {
     DateValGridField,
     GridField, HiddenStrValGridField, IntValGridField, NumberValGridField, RecordIndexGridField, StatusIdValGridField, StrValGridField
 } from './grid-field';
-import { HeaderDataServer } from './header-data-server';
 import { InMemoryAppBehavioredGridSettings } from './in-memory-app-behaviored-grid-settings';
 import { MainCellPainter } from './main-cell-painter';
 import { RecordGrid } from './record-grid';
@@ -36,7 +36,7 @@ export class Main {
 
     private readonly _recordStore: RecordStore;
     private readonly _schemaServer: RevRecordSchemaServer<GridField>;
-    private readonly _headerDataServer: HeaderDataServer;
+    private readonly _headerDataServer: SingleHeadingDataServer<GridField>;
     private readonly _mainDataServer: RevRecordDataServer<GridField>;
 
     private readonly _mainCellPainter: MainCellPainter;
@@ -100,7 +100,7 @@ export class Main {
 
         this._schemaServer = new RevRecordSchemaServer<GridField>();
         this._mainDataServer = new RevRecordDataServer<GridField>(this._schemaServer, this._recordStore);
-        this._headerDataServer = new HeaderDataServer();
+        this._headerDataServer = new SingleHeadingDataServer();
 
 
         const definition: Revgrid.Definition<StandardBehavioredColumnSettings, GridField> = {
