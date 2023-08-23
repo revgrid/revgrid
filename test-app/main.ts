@@ -11,10 +11,10 @@ import {
     StandardBehavioredColumnSettings,
     StandardBehavioredGridSettings,
     StandardCellPainter,
-    StandardCheckboxCellEditor,
     StandardCheckboxCellPainter,
     StandardHeaderTextCellPainter,
     StandardTextInputCellEditor,
+    StandardToggleClickBoxCellEditor,
     Subgrid,
     ViewCell,
     defaultGridSettings,
@@ -50,7 +50,7 @@ export class Main {
     private _textCellPainter: StandardAlphaTextCellPainter<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
     private _checkboxCellPainter: StandardCheckboxCellPainter<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
     private _textInputEditor: StandardTextInputCellEditor<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
-    private _checkboxEditor: StandardCheckboxCellEditor<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
+    private _checkboxEditor: StandardToggleClickBoxCellEditor<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
 
     private _grid: Revgrid<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
 
@@ -206,7 +206,8 @@ export class Main {
         this._textCellPainter = new StandardAlphaTextCellPainter(this._grid, this._mainDataServer);
         this._checkboxCellPainter = new StandardCheckboxCellPainter(this._grid, this._mainDataServer, false);
         this._textInputEditor = new StandardTextInputCellEditor(this._grid, this._mainDataServer);
-        this._checkboxEditor = new StandardCheckboxCellEditor(this._grid, this._mainDataServer);
+        const checkboxCellPainter = new StandardCheckboxCellPainter(this._grid, this._mainDataServer, true);
+        this._checkboxEditor = new StandardToggleClickBoxCellEditor(this._grid, this._mainDataServer, checkboxCellPainter);
 
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();

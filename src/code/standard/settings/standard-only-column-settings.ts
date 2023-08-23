@@ -17,6 +17,5 @@ export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings,
     'horizontalAlign' |
     'verticalOffset' |
     'textTruncateType' |
-    'textStrikeThrough' |
-    'editorClickCursorName'
+    'textStrikeThrough'
 >;

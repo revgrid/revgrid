@@ -174,7 +174,7 @@ export class StandardAlphaTextCellPainter<
 
             this.paintLayerColors(bounds, layerColors, firstColorIsFill);
             if (borderColor !== undefined) {
-                this.tryPaintBorder(bounds, borderColor, true);
+                this.paintBorder(bounds, borderColor, true);
             }
             // draw text
             gc.cache.fillStyle = textColor;

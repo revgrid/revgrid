@@ -283,6 +283,16 @@ export namespace CachedCanvasRenderingContext2D {
     }
 }
 
+// Warning: (ae-internal-missing-underscore) The name "calculateAdjustmentForRangeMoved" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function calculateAdjustmentForRangeMoved(value: number, oldRangeIndex: number, newRangeIndex: number, rangeCount: number): number;
+
+// Warning: (ae-internal-missing-underscore) The name "calculateNumberArrayUniqueCount" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function calculateNumberArrayUniqueCount<T extends number>(array: T[]): number;
+
 // @public (undocumented)
 export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject {
     // @internal
@@ -477,6 +487,12 @@ export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends Sc
 export namespace CellPainter {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     export function roundRect(gc: CachedCanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean): void;
+}
+
+// @public (undocumented)
+export interface ClickBoxCellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends CellPainter<BCS, SF> {
+    // (undocumented)
+    calculateClickBox(cell: DatalessViewCell<BCS, SF>): Rectangle | undefined;
 }
 
 // @public (undocumented)
@@ -977,6 +993,21 @@ export namespace DataServer {
     export type ViewValue = unknown;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "deepClone" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function deepClone(object: Record<string, unknown>): unknown;
+
+// Warning: (ae-internal-missing-underscore) The name "deepExtendObject" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function deepExtendObject(target: Record<string, unknown>, obj: Record<string, unknown> | undefined): Record<string, unknown>;
+
+// Warning: (ae-internal-missing-underscore) The name "deepExtendValue" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function deepExtendValue(existingTarget: unknown, value: unknown): unknown;
+
 // @public (undocumented)
 export const defaultColumnSettings: ColumnSettings;
 
@@ -1327,6 +1358,11 @@ export namespace Focus {
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "getErrorMessage" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function getErrorMessage(e: unknown): string;
+
 // @public (undocumented)
 export namespace GridSettingChangeInvalidateType {
     export function getHigherPriority(left: GridSettingChangeInvalidateTypeId, right: GridSettingChangeInvalidateTypeId): GridSettingChangeInvalidateTypeId;
@@ -1563,6 +1599,9 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     get editOnKeyDown(): boolean;
     set editOnKeyDown(value: boolean);
     // (undocumented)
+    get editorClickableCursorName(): string | undefined;
+    set editorClickableCursorName(value: string | undefined);
+    // (undocumented)
     get filterable(): boolean;
     set filterable(value: boolean);
     // (undocumented)
@@ -1677,6 +1716,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get editOnKeyDown(): boolean;
     set editOnKeyDown(value: boolean);
+    // (undocumented)
+    get editorClickableCursorName(): string | undefined;
+    set editorClickableCursorName(value: string | undefined);
     // (undocumented)
     get eventDispatchEnabled(): boolean;
     set eventDispatchEnabled(value: boolean);
@@ -1931,9 +1973,6 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     get columnHoverBackgroundColor(): GridSettings.Color | undefined;
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get editorClickCursorName(): string | undefined;
-    set editorClickCursorName(value: string | undefined);
-    // (undocumented)
     get font(): string;
     set font(value: string);
     // (undocumented)
@@ -1992,9 +2031,6 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     get columnHoverBackgroundColor(): GridSettings.Color | undefined;
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get editorClickCursorName(): string | undefined;
-    set editorClickCursorName(value: string | undefined);
-    // (undocumented)
     get font(): string;
     set font(value: string);
     // (undocumented)
@@ -2027,6 +2063,11 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
 
 // @public (undocumented)
 export const invalidServerNotificationId = -1;
+
+// Warning: (ae-internal-missing-underscore) The name "isDigit" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function isDigit(char: string): boolean;
 
 // @public (undocumented)
 export class LastSelectionArea extends FirstCornerRectangle implements SelectionArea {
@@ -2269,8 +2310,13 @@ export interface MultiHeadingSchemaField extends SchemaField {
     headings: string[];
 }
 
+// Warning: (ae-internal-missing-underscore) The name "numberToPixels" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function numberToPixels(value: number): string;
+
 // @public (undocumented)
-export type OnlyColumnSettings = Pick<OnlyGridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
+export type OnlyColumnSettings = Pick<OnlyGridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'editorClickableCursorName' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
 
 // @public (undocumented)
 export interface OnlyGridSettings {
@@ -2319,6 +2365,7 @@ export interface OnlyGridSettings {
     editOnDoubleClick: boolean;
     editOnFocusCell: boolean;
     editOnKeyDown: boolean;
+    editorClickableCursorName: string | undefined;
     eventDispatchEnabled: boolean;
     extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     filterable: boolean;
@@ -3526,6 +3573,9 @@ export const enum RevRecordValueRecentChangeTypeId {
 // @public (undocumented)
 export type RowOrColumnSelectionAreaType = keyof RowOrColumnSelectionAreaTypeObject;
 
+// @public
+export function safeConvertUnknownToBoolean(value: unknown): boolean | null | undefined;
+
 // @public (undocumented)
 export interface SchemaField {
     // (undocumented)
@@ -3968,6 +4018,21 @@ export interface SingleHeadingSchemaField extends SchemaField {
     heading: string;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "splitStringAtFirstNonNumericChar" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function splitStringAtFirstNonNumericChar(value: string): SplitStringAtFirstNonNumericCharResult;
+
+// Warning: (ae-internal-missing-underscore) The name "SplitStringAtFirstNonNumericCharResult" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface SplitStringAtFirstNonNumericCharResult {
+    // (undocumented)
+    firstNonNumericCharPart: string;
+    // (undocumented)
+    numericPart: string;
+}
+
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
@@ -4049,7 +4114,7 @@ export abstract class StandardCellEditor<BGS extends BehavioredGridSettings, BCS
 }
 
 // @public (undocumented)
-export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements CellPainter<BCS, SF> {
+export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     constructor(_grid: Revgrid<BGS, BCS, SF>, _dataServer: DataServer<SF>);
     // (undocumented)
     protected readonly _dataServer: DataServer<SF>;
@@ -4060,26 +4125,11 @@ export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BC
     // (undocumented)
     abstract paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
     // (undocumented)
+    protected paintBackground(bounds: Rectangle, backgroundColor: string): void;
+    // (undocumented)
+    protected paintBorder(bounds: Rectangle, borderColor: string, focus: boolean): void;
+    // (undocumented)
     protected readonly _renderingContext: CachedCanvasRenderingContext2D;
-    // (undocumented)
-    protected tryPaintBorder(bounds: Rectangle, borderColor: string | undefined, focus: boolean): void;
-}
-
-// @public (undocumented)
-export class StandardCheckboxCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardPaintCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
-    // (undocumented)
-    closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
-    // (undocumented)
-    _painter: StandardCheckboxCellPainter<BGS, BCS, SF>;
-    // (undocumented)
-    processGridClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
-    // (undocumented)
-    processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
-    // (undocumented)
-    processGridPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
-    // (undocumented)
-    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -4091,46 +4141,63 @@ export class StandardCheckboxCellPainter<BGS extends StandardBehavioredGridSetti
     paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 }
 
-// @public
-export class StandardCheckboxPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    constructor(_grid: Revgrid<BGS, BCS, SF>, _dataServer: DataServer<SF>, _editable: boolean, _renderingContext: CachedCanvasRenderingContext2D, _tryPaintBorderEventer: StandardCheckboxPainter.TryPaintBorderEventer);
+// @public (undocumented)
+export namespace StandardCheckboxCellPainter {
+    const // (undocumented)
+    typeName = "Checkbox";
     // (undocumented)
-    calculateClickBox(cell: DatalessViewCell<BCS, SF>, columnSettings: StandardCheckboxPainter.ColumnSettings): Rectangle | undefined;
+    export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
     // (undocumented)
-    paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined, columnSettings: StandardCheckboxPainter.ColumnSettings): number | undefined;
+    export namespace PaintFingerprint {
+        // (undocumented)
+        export function same(left: PaintFingerprint, right: PaintFingerprint): boolean;
+    }
+    // (undocumented)
+    export interface PaintFingerprintInterface extends StandardCheckboxPainter.PaintFingerprintInterface {
+        // (undocumented)
+        readonly backgroundColor: GridSettings.Color;
+        // (undocumented)
+        readonly borderColor: string | undefined;
+    }
+}
+
+// @public (undocumented)
+export class StandardCheckboxPainter {
+    constructor(_editable: boolean, _renderingContext: CachedCanvasRenderingContext2D);
+    // (undocumented)
+    calculateBoxDetails(bounds: Rectangle, cellPadding: number): StandardCheckboxPainter.BoxDetails;
+    // (undocumented)
+    calculateClickBox(bounds: Rectangle, booleanValue: boolean | undefined | null, cellPadding: number, font: string): Rectangle | undefined;
+    // (undocumented)
+    writeFingerprintOrCheckPaint(fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint | undefined>, bounds: Rectangle, booleanValue: boolean | undefined | null, boxDetails: StandardCheckboxPainter.BoxDetails, color: string, font: string): number | undefined;
+    // (undocumented)
+    writeUndefinedFingerprint(fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint>): void;
 }
 
 // @public (undocumented)
 export namespace StandardCheckboxPainter {
     const // (undocumented)
-    typeName = "Checkbox";
-    const // (undocumented)
     minimumBoxSideLength = 5;
     const // (undocumented)
     valueNotBooleanChar = "!";
     // (undocumented)
-    export interface ColumnSettings {
+    export interface BoxDetails {
         // (undocumented)
-        backgroundColor: GridSettings.Color;
+        boxLineWidth: number;
         // (undocumented)
-        cellFocusedBorderColor: GridSettings.Color | undefined;
+        boxSideLength: number;
         // (undocumented)
-        cellPadding: number;
+        idealBoxSideLength: number;
         // (undocumented)
-        color: GridSettings.Color;
+        maxBoxBoundsHeight: number;
         // (undocumented)
-        font: string;
-    }
-    // (undocumented)
-    export interface Config {
+        maxBoxBoundsWidth: number;
         // (undocumented)
-        backgroundColor: string;
+        maxBoxSideLength: number;
         // (undocumented)
-        bounds: Rectangle;
+        maxBoxWidth: number;
         // (undocumented)
-        foregroundColor: string;
-        // (undocumented)
-        value: boolean;
+        sumOfResolvedLeftRightPadding: number;
     }
     // (undocumented)
     export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
@@ -4142,22 +4209,16 @@ export namespace StandardCheckboxPainter {
     // (undocumented)
     export interface PaintFingerprintInterface {
         // (undocumented)
-        readonly backgroundColor: string;
+        boxLineWidth: number;
         // (undocumented)
-        readonly borderColor: string | undefined;
+        boxSideLength: number | undefined;
         // (undocumented)
-        readonly boxLineWidth: number;
+        color: GridSettings.Color;
         // (undocumented)
-        readonly boxSideLength: number | undefined;
+        errorFont: string | undefined;
         // (undocumented)
-        readonly color: string;
-        // (undocumented)
-        readonly errorFont: string | undefined;
-        // (undocumented)
-        readonly value: boolean | undefined | null;
+        value: boolean | undefined | null;
     }
-    // (undocumented)
-    export type TryPaintBorderEventer = (this: void, bounds: Rectangle, borderColor: string | undefined, focus: boolean) => void;
 }
 
 // @public (undocumented)
@@ -4241,7 +4302,7 @@ export class StandardNumberInputCellEditor<BGS extends BehavioredGridSettings, B
 }
 
 // @public (undocumented)
-export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'horizontalAlign' | 'verticalOffset' | 'textTruncateType' | 'textStrikeThrough' | 'editorClickCursorName'>;
+export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'horizontalAlign' | 'verticalOffset' | 'textTruncateType' | 'textStrikeThrough'>;
 
 // @public (undocumented)
 export interface StandardOnlyGridSettings {
@@ -4265,7 +4326,6 @@ export interface StandardOnlyGridSettings {
     columnHeaderSelectionForegroundColor: GridSettings.Color;
     // (undocumented)
     columnHoverBackgroundColor: GridSettings.Color | undefined;
-    editorClickCursorName: string | undefined;
     // (undocumented)
     font: string;
     horizontalAlign: HorizontalAlign;
@@ -4458,6 +4518,23 @@ export namespace StandardTextPainter {
         text: string | undefined;
         width: number;
     }
+}
+
+// @public (undocumented)
+export class StandardToggleClickBoxCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardPaintCellEditor<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, painter: ClickBoxCellPainter<BCS, SF>);
+    // (undocumented)
+    closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
+    // (undocumented)
+    protected _painter: ClickBoxCellPainter<BCS, SF>;
+    // (undocumented)
+    processGridClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
+    // (undocumented)
+    processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    // (undocumented)
+    processGridPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
+    // (undocumented)
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)

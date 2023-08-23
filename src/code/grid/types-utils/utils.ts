@@ -1,3 +1,59 @@
+/**
+ * Will return null if conversion not possible
+ * @public
+ */
+export function safeConvertUnknownToBoolean(value: unknown) {
+    switch (typeof value) {
+        case 'string': {
+            if (value === '') {
+                return undefined;
+            } else {
+                const trimmedLowerCaseBoolStr = value.trim().toLowerCase();
+                if (
+                    trimmedLowerCaseBoolStr === 'true' ||
+                    trimmedLowerCaseBoolStr === '1' ||
+                    trimmedLowerCaseBoolStr === 'yes'
+                ) {
+                    return true;
+                } else {
+                    if (
+                        trimmedLowerCaseBoolStr === 'false' ||
+                        trimmedLowerCaseBoolStr === '0' ||
+                        trimmedLowerCaseBoolStr === 'no'
+                    ) {
+                        return false;
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        }
+        case 'number':
+        case 'bigint':
+            if (value === 0) {
+                return false;
+            } else {
+                if (value === 1) {
+                    return true;
+                } else {
+                    return null;
+                }
+            }
+        case 'boolean':
+            return value;
+        case 'symbol':
+            return null;
+        case 'undefined':
+            return undefined;
+        case 'object':
+            return value === null ? undefined : null;
+        case 'function':
+            return null;
+        default:
+            // typeof value satisfies never
+            return null;
+    }
+}
 
 /** @internal */
 export function numberToPixels(value: number) {

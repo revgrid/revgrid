@@ -1,99 +1,58 @@
 
 import {
-    BehavioredColumnSettings,
-    BehavioredGridSettings,
     CachedCanvasRenderingContext2D,
-    DataServer,
-    DatalessViewCell,
     GridSettings,
     IndexSignatureHack,
-    Rectangle,
-    Revgrid,
-    SchemaField,
+    Rectangle
 } from '../../grid/grid-public-api';
 
-/**
- * The default cell rendering function for a button cell.
- * @public
- */
-export class StandardCheckboxPainter<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
-    SF extends SchemaField
-> {
+/** @public */
+export class StandardCheckboxPainter {
     constructor(
-        private readonly _grid: Revgrid<BGS, BCS, SF>,
-        private readonly _dataServer: DataServer<SF>,
         private readonly _editable: boolean,
-        private readonly _renderingContext: CachedCanvasRenderingContext2D,
-        private readonly _tryPaintBorderEventer: StandardCheckboxPainter.TryPaintBorderEventer) {
+        private readonly _renderingContext: CachedCanvasRenderingContext2D
+    ) {
     }
 
-    paint(
-        cell: DatalessViewCell<BCS, SF>,
-        prefillColor: string | undefined,
-        columnSettings: StandardCheckboxPainter.ColumnSettings,
+    writeFingerprintOrCheckPaint(
+        fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint | undefined>,
+        bounds: Rectangle,
+        booleanValue: boolean | undefined | null,
+        boxDetails: StandardCheckboxPainter.BoxDetails,
+        color: string,
+        font: string,
     ): number | undefined {
-        const bounds = cell.bounds;
+        const idealBoundsWidth = boxDetails.idealBoxSideLength + boxDetails.sumOfResolvedLeftRightPadding;
 
-        const boundsX = bounds.x;
-        const boundsY = bounds.y;
-        const boundsHeight = bounds.height;
-
-        const sumOfResolvedLeftRightPadding = this.calculateSumOfResolvedLeftRightPadding(columnSettings.cellPadding);
-
-        const {
-            maxBoxBoundsWidth,
-            maxBoxBoundsHeight,
-            maxBoxSideLength,
-            maxBoxWidth,
-            boxSideLength,
-            boxLineWidth,
-            idealBoxSideLength,
-        } = this.calculateBox(bounds.width, boundsHeight, sumOfResolvedLeftRightPadding);
-
-        if (maxBoxSideLength < StandardCheckboxPainter.minimumBoxSideLength) {
-            this.saveUndefinedFingerprint(cell);
+        if (boxDetails.maxBoxSideLength < StandardCheckboxPainter.minimumBoxSideLength) {
+            if (fingerprint !== undefined) {
+                this.writeUndefinedFingerprint(fingerprint);
+                return undefined;
+            } else {
+                return idealBoundsWidth;
+            }
         } else {
-            const pixelCenterBoundsX = boundsX + maxBoxBoundsWidth / 2; // since maxBoxBoundsWidth is always odd, this will always be at center of pixel
-            const pixelCenterBoundsY = boundsY + maxBoxBoundsHeight / 2; // since maxBoxBoundsHeight is always odd, this will always be at center of pixel
+            const boundsX = bounds.x;
+            const boundsY = bounds.y;
+            const boundsHeight = bounds.height;
+
+            const boxSideLength = boxDetails.boxSideLength;
+            const boxLineWidth = boxDetails.boxLineWidth;
+
+            const pixelCenterBoundsX = boundsX + boxDetails.maxBoxBoundsWidth / 2; // since maxBoxBoundsWidth is always odd, this will always be at center of pixel
+            const pixelCenterBoundsY = boundsY + boxDetails.maxBoxBoundsHeight / 2; // since maxBoxBoundsHeight is always odd, this will always be at center of pixel
             const pixelCenterBoxSizeLength = boxSideLength - boxLineWidth; // when drawing, length is between center of lines
             const pixelCenterHalfBoxSizeLength = pixelCenterBoxSizeLength / 2;
             const pixelCenterBoxLeftX = pixelCenterBoundsX - pixelCenterHalfBoxSizeLength;
             const pixelCenterBoxTopY = pixelCenterBoundsY - pixelCenterHalfBoxSizeLength;
 
-            const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
-            const viewLayoutColumn = cell.viewLayoutColumn;
-            const booleanValue = this.calculateBooleanValue(viewLayoutColumn.column.field, subgridRowIndex);
-            const backgroundColor = prefillColor !== undefined ? prefillColor : columnSettings.backgroundColor;
-            let borderColor = columnSettings.cellFocusedBorderColor;
-            if (borderColor !== undefined) {
-                const subgrid = cell.subgrid;
-                if (subgrid.isMain) {
-                    const activeColumnIndex = viewLayoutColumn.activeColumnIndex;
-                    const cellFocused = this._grid.focus.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
-                    if (!cellFocused) {
-                        borderColor = undefined;
-                    }
-                }
-            }
-
-            const color = columnSettings.color;
-            const gc = this._renderingContext;
-
             if (booleanValue === undefined) {
-                const paintFingerprint: StandardCheckboxPainter.PaintFingerprint = {
-                    value: booleanValue,
-                    backgroundColor,
-                    borderColor,
-                    color,
-                    boxLineWidth,
-                    boxSideLength,
-                    errorFont: undefined,
-                };
-                if (!this.checkSameAndAlwaysSavePaintFingerprint(cell, paintFingerprint)) {
-                    this._tryPaintBorderEventer(bounds, borderColor, true);
-                    // draw box
+                if (fingerprint !== undefined) {
+                    this.writeFingerprint(fingerprint, booleanValue, boxLineWidth, boxSideLength, color, undefined);
+                    return undefined;
+                } else {
+                    const gc = this._renderingContext;
+
                     gc.cache.strokeStyle = color;
                     gc.cache.lineWidth = boxLineWidth;
                     gc.strokeRect(pixelCenterBoxLeftX, pixelCenterBoxTopY, pixelCenterBoxSizeLength, pixelCenterBoxSizeLength);
@@ -104,21 +63,27 @@ export class StandardCheckboxPainter<
                     gc.moveTo(pixelCenterBoundsX - pixelCenterHalfBoxSizeLength, pixelCenterBoundsY);
                     gc.lineTo(pixelCenterBoundsX + pixelCenterHalfBoxSizeLength, pixelCenterBoundsY);
                     gc.stroke();
+
+                    return idealBoundsWidth;
                 }
             } else {
                 const pixelCenterBoxRightX = pixelCenterBoundsX + pixelCenterHalfBoxSizeLength;
                 const pixelCenterBoxBottomY = pixelCenterBoundsY + pixelCenterHalfBoxSizeLength;
 
-                if (typeof booleanValue === null) {
-                    const font = columnSettings.font;
+                if (booleanValue === null) {
+                    const gc = this._renderingContext;
                     gc.cache.font = font;
                     const charWidth = Math.ceil(gc.getCharWidth(StandardCheckboxPainter.valueNotBooleanChar));
                     const charTextHeight = gc.getTextHeight(StandardCheckboxPainter.valueNotBooleanChar);
                     const ascent = charTextHeight.ascent;
-                    const halfBoundsHeight = boundsHeight / 2;
                     const descent = charTextHeight.descent;
-                    if (charWidth > maxBoxWidth || ascent > halfBoundsHeight || descent > halfBoundsHeight) { // make sure it fits
-                        this.saveUndefinedFingerprint(cell);
+                    if (charWidth > boxDetails.maxBoxWidth || ascent + descent > boundsHeight) { // make sure it fits
+                        if (fingerprint !== undefined) {
+                            this.writeUndefinedFingerprint(fingerprint);
+                            return undefined;
+                        } else {
+                            return idealBoundsWidth;
+                        }
                     } else {
                         const charTopY = pixelCenterBoundsY + ascent;
                         const lineTopY = Math.min(pixelCenterBoxTopY, charTopY);
@@ -128,18 +93,14 @@ export class StandardCheckboxPainter<
                         if (boxSideLength <= charWidth + 2) {
                             // No room to draw box. Just draw the character
                             verticalBoxLength = undefined; // flag only character drawn
+                        } else {
+                            verticalBoxLength = lineBottomY - lineTopY + 1;
                         }
 
-                        const paintFingerprint: StandardCheckboxPainter.PaintFingerprint = {
-                            value: booleanValue,
-                            backgroundColor,
-                            borderColor,
-                            color,
-                            boxLineWidth,
-                            boxSideLength: verticalBoxLength,
-                            errorFont: font,
-                        };
-                        if (!this.checkSameAndAlwaysSavePaintFingerprint(cell, paintFingerprint)) {
+                        if (fingerprint !== undefined) {
+                            this.writeFingerprint(fingerprint, booleanValue, boxLineWidth, verticalBoxLength, color, font);
+                            return undefined;
+                        } else {
                             // Draw a char representing error
                             gc.cache.strokeStyle = color;
                             gc.cache.textBaseline = 'middle';
@@ -158,21 +119,16 @@ export class StandardCheckboxPainter<
                                 gc.lineTo(pixelCenterBoxRightX, lineBottomY);
                                 gc.stroke();
                             }
+                            return idealBoundsWidth;
                         }
                     }
                 } else {
-                    const paintFingerprint: StandardCheckboxPainter.PaintFingerprint = {
-                        value: booleanValue,
-                        backgroundColor,
-                        borderColor,
-                        color,
-                        boxLineWidth,
-                        boxSideLength,
-                        errorFont: undefined,
-                    };
-                    if (!this.checkSameAndAlwaysSavePaintFingerprint(cell, paintFingerprint)) {
-                        this._tryPaintBorderEventer(bounds, borderColor, true);
+                    if (fingerprint !== undefined) {
+                        this.writeFingerprint(fingerprint, booleanValue, boxLineWidth, boxSideLength, color, undefined);
+                        return undefined;
+                    } else {
                         // draw box
+                        const gc = this._renderingContext;
                         gc.cache.strokeStyle = color;
                         gc.cache.lineWidth = boxLineWidth;
                         gc.strokeRect(pixelCenterBoxLeftX, pixelCenterBoxTopY, pixelCenterBoxSizeLength, pixelCenterBoxSizeLength);
@@ -188,34 +144,31 @@ export class StandardCheckboxPainter<
                             gc.lineTo(pixelCenterBoxLeftX, pixelCenterBoxBottomY);
                             gc.stroke();
                         }
+
+                        return idealBoundsWidth;
                     }
                 }
             }
         }
-
-        return idealBoxSideLength + sumOfResolvedLeftRightPadding;
     }
 
-    calculateClickBox(cell: DatalessViewCell<BCS, SF>, columnSettings: StandardCheckboxPainter.ColumnSettings): Rectangle | undefined {
-        const sumOfResolvedLeftRightPadding = this.calculateSumOfResolvedLeftRightPadding(columnSettings.cellPadding);
-
-        const bounds = cell.bounds;
+    calculateClickBox(
+        bounds: Rectangle,
+        booleanValue: boolean | undefined | null,
+        cellPadding: number,
+        font: string,
+    ): Rectangle | undefined{
         const {
             maxBoxBoundsWidth,
             maxBoxBoundsHeight,
             maxBoxSideLength,
             maxBoxWidth,
             boxSideLength,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            boxLineWidth,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            idealBoxSideLength,
-        } = this.calculateBox(bounds.width, bounds.height, sumOfResolvedLeftRightPadding);
+        } = this.calculateBoxDetails(bounds, cellPadding);
 
         if (maxBoxSideLength < StandardCheckboxPainter.minimumBoxSideLength) {
             return undefined;
         } else {
-            const booleanValue = this.calculateBooleanValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
             const centerBoundsX = bounds.x + maxBoxBoundsWidth / 2;
             const centerBoundsY = bounds.y + maxBoxBoundsHeight / 2;
             const halfBoxSideLength = boxSideLength / 2;
@@ -231,7 +184,6 @@ export class StandardCheckboxPainter<
             } else {
                 if (typeof booleanValue === null) {
                     const gc = this._renderingContext;
-                    const font = columnSettings.font;
                     gc.cache.font = font;
                     const charWidth = Math.ceil(gc.getCharWidth(StandardCheckboxPainter.valueNotBooleanChar));
                     const charTextHeight = gc.getTextHeight(StandardCheckboxPainter.valueNotBooleanChar);
@@ -277,15 +229,21 @@ export class StandardCheckboxPainter<
         }
     }
 
-    private calculateBox(boundsWidth: number, boundsHeight: number, sumOfResolvedLeftRightPadding: number): BoxDetails {
-        let maxBoxBoundsWidth = boundsWidth;
+    calculateBoxDetails(
+        bounds: Rectangle,
+        cellPadding: number,
+    ): StandardCheckboxPainter.BoxDetails {
+        let maxBoxBoundsWidth = bounds.width;
         if (maxBoxBoundsWidth % 2 === 0) {
             maxBoxBoundsWidth--; // make sure odd width
         }
-        let maxBoxBoundsHeight = boundsHeight;
+        let maxBoxBoundsHeight = bounds.height;
         if (maxBoxBoundsHeight % 2 === 0) {
             maxBoxBoundsHeight--; // make sure odd height
         }
+
+        const resolvedCellPadding = cellPadding === 0 ? 1 : cellPadding;
+        const sumOfResolvedLeftRightPadding = 2 * resolvedCellPadding;
 
         const maxBoxWidth = maxBoxBoundsWidth - sumOfResolvedLeftRightPadding;
         const maxBoxHeight = maxBoxBoundsHeight - 2;
@@ -324,6 +282,7 @@ export class StandardCheckboxPainter<
         }
 
         return {
+            sumOfResolvedLeftRightPadding,
             maxBoxBoundsWidth,
             maxBoxBoundsHeight,
             maxBoxSideLength,
@@ -334,110 +293,48 @@ export class StandardCheckboxPainter<
         }
     }
 
-    private calculateSumOfResolvedLeftRightPadding(cellPadding: number) {
-        const resolvedCellPadding = cellPadding === 0 ? 1 : cellPadding;
-        return 2 * resolvedCellPadding;
+    writeUndefinedFingerprint(fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint>) {
+        this.writeFingerprint(fingerprint, null, 0, 0, '', '');
     }
 
-    private calculateBooleanValue(schemaField: SF, subgridRowIndex: number) {
-        const viewValue = this._dataServer.getViewValue(schemaField, subgridRowIndex);
-        return this.convertViewValueToBoolean(viewValue);
-    }
-    private convertViewValueToBoolean(value: unknown) {
-        switch (typeof value) {
-            case 'string': {
-                if (value === '') {
-                    return undefined;
-                } else {
-                    const trimmedLowerCaseBoolStr = value.trim().toLowerCase();
-                    if (
-                        trimmedLowerCaseBoolStr === 'true' ||
-                        trimmedLowerCaseBoolStr === '1' ||
-                        trimmedLowerCaseBoolStr === 'yes'
-                    ) {
-                        return true;
-                    } else {
-                        if (
-                            trimmedLowerCaseBoolStr === 'false' ||
-                            trimmedLowerCaseBoolStr === '0' ||
-                            trimmedLowerCaseBoolStr === 'no'
-                        ) {
-                            return false;
-                        } else {
-                            return null;
-                        }
-                    }
-                }
-            }
-            case 'number':
-            case 'bigint':
-                if (value === 0) {
-                    return false;
-                } else {
-                    if (value === 1) {
-                        return true;
-                    } else {
-                        return null;
-                    }
-                }
-            case 'boolean':
-                return value;
-            case 'symbol':
-                return null;
-            case 'undefined':
-                return undefined;
-            case 'object':
-                return value === null ? undefined : null;
-            case 'function':
-                return null;
-            default:
-                // typeof value satisfies never
-                return null;
-        }
-    }
-
-    private saveUndefinedFingerprint(cell: DatalessViewCell<BCS, SF>) {
-        cell.paintFingerprint = undefined;
-    }
-
-    private checkSameAndAlwaysSavePaintFingerprint(cell: DatalessViewCell<BCS, SF>, fingerprint: StandardCheckboxPainter.PaintFingerprint) {
-        const oldFingerprint = cell.paintFingerprint as StandardCheckboxPainter.PaintFingerprint | undefined;
-        let same: boolean;
-        if (oldFingerprint === undefined) {
-            same = false;
-        } else {
-            same = StandardCheckboxPainter.PaintFingerprint.same(oldFingerprint, fingerprint);
-        }
-        cell.paintFingerprint = fingerprint;
-        return same;
+    private writeFingerprint(
+        fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint>,
+        value: boolean | undefined | null,
+        boxLineWidth: number,
+        boxSideLength: number | undefined,
+        color: GridSettings.Color,
+        errorFont: string | undefined,
+    ) {
+        fingerprint.value = value;
+        fingerprint.boxLineWidth = boxLineWidth;
+        fingerprint.boxSideLength = boxSideLength;
+        fingerprint.color = color;
+        fingerprint.errorFont = errorFont;
     }
 }
 
 /** @public */
 export namespace StandardCheckboxPainter {
-    export const typeName = 'Checkbox';
     export const minimumBoxSideLength = 5; // pixels
     export const valueNotBooleanChar = '!';
 
-    export type TryPaintBorderEventer = (this: void, bounds: Rectangle, borderColor: string | undefined, focus: boolean) => void;
-
-    export interface ColumnSettings {
-        // Properties below must match properties in Grid ColumnSettings interface
-        backgroundColor: GridSettings.Color;
-        cellPadding: number;
-        cellFocusedBorderColor: GridSettings.Color | undefined;
-        color: GridSettings.Color;
-        font: string;
+    export interface BoxDetails {
+        sumOfResolvedLeftRightPadding: number;
+        maxBoxBoundsWidth: number,
+        maxBoxBoundsHeight: number,
+        maxBoxSideLength: number,
+        maxBoxWidth: number,
+        boxSideLength: number,
+        boxLineWidth: number,
+        idealBoxSideLength: number,
     }
 
     export interface PaintFingerprintInterface {
-        readonly value: boolean | undefined |null;
-        readonly backgroundColor: string;
-        readonly color: string;
-        readonly borderColor: string | undefined;
-        readonly boxLineWidth: number;
-        readonly boxSideLength: number | undefined;
-        readonly errorFont: string | undefined;
+        value: boolean | undefined |null;
+        boxLineWidth: number;
+        boxSideLength: number | undefined;
+        color: GridSettings.Color;
+        errorFont: string | undefined;
     }
 
     export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
@@ -446,30 +343,11 @@ export namespace StandardCheckboxPainter {
         export function same(left: PaintFingerprint, right: PaintFingerprint) {
             return (
                 left.value === right.value &&
-                left.backgroundColor === right.backgroundColor &&
-                left.color === right.color &&
-                left.borderColor === right.borderColor &&
                 left.boxLineWidth === right.boxLineWidth &&
                 left.boxSideLength === right.boxSideLength &&
+                left.color === right.color &&
                 left.errorFont === right.errorFont
             );
         }
     }
-
-    export interface Config {
-        value: boolean;
-        bounds: Rectangle;
-        backgroundColor: string;
-        foregroundColor: string;
-    }
-}
-
-interface BoxDetails {
-    maxBoxBoundsWidth: number,
-    maxBoxBoundsHeight: number,
-    maxBoxSideLength: number,
-    maxBoxWidth: number,
-    boxSideLength: number,
-    boxLineWidth: number,
-    idealBoxSideLength: number,
 }

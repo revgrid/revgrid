@@ -1,18 +1,16 @@
-import { CellEditor, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
-import { StandardCheckboxCellPainter } from '../cell-painter/standard-cell-painter-public-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, ClickBoxCellPainter, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
 import { StandardPaintCellEditor } from './standard-paint-cell-editor';
 
 /** @public */
-export class StandardCheckboxCellEditor<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
+export class StandardToggleClickBoxCellEditor<
+    BGS extends BehavioredGridSettings,
+    BCS extends BehavioredColumnSettings,
     SF extends SchemaField
 > extends StandardPaintCellEditor<BGS, BCS, SF> {
-    declare _painter: StandardCheckboxCellPainter<BGS, BCS, SF>;
+    declare protected _painter: ClickBoxCellPainter<BCS, SF>;
 
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
-        const painter = new StandardCheckboxCellPainter(grid, dataServer, true);
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, painter: ClickBoxCellPainter<BCS, SF>) {
+        // const painter = new StandardCheckboxCellPainter(grid, dataServer, true);
         super(grid, dataServer, painter);
     }
 
@@ -74,7 +72,7 @@ export class StandardCheckboxCellEditor<
                 return undefined;
             } else {
                 return {
-                    locationCursorName: viewCell.viewLayoutColumn.column.settings.editorClickCursorName,
+                    locationCursorName: viewCell.viewLayoutColumn.column.settings.editorClickableCursorName,
                     locationTitleText: undefined,
                 };
             }

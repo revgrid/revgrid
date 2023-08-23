@@ -29,6 +29,4 @@ export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings = {
     verticalOffset: 0,
     textTruncateType: TextTruncateType.WithEllipsis,
     textStrikeThrough: false,
-
-    editorClickCursorName: 'pointer',
 } as const;

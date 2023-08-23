@@ -1,6 +1,5 @@
 import {
-    GridSettingChangeInvalidateTypeId,
-    GridSettings,
+    GridSettings
 } from '../../../grid/grid-public-api';
 import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/settings-implementations-public-api';
 import { HorizontalAlign, TextTruncateType } from '../../painters/standard-painters-public-api';
@@ -28,7 +27,6 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     private _verticalOffset: number;
     private _textTruncateType: TextTruncateType | undefined;
     private _textStrikeThrough: boolean;
-    private _editorClickCursorName: string | undefined;
 
     get cellPadding() { return this._cellPadding; }
     set cellPadding(value: number) {
@@ -211,16 +209,6 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
 
-    get editorClickCursorName() { return this._editorClickCursorName; }
-    set editorClickCursorName(value: string | undefined) {
-        if (value !== this._editorClickCursorName) {
-            this.beginChange();
-            this._editorClickCursorName = value;
-            this.flagChanged(GridSettingChangeInvalidateTypeId.None);
-            this.endChange();
-        }
-    }
-
     override merge(settings: Partial<StandardGridSettings>) {
         this.beginChange();
 
@@ -349,12 +337,6 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
                     if (this._textStrikeThrough !== requiredSettings.textStrikeThrough) {
                         this._textStrikeThrough = requiredSettings.textStrikeThrough;
                         this.flagChangedViewRender();
-                    }
-                    break;
-                case 'editorClickCursorName':
-                    if (this._editorClickCursorName !== requiredSettings.editorClickCursorName) {
-                        this._editorClickCursorName = requiredSettings.editorClickCursorName;
-                        this.flagChanged(GridSettingChangeInvalidateTypeId.None);
                     }
                     break;
 

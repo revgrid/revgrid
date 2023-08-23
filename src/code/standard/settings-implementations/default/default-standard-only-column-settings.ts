@@ -19,5 +19,4 @@ export const defaultStandardOnlyColumnSettings: StandardOnlyColumnSettings = {
     verticalOffset: defaultStandardOnlyGridSettings.verticalOffset,
     textTruncateType: defaultStandardOnlyGridSettings.textTruncateType,
     textStrikeThrough: defaultStandardOnlyGridSettings.textStrikeThrough,
-    editorClickCursorName: defaultStandardOnlyGridSettings.editorClickCursorName,
 } as const;

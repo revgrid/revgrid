@@ -1,6 +1,5 @@
 import {
-    GridSettingChangeInvalidateTypeId,
-    GridSettings,
+    GridSettings
 } from '../../../grid/grid-public-api';
 import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
 import { HorizontalAlign, TextTruncateType } from '../../painters/standard-painters-public-api';
@@ -26,7 +25,6 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     private _verticalOffset: number | undefined;
     private _textTruncateType: TextTruncateType | undefined | null;
     private _textStrikeThrough: boolean | undefined;
-    private _editorClickCursorName: string | undefined | null;
 
     get cellPadding() { return this._cellPadding !== undefined ? this._cellPadding : this.gridSettings.cellPadding; }
     set cellPadding(value: number) {
@@ -218,25 +216,6 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
             this.endChange();
         }
     }
-    get editorClickCursorName() {
-        if (this._editorClickCursorName === null) {
-            return undefined;
-        } else {
-            return this._editorClickCursorName !== undefined ? this._editorClickCursorName : this.gridSettings.editorClickCursorName;
-        }
-    }
-    set editorClickCursorName(value: string | undefined) {
-        if (value !== this._editorClickCursorName) {
-            this.beginChange();
-            if (this._editorClickCursorName === undefined) {
-                this._editorClickCursorName = null;
-            } else {
-                this._editorClickCursorName = value;
-            }
-            this.flagChanged(GridSettingChangeInvalidateTypeId.None);
-            this.endChange();
-        }
-    }
 
     override merge(settings: Partial<StandardColumnSettings>) {
         this.beginChange();
@@ -342,12 +321,6 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
                     if (this._textStrikeThrough !== requiredSettings.textStrikeThrough) {
                         this._textStrikeThrough = requiredSettings.textStrikeThrough;
                         this.flagChangedViewRender();
-                    }
-                    break;
-                case 'editorClickCursorName':
-                    if (this._editorClickCursorName !== requiredSettings.editorClickCursorName) {
-                        this._editorClickCursorName = requiredSettings.editorClickCursorName;
-                        this.flagChanged(GridSettingChangeInvalidateTypeId.None);
                     }
                     break;
 

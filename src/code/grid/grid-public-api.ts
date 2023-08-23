@@ -18,6 +18,7 @@ export { SubgridsManager } from './components/subgrid/subgrids-manager';
 export { ViewLayout } from './components/view/view-layout';
 export { CellEditor } from './interfaces/data/cell-editor';
 export { CellPainter } from './interfaces/data/cell-painter';
+export { ClickBoxCellPainter } from './interfaces/data/click-box-cell-painter';
 export { DataServer } from './interfaces/data/data-server';
 export { LinedHoverCell } from './interfaces/data/hover-cell';
 export { MainSubgrid } from './interfaces/data/main-subgrid';
@@ -52,5 +53,6 @@ export * from './types-utils/revgrid-error';
 export { RevgridObject } from './types-utils/revgrid-object';
 export * from './types-utils/selection-area-type';
 export * from './types-utils/types';
+export * from './types-utils/utils';
 export { UiController } from './ui/controller/ui-controller';
 
