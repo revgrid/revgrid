@@ -317,6 +317,39 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
+    canGetFocusedEditValue() {
+        return this._current !== undefined && this.dataServer.getEditValue !== undefined
+    }
+
+    getFocusedEditValue() {
+        const focusedPoint = this._current;
+        if (focusedPoint === undefined || this.dataServer.getEditValue === undefined) {
+            throw new AssertError('FGFDV17778');
+        } else {
+            const column = this._columnsManager.getActiveColumn(focusedPoint.x);
+            return this.dataServer.getEditValue(column.field, focusedPoint.y);
+        }
+    }
+
+    canSetFocusedEditValue() {
+        return this._current !== undefined && this.dataServer.setEditValue !== undefined
+    }
+
+    setFocusedEditValue(value: DataServer.ViewValue) {
+        const focusedPoint = this._current;
+        if (focusedPoint === undefined) {
+            throw new AssertError('FGFDVF17778');
+        } else {
+            if (this.dataServer.setEditValue === undefined) {
+                throw new AssertError('FGFDVS17778');
+            } else {
+                const column = this._columnsManager.getActiveColumn(focusedPoint.x);
+                return this.dataServer.setEditValue(column.field, focusedPoint.y, value);
+            }
+        }
+    }
+
+    /** @internal */
     checkEditorWantsKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean {
         const editor = this._editor;
         if (editor === undefined) {
@@ -364,6 +397,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
+    /** @internal */
     checkEditorWantsClickEvent(event: MouseEvent, focusedCell: ViewCell<BCS, SF>): boolean {
         if (focusedCell !== this._cell) {
             throw new AssertError('FCEWCE59572');
@@ -385,6 +419,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         }
     }
 
+    /** @internal */
     checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: ViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined {
         if (focusedCell !== this._cell) {
             throw new AssertError('FCEWCE59572');
@@ -750,6 +785,9 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
                             if (editor.setBounds !== undefined) {
                                 editor.setBounds(focusedCell.bounds);
+                                if (editor.focus !== undefined) {
+                                    editor.focus();
+                                }
                             } else {
                                 this.viewCellRenderInvalidatedEventer(focusedCell);
                             }
@@ -768,31 +806,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         editor.pushCellValueEventer = undefined;
         editor.keyDownEventer = undefined;
         editor.cellClosedEventer = undefined;
-    }
-
-    /** @internal */
-    private getFocusedEditValue() {
-        const focusedPoint = this._current;
-        if (focusedPoint === undefined || this.dataServer.getEditValue === undefined) {
-            throw new AssertError('FGFDV17778');
-        } else {
-            const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-            return this.dataServer.getEditValue(column.field, focusedPoint.y);
-        }
-    }
-
-    /** @internal */
-    private setFocusedEditValue(value: DataServer.ViewValue) {
-        const focusedPoint = this._current;
-        if (focusedPoint === undefined) {
-            throw new AssertError('FGFDVF17778');
-        } else {
-            if (this.dataServer.setEditValue === undefined) {
-                throw new AssertError('FGFDVS17778');
-            } else {
-                const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-                return this.dataServer.setEditValue(column.field, focusedPoint.y, value);
-            }
+        if (editor.setBounds !== undefined) {
+            editor.setBounds(undefined);
         }
     }
 

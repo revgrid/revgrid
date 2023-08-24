@@ -6,8 +6,6 @@ export abstract class StandardCellEditor<
     BCS extends BehavioredColumnSettings,
     SF extends SchemaField
 > implements CellEditor<BCS, SF> {
-    pullCellValueEventer: CellEditor.PullCellValueEventer;
-    pushCellValueEventer: CellEditor.PushCellValueEventer;
     cellClosedEventer: CellEditor.CellClosedEventer;
 
     /** @internal */

@@ -22,7 +22,7 @@ export namespace MainRecord {
             case 'restrictMovement': return compareBoolean(left.restrictMovement, right.restrictMovement);
             default: {
                 const unsupportField: never = key;
-                throw new Error(`MainRecord: unsupport compare field: ${unsupportField}`);
+                throw new Error(`MainRecord: unsupport compare field: ${unsupportField as K}`);
             }
         }
     }

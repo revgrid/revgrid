@@ -14,16 +14,15 @@ export abstract class StandardElementCellEditor<
         super(grid, dataServer);
         this.element = element;
         element.style.position = 'absolute';
+        element.style.visibility = 'hidden';
     }
 
     override tryOpenCell(_viewCell: DatalessViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         this._grid.canvas.hostElement.appendChild(this.element);
-        this.element.focus();
         return true;
     }
 
     override closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean) {
-        this.element.blur(); // make sure it does not have focus
         this._grid.canvas.hostElement.removeChild(this.element);
     }
 
