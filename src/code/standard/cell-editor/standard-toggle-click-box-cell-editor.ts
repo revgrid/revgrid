@@ -10,13 +10,12 @@ export class StandardToggleClickBoxCellEditor<
     declare protected _painter: ClickBoxCellPainter<BCS, SF>;
 
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, painter: ClickBoxCellPainter<BCS, SF>) {
-        // const painter = new StandardCheckboxCellPainter(grid, dataServer, true);
         super(grid, dataServer, painter);
     }
 
     override tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;
-        if (dataServer.getEditValue === undefined) {
+        if (dataServer.getEditValue === undefined || this.readonly) {
             return false;
         } else {
             if (openingKeyDownEvent !== undefined) {
