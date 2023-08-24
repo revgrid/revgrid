@@ -551,7 +551,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     // (undocumented)
     calculateFixedColumnsWidth(): number;
     // @internal (undocumented)
-    checkAutoWidenAllColumns(): boolean;
+    checkAutoWidenAllColumnsWithoutInvalidation(): boolean;
     // @internal (undocumented)
     clearColumns(): void;
     // @internal (undocumented)
@@ -1218,15 +1218,19 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // @internal (undocumented)
     adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<SF>): void;
     // (undocumented)
+    canGetFocusedEditValue(): boolean;
+    // (undocumented)
+    canSetFocusedEditValue(): boolean;
+    // (undocumented)
     get canvasX(): number | undefined;
     // (undocumented)
     get canvasY(): number | undefined;
     get cell(): ViewCell<BCS, SF> | undefined;
-    // (undocumented)
+    // @internal (undocumented)
     checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: ViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
-    // (undocumented)
+    // @internal (undocumented)
     checkEditorWantsClickEvent(event: MouseEvent, focusedCell: ViewCell<BCS, SF>): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     checkEditorWantsKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean;
     // (undocumented)
     clear(): void;
@@ -1252,6 +1256,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     editorKeyDownEventer: Focus.EditorKeyDownEventer;
     // (undocumented)
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF> | undefined;
+    // (undocumented)
+    getFocusedEditValue(): unknown;
     // (undocumented)
     readonly internalParent: RevgridObject;
     // @internal (undocumented)
@@ -1286,6 +1292,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     readonly revgridId: string;
     // (undocumented)
     set(newFocusPoint: Point, cell: ViewCell<BCS, SF> | undefined, canvasPoint: PartialPoint | undefined): void;
+    // (undocumented)
+    setFocusedEditValue(value: DataServer.ViewValue): void;
     // (undocumented)
     setX(activeColumnIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasX: number | undefined): void;
     // (undocumented)
@@ -4098,10 +4106,6 @@ export abstract class StandardCellEditor<BGS extends BehavioredGridSettings, BCS
     protected isToggleKey(key: string): boolean;
     // (undocumented)
     abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
-    // (undocumented)
-    pullCellValueEventer: CellEditor.PullCellValueEventer;
-    // (undocumented)
-    pushCellValueEventer: CellEditor.PushCellValueEventer;
     // (undocumented)
     get readonly(): boolean;
     set readonly(value: boolean);

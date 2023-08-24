@@ -63,6 +63,9 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
         if (value === this._autoSizing) {
             changed = false;
         } else {
+            if (value) {
+                this._width = 5; // set very low so that autowidening will autosize
+            }
             this._autoSizing = value;
             changed = true;
         }
@@ -75,14 +78,51 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
     }
 
     checkAutoWidthSizing(widenOnly: boolean) {
+        const autosized = this.checkAutoWidthSizingWithoutInvalidation(widenOnly);
+        if (autosized) {
+            this._horizontalViewLayoutInvalidatedEventer();
+        }
+        return autosized;
+    }
+
+    autoSizeWidth(widenOnly: boolean) {
+        const autosized = this.autoSizeWidthWithoutInvalidation(widenOnly);
+        if (autosized) {
+            this._horizontalViewLayoutInvalidatedEventer();
+        }
+        return autosized;
+    }
+
+    /**
+     * @desc Amend properties for this hypergrid only.
+     * @param settings - A simple properties hash.
+     */
+    loadSettings(settings: BCS) {
+        this.settings.merge(settings);
+    }
+
+    /**
+     * @returns '' if data value is undefined
+     */
+    getValueFromDataRow(dataRow: DataServer.ViewRow): DataServer.ViewValue {
+        if (Array.isArray(dataRow)) {
+            return dataRow[this.field.index];
+        } else {
+            return dataRow[this.field.name];
+        }
+    }
+
+    /** @internal */
+    checkAutoWidthSizingWithoutInvalidation(widenOnly: boolean) {
         if (this._autoSizing) {
-            return this.autoSizeWidth(widenOnly);
+            return this.autoSizeWidthWithoutInvalidation(widenOnly);
         } else {
             return false;
         }
     }
 
-    autoSizeWidth(widenOnly: boolean) {
+    /** @internal */
+    autoSizeWidthWithoutInvalidation(widenOnly: boolean) {
         const settings = this.settings;
 
         let newWidth: number;
@@ -114,25 +154,6 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
         } else {
             this._width = newWidth;
             return true;
-        }
-    }
-
-    /**
-     * @desc Amend properties for this hypergrid only.
-     * @param settings - A simple properties hash.
-     */
-    loadSettings(settings: BCS) {
-        this.settings.merge(settings);
-    }
-
-    /**
-     * @returns '' if data value is undefined
-     */
-    getValueFromDataRow(dataRow: DataServer.ViewRow): DataServer.ViewValue {
-        if (Array.isArray(dataRow)) {
-            return dataRow[this.field.index];
-        } else {
-            return dataRow[this.field.name];
         }
     }
 }

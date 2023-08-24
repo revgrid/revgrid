@@ -574,11 +574,11 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    checkAutoWidenAllColumns() {
+    checkAutoWidenAllColumnsWithoutInvalidation() {
         let autoWidened = false;
 
         for (const column of this._activeColumns) {
-            if (column.checkAutoWidthSizing(true)) {
+            if ((column as ColumnImplementation<BCS, SF>).checkAutoWidthSizingWithoutInvalidation(true)) {
                 autoWidened = true;
             }
         }

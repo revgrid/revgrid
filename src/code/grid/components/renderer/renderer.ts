@@ -410,7 +410,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         // before end-of-thread so user sees only the results of the 2nd render.
         // Mostly important on first render after setData. Note that stack overflow
         // will not happen because this will only be called once per data change.
-        if (this._columnsManager.checkAutoWidenAllColumns()) {
+        if (this._columnsManager.checkAutoWidenAllColumnsWithoutInvalidation()) {
             this._viewLayout.invalidateHorizontalAllAndScrollDimensionWithoutAction();
             this._viewLayout.ensureComputedInsideAnimationFrame();
             this._gridPainter.paintCells();
