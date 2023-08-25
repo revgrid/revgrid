@@ -527,6 +527,13 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /** @internal */
+    invalidateHorizontalAllAndScrollDimensionWithoutAction() {
+        // only used from within Animation Frame
+        this._horizontalScrollDimension.invalidate();
+        this._horizontalComputed = false;
+    }
+
+    /** @internal */
     invalidateFieldsInserted(index: number, count: number) {
         const action: ViewLayout.DataRangeInsertedInvalidateAction = {
             type: ViewLayout.InvalidateAction.Type.DataRangeInserted,

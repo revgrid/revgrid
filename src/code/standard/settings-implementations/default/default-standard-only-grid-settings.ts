@@ -1,3 +1,4 @@
+import { TextTruncateType } from '../../painters/standard-painters-public-api';
 import { StandardOnlyGridSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
@@ -25,6 +26,7 @@ export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings = {
 
     font: '13px Tahoma, Geneva, sans-serif',
     horizontalAlign: 'center',
-
-    editorClickCursorName: 'pointer',
+    verticalOffset: 0,
+    textTruncateType: TextTruncateType.WithEllipsis,
+    textStrikeThrough: false,
 } as const;

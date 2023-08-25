@@ -1,4 +1,4 @@
-import { Column, RevRecordMainDataServer, RevRecordSchemaServer, StandardBehavioredColumnSettings } from '..';
+import { Column, RevRecordDataServer, RevRecordSchemaServer, StandardBehavioredColumnSettings } from '..';
 import { defaultAppGridSettings } from './default-app-grid-settings';
 import { GridField, IntValGridField, RecordIndexGridField, StrValGridField } from './grid-field';
 import { InMemoryAppBehavioredGridSettings } from './in-memory-app-behaviored-grid-settings';
@@ -48,7 +48,7 @@ export class Controls {
         private readonly _settings: InMemoryAppBehavioredGridSettings,
         private readonly _recordStore: RecordStore,
         private readonly _schemaServer: RevRecordSchemaServer<GridField>,
-        private readonly _mainDataServer: RevRecordMainDataServer<GridField>,
+        private readonly _mainDataServer: RevRecordDataServer<GridField>,
         private readonly _recordIndexGridField: RecordIndexGridField,
         private readonly _intValGridField: IntValGridField,
         private readonly _strValGridField: StrValGridField,
@@ -928,7 +928,7 @@ export class Controls {
         }
     }
 
-    private createFilterCallbackClosure(): RevRecordMainDataServer.RecordFilterCallback {
+    private createFilterCallbackClosure(): RevRecordDataServer.RecordFilterCallback {
         const threshold = this._integerFilterValue; // make sure current value is kept in closure
 
         return (value) => (value as RecordStore.Record).data[RecordStore.Record.Data.intValIndex] > threshold;

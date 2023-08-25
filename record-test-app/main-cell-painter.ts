@@ -1,29 +1,42 @@
 import {
     CellPainter,
     DatalessViewCell,
-    RevRecordMainDataServer,
+    RevRecordDataServer,
     RevRecordRecentChangeTypeId,
     RevRecordValueRecentChangeTypeId,
+    Revgrid,
     SelectionAreaTypeId,
     StandardBehavioredColumnSettings,
-    StandardTextCellPainter,
+    StandardCellPainter,
+    StandardTextPainter,
     UnreachableCaseError
 } from '..';
 import { AppBehavioredGridSettings } from './app-behaviored-grid-settings';
 import { GridField } from './grid-field';
 
 export class MainCellPainter
-    extends StandardTextCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>
+    extends StandardCellPainter<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>
     implements CellPainter<StandardBehavioredColumnSettings, GridField> {
 
-    protected declare readonly _dataServer: RevRecordMainDataServer<GridField>;
+    protected declare readonly _dataServer: RevRecordDataServer<GridField>;
+
+    private readonly _textPainter: StandardTextPainter;
+
+    constructor(
+        grid: Revgrid<AppBehavioredGridSettings, StandardBehavioredColumnSettings, GridField>,
+        dataServer: RevRecordDataServer<GridField>,
+    ) {
+        super(grid, dataServer);
+
+        this._textPainter = new StandardTextPainter(this._renderingContext);
+    }
 
     paint(cell: DatalessViewCell<StandardBehavioredColumnSettings, GridField>, prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
 
         const gridSettings = this._gridSettings;
         const columnSettings = cell.columnSettings;
-        this.setColumnSettings(columnSettings);
+        this._textPainter.setColumnSettings(columnSettings);
 
         const gc = this._renderingContext;
         const subgrid = cell.subgrid;
@@ -206,7 +219,7 @@ export class MainCellPainter
             } else {
                 gc.cache.fillStyle = foreColor;
                 gc.cache.font = foreFont;
-                return this.renderSingleLineText(bounds, foreText, cellPadding, cellPadding, columnSettings.horizontalAlign);
+                return this._textPainter.renderSingleLineText(bounds, foreText, cellPadding, cellPadding, columnSettings.horizontalAlign);
             }
         }
     }

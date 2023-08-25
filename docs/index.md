@@ -18,9 +18,11 @@ Its main features are:
 * Plug in cell editors
 * Plug in UI controllers
 
-To use Revgrid, you first need to create a set of servers (implementations of the schema and server interfaces) in order to display data with Revgrid. The test programs in the source code demonstrate how to create these servers. In addition, the Revgrid source code contains 2 pre-built server sets:
-* **Data Row Array**: A data set consisting of an array of JSON objects is injected into Revgrid with a `setData()` function.
-* **Record**: Allows applications to work with records and fields and converts these to rows and columns. Sorting and filtering of rows is fully handled by the server set. In addition, the server set allows recent changes in records and field values to be highlighted in the grid.
+To use Revgrid, you first need to create a set of servers (implementations of the schema and server interfaces) in order to display data with Revgrid. The test programs in the source code demonstrate how to create these servers. In addition, the Revgrid source code contains 4 pre-built server sets:
+1. **Record**: Allows applications to work with records and fields and converts these to rows and columns. Sorting and filtering of rows is fully handled by the server set. In addition, the server set allows recent changes in records and field values to be highlighted in the grid.
+1. **Data Row Array**: A data set consisting of an array of JSON objects is injected into Revgrid with a `setData()` function.
+1. **Single Heading**: A one row data set where the value of each cell is obtained from a heading field.
+1. **Multi Heading**: A data set where the value of each cell is obtained from a heading array in the cell's field.
 
 # Install Library
 Revgrid is shipped via NPM. Use the following commands to install it into an application package:\
@@ -45,12 +47,12 @@ Note that the `lib` subfolder only holds the TypeScript declaration files genera
 
 Revgrid has 3 test applications which can be easily built to see it in action:
 * **testapp**: Test application for the grid.
-* **simpletestapp**: Test application for the simple server set.
-* **recordtestapp**: Test application for the record server set.
+* **recordtestapp**: Test application for the Record server set.
+* **dratestapp**: Test application which displays static JSON data from a Data Row Array server set and uses a Multi Heading server set to get headings from the property names within the JSON data.
 
 Follow the steps below to build and run these applications:
 1. Install the source as described above.
-1. Run the respective NPM script (`testapp:serve` or `simpletestapp:serve` or `recordtestapp:serve`) to build the test application and start the server.
+1. Run the respective NPM script (`testapp:serve` or `dratestapp:serve` or `recordtestapp:serve`) to build the test application and start the server.
 1. Start the application by opening the following link in your browser:
     http://localhost:3001/
 
@@ -82,6 +84,7 @@ There are many excellent alternative JavaScript grid libraries (both paid and fr
 
  Version | Date        | Details
 ---------|-------------|---------
+ 0.4.0   | 25 Aug 2023 | Fix Paint AutoWidening<br>Add StandardTextPainter (contains behavior previously in StandardTextCellPainter)<br>Remove StandardTextCellPainter<br>Add StandardCheckboxPainter (contains behavior previously in StandardCheckboxCellPainter)<br>Remove Text settings (move behavior into Standard settings)<br>Rename RevRecordMainDataServer to RevRecordDataServer<br>Split out "Multi Heading" and "Single Heading" server sets from "Data Row Array" server set<br>Delete RevRecordHeaderDataServer (use Single Heading server instead)<br>Rename simpletestapp to dratestapp (short for datarowarraytestapp)<br>Refactor checkbox to allow better re-use<br>Fix Checkbox editor readonly<br>Fix column width autosize not narrowing<br>Initialise StandardElementCellEditor to be hidden<br>Remove focus control from StandardElementCellEditor
  0.3.0   | 18 Aug 2023 | Update packages<br>Fix recommended-requiring-type-checking linting errors<br>Fix & improve animation scheduling<br>Add immediate Animation<br>Add selection methods to class Revgrid<br>Change default for setting multipleSelectionAreas to true<br>Remove EnableContinuousRepaint setting<br>Rename mouseMultiCellRectangleSelection* settings to mouseAddToggleExtendSelectionArea*<br>Add switchNewRectangleSelectionToRowOrColumn setting<br>Rename selectOnly... to clearSelect... Rename selectToggle... to toggleSelect...<br>Hide FocusSelectBehavior and expose its public methods through Revgrid<br>Hide FocusScrollBehavior and expose its public methods through Revgrid<br>Rename CanvasManager to Canvas<br>Add return type to Revgrid.getSelectedRectangles()<br>Prevent selection extending from changing focus<br>Fix column moving when not scrollable<br>Fix right click select<br>Fix Selection adjustForDeleted LastArea<br>Fix ContiguousIndexRangeList.adjustForDeleted()<br>Put includeAll param in Selection.getRowIndices()<br>Add Selection.getRowIndicesIncludeAll()<br>Implement Selection.isSelectedCellTheOnlySelectedCell()<br>Replace Selection.CellSelectedType with SelectionAreaTypeId<br>Include All in SelectionAreaTypeId<br>Fix initialise of Standard Element Cell Editor when opened by key<br>Change CellEditor readonly setter to defer to method setReadOnly() to allow overriding
  0.2.2   | 03 Aug 2023 | Rename CellEditor methods and events<br>Implement Focus invalidate editor<br>Fix Renderer invalidate view<br>Fix bug in Point.adjustForRangeDeleted<br>Remove ScrollbarClassPrefix setting<br>Rework Mouse selection grid settings<br>Add InsertRecords text box to recordtestapp<br>Add support for Focus and Selection in recordtestapp
  0.2.1   | 25 Jul 2023 | Rework revgridId so works with ShadowDom<br>Add options: firstGeneratedIdFromBaseIsAlsoNumbered and canvasOverflowOverride<br>Set canvas display style to block<br>Rework Host, Canvas and Scroller CSS<br>Refactor ScrollDimensionComputedEvent handlers<br>Rename ModelUpdateId to ServerNotificationId<br>Make Revgrid.renderer public<br>

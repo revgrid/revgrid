@@ -117,6 +117,7 @@ export const gridSettingChangeInvalidateTypeIds: GridSettingChangeInvalidateType
     editOnFocusCell: GridSettingChangeInvalidateTypeId.None,
     editOnKeyDown: GridSettingChangeInvalidateTypeId.None,
     editOnClick: GridSettingChangeInvalidateTypeId.None,
+    editorClickableCursorName: GridSettingChangeInvalidateTypeId.None,
     extendLastSelectionAreaModifierKey: GridSettingChangeInvalidateTypeId.None,
     eventDispatchEnabled: GridSettingChangeInvalidateTypeId.None,
     filterable: GridSettingChangeInvalidateTypeId.None,

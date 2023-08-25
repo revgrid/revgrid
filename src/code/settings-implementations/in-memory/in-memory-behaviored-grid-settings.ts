@@ -42,6 +42,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _editOnDoubleClick: boolean;
     private _editOnFocusCell: boolean;
     private _editOnKeyDown: boolean;
+    private _editorClickableCursorName: string | undefined;
     private _extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     private _eventDispatchEnabled: boolean;
     private _filterable: boolean;
@@ -391,6 +392,16 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._editOnKeyDown = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnKeyDown;
+            this.flagChanged(invalidateType);
+            this.endChange();
+        }
+    }
+    get editorClickableCursorName() { return this._editorClickableCursorName; }
+    set editorClickableCursorName(value: string | undefined) {
+        if (value !== this._editorClickableCursorName) {
+            this.beginChange();
+            this._editorClickableCursorName = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.editorClickableCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1196,6 +1207,12 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     if (this._editOnKeyDown !== requiredSettings.editOnKeyDown) {
                         this._editOnKeyDown = requiredSettings.editOnKeyDown;
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnKeyDown);
+                    }
+                    break;
+                case 'editorClickableCursorName':
+                    if (this._editorClickableCursorName !== requiredSettings.editorClickableCursorName) {
+                        this._editorClickableCursorName = requiredSettings.editorClickableCursorName;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editorClickableCursorName);
                     }
                     break;
                 case 'extendLastSelectionAreaModifierKey':

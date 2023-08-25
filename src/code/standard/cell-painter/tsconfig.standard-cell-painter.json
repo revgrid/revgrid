@@ -1,0 +1,18 @@
+{
+  "extends": "../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../tsbuildinfo/standard-cell-painter.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts",
+  ],
+
+  "references": [
+    { "path": "../settings/tsconfig.standard-settings.json" },
+    { "path": "../painters/tsconfig.standard-painters.json" },
+    { "path": "../../grid/tsconfig.grid.json" },
+  ]
+}

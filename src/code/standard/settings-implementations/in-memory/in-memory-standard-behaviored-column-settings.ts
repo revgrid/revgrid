@@ -1,12 +1,12 @@
 import {
-    GridSettingChangeInvalidateTypeId,
-    GridSettings,
+    GridSettings
 } from '../../../grid/grid-public-api';
-import { HorizontalAlign, InMemoryTextBehavioredColumnSettings } from '../../../text/text-public-api';
+import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
+import { HorizontalAlign, TextTruncateType } from '../../painters/standard-painters-public-api';
 import { StandardBehavioredColumnSettings, StandardColumnSettings, StandardGridSettings, StandardOnlyColumnSettings } from '../../settings/standard-settings-public-api';
 
 /** @public */
-export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavioredColumnSettings implements StandardBehavioredColumnSettings {
+export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
     declare gridSettings: StandardGridSettings;
 
     private _cellPadding: number | undefined;
@@ -22,7 +22,9 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
     private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
     private _font: string | undefined;
     private _horizontalAlign: HorizontalAlign | undefined;
-    private _editorClickCursorName: string | undefined | null;
+    private _verticalOffset: number | undefined;
+    private _textTruncateType: TextTruncateType | undefined | null;
+    private _textStrikeThrough: boolean | undefined;
 
     get cellPadding() { return this._cellPadding !== undefined ? this._cellPadding : this.gridSettings.cellPadding; }
     set cellPadding(value: number) {
@@ -177,22 +179,40 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
             this.endChange();
         }
     }
-    get editorClickCursorName() {
-        if (this._editorClickCursorName === null) {
-            return undefined;
-        } else {
-            return this._editorClickCursorName !== undefined ? this._editorClickCursorName : this.gridSettings.editorClickCursorName;
+    get verticalOffset() { return this._verticalOffset !== undefined ? this._verticalOffset : this.gridSettings.verticalOffset; }
+    set verticalOffset(value: number) {
+        if (value !== this._verticalOffset) {
+            this.beginChange();
+            this._verticalOffset = value;
+            this.flagChangedViewRender();
+            this.endChange();
         }
     }
-    set editorClickCursorName(value: string | undefined) {
-        if (value !== this._editorClickCursorName) {
+    get textTruncateType() {
+        if (this._textTruncateType === null) {
+            return undefined;
+        } else {
+            return this._textTruncateType !== undefined ? this._textTruncateType : this.gridSettings.textTruncateType;
+        }
+    }
+    set textTruncateType(value: TextTruncateType | undefined) {
+        if (value !== this._textTruncateType) {
             this.beginChange();
-            if (this._editorClickCursorName === undefined) {
-                this._editorClickCursorName = null;
+            if (value === undefined) {
+                this._textTruncateType = null;
             } else {
-                this._editorClickCursorName = value;
+                this._textTruncateType = value;
             }
-            this.flagChanged(GridSettingChangeInvalidateTypeId.None);
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+    get textStrikeThrough() { return this._textStrikeThrough !== undefined ? this._textStrikeThrough : this.gridSettings.textStrikeThrough; }
+    set textStrikeThrough(value: boolean) {
+        if (value !== this._textStrikeThrough) {
+            this.beginChange();
+            this._textStrikeThrough = value;
+            this.flagChangedViewRender();
             this.endChange();
         }
     }
@@ -285,10 +305,22 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'editorClickCursorName':
-                    if (this._editorClickCursorName !== requiredSettings.editorClickCursorName) {
-                        this._editorClickCursorName = requiredSettings.editorClickCursorName;
-                        this.flagChanged(GridSettingChangeInvalidateTypeId.None);
+                case 'verticalOffset':
+                    if (this._verticalOffset !== requiredSettings.verticalOffset) {
+                        this._verticalOffset = requiredSettings.verticalOffset;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'textTruncateType':
+                    if (this._textTruncateType !== requiredSettings.textTruncateType) {
+                        this._textTruncateType = requiredSettings.textTruncateType;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'textStrikeThrough':
+                    if (this._textStrikeThrough !== requiredSettings.textStrikeThrough) {
+                        this._textStrikeThrough = requiredSettings.textStrikeThrough;
+                        this.flagChangedViewRender();
                     }
                     break;
 

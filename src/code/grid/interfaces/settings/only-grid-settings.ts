@@ -45,6 +45,8 @@ export interface OnlyGridSettings {
     editOnFocusCell: boolean;
     /** Open cell editor for cell when cell focus and certain keys are pushed down */
     editOnKeyDown: boolean;
+    /** Cursor to display when cell editor can be clicked */
+    editorClickableCursorName: string | undefined;
     /** Modifier key that indicates a UI action should extend the selection area */
     extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     /** Whether grid events are dispatched as DOM events */

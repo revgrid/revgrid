@@ -13,6 +13,7 @@ export type OnlyColumnSettings = Pick<OnlyGridSettings,
     'editOnDoubleClick' |
     'editOnFocusCell' |
     'editOnKeyDown' |
+    'editorClickableCursorName' |
     'filterable' |
     'maximumColumnWidth' |
     'minimumColumnWidth' |

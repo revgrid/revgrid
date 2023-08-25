@@ -11,9 +11,10 @@
   ],
 
   "references": [
-    { "path": "./cell-editors/tsconfig.standard-cell-editors.json" },
-    { "path": "./cell-painters/tsconfig.standard-cell-painters.json" },
+    { "path": "./cell-editor/tsconfig.standard-cell-editor.json" },
+    { "path": "./cell-painter/tsconfig.standard-cell-painter.json" },
     { "path": "./settings-implementations/tsconfig.standard-settings-implementations.json" },
+    { "path": "./painters/tsconfig.standard-painters.json" },
     { "path": "./settings/tsconfig.standard-settings.json" },
   ]
 }

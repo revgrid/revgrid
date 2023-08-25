@@ -405,17 +405,13 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private paintAll() {
         this._gridPainter.paintCells();
 
-
-        // if (this.grid.cellEditor) {
-        //     this.grid.cellEditor.gridRenderedNotification();
-        // }
-
         // Grid render also calculates mix width for each column.
         // Check here to see if there was a change and if so immediately re-render
         // before end-of-thread so user sees only the results of the 2nd render.
         // Mostly important on first render after setData. Note that stack overflow
         // will not happen because this will only be called once per data change.
-        if (this._columnsManager.checkAllColumnsAutoWidthSizing(true, true)) {
+        if (this._columnsManager.checkAutoWidenAllColumnsWithoutInvalidation()) {
+            this._viewLayout.invalidateHorizontalAllAndScrollDimensionWithoutAction();
             this._viewLayout.ensureComputedInsideAnimationFrame();
             this._gridPainter.paintCells();
         }

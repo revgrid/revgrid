@@ -11,8 +11,8 @@
   ],
 
   "references": [
-    { "path": "./multi-heading/tsconfig.server-sets-data-row-array-multi-heading.json" },
-    { "path": "./single-heading/tsconfig.server-sets-data-row-array-single-heading.json" },
-    { "path": "./common/tsconfig.server-sets-data-row-array-common.json" }
+    { "path": "../single-heading/tsconfig.server-sets-single-heading.json" },
+    { "path": "../multi-heading/tsconfig.server-sets-multi-heading.json" },
+    { "path": "../../grid/tsconfig.grid.json" }
   ]
 }

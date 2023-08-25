@@ -14,6 +14,7 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     private _editOnDoubleClick: boolean | undefined;
     private _editOnFocusCell: boolean | undefined;
     private _editOnKeyDown: boolean | undefined;
+    private _editorClickableCursorName: string | undefined | null;
     private _filterable: boolean | undefined;
     private _maximumColumnWidth: number | undefined | null;
     private _minimumColumnWidth: number | undefined;
@@ -161,6 +162,27 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
             this.beginChange();
             this._editOnKeyDown = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.editOnKeyDown;
+            this.flagChanged(invalidateType);
+            this.endChange();
+        }
+    }
+
+    get editorClickableCursorName() {
+        if (this._editorClickableCursorName === null) {
+            return undefined;
+        } else {
+            return this._editorClickableCursorName !== undefined ? this._editorClickableCursorName : this.gridSettings.editorClickableCursorName;
+        }
+    }
+    set editorClickableCursorName(value: string | undefined) {
+        if (value !== this._editorClickableCursorName) {
+            this.beginChange();
+            if (this._editorClickableCursorName === undefined) {
+                this._editorClickableCursorName = null;
+            } else {
+                this._editorClickableCursorName = value;
+            }
+            const invalidateType = gridSettingChangeInvalidateTypeIds.editorClickableCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -314,6 +336,12 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
                     if (this._editOnKeyDown !== requiredSettings.editOnKeyDown) {
                         this._editOnKeyDown = requiredSettings.editOnKeyDown;
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnKeyDown);
+                    }
+                    break;
+                case 'editorClickableCursorName':
+                    if (this._editorClickableCursorName !== requiredSettings.editorClickableCursorName) {
+                        this._editorClickableCursorName = requiredSettings.editorClickableCursorName;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editorClickableCursorName);
                     }
                     break;
                 case 'filterable':

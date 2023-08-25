@@ -15,5 +15,7 @@ export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings,
     'columnHeaderSelectionForegroundColor' |
     'font' |
     'horizontalAlign' |
-    'editorClickCursorName'
+    'verticalOffset' |
+    'textTruncateType' |
+    'textStrikeThrough'
 >;

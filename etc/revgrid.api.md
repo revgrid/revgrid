@@ -283,6 +283,16 @@ export namespace CachedCanvasRenderingContext2D {
     }
 }
 
+// Warning: (ae-internal-missing-underscore) The name "calculateAdjustmentForRangeMoved" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function calculateAdjustmentForRangeMoved(value: number, oldRangeIndex: number, newRangeIndex: number, rangeCount: number): number;
+
+// Warning: (ae-internal-missing-underscore) The name "calculateNumberArrayUniqueCount" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function calculateNumberArrayUniqueCount<T extends number>(array: T[]): number;
+
 // @public (undocumented)
 export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject {
     // @internal
@@ -480,6 +490,12 @@ export namespace CellPainter {
 }
 
 // @public (undocumented)
+export interface ClickBoxCellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends CellPainter<BCS, SF> {
+    // (undocumented)
+    calculateClickBox(cell: DatalessViewCell<BCS, SF>): Rectangle | undefined;
+}
+
+// @public (undocumented)
 export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     // (undocumented)
     autoSizeWidth(widenOnly: boolean): boolean;
@@ -535,7 +551,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     // (undocumented)
     calculateFixedColumnsWidth(): number;
     // @internal (undocumented)
-    checkAllColumnsAutoWidthSizing(widenOnly: boolean, withinAnimationFrame: boolean): boolean;
+    checkAutoWidenAllColumnsWithoutInvalidation(): boolean;
     // @internal (undocumented)
     clearColumns(): void;
     // @internal (undocumented)
@@ -825,14 +841,14 @@ export interface DatalessViewLayoutRow {
 }
 
 // @public (undocumented)
-export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataServer<SF> {
+export class DataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    addRow(dataRow: DataRowArrayMainDataServer.DataRow): void;
+    addRow(dataRow: DataRowArrayDataServer.DataRow): void;
     // (undocumented)
-    addRow(index: number, dataRow: DataRowArrayMainDataServer.DataRow): void;
+    addRow(index: number, dataRow: DataRowArrayDataServer.DataRow): void;
     // (undocumented)
     beginDataChange(): void;
-    delRow(index: number, count?: number): DataRowArrayMainDataServer.DataRow[];
+    delRow(index: number, count?: number): DataRowArrayDataServer.DataRow[];
     // (undocumented)
     endDataChange(): void;
     // (undocumented)
@@ -840,18 +856,18 @@ export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataS
     // (undocumented)
     getRowMetadata(index: number, prototype?: null): false | MetaModel.RowMetadata;
     // (undocumented)
-    getViewRow(index: number): DataRowArrayMainDataServer.DataRow;
+    getViewRow(index: number): DataRowArrayDataServer.DataRow;
     // (undocumented)
     getViewValue(field: SF, y: number): unknown;
     // (undocumented)
     invalidateAll(): void;
     // (undocumented)
-    reset(data?: DataRowArrayMainDataServer.DataRow[]): void;
+    reset(data?: DataRowArrayDataServer.DataRow[]): void;
     // (undocumented)
     setEditValue(field: SF, y: number, value: unknown): void;
     // (undocumented)
     setRowMetadata(index: number, metadata: MetaModel.RowMetadata): boolean;
-    setViewRow(index: number, dataRow: DataRowArrayMainDataServer.DataRow): void;
+    setViewRow(index: number, dataRow: DataRowArrayDataServer.DataRow): void;
     // (undocumented)
     subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
     // (undocumented)
@@ -859,7 +875,7 @@ export class DataRowArrayMainDataServer<SF extends SchemaField> implements DataS
 }
 
 // @public (undocumented)
-export namespace DataRowArrayMainDataServer {
+export namespace DataRowArrayDataServer {
     // (undocumented)
     export interface DataRow extends DataServer.ObjectViewRow {
         // (undocumented)
@@ -977,6 +993,21 @@ export namespace DataServer {
     export type ViewValue = unknown;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "deepClone" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function deepClone(object: Record<string, unknown>): unknown;
+
+// Warning: (ae-internal-missing-underscore) The name "deepExtendObject" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function deepExtendObject(target: Record<string, unknown>, obj: Record<string, unknown> | undefined): Record<string, unknown>;
+
+// Warning: (ae-internal-missing-underscore) The name "deepExtendValue" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function deepExtendValue(existingTarget: unknown, value: unknown): unknown;
+
 // @public (undocumented)
 export const defaultColumnSettings: ColumnSettings;
 
@@ -1000,18 +1031,6 @@ export const defaultStandardOnlyColumnSettings: StandardOnlyColumnSettings;
 
 // @public (undocumented)
 export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings;
-
-// @public (undocumented)
-export const defaultTextColumnSettings: TextColumnSettings;
-
-// @public (undocumented)
-export const defaultTextGridSettings: TextGridSettings;
-
-// @public (undocumented)
-export const defaultTextOnlyColumnSettings: TextOnlyColumnSettings;
-
-// @public (undocumented)
-export const defaultTextOnlyGridSettings: TextOnlyGridSettings;
 
 // @public (undocumented)
 export namespace DispatchableEvent {
@@ -1199,15 +1218,19 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     // @internal (undocumented)
     adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: DataServer<SF>): void;
     // (undocumented)
+    canGetFocusedEditValue(): boolean;
+    // (undocumented)
+    canSetFocusedEditValue(): boolean;
+    // (undocumented)
     get canvasX(): number | undefined;
     // (undocumented)
     get canvasY(): number | undefined;
     get cell(): ViewCell<BCS, SF> | undefined;
-    // (undocumented)
+    // @internal (undocumented)
     checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: ViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
-    // (undocumented)
+    // @internal (undocumented)
     checkEditorWantsClickEvent(event: MouseEvent, focusedCell: ViewCell<BCS, SF>): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     checkEditorWantsKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean;
     // (undocumented)
     clear(): void;
@@ -1233,6 +1256,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     editorKeyDownEventer: Focus.EditorKeyDownEventer;
     // (undocumented)
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF> | undefined;
+    // (undocumented)
+    getFocusedEditValue(): unknown;
     // (undocumented)
     readonly internalParent: RevgridObject;
     // @internal (undocumented)
@@ -1267,6 +1292,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     readonly revgridId: string;
     // (undocumented)
     set(newFocusPoint: Point, cell: ViewCell<BCS, SF> | undefined, canvasPoint: PartialPoint | undefined): void;
+    // (undocumented)
+    setFocusedEditValue(value: DataServer.ViewValue): void;
     // (undocumented)
     setX(activeColumnIndex: number, cell: ViewCell<BCS, SF> | undefined, canvasX: number | undefined): void;
     // (undocumented)
@@ -1338,6 +1365,11 @@ export namespace Focus {
     // @internal (undocumented)
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
 }
+
+// Warning: (ae-internal-missing-underscore) The name "getErrorMessage" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function getErrorMessage(e: unknown): string;
 
 // @public (undocumented)
 export namespace GridSettingChangeInvalidateType {
@@ -1575,6 +1607,9 @@ export class InMemoryBehavioredColumnSettings extends InMemoryBehavioredSettings
     get editOnKeyDown(): boolean;
     set editOnKeyDown(value: boolean);
     // (undocumented)
+    get editorClickableCursorName(): string | undefined;
+    set editorClickableCursorName(value: string | undefined);
+    // (undocumented)
     get filterable(): boolean;
     set filterable(value: boolean);
     // (undocumented)
@@ -1689,6 +1724,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     // (undocumented)
     get editOnKeyDown(): boolean;
     set editOnKeyDown(value: boolean);
+    // (undocumented)
+    get editorClickableCursorName(): string | undefined;
+    set editorClickableCursorName(value: string | undefined);
     // (undocumented)
     get eventDispatchEnabled(): boolean;
     set eventDispatchEnabled(value: boolean);
@@ -1906,7 +1944,7 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
 }
 
 // @public (undocumented)
-export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavioredColumnSettings implements StandardBehavioredColumnSettings {
+export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements StandardBehavioredColumnSettings {
     // (undocumented)
     get cellFocusedBorderColor(): GridSettings.Color | undefined;
     set cellFocusedBorderColor(value: GridSettings.Color | undefined);
@@ -1943,9 +1981,6 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
     get columnHoverBackgroundColor(): GridSettings.Color | undefined;
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get editorClickCursorName(): string | undefined;
-    set editorClickCursorName(value: string | undefined);
-    // (undocumented)
     get font(): string;
     set font(value: string);
     // (undocumented)
@@ -1955,10 +1990,19 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryTextBehavi
     set horizontalAlign(value: HorizontalAlign);
     // (undocumented)
     merge(settings: Partial<StandardColumnSettings>): boolean;
+    // (undocumented)
+    get textStrikeThrough(): boolean;
+    set textStrikeThrough(value: boolean);
+    // (undocumented)
+    get textTruncateType(): TextTruncateType | undefined;
+    set textTruncateType(value: TextTruncateType | undefined);
+    // (undocumented)
+    get verticalOffset(): number;
+    set verticalOffset(value: number);
 }
 
 // @public (undocumented)
-export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavioredGridSettings implements StandardBehavioredGridSettings {
+export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
     // (undocumented)
     get cellFocusedBorderColor(): GridSettings.Color | undefined;
     set cellFocusedBorderColor(value: GridSettings.Color | undefined);
@@ -1995,9 +2039,6 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
     get columnHoverBackgroundColor(): GridSettings.Color | undefined;
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get editorClickCursorName(): string | undefined;
-    set editorClickCursorName(value: string | undefined);
-    // (undocumented)
     get font(): string;
     set font(value: string);
     // (undocumented)
@@ -2017,33 +2058,6 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryTextBehavior
     // (undocumented)
     get selectionForegroundColor(): GridSettings.Color;
     set selectionForegroundColor(value: GridSettings.Color);
-}
-
-// @public (undocumented)
-export class InMemoryTextBehavioredColumnSettings extends InMemoryBehavioredColumnSettings implements TextBehavioredColumnSettings {
-    // (undocumented)
-    clone(): InMemoryTextBehavioredColumnSettings;
-    // (undocumented)
-    gridSettings: TextGridSettings;
-    // (undocumented)
-    merge(settings: Partial<TextColumnSettings>): boolean;
-    // (undocumented)
-    get textStrikeThrough(): boolean;
-    set textStrikeThrough(value: boolean);
-    // (undocumented)
-    get textTruncateType(): TextTruncateType | undefined;
-    set textTruncateType(value: TextTruncateType | undefined);
-    // (undocumented)
-    get verticalOffset(): number;
-    set verticalOffset(value: number);
-}
-
-// @public (undocumented)
-export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSettings implements TextBehavioredGridSettings {
-    // (undocumented)
-    clone(): InMemoryTextBehavioredGridSettings;
-    // (undocumented)
-    merge(settings: Partial<TextGridSettings>): boolean;
     // (undocumented)
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
@@ -2057,6 +2071,11 @@ export class InMemoryTextBehavioredGridSettings extends InMemoryBehavioredGridSe
 
 // @public (undocumented)
 export const invalidServerNotificationId = -1;
+
+// Warning: (ae-internal-missing-underscore) The name "isDigit" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function isDigit(char: string): boolean;
 
 // @public (undocumented)
 export class LastSelectionArea extends FirstCornerRectangle implements SelectionArea {
@@ -2256,7 +2275,31 @@ export namespace Mouse {
 }
 
 // @public (undocumented)
-export class MultiHeadingDataRowArrayHeaderDataServer<SF extends MultiHeadingDataRowArraySchemaField> implements DataServer<SF> {
+export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaField> {
+    constructor(
+    _createFieldEventer: MultiHeadingDataRowArrayServerSet.CreateFieldEventer<SF>);
+    // (undocumented)
+    readonly headerDataServer: MultiHeadingDataServer<SF>;
+    // (undocumented)
+    readonly mainDataServer: DataRowArrayDataServer<SF>;
+    // (undocumented)
+    readonly schemaServer: DataRowArraySchemaServer<SF>;
+    setData(data: MultiHeadingDataRowArrayServerSet.DataRow[] | (() => MultiHeadingDataRowArrayServerSet.DataRow[]), headerRowCount?: number): void;
+}
+
+// @public (undocumented)
+export namespace MultiHeadingDataRowArrayServerSet {
+    // (undocumented)
+    export type CreateFieldEventer<SF extends MultiHeadingSchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
+    // (undocumented)
+    export interface DataRow extends DataRowArrayDataServer.DataRow {
+        // (undocumented)
+        [fieldName: string]: DataServer.ViewValue | string;
+    }
+}
+
+// @public (undocumented)
+export class MultiHeadingDataServer<SF extends MultiHeadingSchemaField> implements DataServer<SF> {
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
@@ -2270,37 +2313,18 @@ export class MultiHeadingDataRowArrayHeaderDataServer<SF extends MultiHeadingDat
 }
 
 // @public (undocumented)
-export interface MultiHeadingDataRowArraySchemaField extends SchemaField {
+export interface MultiHeadingSchemaField extends SchemaField {
     // (undocumented)
     headings: string[];
 }
 
-// @public (undocumented)
-export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingDataRowArraySchemaField> {
-    constructor(
-    _createFieldEventer: MultiHeadingDataRowArrayServerSet.CreateFieldEventer<SF>);
-    // (undocumented)
-    readonly headerDataServer: MultiHeadingDataRowArrayHeaderDataServer<SF>;
-    // (undocumented)
-    readonly mainDataServer: DataRowArrayMainDataServer<SF>;
-    // (undocumented)
-    readonly schemaServer: DataRowArraySchemaServer<SF>;
-    setData(data: MultiHeadingDataRowArrayServerSet.DataRow[] | (() => MultiHeadingDataRowArrayServerSet.DataRow[]), headerRowCount?: number): void;
-}
+// Warning: (ae-internal-missing-underscore) The name "numberToPixels" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function numberToPixels(value: number): string;
 
 // @public (undocumented)
-export namespace MultiHeadingDataRowArrayServerSet {
-    // (undocumented)
-    export type CreateFieldEventer<SF extends MultiHeadingDataRowArraySchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
-    // (undocumented)
-    export interface DataRow extends DataRowArrayMainDataServer.DataRow {
-        // (undocumented)
-        [fieldName: string]: DataServer.ViewValue | string;
-    }
-}
-
-// @public (undocumented)
-export type OnlyColumnSettings = Pick<OnlyGridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
+export type OnlyColumnSettings = Pick<OnlyGridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'editorClickableCursorName' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
 
 // @public (undocumented)
 export interface OnlyGridSettings {
@@ -2349,6 +2373,7 @@ export interface OnlyGridSettings {
     editOnDoubleClick: boolean;
     editOnFocusCell: boolean;
     editOnKeyDown: boolean;
+    editorClickableCursorName: string | undefined;
     eventDispatchEnabled: boolean;
     extendLastSelectionAreaModifierKey: ModifierKeyEnum;
     filterable: boolean;
@@ -2536,12 +2561,6 @@ export const readonlyDefaultStandardBehavioredColumnSettings: Readonly<StandardB
 
 // @public (undocumented)
 export const readonlyDefaultStandardBehavioredGridSettings: Readonly<StandardBehavioredGridSettings>;
-
-// @public (undocumented)
-export const readonlyDefaultTextBehavioredColumnSettings: Readonly<TextBehavioredColumnSettings>;
-
-// @public (undocumented)
-export const readonlyDefaultTextBehavioredGridSettings: Readonly<TextBehavioredGridSettings>;
 
 // @public (undocumented)
 export interface Rectangle {
@@ -3168,6 +3187,151 @@ export class RevRecordDataError extends RevRecordExternalError {
 }
 
 // @public (undocumented)
+export class RevRecordDataServer<SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
+    constructor(_schemaServer: RevRecordSchemaServer<SF>, _recordStore: RevRecordStore);
+    // (undocumented)
+    get allChangedRecentDuration(): number;
+    set allChangedRecentDuration(value: number);
+    // (undocumented)
+    allRecordsDeleted(): void;
+    // (undocumented)
+    beginChange(): void;
+    // (undocumented)
+    clearSort(): boolean;
+    // (undocumented)
+    clearSortFieldSpecifiers(): void;
+    // (undocumented)
+    get continuousFiltering(): boolean;
+    set continuousFiltering(value: boolean);
+    // (undocumented)
+    destroy(): void;
+    // (undocumented)
+    endChange(): void;
+    // (undocumented)
+    get filterCallback(): RevRecordDataServer.RecordFilterCallback | undefined;
+    set filterCallback(value: RevRecordDataServer.RecordFilterCallback | undefined);
+    // (undocumented)
+    getEditValue(field: SF, rowIndex: number): DataServer.EditValue;
+    // (undocumented)
+    getFieldSortAscending(field: RevRecordFieldIndex | SF): boolean | undefined;
+    // (undocumented)
+    getFieldSortPriority(field: RevRecordFieldIndex | SF): number | undefined;
+    // (undocumented)
+    getRecordIndexFromRowIndex(rowIndex: number): RevRecordIndex;
+    // (undocumented)
+    getRecordRecentChangeTypeId(rowIndex: number): RevRecordRecentChangeTypeId | undefined;
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getRowIdFromIndex(rowIndex: number): unknown;
+    // (undocumented)
+    getRowIndexFromId(rowId: unknown): number | undefined;
+    // (undocumented)
+    getRowIndexFromRecordIndex(recordIndex: RevRecordIndex): number | undefined;
+    // (undocumented)
+    getSortSpecifier(index: number): RevRecordDataServer.SortFieldSpecifier;
+    // (undocumented)
+    getValueRecentChangeTypeId(field: SF, rowIndex: number): RevRecordValueRecentChangeTypeId | undefined;
+    // (undocumented)
+    getViewValue(field: SF, rowIndex: number): DataServer.ViewValue;
+    // (undocumented)
+    invalidateAll(): void;
+    // (undocumented)
+    invalidateFields(fieldIndexes: readonly RevRecordFieldIndex[]): void;
+    // (undocumented)
+    invalidateFiltering(): void;
+    // (undocumented)
+    invalidateRecord(recordIndex: RevRecordIndex, recent?: boolean): void;
+    // (undocumented)
+    invalidateRecordAndValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[], recordUpdateRecent?: boolean): void;
+    // (undocumented)
+    invalidateRecordFields(recordIndex: RevRecordIndex, fieldIndex: RevRecordFieldIndex, fieldCount: number): void;
+    // (undocumented)
+    invalidateRecords(recordIndex: RevRecordIndex, count: number, recent?: boolean): void;
+    // (undocumented)
+    invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[]): void;
+    // (undocumented)
+    invalidateValue(fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex, valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId): void;
+    // (undocumented)
+    isAnyFieldInRangeSorted(rangeFieldIndex: number, rangeCount: number): boolean;
+    // (undocumented)
+    isAnyFieldSorted(fieldIndexes: readonly RevRecordFieldIndex[]): boolean;
+    // (undocumented)
+    isFieldSorted(fieldIndex: RevRecordFieldIndex): boolean;
+    // (undocumented)
+    get isFiltered(): boolean;
+    // Warning: (ae-forgotten-export) The symbol "RevRecordRecentChanges" needs to be exported by the entry point public-api.d.ts
+    //
+    // (undocumented)
+    get recentChanges(): RevRecordRecentChanges;
+    // (undocumented)
+    get recordCount(): number;
+    // (undocumented)
+    recordDeleted(recordIndex: RevRecordIndex): void;
+    // (undocumented)
+    recordInserted(recordIndex: RevRecordIndex, recent?: boolean): void;
+    // (undocumented)
+    get recordInsertedRecentDuration(): number;
+    set recordInsertedRecentDuration(value: number);
+    // (undocumented)
+    recordsDeleted(recordIndex: number, count: number): void;
+    // (undocumented)
+    recordsInserted(firstInsertedRecordIndex: RevRecordIndex, count: number, recent?: boolean): void;
+    // (undocumented)
+    recordsLoaded(recent?: boolean): void;
+    // (undocumented)
+    recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number): void;
+    // (undocumented)
+    get recordUpdatedRecentDuration(): number;
+    set recordUpdatedRecentDuration(value: number);
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    reverseRowIndex(rowIndex: number): number;
+    // (undocumented)
+    reverseRowIndexIfRowOrderReversed(rowIndex: number): number;
+    // (undocumented)
+    get rowCount(): number;
+    // (undocumented)
+    get rowOrderReversed(): boolean;
+    set rowOrderReversed(value: boolean);
+    // (undocumented)
+    setEditValue(field: SF, rowIndex: number, value: DataServer.EditValue): void;
+    // (undocumented)
+    sort(): void;
+    // (undocumented)
+    sortBy(fieldIndex?: number, isAscending?: boolean): boolean;
+    // (undocumented)
+    sortByMany(specifiers: readonly RevRecordDataServer.SortFieldSpecifier[]): boolean;
+    // (undocumented)
+    get sortColumnCount(): number;
+    // (undocumented)
+    get sortFieldSpecifierCount(): number;
+    // (undocumented)
+    get sortFieldSpecifiers(): readonly RevRecordDataServer.SortFieldSpecifier[];
+    // (undocumented)
+    subscribeDataNotifications(value: DataServer.NotificationsClient): void;
+    // (undocumented)
+    get valueChangedRecentDuration(): number;
+    set valueChangedRecentDuration(value: number);
+}
+
+// @public (undocumented)
+export namespace RevRecordDataServer {
+    // (undocumented)
+    export type RecordFilterCallback = (this: void, record: RevRecord) => boolean;
+    // (undocumented)
+    export interface SortFieldSpecifier {
+        // (undocumented)
+        ascending: boolean;
+        // (undocumented)
+        fieldIndex: RevRecordFieldIndex;
+    }
+    // (undocumented)
+    export type SpecifierComparer = (this: void, left: RevRecordRow, right: RevRecordRow) => number;
+}
+
+// @public (undocumented)
 export interface RevRecordDataStore extends RevRecordStore {
     getRecord(index: RevRecordIndex): RevRecordData;
     getRecords(): readonly RevRecordData[];
@@ -3230,19 +3394,6 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
     setEditValue(_record: RevRecord, _value: DataServer.EditValue): void;
 }
 
-// @public (undocumented)
-export class RevRecordHeaderDataServer<SF extends RevRecordField> implements DataServer<SF> {
-    constructor(_rowCount?: number);
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getViewValue(field: SF, _rowCount: number): string;
-    // (undocumented)
-    invalidateCell(schemaColumnIndex: number, rowIndex?: number): void;
-    // (undocumented)
-    subscribeDataNotifications(value: DataServer.NotificationsClient): void;
-}
-
 // @public
 export type RevRecordIndex = number;
 
@@ -3256,153 +3407,6 @@ export interface RevRecordInvalidatedValue {
     fieldIndex: RevRecordFieldIndex;
     // (undocumented)
     typeId?: RevRecordValueRecentChangeTypeId;
-}
-
-// @public (undocumented)
-export class RevRecordMainDataServer<SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
-    constructor(_schemaServer: RevRecordSchemaServer<SF>, _recordStore: RevRecordStore);
-    // (undocumented)
-    get allChangedRecentDuration(): number;
-    set allChangedRecentDuration(value: number);
-    // (undocumented)
-    allRecordsDeleted(): void;
-    // (undocumented)
-    beginChange(): void;
-    // (undocumented)
-    clearSort(): boolean;
-    // (undocumented)
-    clearSortFieldSpecifiers(): void;
-    // (undocumented)
-    get continuousFiltering(): boolean;
-    set continuousFiltering(value: boolean);
-    // (undocumented)
-    destroy(): void;
-    // (undocumented)
-    endChange(): void;
-    // (undocumented)
-    get filterCallback(): RevRecordMainDataServer.RecordFilterCallback | undefined;
-    set filterCallback(value: RevRecordMainDataServer.RecordFilterCallback | undefined);
-    // (undocumented)
-    getEditValue(field: SF, rowIndex: number): DataServer.EditValue;
-    // (undocumented)
-    getFieldSortAscending(field: RevRecordFieldIndex | SF): boolean | undefined;
-    // (undocumented)
-    getFieldSortPriority(field: RevRecordFieldIndex | SF): number | undefined;
-    // (undocumented)
-    getRecordIndexFromRowIndex(rowIndex: number): RevRecordIndex;
-    // (undocumented)
-    getRecordRecentChangeTypeId(rowIndex: number): RevRecordRecentChangeTypeId | undefined;
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getRowIdFromIndex(rowIndex: number): unknown;
-    // (undocumented)
-    getRowIndexFromId(rowId: unknown): number | undefined;
-    // (undocumented)
-    getRowIndexFromRecordIndex(recordIndex: RevRecordIndex): number | undefined;
-    // (undocumented)
-    getSortSpecifier(index: number): RevRecordMainDataServer.SortFieldSpecifier;
-    // (undocumented)
-    getValueRecentChangeTypeId(field: SF, rowIndex: number): RevRecordValueRecentChangeTypeId | undefined;
-    // (undocumented)
-    getViewValue(field: SF, rowIndex: number): DataServer.ViewValue;
-    // (undocumented)
-    invalidateAll(): void;
-    // (undocumented)
-    invalidateFields(fieldIndexes: readonly RevRecordFieldIndex[]): void;
-    // (undocumented)
-    invalidateFiltering(): void;
-    // (undocumented)
-    invalidateRecord(recordIndex: RevRecordIndex, recent?: boolean): void;
-    // (undocumented)
-    invalidateRecordAndValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[], recordUpdateRecent?: boolean): void;
-    // (undocumented)
-    invalidateRecordFields(recordIndex: RevRecordIndex, fieldIndex: RevRecordFieldIndex, fieldCount: number): void;
-    // (undocumented)
-    invalidateRecords(recordIndex: RevRecordIndex, count: number, recent?: boolean): void;
-    // (undocumented)
-    invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[]): void;
-    // (undocumented)
-    invalidateValue(fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex, valueRecentChangeTypeId?: RevRecordValueRecentChangeTypeId): void;
-    // (undocumented)
-    isAnyFieldInRangeSorted(rangeFieldIndex: number, rangeCount: number): boolean;
-    // (undocumented)
-    isAnyFieldSorted(fieldIndexes: readonly RevRecordFieldIndex[]): boolean;
-    // (undocumented)
-    isFieldSorted(fieldIndex: RevRecordFieldIndex): boolean;
-    // (undocumented)
-    get isFiltered(): boolean;
-    // (undocumented)
-    readonly mainDataModel = true;
-    // Warning: (ae-forgotten-export) The symbol "RevRecordRecentChanges" needs to be exported by the entry point public-api.d.ts
-    //
-    // (undocumented)
-    get recentChanges(): RevRecordRecentChanges;
-    // (undocumented)
-    get recordCount(): number;
-    // (undocumented)
-    recordDeleted(recordIndex: RevRecordIndex): void;
-    // (undocumented)
-    recordInserted(recordIndex: RevRecordIndex, recent?: boolean): void;
-    // (undocumented)
-    get recordInsertedRecentDuration(): number;
-    set recordInsertedRecentDuration(value: number);
-    // (undocumented)
-    recordsDeleted(recordIndex: number, count: number): void;
-    // (undocumented)
-    recordsInserted(firstInsertedRecordIndex: RevRecordIndex, count: number, recent?: boolean): void;
-    // (undocumented)
-    recordsLoaded(recent?: boolean): void;
-    // (undocumented)
-    recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number): void;
-    // (undocumented)
-    get recordUpdatedRecentDuration(): number;
-    set recordUpdatedRecentDuration(value: number);
-    // (undocumented)
-    reset(): void;
-    // (undocumented)
-    reverseRowIndex(rowIndex: number): number;
-    // (undocumented)
-    reverseRowIndexIfRowOrderReversed(rowIndex: number): number;
-    // (undocumented)
-    get rowCount(): number;
-    // (undocumented)
-    get rowOrderReversed(): boolean;
-    set rowOrderReversed(value: boolean);
-    // (undocumented)
-    setEditValue(field: SF, rowIndex: number, value: DataServer.EditValue): void;
-    // (undocumented)
-    sort(): void;
-    // (undocumented)
-    sortBy(fieldIndex?: number, isAscending?: boolean): boolean;
-    // (undocumented)
-    sortByMany(specifiers: readonly RevRecordMainDataServer.SortFieldSpecifier[]): boolean;
-    // (undocumented)
-    get sortColumnCount(): number;
-    // (undocumented)
-    get sortFieldSpecifierCount(): number;
-    // (undocumented)
-    get sortFieldSpecifiers(): readonly RevRecordMainDataServer.SortFieldSpecifier[];
-    // (undocumented)
-    subscribeDataNotifications(value: DataServer.NotificationsClient): void;
-    // (undocumented)
-    get valueChangedRecentDuration(): number;
-    set valueChangedRecentDuration(value: number);
-}
-
-// @public (undocumented)
-export namespace RevRecordMainDataServer {
-    // (undocumented)
-    export type RecordFilterCallback = (this: void, record: RevRecord) => boolean;
-    // (undocumented)
-    export interface SortFieldSpecifier {
-        // (undocumented)
-        ascending: boolean;
-        // (undocumented)
-        fieldIndex: RevRecordFieldIndex;
-    }
-    // (undocumented)
-    export type SpecifierComparer = (this: void, left: RevRecordRow, right: RevRecordRow) => number;
 }
 
 // @public
@@ -3576,6 +3580,9 @@ export const enum RevRecordValueRecentChangeTypeId {
 //
 // @public (undocumented)
 export type RowOrColumnSelectionAreaType = keyof RowOrColumnSelectionAreaTypeObject;
+
+// @public
+export function safeConvertUnknownToBoolean(value: unknown): boolean | null | undefined;
 
 // @public (undocumented)
 export interface SchemaField {
@@ -3974,33 +3981,13 @@ export class SelectionRectangle extends FirstCornerRectangle implements Selectio
 export type ServerNotificationId = number;
 
 // @public (undocumented)
-export class SingleHeadingDataRowArrayHeaderDataServer<SF extends SingleHeadingDataRowArraySchemaField> implements DataServer<SF> {
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getViewValue(field: SF, rowIndex: number): string;
-    // (undocumented)
-    reset(): void;
-    // (undocumented)
-    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-    // (undocumented)
-    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
-}
-
-// @public (undocumented)
-export interface SingleHeadingDataRowArraySchemaField extends SchemaField {
-    // (undocumented)
-    heading: string;
-}
-
-// @public (undocumented)
-export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingDataRowArraySchemaField> {
+export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaField> {
     constructor(
     _createFieldEventer: SingleHeadingDataRowArrayServerSet.CreateFieldEventer<SF>);
     // (undocumented)
-    readonly headerDataServer: SingleHeadingDataRowArrayHeaderDataServer<SF>;
+    readonly headerDataServer: SingleHeadingDataServer<SF>;
     // (undocumented)
-    readonly mainDataServer: DataRowArrayMainDataServer<SF>;
+    readonly mainDataServer: DataRowArrayDataServer<SF>;
     // (undocumented)
     readonly schemaServer: DataRowArraySchemaServer<SF>;
     setData(data: SingleHeadingDataRowArrayServerSet.DataRow[] | (() => SingleHeadingDataRowArrayServerSet.DataRow[]), keyIsHeading: boolean): void;
@@ -4011,10 +3998,47 @@ export namespace SingleHeadingDataRowArrayServerSet {
     // (undocumented)
     export type CreateFieldEventer<SF extends SchemaField> = (this: void, index: number, key: string, heading: string) => SF;
     // (undocumented)
-    export interface DataRow extends DataRowArrayMainDataServer.DataRow {
+    export interface DataRow extends DataRowArrayDataServer.DataRow {
         // (undocumented)
         [fieldName: string]: DataServer.ViewValue | string;
     }
+}
+
+// @public (undocumented)
+export class SingleHeadingDataServer<SF extends SingleHeadingSchemaField> implements DataServer<SF> {
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getViewValue(field: SF): string;
+    // (undocumented)
+    invalidateCell(schemaColumnIndex: number, rowIndex?: number): void;
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+    // (undocumented)
+    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
+}
+
+// @public (undocumented)
+export interface SingleHeadingSchemaField extends SchemaField {
+    // (undocumented)
+    heading: string;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "splitStringAtFirstNonNumericChar" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function splitStringAtFirstNonNumericChar(value: string): SplitStringAtFirstNonNumericCharResult;
+
+// Warning: (ae-internal-missing-underscore) The name "SplitStringAtFirstNonNumericCharResult" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface SplitStringAtFirstNonNumericCharResult {
+    // (undocumented)
+    firstNonNumericCharPart: string;
+    // (undocumented)
+    numericPart: string;
 }
 
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
@@ -4022,13 +4046,14 @@ export namespace SingleHeadingDataRowArrayServerSet {
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 //
 // @public
-export class StandardAlphaTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardTextCellPainter<BGS, BCS, SF> {
+export class StandardAlphaTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
-export interface StandardBehavioredColumnSettings extends StandardColumnSettings, TextBehavioredColumnSettings {
+export interface StandardBehavioredColumnSettings extends StandardColumnSettings, BehavioredColumnSettings {
     // (undocumented)
     clone(): StandardBehavioredColumnSettings;
     // (undocumented)
@@ -4036,7 +4061,7 @@ export interface StandardBehavioredColumnSettings extends StandardColumnSettings
 }
 
 // @public (undocumented)
-export interface StandardBehavioredGridSettings extends StandardGridSettings, TextBehavioredGridSettings {
+export interface StandardBehavioredGridSettings extends StandardGridSettings, BehavioredGridSettings {
     // (undocumented)
     clone(): StandardBehavioredGridSettings;
     // (undocumented)
@@ -4067,7 +4092,7 @@ export namespace StandardButtonCellPainter {
 }
 
 // @public (undocumented)
-export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> implements CellEditor<BCS, SF> {
+export abstract class StandardCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements CellEditor<BCS, SF> {
     constructor(_grid: Revgrid<BGS, BCS, SF>, _dataServer: DataServer<SF>);
     // (undocumented)
     cellClosedEventer: CellEditor.CellClosedEventer;
@@ -4082,10 +4107,6 @@ export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSetti
     // (undocumented)
     abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
     // (undocumented)
-    pullCellValueEventer: CellEditor.PullCellValueEventer;
-    // (undocumented)
-    pushCellValueEventer: CellEditor.PushCellValueEventer;
-    // (undocumented)
     get readonly(): boolean;
     set readonly(value: boolean);
     // (undocumented)
@@ -4097,7 +4118,7 @@ export abstract class StandardCellEditor<BGS extends StandardBehavioredGridSetti
 }
 
 // @public (undocumented)
-export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements CellPainter<BCS, SF> {
+export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     constructor(_grid: Revgrid<BGS, BCS, SF>, _dataServer: DataServer<SF>);
     // (undocumented)
     protected readonly _dataServer: DataServer<SF>;
@@ -4108,29 +4129,14 @@ export abstract class StandardCellPainter<BGS extends BehavioredGridSettings, BC
     // (undocumented)
     abstract paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
     // (undocumented)
-    protected readonly _renderingContext: CachedCanvasRenderingContext2D;
+    protected paintBackground(bounds: Rectangle, backgroundColor: string): void;
     // (undocumented)
-    protected tryPaintBorder(bounds: Rectangle, borderColor: string | undefined, focus: boolean): void;
+    protected paintBorder(bounds: Rectangle, borderColor: string, focus: boolean): void;
+    // (undocumented)
+    protected readonly _renderingContext: CachedCanvasRenderingContext2D;
 }
 
 // @public (undocumented)
-export class StandardCheckboxCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardPaintCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
-    // (undocumented)
-    closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
-    // (undocumented)
-    _painter: StandardCheckboxCellPainter<BGS, BCS, SF>;
-    // (undocumented)
-    processGridClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
-    // (undocumented)
-    processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
-    // (undocumented)
-    processGridPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
-    // (undocumented)
-    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
-}
-
-// @public
 export class StandardCheckboxCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, _editable: boolean);
     // (undocumented)
@@ -4143,20 +4149,59 @@ export class StandardCheckboxCellPainter<BGS extends StandardBehavioredGridSetti
 export namespace StandardCheckboxCellPainter {
     const // (undocumented)
     typeName = "Checkbox";
+    // (undocumented)
+    export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
+    // (undocumented)
+    export namespace PaintFingerprint {
+        // (undocumented)
+        export function same(left: PaintFingerprint, right: PaintFingerprint): boolean;
+    }
+    // (undocumented)
+    export interface PaintFingerprintInterface extends StandardCheckboxPainter.PaintFingerprintInterface {
+        // (undocumented)
+        readonly backgroundColor: GridSettings.Color;
+        // (undocumented)
+        readonly borderColor: string | undefined;
+    }
+}
+
+// @public (undocumented)
+export class StandardCheckboxPainter {
+    constructor(_editable: boolean, _renderingContext: CachedCanvasRenderingContext2D);
+    // (undocumented)
+    calculateBoxDetails(bounds: Rectangle, cellPadding: number): StandardCheckboxPainter.BoxDetails;
+    // (undocumented)
+    calculateClickBox(bounds: Rectangle, booleanValue: boolean | undefined | null, cellPadding: number, font: string): Rectangle | undefined;
+    // (undocumented)
+    writeFingerprintOrCheckPaint(fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint | undefined>, bounds: Rectangle, booleanValue: boolean | undefined | null, boxDetails: StandardCheckboxPainter.BoxDetails, color: string, font: string): number | undefined;
+    // (undocumented)
+    writeUndefinedFingerprint(fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint>): void;
+}
+
+// @public (undocumented)
+export namespace StandardCheckboxPainter {
     const // (undocumented)
     minimumBoxSideLength = 5;
     const // (undocumented)
     valueNotBooleanChar = "!";
     // (undocumented)
-    export interface Config {
+    export interface BoxDetails {
         // (undocumented)
-        backgroundColor: string;
+        boxLineWidth: number;
         // (undocumented)
-        bounds: Rectangle;
+        boxSideLength: number;
         // (undocumented)
-        foregroundColor: string;
+        idealBoxSideLength: number;
         // (undocumented)
-        value: boolean;
+        maxBoxBoundsHeight: number;
+        // (undocumented)
+        maxBoxBoundsWidth: number;
+        // (undocumented)
+        maxBoxSideLength: number;
+        // (undocumented)
+        maxBoxWidth: number;
+        // (undocumented)
+        sumOfResolvedLeftRightPadding: number;
     }
     // (undocumented)
     export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
@@ -4168,24 +4213,20 @@ export namespace StandardCheckboxCellPainter {
     // (undocumented)
     export interface PaintFingerprintInterface {
         // (undocumented)
-        readonly backgroundColor: string;
+        boxLineWidth: number;
         // (undocumented)
-        readonly borderColor: string | undefined;
+        boxSideLength: number | undefined;
         // (undocumented)
-        readonly boxLineWidth: number;
+        color: GridSettings.Color;
         // (undocumented)
-        readonly boxSideLength: number | undefined;
+        errorFont: string | undefined;
         // (undocumented)
-        readonly color: string;
-        // (undocumented)
-        readonly errorFont: string | undefined;
-        // (undocumented)
-        readonly value: boolean | undefined | null;
+        value: boolean | undefined | null;
     }
 }
 
 // @public (undocumented)
-export class StandardColorInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+export class StandardColorInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4194,11 +4235,11 @@ export class StandardColorInputCellEditor<BGS extends StandardBehavioredGridSett
 }
 
 // @public (undocumented)
-export interface StandardColumnSettings extends StandardOnlyColumnSettings, TextColumnSettings {
+export interface StandardColumnSettings extends StandardOnlyColumnSettings, ColumnSettings {
 }
 
 // @public (undocumented)
-export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+export class StandardDateInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4207,7 +4248,7 @@ export class StandardDateInputCellEditor<BGS extends StandardBehavioredGridSetti
 }
 
 // @public (undocumented)
-export abstract class StandardElementCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> {
+export abstract class StandardElementCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, element: HTMLElement);
     // (undocumented)
     closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
@@ -4222,7 +4263,7 @@ export abstract class StandardElementCellEditor<BGS extends StandardBehavioredGr
 }
 
 // @public (undocumented)
-export interface StandardGridSettings extends StandardOnlyGridSettings, TextGridSettings {
+export interface StandardGridSettings extends StandardOnlyGridSettings, GridSettings {
 }
 
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
@@ -4230,15 +4271,14 @@ export interface StandardGridSettings extends StandardOnlyGridSettings, TextGrid
 // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
 //
 // @public
-export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardTextCellPainter<BGS, BCS, SF> {
+export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     paint(cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
-    // (undocumented)
-    textWrapping: boolean;
 }
 
 // @public (undocumented)
-export abstract class StandardInputElementCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardElementCellEditor<BGS, BCS, SF> {
+export abstract class StandardInputElementCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, inputType: string);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4257,7 +4297,7 @@ export abstract class StandardInputElementCellEditor<BGS extends StandardBehavio
 }
 
 // @public (undocumented)
-export class StandardNumberInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+export class StandardNumberInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4266,7 +4306,7 @@ export class StandardNumberInputCellEditor<BGS extends StandardBehavioredGridSet
 }
 
 // @public (undocumented)
-export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'horizontalAlign' | 'editorClickCursorName'>;
+export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'horizontalAlign' | 'verticalOffset' | 'textTruncateType' | 'textStrikeThrough'>;
 
 // @public (undocumented)
 export interface StandardOnlyGridSettings {
@@ -4290,7 +4330,6 @@ export interface StandardOnlyGridSettings {
     columnHeaderSelectionForegroundColor: GridSettings.Color;
     // (undocumented)
     columnHoverBackgroundColor: GridSettings.Color | undefined;
-    editorClickCursorName: string | undefined;
     // (undocumented)
     font: string;
     horizontalAlign: HorizontalAlign;
@@ -4299,10 +4338,14 @@ export interface StandardOnlyGridSettings {
     selectionBackgroundColor: GridSettings.Color;
     selectionFont: GridSettings.Color;
     selectionForegroundColor: GridSettings.Color;
+    textStrikeThrough: boolean;
+    // (undocumented)
+    textTruncateType: TextTruncateType | undefined;
+    verticalOffset: number;
 }
 
 // @public (undocumented)
-export abstract class StandardPaintCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> implements CellPainter<BCS, SF> {
+export abstract class StandardPaintCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardCellEditor<BGS, BCS, SF> implements CellPainter<BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, _painter: CellPainter<BCS, SF>);
     // (undocumented)
     paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
@@ -4311,7 +4354,7 @@ export abstract class StandardPaintCellEditor<BGS extends StandardBehavioredGrid
 }
 
 // @public (undocumented)
-export class StandardRangeInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+export class StandardRangeInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
@@ -4428,19 +4471,29 @@ export namespace StandardTagCellPainter {
 }
 
 // @public (undocumented)
-export abstract class StandardTextCellPainter<BGS extends TextBehavioredGridSettings, BCS extends TextBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
+export class StandardTextInputCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
     // (undocumented)
-    protected _columnSettings: BCS;
+    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    // (undocumented)
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+}
+
+// @public (undocumented)
+export class StandardTextPainter {
+    constructor(_renderingContext: CachedCanvasRenderingContext2D);
+    // (undocumented)
+    protected _columnSettings: StandardTextPainter.ColumnSettings;
     // (undocumented)
     protected decorateText(): void;
     // (undocumented)
     protected findLines(words: string[], width: number): string[];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    protected renderMultiLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign, font: string): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    protected renderSingleLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign): number;
     // (undocumented)
-    setColumnSettings(value: BCS): void;
+    renderMultiLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign, font: string): number;
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
+    renderSingleLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign): number;
+    // (undocumented)
+    setColumnSettings(value: StandardTextPainter.ColumnSettings): void;
     // (undocumented)
     protected strikeThrough(text: string, x: number, y: number, thickness: number): void;
     // (undocumented)
@@ -4448,11 +4501,22 @@ export abstract class StandardTextCellPainter<BGS extends TextBehavioredGridSett
 }
 
 // @public (undocumented)
-export namespace StandardTextCellPainter {
+export namespace StandardTextPainter {
     const // (undocumented)
     Whitespace: RegExp;
     const // (undocumented)
     Ellipsis = "\u2026";
+    // (undocumented)
+    export interface ColumnSettings {
+        // (undocumented)
+        defaultColumnAutoSizing: boolean;
+        // (undocumented)
+        textStrikeThrough: boolean;
+        // (undocumented)
+        textTruncateType: TextTruncateType | undefined;
+        // (undocumented)
+        verticalOffset: number;
+    }
     // (undocumented)
     export interface TruncatedTextWidth {
         text: string | undefined;
@@ -4461,12 +4525,20 @@ export namespace StandardTextCellPainter {
 }
 
 // @public (undocumented)
-export class StandardTextInputCellEditor<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardInputElementCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
+export class StandardToggleClickBoxCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardPaintCellEditor<BGS, BCS, SF> {
+    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, painter: ClickBoxCellPainter<BCS, SF>);
     // (undocumented)
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
     // (undocumented)
-    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    protected _painter: ClickBoxCellPainter<BCS, SF>;
+    // (undocumented)
+    processGridClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>): boolean;
+    // (undocumented)
+    processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    // (undocumented)
+    processGridPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined;
+    // (undocumented)
+    tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -4620,41 +4692,6 @@ export namespace SubgridsManager {
         // (undocumented)
         summariesPlusFootersHeight: number;
     }
-}
-
-// @public (undocumented)
-export interface TextBehavioredColumnSettings extends TextColumnSettings, BehavioredColumnSettings {
-    // (undocumented)
-    clone(): TextBehavioredColumnSettings;
-    // (undocumented)
-    merge(settings: Partial<TextColumnSettings>): boolean;
-}
-
-// @public (undocumented)
-export interface TextBehavioredGridSettings extends TextGridSettings, BehavioredGridSettings {
-    // (undocumented)
-    clone(): TextBehavioredGridSettings;
-    // (undocumented)
-    merge(settings: Partial<TextGridSettings>): boolean;
-}
-
-// @public (undocumented)
-export interface TextColumnSettings extends TextOnlyColumnSettings, ColumnSettings {
-}
-
-// @public (undocumented)
-export interface TextGridSettings extends TextOnlyGridSettings, GridSettings {
-}
-
-// @public (undocumented)
-export type TextOnlyColumnSettings = Pick<TextOnlyGridSettings, 'verticalOffset' | 'textTruncateType' | 'textStrikeThrough'>;
-
-// @public (undocumented)
-export interface TextOnlyGridSettings {
-    textStrikeThrough: boolean;
-    // (undocumented)
-    textTruncateType: TextTruncateType | undefined;
-    verticalOffset: number;
 }
 
 // @public (undocumented)
@@ -4989,6 +5026,8 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateFieldsInserted(index: number, count: number): void;
     // (undocumented)
     invalidateHorizontalAll(scrollDimensionAsWell: boolean): void;
+    // @internal (undocumented)
+    invalidateHorizontalAllAndScrollDimensionWithoutAction(): void;
     // (undocumented)
     invalidateVerticalAll(scrollDimensionAsWell: boolean): void;
     // (undocumented)

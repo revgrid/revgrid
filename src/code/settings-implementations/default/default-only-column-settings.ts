@@ -14,6 +14,7 @@ export const defaultOnlyColumnSettings: OnlyColumnSettings = {
     editOnFocusCell: defaultOnlyGridSettings.editOnFocusCell,
     editOnKeyDown: defaultOnlyGridSettings.editOnKeyDown,
     editOnClick: defaultOnlyGridSettings.editOnClick,
+    editorClickableCursorName: defaultOnlyGridSettings.editorClickableCursorName,
     filterable: defaultOnlyGridSettings.filterable,
     minimumColumnWidth: defaultOnlyGridSettings.minimumColumnWidth,
     maximumColumnWidth: defaultOnlyGridSettings.maximumColumnWidth,

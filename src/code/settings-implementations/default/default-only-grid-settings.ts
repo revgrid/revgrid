@@ -272,6 +272,8 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
      */
     editOnKeyDown: true,
 
+    editorClickableCursorName: 'pointer',
+
     /* COLUMN SORTING */
 
     /**
