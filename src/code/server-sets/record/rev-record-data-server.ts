@@ -684,6 +684,25 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         this.checkConsistency();
     }
 
+    recordMoved(fromIndex: RevRecordIndex, toIndex: RevRecordIndex) {
+        if (this._comparer !== undefined || this._filterCallback !== undefined || this._rowOrderReversed ) {
+            throw new RevRecordAssertError('RRDSRM45012');
+        } else {
+            this._recordRowMap.moveRecordWithRow(fromIndex, toIndex);
+            this._callbackListener.rowsMoved(fromIndex, toIndex, 1);
+        }
+        this.checkConsistency();
+    }
+
+    recordReplaced(recordIndex: RevRecordIndex) {
+        const record = this._recordStore.getRecord(recordIndex);
+        const rowIndex = this._recordRowMap.replaceRecord(record);
+        if (rowIndex !== undefined) {
+            this._callbackListener.invalidateRow(recordIndex);
+        }
+        this.checkConsistency();
+    }
+
     recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number) {
         if (deleteCount <= 0) {
             if (insertCount <= 0) {

@@ -30,6 +30,17 @@ export namespace RevRecord {
         }
     }
 
+    export function takeBoundRow(record: RevRecord, rowKey: symbol) {
+        const boundRows = record.__rows;
+        if (boundRows === undefined) {
+            return undefined;
+        } else {
+            const row = boundRows[rowKey];
+            boundRows[rowKey] = undefined;
+            return row;
+        }
+    }
+
     export function bindRow(record: RevRecord, rowKey: symbol, row: RevRecordRow | undefined) {
         let boundRows = record.__rows;
         if (boundRows === undefined) {

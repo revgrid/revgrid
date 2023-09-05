@@ -2274,6 +2274,11 @@ export namespace Mouse {
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "moveElementInArray" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function moveElementInArray<T>(array: T[], oldIndex: number, newIndex: number): void;
+
 // @public (undocumented)
 export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaField> {
     constructor(
@@ -3167,6 +3172,8 @@ export namespace RevRecord {
     // (undocumented)
     export function getBoundRow(record: RevRecord, rowKey: symbol): RevRecordRow | undefined;
     // (undocumented)
+    export function takeBoundRow(record: RevRecord, rowKey: symbol): RevRecordRow | undefined;
+    // (undocumented)
     export function unbindRow(record: RevRecord, rowKey: symbol): void;
 }
 
@@ -3273,6 +3280,10 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
     // (undocumented)
     get recordInsertedRecentDuration(): number;
     set recordInsertedRecentDuration(value: number);
+    // (undocumented)
+    recordMoved(fromIndex: RevRecordIndex, toIndex: RevRecordIndex): void;
+    // (undocumented)
+    recordReplaced(recordIndex: RevRecordIndex): void;
     // (undocumented)
     recordsDeleted(recordIndex: number, count: number): void;
     // (undocumented)
@@ -3528,6 +3539,10 @@ export namespace RevRecordStore {
         recordDeleted(recordIndex: RevRecordIndex): void;
         // (undocumented)
         recordInserted(recordIndex: RevRecordIndex, recent?: boolean): void;
+        // (undocumented)
+        recordMoved(oldRecordIndex: RevRecordIndex, newRecordIndex: RevRecordIndex): void;
+        // (undocumented)
+        recordReplaced(recordIndex: RevRecordIndex): void;
         // (undocumented)
         recordsDeleted(recordIndex: number, count: number): void;
         // (undocumented)

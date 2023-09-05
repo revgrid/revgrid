@@ -1,3 +1,4 @@
+import { moveElementInArray } from '../../grid/grid-public-api';
 import { RevRecordArrayUtil } from './rev-record-array-utils';
 import { RevRecordAssertError } from './rev-record-error';
 import {
@@ -465,7 +466,7 @@ export class RevRecordRecentChanges {
             recentChange.expiryTime = newExpiryTime;
 
             if (newIndex !== oldIndex) {
-                RevRecordArrayUtil.move(this._expiryQueue, oldIndex, newIndex);
+                moveElementInArray(this._expiryQueue, oldIndex, newIndex);
             }
             this.checkConsistency();
         }

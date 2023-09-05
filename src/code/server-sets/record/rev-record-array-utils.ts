@@ -225,21 +225,4 @@ export namespace RevRecordArrayUtil {
 		quickSort(values, comparer, Min, left - 1);
 		quickSort(values, comparer, left, Max);
 	}
-
-    export function move<T>(array: T[], oldIndex: number, newIndex: number) {
-        const item = array[oldIndex];
-        if (newIndex > oldIndex) {
-            for (let i = oldIndex; i < newIndex; i++) {
-                array[i] = array[i + 1];
-            }
-            array[newIndex] = item;
-        } else {
-            if (newIndex < oldIndex) {
-                for (let i = oldIndex; i > newIndex; i--) {
-                    array[i] = array[i - 1];
-                }
-                array[newIndex] = item;
-            }
-        }
-    }
 }
