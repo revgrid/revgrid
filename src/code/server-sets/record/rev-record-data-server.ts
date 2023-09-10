@@ -291,7 +291,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
     invalidateRecord(recordIndex: RevRecordIndex, recent?: boolean): void {
         this.checkConsistency();
 
-        this._callbackListener.beginChange();
+        this.beginChange();
         try {
             const rowIndex = this.updateInvalidatedRecordRowIndex(recordIndex, this._sortFieldSpecifiers.length > 0);
             if (rowIndex >= 0) {
@@ -300,11 +300,11 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                 }
                 this.callbackInvalidateRow(rowIndex);
             }
-        } finally {
-            this._callbackListener.endChange();
-        }
 
-        this.checkConsistency();
+            this.checkConsistency();
+        } finally {
+            this.endChange();
+        }
     }
 
     invalidateRecords(recordIndex: RevRecordIndex, count: number, recent?: boolean): void {
@@ -331,7 +331,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
     ): void {
         this.checkConsistency();
 
-        this._callbackListener.beginChange();
+        this.beginChange();
         try {
             const rowIndex = this.updateInvalidatedRecordRowIndex(recordIndex, this.isFieldSorted(fieldIndex));
 
@@ -341,18 +341,17 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                 }
                 this.callbackInvalidateCell(fieldIndex, rowIndex);
             }
+            this.checkConsistency();
         } finally {
-            this._callbackListener.endChange();
+            this.endChange();
         }
-
-        this.checkConsistency();
     }
 
     invalidateRecordValues(recordIndex: RevRecordIndex, invalidatedValues: readonly RevRecordInvalidatedValue[]): void {
         this.checkConsistency();
 
         if (invalidatedValues.length > 0) {
-            this._callbackListener.beginChange();
+            this.beginChange();
             try {
                 const invalidatedFieldIndexes = invalidatedValues.map((invalidatedRecordValue) => invalidatedRecordValue.fieldIndex);
                 const rowIndex = this.updateInvalidatedRecordRowIndex(recordIndex, this.isAnyFieldSorted(invalidatedFieldIndexes));
@@ -361,31 +360,29 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                     this._recentChanges.addRecordValuesChanges(rowIndex, invalidatedValues);
                     this.callbackInvalidateRowCells(rowIndex, invalidatedFieldIndexes);
                 }
+                this.checkConsistency();
             } finally {
-                this._callbackListener.endChange();
+                this.endChange();
             }
         }
-
-        this.checkConsistency();
     }
 
     invalidateRecordFields(recordIndex: RevRecordIndex, fieldIndex: RevRecordFieldIndex, fieldCount: number): void {
         this.checkConsistency();
 
         if (fieldCount > 0) {
-            this._callbackListener.beginChange();
+            this.beginChange();
             try {
                 const rowIndex = this.updateInvalidatedRecordRowIndex(recordIndex, this.isAnyFieldInRangeSorted(fieldIndex, fieldCount));
 
                 if (rowIndex >= 0) {
                     this.callbackInvalidateRowColumns(rowIndex, fieldIndex, fieldCount);
                 }
+                this.checkConsistency();
             } finally {
-                this._callbackListener.endChange();
+                this.endChange();
             }
         }
-
-        this.checkConsistency();
     }
 
     invalidateRecordAndValues(
@@ -395,7 +392,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
     ) {
         this.checkConsistency();
 
-        this._callbackListener.beginChange();
+        this.beginChange();
         try {
             const rowIndex = this.updateInvalidatedRecordRowIndex(recordIndex, this._sortFieldSpecifiers.length > 0);
 
@@ -406,11 +403,10 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                 this._recentChanges.addRecordValuesChanges(rowIndex, invalidatedValues);
                 this.callbackInvalidateRow(rowIndex);
             }
+            this.checkConsistency();
         } finally {
-            this._callbackListener.endChange();
+            this.endChange();
         }
-
-        this.checkConsistency();
     }
 
     invalidateFiltering() {
@@ -436,7 +432,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
     recordDeleted(recordIndex: RevRecordIndex): void {
         const continuousSortingOrFilteringActive = this._continuousSortingOrFilteringActive;
         if (continuousSortingOrFilteringActive) {
-            this._callbackListener.beginChange();
+            this.beginChange();
             this._callbackListener.preReindex();
         }
         try {
@@ -448,29 +444,30 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                 // We didn't change any visible rows, since they were filtered, but their indexes may have changed, so invalidate
                 // the affected fields
                 this.invalidateFields(recordIndexFieldIndexes);
+                this.checkConsistency();
             } else {
                 if (recordIndexFieldIndexes.length > 0) {
-                    this._callbackListener.beginChange();
+                    this.beginChange();
                     try {
                         this._recentChanges.processRowDeleted(rowIndex);
                         this.callbackRowsDeleted(rowIndex, 1);
                         this.invalidateFields(recordIndexFieldIndexes);
+                        this.checkConsistency();
                     } finally {
-                        this._callbackListener.endChange();
+                        this.endChange();
                     }
                 } else {
                     this._recentChanges.processRowDeleted(rowIndex);
                     this.callbackRowsDeleted(rowIndex, 1);
+                    this.checkConsistency();
                 }
             }
         } finally {
             if (continuousSortingOrFilteringActive) {
                 this._callbackListener.postReindex(false);
-                this._callbackListener.endChange();
+                this.endChange();
             }
         }
-
-        this.checkConsistency();
     }
 
     recordsDeleted(recordIndex: number, count: number) {
@@ -483,7 +480,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
             default: {
                 const continuousSortingOrFilteringActive = this._continuousSortingOrFilteringActive;
                 if (continuousSortingOrFilteringActive) {
-                    this._callbackListener.beginChange();
+                    this.beginChange();
                     this._callbackListener.preReindex();
                 }
                 try {
@@ -508,18 +505,21 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                         // We didn't change any visible rows, since they were filtered, but their indexes may have changed, so invalidate
                         // the affected fields
                         this.invalidateFields(recordIndexFieldIndexes);
+                        this.checkConsistency();
                     } else {
                         const toBeDeletedDefinedRowIndexes = toBeDeletedRowIndexes.filter(value => value !== undefined) as number[];
 
                         const deleteCount = toBeDeletedDefinedRowIndexes.length;
-                        if (deleteCount > 0) {
+                        if (deleteCount === 0) {
+                            this.checkConsistency();
+                        } else {
                             toBeDeletedDefinedRowIndexes.sort((left, right) => left - right);
 
                             let blockInclusiveEndIndex = deleteCount - 1;
                             let previousRowIndex = toBeDeletedDefinedRowIndexes[blockInclusiveEndIndex];
 
                             if (!continuousSortingOrFilteringActive) {
-                                this._callbackListener.beginChange();
+                                this.beginChange();
                             }
                             this._recentChanges.beginMultipleChanges();
                             try {
@@ -546,10 +546,11 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                                 this.callbackRowsDeleted(previousRowIndex, length);
 
                                 this.invalidateFields(recordIndexFieldIndexes);
+                                this.checkConsistency();
                             } finally {
                                 this._recentChanges.endMultipleChanges();
                                 if (!continuousSortingOrFilteringActive) {
-                                    this._callbackListener.endChange();
+                                    this.endChange();
                                 }
                             }
                         }
@@ -557,19 +558,17 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                 } finally {
                     if (continuousSortingOrFilteringActive) {
                         this._callbackListener.postReindex(false);
-                        this._callbackListener.endChange();
+                        this.endChange();
                     }
                 }
             }
         }
-
-        this.checkConsistency();
     }
 
     recordInserted(recordIndex: RevRecordIndex, recent?: boolean): void {
         const continuousSortingOrFilteringActive = this._continuousSortingOrFilteringActive;
         if (continuousSortingOrFilteringActive) {
-            this._callbackListener.beginChange();
+            this.beginChange();
             this._callbackListener.preReindex();
         }
         try {
@@ -584,14 +583,13 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                 this._recentChanges.processRecordInserted(rowIndex, recent === true);
                 this.callbackRowsInserted(rowIndex, 1);
             }
+            this.checkConsistency();
         } finally {
             if (continuousSortingOrFilteringActive) {
                 this._callbackListener.postReindex(true);
-                this._callbackListener.endChange();
+                this.endChange();
             }
         }
-
-        this.checkConsistency();
     }
 
     recordsInserted(firstInsertedRecordIndex: RevRecordIndex, count: number, recent?: boolean): void {
@@ -604,7 +602,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
             default: {
                 const continuousSortingOrFilteringActive = this._continuousSortingOrFilteringActive;
                 if (continuousSortingOrFilteringActive) {
-                    this._callbackListener.beginChange();
+                    this.beginChange();
                     this._callbackListener.preReindex();
                 }
                 try {
@@ -631,7 +629,9 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                         }
                     }
 
-                    if (insertedRowCount > 0) {
+                    if (insertedRowCount === 0) {
+                        this.checkConsistency();
+                    } else {
                         insertedRows.length = insertedRowCount;
 
                         insertedRows.sort((left, right) => left.index - right.index);
@@ -641,7 +641,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                         let nextRowIndex = startBlockRowIndex + 1;
 
                         if (!continuousSortingOrFilteringActive) {
-                            this._callbackListener.beginChange();
+                            this.beginChange();
                         }
                         this._recentChanges.beginMultipleChanges();
                         try {
@@ -665,23 +665,22 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                             const length = insertedRowCount - startBlockIndex;
                             this._recentChanges.processRecordsInserted(startBlockRowIndex, length, recent === true);
                             this.callbackRowsInserted(startBlockRowIndex, length);
+                            this.checkConsistency();
                         } finally {
                             this._recentChanges.endMultipleChanges();
                             if (!continuousSortingOrFilteringActive) {
-                                this._callbackListener.endChange();
+                                this.endChange();
                             }
                         }
                     }
                 } finally {
                     if (continuousSortingOrFilteringActive) {
                         this._callbackListener.postReindex(true);
-                        this._callbackListener.endChange();
+                        this.endChange();
                     }
                 }
             }
         }
-
-        this.checkConsistency();
     }
 
     recordMoved(fromIndex: RevRecordIndex, toIndex: RevRecordIndex) {
@@ -698,9 +697,28 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         const record = this._recordStore.getRecord(recordIndex);
         const rowIndex = this._recordRowMap.replaceRecord(record);
         if (rowIndex !== undefined) {
-            this._callbackListener.invalidateRow(recordIndex);
+            this._callbackListener.invalidateRow(rowIndex);
         }
         this.checkConsistency();
+    }
+
+    recordsReplaced(recordIndex: RevRecordIndex, count: number) {
+        if (count > 0) {
+            this.beginChange();
+            try {
+                const afterRangeIndex = recordIndex + count;
+                for (let i = recordIndex; i < afterRangeIndex; i++) {
+                    const record = this._recordStore.getRecord(i);
+                    const rowIndex = this._recordRowMap.replaceRecord(record);
+                    if (rowIndex !== undefined) {
+                        this._callbackListener.invalidateRow(rowIndex);
+                    }
+                }
+                this.checkConsistency();
+            } finally {
+                this.endChange();
+            }
+        }
     }
 
     recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number) {
@@ -814,19 +832,18 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         } else {
             this.checkConsistency();
 
-            this._callbackListener.beginChange();
+            this.beginChange();
             this._recentChanges.processPreReindex();
             this._callbackListener.preReindex();
             try {
                 this._recordRowMap.sortRows(this._comparer);
+                this.checkConsistency();
             } finally {
                 this._callbackListener.postReindex(true);
                 this._recentChanges.processPostReindex(true);
                 this._callbackListener.invalidateAll();
-                this._callbackListener.endChange();
+                this.endChange();
             }
-
-            this.checkConsistency();
         }
     }
 
@@ -964,7 +981,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         this.checkConsistency();
 
         let allRowsKept = true;
-        this._callbackListener.beginChange();
+        this.beginChange();
         this._callbackListener.preReindex();
         this._recentChanges.processPreReindex();
         try {
@@ -1015,14 +1032,13 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                 this._recordRowMap.reindexAllRows();
             }
 
+            this.checkConsistency();
         } finally {
             this._recentChanges.processPostReindex(allRowsKept);
             this._callbackListener.postReindex(allRowsKept);
             this._callbackListener.invalidateAll();
-            this._callbackListener.endChange();
+            this.endChange();
         }
-
-        this.checkConsistency();
     }
 
     private updateSortComparer(specifiers: readonly RevRecordDataServer.SortFieldSpecifier[]): void {
