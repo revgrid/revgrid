@@ -7,6 +7,7 @@ import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { ApiError, AssertError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
+import { moveElementInArray } from '../../types-utils/utils';
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
@@ -520,45 +521,11 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         this.invalidateHorizontalViewLayoutEventer(true); // true in case swapped with fixed column
     }
 
-    /** @internal */
-    moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean) {
-        const columns = this._activeColumns;
-        const sourceColumn = columns[sourceIndex];
-        if (sourceColumn === undefined) {
-            return;
+    moveActiveColumn(fromIndex: number, toIndex: number, ui: boolean) {
+        if (toIndex !== fromIndex) {
+            moveElementInArray(this._activeColumns, fromIndex, toIndex)
+            this.notifyActiveColumnListChanged(ListChangedTypeId.Move, fromIndex, 1, toIndex, ui);
         }
-        const targetColumn = columns[targetIndex];
-        if (targetColumn === undefined) {
-            return;
-        }
-        this.moveActive(columns, sourceIndex, targetIndex, ui);
-
-        this.notifyActiveColumnListChanged(ListChangedTypeId.Move, sourceIndex, 1, targetIndex, ui);
-    }
-
-    /** @internal */
-    moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean) {
-        const columns = this._activeColumns;
-        const sourceColumn = columns[sourceIndex];
-        if (sourceColumn === undefined) {
-            return;
-        }
-        const targetColumn = columns[targetIndex];
-        if (targetColumn === undefined) {
-            return;
-        }
-        this.moveActive(columns, sourceIndex, targetIndex + 1, ui);
-
-        this.notifyActiveColumnListChanged(ListChangedTypeId.Move, sourceIndex, 1, targetIndex + 1, ui);
-    }
-
-    /** @internal */
-    private moveActive<T>(arr: T[], oldIndex: number, newIndex: number, ui: boolean) {
-        const old = arr[oldIndex];
-        arr.splice(oldIndex, 1);
-        arr.splice(newIndex > oldIndex ? newIndex - 1 : newIndex, 0, old);
-        this.notifyActiveColumnListChanged(ListChangedTypeId.Move, oldIndex, 1, newIndex, ui);
-        return arr;
     }
 
     autoSizeActiveColumnWidths(widenOnly: boolean) {

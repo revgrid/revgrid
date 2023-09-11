@@ -226,18 +226,26 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
 
     private endDragColumn(dragAction: ColumnDragAction<BCS, SF>) {
         switch (dragAction.type) {
-            case DragActionType.Scroll:
+            case DragActionType.Scroll: {
                 if (this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid) {
                     this.columnsManager.hideActiveColumn(dragAction.source.activeColumnIndex, true);
                 }
                 break;
-            case DragActionType.Move:
-                if (dragAction.location === MoveLocation.Before) {
-                    this.columnsManager.moveColumnBefore(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex, true);
-                } else {
-                    this.columnsManager.moveColumnAfter(dragAction.source.activeColumnIndex, dragAction.target.activeColumnIndex, true);
+            }
+            case DragActionType.Move: {
+                const fromIndex = dragAction.source.activeColumnIndex;
+                let toIndex = dragAction.target.activeColumnIndex;
+
+                if (dragAction.location === MoveLocation.After) {
+                    toIndex++;
                 }
+                if (toIndex > fromIndex) {
+                    toIndex--;
+                }
+
+                this.columnsManager.moveActiveColumn(fromIndex, toIndex, true);
                 break;
+            }
             case DragActionType.None:
                 break;
             default:
@@ -274,12 +282,16 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                             type: DragActionType.None,
                         };
                     } else {
-                        return {
-                            type: DragActionType.Move,
-                            location: MoveLocation.Before,
-                            source: sourceDragColumn,
-                            target: firstScrollableColumn,
-                        };
+                        if (sourceDragColumn === firstScrollableColumn) {
+                            return { type: DragActionType.None }
+                        } else {
+                            return {
+                                type: DragActionType.Move,
+                                location: MoveLocation.Before,
+                                source: sourceDragColumn,
+                                target: firstScrollableColumn,
+                            };
+                        }
                     }
                 }
             } else {
@@ -293,12 +305,16 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                             source: sourceDragColumn
                         };
                     } else {
-                        return {
-                            type: DragActionType.Move,
-                            location: MoveLocation.After,
-                            source: sourceDragColumn,
-                            target: lastColumn,
-                        };
+                        if (sourceDragColumn === lastColumn) {
+                            return { type: DragActionType.None }
+                        } else {
+                            return {
+                                type: DragActionType.Move,
+                                location: MoveLocation.After,
+                                source: sourceDragColumn,
+                                target: lastColumn,
+                            };
+                        }
                     }
                 } else {
                     let overCol = this.viewLayout.findLeftGridLineInclusiveColumnOfCanvasOffset(offsetX);
