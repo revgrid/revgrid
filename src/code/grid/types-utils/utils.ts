@@ -223,3 +223,21 @@ export function calculateAdjustmentForRangeMoved(value: number, oldRangeIndex: n
 
     return 0; // not affected
 }
+
+/** @internal */
+export function moveElementInArray<T>(array: T[], fromIndex: number, toIndex: number) {
+    const item = array[fromIndex];
+    if (toIndex > fromIndex) {
+        for (let i = fromIndex; i < toIndex; i++) {
+            array[i] = array[i + 1];
+        }
+        array[toIndex] = item;
+    } else {
+        if (toIndex < fromIndex) {
+            for (let i = fromIndex; i > toIndex; i--) {
+                array[i] = array[i - 1];
+            }
+            array[toIndex] = item;
+        }
+    }
+}

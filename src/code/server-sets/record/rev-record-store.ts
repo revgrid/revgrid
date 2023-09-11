@@ -36,6 +36,9 @@ export namespace RevRecordStore {
         recordsDeleted(recordIndex: number, count: number): void;
         recordInserted(recordIndex: RevRecordIndex, recent?: boolean): void;
         recordsInserted(firstInsertedRecordIndex: RevRecordIndex, count: number, recent?: boolean): void;
+        recordMoved(oldRecordIndex: RevRecordIndex, newRecordIndex: RevRecordIndex): void;
+        recordReplaced(recordIndex: RevRecordIndex): void;
+        recordsReplaced(recordIndex: RevRecordIndex, count: number): void;
         recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number): void;
         recordsLoaded(recent?: boolean): void;
 

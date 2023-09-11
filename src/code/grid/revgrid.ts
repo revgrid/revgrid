@@ -520,12 +520,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.columnsManager.clearColumns();
     }
 
-    moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean) {
-        this.columnsManager.moveColumnBefore(sourceIndex, targetIndex, ui);
-    }
-
-    moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean) {
-        this.columnsManager.moveColumnAfter(sourceIndex, targetIndex, ui);
+    moveActiveColumn(fromIndex: number, toIndex: number, ui: boolean) {
+        this.columnsManager.moveActiveColumn(fromIndex, toIndex, ui);
     }
 
     setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]) {

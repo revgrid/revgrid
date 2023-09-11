@@ -1,3 +1,4 @@
+import { moveElementInArray } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 import { RevRecordArrayUtil } from './rev-record-array-utils';
 import { RevRecordAssertError } from './rev-record-error';
@@ -61,7 +62,7 @@ export class RevRecordRowMap {
 
     removeRecord(recordIndex: RevRecordIndex) {
         const record = this.records[recordIndex];
-        const row = RevRecord.getBoundRow(record, this._recordRowBindingKey);
+        const row = RevRecord.takeBoundRow(record, this._recordRowBindingKey);
         this.records.splice(recordIndex, 1);
         if (row === undefined) {
             return undefined;
@@ -100,6 +101,26 @@ export class RevRecordRowMap {
     deleteRowsButIgnoreRecords(rowIndex: number, count: number) {
         this.rows.splice(rowIndex, count);
         this.reindexRows(rowIndex);
+    }
+
+    replaceRecord(newRecord: RevRecord) {
+        const recordIndex = newRecord.index;
+        const oldRecord = this.records[recordIndex];
+        this.records[recordIndex] = newRecord;
+        const row = RevRecord.takeBoundRow(oldRecord, this._recordRowBindingKey);
+        if (row === undefined) {
+            return undefined;
+        } else {
+            row.record = newRecord;
+            RevRecord.bindRow(newRecord, this._recordRowBindingKey, row);
+            return row.index;
+        }
+    }
+
+    moveRecordWithRow(fromIndex: number, toIndex: number) {
+        // assumes records and rows are indexed equally (no sorting or filtering)
+        moveElementInArray(this.records, fromIndex, toIndex);
+        this.moveRow(fromIndex, toIndex);
     }
 
     moveRow(oldIndex: number, newIndex: number) {

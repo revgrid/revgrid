@@ -616,10 +616,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     //
     // @internal (undocumented)
     mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): boolean;
-    // @internal (undocumented)
-    moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean): void;
-    // @internal (undocumented)
-    moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean): void;
+    // (undocumented)
+    moveActiveColumn(fromIndex: number, toIndex: number, ui: boolean): void;
     // @internal (undocumented)
     newColumn(field: SF): Column<BCS, SF>;
     // @internal (undocumented)
@@ -2274,6 +2272,11 @@ export namespace Mouse {
     export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "moveElementInArray" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function moveElementInArray<T>(array: T[], fromIndex: number, toIndex: number): void;
+
 // @public (undocumented)
 export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaField> {
     constructor(
@@ -2941,9 +2944,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     readonly mouse: Mouse<BGS, BCS, SF>;
     // (undocumented)
-    moveColumnAfter(sourceIndex: number, targetIndex: number, ui: boolean): void;
-    // (undocumented)
-    moveColumnBefore(sourceIndex: number, targetIndex: number, ui: boolean): void;
+    moveActiveColumn(fromIndex: number, toIndex: number, ui: boolean): void;
     // (undocumented)
     get nonFixedColumnsViewWidth(): number;
     // (undocumented)
@@ -3167,6 +3168,8 @@ export namespace RevRecord {
     // (undocumented)
     export function getBoundRow(record: RevRecord, rowKey: symbol): RevRecordRow | undefined;
     // (undocumented)
+    export function takeBoundRow(record: RevRecord, rowKey: symbol): RevRecordRow | undefined;
+    // (undocumented)
     export function unbindRow(record: RevRecord, rowKey: symbol): void;
 }
 
@@ -3274,11 +3277,17 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
     get recordInsertedRecentDuration(): number;
     set recordInsertedRecentDuration(value: number);
     // (undocumented)
+    recordMoved(fromIndex: RevRecordIndex, toIndex: RevRecordIndex): void;
+    // (undocumented)
+    recordReplaced(recordIndex: RevRecordIndex): void;
+    // (undocumented)
     recordsDeleted(recordIndex: number, count: number): void;
     // (undocumented)
     recordsInserted(firstInsertedRecordIndex: RevRecordIndex, count: number, recent?: boolean): void;
     // (undocumented)
     recordsLoaded(recent?: boolean): void;
+    // (undocumented)
+    recordsReplaced(recordIndex: RevRecordIndex, count: number): void;
     // (undocumented)
     recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number): void;
     // (undocumented)
@@ -3529,11 +3538,17 @@ export namespace RevRecordStore {
         // (undocumented)
         recordInserted(recordIndex: RevRecordIndex, recent?: boolean): void;
         // (undocumented)
+        recordMoved(oldRecordIndex: RevRecordIndex, newRecordIndex: RevRecordIndex): void;
+        // (undocumented)
+        recordReplaced(recordIndex: RevRecordIndex): void;
+        // (undocumented)
         recordsDeleted(recordIndex: number, count: number): void;
         // (undocumented)
         recordsInserted(firstInsertedRecordIndex: RevRecordIndex, count: number, recent?: boolean): void;
         // (undocumented)
         recordsLoaded(recent?: boolean): void;
+        // (undocumented)
+        recordsReplaced(recordIndex: RevRecordIndex, count: number): void;
         // (undocumented)
         recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number): void;
     }
