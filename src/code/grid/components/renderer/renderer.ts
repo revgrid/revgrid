@@ -32,7 +32,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /** @internal */
     private readonly _gridPainterRepository: GridPainterRepository<BGS, BCS, SF>;
     /** @internal */
-    private readonly _renderActionQueue = new RenderActionQueue()
+    private readonly _renderActionQueue: RenderActionQueue;
     /** @internal */
     private readonly _gridSettingsChangedListener = () => this.handleGridSettingsChanged();
 
@@ -90,7 +90,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
             () => this.repaintAll(),
         );
 
-        this._renderActionQueue.actionsQueuedEventer = () => this.flagAnimateRequired();
+        this._renderActionQueue = new RenderActionQueue(() => this.flagAnimateRequired());
 
         this._gridSettings.subscribeChangedEvent(this._gridSettingsChangedListener);
         this._gridSettings.viewRenderInvalidatedEventer = () => {
@@ -361,7 +361,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
             } else {
                 const renderActions = this._renderActionQueue.takeActions();
                 const actionsCount = renderActions.length;
-                if (renderActions.length > 0) {
+                if (actionsCount > 0) {
                     const gc = this._canvas.gc;
                     try {
                         gc.cache.save();
