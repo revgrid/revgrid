@@ -1,5 +1,4 @@
 import { Selection } from '../../components/selection/selection';
-import { DataServer } from '../../interfaces/data/data-server';
 import { Subgrid } from '../../interfaces/data/subgrid';
 import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
@@ -27,8 +26,6 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /** @internal */
     renderedEventer: Renderer.RenderedEventer;
 
-    /** @internal */
-    private readonly _mainDataServer: DataServer<SF>;
     /** @internal */
     private readonly _gridPainterRepository: GridPainterRepository<BGS, BCS, SF>;
     /** @internal */
@@ -77,8 +74,6 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         /** @internal */
         private readonly _mouse: Mouse<BGS, BCS, SF>,
     ) {
-        this._mainDataServer = this._subgridsManager.mainSubgrid.dataServer;
-
         this._gridPainterRepository = new GridPainterRepository(
             this._gridSettings,
             this._canvas,
@@ -353,50 +348,40 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     private processRenderActionQueue() {
-        if (this._documentHidden) {
-            return false;
-        } else {
-            if (!this._canvas.hasBounds) {
-                return false;
-            } else {
-                const renderActions = this._renderActionQueue.takeActions();
-                const actionsCount = renderActions.length;
-                if (actionsCount > 0) {
-                    const gc = this._canvas.gc;
-                    try {
-                        gc.cache.save();
+        const renderActions = this._renderActionQueue.takeActions();
+        const actionsCount = renderActions.length;
+        if (actionsCount > 0 && !this._documentHidden && this._canvas.hasBounds) {
+            const gc = this._canvas.gc;
+            try {
+                gc.cache.save();
 
-                        this._viewLayout.ensureComputedInsideAnimationFrame();
+                this._viewLayout.ensureComputedInsideAnimationFrame();
 
-                        for (let i = 0; i < actionsCount; i++) {
-                            const action = renderActions[i];
-                            switch (action.type) {
-                                case RenderAction.Type.PaintAll: {
-                                    this.paintAll();
-                                    break;
-                                }
-                                default:
-                                    throw new UnreachableCaseError('RCPRA30816', action.type);
-                            }
+                for (let i = 0; i < actionsCount; i++) {
+                    const action = renderActions[i];
+                    switch (action.type) {
+                        case RenderAction.Type.PaintAll: {
+                            this.paintAll();
+                            break;
                         }
-
-                        setTimeout(() => this.renderedEventer(), 0); // process outside frame animation
-
-                        const lastServerNotificationId = this._lastServerNotificationId;
-                        if (this._lastRenderedServerNotificationId !== lastServerNotificationId) {
-                            this._lastRenderedServerNotificationId = lastServerNotificationId;
-                            // do not resolve in animation frame call back
-                            setTimeout(() => this.resolveWaitLastServerNotificationRendered(lastServerNotificationId), 0); // process outside frame animation
-                        }
-
-                    } catch (e) {
-                        console.error(e);
-                    } finally {
-                        gc.cache.restore();
+                        default:
+                            throw new UnreachableCaseError('RCPRA30816', action.type);
                     }
                 }
 
-                return true;
+                setTimeout(() => this.renderedEventer(), 0); // process outside frame animation
+
+                const lastServerNotificationId = this._lastServerNotificationId;
+                if (this._lastRenderedServerNotificationId !== lastServerNotificationId) {
+                    this._lastRenderedServerNotificationId = lastServerNotificationId;
+                    // do not resolve in animation frame call back
+                    setTimeout(() => this.resolveWaitLastServerNotificationRendered(lastServerNotificationId), 0); // process outside frame animation
+                }
+
+            } catch (e) {
+                console.error(e);
+            } finally {
+                gc.cache.restore();
             }
         }
     }
