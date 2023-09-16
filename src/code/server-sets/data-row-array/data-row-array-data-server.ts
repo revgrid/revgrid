@@ -1,8 +1,8 @@
-import { AssertError, DataServer, MetaModel, SchemaField } from '../../grid/grid-public-api';
+import { AssertError, DataServer, SchemaField } from '../../grid/grid-public-api';
 
 /** @public */
 export class DataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
-    private _data: DataRowArrayDataServer.DataRow[] = [];
+    private _data: DataServer.ObjectViewRow[] = [];
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
     subscribeDataNotifications(listener: DataServer.NotificationsClient) {
@@ -26,7 +26,7 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
         this._callbackListeners.forEach((listener) => listener.endChange());
     }
 
-    reset(data?: DataRowArrayDataServer.DataRow[]) {
+    reset(data?: DataServer.ObjectViewRow[]) {
         if (data === undefined) {
             this.invalidateAll();
         } else {
@@ -51,29 +51,9 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
      * _Note parameter order is the reverse of `addRow`._
      * @param dataRow - if omitted or otherwise falsy, row renders as blank
      */
-    setViewRow(index: number, dataRow: DataRowArrayDataServer.DataRow) {
+    setViewRow(index: number, dataRow: DataServer.ObjectViewRow) {
         this._data[index] = dataRow || undefined;
         this._callbackListeners.forEach((listener) => listener.invalidateRow(index));
-    }
-
-    /**
-     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getRowMetadata}
-     */
-    getRowMetadata(index: number, prototype?: null) {
-        const dataRow = this._data[index];
-        return dataRow && (dataRow.__META || (prototype !== undefined && (dataRow.__META = Object.create(prototype) as MetaModel.RowMetadata)));
-    }
-
-    setRowMetadata(index: number, metadata: MetaModel.RowMetadata) {
-        const dataRow = this._data[index];
-        if (dataRow) {
-            if (metadata) {
-                dataRow.__META = metadata;
-            } else {
-                delete dataRow.__META;
-            }
-        }
-        return !!dataRow;
     }
 
     /**
@@ -82,15 +62,19 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
      * _Note parameter order is the reverse of `setRow`._
      * @param index - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
      */
-    addRow(dataRow: DataRowArrayDataServer.DataRow): void;
-    addRow(index: number, dataRow: DataRowArrayDataServer.DataRow): void;
-    addRow(indexOrDataRow: number | DataRowArrayDataServer.DataRow, dataRowOrUndefined?: DataRowArrayDataServer.DataRow): void {
+    addRow(dataRow: DataServer.ObjectViewRow): void;
+    addRow(index: number, dataRow: DataServer.ObjectViewRow): void;
+    addRow(indexOrDataRow: number | DataServer.ObjectViewRow, dataRowOrUndefined?: DataServer.ObjectViewRow): void {
         const rowCount = this.getRowCount();
         let index: number;
-        let dataRow: DataRowArrayDataServer.DataRow;
+        let dataRow: DataServer.ObjectViewRow;
         if (typeof indexOrDataRow === 'number') {
             index = indexOrDataRow;
-            dataRow = dataRowOrUndefined as DataRowArrayDataServer.DataRow;
+            if (dataRowOrUndefined === undefined) {
+                throw new AssertError('DRADSAR09118');
+            } else {
+                dataRow = dataRowOrUndefined;
+            }
         } else {
             index = rowCount;
             dataRow = indexOrDataRow;
@@ -142,21 +126,5 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
      */
     getRowCount() {
         return this._data.length;
-    }
-}
-
-/**
- * @desc A data row representation.
- * The properties of this object are the data fields.
- * The property keys are the column names
- * First row is header
- * All row objects should be congruent, meaning that each data row should have the same property keys.
- */
-
-/** @public */
-export namespace DataRowArrayDataServer {
-    export interface DataRow extends DataServer.ObjectViewRow {
-        [fieldName: string]: DataServer.ViewValue;
-        __META?: MetaModel.RowMetadata;
     }
 }
