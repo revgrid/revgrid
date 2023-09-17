@@ -841,46 +841,31 @@ export interface DatalessViewLayoutRow {
 // @public (undocumented)
 export class DataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    addRow(dataRow: DataRowArrayDataServer.DataRow): void;
+    addRow(dataRow: DataServer.ObjectViewRow): void;
     // (undocumented)
-    addRow(index: number, dataRow: DataRowArrayDataServer.DataRow): void;
+    addRow(index: number, dataRow: DataServer.ObjectViewRow): void;
     // (undocumented)
     beginDataChange(): void;
-    delRow(index: number, count?: number): DataRowArrayDataServer.DataRow[];
+    delRow(index: number, count?: number): DataServer.ObjectViewRow[];
     // (undocumented)
     endDataChange(): void;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
-    getRowMetadata(index: number, prototype?: null): false | MetaModel.RowMetadata;
-    // (undocumented)
-    getViewRow(index: number): DataRowArrayDataServer.DataRow;
+    getViewRow(index: number): DataServer.ObjectViewRow;
     // (undocumented)
     getViewValue(field: SF, y: number): unknown;
     // (undocumented)
     invalidateAll(): void;
     // (undocumented)
-    reset(data?: DataRowArrayDataServer.DataRow[]): void;
+    reset(data?: DataServer.ObjectViewRow[]): void;
     // (undocumented)
     setEditValue(field: SF, y: number, value: unknown): void;
-    // (undocumented)
-    setRowMetadata(index: number, metadata: MetaModel.RowMetadata): boolean;
-    setViewRow(index: number, dataRow: DataRowArrayDataServer.DataRow): void;
+    setViewRow(index: number, dataRow: DataServer.ObjectViewRow): void;
     // (undocumented)
     subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
     // (undocumented)
     unsubscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-}
-
-// @public (undocumented)
-export namespace DataRowArrayDataServer {
-    // (undocumented)
-    export interface DataRow extends DataServer.ObjectViewRow {
-        // (undocumented)
-        [fieldName: string]: DataServer.ViewValue;
-        // (undocumented)
-        __META?: MetaModel.RowMetadata;
-    }
 }
 
 // @public (undocumented)
@@ -2295,7 +2280,7 @@ export namespace MultiHeadingDataRowArrayServerSet {
     // (undocumented)
     export type CreateFieldEventer<SF extends MultiHeadingSchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
     // (undocumented)
-    export interface DataRow extends DataRowArrayDataServer.DataRow {
+    export interface DataRow extends DataServer.ObjectViewRow {
         // (undocumented)
         [fieldName: string]: DataServer.ViewValue | string;
     }
@@ -3159,12 +3144,8 @@ export interface RevRecord {
 export namespace RevRecord {
     // (undocumented)
     export function bindRow(record: RevRecord, rowKey: symbol, row: RevRecordRow | undefined): void;
-    export interface BoundRows {
-        // Warning: (ae-forgotten-export) The symbol "RevRecordRow" needs to be exported by the entry point public-api.d.ts
-        //
-        // (undocumented)
-        [key: symbol]: RevRecordRow | undefined;
-    }
+    // Warning: (ae-forgotten-export) The symbol "RevRecordRow" needs to be exported by the entry point public-api.d.ts
+    export type BoundRows = Record<symbol, RevRecordRow | undefined>;
     // (undocumented)
     export function getBoundRow(record: RevRecord, rowKey: symbol): RevRecordRow | undefined;
     // (undocumented)
@@ -4013,7 +3994,7 @@ export namespace SingleHeadingDataRowArrayServerSet {
     // (undocumented)
     export type CreateFieldEventer<SF extends SchemaField> = (this: void, index: number, key: string, heading: string) => SF;
     // (undocumented)
-    export interface DataRow extends DataRowArrayDataServer.DataRow {
+    export interface DataRow extends DataServer.ObjectViewRow {
         // (undocumented)
         [fieldName: string]: DataServer.ViewValue | string;
     }
@@ -4541,7 +4522,6 @@ export namespace StandardTextPainter {
 
 // @public (undocumented)
 export class StandardToggleClickBoxCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardPaintCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, painter: ClickBoxCellPainter<BCS, SF>);
     // (undocumented)
     closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
     // (undocumented)

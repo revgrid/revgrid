@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, ClickBoxCellPainter, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, ClickBoxCellPainter, DatalessViewCell, Rectangle, SchemaField } from '../../grid/grid-public-api';
 import { StandardPaintCellEditor } from './standard-paint-cell-editor';
 
 /** @public */
@@ -8,10 +8,6 @@ export class StandardToggleClickBoxCellEditor<
     SF extends SchemaField
 > extends StandardPaintCellEditor<BGS, BCS, SF> {
     declare protected _painter: ClickBoxCellPainter<BCS, SF>;
-
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, painter: ClickBoxCellPainter<BCS, SF>) {
-        super(grid, dataServer, painter);
-    }
 
     override tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;

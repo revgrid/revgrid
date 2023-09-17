@@ -103,6 +103,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     get painting() {
         const animator = this._animator;
+        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         return animator !== undefined && animator.animating;
     }
     get lastServerNotificationId() { return this._lastServerNotificationId; }

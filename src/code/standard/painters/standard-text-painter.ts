@@ -148,7 +148,8 @@ export class StandardTextPainter {
             const gc = this._renderingContext;
             // starting with just the first word...
             let stillFits: boolean;
-            let line = [words.shift() as string];
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            let line = [words.shift()!];
             while (
                 // so lone as line still fits within current column...
                 (stillFits = gc.getTextWidth(line.join(' ')) < width)
@@ -156,14 +157,16 @@ export class StandardTextPainter {
                 && words.length > 0
             ) {
                 // ...add another word to end of line and retest
-                line.push(words.shift() as string);
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                line.push(words.shift()!);
             }
 
             if (
                 !stillFits && // if line is now too long...
                 line.length > 1 // ...AND is multiple words...
             ) {
-                words.unshift(line.pop() as string); // ...back off by (i.e., remove) one word
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                words.unshift(line.pop()!); // ...back off by (i.e., remove) one word
             }
 
             line = [line.join(' ')];

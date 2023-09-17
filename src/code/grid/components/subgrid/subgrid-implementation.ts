@@ -86,7 +86,8 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         this._columnsManager.addBeforeCreateColumnsListener(this._columnsManagerBeforeCreateColumnsListener); // put in a behavior
     }
 
-    get fixedRowCount() { return 0; }
+    // eslint-disable-next-line @typescript-eslint/class-literal-property-style
+    get fixedRowCount() { return 0; } // is overridden
 
     /** @internal */
     destroy() {
@@ -165,6 +166,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     }
 
     setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined) {
+        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (this.metaModel !== undefined && this.metaModel.setRowMetadata !== undefined) {
             this.metaModel.setRowMetadata(rowIndex, newMetadata);
         }
@@ -275,7 +277,8 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
             properties[key as keyof MetaModel.RowProperties] = value;
         } else {
             if (properties !== undefined) {
-                delete properties[(isHeight ? '_height' : key) as keyof MetaModel.RowProperties];
+                // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+                delete properties[(isHeight ? '_height' : key) as keyof MetaModel.RowProperties]; // If we keep this code, should not use dynamic delete
             }
         }
 
@@ -530,6 +533,7 @@ export namespace SubgridImplementation {
             const existingCount = this.____fieldNames.length;
             for (let i = 0; i < existingCount; i++) {
                 const fieldName = this.____fieldNames[i];
+                // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                 delete this[fieldName];
             }
             const fields = this.schemaServer.getFields();

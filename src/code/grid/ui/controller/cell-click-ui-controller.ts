@@ -107,7 +107,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
 
         if (unknownUrl) {
             // STEP 3: Decorate the URL
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-base-to-string
             const url = unknownUrl.toString().replace(/%name/g, config.name).replace(/%value/g, value as string);
 
             // STEP 4: Open the URL

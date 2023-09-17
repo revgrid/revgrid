@@ -343,6 +343,7 @@ export class ColumnResizingUiController<BGS extends BehavioredGridSettings, BCS 
     private checkSetLocation(event: MouseEvent, cell: ViewCell<BCS, SF>) {
         const canvasOffsetX = event.offsetX;
         if (
+            // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
             cell !== null &&
             cell.isHeader &&
             this.calculateNearGridLine(canvasOffsetX, cell) !== ColumnResizingUiController.NearGridLine.neither

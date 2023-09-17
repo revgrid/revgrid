@@ -48,7 +48,8 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
         if (properties === undefined) {
             if (metadata !== undefined) {
                 const key = column.field.name as keyof MetaModel.RowMetadata;
-                delete metadata[key];
+                // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+                delete metadata[key]; // If we keep this code, should not use dynamic delete
                 subgrid.setRowMetadata(rowIndex, metadata);
             }
         } else {
@@ -167,7 +168,8 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
                 const fieldKey = column.field.name as keyof MetaModel.RowMetadata;
                 properties = metadata[fieldKey];
                 if (properties !== undefined) {
-                    delete properties[key];
+                    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+                    delete properties[key]; // If we keep this code, should not use dynamic delete
                     subgrid.setRowMetadata(rowIndex, metadata);
                 }
             } else {

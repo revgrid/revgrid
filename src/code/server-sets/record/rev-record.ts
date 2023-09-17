@@ -17,9 +17,7 @@ export namespace RevRecord {
      * to a record. A symbol is used to identify the RevRecordMainAdapter which a row belongs to.  This symbol is used as the key
      * into the BoundRows object.
      */
-    export interface BoundRows {
-        [key: symbol]: RevRecordRow | undefined;
-    }
+    export type BoundRows = Record<symbol, RevRecordRow | undefined>;
 
     export function getBoundRow(record: RevRecord, rowKey: symbol) {
         const boundRows = record.__rows;

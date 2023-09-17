@@ -25,7 +25,7 @@ export class StandardSparkBarCellPainter<
 
         gc.beginPath();
         const val = config.value;
-        if (!val || !val.length) {
+        if (val === undefined || val.length === 0) {
             return undefined;
         } else {
             const count = val.length;
