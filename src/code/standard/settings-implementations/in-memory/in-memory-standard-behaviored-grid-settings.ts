@@ -11,17 +11,17 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     private _cellFocusedBorderColor: GridSettings.Color | undefined;
     private _cellHoverBackgroundColor: GridSettings.Color | undefined;
     private _columnHoverBackgroundColor: GridSettings.Color | undefined;
-    private _columnHeaderFont: string;
-    private _columnHeaderHorizontalAlign: HorizontalAlign;
-    private _columnHeaderBackgroundColor: GridSettings.Color;
-    private _columnHeaderForegroundColor: GridSettings.Color;
-    private _columnHeaderSelectionFont: string;
-    private _columnHeaderSelectionBackgroundColor: GridSettings.Color;
-    private _columnHeaderSelectionForegroundColor: GridSettings.Color;
+    private _columnHeaderFont: string | undefined;
+    private _columnHeaderHorizontalAlign: HorizontalAlign | undefined;
+    private _columnHeaderBackgroundColor: GridSettings.Color | undefined;
+    private _columnHeaderForegroundColor: GridSettings.Color | undefined;
+    private _columnHeaderSelectionFont: string | undefined;
+    private _columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
+    private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
     private _rowHoverBackgroundColor: GridSettings.Color | undefined;
-    private _selectionFont: GridSettings.Color;
-    private _selectionBackgroundColor: GridSettings.Color;
-    private _selectionForegroundColor: GridSettings.Color;
+    private _selectionFont: GridSettings.Color | undefined;
+    private _selectionBackgroundColor: GridSettings.Color | undefined;
+    private _selectionForegroundColor: GridSettings.Color | undefined;
     private _font: string;
     private _horizontalAlign: HorizontalAlign;
     private _verticalOffset: number;
@@ -65,7 +65,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderFont() { return this._columnHeaderFont; }
-    set columnHeaderFont(value: string) {
+    set columnHeaderFont(value: string | undefined) {
         if (value !== this._columnHeaderFont) {
             this.beginChange();
             this._columnHeaderFont = value;
@@ -74,7 +74,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderHorizontalAlign() { return this._columnHeaderHorizontalAlign; }
-    set columnHeaderHorizontalAlign(value: HorizontalAlign) {
+    set columnHeaderHorizontalAlign(value: HorizontalAlign | undefined) {
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
             this._columnHeaderHorizontalAlign = value;
@@ -83,7 +83,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderBackgroundColor() { return this._columnHeaderBackgroundColor; }
-    set columnHeaderBackgroundColor(value: GridSettings.Color) {
+    set columnHeaderBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHeaderBackgroundColor) {
             this.beginChange();
             this._columnHeaderBackgroundColor = value;
@@ -92,7 +92,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderForegroundColor() { return this._columnHeaderForegroundColor; }
-    set columnHeaderForegroundColor(value: GridSettings.Color) {
+    set columnHeaderForegroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHeaderForegroundColor) {
             this.beginChange();
             this._columnHeaderForegroundColor = value;
@@ -101,7 +101,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderSelectionFont() { return this._columnHeaderSelectionFont; }
-    set columnHeaderSelectionFont(value: string) {
+    set columnHeaderSelectionFont(value: string | undefined) {
         if (value !== this._columnHeaderSelectionFont) {
             this.beginChange();
             this._columnHeaderSelectionFont = value;
@@ -110,7 +110,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderSelectionBackgroundColor() { return this._columnHeaderSelectionBackgroundColor; }
-    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color) {
+    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHeaderSelectionBackgroundColor) {
             this.beginChange();
             this._columnHeaderSelectionBackgroundColor = value;
@@ -119,7 +119,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderSelectionForegroundColor() { return this._columnHeaderSelectionForegroundColor; }
-    set columnHeaderSelectionForegroundColor(value: GridSettings.Color) {
+    set columnHeaderSelectionForegroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHeaderSelectionForegroundColor) {
             this.beginChange();
             this._columnHeaderSelectionForegroundColor = value;
@@ -137,7 +137,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get selectionFont() { return this._selectionFont; }
-    set selectionFont(value: GridSettings.Color) {
+    set selectionFont(value: GridSettings.Color | undefined) {
         if (value !== this._selectionFont) {
             this.beginChange();
             this._selectionFont = value;
@@ -146,7 +146,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get selectionBackgroundColor() { return this._selectionBackgroundColor; }
-    set selectionBackgroundColor(value: GridSettings.Color) {
+    set selectionBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._selectionBackgroundColor) {
             this.beginChange();
             this._selectionBackgroundColor = value;
@@ -155,7 +155,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get selectionForegroundColor() { return this._selectionForegroundColor; }
-    set selectionForegroundColor(value: GridSettings.Color) {
+    set selectionForegroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._selectionForegroundColor) {
             this.beginChange();
             this._selectionForegroundColor = value;

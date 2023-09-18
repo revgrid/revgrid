@@ -100,7 +100,7 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
      * @default
      */
     verticalGridLinesVisible: true,
-
+    visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: false,
     /**
      * When {@link module:defaults.gridLinesV} or {@link module:defaults.gridLinesH} are truthy, determines if lines render in the user data area.
      * @type {boolean}
