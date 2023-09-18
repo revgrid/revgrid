@@ -1,6 +1,6 @@
 {
   "name": "revgrid",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Canvas based high performance grid",
   "main": "dist/esm/public-api.js",
   "module": "dist/esm/public-api.js",
