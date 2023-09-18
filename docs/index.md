@@ -84,6 +84,7 @@ There are many excellent alternative JavaScript grid libraries (both paid and fr
 
  Version | Date        | Details
 ---------|-------------|---------
+ 0.4.3   | 19 Sep 2023 | Fix packaging issue
  0.4.2   | 19 Sep 2023 | Fix animation scheduling issue<br>Remove RowMetadata from DataRowArrayDataServer<br>Fix grid setting verticalGridLinesVisible<br>Add grid setting visibleVerticalGridLinesDrawnInFixedAndPreMainOnly<br>Set default for many standard grid settings to undefined
  0.4.1   | 12 Sep 2023 | Add recordMoved, recordReplaced & recordsReplaced to RevRecordStore.RecordsEventers<br>Improve RevRecordDataServer consistency checks<br>Fix move active column
  0.4.0   | 25 Aug 2023 | Fix Paint AutoWidening<br>Add StandardTextPainter (contains behavior previously in StandardTextCellPainter)<br>Remove StandardTextCellPainter<br>Add StandardCheckboxPainter (contains behavior previously in StandardCheckboxCellPainter)<br>Remove Text settings (move behavior into Standard settings)<br>Rename RevRecordMainDataServer to RevRecordDataServer<br>Split out "Multi Heading" and "Single Heading" server sets from "Data Row Array" server set<br>Delete RevRecordHeaderDataServer (use Single Heading server instead)<br>Rename simpletestapp to dratestapp (short for datarowarraytestapp)<br>Refactor checkbox to allow better re-use<br>Fix Checkbox editor readonly<br>Fix column width autosize not narrowing<br>Initialise StandardElementCellEditor to be hidden<br>Remove focus control from StandardElementCellEditor
