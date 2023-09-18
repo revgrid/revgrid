@@ -4,10 +4,13 @@ import { RenderAction, RepaintViewAction } from './render-action';
 
 /** @internal */
 export class RenderActionQueue {
-    actionsQueuedEventer: RenderActioner.ActionsQueuedEventer;
-
     private _queuedActions: RenderAction[] = [];
+    private _actionsQueuedEvented = false;
     private _beginChangeCount = 0;
+
+    constructor(private readonly _actionsQueuedEventer: RenderActioner.ActionsQueuedEventer) {
+
+    }
 
     get actionsQueued() { return this._queuedActions.length > 0; }
 
@@ -18,8 +21,9 @@ export class RenderActionQueue {
     endChange() {
         this._beginChangeCount--;
         if (this._beginChangeCount === 0) {
-            if (this._queuedActions.length > 0) {
-                this.actionsQueuedEventer();
+            if (this._queuedActions.length > 0 && !this._actionsQueuedEvented) {
+                this._actionsQueuedEventer();
+                this._actionsQueuedEvented = true;
             }
         } else {
             if (this._beginChangeCount < 0) {
@@ -31,6 +35,7 @@ export class RenderActionQueue {
     takeActions() {
         const actions = this._queuedActions;
         this._queuedActions = [];
+        this._actionsQueuedEvented = false;
         return actions;
     }
 

@@ -13,13 +13,13 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     private _cellFocusedBorderColor: GridSettings.Color | undefined | null;
     private _cellHoverBackgroundColor: GridSettings.Color | undefined | null;
     private _columnHoverBackgroundColor: GridSettings.Color | undefined | null;
-    private _columnHeaderFont: string | undefined;
-    private _columnHeaderHorizontalAlign: HorizontalAlign | undefined;
-    private _columnHeaderBackgroundColor: GridSettings.Color | undefined;
-    private _columnHeaderForegroundColor: GridSettings.Color | undefined;
-    private _columnHeaderSelectionFont: string | undefined;
-    private _columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
-    private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
+    private _columnHeaderFont: string | undefined | null;
+    private _columnHeaderHorizontalAlign: HorizontalAlign | undefined | null;
+    private _columnHeaderBackgroundColor: GridSettings.Color | undefined | null;
+    private _columnHeaderForegroundColor: GridSettings.Color | undefined | null;
+    private _columnHeaderSelectionFont: string | undefined | null;
+    private _columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined | null;
+    private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined | null;
     private _font: string | undefined;
     private _horizontalAlign: HorizontalAlign | undefined;
     private _verticalOffset: number | undefined;
@@ -92,71 +92,135 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
             this.endChange();
         }
     }
-    get columnHeaderFont() { return this._columnHeaderFont !== undefined ? this._columnHeaderFont : this.gridSettings.columnHeaderFont; }
-    set columnHeaderFont(value: string) {
+    get columnHeaderFont() {
+        if (this._columnHeaderFont === null) {
+            return undefined;
+        } else {
+            return this._columnHeaderFont !== undefined ? this._columnHeaderFont : this.gridSettings.columnHeaderFont;
+        }
+    }
+    set columnHeaderFont(value: string | undefined) {
         if (value !== this._columnHeaderFont) {
             this.beginChange();
-            this._columnHeaderFont = value;
+            if (value === undefined) {
+                this._columnHeaderFont = null;
+            } else {
+                this._columnHeaderFont = value;
+            }
             this.flagChangedViewRender();
             this.endChange();
         }
     }
     get columnHeaderHorizontalAlign() {
-        return this._columnHeaderHorizontalAlign !== undefined ? this._columnHeaderHorizontalAlign : this.gridSettings.columnHeaderHorizontalAlign;
+        if (this._columnHeaderHorizontalAlign === null) {
+            return undefined;
+        } else {
+            return this._columnHeaderHorizontalAlign !== undefined ? this._columnHeaderHorizontalAlign : this.gridSettings.columnHeaderHorizontalAlign;
+        }
     }
-    set columnHeaderHorizontalAlign(value: HorizontalAlign) {
+    set columnHeaderHorizontalAlign(value: HorizontalAlign | undefined) {
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
-            this._columnHeaderHorizontalAlign = value;
+            if (value === undefined) {
+                this._columnHeaderHorizontalAlign = null;
+            } else {
+                this._columnHeaderHorizontalAlign = value;
+            }
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderBackgroundColor() { return this._columnHeaderBackgroundColor !== undefined ? this._columnHeaderBackgroundColor : this.gridSettings.columnHeaderBackgroundColor; }
-    set columnHeaderBackgroundColor(value: GridSettings.Color) {
+    get columnHeaderBackgroundColor() {
+        if (this._columnHeaderBackgroundColor === null) {
+            return undefined;
+        } else {
+            return this._columnHeaderBackgroundColor !== undefined ? this._columnHeaderBackgroundColor : this.gridSettings.columnHeaderBackgroundColor;
+        }
+    }
+    set columnHeaderBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHeaderBackgroundColor) {
             this.beginChange();
-            this._columnHeaderBackgroundColor = value;
+            if (value === undefined) {
+                this._columnHeaderBackgroundColor = null;
+            } else {
+                this._columnHeaderBackgroundColor = value;
+            }
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderForegroundColor() { return this._columnHeaderForegroundColor !== undefined ? this._columnHeaderForegroundColor : this.gridSettings.columnHeaderForegroundColor; }
-    set columnHeaderForegroundColor(value: GridSettings.Color) {
+    get columnHeaderForegroundColor() {
+        if (this._columnHeaderForegroundColor === null) {
+            return undefined;
+        } else {
+            return this._columnHeaderForegroundColor !== undefined ? this._columnHeaderForegroundColor : this.gridSettings.columnHeaderForegroundColor;
+        }
+    }
+    set columnHeaderForegroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHeaderForegroundColor) {
             this.beginChange();
-            this._columnHeaderForegroundColor = value;
+            if (value === undefined) {
+                this._columnHeaderForegroundColor = null;
+            } else {
+                this._columnHeaderForegroundColor = value;
+            }
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderSelectionFont() { return this._columnHeaderSelectionFont !== undefined ? this._columnHeaderSelectionFont : this.gridSettings.columnHeaderSelectionFont; }
-    set columnHeaderSelectionFont(value: string) {
+    get columnHeaderSelectionFont() {
+        if (this._columnHeaderSelectionFont === null) {
+            return undefined;
+        } else {
+            return this._columnHeaderSelectionFont !== undefined ? this._columnHeaderSelectionFont : this.gridSettings.columnHeaderSelectionFont;
+        }
+    }
+    set columnHeaderSelectionFont(value: string | undefined) {
         if (value !== this._columnHeaderSelectionFont) {
             this.beginChange();
-            this._columnHeaderSelectionFont = value;
+            if (value === undefined) {
+                this._columnHeaderSelectionFont = null;
+            } else {
+                this._columnHeaderSelectionFont = value;
+            }
             this.flagChangedViewRender();
             this.endChange();
         }
     }
     get columnHeaderSelectionBackgroundColor() {
-        return this._columnHeaderSelectionBackgroundColor !== undefined ? this._columnHeaderSelectionBackgroundColor : this.gridSettings.columnHeaderSelectionBackgroundColor;
+        if (this._columnHeaderSelectionBackgroundColor === null) {
+            return undefined;
+        } else {
+            return this._columnHeaderSelectionBackgroundColor !== undefined ? this._columnHeaderSelectionBackgroundColor : this.gridSettings.columnHeaderSelectionBackgroundColor;
+        }
     }
-    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color) {
+    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHeaderSelectionBackgroundColor) {
             this.beginChange();
-            this._columnHeaderSelectionBackgroundColor = value;
+            if (value === undefined) {
+                this._columnHeaderSelectionBackgroundColor = null;
+            } else {
+                this._columnHeaderSelectionBackgroundColor = value;
+            }
             this.flagChangedViewRender();
             this.endChange();
         }
     }
     get columnHeaderSelectionForegroundColor() {
-        return this._columnHeaderSelectionForegroundColor !== undefined ? this._columnHeaderSelectionForegroundColor : this.gridSettings.columnHeaderSelectionForegroundColor;
+        if (this._columnHeaderSelectionForegroundColor === null) {
+            return undefined;
+        } else {
+            return this._columnHeaderSelectionForegroundColor !== undefined ? this._columnHeaderSelectionForegroundColor : this.gridSettings.columnHeaderSelectionForegroundColor;
+        }
     }
-    set columnHeaderSelectionForegroundColor(value: GridSettings.Color) {
+    set columnHeaderSelectionForegroundColor(value: GridSettings.Color | undefined) {
         if (value !== this._columnHeaderSelectionForegroundColor) {
             this.beginChange();
-            this._columnHeaderSelectionForegroundColor = value;
+            if (value === undefined) {
+                this._columnHeaderSelectionForegroundColor = null;
+            } else {
+                this._columnHeaderSelectionForegroundColor = value;
+            }
             this.flagChangedViewRender();
             this.endChange();
         }

@@ -240,7 +240,8 @@ export class RevRecordRowIndexMap {
         }
 
         if (leftIndex === undefined) {
-            rightIndex = <number>rightIndex;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            rightIndex = rightIndex!;
 
             if (rightIndex > this.rtoref.length) {
                 throw new RangeError('Invalid right index');
@@ -541,7 +542,8 @@ export class RevRecordRowIndexMap {
         }
 
         if (leftIndex === undefined) {
-            rightIndex = <number>rightIndex;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            rightIndex = rightIndex!;
 
             if (this.rtoref[rightIndex] !== -1) {
                 throw new RangeError('Left index is invalid');
@@ -674,12 +676,12 @@ export class RevRecordRowIndexMap {
         }
 
         // Remove in bulk
-        for (const leftIndex of (<number[]>Array.from(left).filter(value => value !== undefined)).sort((l, r) => r - l)) {
+        for (const leftIndex of (Array.from(left).filter(value => value !== undefined) as number[]).sort((l, r) => r - l)) {
             this.ltoref.splice(leftIndex, 1);
             this.reftol.splice(leftIndex, 1);
         }
 
-        for (const rightIndex of (<number[]>Array.from(right).filter(value => value !== undefined)).sort((l, r) => r - l)) {
+        for (const rightIndex of (Array.from(right).filter(value => value !== undefined) as number[]).sort((l, r) => r - l)) {
             this.rtoref.splice(rightIndex, 1);
             this.reftor.splice(rightIndex, 1);
         }

@@ -4,8 +4,7 @@ import {
     DatalessViewCell,
     IndexSignatureHack,
     Revgrid,
-    SchemaField,
-    SelectionAreaTypeId
+    SchemaField
 } from '../../grid/grid-public-api';
 import { StandardTextPainter } from '../painters/standard-painters-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
@@ -55,15 +54,35 @@ export class StandardHeaderTextCellPainter<
         const subgrid = cell.subgrid;
         const cellAllSelectionAreaTypeIds = selection.getAllCellSelectionAreaTypeIds(activeColumnIndex, subgridRowIndex, subgrid);
         const isSelected = cellAllSelectionAreaTypeIds.length > 0;
-        const isColumnSelected = cellAllSelectionAreaTypeIds.includes(SelectionAreaTypeId.column);
 
-        const textFont = isColumnSelected ? columnSettings.columnHeaderSelectionFont : columnSettings.columnHeaderFont;
+        let textFont: string;
+        if (isSelected && columnSettings.columnHeaderSelectionFont !== undefined) {
+            textFont = columnSettings.columnHeaderSelectionFont;
+        } else {
+            const columnHeaderFont = columnSettings.columnHeaderFont;
+            if (columnHeaderFont !== undefined) {
+                textFont = columnHeaderFont;
+            } else {
+                textFont = columnSettings.font;
+            }
+        }
 
-        const textColor = gc.cache.strokeStyle = isSelected
-            ? columnSettings.columnHeaderSelectionForegroundColor
-            : columnSettings.columnHeaderForegroundColor;
+        let textColor: string;
+        if (isSelected && columnSettings.columnHeaderSelectionForegroundColor !== undefined) {
+            textColor = columnSettings.columnHeaderSelectionForegroundColor;
+        } else {
+            const columnHeaderForegroundColor = columnSettings.columnHeaderForegroundColor;
+            if (columnHeaderForegroundColor !== undefined) {
+                textColor = columnHeaderForegroundColor;
+            } else {
+                textColor = columnSettings.color;
+            }
+        }
 
-        const backgroundColor = columnSettings.backgroundColor;
+        gc.cache.strokeStyle = textColor;
+
+        const columnHeaderBackgroundColor = columnSettings.columnHeaderBackgroundColor;
+        const backgroundColor = columnHeaderBackgroundColor === undefined ? columnSettings.backgroundColor : columnHeaderBackgroundColor;
 
         const fingerprint = cell.paintFingerprint as PaintFingerprint | undefined;
 
@@ -81,7 +100,8 @@ export class StandardHeaderTextCellPainter<
         } else {
             const bounds = cell.bounds;
             const cellPadding = columnSettings.cellPadding;
-            const horizontalAlign = columnSettings.columnHeaderHorizontalAlign;
+            const columnHeaderHorizontalAlign = columnSettings.columnHeaderHorizontalAlign;
+            const horizontalAlign = columnHeaderHorizontalAlign === undefined ? columnSettings.horizontalAlign : columnHeaderHorizontalAlign;
 
             // background
             gc.cache.fillStyle = backgroundColor;

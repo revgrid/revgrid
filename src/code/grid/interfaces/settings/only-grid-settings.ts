@@ -168,6 +168,7 @@ export interface OnlyGridSettings {
     /** Thickness of vertical grid lines (pixels). */
     verticalGridLinesWidth: number;
     visibleColumnWidthAdjust: boolean;
+    visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: boolean;
     wheelHFactor: number;
     wheelVFactor: number;
 }

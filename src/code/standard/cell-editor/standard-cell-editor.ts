@@ -32,7 +32,7 @@ export abstract class StandardCellEditor<
     }
 
     protected isToggleKey(key: string) {
-        return key === Focus.ActionKeyboardKey.Enter || key === ' ';
+        return (key as Focus.ActionKeyboardKey) === Focus.ActionKeyboardKey.Enter || key === ' ';
     }
 
     protected tryToggleBoolenValue(field: SF, subgridRowIndex: number) {

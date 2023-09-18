@@ -55,7 +55,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
         }
     }
 
-    convertDataValueArraysToTsv(dataValueArrays: Array<Array<DataServer.ViewValue>>) {
+    convertDataValueArraysToTsv(dataValueArrays: DataServer.ViewValue[][]) {
         let result = '';
 
         //only use the data from the last selection
@@ -132,7 +132,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
         return this.getRowIndicesMatrix(rowIndices);
     }
 
-    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): Array<Array<DataServer.ViewValue>> {
+    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): DataServer.ViewValue[][] {
         const selectedRowIndexes = this._selection.getRowIndices(true);
         return this.getRowIndicesMatrix(selectedRowIndexes, hiddenColumns);
     }
@@ -141,7 +141,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
         const selectedRowIndexesCount = rowIndices.length;
         const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
         const columnCount = columns.length;
-        const result = new Array<Array<DataServer.ViewValue>>(columnCount);
+        const result = new Array<DataServer.ViewValue[]>(columnCount);
 
         if (selectedRowIndexesCount === 0) {
             for (let c = 0; c < columnCount; c++) {
@@ -170,7 +170,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
         if (selectedColumnIndexesCount === 0) {
             return [];
         } else {
-            const result = new Array<Array<DataServer.ViewValue>>(selectedColumnIndexesCount);
+            const result = new Array<DataServer.ViewValue[]>(selectedColumnIndexesCount);
             const subgrid = this.getDefinedSubgrid();
             const numRows = subgrid.getRowCount();
             selectedColumnIndexes.forEach((selectedColumnIndex, c) => {
@@ -245,7 +245,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
         const columnsManager = this._columnsManager;
         const rectangles = this._selection.rectangles;
         const rectangleCount = rectangles.length;
-        const rects = new Array<Array<Array<DataServer.ViewValue>>>(rectangleCount);
+        const rects = new Array<DataServer.ViewValue[][]>(rectangleCount);
 
         if (rectangleCount > 0) {
             const subgrid = this.getDefinedSubgrid();
@@ -254,7 +254,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
                 (rect, i) => {
                     const colCount = rect.width;
                     const rowCount = rect.height;
-                    const columnArray = new Array<Array<DataServer.ViewValue>>(colCount);
+                    const columnArray = new Array<DataServer.ViewValue[]>(colCount);
 
                     let x = rect.topLeft.x
                     for (let c = 0; c < colCount; c++) {
@@ -315,7 +315,7 @@ export class DataExtractBehavior<BCS extends BehavioredColumnSettings, SF extend
                     }
                     const column = this._columnsManager.getActiveColumn(activeColumnIndex);
                     if (column !== undefined) {
-                        if (activeColumns.indexOf(column) < 0) {
+                        if (!activeColumns.includes(column)) {
                             columns.push(column);
                         }
                     }

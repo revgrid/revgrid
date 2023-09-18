@@ -68,6 +68,7 @@ export namespace MetaModel {
         height?: number; // will use default height if undefined
     }
 
+    // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
     export interface RowProperties extends HeightRowProperties {
         [key: string]: unknown;
     }
@@ -77,6 +78,7 @@ export namespace MetaModel {
     export type CellOwnProperty = unknown;
     export type CellOwnProperties = Record<string, CellOwnProperty>;
 
+    // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
     export interface CellOwnPropertiesRowMetadata {
         [fieldName: string]: CellOwnProperties;
     }

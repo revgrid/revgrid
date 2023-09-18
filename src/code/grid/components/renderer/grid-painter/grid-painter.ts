@@ -124,14 +124,19 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
 
             const verticalGridLinesWidth = gridSettings.verticalGridLinesWidth;
             if (gridSettings.verticalGridLinesVisible && verticalGridLinesWidth > 0) {
-                const preMainRowCount = this.subgridsManager.calculatePreMainRowCount();
-                const lastPreMainRow = viewLayoutRows[preMainRowCount - 1]; // any header rows?
-                const firstDataRow = viewLayoutRows[preMainRowCount]; // any data rows?
-                const userDataAreaTop = firstDataRow && firstDataRow.top;
-                const top = gridSettings.verticalGridLinesVisible ? 0 : userDataAreaTop;
-                const bottomPlus1 = gridSettings.horizontalGridLinesVisible ? viewHeight : lastPreMainRow && lastPreMainRow.bottomPlus1;
+                const top = 0;
+                let bottomPlus1: number | undefined;
+                if (!gridSettings.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly) {
+                    bottomPlus1 = viewHeight;
+                } else {
+                    const preMainPlusFixedRowCount = this.subgridsManager.calculatePreMainPlusFixedRowCount();
+                    if (preMainPlusFixedRowCount > 0) {
+                        const lastPreMainOrFixedRow = viewLayoutRows[preMainPlusFixedRowCount - 1]; // any header rows?
+                        bottomPlus1 = lastPreMainOrFixedRow.bottomPlus1;
+                    }
+                }
 
-                if (top !== undefined && bottomPlus1 !== undefined) { // either undefined means nothing to draw
+                if (bottomPlus1 !== undefined) { // else do not draw as only draw in fixed and pre main but no rows in fixed or pre main
                     gc.cache.lineCap = 'butt';
                     gc.cache.strokeStyle = verticalGridLinesColor;
                     gc.cache.lineWidth = verticalGridLinesWidth;
@@ -145,11 +150,6 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
                         gc.moveTo(x, top);
                         gc.lineTo(x, bottomPlus1);
                         gc.stroke();
-
-                        // when above drew a line segment in header, draw a second vertical grid line between data cells
-                        // if (gridSettings.horizontalGridLinesVisible) {
-                        //     gc.fillRect(x, userDataAreaTop, verticalGridLinesWidth, bottomPlus1 - userDataAreaTop);
-                        // }
                     }
                 }
             }

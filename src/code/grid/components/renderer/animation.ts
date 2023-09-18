@@ -14,10 +14,15 @@ export class Animation {
         backgroundAnimateTimeInterval: number | undefined,
         animateEventer: Animator.AnimateEventer,
     ) {
-        const animator = new Animator(minimumAnimateTimeInterval, backgroundAnimateTimeInterval, animateEventer);
+        const animator = new Animator(
+            minimumAnimateTimeInterval,
+            backgroundAnimateTimeInterval,
+            animateEventer,
+            () => this.requestAnimationFrame(),
+            (atTime, nowTime) => this.scheduleAnimationFrame(atTime, nowTime),
+            (changedAnimator, oldInterval) => this.processAnimatorBackgroundAnimateTimeIntervalChanged(changedAnimator, oldInterval),
+        );
         this._animators.push(animator);
-        animator.animateRequiredNowEventer = () => this.requestAnimationFrame();
-        animator.backgroundAnimateTimeIntervalChangedEventer = (oldInterval) => this.processAnimatorBackgroundAnimateTimeIntervalChanged(animator, oldInterval);
 
         if (backgroundAnimateTimeInterval !== undefined) {
             this.incrementBackgroundIntervaliserCount(backgroundAnimateTimeInterval);
@@ -62,6 +67,27 @@ export class Animation {
         }
     }
 
+    private scheduleAnimationFrame(atTime: DOMHighResTimeStamp, nowTime: DOMHighResTimeStamp) {
+        // atTime has to be greater than or equal to nowTime
+        if (this._nextAnimateTime !== undefined) {
+            if (atTime < this._nextAnimateTime) {
+                clearTimeout(this._nextAnimateTimeoutHandle);
+                this._nextAnimateTimeoutHandle = undefined;
+                this._nextAnimateTime = undefined;
+            }
+        }
+
+        if (this._nextAnimateTimeoutHandle === undefined) {
+            const timeout = atTime - nowTime;
+            this._nextAnimateTime = atTime;
+            this._nextAnimateTimeoutHandle = setTimeout(() => {
+                this._nextAnimateTimeoutHandle = undefined;
+                this._nextAnimateTime = undefined;
+                this.requestAnimationFrame();
+            }, timeout);
+        }
+    }
+
     private frameCallback(beforeAnimateNow: DOMHighResTimeStamp) {
         this._animationFrameHandle = undefined;
 
@@ -101,23 +127,7 @@ export class Animation {
                 nextAnimateTime = afterAnimateTime;
             }
 
-            if (this._nextAnimateTime !== undefined) {
-                if (nextAnimateTime < this._nextAnimateTime) {
-                    clearTimeout(this._nextAnimateTimeoutHandle);
-                    this._nextAnimateTimeoutHandle = undefined;
-                    this._nextAnimateTime = undefined;
-                }
-            }
-
-            if (this._nextAnimateTimeoutHandle === undefined) {
-                const timeout = nextAnimateTime - afterAnimateTime;
-                this._nextAnimateTime = nextAnimateTime;
-                this._nextAnimateTimeoutHandle = setTimeout(() => {
-                    this._nextAnimateTimeoutHandle = undefined;
-                    this._nextAnimateTime = undefined;
-                    this.requestAnimationFrame();
-                }, timeout);
-            }
+            this.scheduleAnimationFrame(nextAnimateTime, afterAnimateTime);
         }
     }
 
@@ -127,8 +137,9 @@ export class Animation {
         }
 
         const newInterval = animator.backgroundAnimateTimeInterval;
+
         if (newInterval !== undefined) {
-            this.decrementBackgroundIntervaliserCount(newInterval);
+            this.incrementBackgroundIntervaliserCount(newInterval);
         }
     }
 

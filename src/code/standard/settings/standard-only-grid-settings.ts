@@ -10,23 +10,23 @@ export interface StandardOnlyGridSettings {
 
     columnHoverBackgroundColor: GridSettings.Color | undefined;
 
-    columnHeaderFont: string;
-    columnHeaderHorizontalAlign: HorizontalAlign;
-    columnHeaderBackgroundColor: GridSettings.Color;
-    columnHeaderForegroundColor: GridSettings.Color;
+    columnHeaderFont: string | undefined;
+    columnHeaderHorizontalAlign: HorizontalAlign | undefined;
+    columnHeaderBackgroundColor: GridSettings.Color | undefined;
+    columnHeaderForegroundColor: GridSettings.Color | undefined;
     /** Font style for selected columns' headers. */
-    columnHeaderSelectionFont: string;
-    columnHeaderSelectionBackgroundColor: GridSettings.Color;
-    columnHeaderSelectionForegroundColor: GridSettings.Color;
+    columnHeaderSelectionFont: string | undefined;
+    columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
+    columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
 
     rowHoverBackgroundColor: GridSettings.Color | undefined;
 
     /** Font style for selected cell(s). */
-    selectionFont: GridSettings.Color;
+    selectionFont: GridSettings.Color | undefined;
     /** Background color for selected cell(s). */
-    selectionBackgroundColor: GridSettings.Color;
+    selectionBackgroundColor: GridSettings.Color | undefined;
     /** Font color for selected cell(s). */
-    selectionForegroundColor: GridSettings.Color;
+    selectionForegroundColor: GridSettings.Color | undefined;
 
     font: string;
     /** Horizontal alignment of content of each cell. */

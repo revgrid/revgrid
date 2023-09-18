@@ -55,100 +55,111 @@ export class Main {
     private _grid: Revgrid<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
 
     constructor() {
-        const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
+        const gridHostElement = document.querySelector('#gridHost');
         if (gridHostElement === null) {
             throw new Error('gridHostElement not found');
         }
-        this._gridHostElement = gridHostElement;
+        this._gridHostElement = gridHostElement as HTMLElement;
 
-        const controlsElement = document.querySelector('#controls') as HTMLElement;
+        const controlsElement = document.querySelector('#controls');
         if (controlsElement === null) {
             throw new Error('controlsElement not found');
         }
-        this._controlsElement = controlsElement;
+        this._controlsElement = controlsElement as HTMLElement;
 
-        this._newGridButtonElement = document.querySelector('#newGridButton') as HTMLButtonElement;
-        if (this._newGridButtonElement === null) {
+        const newGridButtonElement = document.querySelector('#newGridButton');
+        if (newGridButtonElement === null) {
             throw new Error('newGridButtonElement not found');
         } else {
+            this._newGridButtonElement = newGridButtonElement as HTMLButtonElement;
             this._newGridButtonElement.onclick = () => {
                 this.newGrid();
             };
         }
 
-        this._fixedColumnCountTextboxElement = document.querySelector('#fixedColumnCountTextbox') as HTMLInputElement;
-        if (this._fixedColumnCountTextboxElement === null) {
+        const fixedColumnCountTextboxElement = document.querySelector('#fixedColumnCountTextbox');
+        if (fixedColumnCountTextboxElement === null) {
             throw new Error('fixedColumnCountTextboxElement not found');
         } else {
+            this._fixedColumnCountTextboxElement = fixedColumnCountTextboxElement as HTMLInputElement;
             this._fixedColumnCountTextboxElement.onchange = () => {
                 this._grid.settings.fixedColumnCount = parseInt(this._fixedColumnCountTextboxElement.value);
             };
         }
 
-        this._cellPaddingTextboxElement = document.querySelector('#cellPaddingTextbox') as HTMLInputElement;
-        if (this._cellPaddingTextboxElement === null) {
+        const cellPaddingTextboxElement = document.querySelector('#cellPaddingTextbox');
+        if (cellPaddingTextboxElement === null) {
             throw new Error('cellPaddingTextboxElement not found');
         } else {
+            this._cellPaddingTextboxElement = cellPaddingTextboxElement as HTMLInputElement;
             this._cellPaddingTextboxElement.onchange = () => {
                 this._grid.settings.cellPadding = parseInt(this._cellPaddingTextboxElement.value);
             };
         }
 
-        this._rightHalignCheckboxElement = document.querySelector('#rightHalignCheckbox') as HTMLInputElement;
-        if (this._rightHalignCheckboxElement === null) {
+        const rightHalignCheckboxElement = document.querySelector('#rightHalignCheckbox');
+        if (rightHalignCheckboxElement === null) {
             throw new Error('rightHalignCheckBoxElement not found');
         } else {
+            this._rightHalignCheckboxElement = rightHalignCheckboxElement as HTMLInputElement;
             this._rightHalignCheckboxElement.onchange = () => {
                 this._grid.settings.horizontalAlign = this._rightHalignCheckboxElement.checked ? 'right' : 'left';
             };
         }
 
-        this._gridRightAlignedCheckboxElement = document.querySelector('#gridRightAlignedCheckbox') as HTMLInputElement;
-        if (this._gridRightAlignedCheckboxElement === null) {
+        const gridRightAlignedCheckboxElement = document.querySelector('#gridRightAlignedCheckbox');
+        if (gridRightAlignedCheckboxElement === null) {
             throw new Error('gridRightAlignedCheckBoxElement not found');
         } else {
+            this._gridRightAlignedCheckboxElement = gridRightAlignedCheckboxElement as HTMLInputElement;
             this._gridRightAlignedCheckboxElement.onchange = () => {
                 this._grid.settings.gridRightAligned = this._gridRightAlignedCheckboxElement.checked;
             };
         }
 
-        this._scrollHorizontallySmoothlyCheckboxElement = document.querySelector('#scrollHorizontallySmoothlyCheckbox') as HTMLInputElement;
-        if (this._scrollHorizontallySmoothlyCheckboxElement === null) {
+        const scrollHorizontallySmoothlyCheckboxElement = document.querySelector('#scrollHorizontallySmoothlyCheckbox');
+        if (scrollHorizontallySmoothlyCheckboxElement === null) {
             throw new Error('scrollHorizontallySmoothlyCheckBoxElement not found');
         } else {
+            this._scrollHorizontallySmoothlyCheckboxElement = scrollHorizontallySmoothlyCheckboxElement as HTMLInputElement;
             this._scrollHorizontallySmoothlyCheckboxElement.onchange = () => {
                 this._grid.settings.scrollHorizontallySmoothly = this._scrollHorizontallySmoothlyCheckboxElement.checked;
             };
         }
 
-        this._visibleColumnWidthAdjustCheckboxElement = document.querySelector('#visibleColumnWidthAdjustCheckbox') as HTMLInputElement;
-        if (this._visibleColumnWidthAdjustCheckboxElement === null) {
+        const visibleColumnWidthAdjustCheckboxElement = document.querySelector('#visibleColumnWidthAdjustCheckbox');
+        if (visibleColumnWidthAdjustCheckboxElement === null) {
             throw new Error('visibleColumnWidthAdjustCheckBoxElement not found');
         } else {
+            this._visibleColumnWidthAdjustCheckboxElement = visibleColumnWidthAdjustCheckboxElement as HTMLInputElement;
             this._visibleColumnWidthAdjustCheckboxElement.onchange = () => {
                 this._grid.settings.visibleColumnWidthAdjust = this._visibleColumnWidthAdjustCheckboxElement.checked;
             };
         }
 
-        this._deleteRowIndexTextboxElement = document.querySelector('#deleteRowIndexTextbox') as HTMLInputElement;
-        if (this._deleteRowIndexTextboxElement === null) {
+        const deleteRowIndexTextboxElement = document.querySelector('#deleteRowIndexTextbox');
+        if (deleteRowIndexTextboxElement === null) {
             throw new Error('deleteRowIndexTextboxElement not found');
+        } else {
+            this._deleteRowIndexTextboxElement = deleteRowIndexTextboxElement as HTMLInputElement;
         }
 
-        this._deleteRowButtonElement = document.querySelector('#deleteRowButton') as HTMLButtonElement;
-        if (this._deleteRowButtonElement === null) {
+        const deleteRowButtonElement = document.querySelector('#deleteRowButton');
+        if (deleteRowButtonElement === null) {
             throw new Error('deleteRowButtonElement not found');
         } else {
+            this._deleteRowButtonElement = deleteRowButtonElement as HTMLButtonElement;
             this._deleteRowButtonElement.onclick = () => {
                 const deleteRowIndex = parseInt(this._deleteRowIndexTextboxElement.value);
                 this._mainDataServer.deleteRow(deleteRowIndex);
             };
         }
 
-        this._addFishButtonElement = document.querySelector('#addFishButton') as HTMLButtonElement;
-        if (this._addFishButtonElement === null) {
+        const addFishButtonElement = document.querySelector('#addFishButton');
+        if (addFishButtonElement === null) {
             throw new Error('addFishButtonElement not found');
         } else {
+            this._addFishButtonElement = addFishButtonElement as HTMLButtonElement;
             this._addFishButtonElement.onclick = () => {
                 this._mainDataServer.addFish();
             };
@@ -176,6 +187,24 @@ export class Main {
         gridSettings.gridRightAligned = defaultGridRightAligned;
         gridSettings.scrollHorizontallySmoothly = defaultScrollHorizontallySmoothly;
         gridSettings.visibleColumnWidthAdjust = defaultVisibleColumnWidthAdjust;
+        gridSettings.rowStripeBackgroundColor = 'gainsboro';
+        gridSettings.horizontalGridLinesVisible = false;
+
+        gridSettings.cellFocusedBorderColor = '#696969';
+        gridSettings.cellHoverBackgroundColor = 'rgba(160, 160, 40, 0.45)';
+        gridSettings.columnHoverBackgroundColor = 'rgba(100, 100, 25, 0.30)';
+        gridSettings.columnHeaderFont = '12px Tahoma, Geneva, sans-serif';
+        gridSettings.columnHeaderHorizontalAlign = 'center';
+        gridSettings.columnHeaderBackgroundColor = 'rgb(223, 227, 250)';
+        gridSettings.columnHeaderForegroundColor = 'rgb(25, 25, 25)';
+        gridSettings.columnHeaderSelectionFont = 'bold 12px Tahoma, Geneva, sans-serif';
+        gridSettings.columnHeaderSelectionForegroundColor = 'rgb(80, 80, 80)';
+        gridSettings.columnHeaderSelectionBackgroundColor = 'rgba(255, 220, 97, 0.45)';
+        gridSettings.rowHoverBackgroundColor = 'rgba(60, 60, 15, 0.40)';
+        gridSettings.selectionFont = 'bold 13px Tahoma, Geneva, sans-serif';
+        gridSettings.selectionBackgroundColor = 'rgba(147, 185, 255, 0.625)';
+        gridSettings.selectionForegroundColor = 'rgb(0, 0, 128)';
+
         gridSettings.eventDispatchEnabled = true;
         gridSettings.endChange();
 

@@ -64,6 +64,7 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
+        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (hoverCell !== undefined && hoverCell.viewCell.isFilter) {
             // this.grid.onEditorActivate(cell);
             return hoverCell;
@@ -76,6 +77,7 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         if (cell === null) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
+        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (cell !== undefined && cell.viewCell.isFilter) {
             // this.grid.onEditorActivate(cell);
             return cell;

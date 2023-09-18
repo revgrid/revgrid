@@ -5,7 +5,8 @@ import {
     IndexSignatureHack,
     Rectangle,
     Revgrid,
-    SchemaField
+    SchemaField,
+    isArrayEqual
 } from '../../grid/grid-public-api';
 import { StandardTextPainter } from '../painters/standard-painters-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
@@ -57,36 +58,36 @@ export class StandardAlphaTextCellPainter<
         const subgrid = cell.subgrid;
         const isSelected = selection.isCellSelected(activeColumnIndex, subgridRowIndex, subgrid);
 
-        const textFont = isSelected ? gridSettings.selectionFont : columnSettings.font;
+        let textFont: string;
+        if (isSelected && gridSettings.selectionFont !== undefined) {
+            textFont = gridSettings.selectionFont;
+        } else {
+            textFont = columnSettings.font;
+        }
 
-        const textColor = gc.cache.strokeStyle = isSelected
-            ? gridSettings.selectionForegroundColor
-            : columnSettings.color;
+        let textColor: string;
+        if (isSelected && gridSettings.selectionForegroundColor !== undefined) {
+            textColor = gridSettings.selectionForegroundColor;
+        } else {
+            textColor = gridSettings.color;
+        }
+        gc.cache.strokeStyle = textColor;
 
         const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.field, subgridRowIndex);
         const valText = value as string;
 
         const fingerprint = cell.paintFingerprint as PaintFingerprint | undefined;
-        let fingerprintColorsLength: number;
         let same: boolean;
         if (fingerprint === undefined) {
-            fingerprintColorsLength = 0;
             same = false;
         } else {
-            fingerprintColorsLength = fingerprint.layerColors.length;
-            const partialRender = prefillColor === undefined; // signifies abort before rendering if same
-            same = partialRender &&
+            same =
                 valText === fingerprint.value &&
                 textFont === fingerprint.textFont &&
                 textColor === fingerprint.textColor;
         }
 
         const isMainSubgrid = subgrid.isMain;
-
-        // Since this painter supports colors with alpha, we need to layer colors so that they blend
-        // fill background only if our bgColor is populated or we are a selected cell
-        const layerColors: string[] = [];
-        let layerColorIndex = 0;
 
         let hoverColor: string | undefined;
         const hoverCell = this._grid.mouse.hoverCell;
@@ -115,35 +116,57 @@ export class StandardAlphaTextCellPainter<
             }
         }
 
-        let firstColorIsFill = false;
-        if (gc.alpha(hoverColor) < 1) {
-            let selectColor: string | undefined;
-            if (isSelected) {
-                selectColor = gridSettings.selectionBackgroundColor;
-            }
+        // Since this painter supports colors with alpha, we need to layer colors so that they blend
+        // fill background only if our bgColor is populated or we are a selected cell
+        const layerColors: string[] = [];
 
-            if (gc.alpha(selectColor) < 1) {
-                const inheritsBackgroundColor = (columnSettings.backgroundColor === prefillColor);
-                if (!inheritsBackgroundColor) {
-                    firstColorIsFill = true;
-                    layerColors.push(columnSettings.backgroundColor);
-                    same = same &&
-                        fingerprint !== undefined &&
-                        firstColorIsFill === fingerprint.firstColorIsFill && columnSettings.backgroundColor === fingerprint.layerColors[layerColorIndex++];
+        let firstColorIsFill = true;
+        let hoverColorOpaque: boolean | undefined;
+        if (hoverColor === undefined) {
+            hoverColorOpaque = false;
+        } else {
+            hoverColorOpaque = gc.alpha(hoverColor) === 1;
+            if (hoverColorOpaque) {
+                layerColors.push(hoverColor);
+            }
+        }
+
+        if (!hoverColorOpaque) {
+            let selectColorOpaque: boolean;
+            let selectColor: string | undefined;
+            if (!isSelected) {
+                selectColorOpaque = false;
+            } else {
+                selectColor = gridSettings.selectionBackgroundColor;
+                if (selectColor === undefined) {
+                    selectColorOpaque = false;
+                } else {
+                    selectColorOpaque = gc.alpha(hoverColor) === 1;
+                    if (selectColorOpaque) {
+                        layerColors.push(selectColor);
+                        if (hoverColor !== undefined) {
+                            layerColors.push(hoverColor);
+                        }
+                    }
                 }
             }
 
-            if (selectColor !== undefined) {
-                layerColors.push(selectColor);
-                same = same &&
-                    fingerprint !== undefined &&
-                    selectColor === fingerprint.layerColors[layerColorIndex++];
+            if (!selectColorOpaque) {
+                if (prefillColor !== undefined) {
+                    firstColorIsFill = false;
+                } else {
+                    layerColors.push(columnSettings.backgroundColor);
+                }
+                if (selectColor !== undefined) {
+                    layerColors.push(selectColor);
+                }
+                if (hoverColor !== undefined) {
+                    layerColors.push(hoverColor);
+                }
             }
         }
-        if (hoverColor !== undefined) {
-            layerColors.push(hoverColor);
-            same = same && fingerprint !== undefined && hoverColor === fingerprint.layerColors[layerColorIndex++];
-        }
+
+        same &&= !firstColorIsFill && fingerprint !== undefined && isArrayEqual(layerColors, fingerprint.layerColors);
 
         let borderColor = columnSettings.cellFocusedBorderColor;
         if (borderColor !== undefined) {
@@ -165,12 +188,13 @@ export class StandardAlphaTextCellPainter<
         };
         cell.paintFingerprint = newFingerprint; // supports partial render
 
-        if (same && layerColorIndex === fingerprintColorsLength) {
+        if (same) {
             return undefined;
         } else {
             const bounds = cell.bounds;
             const cellPadding = columnSettings.cellPadding;
-            const horizontalAlign = columnSettings.columnHeaderHorizontalAlign;
+            const columnHeaderHorizontalAlign = columnSettings.columnHeaderHorizontalAlign;
+            const horizontalAlign = columnHeaderHorizontalAlign === undefined ? columnSettings.horizontalAlign : columnHeaderHorizontalAlign;
 
             this.paintLayerColors(bounds, layerColors, firstColorIsFill);
             if (borderColor !== undefined) {

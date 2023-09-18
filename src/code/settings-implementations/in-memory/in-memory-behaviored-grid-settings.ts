@@ -8,7 +8,7 @@ import {
     SelectionAreaType,
     gridSettingChangeInvalidateTypeIds
 } from '../../grid/grid-public-api';
-import { } from '../../grid/types-utils/utils';
+import { isArrayEqual } from '../../grid/types-utils/utils';
 import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */
@@ -62,10 +62,11 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _verticalFixedLineWidth: number | undefined;
     private _fixedRowCount: number;
     private _gridRightAligned: boolean;
-    private _verticalGridLinesVisible: boolean;
     private _horizontalGridLinesColor: GridSettings.Color;
     private _horizontalGridLinesWidth: number;
     private _horizontalGridLinesVisible: boolean;
+    private _verticalGridLinesVisible: boolean;
+    private _visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: boolean;
     private _verticalGridLinesColor: GridSettings.Color;
     private _verticalGridLinesWidth: number;
     private _horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
@@ -596,16 +597,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.endChange();
         }
     }
-    get verticalGridLinesVisible() { return this._verticalGridLinesVisible; }
-    set verticalGridLinesVisible(value: boolean) {
-        if (value !== this._verticalGridLinesVisible) {
-            this.beginChange();
-            this._verticalGridLinesVisible = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.verticalGridLinesVisible;
-            this.flagChanged(invalidateType);
-            this.endChange();
-        }
-    }
     get horizontalGridLinesColor() { return this._horizontalGridLinesColor; }
     set horizontalGridLinesColor(value: GridSettings.Color) {
         if (value !== this._horizontalGridLinesColor) {
@@ -632,6 +623,26 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
             this.beginChange();
             this._horizontalGridLinesVisible = value;
             const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalGridLinesVisible;
+            this.flagChanged(invalidateType);
+            this.endChange();
+        }
+    }
+    get verticalGridLinesVisible() { return this._verticalGridLinesVisible; }
+    set verticalGridLinesVisible(value: boolean) {
+        if (value !== this._verticalGridLinesVisible) {
+            this.beginChange();
+            this._verticalGridLinesVisible = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.verticalGridLinesVisible;
+            this.flagChanged(invalidateType);
+            this.endChange();
+        }
+    }
+    get visibleVerticalGridLinesDrawnInFixedAndPreMainOnly() { return this._visibleVerticalGridLinesDrawnInFixedAndPreMainOnly; }
+    set visibleVerticalGridLinesDrawnInFixedAndPreMainOnly(value: boolean) {
+        if (value !== this._visibleVerticalGridLinesDrawnInFixedAndPreMainOnly) {
+            this.beginChange();
+            this._visibleVerticalGridLinesDrawnInFixedAndPreMainOnly = value;
+            const invalidateType = gridSettingChangeInvalidateTypeIds.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1329,12 +1340,6 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.gridRightAligned);
                     }
                     break;
-                case 'verticalGridLinesVisible':
-                    if (this._verticalGridLinesVisible !== requiredSettings.verticalGridLinesVisible) {
-                        this._verticalGridLinesVisible = requiredSettings.verticalGridLinesVisible;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.verticalGridLinesVisible);
-                    }
-                    break;
                 case 'horizontalGridLinesColor':
                     if (this._horizontalGridLinesColor !== requiredSettings.horizontalGridLinesColor) {
                         this._horizontalGridLinesColor = requiredSettings.horizontalGridLinesColor;
@@ -1351,6 +1356,18 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
                     if (this._horizontalGridLinesVisible !== requiredSettings.horizontalGridLinesVisible) {
                         this._horizontalGridLinesVisible = requiredSettings.horizontalGridLinesVisible;
                         this.flagChanged(gridSettingChangeInvalidateTypeIds.horizontalGridLinesVisible);
+                    }
+                    break;
+                case 'verticalGridLinesVisible':
+                    if (this._verticalGridLinesVisible !== requiredSettings.verticalGridLinesVisible) {
+                        this._verticalGridLinesVisible = requiredSettings.verticalGridLinesVisible;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.verticalGridLinesVisible);
+                    }
+                    break;
+                case 'visibleVerticalGridLinesDrawnInFixedAndPreMainOnly':
+                    if (this._visibleVerticalGridLinesDrawnInFixedAndPreMainOnly !== requiredSettings.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly) {
+                        this._visibleVerticalGridLinesDrawnInFixedAndPreMainOnly = requiredSettings.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly;
+                        this.flagChanged(gridSettingChangeInvalidateTypeIds.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly);
                     }
                     break;
                 case 'verticalGridLinesColor':
@@ -1601,20 +1618,5 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         const copy = new InMemoryBehavioredGridSettings();
         copy.merge(this);
         return copy;
-    }
-}
-
-/** @internal */
-function isArrayEqual<T>(left: readonly T[], right: readonly T[]): boolean {
-    const length = left.length;
-    if (right.length !== length) {
-        return false;
-    } else {
-        for (let i = 0; i < length; i++) {
-            if (left[i] !== right[i]) {
-                return false;
-            }
-        }
-        return true;
     }
 }

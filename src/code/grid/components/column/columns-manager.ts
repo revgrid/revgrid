@@ -482,7 +482,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>) {
         const column = this.getFieldColumn(fieldIndex);
         if (column === undefined) {
-            throw 'Expected column.';
+            throw new AssertError('CMMFCS50399', fieldIndex.toString());
         }
 
         // column.clearProperties(); // needs implementation
@@ -569,7 +569,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         const all = this._fieldColumns;
         const hidden = new Array<Column<BCS, SF>>();
         for (let i = 0; i < all.length; i++) {
-            if (visible.indexOf(all[i]) === -1) {
+            if (!visible.includes(all[i])) {
                 hidden.push(all[i]);
             }
         }

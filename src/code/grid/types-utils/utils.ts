@@ -225,6 +225,21 @@ export function calculateAdjustmentForRangeMoved(value: number, oldRangeIndex: n
 }
 
 /** @internal */
+export function isArrayEqual<T>(left: readonly T[], right: readonly T[]): boolean {
+    const length = left.length;
+    if (right.length !== length) {
+        return false;
+    } else {
+        for (let i = 0; i < length; i++) {
+            if (left[i] !== right[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+/** @internal */
 export function moveElementInArray<T>(array: T[], fromIndex: number, toIndex: number) {
     const item = array[fromIndex];
     if (toIndex > fromIndex) {

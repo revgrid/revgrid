@@ -114,7 +114,8 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaFi
 /** @public */
 export namespace SingleHeadingDataRowArrayServerSet {
     export type CreateFieldEventer<SF extends SchemaField> = (this: void, index: number, key: string, heading: string) => SF;
-    export interface DataRow extends DataRowArrayDataServer.DataRow {
+    // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+    export interface DataRow extends DataServer.ObjectViewRow {
         [fieldName: string]: DataServer.ViewValue | string; // can also have header
     }
 }

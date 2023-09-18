@@ -841,46 +841,31 @@ export interface DatalessViewLayoutRow {
 // @public (undocumented)
 export class DataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    addRow(dataRow: DataRowArrayDataServer.DataRow): void;
+    addRow(dataRow: DataServer.ObjectViewRow): void;
     // (undocumented)
-    addRow(index: number, dataRow: DataRowArrayDataServer.DataRow): void;
+    addRow(index: number, dataRow: DataServer.ObjectViewRow): void;
     // (undocumented)
     beginDataChange(): void;
-    delRow(index: number, count?: number): DataRowArrayDataServer.DataRow[];
+    delRow(index: number, count?: number): DataServer.ObjectViewRow[];
     // (undocumented)
     endDataChange(): void;
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
-    getRowMetadata(index: number, prototype?: null): false | MetaModel.RowMetadata;
-    // (undocumented)
-    getViewRow(index: number): DataRowArrayDataServer.DataRow;
+    getViewRow(index: number): DataServer.ObjectViewRow;
     // (undocumented)
     getViewValue(field: SF, y: number): unknown;
     // (undocumented)
     invalidateAll(): void;
     // (undocumented)
-    reset(data?: DataRowArrayDataServer.DataRow[]): void;
+    reset(data?: DataServer.ObjectViewRow[]): void;
     // (undocumented)
     setEditValue(field: SF, y: number, value: unknown): void;
-    // (undocumented)
-    setRowMetadata(index: number, metadata: MetaModel.RowMetadata): boolean;
-    setViewRow(index: number, dataRow: DataRowArrayDataServer.DataRow): void;
+    setViewRow(index: number, dataRow: DataServer.ObjectViewRow): void;
     // (undocumented)
     subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
     // (undocumented)
     unsubscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-}
-
-// @public (undocumented)
-export namespace DataRowArrayDataServer {
-    // (undocumented)
-    export interface DataRow extends DataServer.ObjectViewRow {
-        // (undocumented)
-        [fieldName: string]: DataServer.ViewValue;
-        // (undocumented)
-        __META?: MetaModel.RowMetadata;
-    }
 }
 
 // @public (undocumented)
@@ -1908,6 +1893,9 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     get visibleColumnWidthAdjust(): boolean;
     set visibleColumnWidthAdjust(value: boolean);
     // (undocumented)
+    get visibleVerticalGridLinesDrawnInFixedAndPreMainOnly(): boolean;
+    set visibleVerticalGridLinesDrawnInFixedAndPreMainOnly(value: boolean);
+    // (undocumented)
     get wheelHFactor(): number;
     set wheelHFactor(value: number);
     // (undocumented)
@@ -1955,26 +1943,26 @@ export class InMemoryStandardBehavioredColumnSettings extends InMemoryBehaviored
     // (undocumented)
     clone(): InMemoryStandardBehavioredColumnSettings;
     // (undocumented)
-    get columnHeaderBackgroundColor(): GridSettings.Color;
-    set columnHeaderBackgroundColor(value: GridSettings.Color);
+    get columnHeaderBackgroundColor(): GridSettings.Color | undefined;
+    set columnHeaderBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get columnHeaderFont(): string;
-    set columnHeaderFont(value: string);
+    get columnHeaderFont(): string | undefined;
+    set columnHeaderFont(value: string | undefined);
     // (undocumented)
-    get columnHeaderForegroundColor(): GridSettings.Color;
-    set columnHeaderForegroundColor(value: GridSettings.Color);
+    get columnHeaderForegroundColor(): GridSettings.Color | undefined;
+    set columnHeaderForegroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get columnHeaderHorizontalAlign(): HorizontalAlign;
-    set columnHeaderHorizontalAlign(value: HorizontalAlign);
+    get columnHeaderHorizontalAlign(): HorizontalAlign | undefined;
+    set columnHeaderHorizontalAlign(value: HorizontalAlign | undefined);
     // (undocumented)
-    get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
-    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
+    get columnHeaderSelectionBackgroundColor(): GridSettings.Color | undefined;
+    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get columnHeaderSelectionFont(): string;
-    set columnHeaderSelectionFont(value: string);
+    get columnHeaderSelectionFont(): string | undefined;
+    set columnHeaderSelectionFont(value: string | undefined);
     // (undocumented)
-    get columnHeaderSelectionForegroundColor(): GridSettings.Color;
-    set columnHeaderSelectionForegroundColor(value: GridSettings.Color);
+    get columnHeaderSelectionForegroundColor(): GridSettings.Color | undefined;
+    set columnHeaderSelectionForegroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
     get columnHoverBackgroundColor(): GridSettings.Color | undefined;
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
@@ -2013,26 +2001,26 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     // (undocumented)
     clone(): InMemoryStandardBehavioredGridSettings;
     // (undocumented)
-    get columnHeaderBackgroundColor(): GridSettings.Color;
-    set columnHeaderBackgroundColor(value: GridSettings.Color);
+    get columnHeaderBackgroundColor(): GridSettings.Color | undefined;
+    set columnHeaderBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get columnHeaderFont(): string;
-    set columnHeaderFont(value: string);
+    get columnHeaderFont(): string | undefined;
+    set columnHeaderFont(value: string | undefined);
     // (undocumented)
-    get columnHeaderForegroundColor(): GridSettings.Color;
-    set columnHeaderForegroundColor(value: GridSettings.Color);
+    get columnHeaderForegroundColor(): GridSettings.Color | undefined;
+    set columnHeaderForegroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get columnHeaderHorizontalAlign(): HorizontalAlign;
-    set columnHeaderHorizontalAlign(value: HorizontalAlign);
+    get columnHeaderHorizontalAlign(): HorizontalAlign | undefined;
+    set columnHeaderHorizontalAlign(value: HorizontalAlign | undefined);
     // (undocumented)
-    get columnHeaderSelectionBackgroundColor(): GridSettings.Color;
-    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color);
+    get columnHeaderSelectionBackgroundColor(): GridSettings.Color | undefined;
+    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get columnHeaderSelectionFont(): string;
-    set columnHeaderSelectionFont(value: string);
+    get columnHeaderSelectionFont(): string | undefined;
+    set columnHeaderSelectionFont(value: string | undefined);
     // (undocumented)
-    get columnHeaderSelectionForegroundColor(): GridSettings.Color;
-    set columnHeaderSelectionForegroundColor(value: GridSettings.Color);
+    get columnHeaderSelectionForegroundColor(): GridSettings.Color | undefined;
+    set columnHeaderSelectionForegroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
     get columnHoverBackgroundColor(): GridSettings.Color | undefined;
     set columnHoverBackgroundColor(value: GridSettings.Color | undefined);
@@ -2048,14 +2036,14 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     get rowHoverBackgroundColor(): GridSettings.Color | undefined;
     set rowHoverBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get selectionBackgroundColor(): GridSettings.Color;
-    set selectionBackgroundColor(value: GridSettings.Color);
+    get selectionBackgroundColor(): GridSettings.Color | undefined;
+    set selectionBackgroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
-    get selectionFont(): GridSettings.Color;
-    set selectionFont(value: GridSettings.Color);
+    get selectionFont(): GridSettings.Color | undefined;
+    set selectionFont(value: GridSettings.Color | undefined);
     // (undocumented)
-    get selectionForegroundColor(): GridSettings.Color;
-    set selectionForegroundColor(value: GridSettings.Color);
+    get selectionForegroundColor(): GridSettings.Color | undefined;
+    set selectionForegroundColor(value: GridSettings.Color | undefined);
     // (undocumented)
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
@@ -2069,6 +2057,11 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
 
 // @public (undocumented)
 export const invalidServerNotificationId = -1;
+
+// Warning: (ae-internal-missing-underscore) The name "isArrayEqual" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function isArrayEqual<T>(left: readonly T[], right: readonly T[]): boolean;
 
 // Warning: (ae-internal-missing-underscore) The name "isDigit" should be prefixed with an underscore because the declaration is marked as @internal
 //
@@ -2295,7 +2288,7 @@ export namespace MultiHeadingDataRowArrayServerSet {
     // (undocumented)
     export type CreateFieldEventer<SF extends MultiHeadingSchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
     // (undocumented)
-    export interface DataRow extends DataRowArrayDataServer.DataRow {
+    export interface DataRow extends DataServer.ObjectViewRow {
         // (undocumented)
         [fieldName: string]: DataServer.ViewValue | string;
     }
@@ -2472,6 +2465,8 @@ export interface OnlyGridSettings {
     verticalGridLinesWidth: number;
     // (undocumented)
     visibleColumnWidthAdjust: boolean;
+    // (undocumented)
+    visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: boolean;
     // (undocumented)
     wheelHFactor: number;
     // (undocumented)
@@ -3159,12 +3154,8 @@ export interface RevRecord {
 export namespace RevRecord {
     // (undocumented)
     export function bindRow(record: RevRecord, rowKey: symbol, row: RevRecordRow | undefined): void;
-    export interface BoundRows {
-        // Warning: (ae-forgotten-export) The symbol "RevRecordRow" needs to be exported by the entry point public-api.d.ts
-        //
-        // (undocumented)
-        [key: symbol]: RevRecordRow | undefined;
-    }
+    // Warning: (ae-forgotten-export) The symbol "RevRecordRow" needs to be exported by the entry point public-api.d.ts
+    export type BoundRows = Record<symbol, RevRecordRow | undefined>;
     // (undocumented)
     export function getBoundRow(record: RevRecord, rowKey: symbol): RevRecordRow | undefined;
     // (undocumented)
@@ -4013,7 +4004,7 @@ export namespace SingleHeadingDataRowArrayServerSet {
     // (undocumented)
     export type CreateFieldEventer<SF extends SchemaField> = (this: void, index: number, key: string, heading: string) => SF;
     // (undocumented)
-    export interface DataRow extends DataRowArrayDataServer.DataRow {
+    export interface DataRow extends DataServer.ObjectViewRow {
         // (undocumented)
         [fieldName: string]: DataServer.ViewValue | string;
     }
@@ -4331,18 +4322,18 @@ export interface StandardOnlyGridSettings {
     cellHoverBackgroundColor: GridSettings.Color | undefined;
     cellPadding: number;
     // (undocumented)
-    columnHeaderBackgroundColor: GridSettings.Color;
+    columnHeaderBackgroundColor: GridSettings.Color | undefined;
     // (undocumented)
-    columnHeaderFont: string;
+    columnHeaderFont: string | undefined;
     // (undocumented)
-    columnHeaderForegroundColor: GridSettings.Color;
+    columnHeaderForegroundColor: GridSettings.Color | undefined;
     // (undocumented)
-    columnHeaderHorizontalAlign: HorizontalAlign;
+    columnHeaderHorizontalAlign: HorizontalAlign | undefined;
     // (undocumented)
-    columnHeaderSelectionBackgroundColor: GridSettings.Color;
-    columnHeaderSelectionFont: string;
+    columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
+    columnHeaderSelectionFont: string | undefined;
     // (undocumented)
-    columnHeaderSelectionForegroundColor: GridSettings.Color;
+    columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
     // (undocumented)
     columnHoverBackgroundColor: GridSettings.Color | undefined;
     // (undocumented)
@@ -4350,9 +4341,9 @@ export interface StandardOnlyGridSettings {
     horizontalAlign: HorizontalAlign;
     // (undocumented)
     rowHoverBackgroundColor: GridSettings.Color | undefined;
-    selectionBackgroundColor: GridSettings.Color;
-    selectionFont: GridSettings.Color;
-    selectionForegroundColor: GridSettings.Color;
+    selectionBackgroundColor: GridSettings.Color | undefined;
+    selectionFont: GridSettings.Color | undefined;
+    selectionForegroundColor: GridSettings.Color | undefined;
     textStrikeThrough: boolean;
     // (undocumented)
     textTruncateType: TextTruncateType | undefined;
@@ -4541,7 +4532,6 @@ export namespace StandardTextPainter {
 
 // @public (undocumented)
 export class StandardToggleClickBoxCellEditor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends StandardPaintCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, painter: ClickBoxCellPainter<BCS, SF>);
     // (undocumented)
     closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
     // (undocumented)

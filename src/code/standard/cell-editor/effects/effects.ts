@@ -162,7 +162,7 @@ export class GlowerEffect extends Effect {
 
     glower(event: TransitionEvent) {
         const was = this._styleWasMap.get(event.propertyName);
-        // const was = this.styleWas[event.propertyName];
+        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (was !== undefined && was.undo) {
             this.el.style.setProperty(event.propertyName, was.style);
             was.undo = false;

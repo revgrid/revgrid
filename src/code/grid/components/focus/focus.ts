@@ -579,6 +579,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     invalidateSubgrid(subgrid: Subgrid<BCS, SF>) {
+        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (this._editor !== undefined && this._editor.invalidateValue !== undefined && subgrid === this.subgrid) {
             this._editor.invalidateValue();
         }
