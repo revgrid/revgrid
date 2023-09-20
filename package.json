@@ -28,7 +28,9 @@
   ],
   "files": [
     "dist/**/*",
-    "src/**/*"
+    "src/**/*.ts",
+    "src/**/*.json",
+    "src/**/*.css"
   ],
   "scripts": {
     "lint": "eslint -c .eslintrc.json --ext .ts src/",
