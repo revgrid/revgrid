@@ -97,25 +97,25 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     // normal: number;
 
     /** @internal */
-    private readonly _settingsChangedListener = () => this.applySettings();
+    private readonly _settingsChangedListener = () => { this.applySettings(); };
     /** @internal */
-    private readonly _hostWheelListener = (event: WheelEvent) => this.handleHostWheelEvent(event);
+    private readonly _hostWheelListener = (event: WheelEvent) => { this.handleHostWheelEvent(event); };
     /** @internal */
-    private readonly _barClickListener = (event: MouseEvent) => this.handleBarClickEvent(event);
+    private readonly _barClickListener = (event: MouseEvent) => { this.handleBarClickEvent(event); };
     /** @internal */
-    private readonly _thumbClickListener = (event: MouseEvent) => this.handleThumbClickEvent(event);
+    private readonly _thumbClickListener = (event: MouseEvent) => { this.handleThumbClickEvent(event); };
     /** @internal */
-    private readonly _thumbPointerEnterListener = () => this.handleThumbPointerEnterEvent();
+    private readonly _thumbPointerEnterListener = () => { this.handleThumbPointerEnterEvent(); };
     /** @internal */
-    private readonly _thumbPointerLeaveListener = () => this.handleThumbPointerLeaveEvent();
+    private readonly _thumbPointerLeaveListener = () => { this.handleThumbPointerLeaveEvent(); };
     /** @internal */
-    private readonly _thumbTransitionEndListener = () => this.handleThumbTransitionEndEvent();
+    private readonly _thumbTransitionEndListener = () => { this.handleThumbTransitionEndEvent(); };
     /** @internal */
-    private readonly _barPointerEnterListener = () => this.handleBarPointerEnterEvent();
+    private readonly _barPointerEnterListener = () => { this.handleBarPointerEnterEvent(); };
     /** @internal */
-    private readonly _barPointerLeaveListener = () => this.handleBarPointerLeaveEvent();
+    private readonly _barPointerLeaveListener = () => { this.handleBarPointerLeaveEvent(); };
     /** @internal */
-    private readonly _barPointerDownListener = (event: PointerEvent) => this.handleBarPointerDownEvent(event);
+    private readonly _barPointerDownListener = (event: PointerEvent) => { this.handleBarPointerDownEvent(event); };
     /** @internal */
     private _barPointerMoveListener: Scroller.PointerEventListener | undefined;
     /** @internal */
@@ -207,9 +207,9 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this.bar = bar;
         bar.id = `${revgridId}-${axis}-${Scroller.barCssSuffix}`;
         bar.style.position = 'absolute';
-        const leadingKey = this._axisProperties['leading'];
+        const leadingKey = this._axisProperties.leading;
         bar.style.setProperty(leadingKey, '0');
-        const trailingKey = this._axisProperties['trailing'];
+        const trailingKey = this._axisProperties.trailing;
         bar.style.setProperty(trailingKey, '0');
         bar.addEventListener('pointerenter', this._barPointerEnterListener);
         bar.addEventListener('pointerleave', this._barPointerLeaveListener);
@@ -236,7 +236,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
         this._gridSettings.subscribeChangedEvent(this._settingsChangedListener);
 
-        this._scrollDimension.changedEventer = () => this.resize();
+        this._scrollDimension.changedEventer = () => { this.resize(); };
         this._scrollDimension.scrollerTargettedViewportStartChangedEventer = () => {
             if (this._pointerScrollingState !== Scroller.PointerScrollingState.Active) {
                 this.setThumbPosition(this._scrollDimension.viewportStart);
@@ -244,7 +244,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         }
 
         if (this._spaceAccomodatedScroller !== undefined) {
-            this._spaceAccomodatedScroller.visibilityChangedEventer = () => this.resize();
+            this._spaceAccomodatedScroller.visibilityChangedEventer = () => { this.resize(); };
         }
 
         this._hostElement.appendChild(bar);
@@ -617,8 +617,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /** @internal */
     private calculateLeadingTrailingForSpaceAccomodatedScroller(): LeadingTrailing {
         const leadingTrailing: LeadingTrailing = {};
-        const leadingKey = this._axisProperties['leading'];
-        const trailingKey = this._axisProperties['trailing'];
+        const leadingKey = this._axisProperties.leading;
+        const trailingKey = this._axisProperties.trailing;
         const spaceAccomodatedScroller = this._spaceAccomodatedScroller;
         if (spaceAccomodatedScroller === undefined) {
             leadingTrailing[leadingKey] = '0';
@@ -781,11 +781,11 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         this._pinOffset = event[this._axisProperties.page] - thumbBox[this._axisProperties.leading] + this.bar.getBoundingClientRect()[this._axisProperties.leading] + this._thumbMarginLeading;
         document.documentElement.style.cursor = 'default';
 
-        this._barPointerMoveListener = (moveEvent) => this.handleBarPointerMoveEvent(moveEvent);
+        this._barPointerMoveListener = (moveEvent) => { this.handleBarPointerMoveEvent(moveEvent); };
         this.bar.addEventListener('pointermove', this._barPointerMoveListener);
-        this._barPointerUpListener = (upEvent: PointerEvent) => this.handleBarPointerUpCancelEvent(upEvent)
+        this._barPointerUpListener = (upEvent: PointerEvent) => { this.handleBarPointerUpCancelEvent(upEvent); }
         this.bar.addEventListener('pointerup', this._barPointerUpListener);
-        this._barPointerCancelListener = (cancelEvent: PointerEvent) => this.handleBarPointerUpCancelEvent(cancelEvent)
+        this._barPointerCancelListener = (cancelEvent: PointerEvent) => { this.handleBarPointerUpCancelEvent(cancelEvent); }
         this.bar.addEventListener('pointercancel', this._barPointerCancelListener);
 
         this.updateThumbVisibility();
@@ -854,7 +854,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                 if (this.wantThumbFullVisibility()) {
                     if (this._temporaryThumbFullVisibilityTimePeriod !== undefined && this._temporaryThumbFullVisibilityTimeoutId === undefined) {
                         this._temporaryThumbFullVisibilityTimeoutId = setTimeout(
-                            () => this.handleTemporaryThumbFullVisibilityTimeout(),
+                            () => { this.handleTemporaryThumbFullVisibilityTimeout(); },
                             this._temporaryThumbFullVisibilityTimePeriod
                         );
                     }

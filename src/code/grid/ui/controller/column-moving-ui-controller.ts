@@ -151,7 +151,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                 this.endGridScrolling();
             }
 
-            requestAnimationFrame(() => this.render(dragAction));
+            requestAnimationFrame(() => { this.render(dragAction); });
             return cell;
         }
     }

@@ -22,7 +22,7 @@ export class DataRowArraySchemaServer<SF extends SchemaField> implements SchemaS
         if (schema !== undefined) {
             this._fields = schema;
         }
-        this._schemaCallbackListeners.forEach((listener) => listener.schemaChanged());
+        this._schemaCallbackListeners.forEach((listener) => { listener.schemaChanged(); });
     }
 
     /**
@@ -34,6 +34,6 @@ export class DataRowArraySchemaServer<SF extends SchemaField> implements SchemaS
 
     setSchema(schema: SF[]) {
         this._fields = schema;
-        this._schemaCallbackListeners.forEach((listener) => listener.schemaChanged());
+        this._schemaCallbackListeners.forEach((listener) => { listener.schemaChanged(); });
     }
 }

@@ -2114,8 +2114,7 @@ export const enum ListChangedTypeId {
 export const lowestValidServerNotificationId = 0;
 
 // @public (undocumented)
-export interface MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Subgrid<BCS, SF> {
-}
+export type MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField> = Subgrid<BCS, SF>;
 
 // @public (undocumented)
 export interface MetaModel {

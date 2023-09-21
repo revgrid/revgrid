@@ -35,6 +35,6 @@ export class MultiHeadingDataServer<SF extends MultiHeadingSchemaField> implemen
 
     reset(rowCount: number) {
         this._rowCount = rowCount;
-        this._callbackListeners.forEach((listener) => listener.rowsLoaded());
+        this._callbackListeners.forEach((listener) => { listener.rowsLoaded(); });
     }
 }

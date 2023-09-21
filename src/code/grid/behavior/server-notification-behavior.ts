@@ -24,12 +24,12 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
 
     /** @internal */
     private readonly schemaServerNotificationsClient: SchemaServer.NotificationsClient<SF> = {
-        beginChange: () => this.handleBeginSchemaChange(),
-        endChange: () => this.handleEndSchemaChange(),
-        fieldsInserted: (fieldIndex, fieldCount) => this.handleFieldsInserted(fieldIndex, fieldCount),
-        fieldsDeleted: (fieldIndex, fieldCount) => this.handleFieldsDeleted(fieldIndex, fieldCount),
-        allFieldsDeleted: () => this.handleAllFieldsDeleted(),
-        schemaChanged: () => this.handleSchemaChanged(),
+        beginChange: () => { this.handleBeginSchemaChange(); },
+        endChange: () => { this.handleEndSchemaChange(); },
+        fieldsInserted: (fieldIndex, fieldCount) => { this.handleFieldsInserted(fieldIndex, fieldCount); },
+        fieldsDeleted: (fieldIndex, fieldCount) => { this.handleFieldsDeleted(fieldIndex, fieldCount); },
+        allFieldsDeleted: () => { this.handleAllFieldsDeleted(); },
+        schemaChanged: () => { this.handleSchemaChanged(); },
         getActiveSchemaFields: () => this.handleGetActiveSchemaFields(),
     }
 
@@ -52,32 +52,33 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         for (const subgrid of subgrids) {
             const dataServer = subgrid.dataServer;
             const notificationsClient: DataServer.NotificationsClient = {
-                beginChange: () => this.handleBeginDataChange(),
-                endChange: () => this.handleEndDataChange(),
-                rowsInserted: (subgridRowIndex, rowCount) => this.handleRowsInserted(dataServer, subgridRowIndex, rowCount),
-                rowsDeleted: (subgridRowIndex, rowCount) => this.handleRowsDeleted(dataServer, subgridRowIndex, rowCount),
-                allRowsDeleted: () => this.handleAllRowsDeleted(dataServer),
+                beginChange: () => { this.handleBeginDataChange(); },
+                endChange: () => { this.handleEndDataChange(); },
+                rowsInserted: (subgridRowIndex, rowCount) => { this.handleRowsInserted(dataServer, subgridRowIndex, rowCount); },
+                rowsDeleted: (subgridRowIndex, rowCount) => { this.handleRowsDeleted(dataServer, subgridRowIndex, rowCount); },
+                allRowsDeleted: () => { this.handleAllRowsDeleted(dataServer); },
                 rowsMoved: (
                     oldSubgridRowIndex,
                     newSubgridRowIndex,
                     rowCount
-                ) => this.handleRowsMoved(dataServer, oldSubgridRowIndex, newSubgridRowIndex, rowCount),
-                rowsLoaded: () => this.handleRowsLoaded(dataServer),
-                invalidateAll: () => this.handleInvalidateAll(dataServer),
-                invalidateRows: (subgridRowIndex, count) => this.handleInvalidateRows(dataServer, subgridRowIndex, count),
-                invalidateRow: (subgridRowIndex) => this.handleInvalidateRow(dataServer, subgridRowIndex),
-                invalidateRowColumns: (subgridRowIndex, schemaColumnIndex, columnCount) =>
-                    this.handleInvalidateRowColumns(dataServer, subgridRowIndex, schemaColumnIndex, columnCount),
+                ) => { this.handleRowsMoved(dataServer, oldSubgridRowIndex, newSubgridRowIndex, rowCount); },
+                rowsLoaded: () => { this.handleRowsLoaded(dataServer); },
+                invalidateAll: () => { this.handleInvalidateAll(dataServer); },
+                invalidateRows: (subgridRowIndex, count) => { this.handleInvalidateRows(dataServer, subgridRowIndex, count); },
+                invalidateRow: (subgridRowIndex) => { this.handleInvalidateRow(dataServer, subgridRowIndex); },
+                invalidateRowColumns: (subgridRowIndex, schemaColumnIndex, columnCount) => {
+                    this.handleInvalidateRowColumns(dataServer, subgridRowIndex, schemaColumnIndex, columnCount);
+                },
                 invalidateRowCells: (
                     subgridRowIndex,
                     schemaColumnIndexes
-                ) => this.handleInvalidateRowCells(dataServer, subgridRowIndex, schemaColumnIndexes),
+                ) => { this.handleInvalidateRowCells(dataServer, subgridRowIndex, schemaColumnIndexes); },
                 invalidateCell: (
                     schemaColumnIndex,
                     subgridRowIndex
-                ) => this.handleInvalidateCell(dataServer, schemaColumnIndex, subgridRowIndex),
-                preReindex:  () => this.handleDataPreReindex(),
-                postReindex: (allRowsKept) => this.handleDataPostReindex(allRowsKept),
+                ) => { this.handleInvalidateCell(dataServer, schemaColumnIndex, subgridRowIndex); },
+                preReindex:  () => { this.handleDataPreReindex(); },
+                postReindex: (allRowsKept) => { this.handleDataPostReindex(allRowsKept); },
             };
 
             subgrid.setDataNotificationsClient(notificationsClient);

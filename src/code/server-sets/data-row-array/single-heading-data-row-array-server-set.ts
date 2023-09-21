@@ -79,6 +79,7 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaFi
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     private convertDataValueToString(value: DataServer.ViewValue | string): string {
         switch (typeof value) {
             case 'string': return value;
@@ -116,6 +117,7 @@ export namespace SingleHeadingDataRowArrayServerSet {
     export type CreateFieldEventer<SF extends SchemaField> = (this: void, index: number, key: string, heading: string) => SF;
     // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
     export interface DataRow extends DataServer.ObjectViewRow {
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
         [fieldName: string]: DataServer.ViewValue | string; // can also have header
     }
 }

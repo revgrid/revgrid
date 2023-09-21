@@ -53,6 +53,7 @@ export interface CellEditor<
 export namespace CellEditor {
     export type PullCellValueEventer = (this: void) => DataServer.ViewValue;
     export type PushCellValueEventer = (this: void, value: DataServer.ViewValue) => void;
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     export type CellClosedEventer = (this: void, value: DataServer.ViewValue | undefined) => void;
     export type KeyDownEventer = (this: void, event: KeyboardEvent) => void;
 

@@ -39,7 +39,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         /** @internal */
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
     ) {
-        this._viewLayout.cellPoolComputedEventerForMouse = () => this.processViewLayoutComputed();
+        this._viewLayout.cellPoolComputedEventerForMouse = () => { this.processViewLayoutComputed(); };
     }
 
     get activeDragType() { return this._activeDragType; }

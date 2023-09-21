@@ -171,14 +171,14 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         return new ColumnImplementation(
             field,
             columnSettings,
-            (column, ui) => this.notifyColumnsWidthChanged([column], ui),
-            () => this.invalidateHorizontalViewLayoutEventer(true),
+            (column, ui) => { this.notifyColumnsWidthChanged([column], ui); },
+            () => { this.invalidateHorizontalViewLayoutEventer(true); },
         );
     }
 
     /** @internal */
     createColumns() {
-        this._beforeCreateColumnsListeners.forEach((listener) => listener());
+        this._beforeCreateColumnsListeners.forEach((listener) => { listener(); });
 
         const fields = this.schemaServer.getFields();
 

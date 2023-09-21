@@ -28,7 +28,7 @@ export class SingleHeadingDataServer<SF extends SingleHeadingSchemaField> implem
     }
 
     reset() {
-        this._callbackListeners.forEach((listener) => listener.rowsLoaded());
+        this._callbackListeners.forEach((listener) => { listener.rowsLoaded(); });
     }
 
     invalidateCell(schemaColumnIndex: number, rowIndex = 0) {

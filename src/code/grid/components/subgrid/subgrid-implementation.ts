@@ -33,7 +33,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     private _dataNotificationsClient: DataServer.NotificationsClient;
 
     /** @internal */
-    private _columnsManagerBeforeCreateColumnsListener = () => this._viewDataRowProxy.updateSchema();
+    private _columnsManagerBeforeCreateColumnsListener = () => { this._viewDataRowProxy.updateSchema(); };
 
     /** @internal */
     constructor(

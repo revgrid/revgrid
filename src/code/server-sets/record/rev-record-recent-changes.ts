@@ -571,7 +571,7 @@ export class RevRecordRecentChanges {
             if (duration < 0) {
                 duration = 0;
             }
-            this._nextExpiryTimeoutHandle = setTimeout(() => this.processNextExpiryTimeout(), duration);
+            this._nextExpiryTimeoutHandle = setTimeout(() => { this.processNextExpiryTimeout(); }, duration);
         }
     }
 

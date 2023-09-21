@@ -3,6 +3,4 @@ import { BehavioredColumnSettings } from '../settings/behaviored-column-settings
 import { Subgrid } from './subgrid';
 
 /** @public */
-export interface MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Subgrid<BCS, SF> {
-
-}
+export type MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField> = Subgrid<BCS, SF>

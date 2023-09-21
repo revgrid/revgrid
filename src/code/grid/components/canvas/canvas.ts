@@ -108,7 +108,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
 
     /** @internal */
     private _resizeObserver = new ResizeObserver(() => {
-        setTimeout(() => this.resize(true), 0); // do not process within observer callback
+        setTimeout(() => { this.resize(true); }, 0); // do not process within observer callback
     })
 
     /** @internal */
@@ -392,7 +392,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
 
     /** @internal */
     start() {
-        this._gridSettings.resizeEventer = () => this.resize(false);
+        this._gridSettings.resizeEventer = () => { this.resize(false); };
         this._resizeObserver.observe(this.hostElement);
         this._started = true;
     }
