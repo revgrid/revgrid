@@ -19,11 +19,11 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
     }
 
     beginDataChange() {
-        this._callbackListeners.forEach((listener) => listener.beginChange());
+        this._callbackListeners.forEach((listener) => { listener.beginChange(); });
     }
 
     endDataChange() {
-        this._callbackListeners.forEach((listener) => listener.endChange());
+        this._callbackListeners.forEach((listener) => { listener.endChange(); });
     }
 
     reset(data?: DataServer.ObjectViewRow[]) {
@@ -31,7 +31,7 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
             this.invalidateAll();
         } else {
             this._data = data;
-            this._callbackListeners.forEach((listener) => listener.rowsLoaded());
+            this._callbackListeners.forEach((listener) => { listener.rowsLoaded(); });
         }
     }
 
@@ -53,7 +53,7 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
      */
     setViewRow(index: number, dataRow: DataServer.ObjectViewRow) {
         this._data[index] = dataRow || undefined;
-        this._callbackListeners.forEach((listener) => listener.invalidateRow(index));
+        this._callbackListeners.forEach((listener) => { listener.invalidateRow(index); });
     }
 
     /**
@@ -87,7 +87,7 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
             this._data.splice(index, 0, dataRow);
         }
 
-        this._callbackListeners.forEach((listener) => listener.rowsInserted(index, 1));
+        this._callbackListeners.forEach((listener) => { listener.rowsInserted(index, 1); });
     }
 
     /**
@@ -97,7 +97,7 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
     delRow(index: number, count = 1) {
         const rows = this._data.splice(index, count === undefined ? 1 : count);
         if (rows.length) {
-            this._callbackListeners.forEach((listener) => listener.invalidateRows(index, count));
+            this._callbackListeners.forEach((listener) => { listener.invalidateRows(index, count); });
         }
         return rows;
     }
@@ -118,7 +118,7 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
      */
     setEditValue(field: SF, y: number, value: unknown) {
         this._data[y][field.name] = value;
-        this._callbackListeners.forEach((listener) => listener.invalidateCell(field.index, y));
+        this._callbackListeners.forEach((listener) => { listener.invalidateCell(field.index, y); });
     }
 
     /**

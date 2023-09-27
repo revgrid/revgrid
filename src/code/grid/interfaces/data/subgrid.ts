@@ -32,6 +32,7 @@ export interface Subgrid<BCS extends BehavioredColumnSettings, SF extends Schema
     getRowProperties(rowIndex: number): MetaModel.RowProperties | undefined;
     setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined): boolean;
 
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     getRowProperty(rowIndex: number, key: string): unknown | undefined;
     getRowHeight(rowIndex: number): number;
 

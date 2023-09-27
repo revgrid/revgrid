@@ -69,7 +69,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     ) {
         this.subgrid = this._mainSubgrid;
         this.dataServer = this.subgrid.dataServer;
-        this._viewLayout.cellPoolComputedEventerForFocus = () => this.handleCellPoolComputedEvent();
+        this._viewLayout.cellPoolComputedEventerForFocus = () => { this.handleCellPoolComputedEvent(); };
     }
 
     get currentX() { return this._current === undefined ? undefined : this._current.x; }
@@ -344,7 +344,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 throw new AssertError('FGFDVS17778');
             } else {
                 const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-                return this.dataServer.setEditValue(column.field, focusedPoint.y, value);
+                this.dataServer.setEditValue(column.field, focusedPoint.y, value); return;
             }
         }
     }
@@ -698,6 +698,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     private handleEditorClosed(value: DataServer.ViewValue | undefined) {
         const editor = this._editor;
         if (editor !== undefined) {
@@ -771,10 +772,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                     } else {
                         editor.pullCellValueEventer = () => this.getFocusedEditValue();
                         if (!readonly) {
-                            editor.pushCellValueEventer = (value) => this.setFocusedEditValue(value);
+                            editor.pushCellValueEventer = (value) => { this.setFocusedEditValue(value); };
                         }
-                        editor.keyDownEventer = (event) => this.editorKeyDownEventer(event);
-                        editor.cellClosedEventer = (value) => this.handleEditorClosed(value);
+                        editor.keyDownEventer = (event) => { this.editorKeyDownEventer(event); };
+                        editor.cellClosedEventer = (value) => { this.handleEditorClosed(value); };
                         this._editor = editor;
                         if (!editor.tryOpenCell(focusedCell, keyDownEvent, clickEvent)) {
                             this.finaliseEditor(editor)

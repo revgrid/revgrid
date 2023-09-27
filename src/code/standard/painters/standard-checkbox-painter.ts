@@ -182,7 +182,7 @@ export class StandardCheckboxPainter {
                     height: boxSideLength,
                 }
             } else {
-                if (typeof booleanValue === null) {
+                if (booleanValue === null) {
                     const gc = this._renderingContext;
                     gc.cache.font = font;
                     const charWidth = Math.ceil(gc.getCharWidth(StandardCheckboxPainter.valueNotBooleanChar));

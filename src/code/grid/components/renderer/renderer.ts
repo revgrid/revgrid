@@ -31,7 +31,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /** @internal */
     private readonly _renderActionQueue: RenderActionQueue;
     /** @internal */
-    private readonly _gridSettingsChangedListener = () => this.handleGridSettingsChanged();
+    private readonly _gridSettingsChangedListener = () => { this.handleGridSettingsChanged(); };
 
     /** @internal */
     private _documentHidden = false;
@@ -51,7 +51,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private _allGridPainter: GridPainter<BGS, BCS, SF> | undefined;
 
     /** @internal */
-    private _pageVisibilityChangeListener = () => this.handlePageVisibilityChange();
+    private _pageVisibilityChangeListener = () => { this.handlePageVisibilityChange(); };
 
     /** @internal */
     constructor(
@@ -82,20 +82,20 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
             this._focus,
             this._selection,
             this._mouse,
-            () => this.repaintAll(),
+            () => { this.repaintAll(); },
         );
 
-        this._renderActionQueue = new RenderActionQueue(() => this.flagAnimateRequired());
+        this._renderActionQueue = new RenderActionQueue(() => { this.flagAnimateRequired(); });
 
         this._gridSettings.subscribeChangedEvent(this._gridSettingsChangedListener);
         this._gridSettings.viewRenderInvalidatedEventer = () => {
             this._viewLayout.resetAllCellPaintFingerprints();
             this.invalidateView();
         }
-        this._viewLayout.layoutInvalidatedEventer = (action) => this._renderActionQueue.processViewLayoutInvalidateAction(action);
-        this._focus.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCell(cell)
-        this._selection.changedEventerForRenderer = () => this.invalidateView();
-        this._mouse.viewCellRenderInvalidatedEventer = (cell) => this.invalidateViewCell(cell);
+        this._viewLayout.layoutInvalidatedEventer = (action) => { this._renderActionQueue.processViewLayoutInvalidateAction(action); };
+        this._focus.viewCellRenderInvalidatedEventer = (cell) => { this.invalidateViewCell(cell); }
+        this._selection.changedEventerForRenderer = () => { this.invalidateView(); };
+        this._mouse.viewCellRenderInvalidatedEventer = (cell) => { this.invalidateViewCell(cell); };
 
         document.addEventListener('visibilitychange', this._pageVisibilityChangeListener);
         this.setGridPainter('by-columns-and-rows');
@@ -181,7 +181,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
             this._animator = Animation.animation.createAnimator(
                 this._gridSettings.minimumAnimateTimeInterval,
                 this._gridSettings.backgroundAnimateTimeInterval,
-                () => this.processRenderActionQueue(),
+                () => { this.processRenderActionQueue(); },
             );
 
             if (this._renderActionQueue.actionsQueued) {
@@ -370,13 +370,13 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     }
                 }
 
-                setTimeout(() => this.renderedEventer(), 0); // process outside frame animation
+                setTimeout(() => { this.renderedEventer(); }, 0); // process outside frame animation
 
                 const lastServerNotificationId = this._lastServerNotificationId;
                 if (this._lastRenderedServerNotificationId !== lastServerNotificationId) {
                     this._lastRenderedServerNotificationId = lastServerNotificationId;
                     // do not resolve in animation frame call back
-                    setTimeout(() => this.resolveWaitLastServerNotificationRendered(lastServerNotificationId), 0); // process outside frame animation
+                    setTimeout(() => { this.resolveWaitLastServerNotificationRendered(lastServerNotificationId); }, 0); // process outside frame animation
                 }
 
             } catch (e) {

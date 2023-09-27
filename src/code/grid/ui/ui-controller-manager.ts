@@ -109,8 +109,8 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
 
         this._firstUiController = this.createAndLinkUiControllers(customUiControllerDefinitions);
 
-        this._eventBehavior.uiKeyDownEventer = (event, fromEditor) => this.handleKeyDownEvent(event, fromEditor);
-        this._eventBehavior.uiKeyUpEventer = (event) => this.handleKeyUpEvent(event);
+        this._eventBehavior.uiKeyDownEventer = (event, fromEditor) => { this.handleKeyDownEvent(event, fromEditor); };
+        this._eventBehavior.uiKeyUpEventer = (event) => { this.handleKeyUpEvent(event); };
         this._eventBehavior.uiClickEventer = (event) => this.handleClickEvent(event);
         this._eventBehavior.uiDblClickEventer = (event) => this.handleDblClickEvent(event);
         this._eventBehavior.uiPointerDownEventer = (event) => this.handlePointerDownEvent(event);
@@ -123,12 +123,12 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         this._eventBehavior.uiPointerDragEndEventer = (event) => this.handlePointerDragEndEvent(event);
         this._eventBehavior.uiWheelMoveEventer = (event) => this.handleWheelMovedEvent(event);
         this._eventBehavior.uiContextMenuEventer = (event) => this.handleContextMenuEvent(event);
-        this._eventBehavior.uiTouchStartEventer = (event) => this.handleTouchStartEvent(event);
-        this._eventBehavior.uiTouchMoveEventer = (event) => this.handleTouchMoveEvent(event);
-        this._eventBehavior.uiTouchEndEventer = (event) => this.handleTouchEndEvent(event);
-        this._eventBehavior.uiCopyEventer = (event) => this.handleCopyEvent(event);
-        this._eventBehavior.uiHorizontalScrollerActionEventer = (event) => this.handleHorizontalScrollerActionEvent(event);
-        this._eventBehavior.uiVerticalScrollerActionEventer = (event) => this.handleVerticalScrollerActionEvent(event);
+        this._eventBehavior.uiTouchStartEventer = (event) => { this.handleTouchStartEvent(event); };
+        this._eventBehavior.uiTouchMoveEventer = (event) => { this.handleTouchMoveEvent(event); };
+        this._eventBehavior.uiTouchEndEventer = (event) => { this.handleTouchEndEvent(event); };
+        this._eventBehavior.uiCopyEventer = (event) => { this.handleCopyEvent(event); };
+        this._eventBehavior.uiHorizontalScrollerActionEventer = (event) => { this.handleHorizontalScrollerActionEvent(event); };
+        this._eventBehavior.uiVerticalScrollerActionEventer = (event) => { this.handleVerticalScrollerActionEvent(event); };
     }
 
     load(customUiControllerDefinitions: UiController.Definition<BGS, BCS, SF>[] | undefined) {

@@ -47,6 +47,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly id: string;
     readonly revgridId: string;
     readonly internalParent: RevgridObject | undefined = undefined;
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     readonly externalParent: unknown | undefined;
     readonly hostElement: HTMLElement;
 
@@ -1291,6 +1292,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS, SF>, key: string): MetaModel.CellOwnProperty | undefined {
         return this._cellPropertiesBehavior.getCellOwnPropertyFromRenderedCell(renderedCell, key);
     }
@@ -1311,6 +1313,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         y: number,
         key: string | T,
         subgrid: Subgrid<BCS, SF>
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     ): MetaModel.CellOwnProperty | ColumnSettings[T] {
         const column = this.columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.getCellProperty(column, y, key, subgrid);
@@ -1325,11 +1328,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      */
     setCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties) {
         const column = cell.viewLayoutColumn.column;
-        return this._cellPropertiesBehavior.setCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
+        this._cellPropertiesBehavior.setCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
         const column = this.columnsManager.getFieldColumn(allX);
-        return this._cellPropertiesBehavior.setCellOwnProperties(column, y, properties, subgrid);
+        this._cellPropertiesBehavior.setCellOwnProperties(column, y, properties, subgrid);
     }
 
     /**
@@ -1341,11 +1344,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
      */
     addCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties) {
         const column = cell.viewLayoutColumn.column;
-        return this._cellPropertiesBehavior.addCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
+        this._cellPropertiesBehavior.addCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
         const column = this.columnsManager.getFieldColumn(allX);
-        return this._cellPropertiesBehavior.addCellOwnProperties(column, y, properties, subgrid);
+        this._cellPropertiesBehavior.addCellOwnProperties(column, y, properties, subgrid);
     }
 
     /**
@@ -1367,6 +1370,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     setCellProperty(
         allXOrCell: ViewCell<BCS, SF> | number,
         yOrKey: string | number,
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
         keyOrValue: string | MetaModel.CellOwnProperty,
         value?: MetaModel.CellOwnProperty,
         subgrid?: Subgrid<BCS, SF>
@@ -1412,7 +1416,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     clearSelection() {
-        return this.selection.clear();
+        this.selection.clear();
     }
 
     clearSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>) {
@@ -1464,7 +1468,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this.selection.deselectRectangle(rectangle, subgrid);
+        this.selection.deselectRectangle(rectangle, subgrid);
     }
 
     clearSelectAll(subgrid?: Subgrid<BCS, SF>) {
@@ -1604,11 +1608,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     clearSelectColumn(activeColumnIndex: number) {
-        return this._focusSelectBehavior.clearSelectColumn(activeColumnIndex);
+        this._focusSelectBehavior.clearSelectColumn(activeColumnIndex);
     }
 
     clearSelectColumns(activeColumnIndex: number, count: number) {
-        return this._focusSelectBehavior.clearSelectColumns(activeColumnIndex, count);
+        this._focusSelectBehavior.clearSelectColumns(activeColumnIndex, count);
     }
 
     toggleSelectColumn(activeColumnIndex: number) {
@@ -1715,43 +1719,43 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /** @internal */
     private createDescendantEventer(): EventBehavior.DescendantEventer<BCS, SF> {
         return {
-            fieldColumnListChanged: (typeId, index, count, targetIndex) => this.descendantProcessFieldColumnListChanged(typeId, index, count, targetIndex),
-            activeColumnListChanged: (typeId, index, count, targetIndex, ui) => this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui),
-            columnsWidthChanged: (columns, ui) => this.descendantProcessColumnsWidthChanged(columns, ui),
-            columnsViewWidthsChanged: (changeds) => this.descendantProcessColumnsViewWidthsChanged(changeds),
-            columnSort: (event, headerOrFixedRowCell) => this.descendantProcessColumnSort(event, headerOrFixedRowCell),
-            cellFocusChanged: (newPoint, oldPoint) => this.descendantProcessCellFocusChanged(newPoint, oldPoint),
-            rowFocusChanged: (newSubgridRowIndex, oldSubgridRowIndex) => this.descendantProcessRowFocusChanged(newSubgridRowIndex, oldSubgridRowIndex),
-            selectionChanged: () => this.descendantProcessSelectionChanged(),
-            focus: () => this.descendantEventerFocus(),
-            blur: () => this.descendantEventerBlur(),
-            keyDown: (event, fromEditor) => this.descendantProcessKeyDown(event, fromEditor),
-            keyUp: (event) => this.descendantProcessKeyUp(event),
-            click: (event, cell) => this.descendantProcessClick(event, cell),
-            dblClick: (event, cell) => this.descendantProcessDblClick(event, cell),
-            pointerEnter: (event, cell) => this.descendantProcessPointerEnter(event, cell),
-            pointerDown: (event, cell) => this.descendantProcessPointerDown(event, cell),
-            pointerUpCancel: (event, cell) => this.descendantProcessPointerUpCancel(event, cell),
-            pointerMove: (event, cell) => this.descendantProcessPointerMove(event, cell),
-            pointerLeaveOut: (event, cell) => this.descendantProcessPointerLeaveOut(event, cell),
-            wheelMove: (event, cell) => this.descendantProcessWheelMove(event, cell),
-            dragStart: (event) => this.descendantProcessDragStart(event),
-            contextMenu: (event, cell) => this.descendantProcessContextMenu(event, cell),
+            fieldColumnListChanged: (typeId, index, count, targetIndex) => { this.descendantProcessFieldColumnListChanged(typeId, index, count, targetIndex); },
+            activeColumnListChanged: (typeId, index, count, targetIndex, ui) => { this.descendantProcessActiveColumnListChanged(typeId, index, count, targetIndex, ui); },
+            columnsWidthChanged: (columns, ui) => { this.descendantProcessColumnsWidthChanged(columns, ui); },
+            columnsViewWidthsChanged: (changeds) => { this.descendantProcessColumnsViewWidthsChanged(changeds); },
+            columnSort: (event, headerOrFixedRowCell) => { this.descendantProcessColumnSort(event, headerOrFixedRowCell); },
+            cellFocusChanged: (newPoint, oldPoint) => { this.descendantProcessCellFocusChanged(newPoint, oldPoint); },
+            rowFocusChanged: (newSubgridRowIndex, oldSubgridRowIndex) => { this.descendantProcessRowFocusChanged(newSubgridRowIndex, oldSubgridRowIndex); },
+            selectionChanged: () => { this.descendantProcessSelectionChanged(); },
+            focus: () => { this.descendantEventerFocus(); },
+            blur: () => { this.descendantEventerBlur(); },
+            keyDown: (event, fromEditor) => { this.descendantProcessKeyDown(event, fromEditor); },
+            keyUp: (event) => { this.descendantProcessKeyUp(event); },
+            click: (event, cell) => { this.descendantProcessClick(event, cell); },
+            dblClick: (event, cell) => { this.descendantProcessDblClick(event, cell); },
+            pointerEnter: (event, cell) => { this.descendantProcessPointerEnter(event, cell); },
+            pointerDown: (event, cell) => { this.descendantProcessPointerDown(event, cell); },
+            pointerUpCancel: (event, cell) => { this.descendantProcessPointerUpCancel(event, cell); },
+            pointerMove: (event, cell) => { this.descendantProcessPointerMove(event, cell); },
+            pointerLeaveOut: (event, cell) => { this.descendantProcessPointerLeaveOut(event, cell); },
+            wheelMove: (event, cell) => { this.descendantProcessWheelMove(event, cell); },
+            dragStart: (event) => { this.descendantProcessDragStart(event); },
+            contextMenu: (event, cell) => { this.descendantProcessContextMenu(event, cell); },
             pointerDragStart: (event, cell) => this.descendantProcessPointerDragStart(event, cell),
-            pointerDrag: (event) => this.descendantProcessPointerDrag(event),
-            pointerDragEnd: (event) => this.descendantProcessPointerDragEnd(event),
-            rendered: () => this.descendantProcessRendered(),
-            mouseEnteredCell: (cell) => this.descendantProcessMouseEnteredCell(cell),
-            mouseExitedCell: (cell) => this.descendantProcessMouseExitedCell(cell),
-            touchStart: (event) => this.descendantProcessTouchStart(event),
-            touchMove: (event) => this.descendantProcessTouchMove(event),
-            touchEnd: (event) => this.descendantProcessTouchEnd(event),
-            copy: (event) => this.descendantProcessCopy(event),
-            resized: () => this.descendantProcessResized(),
-            horizontalScrollViewportStartChanged: () => this.descendantProcessHorizontalScrollViewportStartChanged(),
-            verticalScrollViewportStartChanged: () => this.descendantProcessVerticalScrollViewportStartChanged(),
-            horizontalScrollerAction: (action) => this.descendantProcessHorizontalScrollerAction(action),
-            verticalScrollerAction: (action) => this.descendantProcessVerticalScrollerAction(action),
+            pointerDrag: (event) => { this.descendantProcessPointerDrag(event); },
+            pointerDragEnd: (event) => { this.descendantProcessPointerDragEnd(event); },
+            rendered: () => { this.descendantProcessRendered(); },
+            mouseEnteredCell: (cell) => { this.descendantProcessMouseEnteredCell(cell); },
+            mouseExitedCell: (cell) => { this.descendantProcessMouseExitedCell(cell); },
+            touchStart: (event) => { this.descendantProcessTouchStart(event); },
+            touchMove: (event) => { this.descendantProcessTouchMove(event); },
+            touchEnd: (event) => { this.descendantProcessTouchEnd(event); },
+            copy: (event) => { this.descendantProcessCopy(event); },
+            resized: () => { this.descendantProcessResized(); },
+            horizontalScrollViewportStartChanged: () => { this.descendantProcessHorizontalScrollViewportStartChanged(); },
+            verticalScrollViewportStartChanged: () => { this.descendantProcessVerticalScrollViewportStartChanged(); },
+            horizontalScrollerAction: (action) => { this.descendantProcessHorizontalScrollerAction(action); },
+            verticalScrollerAction: (action) => { this.descendantProcessVerticalScrollerAction(action); },
         }
     }
 }

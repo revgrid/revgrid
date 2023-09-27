@@ -13,6 +13,7 @@ export class CellMetaSettingsImplementation implements CellMetaSettings {
     get<T extends keyof ColumnSettings>(key: T): ColumnSettings[T];
     get(key: string | number): MetaModel.CellOwnProperty;
     get<T extends keyof ColumnSettings>(key: string | number) {
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
         let result: MetaModel.CellOwnProperty | undefined;
         if (this._cellOwnProperties !== undefined) {
             result = this._cellOwnProperties[key];

@@ -129,7 +129,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
         if (value !== this._viewportStart) {
             this._viewportStart = value;
             if (withinAnimationFrame) {
-                setTimeout(() => this.notifyViewportStartChanged(), 0);
+                setTimeout(() => { this.notifyViewportStartChanged(); }, 0);
             } else {
                 this.notifyViewportStartChanged();
             }
@@ -265,7 +265,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
             const viewportStartChanged = viewportStart !== this._viewportStart;
             this._viewportStart = viewportStart;
             if (withinAnimationFrame) {
-                setTimeout(() => this.notifyChanged(viewportStartChanged), 0);
+                setTimeout(() => { this.notifyChanged(viewportStartChanged); }, 0);
             } else {
                 this.notifyChanged(viewportStartChanged);
             }

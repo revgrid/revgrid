@@ -26,9 +26,9 @@
       },
       "extends": [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended", // Uses the recommended rules from @typescript-eslint/eslint-plugin
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        "plugin:@typescript-eslint/strict",
+        "plugin:@typescript-eslint/recommended-type-checked", // Uses the recommended rules from @typescript-eslint/eslint-plugin
+        "plugin:@typescript-eslint/strict-type-checked",
+        "plugin:@typescript-eslint/stylistic-type-checked",
         "plugin:import/recommended",
         "plugin:import/typescript"
       ],
@@ -40,21 +40,16 @@
       },
       "rules": {
         "no-fallthrough":"error",
-        "no-underscore-dangle": "off",
-        "prefer-arrow/prefer-arrow-functions": "off",
-        "newline-after-description": "off",
         "brace-style": ["error", "1tbs", {"allowSingleLine": true }],
-        "no-inner-declarations": "off",
         "no-constant-condition": ["error", {"checkLoops": false }],
         "@typescript-eslint/consistent-type-definitions": "error",
         "@typescript-eslint/no-unnecessary-condition": ["off", { "allowConstantLoopConditions": true }], // should be set to error
         "@typescript-eslint/naming-convention": ["error", {"selector": "enumMember", "format": null }],
         "@typescript-eslint/no-explicit-any": "error",
-        "@typescript-eslint/no-invalid-void-type": ["warn", {"allowAsThisParameter": true }],
+        "@typescript-eslint/no-invalid-void-type": ["error", {"allowAsThisParameter": true }],
         "@typescript-eslint/quotes": ["error", "single", {"avoidEscape": true, "allowTemplateLiterals": true }],
-        "@typescript-eslint/dot-notation": "off",
-        "@typescript-eslint/explicit-member-accessibility": ["off", {"accessibility": "explicit"}],
-        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/prefer-nullish-coalescing": ["error", { "ignoreTernaryTests": true }],
+        // "@typescript-eslint/explicit-member-accessibility": ["off", {"accessibility": "explicit"}],
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/prefer-for-of": "off",
         "no-unused-vars": "off",

@@ -18,9 +18,9 @@ export class Animation {
             minimumAnimateTimeInterval,
             backgroundAnimateTimeInterval,
             animateEventer,
-            () => this.requestAnimationFrame(),
-            (atTime, nowTime) => this.scheduleAnimationFrame(atTime, nowTime),
-            (changedAnimator, oldInterval) => this.processAnimatorBackgroundAnimateTimeIntervalChanged(changedAnimator, oldInterval),
+            () => { this.requestAnimationFrame(); },
+            (atTime, nowTime) => { this.scheduleAnimationFrame(atTime, nowTime); },
+            (changedAnimator, oldInterval) => { this.processAnimatorBackgroundAnimateTimeIntervalChanged(changedAnimator, oldInterval); },
         );
         this._animators.push(animator);
 
@@ -62,7 +62,7 @@ export class Animation {
     private requestAnimationFrame() {
         if (this._animationFrameHandle === undefined) {
             this._animationFrameHandle = requestAnimationFrame(
-                (now) => this.frameCallback(now)
+                (now) => { this.frameCallback(now); }
             );
         }
     }
@@ -151,7 +151,7 @@ export class Animation {
             backgroundIntervaliser = {
                 interval: backgroundAnimateTimeInterval,
                 count: 1,
-                handle: setInterval(() => this.requestAnimationFrame(), backgroundAnimateTimeInterval),
+                handle: setInterval(() => { this.requestAnimationFrame(); }, backgroundAnimateTimeInterval),
             }
         }
 }

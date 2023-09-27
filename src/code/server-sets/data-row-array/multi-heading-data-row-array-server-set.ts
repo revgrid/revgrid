@@ -105,6 +105,7 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaFiel
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     private convertDataValueToString(value: DataServer.ViewValue | string): string {
         switch (typeof value) {
             case 'string': return value;
@@ -174,6 +175,7 @@ export namespace MultiHeadingDataRowArrayServerSet {
     export type CreateFieldEventer<SF extends MultiHeadingSchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
     // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
     export interface DataRow extends DataServer.ObjectViewRow {
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
         [fieldName: string]: DataServer.ViewValue | string; // can also have header
     }
 }

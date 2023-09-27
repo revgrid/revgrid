@@ -160,7 +160,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             this.resetAllCellPaintFingerprints();
             this.invalidateAll(true);
         }
-        this._columnsManager.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => this.invalidateHorizontalAll(scrollDimensionAsWell);
+        this._columnsManager.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => { this.invalidateHorizontalAll(scrollDimensionAsWell); };
         this._horizontalScrollDimension = new HorizontalScrollDimension(this._gridSettings, this._canvas, this._columnsManager);
         this._horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
         this._verticalScrollDimension = new VerticalScrollDimension(this._gridSettings, this._canvas, this._subgridsManager);
@@ -1764,7 +1764,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
             const viewportStart = horizontalScrollDimension.calculateHorizontalScrollableLeft(this._columnScrollAnchorIndex, this._columnScrollAnchorOffset);
             if (withinAnimationFrame) {
-                setTimeout(() => this.invalidateHorizontalAll(false), 0);
+                setTimeout(() => { this.invalidateHorizontalAll(false); }, 0);
             } else {
                 this.invalidateHorizontalAll(false);
             }
@@ -1790,7 +1790,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
             const viewportStart = Math.min(this._rowScrollAnchorIndex, verticalScrollDimension.finishScrollAnchorLimitIndex);
             if (withinAnimationFrame) {
-                setTimeout(() => this.invalidateVerticalAll(false), 0);
+                setTimeout(() => { this.invalidateVerticalAll(false); }, 0);
             } else {
                 this.invalidateVerticalAll(false);
             }
@@ -2303,7 +2303,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 visibleChanged: columnsViewWidthChanged,
             } as const;
             if (withinAnimationFrame) {
-                setTimeout(() => this.columnsViewWidthsChangedEventer(columnsViewWidthChangeds), 0);
+                setTimeout(() => { this.columnsViewWidthsChangedEventer(columnsViewWidthChangeds); }, 0);
             } else {
                 this.columnsViewWidthsChangedEventer(columnsViewWidthChangeds);
             }

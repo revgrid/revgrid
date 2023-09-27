@@ -120,7 +120,7 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
 
                 const nextInterval = this.updateInterval(interval, velocity);
                 this._stepTimeoutHandle = setTimeout(
-                    () => this.step(scrollDimension, velocity, dir, nextInterval),
+                    () => { this.step(scrollDimension, velocity, dir, nextInterval); },
                     interval
                 );
             }

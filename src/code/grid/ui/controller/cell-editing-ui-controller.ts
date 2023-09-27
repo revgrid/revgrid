@@ -73,7 +73,7 @@ export class CellEditingUiController<BGS extends BehavioredGridSettings, BCS ext
             // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
             cell !== null &&
             cell.isMain &&
-            !(cell.columnSettings['editOnDoubleClick'] !== onDoubleClick) // both same (true or falsy)?
+            !(cell.columnSettings.editOnDoubleClick !== onDoubleClick) // both same (true or falsy)?
         ) {
             // this.grid.onEditorActivate(cell);
         }

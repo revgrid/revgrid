@@ -98,11 +98,11 @@ export class CachedCanvasRenderingContext2D {
     }
 
     putImageData(imageData: ImageData, sx: number, sy: number) {
-        return this.canvasRenderingContext2D.putImageData(imageData, sx, sy);
+        this.canvasRenderingContext2D.putImageData(imageData, sx, sy);
     }
 
     quadraticCurveTo(cpx: number, cpy: number, x: number, y: number) {
-        return this.canvasRenderingContext2D.quadraticCurveTo(cpx, cpy, x, y);
+        this.canvasRenderingContext2D.quadraticCurveTo(cpx, cpy, x, y);
     }
 
     // clearFill: typeof CanvasRenderingContext2DEx.clearFill;

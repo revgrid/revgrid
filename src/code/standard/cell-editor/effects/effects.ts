@@ -55,7 +55,7 @@ export class ShakerEffect extends Effect {
     private dx: number;
     private shakes: number;
 
-    private _transitionendListener = (ev: TransitionEvent) => this.shake(ev);
+    private _transitionendListener = (ev: TransitionEvent) => { this.shake(ev); };
 
     constructor(el: HTMLElement, options?: ShakerEffect.Options) {
         super(el, options);
@@ -114,7 +114,7 @@ export namespace ShakerEffect {
 export class GlowerEffect extends Effect {
     private _duration: string;
     private _glowerStyles: GlowerEffect.Styles;
-    private _transitionendListener = (ev: TransitionEvent) => this.glower(ev);
+    private _transitionendListener = (ev: TransitionEvent) => { this.glower(ev); };
     private _originalTransitionStyle: string;
     private _styleWasMap = new Map<string, GlowerEffect.StyleWas>();
     private _activeCount: number;

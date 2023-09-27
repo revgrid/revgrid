@@ -84,6 +84,7 @@ There are many excellent alternative JavaScript grid libraries (both paid and fr
 
  Version | Date        | Details
 ---------|-------------|---------
+ 0.4.4   | 28 Sep 2023 | Update typescript-eslint to 6 
  0.4.3   | 19 Sep 2023 | Fix packaging issue
  0.4.2   | 19 Sep 2023 | Fix animation scheduling issue<br>Remove RowMetadata from DataRowArrayDataServer<br>Fix grid setting verticalGridLinesVisible<br>Add grid setting visibleVerticalGridLinesDrawnInFixedAndPreMainOnly<br>Set default for many standard grid settings to undefined
  0.4.1   | 12 Sep 2023 | Add recordMoved, recordReplaced & recordsReplaced to RevRecordStore.RecordsEventers<br>Improve RevRecordDataServer consistency checks<br>Fix move active column

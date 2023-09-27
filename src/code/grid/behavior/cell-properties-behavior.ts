@@ -143,6 +143,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
         rowIndex: number,
         key: string | number | T,
         subgrid: Subgrid<BCS, SF>
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     ): MetaModel.CellOwnProperty | ColumnSettings[T] {
         const cellProperties = this.getCellPropertiesAccessor(column, rowIndex, subgrid);
         return cellProperties.get(key);
@@ -157,6 +158,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
         column: Column<BCS, SF>,
         rowIndex: number,
         key: string,
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
         value: unknown | undefined,
         subgrid: Subgrid<BCS, SF>,
         optionalCell: ViewCell<BCS, SF> | undefined,
@@ -251,6 +253,7 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
         return cellOwnProperties;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS, SF>, key: string): MetaModel.CellOwnProperty | undefined {
         const cellOwnProperties = this.getCellOwnPropertiesFromRenderedCell(renderedCell);
         if (cellOwnProperties) {

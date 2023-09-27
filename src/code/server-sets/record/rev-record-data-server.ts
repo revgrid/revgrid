@@ -80,11 +80,13 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         this._rows = this._recordRowMap.rows;
         this._recentChanges = new RevRecordRecentChanges(
             this._recordRowMap,
-            (expiredCellPositions, expiredCellCount, expiredRowIndexes, expiredRowCount) => this.handleExpiredRecentChanges(
-                expiredCellPositions, expiredCellCount, expiredRowIndexes, expiredRowCount
-            )
+            (expiredCellPositions, expiredCellCount, expiredRowIndexes, expiredRowCount) => {
+                this.handleExpiredRecentChanges(expiredCellPositions, expiredCellCount, expiredRowIndexes, expiredRowCount);
+            }
         );
-        this._schemaServer.fieldListChangedEventer = (typeId, index, count) => this.processFieldListChangedEvent(typeId, index, count);
+        this._schemaServer.fieldListChangedEventer = (typeId, index, count) => {
+            this.processFieldListChangedEvent(typeId, index, count);
+        };
     }
 
     destroy() {
@@ -165,7 +167,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
 
         const record = this._recordRowMap.getRecordFromRowIndex(rowIndex);
 
-        return field.setEditValue(record, value);
+        field.setEditValue(record, value);
     }
 
     allRecordsDeleted(): void {

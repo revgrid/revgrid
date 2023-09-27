@@ -96,54 +96,54 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     ) {
         this._dispatchEnabled = dispatchEnabled;
 
-        this._canvas.resizedEventerForEventBehavior = () => this.processCanvasResizedEvent();
+        this._canvas.resizedEventerForEventBehavior = () => { this.processCanvasResizedEvent(); };
 
-        this._canvas.focusEventer = (event) => this.processFocusEvent(event);
-        this._canvas.blurEventer = (event) => this.processBlurEvent(event);
-        this._canvas.keyDownEventer = (event) => this.processKeyDownEvent(event, false);
-        this._canvas.keyUpEventer = (event) => this.processKeyUpEvent(event);
-        this._canvas.clickEventer = (event) => this.processClickEvent(event);
-        this._canvas.dblClickEventer = (event) => this.processDblClickEvent(event);
-        this._canvas.pointerEnterEventer = (event) => this.processPointerEnterEvent(event);
-        this._canvas.pointerDownEventer = (event) => this.processPointerDownEvent(event);
-        this._canvas.pointerUpCancelEventer = (event) => this.processPointerUpCancelEvent(event);
-        this._canvas.pointerMoveEventer = (event) => this.processPointerMoveEvent(event);
-        this._canvas.pointerLeaveOutEventer = (event) => this.processPointerLeaveOutEvent(event);
+        this._canvas.focusEventer = (event) => { this.processFocusEvent(event); };
+        this._canvas.blurEventer = (event) => { this.processBlurEvent(event); };
+        this._canvas.keyDownEventer = (event) => { this.processKeyDownEvent(event, false); };
+        this._canvas.keyUpEventer = (event) => { this.processKeyUpEvent(event); };
+        this._canvas.clickEventer = (event) => { this.processClickEvent(event); };
+        this._canvas.dblClickEventer = (event) => { this.processDblClickEvent(event); };
+        this._canvas.pointerEnterEventer = (event) => { this.processPointerEnterEvent(event); };
+        this._canvas.pointerDownEventer = (event) => { this.processPointerDownEvent(event); };
+        this._canvas.pointerUpCancelEventer = (event) => { this.processPointerUpCancelEvent(event); };
+        this._canvas.pointerMoveEventer = (event) => { this.processPointerMoveEvent(event); };
+        this._canvas.pointerLeaveOutEventer = (event) => { this.processPointerLeaveOutEvent(event); };
         this._canvas.pointerDragStartEventer = (event) => this.processPointerDragStartEvent(event);
-        this._canvas.pointerDragEventer = (event, internal) => this.processPointerDragEvent(event, internal);
-        this._canvas.pointerDragEndEventer = (event, internal) => this.processPointerDragEndEvent(event, internal);
-        this._canvas.wheelMoveEventer = (event) => this.processWheelMoveEvent(event);
-        this._canvas.contextMenuEventer = (event) => this.processContextMenuEvent(event);
-        this._canvas.touchStartEventer = (event) => this.processTouchStartEvent(event);
-        this._canvas.touchMoveEventer = (event) => this.processTouchMoveEvent(event);
-        this._canvas.touchEndEventer = (event) => this.processTouchEndEvent(event);
-        this._canvas.copyEventer = (event) => this.processCopyEvent(event);
-        this._canvas.dragStartEventer = (event) => this.processDragStartEvent(event);
+        this._canvas.pointerDragEventer = (event, internal) => { this.processPointerDragEvent(event, internal); };
+        this._canvas.pointerDragEndEventer = (event, internal) => { this.processPointerDragEndEvent(event, internal); };
+        this._canvas.wheelMoveEventer = (event) => { this.processWheelMoveEvent(event); };
+        this._canvas.contextMenuEventer = (event) => { this.processContextMenuEvent(event); };
+        this._canvas.touchStartEventer = (event) => { this.processTouchStartEvent(event); };
+        this._canvas.touchMoveEventer = (event) => { this.processTouchMoveEvent(event); };
+        this._canvas.touchEndEventer = (event) => { this.processTouchEndEvent(event); };
+        this._canvas.copyEventer = (event) => { this.processCopyEvent(event); };
+        this._canvas.dragStartEventer = (event) => { this.processDragStartEvent(event); };
 
-        this._columnsManager.fieldColumnListChangedEventer = (typeId, index, count, targetIndex) => this.processFieldColumnListChangedEvent(
-            typeId, index, count, targetIndex
-        );
-        this._columnsManager.activeColumnListChangedEventer = (typeId, index, count, targetIndex, ui) => this.processActiveColumnListChangedEvent(
-            typeId, index, count, targetIndex, ui
-        );
-        this._columnsManager.columnsWidthChangedEventer = (columns, ui) => this.processColumnsWidthChangedEvent(columns, ui);
+        this._columnsManager.fieldColumnListChangedEventer = (typeId, index, count, targetIndex) => {
+            this.processFieldColumnListChangedEvent(typeId, index, count, targetIndex);
+        };
+        this._columnsManager.activeColumnListChangedEventer = (typeId, index, count, targetIndex, ui) => {
+            this.processActiveColumnListChangedEvent(typeId, index, count, targetIndex, ui);
+        };
+        this._columnsManager.columnsWidthChangedEventer = (columns, ui) => { this.processColumnsWidthChangedEvent(columns, ui); };
 
-        this._viewLayout.columnsViewWidthsChangedEventer = (changeds) => this.processColumnsViewWidthsChangedEvent(changeds);
-        this._viewLayout.horizontalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processHorizontalScrollViewportStartChangedEvent();
-        this._viewLayout.verticalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => this.processVerticalScrollViewportStartChangedEvent();
+        this._viewLayout.columnsViewWidthsChangedEventer = (changeds) => { this.processColumnsViewWidthsChangedEvent(changeds); };
+        this._viewLayout.horizontalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => { this.processHorizontalScrollViewportStartChangedEvent(); };
+        this._viewLayout.verticalScrollDimension.eventBehaviorTargettedViewportStartChangedEventer = () => { this.processVerticalScrollViewportStartChangedEvent(); };
 
-        this._focus.currentCellChangedEventer = (newPoint, oldPoint) => this.processCellFocusChangedEvent(newPoint, oldPoint);
-        this._focus.currentRowChangedEventer = (newSubgridRowIndex, oldSubgridRowIndex) => this.processRowFocusChangedEvent(newSubgridRowIndex, oldSubgridRowIndex);
-        this._focus.editorKeyDownEventer = (event) => this.processKeyDownEvent(event, true);
-        this._selection.changedEventerForEventBehavior = () => this.processSelectionChangedEvent();
+        this._focus.currentCellChangedEventer = (newPoint, oldPoint) => { this.processCellFocusChangedEvent(newPoint, oldPoint); };
+        this._focus.currentRowChangedEventer = (newSubgridRowIndex, oldSubgridRowIndex) => { this.processRowFocusChangedEvent(newSubgridRowIndex, oldSubgridRowIndex); };
+        this._focus.editorKeyDownEventer = (event) => { this.processKeyDownEvent(event, true); };
+        this._selection.changedEventerForEventBehavior = () => { this.processSelectionChangedEvent(); };
 
-        this._mouse.cellEnteredEventer = (cell) => this.processMouseEnteredCellEvent(cell);
-        this._mouse.cellExitedEventer = (cell) => this.processMouseExitedCellEvent(cell);
+        this._mouse.cellEnteredEventer = (cell) => { this.processMouseEnteredCellEvent(cell); };
+        this._mouse.cellExitedEventer = (cell) => { this.processMouseExitedCellEvent(cell); };
 
-        this._renderer.renderedEventer = () => this.processRenderedEvent();
+        this._renderer.renderedEventer = () => { this.processRenderedEvent(); };
 
-        this._horizontalScroller.actionEventer = (action) => this.processHorizontalScrollerEvent(action);
-        this._verticalScroller.actionEventer = (action) => this.processVerticalScrollerEvent(action);
+        this._horizontalScroller.actionEventer = (action) => { this.processHorizontalScrollerEvent(action); };
+        this._verticalScroller.actionEventer = (action) => { this.processVerticalScrollerEvent(action); };
     }
 
     /** @internal */
