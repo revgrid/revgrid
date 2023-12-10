@@ -69,6 +69,7 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaFi
                 const headingDataValue = headerRow[key];
                 const heading = this.convertDataValueToString(headingDataValue);
                 const field = this._createFieldEventer(fieldIndex, key, heading);
+                field.index = fieldIndex;
                 schema[fieldIndex] = field;
             }
 
@@ -105,6 +106,7 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaFi
             for (let i = 0; i < fieldCount; i++) {
                 const key = keys[i];
                 const field = this._createFieldEventer(i, key, key);
+                field.index = i;
                 schema[i] = field;
             }
             return schema;

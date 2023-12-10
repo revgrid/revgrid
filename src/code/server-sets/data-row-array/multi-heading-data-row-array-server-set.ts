@@ -95,6 +95,7 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaFiel
                     headings[rowIndex] = heading;
                 }
                 const field = this._createFieldEventer(fieldIndex, key, headings);
+                field.index = fieldIndex;
                 schema[fieldIndex] = field;
             }
 
@@ -132,6 +133,7 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaFiel
             for (let i = 0; i < fieldCount; i++) {
                 const key = keys[i];
                 const field = this._createFieldEventer(i, key, keyIsHeading ? [key] : []);
+                field.index = i;
                 schema[i] = field;
             }
             return schema;
