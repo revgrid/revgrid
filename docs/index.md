@@ -84,6 +84,7 @@ There are many excellent alternative JavaScript grid libraries (both paid and fr
 
  Version | Date        | Details
 ---------|-------------|---------
+ 0.4.5   | 12 Dec 2023 | Fix Single/MultiHeadingDataRowArrayServerSet field index initialisation<br>Change license to MIT NON-AI
  0.4.4   | 28 Sep 2023 | Update typescript-eslint to 6 
  0.4.3   | 19 Sep 2023 | Fix packaging issue
  0.4.2   | 19 Sep 2023 | Fix animation scheduling issue<br>Remove RowMetadata from DataRowArrayDataServer<br>Fix grid setting verticalGridLinesVisible<br>Add grid setting visibleVerticalGridLinesDrawnInFixedAndPreMainOnly<br>Set default for many standard grid settings to undefined
