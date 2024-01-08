@@ -1,0 +1,65 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "projects/**/*"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "env": {
+        "browser": true,
+        "es2022": true
+      },
+      "parser": "@typescript-eslint/parser", // Specifies the ESLint parser
+      "parserOptions": {
+        "ecmaVersion": 2022, // Allows for the parsing of modern ECMAScript features
+        "ecmaFeatures": {
+          "impliedStrict": true
+        },
+        "sourceType": "module", // Allows for the use of imports
+        "tsconfigRootDir": ".",
+        "project": [
+          "tsconfig.esm.json"
+        ]
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended-type-checked", // Uses the recommended rules from @typescript-eslint/eslint-plugin
+        "plugin:@typescript-eslint/strict-type-checked",
+        "plugin:@typescript-eslint/stylistic-type-checked",
+        "plugin:import/recommended",
+        "plugin:import/typescript"
+      ],
+      "settings": {
+        "import/resolver": {
+          "typescript": true,
+          "node": true
+        }
+      },
+      "rules": {
+        "no-fallthrough":"error",
+        "brace-style": ["error", "1tbs", {"allowSingleLine": true }],
+        "no-constant-condition": ["error", {"checkLoops": false }],
+        "@typescript-eslint/consistent-type-definitions": "error",
+        "@typescript-eslint/no-unnecessary-condition": ["off", { "allowConstantLoopConditions": true }], // should be set to error
+        "@typescript-eslint/naming-convention": ["error", {"selector": "enumMember", "format": null }],
+        "@typescript-eslint/no-explicit-any": "error",
+        "@typescript-eslint/no-invalid-void-type": ["error", {"allowAsThisParameter": true, "allowInGenericTypeArguments": true }],
+        "@typescript-eslint/quotes": ["error", "single", {"avoidEscape": true, "allowTemplateLiterals": true }],
+        "@typescript-eslint/prefer-nullish-coalescing": ["error", { "ignoreTernaryTests": true }],
+        // "@typescript-eslint/explicit-member-accessibility": ["off", {"accessibility": "explicit"}],
+        "@typescript-eslint/no-namespace": "off",
+        "@typescript-eslint/prefer-for-of": "off",
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": ["error", {"args": "none", "varsIgnorePattern": "[iI]gnored", "argsIgnorePattern": "^_" }],
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": ["error", {"ignoreTypeValueShadow": true }],
+        "no-return-await": "off",
+        "@typescript-eslint/return-await": "error",
+        "import/no-cycle": ["error"]
+      }
+    }
+  ]
+}

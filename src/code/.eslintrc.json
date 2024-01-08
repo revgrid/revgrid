@@ -1,0 +1,54 @@
+{
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "./src/code/tsconfig.code.json",
+          "./src/code/server-sets/record/tsconfig.server-sets-record.json",
+          "./src/code/server-sets/multi-heading/tsconfig.server-sets-multi-heading.json",
+          "./src/code/server-sets/single-heading/tsconfig.server-sets-single-heading.json",
+          "./src/code/server-sets/data-row-array/tsconfig.server-sets-data-row-array.json",
+          "./src/code/server-sets/tsconfig.server-sets.json",
+          "./src/code/standard/cell-editor/tsconfig.standard-cell-editor.json",
+          "./src/code/standard/cell-editor/effects/tsconfig.standard-cell-editor-effects.json",
+          "./src/code/standard/cell-painter/tsconfig.standard-cell-painter.json",
+          "./src/code/standard/settings-implementations/tsconfig.standard-settings-implementations.json",
+          "./src/code/standard/settings-implementations/default/tsconfig.standard-settings-implementations-default.json",
+          "./src/code/standard/settings-implementations/readonly/tsconfig.standard-settings-implementations-readonly.json",
+          "./src/code/standard/settings-implementations/in-memory/tsconfig.standard-settings-implementations-in-memory.json",
+          "./src/code/standard/painters/tsconfig.standard-painters.json",
+          "./src/code/standard/settings/tsconfig.standard-settings.json",
+          "./src/code/standard/tsconfig.standard.json",
+          "./src/code/settings-implementations/in-memory/tsconfig.settings-implementations-in-memory.json",
+          "./src/code/settings-implementations/readonly/tsconfig.settings-implementations-readonly.json",
+          "./src/code/settings-implementations/default/tsconfig.settings-implementations-default.json",
+          "./src/code/settings-implementations/tsconfig.settings-implementations.json",
+          "./src/code/grid/tsconfig.grid.json",
+          "./src/code/grid/ui/tsconfig.grid-ui.json",
+          "./src/code/grid/ui/controller/tsconfig.grid-ui-controller.json",
+          "./src/code/grid/behavior/tsconfig.grid-behavior.json",
+          "./src/code/grid/components/tsconfig.grid-components.json",
+          "./src/code/grid/components/canvas/tsconfig.grid-components-canvas.json",
+          "./src/code/grid/components/column/tsconfig.grid-components-column.json",
+          "./src/code/grid/components/focus/tsconfig.grid-components-focus.json",
+          "./src/code/grid/components/mouse/tsconfig.grid-components-mouse.json",
+          "./src/code/grid/components/renderer/tsconfig.grid-components-renderer.json",
+          "./src/code/grid/components/renderer/grid-painter/tsconfig.grid-components-renderer-grid-painter.json",
+          "./src/code/grid/components/subgrid/tsconfig.grid-components-subgrid.json",
+          "./src/code/grid/components/view/tsconfig.grid-components-view.json",
+          "./src/code/grid/components/selection/tsconfig.grid-components-selection.json",
+          "./src/code/grid/components/scroller/tsconfig.grid-components-scroller.json",
+          "./src/code/grid/settings/tsconfig.grid-settings.json",
+          "./src/code/grid/interfaces/data/tsconfig.grid-interfaces-data.json",
+          "./src/code/grid/interfaces/dataless/tsconfig.grid-interfaces-dataless.json",
+          "./src/code/grid/interfaces/schema/tsconfig.grid-interfaces-schema.json",
+          "./src/code/grid/interfaces/settings/tsconfig.grid-interfaces-settings.json",
+          "./src/code/grid/types-utils/tsconfig.grid-types-utils.json"
+        ]
+      }
+    }
+  ]
+}

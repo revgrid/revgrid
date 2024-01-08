@@ -1,0 +1,20 @@
+.revgrid-scroller {
+    margin: 0; /* Must be 0 so that inset overlap can be calculated */
+}
+
+.revgrid-scroller-thumb {
+    box-shadow: 0 0 1px #000;
+    border-radius: 4px;
+    margin: 0; /* Must be 0 so that inset overlap can be calculated */
+    transition: opacity 0.5s;
+}
+
+.revgrid-vertical-scroller > .revgrid-scroller-thumb {
+    left: 0;
+    right: 0;
+}
+
+.revgrid-horizontal-scroller > .revgrid-scroller-thumb {
+    top: 0;
+    bottom: 0;
+}

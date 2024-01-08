@@ -1,0 +1,17 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-canvas.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+, "../renderer/animator.ts", "../renderer/animation.ts"  ],
+
+  "references": [
+    { "path": "../../settings/tsconfig.grid-settings.json" },
+    { "path": "../../types-utils/tsconfig.grid-types-utils.json" }
+  ]
+}

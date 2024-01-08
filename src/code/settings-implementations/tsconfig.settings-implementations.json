@@ -1,0 +1,17 @@
+{
+  "extends": "../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../tsbuildinfo/settings-implementations.tsbuildinfo"
+  },
+
+  "include": [
+    "settings-implementations-public-api.ts",
+  ],
+
+  "references": [
+    { "path": "./readonly/tsconfig.settings-implementations-readonly.json" },
+    { "path": "./in-memory/tsconfig.settings-implementations-in-memory.json" },
+  ]
+}
