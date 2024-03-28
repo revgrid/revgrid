@@ -1,4 +1,4 @@
-import { ListChangedEventer, ListChangedTypeId, SchemaServer } from '../../grid/grid-public-api';
+import { RevListChangedEventer, RevListChangedTypeId, SchemaServer } from '../../grid/grid-public-api';
 import { RevRecordSchemaError, RevRecordUnexpectedUndefinedError } from './rev-record-error';
 import { RevRecordField } from './rev-record-field';
 import { RevRecordFieldIndex } from './rev-record-types';
@@ -6,7 +6,7 @@ import { RevRecordFieldIndex } from './rev-record-types';
 /** @public */
 export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaServer<SF> {
     /** @internal */
-    fieldListChangedEventer: ListChangedEventer | undefined;
+    fieldListChangedEventer: RevListChangedEventer | undefined;
 
     private readonly _fields: SF[] = [];
     private readonly _fieldNameLookup = new Map<string, SF>();
@@ -48,7 +48,7 @@ export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaS
 
             const firstIndex = firstField.index;
             if (this.fieldListChangedEventer !== undefined) {
-                this.fieldListChangedEventer(ListChangedTypeId.Insert, firstIndex, addCount, undefined);
+                this.fieldListChangedEventer(RevListChangedTypeId.Insert, firstIndex, addCount, undefined);
             }
 
             return firstIndex;
@@ -62,7 +62,7 @@ export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaS
             clearNeeded = false;
         } else {
             if (this.fieldListChangedEventer !== undefined) {
-                this.fieldListChangedEventer(ListChangedTypeId.Clear, 0, oldCount, undefined);
+                this.fieldListChangedEventer(RevListChangedTypeId.Clear, 0, oldCount, undefined);
             }
             clearNeeded = true;
         }
@@ -90,7 +90,7 @@ export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaS
             }
         }
         if (addNeeded && this.fieldListChangedEventer !== undefined) {
-            this.fieldListChangedEventer(ListChangedTypeId.Insert, firstIndex, fields.length, undefined);
+            this.fieldListChangedEventer(RevListChangedTypeId.Insert, firstIndex, fields.length, undefined);
         }
     }
 
@@ -214,7 +214,7 @@ export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaS
         this._notificationClient.fieldsInserted(fieldIndex, 1);
 
         if (notifyFieldListChange && this.fieldListChangedEventer !== undefined) {
-            this.fieldListChangedEventer(ListChangedTypeId.Insert, fieldIndex, 1, undefined);
+            this.fieldListChangedEventer(RevListChangedTypeId.Insert, fieldIndex, 1, undefined);
         }
 
         return field;

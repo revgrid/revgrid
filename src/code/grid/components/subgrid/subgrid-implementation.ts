@@ -6,7 +6,7 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../types-utils/revgrid-error';
 import { ColumnsManager } from '../column/columns-manager';
 
 /** @internal */
@@ -153,7 +153,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
             } else {
                 const metadata = this.metaModel.getRowMetadata(rowIndex);
                 if (metadata === null) {
-                    throw new AssertError('SGRMN99441'); // Row itself does not exist
+                    throw new RevAssertError('SGRMN99441'); // Row itself does not exist
                 } else {
                     if (metadata === undefined) {
                         return undefined;
@@ -295,7 +295,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
             if (properties === undefined) {
                 const createdProperties = Object.create(this._rowPropertiesPrototype) as MetaModel.RowProperties | null;
                 if (createdProperties === null) {
-                    throw new AssertError('RPBSRP99441');
+                    throw new RevAssertError('RPBSRP99441');
                 } else {
                     properties = createdProperties;
                 }

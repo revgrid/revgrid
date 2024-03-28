@@ -1,4 +1,4 @@
-import { UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaTypeId } from '../../types-utils/selection-area-type';
 import { FirstCornerArea } from './first-corner-area';
 
@@ -56,7 +56,7 @@ export namespace SelectionArea {
             case SelectionAreaTypeId.column: return referenceArea.areaTypeId !== SelectionAreaTypeId.row;
             case SelectionAreaTypeId.row: return true;
             default:
-                throw new UnreachableCaseError('SFICCSAHP35500', typeId);
+                throw new RevUnreachableCaseError('SFICCSAHP35500', typeId);
         }
     }
 }

@@ -6,7 +6,7 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
 import { UiController } from './ui-controller';
 
@@ -203,14 +203,14 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
             case Scroller.Action.TypeEnum.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
-                    throw new AssertError('FUBPHSAV53009')
+                    throw new RevAssertError('FUBPHSAV53009')
                 } else {
                     this.viewLayout.setHorizontalViewportStart(viewportStart);
                 }
                 break;
             }
             default:
-                throw new UnreachableCaseError('FUBPHSAU53009', action.type);
+                throw new RevUnreachableCaseError('FUBPHSAU53009', action.type);
         }
     }
 
@@ -232,14 +232,14 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
             case Scroller.Action.TypeEnum.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
-                    throw new AssertError('FUBPHSAV53009')
+                    throw new RevAssertError('FUBPHSAV53009')
                 } else {
                     this.viewLayout.setVerticalViewportStart(viewportStart);
                 }
                 break;
             }
             default:
-                throw new UnreachableCaseError('FUBPHSAU53009', action.type);
+                throw new RevUnreachableCaseError('FUBPHSAU53009', action.type);
         }
     }
 
@@ -249,7 +249,7 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
             case HorizontalWheelScrollingAllowed.Never: return false;
             case HorizontalWheelScrollingAllowed.Always: return true;
             case HorizontalWheelScrollingAllowed.CtrlKeyDown: return event.ctrlKey;
-            default: throw new UnreachableCaseError('TSIHWCA82007', gridSettings.horizontalWheelScrollingAllowed);
+            default: throw new RevUnreachableCaseError('TSIHWCA82007', gridSettings.horizontalWheelScrollingAllowed);
         }
     }
 

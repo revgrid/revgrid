@@ -1,4 +1,4 @@
-import { moveElementInArray } from '../../grid/grid-public-api';
+import { moveElementInArray } from '@xilytix/sysutils';
 import { RevRecordArrayUtil } from './rev-record-array-utils';
 import { RevRecordAssertError } from './rev-record-error';
 import {

@@ -1,4 +1,4 @@
-import { UnreachableCaseError } from './revgrid-error';
+import { RevUnreachableCaseError } from './revgrid-error';
 
 /** @public */
 export const enum ModifierKeyEnum {
@@ -23,7 +23,7 @@ export namespace ModifierKey {
             case ModifierKeyEnum.Meta: return event.metaKey;
             case ModifierKeyEnum.Alt: return event.altKey;
             default:
-                throw new UnreachableCaseError('HTMKIKIKE40941', keyEnum);
+                throw new RevUnreachableCaseError('HTMKIKIKE40941', keyEnum);
         }
     }
 }

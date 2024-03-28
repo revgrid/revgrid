@@ -1,42 +1,31 @@
-import { RevgridError } from '../../grid/grid-public-api';
-import { getErrorMessage } from '../../grid/types-utils/utils';
+import { InternalError, UnreachableCaseInternalError } from '@xilytix/sysutils';
 
 /** @public */
-export abstract class RevRecordError extends RevgridError {
-    constructor(code: string, message: string | undefined, baseMessage: string) {
-        super(code, message, 'Record ' + baseMessage);
-    }
-}
-
-/** @public */
-export abstract class RevRecordInternalError extends RevRecordError {
-
-}
-
-/** @public */
-export class RevRecordUnexpectedUndefinedError extends RevRecordInternalError {
+export class RevRecordUnexpectedUndefinedError extends InternalError {
     constructor(code: string, message?: string) {
-        super(code, message, 'Unexpected Undefined');
+        super(code, message, 'RevRecord:UnexpectedUndefined');
     }
 }
 
 /** @public */
-export class RevRecordAssertError extends RevRecordInternalError {
+export class RevRecordAssertError extends InternalError {
     constructor(code: string, message?: string) {
-        super(code, message, 'Assert');
+        super(code, message, 'RevRecord:Assert');
     }
 }
 
 /** @public */
-export class RevRecordUnreachableCaseError extends RevRecordInternalError {
+export class RevRecordUnreachableCaseError extends UnreachableCaseInternalError {
     constructor(code: string, value: never) {
-        super(code, `"${getErrorMessage(value)}"`, 'Unreachable case');
+        super(code, value, undefined, 'RevRecord:UnreachableCase');
     }
 }
 
 /** @public */
-export abstract class RevRecordExternalError extends RevRecordError {
-
+export abstract class RevRecordExternalError extends Error {
+    constructor(public readonly code: string, message: string | undefined, baseMessage: string) {
+        super(`Revgrid Error: ${code}: ${message === undefined ? baseMessage : `${baseMessage}: ${message}`}`);
+    }
 }
 
 /** @public */

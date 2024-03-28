@@ -1,4 +1,4 @@
-import { ApiError, DataServer, ListChangedTypeId, UnreachableCaseError } from '../../grid/grid-public-api';
+import { DataServer, RevApiError, RevListChangedTypeId, RevUnreachableCaseError } from '../../grid/grid-public-api';
 import { RevRecord } from './rev-record';
 import { RevRecordArrayUtil } from './rev-record-array-utils';
 import { RevRecordAssertError } from './rev-record-error';
@@ -946,14 +946,14 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         }
     }
 
-    private processFieldListChangedEvent(typeId: ListChangedTypeId, index: number, count: number) {
+    private processFieldListChangedEvent(typeId: RevListChangedTypeId, index: number, count: number) {
         switch (typeId) {
-            case ListChangedTypeId.Set:
-            case ListChangedTypeId.Clear: {
+            case RevListChangedTypeId.Set:
+            case RevListChangedTypeId.Clear: {
                 this.clearSortFieldSpecifiers();
                 break;
             }
-            case ListChangedTypeId.Insert: {
+            case RevListChangedTypeId.Insert: {
                 const specifiers = this._sortFieldSpecifiers.slice();
                 const specifierCount = specifiers.length;
                 let modified = false;
@@ -969,7 +969,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                 }
                 break;
             }
-            case ListChangedTypeId.Remove: {
+            case RevListChangedTypeId.Remove: {
                 const specifiers = this._sortFieldSpecifiers.slice();
                 const specifierCount = specifiers.length;
                 const adjustRangeStartIndex = index + count;
@@ -991,11 +991,11 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
                 }
                 break;
             }
-            case ListChangedTypeId.Move: {
-                throw new ApiError('RRMDS68309', 'Move not implemented');
+            case RevListChangedTypeId.Move: {
+                throw new RevApiError('RRMDS68309', 'Move not implemented');
             }
             default:
-                throw new UnreachableCaseError('RRMAPFLCE73390', typeId);
+                throw new RevUnreachableCaseError('RRMAPFLCE73390', typeId);
         }
     }
 

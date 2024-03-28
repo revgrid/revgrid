@@ -1,3 +1,4 @@
+import { isArrayEqual } from '@xilytix/sysutils';
 import {
     BehavioredGridSettings,
     GridSettings,
@@ -8,7 +9,6 @@ import {
     SelectionAreaType,
     gridSettingChangeInvalidateTypeIds
 } from '../../grid/grid-public-api';
-import { isArrayEqual } from '../../grid/types-utils/utils';
 import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */

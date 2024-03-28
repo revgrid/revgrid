@@ -1,4 +1,4 @@
-import { UnreachableCaseError } from './revgrid-error';
+import { RevUnreachableCaseError } from './revgrid-error';
 
 /** @public */
 export const enum SizeUnitEnum {
@@ -30,7 +30,7 @@ export namespace SizeUnit {
             case SizeUnitEnum.Fractional: return SizeUnitEnum.Fractional;
             case SizeUnitEnum.Em: return SizeUnitEnum.Em;
             default:
-                throw new UnreachableCaseError('SUEF44998', value);
+                throw new RevUnreachableCaseError('SUEF44998', value);
         }
     }
 }

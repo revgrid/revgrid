@@ -1,4 +1,4 @@
-import { AssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../types-utils/revgrid-error';
 import { Animator } from './animator';
 
 export class Animation {
@@ -35,7 +35,7 @@ export class Animation {
         const animators = this._animators;
         const index = animators.indexOf(animator);
         if (index === -1) {
-            throw new AssertError('ADAI28995');
+            throw new RevAssertError('ADAI28995');
         } else {
             const backgroundAnimateTimeInterval = animator.backgroundAnimateTimeInterval;
             if (backgroundAnimateTimeInterval !== undefined) {
@@ -159,7 +159,7 @@ export class Animation {
     private decrementBackgroundIntervaliserCount(backgroundAnimateTimeInterval: number) {
         const backgroundIntervaliser = this._backgroundIntervaliserMap.get(backgroundAnimateTimeInterval);
         if (backgroundIntervaliser === undefined) {
-            throw new AssertError('ADAB28995');
+            throw new RevAssertError('ADAB28995');
         } else {
             backgroundIntervaliser.count--;
             if (backgroundIntervaliser.count === 0) {

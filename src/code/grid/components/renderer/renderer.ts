@@ -5,7 +5,7 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { ServerNotificationId, invalidServerNotificationId, lowestValidServerNotificationId } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { Canvas } from '../canvas/canvas';
 import { ColumnsManager } from '../column/columns-manager';
@@ -176,7 +176,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /** @internal */
     start() {
         if (this._animator !== undefined) {
-            throw new AssertError('RSA69107');
+            throw new RevAssertError('RSA69107');
         } else {
             this._animator = Animation.animation.createAnimator(
                 this._gridSettings.minimumAnimateTimeInterval,
@@ -366,7 +366,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
                             break;
                         }
                         default:
-                            throw new UnreachableCaseError('RCPRA30816', action.type);
+                            throw new RevUnreachableCaseError('RCPRA30816', action.type);
                     }
                 }
 

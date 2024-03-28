@@ -3,7 +3,7 @@ import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviore
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { Registry } from '../../../types-utils/registry';
-import { AssertError } from '../../../types-utils/revgrid-error';
+import { RevAssertError } from '../../../types-utils/revgrid-error';
 import { Canvas } from '../../canvas/canvas';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -44,7 +44,7 @@ export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS exten
         if (gridPainter === undefined) {
             const constructor = this.constructorRegistry.get(key);
             if (constructor === undefined) {
-                throw new AssertError('GPRG87773', key);
+                throw new RevAssertError('GPRG87773', key);
             } else {
                 gridPainter = new constructor(
                     this._gridSettings,

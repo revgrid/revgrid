@@ -1,6 +1,6 @@
 import { ModifierKey } from '../../types-utils/modifier-key';
 import { SelectionAreaTypeSpecifier } from '../../types-utils/types';
-import { deepExtendValue } from '../../types-utils/utils';
+import { deepExtendValue } from '@xilytix/sysutils';
 import { OnlyGridSettings } from './only-grid-settings';
 
 /** @public */

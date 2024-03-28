@@ -4,7 +4,7 @@ import { SchemaServer } from '../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { CssTypes } from '../types-utils/css-types';
-import { AssertError } from '../types-utils/revgrid-error';
+import { RevAssertError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
 import { Canvas } from './canvas/canvas';
 import { ColumnsManager } from './column/columns-manager';
@@ -65,7 +65,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         );
 
         if  (subgridDefinitions.length === 0) {
-            throw new AssertError('CBM43330', 'Adapter set missing Subgrid specs');
+            throw new RevAssertError('CBM43330', 'Adapter set missing Subgrid specs');
         } else {
             this.subgridsManager = new SubgridsManager(
                 this.revgridId,
@@ -210,7 +210,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
     setValue(x: number, y: number, value: unknown, subgrid: Subgrid<BCS, SF>) {
         const dataServer = subgrid.dataServer;
         if (dataServer.setEditValue === undefined) {
-            throw new AssertError('BSV32220');
+            throw new RevAssertError('BSV32220');
         } else {
             const column = this.columnsManager.getActiveColumn(x);
             dataServer.setEditValue(column.field, y, value);

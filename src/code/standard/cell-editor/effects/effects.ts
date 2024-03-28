@@ -1,5 +1,5 @@
-import { ApiError } from '../../../grid/grid-public-api';
-import { numberToPixels } from '../../../grid/types-utils/utils';
+import { numberToPixels } from '@xilytix/sysutils';
+import { RevApiError } from '../../../grid/grid-public-api';
 /** effectFunction
  * @desc Element to perform transitions upon is `options.el` if defined or `this.el`.
  * @param {object} [options]
@@ -37,7 +37,7 @@ export class EffectFactory {
             case ShakerEffect.typeName: return new ShakerEffect(el, options as ShakerEffect.Options);
             case GlowerEffect.typeName: return new GlowerEffect(el, options as GlowerEffect.Options);
             default:
-                throw new ApiError('EFC777454', `Unsupport effect: ${name}`);
+                throw new RevApiError('EFC777454', `Unsupport effect: ${name}`);
         }
     }
 }

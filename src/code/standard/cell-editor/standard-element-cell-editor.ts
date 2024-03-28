@@ -1,5 +1,5 @@
+import { numberToPixels } from '@xilytix/sysutils';
 import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/grid-public-api';
-import { numberToPixels } from '../../grid/types-utils/utils';
 import { StandardCellEditor } from './standard-cell-editor';
 
 /** @public */

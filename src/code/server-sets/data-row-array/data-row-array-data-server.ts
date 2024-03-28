@@ -1,4 +1,4 @@
-import { AssertError, DataServer, SchemaField } from '../../grid/grid-public-api';
+import { DataServer, RevAssertError, SchemaField } from '../../grid/grid-public-api';
 
 /** @public */
 export class DataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
@@ -12,7 +12,7 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
     unsubscribeDataNotifications(listener: DataServer.NotificationsClient) {
         const idx = this._callbackListeners.findIndex((element) => element === listener);
         if (idx < 0) {
-            throw new AssertError('MSARDCL65539', 'MainStaticAdapter: CallbackListener not found');
+            throw new RevAssertError('MSARDCL65539', 'MainStaticAdapter: CallbackListener not found');
         } else {
             this._callbackListeners.splice(idx, 1);
         }
@@ -71,7 +71,7 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
         if (typeof indexOrDataRow === 'number') {
             index = indexOrDataRow;
             if (dataRowOrUndefined === undefined) {
-                throw new AssertError('DRADSAR09118');
+                throw new RevAssertError('DRADSAR09118');
             } else {
                 dataRow = dataRowOrUndefined;
             }

@@ -3,7 +3,7 @@ import { Selection } from '../components/selection/selection';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { AssertError } from '../types-utils/revgrid-error';
+import { RevAssertError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
 
 export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
@@ -25,7 +25,7 @@ export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
     stash() {
         if (this._requestNestCount++ === 0) {
             if (this._focusStash !== undefined || this._selectionStash !== undefined) {
-                throw new AssertError('RSMS13360');
+                throw new RevAssertError('RSMS13360');
             } else {
                 this._focusStash = this._focus.createStash();
                 this._focus.clear();
@@ -39,7 +39,7 @@ export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
     unstash(allRowsKept: boolean) {
         if (--this._requestNestCount === 0) {
             if (this._focusStash === undefined || this._selectionStash === undefined) {
-                throw new AssertError('RSMUU13360');
+                throw new RevAssertError('RSMUU13360');
             } else {
                 this._focus.restoreStash(this._focusStash, allRowsKept);
                 this._focusStash = undefined;
@@ -48,7 +48,7 @@ export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends Beh
             }
         } else {
             if (this._requestNestCount < 0) {
-                throw new AssertError('RSMUN13360');
+                throw new RevAssertError('RSMUN13360');
             }
         }
     }

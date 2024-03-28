@@ -10,7 +10,7 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Rectangle } from '../../types-utils/rectangle';
-import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { Canvas } from '../canvas/canvas';
 import { ColumnsManager } from '../column/columns-manager';
@@ -515,7 +515,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 break;
             }
             default:
-                throw new UnreachableCaseError('VLI42220', action.dimension);
+                throw new RevUnreachableCaseError('VLI42220', action.dimension);
         }
 
         this.layoutInvalidatedEventer(action);
@@ -576,7 +576,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 const viewLayoutColumns = this.columns;
                 const viewLayoutColumnCount = viewLayoutColumns.length;
                 if (viewLayoutColumnCount === 0) {
-                    throw new AssertError('VLIACD33321');
+                    throw new RevAssertError('VLIACD33321');
                 } else {
                     const lastViewLayoutColumn = viewLayoutColumns[viewLayoutColumnCount - 1];
                     affected = index <= lastViewLayoutColumn.activeColumnIndex; // this is not correct as scrollbar thumb size is affected
@@ -665,7 +665,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             if (!affected) {
                 const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
                 if (lastScrollableRowSubgridRowIndex === undefined) {
-                    throw new AssertError('VLIDRD33321');
+                    throw new RevAssertError('VLIDRD33321');
                 } else {
                     affected = index <= lastScrollableRowSubgridRowIndex; // this is not correct as scrollbar thumb is affected
                 }
@@ -721,7 +721,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             if (!affected) {
                 const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
                 if (lastScrollableRowSubgridRowIndex === undefined) {
-                    throw new AssertError('VLIDRM33321');
+                    throw new RevAssertError('VLIDRM33321');
                 } else {
                     affected = oldRowIndex <= lastScrollableRowSubgridRowIndex || newRowIndex <= lastScrollableRowSubgridRowIndex; // this is not correct as scrollbar thumb is affected
                 }
@@ -897,7 +897,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             } else {
                 const lastViewportScrollableActiveColumnIndex = this.lastScrollableActiveColumnIndex;
                 if (lastViewportScrollableActiveColumnIndex === undefined) {
-                    throw new AssertError('SBUCSATMCV13390');
+                    throw new RevAssertError('SBUCSATMCV13390');
                 } else {
                     const rightDelta = activeColumnIndex - lastViewportScrollableActiveColumnIndex;
                     const columnIsToRight =
@@ -982,7 +982,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 } else {
                     const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
                     if (lastScrollableRowSubgridRowIndex === undefined) {
-                        throw new AssertError('SBSXTMV82224'); // if first then must be last
+                        throw new RevAssertError('SBSXTMV82224'); // if first then must be last
                     } else {
                         if (mainSubgridRowIndex < lastScrollableRowSubgridRowIndex) {
                             return false;
@@ -1102,7 +1102,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             } else {
                 const viewCell = this.findCellAtViewpointIndex(columnIndex, rowIndex, true);
                 if (viewCell === undefined) {
-                    throw new AssertError('VGCFMP34440');
+                    throw new RevAssertError('VGCFMP34440');
                 } else {
                     const mouseOverLeftLine = canvasXOffset < viewCell.viewLayoutColumn.left;
                     const mouseOverTopLine = canvasYOffset < viewCell.viewLayoutRow.top;
@@ -1184,7 +1184,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             if (canvasOffsetX < firstScrollableColumnViewLeft) {
                 const firstScrollableColumnIndex = this._firstScrollableColumnIndex;
                 if (firstScrollableColumnIndex === undefined) {
-                    throw new AssertError('VFIOSCCTOF33390')
+                    throw new RevAssertError('VFIOSCCTOF33390')
                 } else {
                     return firstScrollableColumnIndex;
                 }
@@ -1193,14 +1193,14 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 if (canvasOffsetX >= scrollableColumnsViewRightPlus1) {
                     const lastScrollableColumnIndex = this._lastScrollableColumnIndex;
                     if (lastScrollableColumnIndex === undefined) {
-                        throw new AssertError('VFIOSCCTOG33390')
+                        throw new RevAssertError('VFIOSCCTOG33390')
                     } else {
                         return lastScrollableColumnIndex;
                     }
                 } else {
                     const columnIndex = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasOffsetX);
                     if (columnIndex < 0) {
-                        throw new AssertError('VFIOSCCTOL33390')
+                        throw new RevAssertError('VFIOSCCTOL33390')
                     } else {
                         return columnIndex;
                     }
@@ -1262,14 +1262,14 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             if (y < firstScrollableRowViewTop) {
                 const firstScrollableRowIndex = this._firstScrollableRowIndex;
                 if (firstScrollableRowIndex === undefined) {
-                    throw new AssertError('VFIOSRCTFF33391');
+                    throw new RevAssertError('VFIOSRCTFF33391');
                 } else {
                     return firstScrollableRowIndex;
                 }
             } else {
                 const lastScrollableRowIndex = this._lastScrollableRowIndex;
                 if (lastScrollableRowIndex === undefined) {
-                    throw new AssertError('VFIOSRCTOF33391');
+                    throw new RevAssertError('VFIOSRCTOF33391');
                 } else {
                     const rows = this._rows;
                     const lastScrollableRow = rows[lastScrollableRowIndex];
@@ -1278,7 +1278,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                     } else {
                         const rowIndex = this.findTopGridLineInclusiveRowIndexOfCanvasOffset(y);
                         if (rowIndex < 0) {
-                            throw new AssertError('VFIOSRCTOL33391')
+                            throw new RevAssertError('VFIOSRCTOL33391')
                         } else {
                             return rowIndex;
                         }
@@ -1579,7 +1579,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
         if (this._verticalScrollDimension.scrollable) {
             return this._rowScrollAnchorIndex;
         } else {
-            throw new AssertError('VLGST60981');
+            throw new RevAssertError('VLGST60981');
         }
     }
 
@@ -1715,7 +1715,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             } else {
                 if (!canComputePool) {
                     // cannot recompute pool if called from pool computed event
-                    throw new AssertError('VLFCAVI22290');
+                    throw new RevAssertError('VLFCAVI22290');
                 } else {
                     if (this._columnRowOrderedCellPoolComputationId > 0) {
                         const pool = this.getColumnRowOrderedCellPool();
@@ -1756,7 +1756,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
             } else {
                 const cell = this.findCellAtViewpointIndex(columnIndex, row.index, canComputePool);
                 if (cell === undefined) {
-                    throw new AssertError('VGCFMP34440');
+                    throw new RevAssertError('VGCFMP34440');
                 } else {
                     return cell;
                 }
@@ -1776,7 +1776,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     beginUiControlTracking() {
         if (this._uiControlTracking) {
-            throw new AssertError('VLBUCT11198');
+            throw new RevAssertError('VLBUCT11198');
         } else {
             this._uiControlTracking = true;
         }
@@ -1784,7 +1784,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     endUiControlTracking() {
         if (!this._uiControlTracking) {
-            throw new AssertError('VLEUCT11198');
+            throw new RevAssertError('VLEUCT11198');
         } else {
             this._uiControlTracking = false;
         }
@@ -1901,7 +1901,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
                 usableColumnScrollAnchorIndex = fixedColumnCount;
             } else {
                 if (columnScrollAnchorIndex < fixedColumnCount || columnScrollAnchorIndex >= activeColumnCount) {
-                    throw new AssertError('VLCH60009');
+                    throw new RevAssertError('VLCH60009');
                 } else {
                     usableColumnScrollAnchorIndex = columnScrollAnchorIndex;
                 }

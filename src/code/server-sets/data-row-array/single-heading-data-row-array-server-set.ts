@@ -1,4 +1,4 @@
-import { ApiError, AssertError, DataServer, SchemaField } from '../../grid/grid-public-api';
+import { DataServer, RevApiError, RevAssertError, SchemaField } from '../../grid/grid-public-api';
 import { SingleHeadingDataServer } from '../single-heading/single-heading-data-server';
 import { SingleHeadingSchemaField } from '../single-heading/single-heading-schema-field';
 import { DataRowArrayDataServer } from './data-row-array-data-server';
@@ -30,7 +30,7 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaFi
             let mainDataRows: SingleHeadingDataRowArrayServerSet.DataRow[];
 
             if (!Array.isArray(dataRows)) {
-                throw new AssertError('BSD73766', 'Expected data to be an array of data row objects');
+                throw new RevAssertError('BSD73766', 'Expected data to be an array of data row objects');
             } else {
                 let schema: SF[];
                 if (keyIsHeading) {
@@ -56,7 +56,7 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaFi
 
     private extractSchemaAndMainDataRowsFromData(dataRows: SingleHeadingDataRowArrayServerSet.DataRow[]): ExtractSchemaAndMainDataRowsFromDataResult<SF> {
         if (dataRows.length === 0) {
-            throw new ApiError('SHDRAHSSESAMDRFD20009', 'Cannot extract header row from empty data rows array');
+            throw new RevApiError('SHDRAHSSESAMDRFD20009', 'Cannot extract header row from empty data rows array');
         } else {
             const headerRow = dataRows[0];
             dataRows.splice(0, 1);

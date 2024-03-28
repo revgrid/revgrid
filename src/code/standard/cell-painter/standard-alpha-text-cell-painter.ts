@@ -1,12 +1,11 @@
 
+import { IndexSignatureHack, isArrayEqual } from '@xilytix/sysutils';
 import {
     DataServer,
     DatalessViewCell,
-    IndexSignatureHack,
     Rectangle,
     Revgrid,
     SchemaField,
-    isArrayEqual
 } from '../../grid/grid-public-api';
 import { StandardTextPainter } from '../painters/standard-painters-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';

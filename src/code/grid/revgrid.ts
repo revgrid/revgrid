@@ -35,10 +35,10 @@ import { CssTypes } from './types-utils/css-types';
 import { EnsureFullyInViewEnum } from './types-utils/ensure-fully-in-view';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
-import { ApiError, AssertError } from './types-utils/revgrid-error';
+import { RevApiError, RevAssertError } from './types-utils/revgrid-error';
 import { RevgridObject } from './types-utils/revgrid-object';
 import { SelectionAreaType } from './types-utils/selection-area-type';
-import { ListChangedTypeId } from './types-utils/types';
+import { RevListChangedTypeId } from './types-utils/types';
 import { UiController } from './ui/controller/ui-controller';
 import { UiManager } from './ui/ui-controller-manager';
 
@@ -351,7 +351,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             if (typeof hostElement === 'string') {
                 const queriedHostElement = document.querySelector(hostElement);
                 if (queriedHostElement === null) {
-                    throw new AssertError('RIC55998', `Host element not found: ${hostElement}`);
+                    throw new RevAssertError('RIC55998', `Host element not found: ${hostElement}`);
                 } else {
                     resolvedHostElement = queriedHostElement as HTMLElement;
                 }
@@ -542,7 +542,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
                 if (typeof columnFieldNameOrFieldIndex === 'string') {
                     const foundColumn = fieldColumns.find((aColumn) => aColumn.field.name === columnFieldNameOrFieldIndex);
                     if (foundColumn === undefined) {
-                        throw new ApiError('RSAC20009', `ColumnsManager.setActiveColumns: Column with name not found: ${columnFieldNameOrFieldIndex}`);
+                        throw new RevApiError('RSAC20009', `ColumnsManager.setActiveColumns: Column with name not found: ${columnFieldNameOrFieldIndex}`);
                     } else {
                         column = foundColumn;
                     }
@@ -572,7 +572,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         } else {
             const foundColumn = fieldColumns.find((aColumn) => aColumn.field.name === fieldNameOrIndex);
             if (foundColumn === undefined) {
-                throw new ApiError('RASFC29752', `ColumnsManager.setActiveColumns: Column with name not found: ${fieldNameOrIndex}`);
+                throw new RevApiError('RASFC29752', `ColumnsManager.setActiveColumns: Column with name not found: ${fieldNameOrIndex}`);
             } else {
                 column = foundColumn;
             }
@@ -785,7 +785,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
             if (columnOrIndex >= 0) {
                 column = this.columnsManager.getActiveColumn(columnOrIndex);
             } else {
-                throw new ApiError('RSACW93109', `Behavior.setColumnWidth: Invalid column number ${columnOrIndex}`);
+                throw new RevApiError('RSACW93109', `Behavior.setColumnWidth: Invalid column number ${columnOrIndex}`);
             }
         } else {
             column = columnOrIndex;
@@ -956,7 +956,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getActiveColumnSettings(activeColumnIndex: number): BCS {
         const column = this.columnsManager.getActiveColumn(activeColumnIndex);
         if (column === undefined) {
-            throw new ApiError('RGACS50008', `activeColumnIndex is not a valid index: ${activeColumnIndex}`);
+            throw new RevApiError('RGACS50008', `activeColumnIndex is not a valid index: ${activeColumnIndex}`);
         } else {
             return column.settings;
         }
@@ -1115,11 +1115,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         // for descendants
     }
 
-    protected descendantProcessFieldColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
+    protected descendantProcessFieldColumnListChanged(_typeId: RevListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
         // for descendants
     }
 
-    protected descendantProcessActiveColumnListChanged(_typeId: ListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean) {
+    protected descendantProcessActiveColumnListChanged(_typeId: RevListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean) {
         // for descendants
     }
 

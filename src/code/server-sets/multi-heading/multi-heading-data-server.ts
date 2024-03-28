@@ -1,5 +1,5 @@
 
-import { AssertError, DataServer } from '../../grid/grid-public-api';
+import { DataServer, RevAssertError } from '../../grid/grid-public-api';
 import { MultiHeadingSchemaField } from './multi-heading-schema-field';
 
 /** @public */
@@ -14,7 +14,7 @@ export class MultiHeadingDataServer<SF extends MultiHeadingSchemaField> implemen
     unsubscribeDataNotifications(client: DataServer.NotificationsClient) {
         const idx = this._callbackListeners.findIndex((element) => element === client);
         if (idx < 0) {
-            throw new AssertError('HSARDCL65539');
+            throw new RevAssertError('HSARDCL65539');
         } else {
             this._callbackListeners.splice(idx, 1);
         }

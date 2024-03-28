@@ -5,7 +5,7 @@ import { Column } from '../interfaces/dataless/column';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { AssertError, UnreachableCaseError } from '../types-utils/revgrid-error';
+import { RevAssertError, RevUnreachableCaseError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
 import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
 
@@ -51,7 +51,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
                     return '';
                 }
                 default:
-                    throw new UnreachableCaseError('MSGSATSV12998', selectionArea.areaTypeId);
+                    throw new RevUnreachableCaseError('MSGSATSV12998', selectionArea.areaTypeId);
             }
         }
     }
@@ -283,7 +283,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
     private getDefinedSubgrid() {
         const subgrid = this._selection.subgrid;
         if (subgrid === undefined) {
-            throw new AssertError('DEBGS33321');
+            throw new RevAssertError('DEBGS33321');
         } else {
             return subgrid;
         }

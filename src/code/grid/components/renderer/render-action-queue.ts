@@ -1,4 +1,4 @@
-import { AssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../types-utils/revgrid-error';
 import { ViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 
@@ -27,7 +27,7 @@ export class RenderActionQueue {
             }
         } else {
             if (this._beginChangeCount < 0) {
-                throw new AssertError('RAEC91004', 'Mismatched RenderActioner begin/endChange callback');
+                throw new RevAssertError('RAEC91004', 'Mismatched RenderActioner begin/endChange callback');
             }
         }
     }
