@@ -29,6 +29,7 @@
     "src/**/*.css"
   ],
   "scripts": {
+    "link-xilytix": "npm link @xilytix/sysutils",
     "lint": "eslint -c .eslintrc.json --ext .ts src/",
     "build": "tsc --build ./src/code/tsconfig.code.json",
     "force-build": "tsc --build --force ./src/code/tsconfig.code.json",
