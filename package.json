@@ -78,6 +78,6 @@
     "Firefox ESR"
   ],
   "dependencies": {
-    "@xilytix/sysutils": "0.0.1"
+    "@xilytix/sysutils": "0.0.3"
   }
 }
