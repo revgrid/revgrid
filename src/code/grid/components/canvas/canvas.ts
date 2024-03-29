@@ -3,7 +3,7 @@ import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-
 import { CssTypes } from '../../types-utils/css-types';
 import { Point } from '../../types-utils/point';
 import { Rectangle } from '../../types-utils/rectangle';
-import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 
 /** @public */
@@ -134,7 +134,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
                 this.setPointerDownState(Canvas.PointerDownState.NotDown, event);
                 break;
             default:
-                throw new UnreachableCaseError('CMPUCEL34440', this._pointerDownState);
+                throw new RevUnreachableCaseError('CMPUCEL34440', this._pointerDownState);
         }
     };
 
@@ -287,7 +287,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
                     break;
 
                 default:
-                    throw new UnreachableCaseError('CMCAELPDU34440', this._pointerDownState);
+                    throw new RevUnreachableCaseError('CMCAELPDU34440', this._pointerDownState);
             }
         });
         this.element.addEventListener('pointermove', (event) => {
@@ -310,7 +310,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
                     this.pointerDragEventer(event, this._pointerDragInternal);
                     break;
                 default:
-                    throw new UnreachableCaseError('CMCAELPMU34440', this._pointerDownState);
+                    throw new RevUnreachableCaseError('CMCAELPMU34440', this._pointerDownState);
             }
 
         });
@@ -363,7 +363,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
                     this._pointerDownState !== Canvas.PointerDownState.NotDown && // Debugger can cause this unexpected state
                     this._pointerDownState !== Canvas.PointerDownState.IgnoreClickAfterDrag // Debugger can cause this unexpected state
                 ) {
-                    throw new AssertError('CMCAELDS1220');
+                    throw new RevAssertError('CMCAELDS1220');
                 } else {
                     const pointerDragInternal = this.pointerDragStartEventer(event);
                     if (pointerDragInternal !== undefined) {
@@ -546,7 +546,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
         const canvasRenderingContext2D = canvasElement.getContext('2d', canvasRenderingContext2DSettings);
 
         if (canvasRenderingContext2D === null) {
-            throw new AssertError('CGCC74443');
+            throw new RevAssertError('CGCC74443');
         } else {
             const gc = new CachedCanvasRenderingContext2D(canvasRenderingContext2D);
             return gc;
@@ -600,7 +600,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
                     this.element.releasePointerCapture(event.pointerId);
                 } else {
                     if (this._pointerDownState !== Canvas.PointerDownState.IgnoreClickAfterDrag) {
-                        throw new AssertError('CMSPDSN68201');
+                        throw new RevAssertError('CMSPDSN68201');
                     }
                 }
                 break;
@@ -610,13 +610,13 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
             case Canvas.PointerDownState.Dragging:
                 document.body.style.userSelect = 'none';
                 if (event === undefined) {
-                    throw new AssertError('CMSPDSR68201');
+                    throw new RevAssertError('CMSPDSR68201');
                 } else {
                     this.element.setPointerCapture(event.pointerId);
                 }
                 break;
             default:
-                throw new UnreachableCaseError('CMSPDS87732', state);
+                throw new RevUnreachableCaseError('CMSPDS87732', state);
         }
 
         this._pointerDownState = state;

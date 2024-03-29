@@ -8,7 +8,7 @@ import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { OnlyGridSettings } from '../../../interfaces/settings/only-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { Rectangle } from '../../../types-utils/rectangle';
-import { getErrorMessage } from '../../../types-utils/utils';
+import { getErrorMessage } from '@xilytix/sysutils';
 import { Canvas } from '../../canvas/canvas';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';

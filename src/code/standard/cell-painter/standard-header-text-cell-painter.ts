@@ -1,8 +1,8 @@
 
+import { IndexSignatureHack } from '@xilytix/sysutils';
 import {
     DataServer,
     DatalessViewCell,
-    IndexSignatureHack,
     Revgrid,
     SchemaField
 } from '../../grid/grid-public-api';

@@ -15,9 +15,9 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { Point } from '../types-utils/point';
-import { AssertError } from '../types-utils/revgrid-error';
+import { RevAssertError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
-import { ListChangedTypeId } from '../types-utils/types';
+import { RevListChangedTypeId } from '../types-utils/types';
 
 /** @public */
 export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
@@ -183,7 +183,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processFieldColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
+    private processFieldColumnListChangedEvent(typeId: RevListChangedTypeId, index: number, count: number, targetIndex: number | undefined) {
         this._descendantEventer.fieldColumnListChanged(typeId, index, count, targetIndex);
         if (this._dispatchEnabled) {
             this.dispatchCustomEvent('rev-field-column-list-changed', false, undefined);
@@ -191,7 +191,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** @internal */
-    private processActiveColumnListChangedEvent(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
+    private processActiveColumnListChangedEvent(typeId: RevListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
         this._descendantEventer.activeColumnListChanged(typeId, index, count, targetIndex, ui);
     }
 
@@ -586,7 +586,7 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
     /** @internal */
     private dispatchMouseHoverCellEvent<T extends DispatchableEvent.Name.MouseHoverCell>(eventName: T, event: MouseEvent | WheelEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
         if (cell === null) {
-            throw new AssertError('EVDMHCE50697');
+            throw new RevAssertError('EVDMHCE50697');
         } else {
             if (cell !== undefined) {
                 cell = {
@@ -616,8 +616,8 @@ export namespace EventBehavior {
     /** @internal */
     export interface DescendantEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         readonly dataServersRowListChanged: (this: void, dataServers: DataServer<SF>[]) => void;
-        readonly fieldColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
-        readonly activeColumnListChanged: (this: void, typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
+        readonly fieldColumnListChanged: (this: void, typeId: RevListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
+        readonly activeColumnListChanged: (this: void, typeId: RevListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) => void;
         readonly columnsWidthChanged: (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
         readonly columnsViewWidthsChanged: (this: void, changeds: ViewLayout.ColumnsViewWidthChangeds) => void;
         readonly columnSort: (this: void, event: MouseEvent, headerOrFixedRowCell: ViewCell<BCS, SF>) => void;

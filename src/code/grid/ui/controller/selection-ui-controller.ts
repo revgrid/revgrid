@@ -9,7 +9,7 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { ModifierKey } from '../../types-utils/modifier-key';
-import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { SelectionAreaTypeId } from '../../types-utils/selection-area-type';
 import { StartLength } from '../../types-utils/start-length';
 import { UiController } from './ui-controller';
@@ -208,7 +208,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
             case SelectionAreaTypeId.row: return this.trySelectRowsFromCell(event, viewCell, forceAddToggleToBeAdd);
             case SelectionAreaTypeId.column: return this.trySelectColumnsFromCell(event, viewCell, forceAddToggleToBeAdd);
             default:
-                throw new UnreachableCaseError('SUCTSISM', allowedAreaTypeId);
+                throw new RevUnreachableCaseError('SUCTSISM', allowedAreaTypeId);
         }
     }
 
@@ -366,7 +366,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         const selection = this.selection;
         const lastArea = selection.lastArea;
         if (lastArea === undefined) {
-            throw new AssertError('SUBULSA54455');
+            throw new RevAssertError('SUBULSA54455');
         } else {
             const subgrid = cell.subgrid;
             // let updatePossible: boolean;
@@ -669,12 +669,12 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
         } else {
             switch (lastArea.areaTypeId) {
                 case SelectionAreaTypeId.all:
-                    throw new AssertError('SUCGDTFSLA44377');
+                    throw new RevAssertError('SUCGDTFSLA44377');
                 case SelectionAreaTypeId.rectangle: return Mouse.DragTypeEnum.LastRectangleSelectionAreaExtending;
                 case SelectionAreaTypeId.column: return Mouse.DragTypeEnum.LastColumnSelectionAreaExtending;
                 case SelectionAreaTypeId.row: return Mouse.DragTypeEnum.LastRowSelectionAreaExtending;
                 default:
-                    throw new UnreachableCaseError('SUBGDTFSLA59598', lastArea.areaTypeId);
+                    throw new RevUnreachableCaseError('SUBGDTFSLA59598', lastArea.areaTypeId);
             }
         }
     }

@@ -1,6 +1,6 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../types-utils/revgrid-error';
 import { Canvas } from '../canvas/canvas';
 
 export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
@@ -67,7 +67,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
         this.ensureComputedOutsideAnimationFrame();
         const viewportStart = this._viewportStart;
         if (viewportStart === undefined) {
-            throw new AssertError('SPDVF60998');
+            throw new RevAssertError('SPDVF60998');
         } else {
             return viewportStart + this._viewportSize - 1;
         }
@@ -196,7 +196,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     isScrollAnchorWithinStartLimit(index: number, offset: number) {
         const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
         if (startScrollAnchorLimitIndex === ScrollDimension.invalidScrollAnchorIndex) {
-            throw new AssertError('SDISAWSL50215', index.toString());
+            throw new RevAssertError('SDISAWSL50215', index.toString());
         } else {
             if (index > startScrollAnchorLimitIndex) {
                 return true;
@@ -217,7 +217,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     isScrollAnchorWithinFinishLimit(index: number, offset: number) {
         const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
         if (finishScrollAnchorLimitIndex === ScrollDimension.invalidScrollAnchorIndex) {
-            throw new AssertError('SDISAWFL50215', index.toString());
+            throw new RevAssertError('SDISAWFL50215', index.toString());
         } else {
             if (index < finishScrollAnchorLimitIndex) {
                 return true;

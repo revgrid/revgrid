@@ -1,34 +1,29 @@
-/** @public */
-export abstract class RevgridError extends Error {
-    constructor(public readonly code: string, message: string | undefined, baseMessage: string) {
-        super(`Revgrid Error: ${code}: ${message === undefined ? baseMessage : `${baseMessage}: ${message}`}`);
-    }
-}
+import { InternalError, UnreachableCaseInternalError } from '@xilytix/sysutils';
 
 /** @public */
-export class AssertError extends RevgridError {
+export class RevAssertError extends InternalError {
     constructor(code: string, message?: string) {
-        super(code, message, 'Assert');
+        super(code, message, 'Rev:Assert');
     }
 }
 
 /** @public */
-export class UnreachableCaseError extends RevgridError {
+export class RevUnreachableCaseError extends UnreachableCaseInternalError {
     constructor(code: string, value: never) {
-        super(code, `"${String(value)}"`, 'Unreachable case');
+        super(code, value, undefined, 'Rev:UnreachableCase');
     }
 }
 
 /** @public */
-export class OptionsError extends RevgridError {
+export class RevOptionsError extends InternalError {
     constructor(code: string, message?: string) {
-        super(code, message, 'Options');
+        super(code, message, 'Rev:Options');
     }
 }
 
 /** @public */
-export class ApiError extends RevgridError {
+export class RevApiError extends InternalError {
     constructor(code: string, message: string) {
-        super(code, message, 'API');
+        super(code, message, 'Rev:API');
     }
 }

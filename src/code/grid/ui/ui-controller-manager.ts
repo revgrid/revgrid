@@ -18,7 +18,7 @@ import { LinedHoverCell } from '../interfaces/data/hover-cell';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { AssertError } from '../types-utils/revgrid-error';
+import { RevAssertError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
 import { CellClickUiController } from './controller/cell-click-ui-controller';
 import { ClipboardUiController } from './controller/clipboard-ui-controller';
@@ -420,14 +420,14 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
             const name = typeNames[i];
             const uiController = this._uiControllerFactory.create(name, this._services);
             if (uiController === undefined) {
-                throw new AssertError('UBMLR23098', `UiController not registered: ${name}`);
+                throw new RevAssertError('UBMLR23098', `UiController not registered: ${name}`);
             } else {
                 uiControllers[count++] = uiController;
             }
         }
 
         if (count === 0) {
-            throw new AssertError('UBMLZ23098', 'Zero UiControllers specified in Grid Settings (require at least one)');
+            throw new RevAssertError('UBMLZ23098', 'Zero UiControllers specified in Grid Settings (require at least one)');
         } else {
             const firstUiController = uiControllers[0];
             let previousUiController = firstUiController;

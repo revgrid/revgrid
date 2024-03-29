@@ -5,7 +5,7 @@ import { Subgrid } from '../../interfaces/data/subgrid';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { ColumnsManager } from '../column/columns-manager';
 import { MainSubgridImplementation } from './main-subgrid-implementation';
@@ -58,7 +58,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
         }
 
         if (this.mainSubgrid === undefined) {
-            throw new AssertError('SMSS98224', 'Subgrid Specs does not include main');
+            throw new RevAssertError('SMSS98224', 'Subgrid Specs does not include main');
         } else {
             this.mainDataServer = this.mainSubgrid.dataServer;
         }
@@ -86,7 +86,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
                     return subgrid;
                 }
             }
-            throw new AssertError('SMGSWDS98224');
+            throw new RevAssertError('SMGSWDS98224');
         }
     }
 

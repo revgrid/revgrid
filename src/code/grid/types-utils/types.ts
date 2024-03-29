@@ -11,7 +11,7 @@ export type Writable<T> = {
 };
 
 /** @public */
-export const enum ListChangedTypeId {
+export const enum RevListChangedTypeId {
     Set,
     Insert,
     Remove,
@@ -20,9 +20,9 @@ export const enum ListChangedTypeId {
 }
 
 /** @public */
-export type ListChangedEventer = (
+export type RevListChangedEventer = (
     this: void,
-    typeId: ListChangedTypeId,
+    typeId: RevListChangedTypeId,
     index: number,
     count: number,
     targetIndex: number | undefined
@@ -39,12 +39,9 @@ export const enum SelectionAreaTypeSpecifier {
 }
 
 /** @public */
-export type IndexSignatureHack<T> = { [K in keyof T]: IndexSignatureHack<T[K]> };
-
-/** @public */
-export type UiableListChangedEventHandler = (
+export type RevUiableListChangedEventHandler = (
     this: void,
-    typeId: ListChangedTypeId,
+    typeId: RevListChangedTypeId,
     index: number,
     count: number,
     targetIndex: number | undefined,

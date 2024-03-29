@@ -1,8 +1,8 @@
 
+import { IndexSignatureHack } from '@xilytix/sysutils';
 import {
     CachedCanvasRenderingContext2D,
     GridSettings,
-    IndexSignatureHack,
     Rectangle
 } from '../../grid/grid-public-api';
 

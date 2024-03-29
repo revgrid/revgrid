@@ -10,7 +10,7 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { PartialPoint, Point } from '../../types-utils/point';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { calculateAdjustmentForRangeMoved } from '../../types-utils/utils';
 import { Canvas } from '../canvas/canvas';
@@ -342,7 +342,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     tryOpenEditor(cell: ViewCell<BCS, SF>) {
         if (cell !== this._cell) {
             // Can only open editor at Focused cell
-            throw new AssertError('FTOE34349');
+            throw new RevAssertError('FTOE34349');
         } else {
             return this.tryOpenEditorAtFocusedCell(cell, undefined, undefined)
         }
@@ -352,7 +352,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         const activeColumnIndex = this._editorActiveColumnIndex;
         const subgridRowIndex = this._editorSubgridRowIndex;
         if (activeColumnIndex === undefined || subgridRowIndex === undefined) {
-            throw new AssertError('FCE40199');
+            throw new RevAssertError('FCE40199');
         } else {
             this._editor = undefined;
             this._editorActiveColumnIndex = undefined;
@@ -378,7 +378,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     getFocusedEditValue() {
         const focusedPoint = this._current;
         if (focusedPoint === undefined || this.dataServer.getEditValue === undefined) {
-            throw new AssertError('FGFDV17778');
+            throw new RevAssertError('FGFDV17778');
         } else {
             const column = this._columnsManager.getActiveColumn(focusedPoint.x);
             return this.dataServer.getEditValue(column.field, focusedPoint.y);
@@ -392,10 +392,10 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     setFocusedEditValue(value: DataServer.ViewValue) {
         const focusedPoint = this._current;
         if (focusedPoint === undefined) {
-            throw new AssertError('FGFDVF17778');
+            throw new RevAssertError('FGFDVF17778');
         } else {
             if (this.dataServer.setEditValue === undefined) {
-                throw new AssertError('FGFDVS17778');
+                throw new RevAssertError('FGFDVS17778');
             } else {
                 const column = this._columnsManager.getActiveColumn(focusedPoint.x);
                 this.dataServer.setEditValue(column.field, focusedPoint.y, value); return;
@@ -426,7 +426,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             const key = event.key;
             const focusPoint = this._current;
             if (focusPoint === undefined) {
-                throw new AssertError('FCEWKDE98887');
+                throw new RevAssertError('FCEWKDE98887');
             } else {
                 const column = this._columnsManager.getActiveColumn(focusPoint.x);
                 const subgridRowIndex = focusPoint.y;
@@ -454,7 +454,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     checkEditorWantsClickEvent(event: MouseEvent, focusedCell: ViewCell<BCS, SF>): boolean {
         if (focusedCell !== this._cell) {
-            throw new AssertError('FCEWCE59572');
+            throw new RevAssertError('FCEWCE59572');
         } else {
             const editor = this._editor;
             if (editor === undefined) {
@@ -476,7 +476,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     /** @internal */
     checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: ViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined {
         if (focusedCell !== this._cell) {
-            throw new AssertError('FCEWCE59572');
+            throw new RevAssertError('FCEWCE59572');
         } else {
             const editor = this._editor;
             if (editor === undefined) {
@@ -648,7 +648,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         ) {
             const editorSubgridRowIndex = this._editorSubgridRowIndex;
             if (editorSubgridRowIndex === undefined) {
-                throw new AssertError('FISRS40199');
+                throw new RevAssertError('FISRS40199');
             } else {
                 if (editorSubgridRowIndex >= subgridRowIndex && editorSubgridRowIndex < (subgridRowIndex + count)) {
                     this._editor.invalidateValue();
@@ -666,7 +666,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         ) {
             const editorSubgridRowIndex = this._editorSubgridRowIndex;
             if (editorSubgridRowIndex === undefined) {
-                throw new AssertError('FISR40199');
+                throw new RevAssertError('FISR40199');
             } else {
                 if (subgridRowIndex === editorSubgridRowIndex) {
                     this._editor.invalidateValue();
@@ -684,12 +684,12 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         ) {
             const editorSubgridRowIndex = this._editorSubgridRowIndex;
             if (editorSubgridRowIndex === undefined) {
-                throw new AssertError('FISCS40199');
+                throw new RevAssertError('FISCS40199');
             } else {
                 if (subgridRowIndex === editorSubgridRowIndex) {
                     const editorActiveColumnIndex = this._editorActiveColumnIndex;
                     if (editorActiveColumnIndex === undefined) {
-                        throw new AssertError('FISCS40199');
+                        throw new RevAssertError('FISCS40199');
                     } else {
                         for (const activeColumnIndex of activeColumnIndices) {
                             if (activeColumnIndex === editorActiveColumnIndex) {
@@ -713,7 +713,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             const editorSubgridRowIndex = this._editorSubgridRowIndex;
             const editorActiveColumnIndex = this._editorActiveColumnIndex;
             if (editorSubgridRowIndex === undefined || editorActiveColumnIndex === undefined) {
-                throw new AssertError('FISC40199');
+                throw new RevAssertError('FISC40199');
             } else {
                 if (subgridRowIndex === editorSubgridRowIndex && activeColumnIndex === editorActiveColumnIndex) {
                     this._editor.invalidateValue();
@@ -815,7 +815,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
             } else {
                 const focusedPoint = this._current;
                 if (focusedPoint === undefined) {
-                    throw new AssertError('FTOE17778');
+                    throw new RevAssertError('FTOE17778');
                 } else {
                     const column = this._columnsManager.getActiveColumn(focusedPoint.x);
                     const field = column.field;
@@ -907,7 +907,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 const rowIndex = dataServer.getRowIndexFromId(stashedRowId);
                 if (rowIndex === undefined) {
                     if (allRowsKept) {
-                        throw new AssertError('FCPFSI50884');
+                        throw new RevAssertError('FCPFSI50884');
                     } else {
                         return undefined;
                     }
@@ -930,7 +930,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                         }
                     }
                     if (allRowsKept) {
-                        throw new AssertError('FCPFSL50884');
+                        throw new RevAssertError('FCPFSL50884');
                     } else {
                         return undefined;
                     }

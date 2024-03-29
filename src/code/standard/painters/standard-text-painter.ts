@@ -1,4 +1,4 @@
-import { CachedCanvasRenderingContext2D, Rectangle, UnreachableCaseError } from '../../grid/grid-public-api';
+import { CachedCanvasRenderingContext2D, Rectangle, RevUnreachableCaseError } from '../../grid/grid-public-api';
 import { HorizontalAlign } from './horizontal-align';
 import { TextTruncateType } from './text-truncate-type';
 
@@ -315,7 +315,7 @@ export class StandardTextPainter {
                             break;
                         }
                         default:
-                            throw new UnreachableCaseError('CRC2EGTWT98832', truncateType);
+                            throw new RevUnreachableCaseError('CRC2EGTWT98832', truncateType);
                     }
                     if (abort) {
                         break;
@@ -357,7 +357,7 @@ export class StandardTextPainter {
                             break;
                         }
                         default:
-                            throw new UnreachableCaseError('CRC2EGTWT98832', truncateType);
+                            throw new RevUnreachableCaseError('CRC2EGTWT98832', truncateType);
                     }
                     if (abort) {
                         break;

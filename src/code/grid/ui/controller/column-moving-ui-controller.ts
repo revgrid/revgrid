@@ -4,7 +4,7 @@ import { ViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { UiController } from './ui-controller';
 
 /** @internal */
@@ -98,7 +98,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         } else {
             const dragOverlay = this._dragOverlay;
             if (dragOverlay === undefined) {
-                throw new AssertError('CMUBHPDE13166');
+                throw new RevAssertError('CMUBHPDE13166');
             } else {
                 const dragAction = this.getDragAction(event, dragColumn);
 
@@ -190,11 +190,11 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         if (dragColumn !== undefined) {
             const dragOverlay = this._dragOverlay;
             if (dragOverlay === undefined) {
-                throw new AssertError('CMUBR44409');
+                throw new RevAssertError('CMUBR44409');
             } else {
                 const dragContext = dragOverlay.getContext('2d', { alpha: true });
                 if (dragContext === null) {
-                    throw new AssertError('CMR18887');
+                    throw new RevAssertError('CMR18887');
                 } else {
                     dragOverlay.width = this.canvas.flooredWidth;
                     dragOverlay.height = this.canvas.flooredHeight;
@@ -249,7 +249,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
             case DragActionType.None:
                 break;
             default:
-                throw new UnreachableCaseError('CMUBEDC23334', dragAction);
+                throw new RevUnreachableCaseError('CMUBEDC23334', dragAction);
         }
     }
 
@@ -322,7 +322,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                         // must be in unused space
                         overCol = this.viewLayout.createUnusedSpaceColumn();
                         if (overCol === undefined) {
-                            throw new AssertError('CMFGDA31311');
+                            throw new RevAssertError('CMFGDA31311');
                         }
                     }
                     const lower = sourceDragColumn.left - overCol.width / 2;

@@ -1,5 +1,5 @@
 import { Rectangle } from './rectangle';
-import { AssertError } from './revgrid-error';
+import { RevAssertError } from './revgrid-error';
 
 /** @public */
 export class CachedCanvasRenderingContext2D {
@@ -574,7 +574,7 @@ export namespace CachedCanvasRenderingContext2D {
             this._canvasRenderingContext2D.restore();
             const values = this.valuesStack.pop();
             if (values === undefined) {
-                throw new AssertError('CRC2ECR56660');
+                throw new RevAssertError('CRC2ECR56660');
             } else {
                 this.values = values;
             }

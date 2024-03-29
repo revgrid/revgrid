@@ -1,12 +1,12 @@
+import { numberToPixels } from '@xilytix/sysutils';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CssTypes } from '../../types-utils/css-types';
-import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { SizeUnitEnum } from '../../types-utils/size-unit';
 import { SizeWithUnit } from '../../types-utils/size-with-unit';
-import { numberToPixels } from '../../types-utils/utils';
 import { Canvas } from '../canvas/canvas';
 import { ScrollDimension } from '../view/scroll-dimension';
 import { ViewLayout } from '../view/view-layout';
@@ -251,7 +251,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
         if (this.bar.style[crossLeadingPropertyKey] === '') {
             const parentElement = this.bar.parentElement;
             if (parentElement === null) {
-                throw new AssertError('SIO50184');
+                throw new RevAssertError('SIO50184');
             } else {
                 // Must be trailing
                 return parentElement[thicknessPropertyKey] - this.bar[crossOffsetLeadingPropertyKey];
@@ -310,10 +310,10 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
             }
             case SizeUnitEnum.Fractional:
             case SizeUnitEnum.Percent: {
-                throw new AssertError('SATT83210', thicknessSizeWithUnit.sizeUnit);
+                throw new RevAssertError('SATT83210', thicknessSizeWithUnit.sizeUnit);
             }
             default:
-                throw new UnreachableCaseError('SATTD83210', thicknessSizeWithUnit.sizeUnit);
+                throw new RevUnreachableCaseError('SATTD83210', thicknessSizeWithUnit.sizeUnit);
         }
 
         const propertyName = this._axisProperties.thickness;
@@ -566,7 +566,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     case Scroller.PointerScrollingState.Armed:
                         this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
                         if (event === undefined) {
-                            throw new AssertError('SUPSIR50521')
+                            throw new RevAssertError('SUPSIR50521')
                         } else {
                             this.armPointerScrolling(event);
                         }
@@ -574,7 +574,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     case Scroller.PointerScrollingState.Active:
                         // weird
                         if (event === undefined) {
-                            throw new AssertError('SUPSIA50521')
+                            throw new RevAssertError('SUPSIA50521')
                         } else {
                             this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
                             this.armPointerScrolling(event);
@@ -583,9 +583,9 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                         }
                         break;
                     case Scroller.PointerScrollingState.ClickWaiting:
-                        throw new AssertError('SUPSIC50521');
+                        throw new RevAssertError('SUPSIC50521');
                     default:
-                        throw new UnreachableCaseError('SUPSDI50521', newState);
+                        throw new RevUnreachableCaseError('SUPSDI50521', newState);
                 }
                 break;
             }
@@ -594,7 +594,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     case Scroller.PointerScrollingState.Inactive:
                         this._pointerScrollingState = Scroller.PointerScrollingState.Inactive;
                         if (event === undefined) {
-                            throw new AssertError('SUPSRI50521')
+                            throw new RevAssertError('SUPSRI50521')
                         } else {
                             this.deactivatePointerScrolling(event);
                         }
@@ -603,19 +603,19 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                         break; // no change
                     case Scroller.PointerScrollingState.Active:
                         if (event === undefined) {
-                            throw new AssertError('SUPSRA50521')
+                            throw new RevAssertError('SUPSRA50521')
                         } else {
                             this._pointerScrollingState = Scroller.PointerScrollingState.Active;
                             this.activatePointerScrolling(event);
                         }
                         break;
                     case Scroller.PointerScrollingState.ClickWaiting:
-                        throw new AssertError('SUPSRC50521')
+                        throw new RevAssertError('SUPSRC50521')
                         // this._pointerScrollingState = Scroller.PointerScrollingState.ClickWaiting;
                         // this.deactivatePointerScrolling(event);
                         break;
                     default:
-                        throw new UnreachableCaseError('SUPSRD50521', newState);
+                        throw new RevUnreachableCaseError('SUPSRD50521', newState);
                 }
                 break;
             case Scroller.PointerScrollingState.Active:
@@ -624,7 +624,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                         // Since we are active, we want to ignore the next click
                         this._pointerScrollingState = Scroller.PointerScrollingState.ClickWaiting;
                         if (event === undefined) {
-                            throw new AssertError('SUPSAI50521')
+                            throw new RevAssertError('SUPSAI50521')
                         } else {
                             this.deactivatePointerScrolling(event);
                         }
@@ -632,7 +632,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     case Scroller.PointerScrollingState.Armed:
                         // weird
                         if (event === undefined) {
-                            throw new AssertError('SUPSAR50521')
+                            throw new RevAssertError('SUPSAR50521')
                         } else {
                             this._pointerScrollingState = Scroller.PointerScrollingState.Inactive;
                             this.deactivatePointerScrolling(event);
@@ -645,13 +645,13 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     case Scroller.PointerScrollingState.ClickWaiting:
                         this._pointerScrollingState = Scroller.PointerScrollingState.ClickWaiting;
                         if (event === undefined) {
-                            throw new AssertError('SUPSAC50521')
+                            throw new RevAssertError('SUPSAC50521')
                         } else {
                             this.deactivatePointerScrolling(event);
                         }
                         break;
                     default:
-                        throw new UnreachableCaseError('SUPSAD50521', newState);
+                        throw new RevUnreachableCaseError('SUPSAD50521', newState);
                 }
                 break;
             case Scroller.PointerScrollingState.ClickWaiting:
@@ -663,7 +663,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                         // must have lost a click event
                         this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
                         if (event === undefined) {
-                            throw new AssertError('SUPSCR50521')
+                            throw new RevAssertError('SUPSCR50521')
                         } else {
                             this.armPointerScrolling(event);
                         }
@@ -671,7 +671,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     case Scroller.PointerScrollingState.Active:
                         // weird
                         if (event === undefined) {
-                            throw new AssertError('SUPSCA50521')
+                            throw new RevAssertError('SUPSCA50521')
                         } else {
                             this._pointerScrollingState = Scroller.PointerScrollingState.Armed;
                             this.armPointerScrolling(event);
@@ -682,11 +682,11 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                     case Scroller.PointerScrollingState.ClickWaiting:
                         break; // no action
                     default:
-                        throw new UnreachableCaseError('SUPSCD50521', newState);
+                        throw new RevUnreachableCaseError('SUPSCD50521', newState);
                 }
                 break;
             default:
-                throw new UnreachableCaseError('SUPSDD50521', this._pointerScrollingState);
+                throw new RevUnreachableCaseError('SUPSDD50521', this._pointerScrollingState);
         }
     }
 
@@ -780,7 +780,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
                 break;
             }
             default:
-                throw new UnreachableCaseError('SUTV55509', this._thumbVisibilityState);
+                throw new RevUnreachableCaseError('SUTV55509', this._thumbVisibilityState);
         }
     }
 

@@ -3,7 +3,7 @@ import { ViewCell } from '../../interfaces/data/view-cell';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../types-utils/revgrid-error';
 import { UiController } from './ui-controller';
 
 /** @internal */
@@ -93,7 +93,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
                     unknownUrl = value;
                 } else if (/^\w+$/.test(link)) {
                     if (Array.isArray(dataRow)) {
-                        throw new AssertError('CCFOL45455');
+                        throw new RevAssertError('CCFOL45455');
                     } else {
                         unknownUrl = dataRow[link];
                     }

@@ -1,5 +1,6 @@
 
-import { DataServer, DatalessViewCell, GridSettings, IndexSignatureHack, Rectangle, Revgrid, SchemaField, safeConvertUnknownToBoolean } from '../../grid/grid-public-api';
+import { IndexSignatureHack } from '@xilytix/sysutils';
+import { DataServer, DatalessViewCell, GridSettings, Rectangle, Revgrid, SchemaField, safeConvertUnknownToBoolean } from '../../grid/grid-public-api';
 import { StandardCheckboxPainter } from '../painters/standard-painters-public-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
 import { StandardCellPainter } from './standard-cell-painter';

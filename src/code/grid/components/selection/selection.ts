@@ -7,7 +7,7 @@ import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-c
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
 import { Rectangle } from '../../types-utils/rectangle';
-import { AssertError, UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
 import { SelectionAreaType, SelectionAreaTypeId } from '../../types-utils/selection-area-type';
 import { SelectionAreaTypeSpecifier } from '../../types-utils/types';
@@ -131,7 +131,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
             }
         } else {
             if (this._beginChangeCount < 0) {
-                throw new AssertError('SMEC91004', 'Mismatched SelectionModel begin/endChange callback');
+                throw new RevAssertError('SMEC91004', 'Mismatched SelectionModel begin/endChange callback');
             }
         }
     }
@@ -264,7 +264,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
                     break;
                 }
                 default:
-                    throw new UnreachableCaseError('SSA34499', areaTypeId)
+                    throw new RevUnreachableCaseError('SSA34499', areaTypeId)
             }
 
             return area;
@@ -279,7 +279,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         if (lastArea !== undefined) {
             const subgrid = this._subgrid;
             if (subgrid === undefined) {
-                throw new AssertError('SDLA13690');
+                throw new RevAssertError('SDLA13690');
             } else {
                 switch (lastArea.areaTypeId) {
                     case SelectionAreaTypeId.all: {
@@ -299,7 +299,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
                         break;
                     }
                     default:
-                        throw new UnreachableCaseError('SDLA34499', lastArea.areaTypeId)
+                        throw new RevUnreachableCaseError('SDLA34499', lastArea.areaTypeId)
                 }
             }
         }
@@ -323,7 +323,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
                 switch (switchNewRectangleSelectionToRowOrColumn) {
                     case 'row': return this.selectRows(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
                     case 'column': return this.selectColumns(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
-                    default: throw new UnreachableCaseError('SSR50591', switchNewRectangleSelectionToRowOrColumn);
+                    default: throw new RevUnreachableCaseError('SSR50591', switchNewRectangleSelectionToRowOrColumn);
                 }
             } else {
                 if (subgrid !== this._subgrid) {
@@ -690,7 +690,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
                     (this._columns.isEmpty() || subgridRowCount <= 1)
                 );
             default:
-                throw new UnreachableCaseError('SISCTOSD30134', selectedTypeId);
+                throw new RevUnreachableCaseError('SISCTOSD30134', selectedTypeId);
         }
     }
 
@@ -705,7 +705,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
                     return true;
                 } else {
                     if (this._subgrid === undefined) {
-                        throw new AssertError('SHR66698');
+                        throw new RevAssertError('SHR66698');
                     } else {
                         return this._subgrid.getRowCount() > 0;
                     }
@@ -722,7 +722,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
                 return false;
             } else {
                 if (this._subgrid === undefined) {
-                    throw new AssertError('SHR66698');
+                    throw new RevAssertError('SHR66698');
                 } else {
                     return this._subgrid.getRowCount() > 0;
                 }
@@ -743,7 +743,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
             return 0;
         } else {
             if (this._subgrid === undefined) {
-                throw new AssertError('SGARC66698');
+                throw new RevAssertError('SGARC66698');
             } else {
                 return this._subgrid.getRowCount();
             }
@@ -763,7 +763,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
             return [];
         } else {
             if (this._subgrid === undefined) {
-                throw new AssertError('SGARI66698');
+                throw new RevAssertError('SGARI66698');
             } else {
                 const rowCount = this._subgrid.getRowCount();
                 const result = new Array<number>(rowCount);
@@ -876,7 +876,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
                 }
             }
             default:
-                throw new UnreachableCaseError('SCAT60711', specifier);
+                throw new RevUnreachableCaseError('SCAT60711', specifier);
         }
     }
 
@@ -884,12 +884,12 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
     calculateMouseMainSelectAllowedAreaTypeId() {
         const areaTypeId = this.calculateMouseMainSelectAreaTypeId();
         switch (areaTypeId) {
-            case SelectionAreaTypeId.all: throw new AssertError('SCMMSAATI39113');
+            case SelectionAreaTypeId.all: throw new RevAssertError('SCMMSAATI39113');
             case SelectionAreaTypeId.rectangle: return areaTypeId;
             case SelectionAreaTypeId.row: return this._gridSettings.mouseRowSelectionEnabled ? areaTypeId : undefined;
             case SelectionAreaTypeId.column: return this._gridSettings.mouseColumnSelectionEnabled ? areaTypeId : undefined;
             default:
-                throw new UnreachableCaseError('SCMMSAATI30987', areaTypeId);
+                throw new RevUnreachableCaseError('SCMMSAATI30987', areaTypeId);
         }
     }
 
@@ -1057,7 +1057,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
     private createAreaFromAll(): SelectionArea | undefined {
         const subgrid = this._subgrid;
         if (subgrid === undefined) {
-            throw new AssertError('SCAFAR34454');
+            throw new RevAssertError('SCAFAR34454');
         } else {
             const rowCount = subgrid.getRowCount();
             const activeColumnCount = this._columnsManager.activeColumnCount;
@@ -1106,7 +1106,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
     private createAreaFromColumnRange(range: ContiguousIndexRange): SelectionArea {
         const subgrid = this._subgrid;
         if (subgrid === undefined) {
-            throw new AssertError('SCAFAR34454');
+            throw new RevAssertError('SCAFAR34454');
         } else {
             const rowCount = subgrid.getRowCount();
             const x = range.start;
@@ -1135,7 +1135,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
             case 'row': return SelectionAreaTypeId.row;
             case 'column': return SelectionAreaTypeId.column;
             default:
-                throw new UnreachableCaseError('SCMMSATI30987', switchNewRectangleSelectionToRowOrColumn);
+                throw new RevUnreachableCaseError('SCMMSATI30987', switchNewRectangleSelectionToRowOrColumn);
         }
     }
 
@@ -1171,7 +1171,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         if (lastRectangleFirstCellStash !== undefined) {
             const subgrid = this._subgrid;
             if (subgrid === undefined) {
-                throw new AssertError('SRLRFC10987');
+                throw new RevAssertError('SRLRFC10987');
             } else {
                 const { fieldName, rowId: stashedRowId } = lastRectangleFirstCellStash;
 
@@ -1184,7 +1184,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
                             this.selectRectangle(activeColumnIndex, subgridRowIndex, 1, 1, subgrid, true);
                         } else {
                             if (allRowsKept) {
-                                throw new AssertError('SRLRFCS31071');
+                                throw new RevAssertError('SRLRFCS31071');
                             }
                         }
                     } else {
@@ -1198,7 +1198,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
                                 }
                             }
                             if (allRowsKept) {
-                                throw new AssertError('SRLRFCS31071');
+                                throw new RevAssertError('SRLRFCS31071');
                             }
                         }
                     }
@@ -1235,7 +1235,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
         if (rowIds !== undefined) {
             const subgrid = this._subgrid;
             if (subgrid === undefined) {
-                throw new AssertError('SRRS10987');
+                throw new RevAssertError('SRRS10987');
             } else {
                 const rowIdCount = rowIds.length;
                 if (rowIdCount > 0) {

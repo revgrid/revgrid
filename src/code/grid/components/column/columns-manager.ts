@@ -1,13 +1,13 @@
+import { moveElementInArray } from '@xilytix/sysutils';
 import { Column, ColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { ApiError, AssertError } from '../../types-utils/revgrid-error';
+import { RevApiError, RevAssertError } from '../../types-utils/revgrid-error';
 import { RevgridObject } from '../../types-utils/revgrid-object';
-import { ListChangedEventer, ListChangedTypeId, UiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
-import { moveElementInArray } from '../../types-utils/utils';
+import { RevListChangedEventer, RevListChangedTypeId, RevUiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
@@ -15,7 +15,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     /** @internal */
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
-    fieldColumnListChangedEventer: ListChangedEventer;
+    fieldColumnListChangedEventer: RevListChangedEventer;
     /** @internal */
     activeColumnListChangedEventer: UiableListChangedEventer;
     /** @internal */
@@ -55,7 +55,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     removeBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener) {
         const index = this._beforeCreateColumnsListeners.indexOf(listener);
         if (index < 0) {
-            throw new AssertError('CMRBCCL72009');
+            throw new RevAssertError('CMRBCCL72009');
         } else {
             this._beforeCreateColumnsListeners.splice(index, 1);
         }
@@ -82,7 +82,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             }
         } else {
             if (this._beginSchemaChangeCount < 0) {
-                throw new AssertError('RAEC91004', 'Mismatched ColumnsManager beginSchema/endSchemaChange callback');
+                throw new RevAssertError('RAEC91004', 'Mismatched ColumnsManager beginSchema/endSchemaChange callback');
             }
         }
     }
@@ -194,14 +194,14 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             this._activeColumns[i] = column;
             const fieldIndex = field.index;
             if (this._fieldColumns[fieldIndex] !== undefined) {
-                throw new ApiError('CMCC10197', `ColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
+                throw new RevApiError('CMCC10197', `ColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
             } else {
                 this._fieldColumns[fieldIndex] = column;
             }
         }
 
-        this.notifyActiveColumnListChanged(ListChangedTypeId.Set, 0, count, undefined, false);
-        this.fieldColumnListChangedEventer(ListChangedTypeId.Set, 0, count, undefined);
+        this.notifyActiveColumnListChanged(RevListChangedTypeId.Set, 0, count, undefined, false);
+        this.fieldColumnListChangedEventer(RevListChangedTypeId.Set, 0, count, undefined);
     }
 
     /** @internal */
@@ -295,7 +295,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             const { name, autoSizableWidth } = fieldNameAndWidth;
             const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as ColumnImplementation<BCS, SF>;
             if (column === undefined) {
-                throw new ApiError('CMSCWBFN20251', `Behavior.setColumnWidthsByName: Column name not found: ${name}`);
+                throw new RevApiError('CMSCWBFN20251', `Behavior.setColumnWidthsByName: Column name not found: ${name}`);
             } else {
                 if (autoSizableWidth === undefined) {
                     column.setAutoWidthSizing(true);
@@ -325,7 +325,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             const { name, autoSizableWidth } = fieldNameAndWidths[i];
             const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as ColumnImplementation<BCS, SF>;
             if (column === undefined) {
-                throw new ApiError('CMSACAWBFN01098', `Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${name}`);
+                throw new RevApiError('CMSACAWBFN01098', `Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${name}`);
             } else {
                 activeColumns[i] = column;
                 if (autoSizableWidth === undefined) {
@@ -338,7 +338,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             }
         }
 
-        this.notifyActiveColumnListChanged(ListChangedTypeId.Set, 0, newActiveColumnCount, undefined, ui);
+        this.notifyActiveColumnListChanged(RevListChangedTypeId.Set, 0, newActiveColumnCount, undefined, ui);
 
         if (changedColumnsCount > 0) {
             changedColumns.length = changedColumnsCount;
@@ -454,7 +454,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         }
 
         if (changed) {
-            this.notifyActiveColumnListChanged(ListChangedTypeId.Set, 0, activeColumns.length, undefined, ui);
+            this.notifyActiveColumnListChanged(RevListChangedTypeId.Set, 0, activeColumns.length, undefined, ui);
         }
     }
 
@@ -464,14 +464,14 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 
     hideActiveColumn(activeColumnIndex: number, ui: boolean) {
         this._activeColumns.splice(activeColumnIndex, 1);
-        this.notifyActiveColumnListChanged(ListChangedTypeId.Remove, activeColumnIndex, 1, undefined, ui)
+        this.notifyActiveColumnListChanged(RevListChangedTypeId.Remove, activeColumnIndex, 1, undefined, ui)
     }
 
     /** @internal */
     setActiveColumns(columnArray: readonly Column<BCS, SF>[]) {
         const oldActiveCount = this._activeColumns.length;
         this._activeColumns.splice(0, oldActiveCount, ...columnArray);
-        this.notifyActiveColumnListChanged(ListChangedTypeId.Set, 0, columnArray.length, undefined, false);
+        this.notifyActiveColumnListChanged(RevListChangedTypeId.Set, 0, columnArray.length, undefined, false);
     }
 
     /**
@@ -482,7 +482,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>) {
         const column = this.getFieldColumn(fieldIndex);
         if (column === undefined) {
-            throw new AssertError('CMMFCS50399', fieldIndex.toString());
+            throw new RevAssertError('CMMFCS50399', fieldIndex.toString());
         }
 
         // column.clearProperties(); // needs implementation
@@ -524,7 +524,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     moveActiveColumn(fromIndex: number, toIndex: number, ui: boolean) {
         if (toIndex !== fromIndex) {
             moveElementInArray(this._activeColumns, fromIndex, toIndex)
-            this.notifyActiveColumnListChanged(ListChangedTypeId.Move, fromIndex, 1, toIndex, ui);
+            this.notifyActiveColumnListChanged(RevListChangedTypeId.Move, fromIndex, 1, toIndex, ui);
         }
     }
 
@@ -579,7 +579,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         return hidden;
     }
 
-    private notifyActiveColumnListChanged(typeId: ListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
+    private notifyActiveColumnListChanged(typeId: RevListChangedTypeId, index: number, count: number, targetIndex: number | undefined, ui: boolean) {
         this.activeColumnListChangedEventer(typeId, index, count, targetIndex, ui);
         this.invalidateHorizontalViewLayoutEventer(true);
     }

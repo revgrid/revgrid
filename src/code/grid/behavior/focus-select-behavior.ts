@@ -8,7 +8,7 @@ import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-colu
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../interfaces/settings/grid-settings';
 import { EnsureFullyInView, EnsureFullyInViewEnum } from '../types-utils/ensure-fully-in-view';
-import { AssertError } from '../types-utils/revgrid-error';
+import { RevAssertError } from '../types-utils/revgrid-error';
 import { RevgridObject } from '../types-utils/revgrid-object';
 import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
 import { StartLength } from '../types-utils/start-length';
@@ -245,7 +245,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
                     const limitedNewX = this._viewLayout.limitActiveColumnIndexToView(newLastX);
                     const limitedNewY = this._viewLayout.limitRowIndexToView(newLastY);
                     if (limitedNewX === undefined || limitedNewY === undefined) {
-                        throw new AssertError('SUBMSS33398');
+                        throw new RevAssertError('SUBMSS33398');
                     } else {
                         newLastX = limitedNewX;
                         newLastY = limitedNewY;

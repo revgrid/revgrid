@@ -1,4 +1,4 @@
-import { AssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../types-utils/revgrid-error';
 import { GridSettings } from './grid-settings';
 
 /** @public */
@@ -53,11 +53,11 @@ export namespace GridSettingChangeInvalidateType {
     export function getHigherPriority(left: GridSettingChangeInvalidateTypeId, right: GridSettingChangeInvalidateTypeId) {
         const leftPriority = prioritiesMap.get(left);
         if (leftPriority === undefined) {
-            throw new AssertError('GSCITGHPL44220', left.toString());
+            throw new RevAssertError('GSCITGHPL44220', left.toString());
         } else {
             const rightPriority = prioritiesMap.get(right);
             if (rightPriority === undefined) {
-                throw new AssertError('GSCITGHPR44220', right.toString());
+                throw new RevAssertError('GSCITGHPR44220', right.toString());
             } else {
                 const leftPriorityValue = leftPriority.value;
                 const rightPriorityValue = rightPriority.value;

@@ -1,4 +1,4 @@
-import { UnreachableCaseError } from './revgrid-error';
+import { RevUnreachableCaseError } from './revgrid-error';
 
 /** @public */
 export const enum SelectionAreaTypeId {
@@ -23,7 +23,7 @@ export namespace SelectionAreaType {
             case 'row': return SelectionAreaTypeId.row;
             case 'column': return SelectionAreaTypeId.column;
             default:
-                throw new UnreachableCaseError('SATTI10198', type);
+                throw new RevUnreachableCaseError('SATTI10198', type);
         }
     }
     export function fromId(id: SelectionAreaTypeId): SelectionAreaType {
@@ -33,7 +33,7 @@ export namespace SelectionAreaType {
             case SelectionAreaTypeId.row: return 'row';
             case SelectionAreaTypeId.column: return 'column';
             default:
-                throw new UnreachableCaseError('SATFI10198', id);
+                throw new RevUnreachableCaseError('SATFI10198', id);
         }
     }
     export function arrayFromIds(ids: SelectionAreaTypeId[]) {

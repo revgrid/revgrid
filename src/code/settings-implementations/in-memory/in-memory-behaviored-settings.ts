@@ -1,9 +1,9 @@
 import {
-    AssertError,
     BehavioredSettings,
     GridSettingChangeInvalidateType,
     GridSettingChangeInvalidateTypeId,
-    UnreachableCaseError
+    RevAssertError,
+    RevUnreachableCaseError
 } from '../../grid/grid-public-api';
 
 /** @public */
@@ -43,7 +43,7 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
             }
         } else {
             if (this._beginChangeCount < 0) {
-                throw new AssertError('IMDBSEC65997');
+                throw new RevAssertError('IMDBSEC65997');
             }
         }
         return changed;
@@ -56,7 +56,7 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
     unsubscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler) {
         const index = this._changedEventHandlers.indexOf(handler);
         if (index < 0) {
-            throw new AssertError('IMBSUCE23445');
+            throw new RevAssertError('IMBSUCE23445');
         } else {
             this._changedEventHandlers.splice(index, 1);
         }
@@ -123,7 +123,7 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
                 }
                 break;
             default:
-                throw new UnreachableCaseError('IMDMGSIBT43332', invalidateType);
+                throw new RevUnreachableCaseError('IMDMGSIBT43332', invalidateType);
         }
     }
 }

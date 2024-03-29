@@ -1,4 +1,4 @@
-import { AssertError, DataServer } from '../../grid/grid-public-api';
+import { DataServer, RevAssertError } from '../../grid/grid-public-api';
 import { MultiHeadingDataServer } from '../multi-heading/multi-heading-data-server';
 import { MultiHeadingSchemaField } from '../multi-heading/multi-heading-schema-field';
 import { DataRowArrayDataServer } from './data-row-array-data-server';
@@ -33,7 +33,7 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaFiel
             let mainDataRows: MultiHeadingDataRowArrayServerSet.DataRow[];
 
             if (!Array.isArray(dataRows)) {
-                throw new AssertError('BSD73766', 'Expected data to be an array of data row objects');
+                throw new RevAssertError('BSD73766', 'Expected data to be an array of data row objects');
             } else {
                 let schema: SF[];
                 if (headerRowCount < 0) {

@@ -1,4 +1,4 @@
-import { AssertError, SchemaField, SchemaServer } from '../../grid/grid-public-api';
+import { RevAssertError, SchemaField, SchemaServer } from '../../grid/grid-public-api';
 
 /** @public */
 export class DataRowArraySchemaServer<SF extends SchemaField> implements SchemaServer<SF> {
@@ -12,7 +12,7 @@ export class DataRowArraySchemaServer<SF extends SchemaField> implements SchemaS
     unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>) {
         const idx = this._schemaCallbackListeners.findIndex((element) => element === listener);
         if (idx < 0) {
-            throw new AssertError('LMDMRSCL91364', 'LocalMainSchemaModel: SchemaCallbackListener not found');
+            throw new RevAssertError('LMDMRSCL91364', 'LocalMainSchemaModel: SchemaCallbackListener not found');
         } else {
             this._schemaCallbackListeners.splice(idx, 1);
         }

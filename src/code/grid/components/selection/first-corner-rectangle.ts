@@ -1,6 +1,6 @@
 import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
 import { Point } from '../../types-utils/point';
-import { UnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { FirstCornerArea } from './first-corner-area';
 
 /** @public */
@@ -20,7 +20,7 @@ export class FirstCornerRectangle extends InexclusiveRectangle implements FirstC
             case FirstCornerArea.Corner.BottomRight: return { x: this.exclusiveBottomRight.x, y: this.exclusiveBottomRight.y };
             case FirstCornerArea.Corner.BottomLeft: return { x: this.topLeft.x, y: this.exclusiveBottomRight.y };
             default:
-                throw new UnreachableCaseError('FCRF55598', this.firstCorner);
+                throw new RevUnreachableCaseError('FCRF55598', this.firstCorner);
         }
     }
 
@@ -32,7 +32,7 @@ export class FirstCornerRectangle extends InexclusiveRectangle implements FirstC
             case FirstCornerArea.Corner.BottomRight: return { x: this.inclusiveBottomRight.x, y: this.inclusiveBottomRight.y };
             case FirstCornerArea.Corner.BottomLeft: return { x: this.topLeft.x, y: this.inclusiveBottomRight.y };
             default:
-                throw new UnreachableCaseError('FCRF55598', this.firstCorner);
+                throw new RevUnreachableCaseError('FCRF55598', this.firstCorner);
         }
     }
 
@@ -44,7 +44,7 @@ export class FirstCornerRectangle extends InexclusiveRectangle implements FirstC
             case FirstCornerArea.Corner.BottomRight: return { x: this.topLeft.x, y: this.topLeft.y };
             case FirstCornerArea.Corner.BottomLeft: return { x: this.exclusiveBottomRight.x, y: this.topLeft.y };
             default:
-                throw new UnreachableCaseError('FCRL55598', this.firstCorner);
+                throw new RevUnreachableCaseError('FCRL55598', this.firstCorner);
         }
     }
 
@@ -56,7 +56,7 @@ export class FirstCornerRectangle extends InexclusiveRectangle implements FirstC
             case FirstCornerArea.Corner.BottomRight: return { x: this.topLeft.x, y: this.topLeft.y };
             case FirstCornerArea.Corner.BottomLeft: return { x: this.inclusiveBottomRight.x, y: this.topLeft.y };
             default:
-                throw new UnreachableCaseError('FCRL55598', this.firstCorner);
+                throw new RevUnreachableCaseError('FCRL55598', this.firstCorner);
         }
     }
 
@@ -105,7 +105,7 @@ export namespace FirstCornerRectangle {
                 break;
             }
             default:
-                throw new UnreachableCaseError('FCRCXYWHFC77665', corner);
+                throw new RevUnreachableCaseError('FCRCXYWHFC77665', corner);
         }
 
         return {

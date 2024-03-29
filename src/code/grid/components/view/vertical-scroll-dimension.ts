@@ -2,7 +2,7 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { AssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../types-utils/revgrid-error';
 import { Canvas } from '../canvas/canvas';
 import { SubgridsManager } from '../subgrid/subgrids-manager';
 import { ScrollDimension } from './scroll-dimension';
@@ -79,7 +79,7 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
             };
 
             if (mainSubgrid.rowHeightsCanDiffer) {
-                throw new AssertError('VSDC07339', 'Differing row heights in MainSubgrid not yet implemented');
+                throw new RevAssertError('VSDC07339', 'Differing row heights in MainSubgrid not yet implemented');
                 // const lineGap = gridSettings.gridLinesHWidth;
                 // let rowsHeight = 0;
                 // let lastPageRowCount = 0;
