@@ -13,7 +13,7 @@
   "contributors": [
     "Paul Klink (https://paul.klink.au)"
   ],
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "SEE LICENSE IN license.txt",
   "readmeFilename": "README.md",
   "keywords": [
     "grid",
@@ -26,7 +26,8 @@
     "dist/**/*",
     "src/**/*.ts",
     "src/**/*.json",
-    "src/**/*.css"
+    "src/**/*.css",
+    "license.txt"
   ],
   "scripts": {
     "link-xilytix": "npm link @xilytix/sysutils",
@@ -49,24 +50,24 @@
     "dratestapp:serve": "webpack serve --mode development --config ./data-row-array-test-app/webpack.config.js"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "7.36.4",
-    "@typescript-eslint/eslint-plugin": "6.7.2",
-    "@typescript-eslint/parser": "6.7.2",
+    "@microsoft/api-extractor": "7.43.0",
+    "@typescript-eslint/eslint-plugin": "7.3.1",
+    "@typescript-eslint/parser": "7.3.1",
     "copyfiles": "2.4.1",
-    "css-loader": "6.8.1",
+    "css-loader": "6.10.0",
     "del-cli": "5.1.0",
-    "eslint": "8.50.0",
-    "eslint-import-resolver-typescript": "3.6.0",
-    "eslint-plugin-import": "2.28.1",
-    "html-webpack-plugin": "5.5.3",
-    "source-map-loader": "^4.0.1",
-    "style-loader": "3.3.3",
-    "ts-loader": "9.4.4",
-    "typescript": "5.2.2",
-    "update-browserslist-db": "1.0.11",
-    "webpack": "5.88.2",
+    "eslint": "8.57.0",
+    "eslint-import-resolver-typescript": "3.6.1",
+    "eslint-plugin-import": "2.29.1",
+    "html-webpack-plugin": "5.6.0",
+    "source-map-loader": "5.0.0",
+    "style-loader": "3.3.4",
+    "ts-loader": "9.5.1",
+    "typescript": "5.4.3",
+    "update-browserslist-db": "1.0.13",
+    "webpack": "5.91.0",
     "webpack-cli": "5.1.4",
-    "webpack-dev-server": "4.15.1"
+    "webpack-dev-server": "5.0.4"
   },
   "browserslist": [
     "last 1 Chrome version",
