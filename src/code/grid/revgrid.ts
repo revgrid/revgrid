@@ -255,7 +255,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @desc Clear out all state settings, data (rows), and schema (columns) of a grid instance.
+     * Clear out all state settings, data (rows), and schema (columns) of a grid instance.
      * @param options
      * @param options.subgrids - Consumed by {@link BehaviorManager#reset}.
      * If omitted, previously established subgrids list is reused.
@@ -279,7 +279,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get activeColumnCount() { return this.columnsManager.activeColumnCount; }
 
     /**
-     * @summary Gets the number of rows in the main subgrid.
+     * Gets the number of rows in the main subgrid.
      * @returns The number of rows.
      */
     getSubgridRowCount(subgrid: Subgrid<BCS, SF>) {
@@ -292,7 +292,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /**
      * Retrieve a data row from the main data model.
-     * @return The data row object at y index.
+     * @returns The data row object at y index.
      * @param y - the row index of interest
      */
     getSingletonViewDataRow(y: number, subgrid?: Subgrid<BCS, SF>): DataServer.ViewRow {
@@ -372,9 +372,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @summary Get the visibility of the row matching the provided data row index.
-     * @desc Requested row may not be visible due to being scrolled out of view.
-     * @summary Determines visibility of a row.
+     * Get the visibility of the row matching the provided data row index.
+     * @remarks Requested row may not be visible due to being scrolled out of view.
+     * Determines visibility of a row.
      * @param rowIndex - The data row index.
      * @returns The given row is visible.
      */
@@ -396,7 +396,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @summary Answer which data cell is under a pixel value mouse point.
+     * Answer which data cell is under a pixel value mouse point.
      * @param offset - The mouse point to interrogate.
      */
     findLinedHoverCellAtCanvasOffset(offsetX: number, offsetY: number) {
@@ -445,9 +445,9 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @summary Show inactive column(s) or move active column(s).
+     * Show inactive column(s) or move active column(s).
      *
-     * @desc Adds one or several columns to the "active" column list.
+     * @remarks Adds one or several columns to the "active" column list.
      *
      * @param isActiveColumnIndexes - Which list `columnIndexes` refers to:
      * * `true` - The active column list. This can only move columns around within the active column list; it cannot add inactive columns (because it can only refer to columns in the active column list).
@@ -774,10 +774,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @desc Set the width of the given column.
+     * Set the width of the given column.
      * @param columnIndex - The untranslated column index.
      * @param width - The width in pixels.
-     * @return column if width changed otherwise undefined
+     * @returns column if width changed otherwise undefined
      */
     setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, width: number, ui: boolean) {
         let column: Column<BCS, SF>
@@ -814,7 +814,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @desc Set the height of the given row.
+     * Set the height of the given row.
      * @param rowIndex - The row index.
      * @param rowHeight - The width in pixels.
      */
@@ -826,8 +826,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @summary The top left area has been clicked on
-     * @desc Delegates to the behavior.
+     * The top left area has been clicked on
+     * @remarks Delegates to the behavior.
      * @param {event} mouse - The event details.
      */
     // topLeftClicked(mouse) {
@@ -835,8 +835,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // }
 
     /**
-     * @summary A fixed row has been clicked.
-     * @desc Delegates to the behavior.
+     * A fixed row has been clicked.
+     * @remarks Delegates to the behavior.
      * @param {event} event - The event details.
      */
     // rowHeaderClicked(mouse) {
@@ -844,8 +844,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // }
 
     /**
-     * @summary A fixed column has been clicked.
-     * @desc Delegates to the behavior.
+     * A fixed column has been clicked.
+     * @remarks Delegates to the behavior.
      * @param {event} event - The event details.
      */
     // columnHeaderClicked(mouse) {
@@ -876,7 +876,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @desc Repaint the given cell.
+     * Repaint the given cell.
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
      */
@@ -899,7 +899,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @desc Reset zoom factor used by mouse tracking and placement
+     * Reset zoom factor used by mouse tracking and placement
      * of cell editors on top of canvas.
      *
      * Call this after resetting `document.body.style.zoom`.
@@ -923,7 +923,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // }
 
     /**
-     * @desc Enable/disable if this component can receive the focus.
+     * Enable/disable if this component can receive the focus.
      */
     // setFocusable(canReceiveFocus: boolean) {
     //     this.canvas.setFocusable(canReceiveFocus);
@@ -951,7 +951,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /**
      * @param activeColumnIndex - Data x coordinate.
-     * @return The properties for a specific column.
+     * @returns The properties for a specific column.
      */
     getActiveColumnSettings(activeColumnIndex: number): BCS {
         const column = this.columnsManager.getActiveColumn(activeColumnIndex);
@@ -1256,8 +1256,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @summary Get the cell's own properties object.
-     * @desc May be undefined because cells only have their own properties object when at lest one own property has been set.
+     * Get the cell's own properties object.
+     * @remarks May be undefined because cells only have their own properties object when at lest one own property has been set.
      * @param allXOrRenderedCell - Data x coordinate or cell event.
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
@@ -1282,14 +1282,14 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @summary Get the properties object for cell.
-     * @desc This is the cell's own properties object if found else the column object.
+     * Get the properties object for cell.
+     * @remarks This is the cell's own properties object if found else the column object.
      *
      * If you are seeking a single specific property, consider calling {@link BehaviorManager#getCellProperty} instead.
      * @param xOrCellEvent - Data x coordinate or CellEvent.
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
-     * @return The properties of the cell at x,y in the grid or falsy if not available.
+     * @returns The properties of the cell at x,y in the grid or falsy if not available.
      */
     getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS, SF>): MetaModel.CellOwnProperties | false | null | undefined{
         return this._cellPropertiesBehavior.getCellOwnPropertiesFromRenderedCell(renderedCell);
@@ -1306,13 +1306,13 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @summary Return a specific cell property.
-     * @desc If there is no cell properties object, defers to column properties object.
+     * Return a specific cell property.
+     * @remarks If there is no cell properties object, defers to column properties object.
      * @param allX - Data x coordinate.
      * @param y - Subgrid row coordinate.
      * @param key - Name of property to get.
      * @param subgrid - Subgrid in which contains cell
-     * @return The specified property for the cell at x,y in the grid.
+     * @returns The specified property for the cell at x,y in the grid.
      */
     getCellProperty(allX: number, y: number, key: string | number, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty;
     getCellProperty<T extends keyof ColumnSettings>(allX: number, y: number, key: T, subgrid: Subgrid<BCS, SF>): ColumnSettings[T];
@@ -1328,7 +1328,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @desc update the data at point x, y with value
+     * update the data at point x, y with value
      * @param xOrCellEvent - Data x coordinate.
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
@@ -1344,7 +1344,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @desc update the data at point x, y with value
+     * update the data at point x, y with value
      * @param xOrCellEvent - Data x coordinate.
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
@@ -1360,8 +1360,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     }
 
     /**
-     * @summary Set a specific cell property.
-     * @desc If there is no cell properties object, defers to column properties object.
+     * Set a specific cell property.
+     * @remarks If there is no cell properties object, defers to column properties object.
      *
      * NOTE: For performance reasons, renderer's cell event objects cache their respective cell properties objects. This method accepts a `CellEvent` overload. Whenever possible, use the `CellEvent` from the renderer's cell event pool. Doing so will reset the cell properties object cache.
      *
@@ -1768,8 +1768,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 /**
  * @name plugins
  * @type {object}
- * @summary Hash of references to shared plug-ins.
- * @desc Dictionary of shared (pre-installed) plug-ins. Used internally, primarily to avoid reinstallations. See examples for how to reference (albeit there is normally no need to reference plugins directly).
+ * Hash of references to shared plug-ins.
+ * @remarks Dictionary of shared (pre-installed) plug-ins. Used internally, primarily to avoid reinstallations. See examples for how to reference (albeit there is normally no need to reference plugins directly).
  *
  * For the dictionary of _instance_ plugins, see {@link Revgrid#plugins|plugins} (defined in the {@link Revgrid#intialize|Hypergrid constructor}).
  *
@@ -1824,8 +1824,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
 
 /**
- * @summary List of grid instances.
- * @desc Added in {@link Revgrid constructor}; removed in {@link Revgrid#terminate terminate()}.
+ * List of grid instances.
+ * @remarks Added in {@link Revgrid constructor}; removed in {@link Revgrid#terminate terminate()}.
  * Used in themes.js.
  * @type {Revgrid[]}
  */
@@ -1833,8 +1833,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
 /** @name defaults
  * @type {object}
- * @summary The `defaults` layer of the Hypergrid properties hierarchy.
- * @desc Default values for all Hypergrid properties, including grid-level properties and column property defaults.
+ * The `defaults` layer of the Hypergrid properties hierarchy.
+ * @remarks Default values for all Hypergrid properties, including grid-level properties and column property defaults.
  *
  * Synonym: `properties`
  * Properties are divided broadly into two categories:
@@ -1937,8 +1937,8 @@ export namespace Revgrid {
 // }, defaultTheme);
 
 // /**
-//  * @summary The Hypergrid theme registry.
-//  * @desc The standard registry consists of a single theme, `default`, built from values in defaults.js.
+//  * The Hypergrid theme registry.
+//  * @remarks The standard registry consists of a single theme, `default`, built from values in defaults.js.
 //  */
 // const registry = Object.create(null, {
 //     default: { value: defaultTheme }

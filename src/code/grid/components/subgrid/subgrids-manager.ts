@@ -94,8 +94,8 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
     getSubgridByHandle(handle: SubgridImplementation.Handle) { return this._handledSubgrids[handle]; }
 
     /**
-     * @summary Resolves a `subgridSpec` to a Subgrid (and its DataModel).
-     * @desc The spec may describe either an existing data model, or a constructor for a new data model.
+     * Resolves a `subgridSpec` to a Subgrid (and its DataModel).
+     * @remarks The spec may describe either an existing data model, or a constructor for a new data model.
      * @returns either Subgrid or MainSubgrid depending on role specified in Spec
      * @internal
      */
@@ -432,7 +432,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
     }
 
     /**
-     * @summary Gets the total number of rows across all subgrids.
+     * Gets the total number of rows across all subgrids.
      */
     getAllRowCount() {
         let count = 0;

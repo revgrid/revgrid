@@ -278,7 +278,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     /**
-     * @desc Scroll up one full page.
+     * Scroll up one full page.
      */
     // scrollPageUp() {
     //     const firstScrollableSubgridRowIndex = this.gridProperties.fixedRowCount;
@@ -305,7 +305,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     // }
 
     /**
-     * @desc Scroll down one full page.
+     * Scroll down one full page.
      */
     // scrollPageDown() {
     //     const lastScrollableSubgridRowIndex = this.mainSubgrid.getRowCount() - 1;

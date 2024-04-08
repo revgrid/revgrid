@@ -3,7 +3,7 @@ import { SchemaField } from '../schema/schema-field';
 // import { Hypergrid } from '../Hypergrid';
 
 /**
- * @desc Hypergrid 3 data models have a minimal required interface, as outlined on the [Data Model API](https://github.com/fin-hypergrid/core/wiki/Data-Model-API) wiki page.
+ * Hypergrid 3 data models have a minimal required interface, as outlined on the [Data Model API](https://github.com/fin-hypergrid/core/wiki/Data-Model-API) wiki page.
  *
  * #### TL;DR
  * The minimum interface is an object with just three methods: {@link DataServer#getRowCount getRowCount()} {@link DataServer#getSchema getSchema()} and {@link DataServer#getViewValue getValue(x, y)}.
@@ -12,7 +12,7 @@ import { SchemaField } from '../schema/schema-field';
  /** @public */
 export interface DataServer<SF extends SchemaField> {
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link DataServer#dispatchEvent dispatchEvent}, {@link DataServer#removeListener removeListener}, and {@link DataServer#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
      *
      * Hypergrid calls this method subscribe to data model events. The data model calls its own implementation of `dispatchEvent` to publish events to subscribers.
@@ -27,22 +27,22 @@ export interface DataServer<SF extends SchemaField> {
 
     /**
      * Removed dispatchEvent! Does not make sense for DataModel to receive these events - just emit them. Maybe this was for some type of chaining.  Needs to be revisited in this case
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * @remarks _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link DataServer#addListener addListener}, {@link DataServer#removeListener removeListener}, and {@link DataServer#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
      *
      * If `addListener` is not implemented, Hypergrid falls back to a simpler approach, injecting its own implementation of `dispatchEvent`, bound to the grid instance, into the data model. If the data model already has such an implementation, the assumption is that it was injected by another grid instance using the same data model. The newly injected implementation will call the original injected implementation, thus creating a chain. This is an inferior approach because grids cannot easily unsubscribe themselves. Applications can remove all subscribers in the chain by deleting the implementation of `dispatchEvent` (the end of the chain) from the data model.
      */
     // dispatchEvent?(nameOrEvent: DataServer.EventName | DataServer.Event): void;
     /**
-     * @desc Characters that can be used to construct cell values representing drill downs in a tree structure.
+     * Characters that can be used to construct cell values representing drill downs in a tree structure.
      *
      * A specialized cell renderer is often employed to produce better results using graphics instead of characters.
      */
     // drillDownCharMap?: DataServer.DrillDownCharMap;
 
     /**
-     * @Summary Prefetch data
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * Prefetch data
+     * @remarks _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Tells dataModel what cells will be needed by subsequent calls to {@link DataServer#getViewValue getValue()}. This helps remote or virtualized data models fetch and cache data. If your data model doesn't need to know this, don't implement it.
      * #### Parameters:
@@ -52,7 +52,7 @@ export interface DataServer<SF extends SchemaField> {
     fetchViewData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * All grid data.
      * @param metadataFieldName - If provided, the output will include the row metadata object in a "hidden" field with this name.
@@ -61,7 +61,7 @@ export interface DataServer<SF extends SchemaField> {
     getViewData?(metadataFieldName?: string): readonly DataServer.ViewRow[];
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Get a row of data.
      *
@@ -76,7 +76,7 @@ export interface DataServer<SF extends SchemaField> {
     getRowCount(): number;
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Only called by Hypergrid when it receives the `data-prereindex` or `data-postreindex` events.
      * These events are typically triggered before and after data model remaps the rows (in its `apply` method).
@@ -88,21 +88,21 @@ export interface DataServer<SF extends SchemaField> {
     getRowIndexFromId?(rowId: unknown): number | undefined;
 
     /**
-     * @desc Get a cell's value given its column & row indexes.
+     * Get a cell's value given its column & row indexes.
      * @returns The member with the given schema field from the data row with the given `rowIndex`.
      */
     getViewValue(field: SF, rowIndex: number): DataServer.ViewValue;
 
     getEditValue?(field: SF, rowIndex: number): DataServer.EditValue;
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Set a cell's value given its column schema & row indexes and a new value.
      */
     setEditValue?(field: SF, rowIndex: number, value: DataServer.EditValue): void;
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link DataServer#addListener addListener}, {@link DataServer#dispatchEvent dispatchEvent}, and {@link DataServer#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
      *
      * Detaches the data model from a particular grid instance.
@@ -116,7 +116,7 @@ export interface DataServer<SF extends SchemaField> {
     unsubscribeDataNotifications?(client: DataServer.NotificationsClient): void;
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * @param data - An array of congruent raw data objects.
      * @param schema - Ordered array of column schema.
@@ -124,7 +124,7 @@ export interface DataServer<SF extends SchemaField> {
     // setData?(data: DataServer.DataRowObject[], columnSchema: DataServer.RawColumnSchema[]): void;
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Update or blank a row in place, without deleting the row (and without affecting succeeding rows' indexes).
      * @param dataRow - if omitted or otherwise falsy, row renders as blank
@@ -146,7 +146,7 @@ export namespace DataServer {
     export type EditValue = unknown; // Value passed to or received from editor
 
     /**
-     * @desc A data row representation using an object.
+     * A data row representation using an object.
      * The properties of this object are the data fields.
      * The property keys are the column names
      * All row objects should be congruent, meaning that each data row should have the same property keys.
@@ -180,7 +180,7 @@ export namespace DataServer {
         invalidateCell: (this: void, fieldIndex: number, rowIndex: number) => void;
 
         /**
-         * @desc The data models should trigger this event immediately before data model remaps the rows.
+         * The data models should trigger this event immediately before data model remaps the rows.
          * Hypergrid responds by saving the underlying row indices of currently selected rows — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
          * ```js
          * grid.addEventListener('rev-data-prereindex', myHandlerFunction);
@@ -189,7 +189,7 @@ export namespace DataServer {
          */
         preReindex: (this: void) => void;
         /**
-         * @desc The data models should trigger this event immediately after data model remaps the rows.
+         * The data models should trigger this event immediately after data model remaps the rows.
          * Hypergrid responds by reselecting the remaining rows matching the indices previously saved in the `data-prereindex` event, and then calling {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
          * ```js
          * grid.addEventListener('rev-data-postreindex', myHandlerFunction);

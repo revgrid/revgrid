@@ -2,8 +2,9 @@ import { ContiguousIndexRangeList } from './contiguous-index-range-list';
 import { SelectionAreaList } from './selection-area-list';
 
 /**
- * @desc This object models selection of "cells" within an abstract single-dimensional matrix.
+ * This object models selection of "cells" within an abstract single-dimensional matrix.
  *
+ * @remarks
  * Disjoint selections can be built with calls to the following methods:
  * * {@link SelectionRangeList#select|select(start, stop)} - Add a range to the matrix.
  * * {@link SelectionRangeList#deselect|deselect(start, stop)} - Remove a range from the matrix.
@@ -23,8 +24,8 @@ export class SelectionRangeList extends ContiguousIndexRangeList implements Sele
     get areaCount() { return this.ranges.length; }
 
     /**
-     * @summary Add a contiguous range of points to the selection.
-     * @desc Insert a new range into `this.ranges`.
+     * Add a contiguous range of points to the selection.
+     * @remarks Insert a new range into `this.ranges`.
      * The new range will be merged with overlapping and adjacent ranges.
      *
      * The two parameters may be given in either order.
@@ -60,8 +61,8 @@ export class SelectionRangeList extends ContiguousIndexRangeList implements Sele
     // }
 
     /**
-     * @summary Remove a contiguous run of points from the selection.
-     * @desc Truncate and/or remove range(s).
+     * Remove a contiguous run of points from the selection.
+     * @remarks Truncate and/or remove range(s).
      * Removing part of existing ranges will (correctly) shorten them or break them into two fragments.
      *
      * The two parameters may be given in either order.
@@ -87,7 +88,7 @@ export class SelectionRangeList extends ContiguousIndexRangeList implements Sele
     // }
 
     /**
-     * @summary Empties `this.ranges`, effectively removing all ranges.
+     * Empties `this.ranges`, effectively removing all ranges.
      * @returns Self (i.e., `this`), for chaining.
      */
     // clear() {
@@ -95,7 +96,7 @@ export class SelectionRangeList extends ContiguousIndexRangeList implements Sele
     // }
 
     /**
-     * @summary Determines if the given `cell` is selected.
+     * Determines if the given `cell` is selected.
      * @returns `true` iff given `cell` is within any of the ranges in `this.ranges`.
      * @param index - The cell to test for inclusion in the selection.
      */
@@ -112,8 +113,8 @@ export class SelectionRangeList extends ContiguousIndexRangeList implements Sele
     // }
 
     /**
-     * @summary Return the indexes that are selected.
-     * @desc Return the indexes that are selected.
+     * Return the indexes that are selected.
+     * @remarks Return the indexes that are selected.
      */
     // getIndices() {
     //     const result: number[] = [];

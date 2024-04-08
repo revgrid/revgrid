@@ -11,8 +11,8 @@ import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 import { GridPainter } from './grid-painter';
 
-/** @summary Render the grid.
- * @desc _**NOTE:** This grid renderer is not as performant as the others and it's use is not recommended if you care about performance. The reasons for the wanting performance are unclear, possibly having to do with the way Chrome optimizes access to the column objects?_
+/** Render the grid.
+ * @remarks _**NOTE:** This grid renderer is not as performant as the others and it's use is not recommended if you care about performance. The reasons for the wanting performance are unclear, possibly having to do with the way Chrome optimizes access to the column objects?_
  *
  * Paints all the cells of a grid, one row at a time.
  *

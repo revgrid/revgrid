@@ -12,9 +12,8 @@ import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from
 import { StandardCellPainter } from './standard-cell-painter';
 
 /**
- * @constructor
- * @summary A cell renderer for a text cell.
- * @desc Great care has been taken in crafting this function as it needs to perform extremely fast.
+ * A cell renderer for a text cell.
+ * @remarks Great care has been taken in crafting this function as it needs to perform extremely fast.
  *
  * Use `gc.cache` instead which we have implemented to cache the graphics context properties. Reads on the graphics context (`gc`) properties are expensive but not quite as expensive as writes. On read of a `gc.cache` prop, the actual `gc` prop is read into the cache once and from then on only the cache is referenced for that property. On write, the actual prop is only written to when the new value differs from the cached value.
  *

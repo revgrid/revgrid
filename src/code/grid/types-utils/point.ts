@@ -1,6 +1,7 @@
 /**
- * @desc This object represents a single point in an abstract 2-dimensional matrix.
+ * This object represents a single point in an abstract 2-dimensional matrix.
  *
+ * @remarks
  * The unit of measure is typically pixels.
  * (If used to model computer graphics, vertical coordinates are typically measured downwards
  * from the top of the window. This convention however is not inherent in this object.)

@@ -158,7 +158,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
     }
 
     /**
-     * @description Set the header labels.
+     * Set the header labels.
      * @param headers - The header labels. One of:
      * * _If an array:_ Must contain all headers in column order.
      * * _If a hash:_ May contain any headers, keyed by field name, in any order.
@@ -198,8 +198,8 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
     }
 
     /**
-     * @summary Update the value at cell (x,y) with the given value.
-     * @desc When the last parameter (see `dataModel` below) is omitted, this method:
+     * Update the value at cell (x,y) with the given value.
+     * @remarks When the last parameter (see `dataModel` below) is omitted, this method:
      * * Is backwards compatible to the v2 version.
      * * Does _not_ default to the data subgrid — although you can provide it explicitly (`this.behavior.dataModel`).
      * @param x - The horizontal coordinate.

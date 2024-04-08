@@ -11,7 +11,7 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaFiel
     readonly headerDataServer = new MultiHeadingDataServer<SF>();
 
     constructor(
-        /** @private */
+        /** @internal */
         private readonly _createFieldEventer: MultiHeadingDataRowArrayServerSet.CreateFieldEventer<SF>,
     ) {
 
@@ -141,7 +141,7 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaFiel
     }
 
     /**
-     * @summary Find initial defined elements in rows.
+     * Find initial defined elements in rows.
      * @param maxCount - the maximum number of initial rows to return
      * @returns The initial rows (up to maxCount) and the number of source rows these covered (may be more
      * than max count if some rows are undefined).

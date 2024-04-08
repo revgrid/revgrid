@@ -49,9 +49,9 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /**
-     * @summary Open the cell's URL.
+     * Open the cell's URL.
      *
-     * @desc The URL is found in the cell's {@link module:defaults.link|link} property, which serves two functions:
+     * @remarks The URL is found in the cell's {@link module:defaults.link|link} property, which serves two functions:
      * 1. **Renders as a link.** When truthy causes {@link SimpleCell} cell renderer to render the cell underlined with {@link module:defaults.linkColor|linkColor}. (See also {@link module:defaults.linkOnHover|linkOnHover} and {@link module:defaults.linkColorOnHover|linkColorOnHover}.) Therefore, setting this property to `true` will render as a link, although clicking on it will have no effect. This is useful if you wish to handle the click yourself by attaching a `'rev-click'` listener to your hypergrid.
      * 2. **Fetch the URL.** The value of the link property is interpreted as per {@link module:defaults.link|link}.
      * 3. **Decorate the URL.** The cell name (_i.e.,_ the data column name) and cell value are merged into the URL wherever the respective substrings `'%name'` and `'%value'` are found. For example, if the column name is "age" and the cell value is 6 (or a function returning 25), and the link is `'http://www.abc.com?%name=%value'`, then the actual link (first argument given to `grid.windowOpen`) would be `'http://www.abc.com?age=25'`.

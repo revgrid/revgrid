@@ -347,8 +347,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /**
-     * @summary Sets properties for active columns.
-     * @desc Sets multiple columns' properties from elements of given array or collection. Keys may be column indexes or column names. The properties collection is cleared first. Falsy elements are ignored.
+     * Sets properties for active columns.
+     * @remarks Sets multiple columns' properties from elements of given array or collection. Keys may be column indexes or column names. The properties collection is cleared first. Falsy elements are ignored.
      * @param settings - If undefined, this call is a no-op.
      * @internal
      */
@@ -362,8 +362,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /**
-     * @summary Adds properties for multiple columns.
-     * @desc Adds . The properties collection is optionally cleared first. Falsy elements are ignored.
+     * Adds properties for multiple columns.
+     * @remarks Adds . The properties collection is optionally cleared first. Falsy elements are ignored.
      * @param settings - If undefined, this call is a no-op.
      * @param settingState - Clear columns' properties objects before copying properties.
      * @internal
@@ -476,7 +476,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 
     /**
      * @param fieldIndex - Data x coordinate.
-     * @return The properties for a specific column.
+     * @returns The properties for a specific column.
      * @internal
      */
     mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>) {
@@ -501,7 +501,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /**
-     * @desc swap source and target columns
+     * swap source and target columns
      * @param source - column index
      * @param target - column index
      * @internal

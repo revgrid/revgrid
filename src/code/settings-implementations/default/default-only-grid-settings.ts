@@ -191,23 +191,23 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     switchNewRectangleSelectionToRowOrColumn: undefined,
 
     /**
-     * @summary Fill color for last selection overlay.
-     * @desc The color should be translucent (or transparent). Note that "Partial" grid renderers (such as the {@link paintCellsAsNeeded} renderer) do not draw overlay because it just gets darker and darker for non-updated cells.
+     * Fill color for last selection overlay.
+     * @remarks The color should be translucent (or transparent). Note that "Partial" grid renderers (such as the {@link paintCellsAsNeeded} renderer) do not draw overlay because it just gets darker and darker for non-updated cells.
      * @default
      * @type {cssColor}
      */
     selectionRegionOverlayColor: undefined, // 'rgba(0, 0, 48, 0.2)',
 
     /**
-     * @summary Stroke color for last selection overlay.
+     * Stroke color for last selection overlay.
      * @default
      * @type {string}
      */
     selectionRegionOutlineColor: undefined, // rgb(69, 69, 69)',
 
     /**
-     * @summary Whether to automatically expand column width to accommodate widest rendered value.
-     * @desc When truthy for a given column _and_ user has not manually resized it, column will expand to accommodate widest rendered value.
+     * Whether to automatically expand column width to accommodate widest rendered value.
+     * @remarks When truthy for a given column _and_ user has not manually resized it, column will expand to accommodate widest rendered value.
      *
      * What's actually happening is (`props` in the following refers to the column's properties):
      * 1. On each grid render, for all visible columns:
@@ -224,8 +224,8 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     defaultColumnAutoSizing: true,
 
     /**
-     * @summary The widest the column will be auto-sized to.
-     * @desc For no limit, set this property to a falsy value such as `undefined` or `0`.
+     * The widest the column will be auto-sized to.
+     * @remarks For no limit, set this property to a falsy value such as `undefined` or `0`.
      *
      * Note this property only specifies a maximum column width for _auto-sizing;_ it places no limit on manual resizing of column width.
      * @default
@@ -252,8 +252,8 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     editOnDoubleClick: false,
 
     /**
-     * @summary Open cell editor when cell selected via keyboard navigation.
-     * @desc Keyboard navigation always includes:
+     * Open cell editor when cell selected via keyboard navigation.
+     * @remarks Keyboard navigation always includes:
      * 1. The four arrow keys -- but only when there is no active text cell editor open
      * 2. Additional keys mapped to the four directs in {@link module:defaults.navKeyMap}
      *
@@ -288,16 +288,16 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
 
     multipleSelectionAreas: true,
 
-    /** @summary Allow user to move columns .
-     * @desc Columns can be reordered through either of two interfaces:
+    /** Allow user to move columns .
+     * @remarks Columns can be reordered through either of two interfaces:
      * * Column Dragging feature
      * * behavior.columns API
      */
     columnsReorderable: true,
     columnsReorderableHideable: false,
 
-    /** @summary Set up a clipping region around each column before painting cells.
-     * @desc One of:
+    /** Set up a clipping region around each column before painting cells.
+     * @remarks One of:
      * * `true` - Clip column.
      * * `false` - Do not clip column.
      * * `null` - Clip iff last active column.
@@ -317,8 +317,8 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     columnClip: true,
 
     /**
-     * @summary Repeating pattern of property overrides for grid rows.
-     * @desc Notes:
+     * Repeating pattern of property overrides for grid rows.
+     * @remarks Notes:
      * * "Grid row" refers to data rows.
      * * Row index modulo is applied when dereferencing this array. In other words, this array represents a _repeating pattern_ of properties to be applied to the data rows.
      * * For no row properties, specify a falsy value in place of the array.

@@ -235,7 +235,7 @@ export class ViewCellImplementation<BCS extends BehavioredColumnSettings, SF ext
 
     /**
      * Set up this `CellEvent` instance to point to the cell at the given grid coordinates.
-     * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
+     * @remarks If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
      * @param gridX - Raw horizontal grid cell coordinate.
      * @param gridY - Raw vertical grid cell coordinate.
      * @returns Visibility.

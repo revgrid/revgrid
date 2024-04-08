@@ -5,7 +5,7 @@ import { BehavioredColumnSettings } from '../settings/behaviored-column-settings
 import { CellPossiblyPaintable } from './cell-possibly-paintable';
 
 /**
- * @desc Implementations of `CellPainter` are used to render the 2D graphics context within the bound of a cell.
+ * Implementations of `CellPainter` are used to render the 2D graphics context within the bound of a cell.
  *
  * Implement this interface to implement your own cell painter.
  *
@@ -14,7 +14,7 @@ import { CellPossiblyPaintable } from './cell-possibly-paintable';
 export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends CellPossiblyPaintable<BCS, SF> {
 
     /**
-     * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
+     * An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
     paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
@@ -24,7 +24,7 @@ export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends Sc
 /** @public */
 export namespace CellPainter {
     /**
-     * @desc A simple implementation of rounding a cell.
+     * A simple implementation of rounding a cell.
      * @param x - the x grid coordinate of my origin
      * @param y - the y grid coordinate of my origin
      * @param width - the width I'm allowed to draw within

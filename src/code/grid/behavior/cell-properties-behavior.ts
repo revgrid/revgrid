@@ -24,12 +24,12 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
     ) {
     }
     /**
-     * @summary Get the properties object for cell.
-     * @desc This is the cell's own properties object if found; else the column object.
+     * Get the properties object for cell.
+     * @remarks This is the cell's own properties object if found; else the column object.
      *
      * If you are seeking a single specific property, consider calling {@link CellPropertiesBehavior#getCellProperty} instead (which calls this method).
      * @param rowIndex - Data row coordinate.
-     * @return The properties of the cell at x,y in the grid.
+     * @returns The properties of the cell at x,y in the grid.
      */
     /** @internal */
     getCellPropertiesAccessor(column: Column<BCS, SF>, rowIndex: number, subgrid: Subgrid<BCS, SF>): CellMetaSettings {
@@ -95,8 +95,8 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
     }
 
     /**
-     * @summary Get the cell's own properties object.
-     * @desc Due to memory constraints, we don't create a cell properties object for every cell.
+     * Get the cell's own properties object.
+     * @remarks Due to memory constraints, we don't create a cell properties object for every cell.
      *
      * If the cell has its own properties object, it:
      * * was created by a previous call to `setCellProperties` or `setCellProperty`
@@ -130,10 +130,10 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
     }
 
     /**
-     * @summary Return a specific cell property.
-     * @desc If there is no cell properties object, defers to column properties object.
+     * Return a specific cell property.
+     * @remarks If there is no cell properties object, defers to column properties object.
      * @param rowIndex - Data row coordinate.
-     * @return The specified property for the cell at x,y in the grid.
+     * @returns The specified property for the cell at x,y in the grid.
      */
     /** @internal */
     getCellProperty(column: Column<BCS, SF>, rowIndex: number, key: string | number, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty;
@@ -201,8 +201,8 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
     }
 
     /**
-     * @summary Delete a cell own property.
-     * @summary If the property is not an own property, it is not deleted.
+     * Delete a cell own property.
+     * If the property is not an own property, it is not deleted.
      * @param rowIndex - Data row coordinate.
      */
     /** @internal */
@@ -233,14 +233,14 @@ export class CellPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exte
     }
 
     /**
-     * @summary Get the properties object for cell.
-     * @desc This is the cell's own properties object if found else the column object.
+     * Get the properties object for cell.
+     * @remarks This is the cell's own properties object if found else the column object.
      *
      * If you are seeking a single specific property, consider calling {@link Behavior#getCellProperty} instead.
      * @param xOrCellEvent - Data x coordinate or CellEvent.
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
-     * @return The properties of the cell at x,y in the grid or falsy if not available.
+     * @returns The properties of the cell at x,y in the grid or falsy if not available.
      */
     getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS, SF>): MetaModel.CellOwnProperties | false | null | undefined{
         // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set

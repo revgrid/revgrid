@@ -149,7 +149,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling key down to the feature chain of responsibility
+     * delegate handling key down to the feature chain of responsibility
      * @param event - the event details
      * @internal
      */
@@ -160,7 +160,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling key up to the feature chain of responsibility
+     * delegate handling key up to the feature chain of responsibility
      * @param event - the event details
      * @internal
      */
@@ -171,7 +171,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling mouse move to the feature chain of responsibility
+     * delegate handling mouse move to the feature chain of responsibility
      * @param event - the event details
      * @internal
      */
@@ -188,7 +188,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling tap to the feature chain of responsibility
+     * delegate handling tap to the feature chain of responsibility
      * @param event - the event details
      * @internal
      */
@@ -202,7 +202,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling tap to the feature chain of responsibility
+     * delegate handling tap to the feature chain of responsibility
      * @internal
      */
     private handleContextMenuEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null | undefined {
@@ -215,7 +215,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling wheel moved to the feature chain of responsibility
+     * delegate handling wheel moved to the feature chain of responsibility
      * @internal
      */
     private handleWheelMovedEvent(event: WheelEvent): LinedHoverCell<BCS, SF> | null | undefined {
@@ -228,7 +228,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling mouse up to the feature chain of responsibility
+     * delegate handling mouse up to the feature chain of responsibility
      * @param event - the event details
      * @internal
      */
@@ -274,7 +274,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling double click to the feature chain of responsibility
+     * delegate handling double click to the feature chain of responsibility
      * @param event - the event details
      * @internal
      */
@@ -290,7 +290,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         }
     }
     /**
-     * @desc delegate handling mouse down to the feature chain of responsibility
+     * delegate handling mouse down to the feature chain of responsibility
      * @param event - the event details
      * @internal
      */
@@ -304,7 +304,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling mouse exit to the feature chain of responsibility
+     * delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
     private handlePointerEnterEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
@@ -317,7 +317,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc delegate handling mouse exit to the feature chain of responsibility
+     * delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
     private handlePointerLeaveOutEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
@@ -330,7 +330,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc Delegate handling touchstart to the feature chain of responsibility.
+     * Delegate handling touchstart to the feature chain of responsibility.
      * @internal
      */
     private handleTouchStartEvent(eventDetail: TouchEvent) {
@@ -340,7 +340,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc Delegate handling touchmove to the feature chain of responsibility.
+     * Delegate handling touchmove to the feature chain of responsibility.
      * @internal
      */
     private handleTouchMoveEvent(eventDetail: TouchEvent) {
@@ -350,7 +350,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc Delegate handling touchend to the feature chain of responsibility.
+     * Delegate handling touchend to the feature chain of responsibility.
      * @internal
      */
     private handleTouchEndEvent(eventDetail: TouchEvent) {
@@ -360,7 +360,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc Delegate handling touchend to the feature chain of responsibility.
+     * Delegate handling touchend to the feature chain of responsibility.
      * @internal
      */
     private handleCopyEvent(eventDetail: ClipboardEvent) {
@@ -386,13 +386,13 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     /** @internal */
     private createAndLinkUiControllers(customUiControllerDefinitions: UiController.Definition<BGS, BCS, SF>[] | undefined) {
         /**
-         * @summary Controller chain of command.
-         * @desc Each feature is linked to the next feature.
+         * Controller chain of command.
+         * @remarks Each feature is linked to the next feature.
          */
 
         /**
-         * @summary Hash of instantiated features by class names.
-         * @desc Built here but otherwise not in use.
+         * Hash of instantiated features by class names.
+         * @remarks Built here but otherwise not in use.
          */
 
         this._uiControllerFactory.registerDefinition(FocusScrollUiController.typeName, FocusScrollUiController);

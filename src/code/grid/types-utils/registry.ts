@@ -10,8 +10,8 @@ export class Registry<T> {
     get all() { return Array.from(this.items.values()); }
 
     /**
-     * @summary Register an item and return it.
-     * @desc Adds an item to the registry using the provided name (or the class name), converted to all lower case.
+     * Register an item and return it.
+     * @remarks Adds an item to the registry using the provided name (or the class name), converted to all lower case.
      * @param {string} [name] - Case-insensitive item key. If not given, fallsback to `item.prototype.$$CLASS_NAME` or `item.prototype.name` or `item.name`.
      * @param [item] - If unregistered or omitted, nothing is added and method returns `undefined`.
      *

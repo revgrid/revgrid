@@ -1,7 +1,7 @@
 export interface Settings {
 
-    /** @summary Display cell value as a link (with underline).
-     * @desc One of:
+    /** Display cell value as a link (with underline).
+     * @remarks One of:
      * * `boolean` - No action occurs on click; you would need to attach a 'rev-click' listener to the hypergrid object.
      *   * `true` - Displays the cell as a link.
      *   * _falsy_ - Displays the cell normally.
@@ -27,8 +27,8 @@ export interface Settings {
      */
     link: false,
 
-    /** @summary The window (or tab) in which to open the link.
-     * @desc The default ('_blank'`) will open a new window for every click.
+    /** The window (or tab) in which to open the link.
+     * @remarks The default ('_blank'`) will open a new window for every click.
      *
      * To have the first click open a new window and all subsequent clicks reuse that same window, set this to an arbitrary string.
      *
@@ -37,27 +37,27 @@ export interface Settings {
      */
     linkTarget: '_blank',
 
-    /** @summary Underline link on hover only.
+    /** Underline link on hover only.
      * @type {boolean}
      * @default
      */
     linkOnHover: false,
 
-    /** @summary Color for link.
-     * @desc Falsy means defer to foreground color.
+    /** Color for link.
+     * @remarks Falsy means defer to foreground color.
      * @type {string}
      * @default
      */
     linkColor: 'blue',
 
-    /** @summary Color for visited link.
-     * @desc Falsy means defer to foreground color.
+    /** Color for visited link.
+     * @remarks Falsy means defer to foreground color.
      * @type {string}
      * @default
      */
     linkVisitedColor: 'purple',
 
-    /** @summary Color link on hover only.
+    /** Color link on hover only.
      * @type {boolean}
      * @default
      */

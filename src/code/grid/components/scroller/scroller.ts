@@ -30,8 +30,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     visibilityChangedEventer: Scroller.VisibilityChangedEventer;
 
     /**
-     * @summary The generated scrollbar thumb element.
-     * @desc The thumb element's parent element is always the {@link Scroller#bar|bar} element.
+     * The generated scrollbar thumb element.
+     * @remarks The thumb element's parent element is always the {@link Scroller#bar|bar} element.
      *
      * This property is typically referenced internally only. The size and position of the thumb element is maintained by `_calcThumb()`.
      * @internal
@@ -39,8 +39,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private _thumb: HTMLDivElement;
     /**
      * @readonly
-     * @summary <u>O</u>rientation <u>h</u>ash for this scrollbar.
-     * @desc Set by the `orientation` setter to either the vertical or the horizontal orientation hash. The property should always be synchronized with `orientation`; do not update directly!
+     * <u>O</u>rientation <u>h</u>ash for this scrollbar.
+     * @remarks Set by the `orientation` setter to either the vertical or the horizontal orientation hash. The property should always be synchronized with `orientation`; do not update directly!
      *
      * This object is used internally to access scrollbars' DOM element properties in a generalized way without needing to constantly query the scrollbar orientation. For example, instead of explicitly coding `this.bar.top` for a vertical scrollbar and `this.bar.left` for a horizontal scrollbar, simply code `this.bar[this.oh.leading]` instead.
      * @internal
@@ -48,8 +48,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private readonly _axisProperties: AxisProperties;
 
     /**
-     * @summary Maximum offset of thumb's leading edge.
-     * @desc This is the pixel offset within the scrollbar of the thumb when it is at its maximum position at the extreme end of its range.
+     * Maximum offset of thumb's leading edge.
+     * @remarks This is the pixel offset within the scrollbar of the thumb when it is at its maximum position at the extreme end of its range.
      *
      * This value takes into account the newly calculated size of the thumb element (including its margins) and the inner size of the scrollbar (the thumb's containing element, including _its_ margins).
      *
@@ -106,8 +106,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private _barPointerCaptured = false;
 
     /**
-     * @summary Create a scrollbar object.
-     * @desc Creating a scrollbar is a three-step process:
+     * Create a scrollbar object.
+     * @remarks Creating a scrollbar is a three-step process:
      *
      * 1. Instantiate the scrollbar object by calling this constructor function. Upon instantiation, the DOM element for the scrollbar (with a single child element for the scrollbar "thumb") is created but is not insert it into the DOM.
      * 2. After instantiation, it is the caller's responsibility to insert the scrollbar, {@link Scroller#bar|this.bar}, into the DOM.
@@ -201,8 +201,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /**
-     * @summary Remove the scrollbar.
-     * @desc Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
+     * Remove the scrollbar.
+     * @remarks Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
      * @internal
      */
     destroy() {
@@ -322,8 +322,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /**
-     * @summary Move the thumb.
-     * @desc Also displays the index value in the test panel and invokes the callback.
+     * Move the thumb.
+     * @remarks Also displays the index value in the test panel and invokes the callback.
      * @param viewportStart - The new scroll index, a value in the range `min`..`max`.
      * @param barPosition - The new thumb position in pixels and scaled relative to the containing {@link Scroller#bar|bar} element, i.e., a proportional number in the range `0`..`thumbMax`.
      * @internal
@@ -338,8 +338,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /**
-     * @summary Sets the proportional thumb size and hides thumb when 100%.
-     * @desc The thumb size has an absolute minimum of 20 (pixels).
+     * Sets the proportional thumb size and hides thumb when 100%.
+     * @remarks The thumb size has an absolute minimum of 20 (pixels).
      * @internal
      */
     private setThumbSize() {

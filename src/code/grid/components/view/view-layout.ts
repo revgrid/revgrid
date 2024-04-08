@@ -782,7 +782,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
     /**
      * @param index - Index of active column that should be anchor
-     * @return true if changed
+     * @returns true if changed
      */
     setColumnScrollAnchor(index: number, offset: number): boolean {
         this.ensureHorizontalComputedOutsideAnimationFrame();
@@ -1041,7 +1041,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /**
-     * @desc the index of the column whose edge is closest to the coordinate at pixelX
+     * the index of the column whose edge is closest to the coordinate at pixelX
      * @param pixelX - The horizontal coordinate.
      * @returns The column index under the coordinate at pixelX.
      */
@@ -1086,7 +1086,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
 
 
     /**
-     * @desc Answer specific data cell coordinates given mouse coordinates in pixels.
+     * Answer specific data cell coordinates given mouse coordinates in pixels.
      * @param point
      * @returns Cell coordinates or undefined
      */
@@ -1354,9 +1354,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /**
-     * @summary Get the visibility of the column matching the provided grid column index.
-     * @desc Requested column may not be visible due to being scrolled out of view.
-     * @summary Determines if a column is visible.
+     * Get the visibility of the column matching the provided grid column index.
+     * @remarks Requested column may not be visible due to being scrolled out of view.
+     * Determines if a column is visible.
      * @param activeIndex - the column index
      * @returns The given column is visible.
      */
@@ -1369,9 +1369,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /**
-     * @summary Get the "visible column" object matching the provided grid column index.
-     * @desc Requested column may not be visible due to being scrolled out of view.
-     * @summary Find a visible column object.
+     * Get the "visible column" object matching the provided grid column index.
+     * @remarks Requested column may not be visible due to being scrolled out of view.
+     * Find a visible column object.
      * @param activeColumnIndex - The grid column index.
      * @returns The given column if visible or `undefined` if not.
      */
@@ -1450,9 +1450,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /**
-     * @summary Get the visibility of the column matching the provided data column index.
-     * @desc Requested column may not be visible due to being scrolled out of view or if the column is inactive.
-     * @summary Determines if a column is visible.
+     * Get the visibility of the column matching the provided data column index.
+     * @remarks Requested column may not be visible due to being scrolled out of view or if the column is inactive.
+     * Determines if a column is visible.
      * @param columnIndex - the column index
      */
     isDataColumnVisible(columnIndex: number) {
@@ -1460,9 +1460,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /**
-     * @summary Get the "visible column" object matching the provided data column index.
-     * @desc Requested column may not be visible due to being scrolled out of view or if the column is inactive.
-     * @summary Find a visible column object.
+     * Get the "visible column" object matching the provided data column index.
+     * @remarks Requested column may not be visible due to being scrolled out of view or if the column is inactive.
+     * Find a visible column object.
      * @param columnIndex - The grid column index.
      */
     tryGetColumnWithFieldIndex(columnIndex: number) {
@@ -1495,9 +1495,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /**
-     * @summary Get the visibility of the row matching the provided grid row index.
-     * @desc Requested row may not be visible due to being outside the bounds of the rendered grid.
-     * @summary Determines visibility of a row.
+     * Get the visibility of the row matching the provided grid row index.
+     * @remarks Requested row may not be visible due to being outside the bounds of the rendered grid.
+     * Determines visibility of a row.
      * @param rowIndex - The grid row index.
      * @returns The given row is visible.
      */
@@ -1506,9 +1506,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /**
-     * @summary Get the "visible row" object matching the provided grid row index.
-     * @desc Requested row may not be visible due to being outside the bounds of the rendered grid.
-     * @summary Find a visible row object.
+     * Get the "visible row" object matching the provided grid row index.
+     * @remarks Requested row may not be visible due to being outside the bounds of the rendered grid.
+     * Find a visible row object.
      * @param rowIndex - The grid row index.
      * @returns The given row if visible or `undefined` if not.
      */
@@ -1521,9 +1521,9 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     }
 
     /**
-     * @summary Get the "visible row" object matching the provided data row index.
-     * @desc Requested row may not be visible due to being scrolled out of view.
-     * @summary Find a visible row object.
+     * Get the "visible row" object matching the provided data row index.
+     * @remarks Requested row may not be visible due to being scrolled out of view.
+     * Find a visible row object.
      * @param rowIndex - The data row index within the given subgrid.
      * @returns The given row if visible or `undefined` if not.
      */
@@ -1870,7 +1870,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
      * painting the grid cells. this function is very fast, for thousand rows X 100 columns
      * on a modest machine taking usually 0ms and no more that 3 ms."
      *
-     * @this {ViewLayout}
      * @internal
      */
     private computeHorizontal(withinAnimationFrame: boolean) {

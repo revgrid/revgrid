@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@xilytix/sysutils';
 import { ViewCell } from '../../../interfaces/data/view-cell';
 import { ViewLayoutRow } from '../../../interfaces/data/view-layout-row';
 import { ViewLayoutColumn } from '../../../interfaces/dataless/view-layout-column';
@@ -8,7 +9,6 @@ import { GridSettings } from '../../../interfaces/settings/grid-settings';
 import { OnlyGridSettings } from '../../../interfaces/settings/only-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
 import { Rectangle } from '../../../types-utils/rectangle';
-import { getErrorMessage } from '@xilytix/sysutils';
 import { Canvas } from '../../canvas/canvas';
 import { Focus } from '../../focus/focus';
 import { Mouse } from '../../mouse/mouse';
@@ -101,7 +101,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
     }
 
     /**
-     * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
+     * We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
      */
     paintGridlines() {
         const viewLayoutColumns = this.viewLayout.columns;

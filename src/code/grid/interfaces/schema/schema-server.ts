@@ -7,7 +7,7 @@ export interface SchemaServer<SF extends SchemaField> {
     unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<SF>): void;
 
     /**
-     * @desc Get list of columns. The order of the columns in the list defines the column indexes.
+     * Get list of columns. The order of the columns in the list defines the column indexes.
      *
      * On initial call and again whenever the schema changes, the data model must dispatch the `hypegrid-schema-loaded` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
      */
@@ -20,7 +20,7 @@ export namespace SchemaServer {
         beginChange: (this: void) => void;
         endChange: (this: void) => void;
         /**
-         * @desc The data models should trigger this event on a schema change, typically from setSchema, or wherever schema is initialized. Hypergrid responds by normalizing and decorating the schema object and recreating the grid's column objects — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
+         * The data models should trigger this event on a schema change, typically from setSchema, or wherever schema is initialized. Hypergrid responds by normalizing and decorating the schema object and recreating the grid's column objects — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
          * ```js
          * grid.addEventListener('rev-schema-loaded', myHandlerFunction);
          * ```
@@ -37,7 +37,7 @@ export namespace SchemaServer {
     export type Constructor<SF extends SchemaField> = new() => SchemaServer<SF>;
 
     // /**
-    //  * @summary Generates an array of columns (proper schema) from an array of Column and string.
+    //  * Generates an array of columns (proper schema) from an array of Column and string.
     //  */
     // export function normalizeColumns(columns: (Column | string)[]): Column[] {
     //     const count = columns.length;

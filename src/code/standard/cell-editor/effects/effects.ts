@@ -1,7 +1,7 @@
 import { numberToPixels } from '@xilytix/sysutils';
 import { RevApiError } from '../../../grid/grid-public-api';
 /** effectFunction
- * @desc Element to perform transitions upon is `options.el` if defined or `this.el`.
+ * @remarks Element to perform transitions upon is `options.el` if defined or `this.el`.
  * @param {object} [options]
  * @param {HTMLElement} [options.el=this.el]
  * @param {function} [options.callback] Function to call at conclusion of transitions.

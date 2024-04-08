@@ -11,7 +11,7 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaFi
     readonly headerDataServer = new SingleHeadingDataServer<SF>();
 
     constructor(
-        /** @private */
+        /** @internal */
         private readonly _createFieldEventer: SingleHeadingDataRowArrayServerSet.CreateFieldEventer<SF>,
     ) {
 

@@ -23,7 +23,7 @@ import { SelectionRectangleList } from './selection-rectangle-list';
 
 /**
  *
- * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
+ * We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
  * @public
  */
 
@@ -169,7 +169,7 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /**
-     * @desc empty out all our state
+     * empty out all our state
      */
     clear() {
         this.beginChange();

@@ -11,8 +11,8 @@ export interface SelectionRange extends SelectionInclusiveRange {
 
 export namespace SelectionRange {
     /**
-     * @summary Preps `start` and `stop` params into order array
-     * @desc Utility function called by both `select()` and `deselect()`.
+     * Preps `start` and `stop` params into order array
+     * @remarks Utility function called by both `select()` and `deselect()`.
      */
     export function make(start: number, count: number): SelectionRange {
         return [start, start + count - 1];
@@ -26,8 +26,8 @@ export namespace SelectionRange {
      * @private
      * @function overlaps
      * @returns {boolean} `true` iff `range1` overlaps `range2`
-     * @summary Comparison operator that determines if given ranges overlap with one another.
-     * @desc Both parameters are assumed to be _ordered_ arrays.
+     * Comparison operator that determines if given ranges overlap with one another.
+     * @remarks Both parameters are assumed to be _ordered_ arrays.
      *
      * Overlap is defined to include the case where one range completely contains the other.
      *
@@ -44,9 +44,9 @@ export namespace SelectionRange {
     }
 
     /**
-     * @summary Comparison operator that determines if given ranges are consecutive with one another.
+     * Comparison operator that determines if given ranges are consecutive with one another.
      * @returns `true` iff `range1` is consecutive with `range2`
-     * @desc Both parameters are assumed to be _ordered_ arrays.
+     * @remarks Both parameters are assumed to be _ordered_ arrays.
      *
      * Note: This operator is commutative.
      * @param range1 - first range
@@ -60,9 +60,9 @@ export namespace SelectionRange {
     }
 
     /**
-     * @summary Operator that subtracts one range from another.
+     * Operator that subtracts one range from another.
      * @returns The remaining pieces of `minuend` after removing `subtrahend`.
-     * @desc Both parameters are assumed to be _ordered_ arrays.
+     * @remarks Both parameters are assumed to be _ordered_ arrays.
      *
      * This function _does not assumes_ that `overlap()` has already been called with the same ranges and has returned `true`.
      *
@@ -103,9 +103,9 @@ export namespace SelectionRange {
     // Local utility functions
 
     /**
-     * @summary Operator that merges given ranges.
+     * Operator that merges given ranges.
      * @returns A single merged range.
-     * @desc Both parameters are assumed to be _ordered_ arrays.
+     * @remarks Both parameters are assumed to be _ordered_ arrays.
      *
      * The ranges are assumed to be overlapping or adjacent to one another.
      *
@@ -120,9 +120,9 @@ export namespace SelectionRange {
     }
 
     /**
-     * @summary Comparison operator that determines if outerRange completely contains a range.
+     * Comparison operator that determines if outerRange completely contains a range.
      * @returns `true` iff `outerRange` completely contains `range`
-     * @desc Both parameters are assumed to be _ordered_ arrays.
+     * @remarks Both parameters are assumed to be _ordered_ arrays.
      */
     export function contains(outerRange: SelectionRange, range: SelectionRange) {
         return range[0] >= outerRange[0] && range[1] <= outerRange[1];

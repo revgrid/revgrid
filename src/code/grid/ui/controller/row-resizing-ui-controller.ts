@@ -22,21 +22,21 @@ export class RowResizingUiController<BGS extends BehavioredGridSettings, BCS ext
     private dragAreaStartingSize = -1;
 
     /**
-     * @desc get the grid cell x,y coordinate
+     * get the grid cell x,y coordinate
      */
     getGridCellValue(gridCell: Point): number {
         return gridCell.x;
     }
 
     /**
-     * @desc return the grids x,y scroll value
+     * return the grids x,y scroll value
      */
     getScrollValue(): number {
         return this.viewLayout.rowScrollAnchorIndex;
     }
 
     /**
-     * @desc return the width/height of the row/column of interest
+     * return the width/height of the row/column of interest
      * @param index - the row/column index of interest
      */
     private getAreaSize(index: number, subgrid: Subgrid<BCS, SF>): number {
@@ -44,7 +44,7 @@ export class RowResizingUiController<BGS extends BehavioredGridSettings, BCS ext
     }
 
     /**
-     * @desc set the width/height of the row/column at index
+     * set the width/height of the row/column at index
      * @param index - the row/column index of interest
      * @param value - the width/height to set to
      */

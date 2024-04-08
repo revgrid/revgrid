@@ -10,8 +10,8 @@ import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 import { GridPainter } from './grid-painter';
 
-/** @summary Render the grid with discrete column rects.
- * @desc Paints all the cells of a grid, one column at a time.
+/** Render the grid with discrete column rects.
+ * @remarks Paints all the cells of a grid, one column at a time.
  *
  * In this grid renderer, a background rect is _not_ drawn using the grid background color.
  *

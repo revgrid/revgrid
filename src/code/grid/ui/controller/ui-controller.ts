@@ -103,7 +103,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     detached: UiController<BGS, BCS, SF> | undefined;
 
     /**
-     * @desc set my next field, or if it's populated delegate to the feature in my next field
+     * set my next field, or if it's populated delegate to the feature in my next field
      * @param nextFeature - this is how we build the chain of responsibility
      */
     setNext(nextFeature: UiController<BGS, BCS, SF>) {
@@ -116,14 +116,14 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /**
-     * @desc disconnect my child
+     * disconnect my child
      */
     detachChain() {
         this.next = undefined;
     }
 
     /**
-     * @desc reattach my child from the detached reference
+     * reattach my child from the detached reference
      */
     attachChain() {
         this.next = this.detached;

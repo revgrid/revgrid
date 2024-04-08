@@ -469,17 +469,13 @@ export namespace CellEditor {
     export type PushCellValueEventer = (this: void, value: DataServer.ViewValue) => void;
 }
 
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-//
 // @public
 export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends CellPossiblyPaintable<BCS, SF> {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
 export namespace CellPainter {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     export function roundRect(gc: CachedCanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean): void;
 }
 
@@ -596,18 +592,10 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     // (undocumented)
     isColumnFixed(activeColumnIndex: number): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
     // @internal
     loadAllColumnSettings(settings: BCS): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
     // @internal
     mergeAllColumnSettings(settings: Partial<ColumnSettings>[] | Record<string, Partial<ColumnSettings>>, settingState?: boolean): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    //
     // @internal (undocumented)
     mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): boolean;
     // (undocumented)
@@ -643,8 +631,6 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     insertIndex: number | undefined,
     allowDuplicateColumns: boolean,
     ui: boolean): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
     // @internal
     swapColumns(source: number, target: number): void;
 }
@@ -878,8 +864,6 @@ export class DataRowArraySchemaServer<SF extends SchemaField> implements SchemaS
 
 // @public (undocumented)
 export interface DataServer<SF extends SchemaField> {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@Summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     fetchViewData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
     getCursorName?(field: SF, rowIndex: number): string;
@@ -887,30 +871,22 @@ export interface DataServer<SF extends SchemaField> {
     getEditValue?(field: SF, rowIndex: number): DataServer.EditValue;
     // (undocumented)
     getRowCount(): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getRowIdFromIndex?(rowIndex: number): unknown;
     // (undocumented)
     getRowIndexFromId?(rowId: unknown): number | undefined;
     getTitleText?(field: SF, rowIndex: number): string;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getViewData?(metadataFieldName?: string): readonly DataServer.ViewRow[];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
     // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     getViewRow?(rowIndex: number): DataServer.ViewRow;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getViewValue(field: SF, rowIndex: number): DataServer.ViewValue;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setEditValue?(field: SF, rowIndex: number, value: DataServer.EditValue): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setViewRow?(rowIndex: number, dataRow?: DataServer.ViewRow): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-code-span-missing-delimiter) The code span is missing its closing backtick
     subscribeDataNotifications(client: DataServer.NotificationsClient): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
@@ -946,11 +922,9 @@ export namespace DataServer {
         invalidateRowColumns: (this: void, rowIndex: number, fieldIndex: number, columnCount: number) => void;
         // (undocumented)
         invalidateRows: (this: void, rowIndex: number, count: number) => void;
-        // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
         // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
         // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
         postReindex: (this: void, allRowsKept: boolean) => void;
-        // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
         // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
         preReindex: (this: void) => void;
         // (undocumented)
@@ -962,7 +936,6 @@ export namespace DataServer {
         // (undocumented)
         rowsMoved: (this: void, oldRowIndex: number, newRowIndex: number, rowCount: number) => void;
     }
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     export type ObjectViewRow = Record<string, ViewValue>;
     // (undocumented)
     export type ViewRow = ArrayViewRow | ObjectViewRow;
@@ -1445,8 +1418,6 @@ export interface InexclusiveArea extends Rectangle {
 
 // @public (undocumented)
 export class InexclusiveRectangle implements InexclusiveArea {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     constructor(inexclusiveX: number, inexclusiveY: number, width: number, height: number);
     adjustForXRangeDeleted(deletionLeft: number, deletionCount: number): boolean | null;
     adjustForXRangeInserted(index: number, count: number): boolean;
@@ -1456,7 +1427,6 @@ export class InexclusiveRectangle implements InexclusiveArea {
     adjustForYRangeInserted(index: number, count: number): boolean;
     // (undocumented)
     adjustForYRangeMoved(oldIndex: number, newIndex: number, count: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     get area(): number;
     // (undocumented)
     containsPoint(point: Point): boolean;
@@ -1477,7 +1447,6 @@ export class InexclusiveRectangle implements InexclusiveArea {
     get extent(): Point;
     growFromLeft(widthIncrease: number): void;
     growFromTop(heightIncrease: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     get height(): number;
     // (undocumented)
     get inclusiveBottom(): number;
@@ -1491,7 +1460,6 @@ export class InexclusiveRectangle implements InexclusiveArea {
     //
     // (undocumented)
     intersects(rect: InexclusiveRectangle): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     get left(): number;
     moveX(offset: number): void;
     moveY(offset: number): void;
@@ -1516,11 +1484,9 @@ export class InexclusiveRectangle implements InexclusiveArea {
     newYFlattened(y: number): InexclusiveRectangle;
     // (undocumented)
     newYMoved(yOffset: number): InexclusiveRectangle;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     get top(): number;
     // (undocumented)
     get topLeft(): Point;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     get width(): number;
     // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
     // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
@@ -2083,14 +2049,10 @@ export type MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaF
 
 // @public (undocumented)
 export interface MetaModel {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getMetadataStore?(): MetaModel.RowMetadata[];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getRowMetadata?(rowIndex: number): null | undefined | MetaModel.RowMetadata;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.
     setMetadataStore?(metadataStore?: MetaModel.RowMetadata[]): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setRowMetadata?(rowIndex: number, newMetadata?: MetaModel.RowMetadata): void;
 }
 
@@ -2628,7 +2590,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     get activeColumnsViewWidth(): number;
     // (undocumented)
     addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     addCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties): void;
     // (undocumented)
     addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
@@ -2757,7 +2718,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly externalParent: unknown | undefined;
     // (undocumented)
     get fieldColumns(): readonly Column<BCS, SF>[];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     findLinedHoverCellAtCanvasOffset(offsetX: number, offsetY: number): LinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
     get fixedColumnsViewWidth(): number;
@@ -2783,8 +2743,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getActiveColumnIndexByFieldIndex(fieldIndex: number): number;
     // (undocumented)
     getActiveColumns(begin?: number, end?: number): Column<BCS, SF>[];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    //
     // (undocumented)
     getActiveColumnSettings(activeColumnIndex: number): BCS;
     // (undocumented)
@@ -2795,12 +2753,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getAllColumn(allX: number): Column<BCS, SF>;
     // (undocumented)
     getBoundsOfCell(gridCell: Point): Rectangle;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getCellOwnProperties(allXOrRenderedCell: number | ViewCell<BCS, SF>, y?: number, subgrid?: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS, SF>): MetaModel.CellOwnProperties | false | null | undefined;
     // (undocumented)
     getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS, SF>, key: string): MetaModel.CellOwnProperty | undefined;
@@ -2808,9 +2761,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     //
     // (undocumented)
     getCellProperties(allX: number, y: number, subgrid: Subgrid<BCS, SF>): CellMetaSettings;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     getCellProperty(allX: number, y: number, key: string | number, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty;
     // (undocumented)
     getCellProperty<T extends keyof ColumnSettings>(allX: number, y: number, key: T, subgrid: Subgrid<BCS, SF>): ColumnSettings[T];
@@ -2842,9 +2792,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     getSelectedRowCount(includeAllAuto?: boolean): number;
     // (undocumented)
     getSelectedRowIndices(includeAllAuto?: boolean): number[];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     getSingletonViewDataRow(y: number, subgrid?: Subgrid<BCS, SF>): DataServer.ViewRow;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     getSubgridRowCount(subgrid: Subgrid<BCS, SF>): number;
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
     getViewData(): readonly DataServer.ViewRow[];
@@ -2870,9 +2818,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     isCellSelected(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean;
     // (undocumented)
     isColumnVisible(activeIndex: number): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     isDataRowVisible(r: number, subgrid?: Subgrid<BCS, SF>): boolean;
     // (undocumented)
     isDataVisible(c: number, rn: number): boolean;
@@ -2911,7 +2856,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     // (undocumented)
     readonly renderer: Renderer<BGS, BCS, SF>;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     // Warning: (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
     reset(): void;
@@ -2952,15 +2896,10 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     setActiveColumnsAndWidthsByFieldName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): void;
     // (undocumented)
     setActiveColumnsAutoWidthSizing(widenOnly: boolean): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
     setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, width: number, ui: boolean): void;
     // (undocumented)
     setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setCellProperty(cell: ViewCell<BCS, SF>, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
     // (undocumented)
     setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
@@ -2972,14 +2911,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     setColumnWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): boolean;
     // (undocumented)
     setFieldColumnSettings(fieldIndex: number, settings: BCS): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
     readonly settings: BGS;
     // (undocumented)
     setValue(x: number, y: number, value: number, subgrid?: Subgrid<BCS, SF>): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     showHideColumns(
     fieldColumnIndexes: number | number[],
     insertIndex?: number,
@@ -3143,7 +3079,6 @@ export interface SchemaField {
 
 // @public (undocumented)
 export interface SchemaServer<SF extends SchemaField> {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     getFields(): readonly SF[];
     // (undocumented)
@@ -3167,7 +3102,6 @@ export namespace SchemaServer {
         // (undocumented)
         fieldsDeleted: (this: void, fieldIndex: number, fieldCount: number) => void;
         // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-        // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
         fieldsInserted: (this: void, fieldIndex: number, fieldCount: number) => void;
         // (undocumented)
         getActiveSchemaFields: (this: void) => readonly SF[];
@@ -3177,8 +3111,6 @@ export namespace SchemaServer {
 
 // @public (undocumented)
 export class Scroller<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (ae-forgotten-export) The symbol "ScrollDimension" needs to be exported by the entry point public-api.d.ts
     //
     // @internal
@@ -3203,9 +3135,6 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
     readonly barCssClass: string;
     // @internal (undocumented)
     deactivatePointerScrolling(event: PointerEvent): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    //
     // @internal
     destroy(): void;
     // (undocumented)
@@ -3289,8 +3218,6 @@ export namespace Scroller {
     export type WheelEventer = (this: void, event: WheelEvent) => void;
 }
 
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-//
 // @public
 class Selection_2<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // @internal
@@ -3324,7 +3251,6 @@ class Selection_2<BGS extends BehavioredGridSettings, BCS extends BehavioredColu
     changedEventerForEventBehavior: Selection_2.ChangedEventer;
     // @internal (undocumented)
     changedEventerForRenderer: Selection_2.ChangedEventer;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     clear(): void;
     // (undocumented)
     createStash(): Selection_2.Stash<BCS, SF>;
@@ -3585,10 +3511,6 @@ export interface SplitStringAtFirstNonNumericCharResult {
     numericPart: string;
 }
 
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-//
 // @public
 export class StandardAlphaTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
@@ -3810,10 +3732,6 @@ export abstract class StandardElementCellEditor<BGS extends BehavioredGridSettin
 export interface StandardGridSettings extends StandardOnlyGridSettings, GridSettings {
 }
 
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@constructor" is not defined in this configuration
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-// Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-//
 // @public
 export class StandardHeaderTextCellPainter<BGS extends StandardBehavioredGridSettings, BCS extends StandardBehavioredColumnSettings, SF extends SchemaField> extends StandardCellPainter<BGS, BCS, SF> {
     constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>);
@@ -4034,7 +3952,6 @@ export class StandardTextPainter {
     protected findLines(words: string[], width: number): string[];
     // (undocumented)
     renderMultiLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign, font: string): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     renderSingleLineText(bounds: Rectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: HorizontalAlign): number;
     // (undocumented)
     setColumnSettings(value: StandardTextPainter.ColumnSettings): void;
@@ -4189,7 +4106,6 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
     readonly filterSubgrid: Subgrid<BCS, SF> | undefined;
     // (undocumented)
     readonly footerSubgrid: Subgrid<BCS, SF> | undefined;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     getAllRowCount(): number;
     // @internal (undocumented)
     getSubgridByHandle(handle: SubgridImplementation.Handle): SubgridImplementation<BCS, SF> | undefined;
@@ -4260,7 +4176,6 @@ export const enum TextTruncateType {
 export abstract class UiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
     // Warning: (ae-forgotten-export) The symbol "UiControllerServices" needs to be exported by the entry point public-api.d.ts
     constructor(services: UiControllerServices<BGS, BCS, SF>);
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     attachChain(): void;
     // (undocumented)
     protected readonly canvas: Canvas<BGS>;
@@ -4274,7 +4189,6 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     //
     // (undocumented)
     protected readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     detachChain(): void;
     detached: UiController<BGS, BCS, SF> | undefined;
     // Warning: (ae-forgotten-export) The symbol "EventBehavior" needs to be exported by the entry point public-api.d.ts
@@ -4360,7 +4274,6 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     protected readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>;
     // (undocumented)
     protected readonly selection: Selection_2<BGS, BCS, SF>;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     setNext(nextFeature: UiController<BGS, BCS, SF>): void;
     // Warning: (ae-forgotten-export) The symbol "UiControllerSharedState" needs to be exported by the entry point public-api.d.ts
     //
@@ -4466,9 +4379,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     findCellAtViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number, canComputePool: boolean): ViewCell<BCS, SF>;
     // (undocumented)
     findColumnIndexOfCanvasOffset(canvasOffsetX: number): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     findColumnWithActiveIndex(activeColumnIndex: number): ViewLayoutColumn<BCS, SF> | undefined;
     // (undocumented)
     findColumnWithFieldIndex(fieldIndex: number): ViewLayoutColumn<BCS, SF> | undefined;
@@ -4482,7 +4392,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasOffsetX: number): number;
     // (undocumented)
     findLeftGridLineInclusiveColumnOfCanvasOffset(canvasOffsetX: number): ViewLayoutColumn<BCS, SF> | undefined;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
     findLinedHoverCellAtCanvasOffset(canvasXOffset: number, canvasYOffset: number): LinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
@@ -4513,7 +4422,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     get firstScrollableVisibleColumnMaximallyVisible(): boolean;
     // (undocumented)
     get fixedColumnsViewWidth(): number;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
     getActiveColumnWidthEdgeClosestToPixelX(pixelX: number): number;
     // (undocumented)
     getBoundsOfCell(x: number, y: number): Rectangle;
@@ -4532,13 +4440,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     // (undocumented)
     getScrollTop(): number;
     getVisibleCellMatrix(): unknown[][];
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     getVisibleDataRow(rowIndex: number, subgrid: Subgrid<BCS, SF>): ViewLayoutRow<BCS, SF> | undefined;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     getVisibleRow(rowIndex: number): ViewLayoutRow<BCS, SF>;
     // Warning: (ae-forgotten-export) The symbol "HorizontalScrollDimension" needs to be exported by the entry point public-api.d.ts
     //
@@ -4576,21 +4478,12 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     invalidateVerticalAll(scrollDimensionAsWell: boolean): void;
     // (undocumented)
     isActiveColumnFullyVisible(activeIndex: number): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     isActiveColumnVisible(activeIndex: number): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     isDataColumnVisible(columnIndex: number): boolean;
     // (undocumented)
     isDataRowVisible(rowIndex: number, subgrid: Subgrid<BCS, SF>): boolean;
     // (undocumented)
     isLastColumnVisible(): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     isRowVisible(rowIndex: number): boolean;
     // (undocumented)
     get lastScrollableActiveColumnIndex(): number | undefined;
@@ -4652,8 +4545,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     scrollRowsBy(rowScrollCount: number): boolean;
     // (undocumented)
     scrollVerticalViewportBy(delta: number): boolean;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@return" is not defined in this configuration
-    //
     // (undocumented)
     setColumnScrollAnchor(index: number, offset: number): boolean;
     // (undocumented)
@@ -4666,9 +4557,6 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     setRowScrollAnchorToLimit(): void;
     // (undocumented)
     setVerticalViewportStart(viewportStart: number): void;
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@desc" is not defined in this configuration
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@summary" is not defined in this configuration
     tryGetColumnWithFieldIndex(columnIndex: number): ViewLayoutColumn<BCS, SF> | undefined;
     // (undocumented)
     get uiControlTracking(): boolean;
@@ -4880,6 +4768,10 @@ export namespace WritablePoint {
     // (undocumented)
     export function create(x: number, y: number): WritablePoint;
 }
+
+// Warnings were encountered during analysis:
+//
+// src/code/standard/painters/standard-text-painter.ts:257:48 - (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
 
 // (No @packageDocumentation comment for this package)
 

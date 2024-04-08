@@ -7,31 +7,30 @@ export class InexclusiveRectangle implements InexclusiveArea {
     private _y: number;
 
     /**
-     * @summary Upper left corner of this rect.
+     * Upper left corner of this rect.
      */
     private _topLeft: Point;
 
     /**
-     * @summary this rect's width and height.
-     * @desc Unlike the other `Point` properties, `extent` is not a global coordinate pair; rather it consists of a _width_ (`x`, always positive) and a _height_ (`y`, always positive).
+     * this rect's width and height.
+     * @remarks Unlike the other `Point` properties, `extent` is not a global coordinate pair; rather it consists of a _width_ (`x`, always positive) and a _height_ (`y`, always positive).
      *
      * This object might be more legitimately typed as something like `Area` with properties `width` and `height`; however we wanted it to be able to use it efficiently with a point's `plus` and `minus` methods (that is, without those methods having to check and branch on the type of its parameter).
      *
-     * Created upon instantiation by the {@linkplain InexclusiveRectangle|constructor}.
+     * Created upon instantiation by the constructor.
      * @see The {@link InexclusiveRectangle#_exclusiveBottomRight|corner} method.
      */
     private _extent: Point;
 
     /**
-     * @summary One pixel out from bottom right of rectangle.
+     * One pixel out from bottom right of rectangle.
      */
     private _exclusiveBottomRight: Point;
 
     /**
-     * @constructor Rectangle
+     * This object represents a rectangular area within an abstract 2-dimensional matrix.
      *
-     * @desc This object represents a rectangular area within an abstract 2-dimensional matrix.
-     *
+     * @remarks
      * The unit of measure is typically pixels.
      * (If used to model computer graphics, vertical coordinates are typically measured downwards
      * from the top of the window. This convention however is not inherent in this object.)
@@ -86,14 +85,14 @@ export class InexclusiveRectangle implements InexclusiveArea {
     get extent() { return this._extent; }
 
     /**
-     * @summary Minimum vertical coordinate of this rect.
+     * Minimum vertical coordinate of this rect.
      */
     get top() {
         return this._y;
     }
 
     /**
-     * @summary Minimum horizontal coordinate of this rect.
+     * Minimum horizontal coordinate of this rect.
      */
     get left() {
         return this._x;
@@ -120,21 +119,21 @@ export class InexclusiveRectangle implements InexclusiveArea {
     }
 
     /**
-     * @summary Width of this rect (always positive).
+     * Width of this rect (always positive).
      */
     get width() {
         return this._extent.x;
     }
 
     /**
-     * @summary Height of this rect (always positive).
+     * Height of this rect (always positive).
      */
     get height() {
         return this._extent.y;
     }
 
     /**
-     * @summary Area of this rect.
+     * Area of this rect.
      */
     get area() {
         return this.width * this.height;

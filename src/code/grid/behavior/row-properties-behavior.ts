@@ -16,7 +16,7 @@ export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /**
-     * @desc set the pixel height of a specific row
+     * set the pixel height of a specific row
      * @param rowIndex - Data row index local to dataModel.
      * @param height - pixel height
      */

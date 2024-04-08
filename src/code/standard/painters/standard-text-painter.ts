@@ -74,7 +74,7 @@ export class StandardTextPainter {
     }
 
     /**
-     * @summary Renders single line text.
+     * Renders single line text.
      * @param text - The text to render in the cell.
      */
     renderSingleLineText(

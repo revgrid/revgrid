@@ -11,8 +11,8 @@ import { SubgridsManager } from '../../subgrid/subgrids-manager';
 import { ViewLayout } from '../../view/view-layout';
 import { GridPainter } from './grid-painter';
 
-/** @summary Render the grid only as needed ("partial render").
- * @desc Paints all the cells of a grid, one column at a time, but only as needed.
+/** Render the grid only as needed ("partial render").
+ * @remarks Paints all the cells of a grid, one column at a time, but only as needed.
  *
  * Partial render is supported only by those cells whose cell renderer supports it by returning before rendering (based on `config.snapshot`).
  *

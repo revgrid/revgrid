@@ -1,7 +1,7 @@
 /** @public */
 export interface MetaModel {
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Get the metadata store. The precise type of this object is implementation-dependent so not defined here.
      *
@@ -17,7 +17,7 @@ export interface MetaModel {
 
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Get the row's metadata object, which is a hash of cell properties objects, for those cells that have property overrides, keyed by column name; plus a row properties object with key `__ROW` when there are row properties.
      *
@@ -32,7 +32,7 @@ export interface MetaModel {
     getRowMetadata?(rowIndex: number): null | undefined | MetaModel.RowMetadata;
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Set the metadata store. The precise type of this object is implementation-dependent, so not defined here.
      *
@@ -48,7 +48,7 @@ export interface MetaModel {
     setMetadataStore?(metadataStore?: MetaModel.RowMetadata[]): void;
 
     /**
-     * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * Set the row's metadata object, which is a hash of cell properties objects, for those cells that have property overrides, keyed by column name; plus a row properties object with key `__ROW` when there are row properties.
      *

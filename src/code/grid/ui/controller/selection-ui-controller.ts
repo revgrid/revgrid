@@ -359,7 +359,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /**
-     * @desc Handle a mousedrag selection.
+     * Handle a mousedrag selection.
      * @param keys - array of the keys that are currently pressed down
      */
     private tryUpdateLastSelectionArea(cell: ViewCell<BCS, SF>) {
@@ -428,7 +428,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     // }
 
     /**
-     * @desc this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
+     * this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
      */
     private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
         const scrollableBounds = this.viewLayout.scrollableCanvasBounds;
@@ -475,7 +475,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /**
-     * @desc If we are holding down the same navigation key, accelerate the increment we scroll
+     * If we are holding down the same navigation key, accelerate the increment we scroll
      */
     private getAutoScrollAcceleration() {
         const elapsed = this.getAutoScrollDuration() / 2000;
@@ -484,14 +484,14 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /**
-     * @desc set the start time to right now when we initiate an auto scroll
+     * set the start time to right now when we initiate an auto scroll
      */
     private setAutoScrollStartTime() {
         this._sbAutoStart = Date.now();
     }
 
     /**
-     * @desc update the autoscroll start time if we haven't autoscrolled within the last 500ms otherwise update the current autoscroll time
+     * update the autoscroll start time if we haven't autoscrolled within the last 500ms otherwise update the current autoscroll time
      */
     private pingAutoScroll() {
         const now = Date.now();
@@ -502,7 +502,7 @@ export class SelectionUiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /**
-     * @desc answer how long we have been auto scrolling
+     * answer how long we have been auto scrolling
      */
     private getAutoScrollDuration() {
         if (Date.now() - this._sbLastAuto > 500) {

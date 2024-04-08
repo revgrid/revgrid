@@ -379,10 +379,10 @@
       //
       // . . .
 
-      "tsdoc-undefined-tag": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
+      // "tsdoc-undefined-tag": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
       "tsdoc-param-tag-missing-hyphen": {
         "logLevel": "none",
         "addToApiReportFile": true
