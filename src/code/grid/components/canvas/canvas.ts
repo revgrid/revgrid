@@ -150,7 +150,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
 
     /** @internal */
     private keyDownEventListener = (e: KeyboardEvent) => {
-        if (this.hasFocus()) {
+        if (this.isActiveDocumentElement()) {
             this.checkPreventDefault(e);
 
             // const key = e.key;
@@ -175,7 +175,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
 
     /** @internal */
     private keyUpEventListener = (e: KeyboardEvent) => {
-        if (this.hasFocus()) {
+        if (this.isActiveDocumentElement()) {
             this.checkPreventDefault(e);
 
             // this._repeatKeyCount = 0;
@@ -229,7 +229,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
 
     /** @internal */
     private copyEventListener = (e: ClipboardEvent) => {
-        if (this.hasFocus()) {
+        if (this.isActiveDocumentElement()) {
             this.copyEventer(e);
         }
     }
@@ -506,13 +506,13 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
     }
 
     /** @internal */
-    hasFocus() {
+    isActiveDocumentElement() {
         return document.activeElement === this.element;
     }
 
     /** @internal */
     takeFocus() {
-        if (!this.hasFocus()) {
+        if (!this.isActiveDocumentElement()) {
             setTimeout(() => {
                 this.element.focus();
             }, 10);

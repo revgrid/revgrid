@@ -330,12 +330,12 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
     getOffsetPoint<T extends MouseEvent | Touch>(mouseEventOrTouch: T): Point;
     // (undocumented)
     get hasBounds(): boolean;
-    // @internal (undocumented)
-    hasFocus(): boolean;
     // (undocumented)
     readonly hostElement: HTMLElement;
     // (undocumented)
     readonly internalParent: RevgridObject;
+    // @internal (undocumented)
+    isActiveDocumentElement(): boolean;
     // @internal (undocumented)
     keyDownEventer: Canvas.KeyEventer;
     // @internal (undocumented)
@@ -2616,6 +2616,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     clearColumns(): void;
     // (undocumented)
+    clearFocus(): void;
+    // (undocumented)
     clearSelection(): void;
     get columnScrollAnchorIndex(): number;
     get columnScrollAnchorOffset(): number;
@@ -2803,8 +2805,6 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     // (undocumented)
     getVisibleRowsCount(): number;
     // (undocumented)
-    hasFocus(): boolean;
-    // (undocumented)
     hideActiveColumn(activeColumnIndex: number, ui?: boolean): void;
     // (undocumented)
     readonly horizontalScroller: Scroller<BGS, BCS, SF>;
@@ -2814,6 +2814,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     readonly id: string;
     // (undocumented)
     readonly internalParent: RevgridObject | undefined;
+    // (undocumented)
+    isActiveDocumentElement(): boolean;
     // (undocumented)
     isCellSelected(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean;
     // (undocumented)

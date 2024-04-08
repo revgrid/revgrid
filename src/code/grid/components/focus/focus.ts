@@ -94,8 +94,13 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     clear() {
         this.closeFocus();
-        this._previous = undefined;
+        const newPrevious = this._current;
+        this._previous = newPrevious;
         this._current = undefined;
+        if (newPrevious !== undefined) {
+            this.notifyCurrentCellChanged();
+            this.notifyCurrentRowChanged(undefined, undefined);
+        }
     }
 
     trySet(newFocusPoint: Point, subgrid: Subgrid<BCS, SF>, cell: ViewCell<BCS, SF> | undefined, canvasPoint: PartialPoint | undefined) {
@@ -741,12 +746,17 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     restoreStash(stash: Focus.Stash, allRowsKept: boolean) {
-        this.clear();
+        this.closeFocus();
 
-        if (stash.current !== undefined) {
+        if (stash.current === undefined) {
+            this._current = undefined;
+        } else {
             this._current = this.createPointFromStash(stash.current, allRowsKept);
         }
-        if (stash.previous !== undefined) {
+
+        if (stash.previous === undefined) {
+            this._previous = undefined;
+        } else {
             this._previous = this.createPointFromStash(stash.previous, allRowsKept);
         }
     }

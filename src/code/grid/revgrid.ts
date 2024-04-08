@@ -272,8 +272,8 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
     /**
      * @returns We have focus.
      */
-    hasFocus() {
-        return this.canvas.hasFocus();
+    isActiveDocumentElement() {
+        return this.canvas.isActiveDocumentElement();
     }
 
     get activeColumnCount() { return this.columnsManager.activeColumnCount; }
@@ -985,6 +985,11 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) {
         this.canvas.removeExternalEventListener(eventName, listener, options);
+    }
+
+    // Focus
+    clearFocus() {
+        this.focus.clear();
     }
 
     // FocusScrollBehavior
