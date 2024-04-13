@@ -428,7 +428,7 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                 }
             }
         } else {
-            const key = event.key;
+            const key = event.key as Focus.ActionKeyboardKey;
             const focusPoint = this._current;
             if (focusPoint === undefined) {
                 throw new RevAssertError('FCEWKDE98887');

@@ -1,0 +1,22 @@
+{
+  "extends": "../../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../../tsbuildinfo/grid-components-renderer-grid-painter.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../../focus/tsconfig.json" },
+    { "path": "../../mouse/tsconfig.json" },
+    { "path": "../../selection/tsconfig.json" },
+    { "path": "../../subgrid/tsconfig.json" },
+    { "path": "../../view/tsconfig.json" },
+    { "path": "../../canvas/tsconfig.json" },
+    { "path": "../../../types-utils/tsconfig.json" }
+  ]
+}

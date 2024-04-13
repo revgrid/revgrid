@@ -54,7 +54,7 @@ export abstract class StandardInputElementCellEditor<
     }
 
     private canConsumeKey(key: string) {
-        switch (key) {
+        switch (key as Focus.ActionKeyboardKey) {
             case Focus.ActionKeyboardKey.ArrowUp:
             case Focus.ActionKeyboardKey.ArrowDown:
             case Focus.ActionKeyboardKey.PageUp:

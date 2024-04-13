@@ -1,0 +1,17 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-renderer.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "grid-painter/tsconfig.json" },
+    { "path": "../../types-utils/tsconfig.json" }
+  ]
+}

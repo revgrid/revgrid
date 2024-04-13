@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../tsbuildinfo/code.tsbuildinfo",
+  },
+
+  "include": [
+    "public-api.ts"
+  ],
+
+  "references": [
+    { "path": "server-sets/tsconfig.json" },
+    { "path": "standard/tsconfig.json" },
+    { "path": "settings-implementations/tsconfig.json" },
+    { "path": "grid/tsconfig.json" },
+  ]
+}

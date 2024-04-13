@@ -1,0 +1,25 @@
+{
+  "extends": "../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../tsbuildinfo/grid-components.tsbuildinfo"
+  },
+
+  "include": [
+    "components-manager.ts"
+  ],
+
+  "references": [
+    { "path": "./dispatchable-event/tsconfig.json" },
+    { "path": "./scroller/tsconfig.json" },
+    { "path": "./renderer/tsconfig.json" },
+    { "path": "./selection/tsconfig.json" },
+    { "path": "./focus/tsconfig.json" },
+    { "path": "./view/tsconfig.json" },
+    { "path": "./subgrid/tsconfig.json" },
+    { "path": "./column/tsconfig.json" },
+    { "path": "./canvas/tsconfig.json" },
+    { "path": "../types-utils/tsconfig.json" },
+  ]
+}

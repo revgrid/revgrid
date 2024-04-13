@@ -14,7 +14,7 @@ export type SizeUnit = typeof SizeUnitEnum;
 /** @public */
 export namespace SizeUnit {
     export function tryParse(value: string) {
-        switch (value) {
+        switch (value as SizeUnitEnum) {
             case SizeUnitEnum.Pixel: return SizeUnitEnum.Pixel;
             case SizeUnitEnum.Percent: return SizeUnitEnum.Percent;
             case SizeUnitEnum.Fractional: return SizeUnitEnum.Fractional;

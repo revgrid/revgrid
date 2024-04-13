@@ -1,0 +1,29 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-ui-controller.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts",
+    "./common/*.ts"
+  ],
+
+  "references": [
+    { "path": "../../behavior/tsconfig.json" },
+    { "path": "../../components/renderer/tsconfig.json" },
+    { "path": "../../components/scroller/tsconfig.json" },
+    { "path": "../../components/selection/tsconfig.json" },
+    { "path": "../../components/focus/tsconfig.json" },
+    { "path": "../../components/mouse/tsconfig.json" },
+    { "path": "../../components/view/tsconfig.json" },
+    { "path": "../../components/subgrid/tsconfig.json" },
+    { "path": "../../components/column/tsconfig.json" },
+    { "path": "../../components/canvas/tsconfig.json" },
+    { "path": "../../interfaces/data/tsconfig.json" },
+    { "path": "../../interfaces/settings/tsconfig.json" },
+    { "path": "../../types-utils/tsconfig.json" },
+  ]
+}

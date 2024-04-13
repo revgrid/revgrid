@@ -32,9 +32,9 @@
   "scripts": {
     "link-xilytix": "npm link @xilytix/sysutils",
     "lint": "eslint -c .eslintrc.json --ext .ts src/",
-    "build": "tsc --build ./src/code/tsconfig.code.json",
-    "force-build": "tsc --build --force ./src/code/tsconfig.code.json",
-    "lib": "tsc --project ./src/code/tsconfig.code.json --emitDeclarationOnly",
+    "build": "tsc --build ./src/code/tsconfig.json",
+    "force-build": "tsc --build --force ./src/code/tsconfig.json",
+    "lib": "tsc --project ./src/code/tsconfig.json --emitDeclarationOnly",
     "rollup": "npx api-extractor run --local --verbose",
     "types": "npm run lib && npm run rollup",
     "api": "npm run build && npm run rollup",

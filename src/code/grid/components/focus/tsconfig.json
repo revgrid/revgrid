@@ -1,0 +1,23 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-focus.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../view/tsconfig.json" },
+    { "path": "../subgrid/tsconfig.json" },
+    { "path": "../column/tsconfig.json" },
+    { "path": "../canvas/tsconfig.json" },
+    { "path": "../../interfaces/data/tsconfig.json" },
+    { "path": "../../interfaces/dataless/tsconfig.json" },
+    { "path": "../../interfaces/settings/tsconfig.json" },
+    { "path": "../../types-utils/tsconfig.json" }
+  ]
+}

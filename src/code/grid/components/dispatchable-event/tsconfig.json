@@ -1,0 +1,21 @@
+{
+  "extends": "../../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-dispatchable-event.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../scroller/tsconfig.json" },
+    { "path": "../view/tsconfig.json" },
+    { "path": "../../interfaces/data/tsconfig.json" },
+    { "path": "../../interfaces/schema/tsconfig.json" },
+    { "path": "../../interfaces/settings/tsconfig.json" },
+    { "path": "../../types-utils/tsconfig.json" }
+  ]
+}

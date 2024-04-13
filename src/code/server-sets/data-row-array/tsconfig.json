@@ -1,0 +1,18 @@
+{
+  "extends": "../../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../../tsbuildinfo/server-sets-data-row-array.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../single-heading/tsconfig.json" },
+    { "path": "../multi-heading/tsconfig.json" },
+    { "path": "../../grid/tsconfig.json" }
+  ]
+}

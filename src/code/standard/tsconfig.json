@@ -1,0 +1,20 @@
+{
+  "extends": "../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../tsbuildinfo/standard.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts",
+  ],
+
+  "references": [
+    { "path": "./cell-editor/tsconfig.json" },
+    { "path": "./cell-painter/tsconfig.json" },
+    { "path": "./settings-implementations/tsconfig.json" },
+    { "path": "./painters/tsconfig.json" },
+    { "path": "./settings/tsconfig.json" },
+  ]
+}

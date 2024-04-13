@@ -1,0 +1,23 @@
+{
+  "extends": "../../../tsconfig.esm.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "../../../tsbuildinfo/grid.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts",
+  ],
+
+  "references": [
+    { "path": "./ui/tsconfig.json" },
+    { "path": "./ui/controller/tsconfig.json" },
+    { "path": "./behavior/tsconfig.json" },
+    { "path": "./components/tsconfig.json" },
+    { "path": "./components/subgrid/tsconfig.json" },
+    { "path": "./interfaces/data/tsconfig.json" },
+    { "path": "./interfaces/settings/tsconfig.json" },
+    { "path": "./types-utils/tsconfig.json" }
+  ]
+}
