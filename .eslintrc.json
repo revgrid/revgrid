@@ -45,6 +45,7 @@
         "@typescript-eslint/naming-convention": ["error", {"selector": "enumMember", "format": null }],
         "@typescript-eslint/no-explicit-any": "error",
         "@typescript-eslint/no-invalid-void-type": ["error", {"allowAsThisParameter": true, "allowInGenericTypeArguments": true }],
+        "@typescript-eslint/no-confusing-void-expression": ["error", { "ignoreArrowShorthand": true }],
         "@typescript-eslint/restrict-template-expressions": ["error", { "allowNumber": true }],
         "@typescript-eslint/quotes": ["error", "single", {"avoidEscape": true, "allowTemplateLiterals": true }],
         "@typescript-eslint/prefer-nullish-coalescing": ["error", { "ignoreTernaryTests": true }],

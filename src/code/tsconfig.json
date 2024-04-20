@@ -10,11 +10,11 @@
   ],
 
   "references": [
-    // { "path": "./table/tsconfig.json" },
-    // { "path": "./sourced-field/tsconfig.json" },
-    // { "path": "./record/tsconfig.json" },
-    // { "path": "./column-layout/tsconfig.json" },
-    // { "path": "./render-value/tsconfig.json" },
+    { "path": "./table/tsconfig.json" },
+    { "path": "./sourced-field/tsconfig.json" },
+    { "path": "./record/tsconfig.json" },
+    { "path": "./column-layout/tsconfig.json" },
+    { "path": "./render-value/tsconfig.json" },
     { "path": "./server-sets/tsconfig.json" },
     { "path": "./standard/tsconfig.json" },
     { "path": "./settings-implementations/tsconfig.json" },
