@@ -4,7 +4,7 @@ import { AssertInternalError, CorrectnessState, Integer, LockOpenListItem, Multi
 import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayoutsService } from '../column-layout/internal-api';
 import { BehavioredColumnSettings, BehavioredGridSettings, Revgrid, Subgrid } from '../grid/grid-public-api';
 import { RevRecordGrid, RevRecordRowOrderDefinition } from '../record/internal-api';
-import { RevAllowedSourcedFieldsColumnLayoutDefinition, RevSourcedFieldCustomHeadingsService, RevSourcedFieldGrid } from '../sourced-field/internal-api';
+import { RevAllowedSourcedRecordFieldsColumnLayoutDefinition, RevSourcedFieldCustomHeadingsService, RevSourcedRecordFieldGrid } from '../sourced-record-field/internal-api';
 import {
     RevDataSource,
     RevDataSourceOrReference,
@@ -30,7 +30,7 @@ export class RevTableGrid<
     RenderAttributeTypeId,
     BGS extends BehavioredGridSettings,
     BCS extends BehavioredColumnSettings,
-> extends RevSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>> {
+> extends RevSourcedRecordFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>> {
     opener: LockOpenListItem.Opener;
     keepPreviousLayoutIfPossible = false;
     keptColumnLayoutOrReferenceDefinition: RevColumnLayoutOrReferenceDefinition | undefined;
@@ -337,7 +337,7 @@ export class RevTableGrid<
         }
     }
 
-    override createAllowedSourcedFieldsColumnLayoutDefinition(): RevAllowedSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> {
+    override createAllowedSourcedFieldsColumnLayoutDefinition(): RevAllowedSourcedRecordFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> {
         if (this._openedTable === undefined) {
             throw new AssertInternalError('GSFCAFALD56678');
         } else {

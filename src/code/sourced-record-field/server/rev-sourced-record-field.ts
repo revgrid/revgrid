@@ -14,13 +14,13 @@ import { RevSourcedFieldCustomHeadingsService } from './rev-sourced-field-custom
 import { RevSourcedFieldDefinition } from './rev-sourced-field-definition';
 
 /** @public */
-export abstract class RevSourcedField<RenderValueTypeId, RenderAttributeTypeId> implements RevRecordField {
+export abstract class RevSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId> implements RevRecordField {
     readonly name: string;
     index: Integer;
     heading: string;
 
-    getEditValueEventer: RevSourcedField.GetEditValueEventer | undefined;
-    setEditValueEventer: RevSourcedField.SetEditValueEventer | undefined;
+    getEditValueEventer: RevSourcedRecordField.GetEditValueEventer | undefined;
+    setEditValueEventer: RevSourcedRecordField.SetEditValueEventer | undefined;
 
     constructor(readonly definition: RevSourcedFieldDefinition, heading?: string) {
         this.name = definition.name;
@@ -47,7 +47,7 @@ export abstract class RevSourcedField<RenderValueTypeId, RenderAttributeTypeId> 
 }
 
 /** @public */
-export namespace RevSourcedField {
+export namespace RevSourcedRecordField {
     export type GetEditValueEventer = (this: void, record: IndexedRecord) => DataServer.EditValue;
     export type SetEditValueEventer = (this: void, record: IndexedRecord, value: DataServer.EditValue) => void;
 

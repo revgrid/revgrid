@@ -12,7 +12,7 @@ import {
     UsableListChangeTypeId,
 } from '@xilytix/sysutils';
 import { RevRenderValue } from '../../../render-value/internal-api';
-import { RevAllowedSourcedField, RevSourcedFieldCustomHeadingsService } from '../../../sourced-field/server/internal-api';
+import { RevAllowedSourcedRecordField, RevSourcedFieldCustomHeadingsService } from '../../../sourced-record-field/server/internal-api';
 import { RevTableFieldSource, RevTableFieldSourceDefinitionCachingFactoryService } from '../field-source/internal-api';
 import { RevTableField } from '../field/internal-api';
 import { RevTableRecordDefinition } from '../record-definition/internal-api';
@@ -83,7 +83,7 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
         this._correctnessState.checkSetUnusable(badness);
     }
 
-    createAllowedFields(): readonly RevAllowedSourcedField<RenderValueTypeId, RenderAttributeTypeId>[] {
+    createAllowedFields(): readonly RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>[] {
         return this.definition.createAllowedFields();
     }
 

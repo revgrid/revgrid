@@ -56,55 +56,25 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
         this._callbackListeners.forEach((listener) => { listener.invalidateRow(index); });
     }
 
-    /**
-     * Insert or append a new row.
-     *
-     * _Note parameter order is the reverse of `setRow`._
-     * @param index - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
-     */
-    addRow(dataRow: DataServer.ObjectViewRow): void;
-    addRow(index: number, dataRow: DataServer.ObjectViewRow): void;
-    addRow(indexOrDataRow: number | DataServer.ObjectViewRow, dataRowOrUndefined?: DataServer.ObjectViewRow): void {
-        const rowCount = this.getRowCount();
-        let index: number;
-        let dataRow: DataServer.ObjectViewRow;
-        if (typeof indexOrDataRow === 'number') {
-            index = indexOrDataRow;
-            if (dataRowOrUndefined === undefined) {
-                throw new RevAssertError('DRADSAR09118');
-            } else {
-                dataRow = dataRowOrUndefined;
-            }
-        } else {
-            index = rowCount;
-            dataRow = indexOrDataRow;
-        }
+    addRow(dataRow: DataServer.ObjectViewRow) {
+        const index = this.getRowCount();
+        this.insertRow(index, dataRow);
+        return index;
+    }
 
-        if (index >= rowCount) {
-            index = rowCount;
-            this._data.push(dataRow);
-        } else {
-            this._data.splice(index, 0, dataRow);
-        }
-
+    insertRow(index: number, dataRow: DataServer.ObjectViewRow) {
+        this._data.splice(index, 0, dataRow);
         this._callbackListeners.forEach((listener) => { listener.rowsInserted(index, 1); });
     }
 
-    /**
-     * Rows are removed entirely and no longer render.
-     * Indexes of all remaining rows are decreased by `rowCount`.
-     */
-    delRow(index: number, count = 1) {
+    deleteRows(index: number, count = 1) {
         const rows = this._data.splice(index, count === undefined ? 1 : count);
-        if (rows.length) {
-            this._callbackListeners.forEach((listener) => { listener.invalidateRows(index, count); });
+        if (rows.length > 0) {
+            this._callbackListeners.forEach((listener) => { listener.rowsDeleted(index, count); });
         }
         return rows;
     }
 
-    /**
-     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
-     */
     getViewValue(field: SF, y: number) {
         const row = this._data[y];
         if (!row) {
@@ -113,17 +83,11 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
         return row[field.name];
     }
 
-    /**
-     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
-     */
     setEditValue(field: SF, y: number, value: unknown) {
         this._data[y][field.name] = value;
         this._callbackListeners.forEach((listener) => { listener.invalidateCell(field.index, y); });
     }
 
-    /**
-     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getRowCount}
-     */
     getRowCount() {
         return this._data.length;
     }

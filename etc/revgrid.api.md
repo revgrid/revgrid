@@ -833,13 +833,12 @@ export interface DatalessViewLayoutRow {
 
 // @public (undocumented)
 export class DataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    addRow(dataRow: DataServer.ObjectViewRow): void;
     // (undocumented)
-    addRow(index: number, dataRow: DataServer.ObjectViewRow): void;
+    addRow(dataRow: DataServer.ObjectViewRow): number;
     // (undocumented)
     beginDataChange(): void;
-    delRow(index: number, count?: number): DataServer.ObjectViewRow[];
+    // (undocumented)
+    deleteRows(index: number, count?: number): DataServer.ObjectViewRow[];
     // (undocumented)
     endDataChange(): void;
     // (undocumented)
@@ -848,6 +847,8 @@ export class DataRowArrayDataServer<SF extends SchemaField> implements DataServe
     getViewRow(index: number): DataServer.ObjectViewRow;
     // (undocumented)
     getViewValue(field: SF, y: number): unknown;
+    // (undocumented)
+    insertRow(index: number, dataRow: DataServer.ObjectViewRow): void;
     // (undocumented)
     invalidateAll(): void;
     // (undocumented)
@@ -2578,16 +2579,16 @@ export namespace Renderer {
 }
 
 // @public (undocumented)
-export class RevAllowedSourcedField<RenderValueTypeId, RenderAttributeTypeId> extends RevSourcedField<RenderValueTypeId, RenderAttributeTypeId> {
+export class RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId> extends RevSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId> {
     // (undocumented)
     getViewValue(_record: IndexedRecord): RevRenderValue<RenderValueTypeId, RenderAttributeTypeId>;
 }
 
 // @public (undocumented)
-export class RevAllowedSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> extends RevColumnLayoutDefinition {
-    constructor(columns: readonly RevColumnLayoutDefinition.Column[], allowedFields: readonly RevAllowedSourcedField<RenderValueTypeId, RenderAttributeTypeId>[], fixedColumnCount: Integer);
+export class RevAllowedSourcedRecordFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> extends RevColumnLayoutDefinition {
+    constructor(columns: readonly RevColumnLayoutDefinition.Column[], allowedFields: readonly RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>[], fixedColumnCount: Integer);
     // (undocumented)
-    readonly allowedFields: readonly RevAllowedSourcedField<RenderValueTypeId, RenderAttributeTypeId>[];
+    readonly allowedFields: readonly RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>[];
     // (undocumented)
     readonly fixedColumnCount: Integer;
 }
@@ -4590,67 +4591,6 @@ export namespace RevRenderValue {
 }
 
 // @public (undocumented)
-export abstract class RevSourcedField<RenderValueTypeId, RenderAttributeTypeId> implements RevRecordField {
-    constructor(definition: RevSourcedFieldDefinition, heading?: string);
-    // (undocumented)
-    readonly definition: RevSourcedFieldDefinition;
-    // (undocumented)
-    getEditValue(record: IndexedRecord): DataServer.EditValue;
-    // (undocumented)
-    getEditValueEventer: RevSourcedField.GetEditValueEventer | undefined;
-    // (undocumented)
-    abstract getViewValue(record: IndexedRecord): RevRenderValue<RenderValueTypeId, RenderAttributeTypeId>;
-    // (undocumented)
-    heading: string;
-    // (undocumented)
-    index: Integer;
-    // (undocumented)
-    readonly name: string;
-    // (undocumented)
-    setEditValue(record: IndexedRecord, value: DataServer.EditValue): void;
-    // (undocumented)
-    setEditValueEventer: RevSourcedField.SetEditValueEventer | undefined;
-}
-
-// @public (undocumented)
-export namespace RevSourcedField {
-    // (undocumented)
-    export namespace Field {
-        // (undocumented)
-        export function checkOrder(): void;
-        const // (undocumented)
-        idCount: number;
-        // (undocumented)
-        export type Id = FieldId;
-        // (undocumented)
-        export function idToHorizontalAlign(id: Id): HorizontalAlignEnum;
-        // (undocumented)
-        export function idToName(id: Id): string;
-    }
-    // (undocumented)
-    export const enum FieldId {
-        // (undocumented)
-        DefaultHeading = 3,
-        // (undocumented)
-        DefaultTextAlign = 4,
-        // (undocumented)
-        DefaultWidth = 5,
-        // (undocumented)
-        Heading = 1,
-        // (undocumented)
-        Name = 0,
-        // (undocumented)
-        SourceName = 2
-    }
-    // (undocumented)
-    export function generateHeading(customHeadingsService: RevSourcedFieldCustomHeadingsService, fieldDefinition: RevSourcedFieldDefinition): string;
-    // (undocumented)
-    export type GetEditValueEventer = (this: void, record: IndexedRecord) => DataServer.EditValue;
-    // (undocumented)
-    export type SetEditValueEventer = (this: void, record: IndexedRecord, value: DataServer.EditValue) => void;
-}
-
-// @public (undocumented)
 export class RevSourcedFieldCustomHeadingsService {
     // (undocumented)
     checkSave(): void;
@@ -4711,16 +4651,77 @@ export namespace RevSourcedFieldDefinition {
 }
 
 // @public (undocumented)
-export class RevSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevSourcedField<RenderValueTypeId, RenderAttributeTypeId>> extends RevRecordGrid<BGS, BCS, SF> {
-    // (undocumented)
-    createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly RevAllowedSourcedField<RenderValueTypeId, RenderAttributeTypeId>[]): RevAllowedSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId>;
-}
-
-// @public (undocumented)
 export class RevSourcedFieldSourceDefinition {
     constructor(name: string);
     // (undocumented)
     readonly name: string;
+}
+
+// @public (undocumented)
+export abstract class RevSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId> implements RevRecordField {
+    constructor(definition: RevSourcedFieldDefinition, heading?: string);
+    // (undocumented)
+    readonly definition: RevSourcedFieldDefinition;
+    // (undocumented)
+    getEditValue(record: IndexedRecord): DataServer.EditValue;
+    // (undocumented)
+    getEditValueEventer: RevSourcedRecordField.GetEditValueEventer | undefined;
+    // (undocumented)
+    abstract getViewValue(record: IndexedRecord): RevRenderValue<RenderValueTypeId, RenderAttributeTypeId>;
+    // (undocumented)
+    heading: string;
+    // (undocumented)
+    index: Integer;
+    // (undocumented)
+    readonly name: string;
+    // (undocumented)
+    setEditValue(record: IndexedRecord, value: DataServer.EditValue): void;
+    // (undocumented)
+    setEditValueEventer: RevSourcedRecordField.SetEditValueEventer | undefined;
+}
+
+// @public (undocumented)
+export namespace RevSourcedRecordField {
+    // (undocumented)
+    export namespace Field {
+        // (undocumented)
+        export function checkOrder(): void;
+        const // (undocumented)
+        idCount: number;
+        // (undocumented)
+        export type Id = FieldId;
+        // (undocumented)
+        export function idToHorizontalAlign(id: Id): HorizontalAlignEnum;
+        // (undocumented)
+        export function idToName(id: Id): string;
+    }
+    // (undocumented)
+    export const enum FieldId {
+        // (undocumented)
+        DefaultHeading = 3,
+        // (undocumented)
+        DefaultTextAlign = 4,
+        // (undocumented)
+        DefaultWidth = 5,
+        // (undocumented)
+        Heading = 1,
+        // (undocumented)
+        Name = 0,
+        // (undocumented)
+        SourceName = 2
+    }
+    // (undocumented)
+    export function generateHeading(customHeadingsService: RevSourcedFieldCustomHeadingsService, fieldDefinition: RevSourcedFieldDefinition): string;
+    // (undocumented)
+    export type GetEditValueEventer = (this: void, record: IndexedRecord) => DataServer.EditValue;
+    // (undocumented)
+    export type SetEditValueEventer = (this: void, record: IndexedRecord, value: DataServer.EditValue) => void;
+}
+
+// @public (undocumented)
+export class RevSourcedRecordFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>> extends RevRecordGrid<BGS, BCS, SF> {
+    // (undocumented)
+    createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>[]): RevAllowedSourcedRecordFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId>;
 }
 
 // @public (undocumented)
@@ -4735,7 +4736,7 @@ export class RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSour
     // (undocumented)
     close(opener: NamedOpener): void;
     // (undocumented)
-    createAllowedFields(): readonly RevAllowedSourcedField<RenderValueTypeId, RenderAttributeTypeId>[];
+    createAllowedFields(): readonly RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>[];
     // (undocumented)
     createRecordDefinition(index: Integer): RevTableRecordDefinition<TableFieldSourceDefinitionTypeId>;
     // (undocumented)
@@ -4916,7 +4917,7 @@ export namespace RevTable {
 }
 
 // @public (undocumented)
-export abstract class RevTableField<RenderValueTypeId, RenderAttributeTypeId> extends RevSourcedField<RenderValueTypeId, RenderAttributeTypeId> {
+export abstract class RevTableField<RenderValueTypeId, RenderAttributeTypeId> extends RevSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId> {
     constructor(textFormatter: RevRenderValue.TextFormatter<RenderValueTypeId, RenderAttributeTypeId>, definition: RevTableField.Definition<RenderValueTypeId, RenderAttributeTypeId>, heading: string);
     // (undocumented)
     compare(left: RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId>, right: RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId>): number;
@@ -5034,7 +5035,7 @@ export interface RevTableFieldSourceDefinitionFactory<TypeId, RenderValueTypeId,
 }
 
 // @public (undocumented)
-export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends RevSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>> {
+export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends RevSourcedRecordFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>> {
     constructor(gridFieldCustomHeadingsService: RevSourcedFieldCustomHeadingsService, _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, tableRecordSourceDefinitionFactoryService: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, _referenceableDataSourcesService: RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, gridHostElement: HTMLElement, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>, extraSubgridDefinitions: Subgrid.Definition<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>[], settings: BGS, customiseSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>, options?: Revgrid.Options<BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>);
     // (undocumented)
     applyColumnLayoutOrReferenceDefinition(definition: RevColumnLayoutOrReferenceDefinition): void;
@@ -5049,7 +5050,7 @@ export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableField
     // (undocumented)
     columnLayoutSetEventer: RevTableGrid.ColumnLayoutSetEventer | undefined;
     // (undocumented)
-    createAllowedSourcedFieldsColumnLayoutDefinition(): RevAllowedSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId>;
+    createAllowedSourcedFieldsColumnLayoutDefinition(): RevAllowedSourcedRecordFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId>;
     // (undocumented)
     createColumnLayoutOrReferenceDefinition(): RevColumnLayoutOrReferenceDefinition;
     // (undocumented)
@@ -5170,7 +5171,7 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
     // (undocumented)
     get count(): Integer;
     // (undocumented)
-    createAllowedFields(): readonly RevAllowedSourcedField<RenderValueTypeId, RenderAttributeTypeId>[];
+    createAllowedFields(): readonly RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>[];
     // (undocumented)
     abstract createDefinition(): RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
     // (undocumented)
@@ -5263,7 +5264,7 @@ export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDef
     // (undocumented)
     readonly allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[];
     // (undocumented)
-    createAllowedFields(): readonly RevAllowedSourcedField<RenderValueTypeId, RenderAttributeTypeId>[];
+    createAllowedFields(): readonly RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>[];
     // (undocumented)
     abstract createDefaultLayoutDefinition(): RevColumnLayoutDefinition;
     // (undocumented)
