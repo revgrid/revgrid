@@ -1,9 +1,8 @@
 {
-  "extends": "../../../../../tsconfig.esm.json",
+  "extends": "../../../tsconfig.code.json",
 
   "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/grid-components-canvas.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-grid-components-canvas.tsbuildinfo"
   },
 
   "include": [

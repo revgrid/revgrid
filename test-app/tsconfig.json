@@ -1,9 +1,9 @@
 {
-  "extends": "../tsconfig.base.json",
+  "extends": "../tsconfig.code-generation.json",
 	"compilerOptions": {
     "outDir": "./out-tsc",
     "sourceMap": true,
-    "baseUrl": "./",
+    "rootDir": "./",
 	},
 
   "include": [

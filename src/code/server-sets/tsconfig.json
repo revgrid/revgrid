@@ -1,9 +1,8 @@
 {
-  "extends": "../../../tsconfig.esm.json",
+  "extends": "../tsconfig.code.json",
 
   "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "../../../tsbuildinfo/server-sets.tsbuildinfo"
+    "tsBuildInfoFile": "../../../tsbuildinfo/code-server-sets.tsbuildinfo"
   },
 
   "include": [

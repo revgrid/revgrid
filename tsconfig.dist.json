@@ -1,12 +1,12 @@
 {
-  "extends": "./tsconfig.base.json",
+  "extends": "./tsconfig.code-generation.json",
   "compilerOptions": {
-    "outDir": "dist/esm",
+    "outDir": "dist/code",
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "lib",
+    "declarationDir": "./lib",
     "sourceMap": true,
     "inlineSourceMap": false,
-    "rootDir": "src/code",
+    "rootDir": "./src/code",
   },
 }

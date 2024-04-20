@@ -1,23 +1,11 @@
 {
+  "extends": "../tsconfig.code-generation.json",
 	"compilerOptions": {
-        "lib": [
-            "dom",
-            "es2019"
-        ],
-        "target": "ES2022",
-        "module": "es2020",
-        "moduleResolution": "node",
-        "outDir": "./out-tsc",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "sourceMap": true,
-        "strict": true,
-        "strictNullChecks": true,
-        "noUnusedLocals": false,
-        // "strictPropertyInitialization": true,
-        "noImplicitAny": true,
-        "noImplicitOverride": true,
-        "downlevelIteration": true,
-        "baseUrl": "./",
+    "outDir": "./out-tsc",
+    "sourceMap": true,
 	},
+
+  "include": [
+    "*.ts"
+  ],
 }

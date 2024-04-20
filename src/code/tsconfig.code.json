@@ -1,0 +1,9 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
+{
+  "extends": "../../tsconfig.dist.json",
+
+  "compilerOptions": {
+    "composite": true,
+  }
+}
