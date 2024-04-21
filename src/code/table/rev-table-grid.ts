@@ -3,8 +3,9 @@
 import { AssertInternalError, CorrectnessState, Integer, LockOpenListItem, MultiEvent, Ok, Result } from '@xilytix/sysutils';
 import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayoutsService } from '../column-layout/internal-api';
 import { BehavioredColumnSettings, BehavioredGridSettings, Revgrid, Subgrid } from '../grid/grid-public-api';
+import { RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedFieldGrid } from '../record-sourced-field/internal-api';
 import { RevRecordGrid, RevRecordRowOrderDefinition } from '../record/internal-api';
-import { RevAllowedSourcedRecordFieldsColumnLayoutDefinition, RevSourcedFieldCustomHeadingsService, RevSourcedRecordFieldGrid } from '../sourced-record-field/internal-api';
+import { RevSourcedFieldCustomHeadingsService } from '../sourced-field/internal-api';
 import {
     RevDataSource,
     RevDataSourceOrReference,
@@ -30,7 +31,7 @@ export class RevTableGrid<
     RenderAttributeTypeId,
     BGS extends BehavioredGridSettings,
     BCS extends BehavioredColumnSettings,
-> extends RevSourcedRecordFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>> {
+> extends RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>> {
     opener: LockOpenListItem.Opener;
     keepPreviousLayoutIfPossible = false;
     keptColumnLayoutOrReferenceDefinition: RevColumnLayoutOrReferenceDefinition | undefined;
@@ -337,7 +338,7 @@ export class RevTableGrid<
         }
     }
 
-    override createAllowedSourcedFieldsColumnLayoutDefinition(): RevAllowedSourcedRecordFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> {
+    override createAllowedSourcedFieldsColumnLayoutDefinition(): RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> {
         if (this._openedTable === undefined) {
             throw new AssertInternalError('GSFCAFALD56678');
         } else {

@@ -4,7 +4,7 @@
   "extends": "../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../tsbuildinfo/sourced-record-field.tsbuildinfo"
+    "tsBuildInfoFile": "../../../tsbuildinfo/code-sourced-field.tsbuildinfo"
   },
 
   "include": [
@@ -13,7 +13,5 @@
 
   "references": [
     { "path": "./server/tsconfig.json" },
-    { "path": "../record/tsconfig.json" },
-    { "path": "../grid/tsconfig.json" },
   ]
 }

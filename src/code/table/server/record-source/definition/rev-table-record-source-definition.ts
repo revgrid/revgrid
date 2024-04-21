@@ -2,7 +2,8 @@
 
 import { JsonElement, Result } from '@xilytix/sysutils';
 import { RevColumnLayoutDefinition } from '../../../../column-layout/server/internal-api';
-import { RevAllowedSourcedRecordField, RevSourcedFieldCustomHeadingsService, RevSourcedRecordField } from '../../../../sourced-record-field/server/internal-api';
+import { RevAllowedRecordSourcedField, RevRecordSourcedField } from '../../../../record-sourced-field/server/internal-api';
+import { RevSourcedFieldCustomHeadingsService } from '../../../../sourced-field/server/internal-api';
 import { RevTableFieldSourceDefinitionCachingFactoryService } from '../../field-source/internal-api';
 
 /** @public */
@@ -16,20 +17,20 @@ export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDef
     ) {
     }
 
-    createAllowedFields(): readonly RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>[] {
+    createAllowedFields(): readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[] {
         const tableFieldSourceDefinitionCachingFactoryService = this.tableFieldSourceDefinitionCachingFactoryService;
         const customHeadingsService = this._customHeadingsService;
-        let result: RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>[] = [];
+        let result: RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[] = [];
         for (const allowedFieldSourceDefinitionTypeId of this.allowedFieldSourceDefinitionTypeIds) {
             const fieldSourceDefinition = tableFieldSourceDefinitionCachingFactoryService.get(allowedFieldSourceDefinitionTypeId);
             const fieldCount = fieldSourceDefinition.fieldCount;
             const fieldDefinitions = fieldSourceDefinition.fieldDefinitions;
-            const sourceAllowedFields = new Array<RevAllowedSourcedRecordField<RenderValueTypeId, RenderAttributeTypeId>>(fieldCount);
+            const sourceAllowedFields = new Array<RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>(fieldCount);
             for (let i = 0; i < fieldCount; i++) {
                 const fieldDefinition = fieldDefinitions[i];
-                const heading = RevSourcedRecordField.generateHeading(customHeadingsService, fieldDefinition);
+                const heading = RevRecordSourcedField.generateHeading(customHeadingsService, fieldDefinition);
 
-                sourceAllowedFields[i] = new RevAllowedSourcedRecordField(
+                sourceAllowedFields[i] = new RevAllowedRecordSourcedField(
                     fieldDefinition,
                     heading,
                 );

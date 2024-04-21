@@ -4,7 +4,7 @@
   "extends": "../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../tsbuildinfo/record.tsbuildinfo"
+    "tsBuildInfoFile": "../../../tsbuildinfo/code-record.tsbuildinfo"
   },
 
   "include": [

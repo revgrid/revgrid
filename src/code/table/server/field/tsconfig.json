@@ -4,7 +4,7 @@
   "extends": "../../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/table-server-field.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-table-server-field.tsbuildinfo"
   },
 
   "include": [
@@ -13,7 +13,8 @@
 
   "references": [
     { "path": "../value/tsconfig.json" },
-    { "path": "../../../sourced-record-field/server/tsconfig.json" },
+    { "path": "../../../record-sourced-field/server/tsconfig.json" },
+    { "path": "../../../sourced-field/server/tsconfig.json" },
     { "path": "../../../render-value/tsconfig.json" },
     { "path": "../../../standard/tsconfig.json" },
   ]

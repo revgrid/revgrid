@@ -2,14 +2,18 @@
 
 {
   "extends": "../../tsconfig.code.json",
+
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../tsbuildinfo/code-column-layout-server.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../tsbuildinfo/code-sourced-field-server.tsbuildinfo"
   },
+
   "include": [
     "*.ts"
   ],
+
   "references": [
     { "path": "./definition/tsconfig.json" },
+    { "path": "../../standard/tsconfig.json" },
     { "path": "../../grid/tsconfig.json" },
   ]
 }
