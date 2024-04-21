@@ -4,9 +4,9 @@ import {
     Integer,
     compareValue
 } from '@xilytix/sysutils';
-import { RevRecordSourcedField } from '../../../record-sourced-field/server/internal-api';
+import { RevRecordSourcedField, RevRecordSourcedFieldDefinition } from '../../../record-sourced-field/server/internal-api';
 import { RevRenderValue } from '../../../render-value/internal-api';
-import { RevSourcedFieldDefinition, RevSourcedFieldSourceDefinition } from '../../../sourced-field/server/internal-api';
+import { RevSourcedFieldSourceDefinition } from '../../../sourced-field/server/internal-api';
 import { HorizontalAlign } from '../../../standard/standard-public-api';
 import { RevGenericTableValue, RevTableValue, RevTableValuesRecord } from '../value/internal-api';
 
@@ -87,7 +87,7 @@ export abstract class RevTableField<RenderValueTypeId, RenderAttributeTypeId> ex
 
 /** @public */
 export namespace RevTableField {
-    export class Definition<RenderValueTypeId, RenderAttributeTypeId> extends RevSourcedFieldDefinition {
+    export class Definition<RenderValueTypeId, RenderAttributeTypeId> extends RevRecordSourcedFieldDefinition {
         constructor(
             sourceDefinition: RevSourcedFieldSourceDefinition,
             sourcelessName: string,

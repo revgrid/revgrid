@@ -4323,9 +4323,9 @@ export namespace RevRecordSortDefinition {
 
 // @public (undocumented)
 export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> implements RevSourcedField, RevRecordField {
-    constructor(definition: RevSourcedFieldDefinition, heading?: string);
+    constructor(definition: RevRecordSourcedFieldDefinition, heading?: string);
     // (undocumented)
-    readonly definition: RevSourcedFieldDefinition;
+    readonly definition: RevRecordSourcedFieldDefinition;
     // (undocumented)
     getEditValue(record: IndexedRecord): DataServer.EditValue;
     // (undocumented)
@@ -4345,9 +4345,33 @@ export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTy
 }
 
 // @public (undocumented)
+export class RevRecordSourcedFieldDefinition implements RevSourcedFieldDefinition {
+    constructor(sourceDefinition: RevRecordSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined);
+    // (undocumented)
+    readonly defaultHeading: string;
+    // (undocumented)
+    readonly defaultTextAlign: HorizontalAlign;
+    // (undocumented)
+    readonly defaultWidth?: number | undefined;
+    // (undocumented)
+    readonly name: string;
+    // (undocumented)
+    readonly sourceDefinition: RevRecordSourcedFieldSourceDefinition;
+    // (undocumented)
+    readonly sourcelessName: string;
+}
+
+// @public (undocumented)
 export class RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>> extends RevRecordGrid<BGS, BCS, SF> {
     // (undocumented)
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[]): RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId>;
+}
+
+// @public (undocumented)
+export class RevRecordSourcedFieldSourceDefinition implements RevSourcedFieldSourceDefinition {
+    constructor(name: string);
+    // (undocumented)
+    readonly name: string;
 }
 
 // @public
@@ -4622,6 +4646,8 @@ export namespace RevRenderValue {
 // @public (undocumented)
 export interface RevSourcedField extends SchemaField {
     // (undocumented)
+    readonly definition: RevSourcedFieldDefinition;
+    // (undocumented)
     heading: string;
     // (undocumented)
     readonly name: string;
@@ -4676,14 +4702,13 @@ export class RevSourcedFieldCustomHeadingsService {
 }
 
 // @public (undocumented)
-export class RevSourcedFieldDefinition {
-    constructor(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined);
+export interface RevSourcedFieldDefinition {
     // (undocumented)
     readonly defaultHeading: string;
     // (undocumented)
     readonly defaultTextAlign: HorizontalAlign;
     // (undocumented)
-    readonly defaultWidth?: number | undefined;
+    readonly defaultWidth?: Integer;
     // (undocumented)
     readonly name: string;
     // (undocumented)
@@ -4722,8 +4747,7 @@ export namespace RevSourcedFieldDefinition {
 }
 
 // @public (undocumented)
-export class RevSourcedFieldSourceDefinition {
-    constructor(name: string);
+export interface RevSourcedFieldSourceDefinition {
     // (undocumented)
     readonly name: string;
 }
@@ -4954,7 +4978,7 @@ export namespace RevTableField {
     // (undocumented)
     export type Constructor<RenderValueTypeId, RenderAttributeTypeId> = new (textFormatter: RevRenderValue.TextFormatter<RenderValueTypeId, RenderAttributeTypeId>, definition: RevTableField.Definition<RenderValueTypeId, RenderAttributeTypeId>, heading: string, index: Integer) => RevTableField<RenderValueTypeId, RenderAttributeTypeId>;
     // (undocumented)
-    export class Definition<RenderValueTypeId, RenderAttributeTypeId> extends RevSourcedFieldDefinition {
+    export class Definition<RenderValueTypeId, RenderAttributeTypeId> extends RevRecordSourcedFieldDefinition {
         constructor(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: HorizontalAlign, gridFieldConstructor: RevTableField.Constructor<RenderValueTypeId, RenderAttributeTypeId>, gridValueConstructor: RevTableValue.Constructor<RenderValueTypeId, RenderAttributeTypeId>);
         // (undocumented)
         readonly gridFieldConstructor: RevTableField.Constructor<RenderValueTypeId, RenderAttributeTypeId>;
@@ -4981,7 +5005,7 @@ export class RevTableFieldSource<TypeId, RenderValueTypeId, RenderAttributeTypeI
 }
 
 // @public (undocumented)
-export abstract class RevTableFieldSourceDefinition<TypeId, RenderValueTypeId, RenderAttributeTypeId> extends RevSourcedFieldSourceDefinition {
+export abstract class RevTableFieldSourceDefinition<TypeId, RenderValueTypeId, RenderAttributeTypeId> extends RevRecordSourcedFieldSourceDefinition {
     constructor(typeId: TypeId, name: string);
     // (undocumented)
     encodeFieldName(sourcelessFieldName: string): string;

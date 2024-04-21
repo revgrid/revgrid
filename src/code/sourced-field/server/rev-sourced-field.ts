@@ -10,6 +10,7 @@ import { RevSourcedFieldCustomHeadingsService } from './rev-sourced-field-custom
 
 /** @public */
 export interface RevSourcedField extends SchemaField {
+    readonly definition: RevSourcedFieldDefinition;
     readonly name: string;
     heading: string;
 }

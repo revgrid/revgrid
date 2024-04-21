@@ -8,7 +8,8 @@ import {
 import { DataServer } from '../../grid/grid-public-api';
 import { RevRecordField } from '../../record/server/internal-api';
 import { RevRenderValue } from '../../render-value/internal-api';
-import { RevSourcedField, RevSourcedFieldDefinition } from '../../sourced-field/server/internal-api';
+import { RevSourcedField } from '../../sourced-field/server/internal-api';
+import { RevRecordSourcedFieldDefinition } from './definition/internal-api';
 
 /** @public */
 export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> implements RevSourcedField, RevRecordField {
@@ -19,7 +20,7 @@ export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTy
     index: Integer;
     heading: string;
 
-    constructor(readonly definition: RevSourcedFieldDefinition, heading?: string) {
+    constructor(readonly definition: RevRecordSourcedFieldDefinition, heading?: string) {
         this.name = definition.name;
         this.heading = heading ?? definition.defaultHeading;
     }

@@ -5,18 +5,13 @@ import { HorizontalAlign } from '../../../standard/standard-public-api';
 import { RevSourcedFieldSourceDefinition } from './rev-sourced-field-source-definition';
 
 /** @public */
-export class RevSourcedFieldDefinition {
+export interface RevSourcedFieldDefinition {
     readonly name: string;
-
-    constructor(
-        readonly sourceDefinition: RevSourcedFieldSourceDefinition,
-        readonly sourcelessName: string,
-        readonly defaultHeading: string,
-        readonly defaultTextAlign: HorizontalAlign,
-        readonly defaultWidth?: Integer,
-    ) {
-        this.name = RevSourcedFieldDefinition.Name.compose(sourceDefinition.name, sourcelessName);
-    }
+    readonly sourceDefinition: RevSourcedFieldSourceDefinition,
+    readonly sourcelessName: string,
+    readonly defaultHeading: string,
+    readonly defaultTextAlign: HorizontalAlign,
+    readonly defaultWidth?: Integer,
 }
 
 /** @public */
