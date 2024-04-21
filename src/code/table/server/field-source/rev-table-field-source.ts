@@ -1,9 +1,8 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { Integer } from '@xilytix/sysutils';
-import { RevRecordSourcedField } from '../../../record-sourced-field/server/internal-api';
 import { RevRenderValue } from '../../../render-value/internal-api';
-import { RevSourcedFieldCustomHeadingsService } from '../../../sourced-field/server/internal-api';
+import { RevSourcedField, RevSourcedFieldCustomHeadingsService } from '../../../sourced-field/server/internal-api';
 import { RevTableField } from '../field/internal-api';
 import { RevTableFieldSourceDefinition } from './definition/internal-api';
 
@@ -29,7 +28,7 @@ export class RevTableFieldSource<TypeId, RenderValueTypeId, RenderAttributeTypeI
         const result = new Array<RevTableField<RenderValueTypeId, RenderAttributeTypeId>>(fieldCount);
         for (let i = 0; i < fieldCount; i++) {
             const fieldDefinition = fieldDefinitions[i];
-            const heading = RevRecordSourcedField.generateHeading(this._customHeadingsService, fieldDefinition);
+            const heading = RevSourcedField.generateHeading(this._customHeadingsService, fieldDefinition);
 
             result[i] = new fieldDefinition.gridFieldConstructor(
                 this._textFormatter,

@@ -1,8 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import {
-    EnumInfoOutOfOrderError,
-    Integer
+    EnumInfoOutOfOrderError
 } from '@xilytix/sysutils';
 import { SchemaField } from '../../grid/grid-public-api';
 import { HorizontalAlignEnum } from '../../standard/standard-public-api';
@@ -10,16 +9,9 @@ import { RevSourcedFieldDefinition } from './definition/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from './rev-sourced-field-custom-headings-service';
 
 /** @public */
-export abstract class RevSourcedField implements SchemaField {
+export interface RevSourcedField extends SchemaField {
     readonly name: string;
-    index: Integer;
     heading: string;
-
-    constructor(readonly definition: RevSourcedFieldDefinition, heading?: string) {
-        this.name = definition.name;
-        this.heading = heading ?? definition.defaultHeading;
-    }
-
 }
 
 /** @public */

@@ -4322,13 +4322,22 @@ export namespace RevRecordSortDefinition {
 }
 
 // @public (undocumented)
-export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> extends RevSourcedField implements RevRecordField {
+export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> implements RevSourcedField, RevRecordField {
+    constructor(definition: RevSourcedFieldDefinition, heading?: string);
+    // (undocumented)
+    readonly definition: RevSourcedFieldDefinition;
     // (undocumented)
     getEditValue(record: IndexedRecord): DataServer.EditValue;
     // (undocumented)
     getEditValueEventer: RevSourcedRecordField.GetEditValueEventer | undefined;
     // (undocumented)
     abstract getViewValue(record: IndexedRecord): RevRenderValue<RenderValueTypeId, RenderAttributeTypeId>;
+    // (undocumented)
+    heading: string;
+    // (undocumented)
+    index: Integer;
+    // (undocumented)
+    readonly name: string;
     // (undocumented)
     setEditValue(record: IndexedRecord, value: DataServer.EditValue): void;
     // (undocumented)
@@ -4611,14 +4620,9 @@ export namespace RevRenderValue {
 }
 
 // @public (undocumented)
-export abstract class RevSourcedField implements SchemaField {
-    constructor(definition: RevSourcedFieldDefinition, heading?: string);
-    // (undocumented)
-    readonly definition: RevSourcedFieldDefinition;
+export interface RevSourcedField extends SchemaField {
     // (undocumented)
     heading: string;
-    // (undocumented)
-    index: Integer;
     // (undocumented)
     readonly name: string;
 }

@@ -2,17 +2,27 @@
 
 import {
     AssertInternalError,
-    IndexedRecord
+    IndexedRecord,
+    Integer
 } from '@xilytix/sysutils';
 import { DataServer } from '../../grid/grid-public-api';
 import { RevRecordField } from '../../record/server/internal-api';
 import { RevRenderValue } from '../../render-value/internal-api';
-import { RevSourcedField } from '../../sourced-field/server/internal-api';
+import { RevSourcedField, RevSourcedFieldDefinition } from '../../sourced-field/server/internal-api';
 
 /** @public */
-export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> extends RevSourcedField implements RevRecordField {
+export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> implements RevSourcedField, RevRecordField {
     getEditValueEventer: RevSourcedRecordField.GetEditValueEventer | undefined;
     setEditValueEventer: RevSourcedRecordField.SetEditValueEventer | undefined;
+
+    readonly name: string;
+    index: Integer;
+    heading: string;
+
+    constructor(readonly definition: RevSourcedFieldDefinition, heading?: string) {
+        this.name = definition.name;
+        this.heading = heading ?? definition.defaultHeading;
+    }
 
     getEditValue(record: IndexedRecord): DataServer.EditValue {
         if (this.getEditValueEventer === undefined) {

@@ -2,8 +2,8 @@
 
 import { JsonElement, Result } from '@xilytix/sysutils';
 import { RevColumnLayoutDefinition } from '../../../../column-layout/server/internal-api';
-import { RevAllowedRecordSourcedField, RevRecordSourcedField } from '../../../../record-sourced-field/server/internal-api';
-import { RevSourcedFieldCustomHeadingsService } from '../../../../sourced-field/server/internal-api';
+import { RevAllowedRecordSourcedField } from '../../../../record-sourced-field/server/internal-api';
+import { RevSourcedField, RevSourcedFieldCustomHeadingsService } from '../../../../sourced-field/server/internal-api';
 import { RevTableFieldSourceDefinitionCachingFactoryService } from '../../field-source/internal-api';
 
 /** @public */
@@ -28,7 +28,7 @@ export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDef
             const sourceAllowedFields = new Array<RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>(fieldCount);
             for (let i = 0; i < fieldCount; i++) {
                 const fieldDefinition = fieldDefinitions[i];
-                const heading = RevRecordSourcedField.generateHeading(customHeadingsService, fieldDefinition);
+                const heading = RevSourcedField.generateHeading(customHeadingsService, fieldDefinition);
 
                 sourceAllowedFields[i] = new RevAllowedRecordSourcedField(
                     fieldDefinition,
