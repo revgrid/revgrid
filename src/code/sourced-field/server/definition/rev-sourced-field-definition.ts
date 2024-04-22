@@ -9,8 +9,8 @@ export interface RevSourcedFieldDefinition {
     readonly name: string;
     readonly sourceDefinition: RevSourcedFieldSourceDefinition,
     readonly sourcelessName: string,
-    readonly defaultHeading: string,
     readonly defaultTextAlign: HorizontalAlign,
+    readonly defaultHeading: string,
     readonly defaultWidth?: Integer,
 }
 

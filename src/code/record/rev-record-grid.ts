@@ -75,6 +75,7 @@ export class RevRecordGrid<
 
     get fieldCount() { return this.schemaServer.fieldCount; }
     get fieldNames() { return this.schemaServer.getFields(); }
+    get allowedFields() { return this._allowedFields; }
 
     get beenUsable() { return this._beenUsable; }
 

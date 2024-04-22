@@ -4,7 +4,7 @@
   "extends": "../../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-record-sourced-field-server-definition.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-multi-heading-data-row-array-sourced-field-server-definition.tsbuildinfo"
   },
 
   "include": [

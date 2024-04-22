@@ -13,6 +13,7 @@
 
   "references": [
     { "path": "./definition/tsconfig.json" },
+    { "path": "../../column-layout/server/tsconfig.json" },
     { "path": "../../standard/tsconfig.json" },
     { "path": "../../grid/tsconfig.json" },
   ]

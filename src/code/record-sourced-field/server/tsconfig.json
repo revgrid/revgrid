@@ -14,7 +14,7 @@
   "references": [
     { "path": "./definition/tsconfig.json" },
     { "path": "../../record/server/tsconfig.json" },
-    { "path": "../../sourced-field/tsconfig.json" },
+    { "path": "../../sourced-field/server/tsconfig.json" },
     { "path": "../../render-value/tsconfig.json" },
     { "path": "../../column-layout/server/tsconfig.json" },
     { "path": "../../grid/tsconfig.json" },

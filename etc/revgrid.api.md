@@ -832,51 +832,6 @@ export interface DatalessViewLayoutRow {
 }
 
 // @public (undocumented)
-export class DataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
-    // (undocumented)
-    addRow(dataRow: DataServer.ObjectViewRow): number;
-    // (undocumented)
-    beginDataChange(): void;
-    // (undocumented)
-    deleteRows(index: number, count?: number): DataServer.ObjectViewRow[];
-    // (undocumented)
-    endDataChange(): void;
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getViewRow(index: number): DataServer.ObjectViewRow;
-    // (undocumented)
-    getViewValue(field: SF, y: number): unknown;
-    // (undocumented)
-    insertRow(index: number, dataRow: DataServer.ObjectViewRow): void;
-    // (undocumented)
-    invalidateAll(): void;
-    // (undocumented)
-    reset(data?: DataServer.ObjectViewRow[]): void;
-    // (undocumented)
-    setEditValue(field: SF, y: number, value: unknown): void;
-    setViewRow(index: number, dataRow: DataServer.ObjectViewRow): void;
-    // (undocumented)
-    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-    // (undocumented)
-    unsubscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-}
-
-// @public (undocumented)
-export class DataRowArraySchemaServer<SF extends SchemaField> implements SchemaServer<SF> {
-    // (undocumented)
-    getFields(): readonly SF[];
-    // (undocumented)
-    reset(schema?: SF[]): void;
-    // (undocumented)
-    setSchema(schema: SF[]): void;
-    // (undocumented)
-    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>): void;
-    // (undocumented)
-    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>): void;
-}
-
-// @public (undocumented)
 export interface DataServer<SF extends SchemaField> {
     // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
     fetchViewData?(rectangles: readonly Rectangle[], callback?: (failure: boolean) => void): void;
@@ -2206,30 +2161,6 @@ export namespace Mouse {
 }
 
 // @public (undocumented)
-export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaField> {
-    constructor(
-    _createFieldEventer: MultiHeadingDataRowArrayServerSet.CreateFieldEventer<SF>);
-    // (undocumented)
-    readonly headerDataServer: MultiHeadingDataServer<SF>;
-    // (undocumented)
-    readonly mainDataServer: DataRowArrayDataServer<SF>;
-    // (undocumented)
-    readonly schemaServer: DataRowArraySchemaServer<SF>;
-    setData(data: MultiHeadingDataRowArrayServerSet.DataRow[] | (() => MultiHeadingDataRowArrayServerSet.DataRow[]), headerRowCount?: number): void;
-}
-
-// @public (undocumented)
-export namespace MultiHeadingDataRowArrayServerSet {
-    // (undocumented)
-    export type CreateFieldEventer<SF extends MultiHeadingSchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
-    // (undocumented)
-    export interface DataRow extends DataServer.ObjectViewRow {
-        // (undocumented)
-        [fieldName: string]: DataServer.ViewValue | string;
-    }
-}
-
-// @public (undocumented)
 export class MultiHeadingDataServer<SF extends MultiHeadingSchemaField> implements DataServer<SF> {
     // (undocumented)
     getRowCount(): number;
@@ -2579,16 +2510,46 @@ export namespace Renderer {
 }
 
 // @public (undocumented)
+export class RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition extends RevColumnLayoutDefinition implements RevAllowedSourcedFieldsColumnLayoutDefinition {
+    constructor(columns: readonly RevColumnLayoutDefinition.Column[], allowedFields: readonly RevMultiHeadingDataRowArraySourcedField[], fixedColumnCount: Integer);
+    // (undocumented)
+    readonly allowedFields: readonly RevMultiHeadingDataRowArraySourcedField[];
+    // (undocumented)
+    readonly fixedColumnCount: Integer;
+}
+
+// @public (undocumented)
 export class RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> {
     // (undocumented)
     getViewValue(_record: IndexedRecord): RevRenderValue<RenderValueTypeId, RenderAttributeTypeId>;
 }
 
 // @public (undocumented)
-export class RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> extends RevColumnLayoutDefinition {
+export class RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> extends RevColumnLayoutDefinition implements RevAllowedSourcedFieldsColumnLayoutDefinition {
     constructor(columns: readonly RevColumnLayoutDefinition.Column[], allowedFields: readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[], fixedColumnCount: Integer);
     // (undocumented)
     readonly allowedFields: readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[];
+    // (undocumented)
+    readonly fixedColumnCount: Integer;
+}
+
+// @public (undocumented)
+export class RevAllowedSingleHeadingDataRowArraySourcedFieldsColumnLayoutDefinition extends RevColumnLayoutDefinition implements RevAllowedSourcedFieldsColumnLayoutDefinition {
+    constructor(columns: readonly RevColumnLayoutDefinition.Column[], allowedFields: readonly RevSingleHeadingDataRowArraySourcedField[], fixedColumnCount: Integer);
+    // (undocumented)
+    readonly allowedFields: readonly RevSingleHeadingDataRowArraySourcedField[];
+    // (undocumented)
+    readonly fixedColumnCount: Integer;
+}
+
+// @public (undocumented)
+export interface RevAllowedSourcedFieldsColumnLayoutDefinition {
+    // (undocumented)
+    readonly allowedFields: readonly RevSourcedField[];
+    // (undocumented)
+    readonly columnCount: Integer;
+    // (undocumented)
+    readonly columns: readonly RevColumnLayoutDefinition.Column[];
     // (undocumented)
     readonly fixedColumnCount: Integer;
 }
@@ -2976,6 +2937,146 @@ export namespace RevColumnLayoutOrReferenceDefinition {
     }
     // (undocumented)
     export function tryCreateFromJson(element: JsonElement): Result<RevColumnLayoutOrReferenceDefinition, CreateFromJsonErrorId>;
+}
+
+// @public (undocumented)
+export class RevDataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
+    // (undocumented)
+    addRow(dataRow: DataServer.ObjectViewRow): number;
+    // (undocumented)
+    beginDataChange(): void;
+    // (undocumented)
+    get data(): DataServer.ObjectViewRow[];
+    // (undocumented)
+    deleteRows(index: number, count?: number): DataServer.ObjectViewRow[];
+    // (undocumented)
+    endDataChange(): void;
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getViewRow(index: number): DataServer.ObjectViewRow;
+    // (undocumented)
+    getViewValue(field: SF, y: number): unknown;
+    // (undocumented)
+    insertRow(index: number, dataRow: DataServer.ObjectViewRow): void;
+    // (undocumented)
+    invalidateAll(): void;
+    // (undocumented)
+    reset(data?: DataServer.ObjectViewRow[]): void;
+    // (undocumented)
+    setEditValue(field: SF, y: number, value: unknown): void;
+    setViewRow(index: number, dataRow: DataServer.ObjectViewRow): void;
+    // (undocumented)
+    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+    // (undocumented)
+    unsubscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+}
+
+// @public (undocumented)
+export interface RevDataRowArrayField extends SchemaField {
+    // (undocumented)
+    readonly name: string;
+}
+
+// @public (undocumented)
+export class RevDataRowArrayGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevDataRowArrayField> extends RevColumnLayoutGrid<BGS, BCS, SF> {
+    constructor(gridHostElement: HTMLElement, definition: Revgrid.Definition<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: Revgrid.Options<BGS, BCS, SF>);
+    // (undocumented)
+    get allowedFields(): readonly SF[] | undefined;
+    // (undocumented)
+    applyFirstUsable(viewAnchor: RevDataRowArrayGrid.ViewAnchor | undefined, columnLayout: RevColumnLayout | undefined): void;
+    // (undocumented)
+    protected areFieldsAllowed(): boolean;
+    // (undocumented)
+    get beenUsable(): boolean;
+    // (undocumented)
+    protected convertDataValueToString(value: DataServer.ViewValue | string): string;
+    // (undocumented)
+    get data(): DataServer.ObjectViewRow[];
+    // (undocumented)
+    protected descendantProcessRendered(): void;
+    // (undocumented)
+    get fieldCount(): number;
+    // (undocumented)
+    get fieldNames(): readonly SF[];
+    // (undocumented)
+    get focusedRecordIndex(): Integer | undefined;
+    // (undocumented)
+    getField(fieldIndex: Integer): SF;
+    // (undocumented)
+    getFieldByName(fieldName: string): SF;
+    // (undocumented)
+    getViewAnchor(): RevDataRowArrayGrid.ViewAnchor | undefined;
+    // (undocumented)
+    get gridRightAligned(): boolean;
+    // (undocumented)
+    readonly headerDataServer: DataServer<SF> | undefined;
+    // (undocumented)
+    get headerRowCount(): number;
+    // (undocumented)
+    initialiseAllowedFields(fields: readonly SF[]): void;
+    // (undocumented)
+    invalidateAll(): void;
+    // (undocumented)
+    protected isFieldNameAllowed(fieldName: string): boolean;
+    // (undocumented)
+    isHeaderRow(rowIndex: number): boolean;
+    // (undocumented)
+    mainDataServer: RevDataRowArrayDataServer<SF>;
+    // (undocumented)
+    get mainRowCount(): number;
+    // (undocumented)
+    get recordFocused(): boolean;
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    resetUsable(): void;
+    // (undocumented)
+    get rowHeight(): number;
+    // (undocumented)
+    schemaServer: RevDataRowArraySchemaServer<SF>;
+    // (undocumented)
+    updateAllowedFields(fields: readonly SF[]): void;
+}
+
+// @public (undocumented)
+export namespace RevDataRowArrayGrid {
+    // (undocumented)
+    export interface DataRow extends DataServer.ObjectViewRow {
+        // (undocumented)
+        [fieldName: string]: DataServer.ViewValue | string;
+    }
+    // (undocumented)
+    export interface ViewAnchor {
+        // (undocumented)
+        readonly columnScrollAnchorIndex: Integer;
+        // (undocumented)
+        readonly columnScrollAnchorOffset: Integer;
+        // (undocumented)
+        readonly rowScrollAnchorIndex: Integer;
+    }
+}
+
+// @public (undocumented)
+export class RevDataRowArraySchemaServer<SF extends SchemaField> implements SchemaServer<SF> {
+    // (undocumented)
+    get fieldCount(): number;
+    // (undocumented)
+    getField(fieldIndex: Integer): SF;
+    // (undocumented)
+    getFieldByName(fieldName: string): SF;
+    // (undocumented)
+    getFields(): readonly SF[];
+    // (undocumented)
+    reset(schema?: SF[]): void;
+    // (undocumented)
+    setSchema(schema: SF[]): void;
+    // (undocumented)
+    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>): void;
+    // (undocumented)
+    tryGetFieldByName(fieldName: string): SF | undefined;
+    // (undocumented)
+    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>): void;
 }
 
 // @public (undocumented)
@@ -3774,6 +3875,66 @@ export const enum RevListChangedTypeId {
 }
 
 // @public (undocumented)
+export class RevMultiHeadingDataRowArraySourcedField implements RevSourcedField, RevDataRowArrayField, MultiHeadingSchemaField {
+    constructor(definition: RevMultiHeadingDataRowArraySourcedFieldDefinition, heading?: string, headings?: string[]);
+    // (undocumented)
+    readonly definition: RevMultiHeadingDataRowArraySourcedFieldDefinition;
+    // (undocumented)
+    heading: string;
+    // (undocumented)
+    headings: string[];
+    // (undocumented)
+    index: Integer;
+    // (undocumented)
+    readonly name: string;
+}
+
+// @public (undocumented)
+export class RevMultiHeadingDataRowArraySourcedFieldDefinition implements RevSourcedFieldDefinition {
+    constructor(key: string, headings: string[], sourceDefinition: RevMultiHeadingDataRowArraySourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string | undefined, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined);
+    // (undocumented)
+    readonly defaultHeading: string;
+    // (undocumented)
+    readonly defaultTextAlign: HorizontalAlign;
+    // (undocumented)
+    readonly defaultWidth?: number | undefined;
+    // (undocumented)
+    readonly headings: string[];
+    // (undocumented)
+    readonly key: string;
+    // (undocumented)
+    readonly name: string;
+    // (undocumented)
+    readonly sourceDefinition: RevMultiHeadingDataRowArraySourcedFieldSourceDefinition;
+    // (undocumented)
+    readonly sourcelessName: string;
+}
+
+// @public (undocumented)
+export class RevMultiHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevMultiHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
+    constructor(gridHostElement: HTMLElement, getHeaderCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>,
+    _createFieldEventer: RevMultiHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: Revgrid.Options<BGS, BCS, SF>);
+    // (undocumented)
+    createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]): RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition;
+    // (undocumented)
+    headerDataServer: MultiHeadingDataServer<SF>;
+    setData(data: RevDataRowArrayGrid.DataRow[] | (() => RevDataRowArrayGrid.DataRow[]), headerRowCount?: number): void;
+}
+
+// @public (undocumented)
+export namespace RevMultiHeadingDataRowArraySourcedFieldGrid {
+    // (undocumented)
+    export type CreateFieldEventer<SF extends RevMultiHeadingDataRowArraySourcedField> = (this: void, index: number, key: string, headings: string[]) => SF;
+}
+
+// @public (undocumented)
+export class RevMultiHeadingDataRowArraySourcedFieldSourceDefinition implements RevSourcedFieldSourceDefinition {
+    constructor(name: string);
+    // (undocumented)
+    readonly name: string;
+}
+
+// @public (undocumented)
 export class RevOptionsError extends InternalError {
     constructor(code: string, message?: string);
 }
@@ -4039,6 +4200,8 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
 // @public (undocumented)
 export class RevRecordGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordField> extends RevColumnLayoutGrid<BGS, BCS, SF> {
     constructor(gridHostElement: HTMLElement, recordStore: RevRecordStore, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, extraSubgridDefinitions: Subgrid.Definition<BCS, SF>[], settings: BGS, customiseSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: Revgrid.Options<BGS, BCS, SF>, mainSubgridDefinitionOptions?: RevRecordGrid.MainSubgridDefinitionOptions);
+    // (undocumented)
+    get allowedFields(): readonly SF[] | undefined;
     // (undocumented)
     applyFilter(filter?: RevRecordDataServer.RecordFilterCallback): void;
     // (undocumented)
@@ -4362,7 +4525,7 @@ export class RevRecordSourcedFieldDefinition implements RevSourcedFieldDefinitio
 }
 
 // @public (undocumented)
-export class RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>> extends RevRecordGrid<BGS, BCS, SF> {
+export class RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>> extends RevRecordGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
     // (undocumented)
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[]): RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId>;
 }
@@ -4644,6 +4807,62 @@ export namespace RevRenderValue {
 }
 
 // @public (undocumented)
+export class RevSingleHeadingDataRowArraySourcedField implements RevSourcedField, RevDataRowArrayField, SingleHeadingSchemaField {
+    constructor(definition: RevSingleHeadingDataRowArraySourcedFieldDefinition, heading?: string);
+    // (undocumented)
+    readonly definition: RevSingleHeadingDataRowArraySourcedFieldDefinition;
+    // (undocumented)
+    heading: string;
+    // (undocumented)
+    index: Integer;
+    // (undocumented)
+    readonly name: string;
+}
+
+// @public (undocumented)
+export class RevSingleHeadingDataRowArraySourcedFieldDefinition implements RevSourcedFieldDefinition {
+    constructor(key: string, sourceDefinition: RevSingleHeadingDataRowArraySourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined);
+    // (undocumented)
+    readonly defaultHeading: string;
+    // (undocumented)
+    readonly defaultTextAlign: HorizontalAlign;
+    // (undocumented)
+    readonly defaultWidth?: number | undefined;
+    // (undocumented)
+    readonly key: string;
+    // (undocumented)
+    readonly name: string;
+    // (undocumented)
+    readonly sourceDefinition: RevSingleHeadingDataRowArraySourcedFieldSourceDefinition;
+    // (undocumented)
+    readonly sourcelessName: string;
+}
+
+// @public (undocumented)
+export class RevSingleHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevSingleHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
+    constructor(gridHostElement: HTMLElement, getHeaderCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>,
+    _createFieldEventer: RevSingleHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: Revgrid.Options<BGS, BCS, SF>);
+    // (undocumented)
+    createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]): RevAllowedSingleHeadingDataRowArraySourcedFieldsColumnLayoutDefinition;
+    // (undocumented)
+    headerDataServer: SingleHeadingDataServer<SF>;
+    setData(data: RevDataRowArrayGrid.DataRow[] | (() => RevDataRowArrayGrid.DataRow[]), keyIsHeading: boolean): void;
+}
+
+// @public (undocumented)
+export namespace RevSingleHeadingDataRowArraySourcedFieldGrid {
+    // (undocumented)
+    export type CreateFieldEventer<SF extends RevSingleHeadingDataRowArraySourcedField> = (this: void, index: number, key: string, heading: string) => SF;
+}
+
+// @public (undocumented)
+export class RevSingleHeadingDataRowArraySourcedFieldSourceDefinition implements RevSourcedFieldSourceDefinition {
+    constructor(name: string);
+    // (undocumented)
+    readonly name: string;
+}
+
+// @public (undocumented)
 export interface RevSourcedField extends SchemaField {
     // (undocumented)
     readonly definition: RevSourcedFieldDefinition;
@@ -4744,6 +4963,14 @@ export namespace RevSourcedFieldDefinition {
         // (undocumented)
         export function tryDecompose(name: string): Result<DecomposedArray, DecomposeErrorIdPlusExtra>;
     }
+}
+
+// @public (undocumented)
+export interface RevSourcedFieldGrid<SF extends RevSourcedField> {
+    // (undocumented)
+    readonly allowedFields: readonly SF[] | undefined;
+    // (undocumented)
+    createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]): RevAllowedSourcedFieldsColumnLayoutDefinition;
 }
 
 // @public (undocumented)
@@ -5868,30 +6095,6 @@ export class SelectionRectangle extends FirstCornerRectangle implements Selectio
 
 // @public (undocumented)
 export type ServerNotificationId = number;
-
-// @public (undocumented)
-export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaField> {
-    constructor(
-    _createFieldEventer: SingleHeadingDataRowArrayServerSet.CreateFieldEventer<SF>);
-    // (undocumented)
-    readonly headerDataServer: SingleHeadingDataServer<SF>;
-    // (undocumented)
-    readonly mainDataServer: DataRowArrayDataServer<SF>;
-    // (undocumented)
-    readonly schemaServer: DataRowArraySchemaServer<SF>;
-    setData(data: SingleHeadingDataRowArrayServerSet.DataRow[] | (() => SingleHeadingDataRowArrayServerSet.DataRow[]), keyIsHeading: boolean): void;
-}
-
-// @public (undocumented)
-export namespace SingleHeadingDataRowArrayServerSet {
-    // (undocumented)
-    export type CreateFieldEventer<SF extends SchemaField> = (this: void, index: number, key: string, heading: string) => SF;
-    // (undocumented)
-    export interface DataRow extends DataServer.ObjectViewRow {
-        // (undocumented)
-        [fieldName: string]: DataServer.ViewValue | string;
-    }
-}
 
 // @public (undocumented)
 export class SingleHeadingDataServer<SF extends SingleHeadingSchemaField> implements DataServer<SF> {
