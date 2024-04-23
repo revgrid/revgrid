@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { DataServer, RevAssertError } from '../../../grid/grid-public-api';
+import { DataServer, RevAssertError } from '../../../grid/internal-api';
 import { MultiHeadingSchemaField } from './multi-heading-schema-field';
 
 /** @public */

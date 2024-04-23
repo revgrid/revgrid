@@ -2,7 +2,7 @@
 
 import { Integer } from '@xilytix/sysutils';
 import { RevSourcedFieldDefinition } from '../../../sourced-field/server/internal-api';
-import { HorizontalAlign } from '../../../standard/standard-public-api';
+import { HorizontalAlign } from '../../../standard/internal-api';
 import { RevRecordSourcedFieldSourceDefinition } from './record-sourced-field-source-definition';
 
 /** @public */

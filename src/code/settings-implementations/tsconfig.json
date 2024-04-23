@@ -6,7 +6,7 @@
   },
 
   "include": [
-    "settings-implementations-public-api.ts",
+    "internal-api.ts",
   ],
 
   "references": [

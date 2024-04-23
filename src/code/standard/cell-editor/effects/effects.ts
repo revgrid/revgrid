@@ -1,5 +1,5 @@
 import { numberToPixels } from '@xilytix/sysutils';
-import { RevApiError } from '../../../grid/grid-public-api';
+import { RevApiError } from '../../../grid/internal-api';
 /** effectFunction
  * @remarks Element to perform transitions upon is `options.el` if defined or `this.el`.
  * @param {object} [options]

@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CellPainter, DataServer, DatalessViewCell, Revgrid, SchemaField } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CellPainter, DataServer, DatalessViewCell, Revgrid, SchemaField } from '../../grid/internal-api';
 import { StandardCellEditor } from './standard-cell-editor';
 
 /** @public */

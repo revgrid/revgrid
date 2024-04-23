@@ -1,5 +1,5 @@
-import { defaultColumnSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { StandardColumnSettings } from '../../settings/standard-settings-public-api';
+import { defaultColumnSettings } from '../../../settings-implementations/internal-api';
+import { StandardColumnSettings } from '../../settings/internal-api';
 import { defaultStandardOnlyColumnSettings } from './default-standard-only-column-settings';
 
 /** @public */

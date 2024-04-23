@@ -5,9 +5,9 @@ import {
     DatalessViewCell,
     Revgrid,
     SchemaField
-} from '../../grid/grid-public-api';
-import { StandardTextPainter } from '../painters/standard-painters-public-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/standard-settings-public-api';
+} from '../../grid/internal-api';
+import { StandardTextPainter } from '../painters/internal-api';
+import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
 import { StandardCellPainter } from './standard-cell-painter';
 
 /**

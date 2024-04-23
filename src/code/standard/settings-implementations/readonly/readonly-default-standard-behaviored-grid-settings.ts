@@ -1,6 +1,6 @@
-import { readonlyBehavioredSettings } from '../../../settings-implementations/readonly/settings-implementations-readonly-public-api';
-import { StandardBehavioredGridSettings } from '../../settings/standard-settings-public-api';
-import { defaultStandardGridSettings } from '../default/standard-settings-implementations-default-public-api';
+import { readonlyBehavioredSettings } from '../../../settings-implementations/readonly/internal-api';
+import { StandardBehavioredGridSettings } from '../../settings/internal-api';
+import { defaultStandardGridSettings } from '../default/internal-api';
 
 /** @public */
 export const readonlyDefaultStandardBehavioredGridSettings: Readonly<StandardBehavioredGridSettings> = {

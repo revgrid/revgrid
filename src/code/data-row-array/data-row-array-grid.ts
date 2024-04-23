@@ -3,7 +3,7 @@
 import { Integer } from '@xilytix/sysutils';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, Revgrid } from '../grid/grid-public-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, Revgrid } from '../grid/internal-api';
 import {
     RevDataRowArrayDataServer,
     RevDataRowArrayField,

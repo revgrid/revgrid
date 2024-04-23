@@ -3,8 +3,8 @@
 import {
     EnumInfoOutOfOrderError
 } from '@xilytix/sysutils';
-import { SchemaField } from '../../grid/grid-public-api';
-import { HorizontalAlignEnum } from '../../standard/standard-public-api';
+import { SchemaField } from '../../grid/internal-api';
+import { HorizontalAlignEnum } from '../../standard/internal-api';
 import { RevSourcedFieldDefinition } from './definition/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from './sourced-field-custom-headings-service';
 

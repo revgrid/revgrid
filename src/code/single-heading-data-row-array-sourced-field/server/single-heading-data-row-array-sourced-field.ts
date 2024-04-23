@@ -4,7 +4,7 @@ import {
     Integer
 } from '@xilytix/sysutils';
 import { RevDataRowArrayField } from '../../data-row-array/server/internal-api';
-import { SingleHeadingSchemaField } from '../../header/server/public-api';
+import { SingleHeadingSchemaField } from '../../header/server/internal-api';
 import { RevSourcedField } from '../../sourced-field/server/internal-api';
 import { RevSingleHeadingDataRowArraySourcedFieldDefinition } from './definition/internal-api';
 

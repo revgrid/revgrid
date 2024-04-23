@@ -2,7 +2,7 @@
 
 import { AssertInternalError, CorrectnessState, Integer, LockOpenListItem, MultiEvent, Ok, Result } from '@xilytix/sysutils';
 import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayoutsService } from '../column-layout/internal-api';
-import { BehavioredColumnSettings, BehavioredGridSettings, Revgrid, Subgrid } from '../grid/grid-public-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, Revgrid, Subgrid } from '../grid/internal-api';
 import { RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedFieldGrid } from '../record-sourced-field/internal-api';
 import { RevRecordGrid, RevRecordRowOrderDefinition } from '../record/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from '../sourced-field/internal-api';

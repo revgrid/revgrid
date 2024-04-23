@@ -1,4 +1,4 @@
-import { SchemaField } from '../../grid/grid-public-api';
+import { SchemaField } from '../../grid/internal-api';
 
 /** @public */
 export interface RevDataRowArrayField extends SchemaField {

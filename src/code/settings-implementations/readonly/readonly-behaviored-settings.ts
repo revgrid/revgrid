@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import { BehavioredSettings } from '../../grid/grid-public-api';
+import { BehavioredSettings } from '../../grid/internal-api';
 
 /** @public */
 export const readonlyBehavioredSettings: Readonly<BehavioredSettings> = {

@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { CommaText, Err, Integer, Ok, Result, UnreachableCaseError } from '@xilytix/sysutils';
-import { HorizontalAlign } from '../../../standard/standard-public-api';
+import { HorizontalAlign } from '../../../standard/internal-api';
 import { RevSourcedFieldSourceDefinition } from './sourced-field-source-definition';
 
 /** @public */

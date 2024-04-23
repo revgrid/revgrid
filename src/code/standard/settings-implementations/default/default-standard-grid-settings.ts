@@ -1,5 +1,5 @@
-import { defaultGridSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { StandardGridSettings } from '../../settings/standard-settings-public-api';
+import { defaultGridSettings } from '../../../settings-implementations/internal-api';
+import { StandardGridSettings } from '../../settings/internal-api';
 import { defaultStandardOnlyGridSettings } from './default-standard-only-grid-settings';
 
 /** @public */

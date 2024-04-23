@@ -8,7 +8,7 @@ import {
     RowOrColumnSelectionAreaType,
     SelectionAreaType,
     gridSettingChangeInvalidateTypeIds
-} from '../../grid/grid-public-api';
+} from '../../grid/internal-api';
 import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */

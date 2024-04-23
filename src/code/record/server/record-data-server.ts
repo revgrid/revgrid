@@ -1,5 +1,5 @@
 import { UnreachableCaseError } from '@xilytix/sysutils';
-import { DataServer, RevApiError, RevListChangedTypeId } from '../../grid/grid-public-api';
+import { DataServer, RevApiError, RevListChangedTypeId } from '../../grid/internal-api';
 import { RevRecord } from './record';
 import { RevRecordArrayUtil } from './record-array-utils';
 import { RevRecordAssertError } from './record-error';

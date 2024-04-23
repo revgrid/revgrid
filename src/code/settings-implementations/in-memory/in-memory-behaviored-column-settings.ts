@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, ColumnSettings, GridSettings, gridSettingChangeInvalidateTypeIds } from '../../grid/grid-public-api';
+import { BehavioredColumnSettings, ColumnSettings, GridSettings, gridSettingChangeInvalidateTypeIds } from '../../grid/internal-api';
 import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */

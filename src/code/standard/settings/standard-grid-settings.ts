@@ -1,4 +1,4 @@
-import { GridSettings } from '../../grid/grid-public-api';
+import { GridSettings } from '../../grid/internal-api';
 import { StandardOnlyGridSettings } from './standard-only-grid-settings';
 
 /** @public */

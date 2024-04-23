@@ -1,6 +1,6 @@
-import { readonlyBehavioredSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { StandardBehavioredColumnSettings } from '../../settings/standard-settings-public-api';
-import { defaultStandardColumnSettings, defaultStandardGridSettings } from '../default/standard-settings-implementations-default-public-api';
+import { readonlyBehavioredSettings } from '../../../settings-implementations/internal-api';
+import { StandardBehavioredColumnSettings } from '../../settings/internal-api';
+import { defaultStandardColumnSettings, defaultStandardGridSettings } from '../default/internal-api';
 
 /** @public */
 export const readonlyDefaultStandardBehavioredColumnSettings: Readonly<StandardBehavioredColumnSettings> = {

@@ -1,4 +1,4 @@
-import { RevListChangedEventer, RevListChangedTypeId, SchemaServer } from '../../grid/grid-public-api';
+import { RevListChangedEventer, RevListChangedTypeId, SchemaServer } from '../../grid/internal-api';
 import { RevRecordSchemaError, RevRecordUnexpectedUndefinedError } from './record-error';
 import { RevRecordField } from './record-field';
 import { RevRecordFieldIndex } from './record-types';

@@ -7,7 +7,7 @@ import {
 import { RevRecordSourcedField, RevRecordSourcedFieldDefinition } from '../../../record-sourced-field/server/internal-api';
 import { RevRenderValue } from '../../../render-value/internal-api';
 import { RevSourcedFieldSourceDefinition } from '../../../sourced-field/server/internal-api';
-import { HorizontalAlign } from '../../../standard/standard-public-api';
+import { HorizontalAlign } from '../../../standard/internal-api';
 import { RevGenericTableValue, RevTableValue, RevTableValuesRecord } from '../value/internal-api';
 
 /** @public */

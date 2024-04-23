@@ -1,9 +1,9 @@
 import {
     GridSettings
-} from '../../../grid/grid-public-api';
-import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/settings-implementations-public-api';
-import { HorizontalAlign, TextTruncateType } from '../../painters/standard-painters-public-api';
-import { StandardBehavioredGridSettings, StandardGridSettings, StandardOnlyGridSettings } from '../../settings/standard-settings-public-api';
+} from '../../../grid/internal-api';
+import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/internal-api';
+import { HorizontalAlign, TextTruncateType } from '../../painters/internal-api';
+import { StandardBehavioredGridSettings, StandardGridSettings, StandardOnlyGridSettings } from '../../settings/internal-api';
 
 /** @public */
 export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {

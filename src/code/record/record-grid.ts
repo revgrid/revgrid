@@ -3,7 +3,7 @@
 import { AssertInternalError, Integer } from '@xilytix/sysutils';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessSubgrid, LinedHoverCell, MetaModel, Revgrid, Subgrid, ViewCell } from '../grid/grid-public-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessSubgrid, LinedHoverCell, MetaModel, Revgrid, Subgrid, ViewCell } from '../grid/internal-api';
 import {
     RevRecordDataServer,
     RevRecordField,

@@ -1,5 +1,5 @@
 
-import { HorizontalWheelScrollingAllowed, ModifierKeyEnum, OnlyGridSettings } from '../../grid/grid-public-api';
+import { HorizontalWheelScrollingAllowed, ModifierKeyEnum, OnlyGridSettings } from '../../grid/internal-api';
 
 /** @public */
 export const defaultOnlyGridSettings: OnlyGridSettings = {

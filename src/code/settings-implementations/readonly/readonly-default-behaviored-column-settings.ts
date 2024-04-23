@@ -1,5 +1,5 @@
-import { BehavioredColumnSettings } from '../../grid/grid-public-api';
-import { defaultColumnSettings, defaultGridSettings } from '../default/settings-implementations-default-public-api';
+import { BehavioredColumnSettings } from '../../grid/internal-api';
+import { defaultColumnSettings, defaultGridSettings } from '../default/internal-api';
 import { readonlyBehavioredSettings } from './readonly-behaviored-settings';
 
 /** @public */

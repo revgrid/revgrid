@@ -1,5 +1,5 @@
-import { Revgrid, SchemaField } from '../grid/grid-public-api';
-import { InMemoryStandardBehavioredColumnSettings, InMemoryStandardBehavioredGridSettings } from './settings-implementations/standard-settings-implementations-public-api';
+import { Revgrid, SchemaField } from '../grid/internal-api';
+import { InMemoryStandardBehavioredColumnSettings, InMemoryStandardBehavioredGridSettings } from './settings-implementations/internal-api';
 
 /** @public */
 export class StandardRevgrid extends Revgrid<

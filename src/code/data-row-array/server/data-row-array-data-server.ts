@@ -1,4 +1,4 @@
-import { DataServer, RevAssertError, SchemaField } from '../../grid/grid-public-api';
+import { DataServer, RevAssertError, SchemaField } from '../../grid/internal-api';
 
 /** @public */
 export class RevDataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {

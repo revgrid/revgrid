@@ -1,4 +1,4 @@
-import { BehavioredGridSettings } from '../../grid/grid-public-api';
+import { BehavioredGridSettings } from '../../grid/internal-api';
 import { StandardGridSettings } from './standard-grid-settings';
 
 /** @public */

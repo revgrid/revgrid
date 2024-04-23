@@ -1,4 +1,4 @@
-import { CachedCanvasRenderingContext2D, Rectangle, RevUnreachableCaseError } from '../../grid/grid-public-api';
+import { CachedCanvasRenderingContext2D, Rectangle, RevUnreachableCaseError } from '../../grid/internal-api';
 import { HorizontalAlign } from './horizontal-align';
 import { TextTruncateType } from './text-truncate-type';
 

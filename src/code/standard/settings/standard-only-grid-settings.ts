@@ -1,5 +1,5 @@
-import { GridSettings } from '../../grid/grid-public-api';
-import { HorizontalAlign, TextTruncateType } from '../painters/standard-painters-public-api';
+import { GridSettings } from '../../grid/internal-api';
+import { HorizontalAlign, TextTruncateType } from '../painters/internal-api';
 
 /** @public */
 export interface StandardOnlyGridSettings {
