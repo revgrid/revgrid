@@ -1,5 +1,5 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-export * from './rev-sourced-field-definition';
-export * from './rev-sourced-field-source-definition';
+export * from './sourced-field-definition';
+export * from './sourced-field-source-definition';
 

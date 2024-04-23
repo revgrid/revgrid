@@ -2,6 +2,6 @@
 
 export * from './allowed-sourced-fields-column-layout-definition';
 export * from './definition/internal-api';
-export * from './rev-sourced-field';
-export * from './rev-sourced-field-custom-headings-service';
+export * from './sourced-field';
+export * from './sourced-field-custom-headings-service';
 

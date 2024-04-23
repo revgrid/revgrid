@@ -2,7 +2,7 @@
 
 import { Integer } from '@xilytix/sysutils';
 import { RevColumnLayoutDefinition } from '../../column-layout/server/internal-api';
-import { RevSourcedField } from './rev-sourced-field';
+import { RevSourcedField } from './sourced-field';
 
 /** @public */
 export interface RevAllowedSourcedFieldsColumnLayoutDefinition {
