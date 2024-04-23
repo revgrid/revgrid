@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField } from '../../grid/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField } from '../../client/internal-api';
 import { StandardElementCellEditor } from './standard-element-cell-editor';
 
 /** @public */

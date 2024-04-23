@@ -1,4 +1,4 @@
-import { Revgrid, SchemaField } from '../grid/internal-api';
+import { Revgrid, SchemaField } from '../client/internal-api';
 import { InMemoryStandardBehavioredColumnSettings, InMemoryStandardBehavioredGridSettings } from './settings-implementations/internal-api';
 
 /** @public */

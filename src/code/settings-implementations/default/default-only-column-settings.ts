@@ -1,4 +1,4 @@
-import { OnlyColumnSettings } from '../../grid/internal-api';
+import { OnlyColumnSettings } from '../../client/internal-api';
 import { defaultOnlyGridSettings } from './default-only-grid-settings';
 
 /** @public */

@@ -1,9 +1,9 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, Integer } from '@xilytix/sysutils';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessSubgrid, LinedHoverCell, MetaModel, Revgrid, Subgrid, ViewCell } from '../client/internal-api';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessSubgrid, LinedHoverCell, MetaModel, Revgrid, Subgrid, ViewCell } from '../grid/internal-api';
 import {
     RevRecordDataServer,
     RevRecordField,

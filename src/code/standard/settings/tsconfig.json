@@ -12,6 +12,6 @@
   "references": [
     { "path": "../painters/tsconfig.json" },
     { "path": "../../settings-implementations/tsconfig.json" },
-    { "path": "../../grid/tsconfig.json" },
+    { "path": "../../client/tsconfig.json" },
   ]
 }

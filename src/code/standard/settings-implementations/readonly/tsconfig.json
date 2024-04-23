@@ -13,6 +13,6 @@
     { "path": "../default/tsconfig.json" },
     { "path": "../../settings/tsconfig.json" },
     { "path": "../../../settings-implementations/tsconfig.json" },
-    { "path": "../../../grid/tsconfig.json" },
+    { "path": "../../../client/tsconfig.json" },
   ]
 }

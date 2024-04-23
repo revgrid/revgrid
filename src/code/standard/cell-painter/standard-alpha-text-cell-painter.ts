@@ -6,7 +6,7 @@ import {
     Rectangle,
     Revgrid,
     SchemaField,
-} from '../../grid/internal-api';
+} from '../../client/internal-api';
 import { StandardTextPainter } from '../painters/internal-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
 import { StandardCellPainter } from './standard-cell-painter';

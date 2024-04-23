@@ -1,4 +1,4 @@
-import { DataServer, SchemaField } from '../../grid/internal-api';
+import { DataServer, SchemaField } from '../../client/internal-api';
 import { RevRecord } from './record';
 
 /** Provides access to a field

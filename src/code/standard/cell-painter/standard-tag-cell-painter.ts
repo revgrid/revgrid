@@ -1,5 +1,5 @@
 
-import { DatalessViewCell, SchemaField } from '../../grid/internal-api';
+import { DatalessViewCell, SchemaField } from '../../client/internal-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
 import { StandardCellPainter } from './standard-cell-painter';
 

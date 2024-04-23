@@ -11,6 +11,6 @@
 
   "references": [
     { "path": "./effects/tsconfig.json" },
-    { "path": "../../grid/tsconfig.json" },
+    { "path": "../../client/tsconfig.json" },
   ]
 }

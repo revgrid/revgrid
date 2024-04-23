@@ -12,6 +12,6 @@
   "references": [
     { "path": "../single-heading/tsconfig.json" },
     { "path": "../multi-heading/tsconfig.json" },
-    { "path": "../../grid/tsconfig.json" }
+    { "path": "../../client/tsconfig.json" }
   ]
 }

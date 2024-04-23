@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, ClickBoxCellPainter, DatalessViewCell, Rectangle, SchemaField } from '../../grid/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, ClickBoxCellPainter, DatalessViewCell, Rectangle, SchemaField } from '../../client/internal-api';
 import { StandardPaintCellEditor } from './standard-paint-cell-editor';
 
 /** @public */

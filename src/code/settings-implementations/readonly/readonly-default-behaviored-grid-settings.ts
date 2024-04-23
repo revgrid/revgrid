@@ -1,4 +1,4 @@
-import { BehavioredGridSettings } from '../../grid/internal-api';
+import { BehavioredGridSettings } from '../../client/internal-api';
 import { defaultGridSettings } from '../default/internal-api';
 import { readonlyBehavioredSettings } from './readonly-behaviored-settings';
 

@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { BehavioredColumnSettings, BehavioredGridSettings } from '../../../grid/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings } from '../../../client/internal-api';
 import { RevRecordGrid } from '../../../record/internal-api';
 import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';
 import { RevAllowedRecordSourcedField, RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedField } from './server/internal-api';

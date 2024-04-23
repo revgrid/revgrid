@@ -17,6 +17,6 @@
     { "path": "../../../../record/server/tsconfig.json" },
     { "path": "../../../../render-value/tsconfig.json" },
     { "path": "../../../../column-layout/server/tsconfig.json" },
-    { "path": "../../../../grid/tsconfig.json" },
+    { "path": "../../../../client/tsconfig.json" },
   ]
 }

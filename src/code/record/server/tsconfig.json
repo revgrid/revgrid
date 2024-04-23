@@ -12,6 +12,6 @@
   ],
 
   "references": [
-    { "path": "../../grid/tsconfig.json" },
+    { "path": "../../client/tsconfig.json" },
   ]
 }

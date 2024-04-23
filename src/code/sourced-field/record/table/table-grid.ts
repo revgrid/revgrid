@@ -1,8 +1,8 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, CorrectnessState, Integer, LockOpenListItem, MultiEvent, Ok, Result } from '@xilytix/sysutils';
+import { BehavioredColumnSettings, BehavioredGridSettings, Revgrid, Subgrid } from '../../../client/internal-api';
 import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayoutsService } from '../../../column-layout/internal-api';
-import { BehavioredColumnSettings, BehavioredGridSettings, Revgrid, Subgrid } from '../../../grid/internal-api';
 import { RevRecordGrid, RevRecordRowOrderDefinition } from '../../../record/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from '../../sourced-field/internal-api';
 import { RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedFieldGrid } from '../record/internal-api';

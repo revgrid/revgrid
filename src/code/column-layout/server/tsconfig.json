@@ -10,6 +10,6 @@
   ],
   "references": [
     { "path": "./definition/tsconfig.json" },
-    { "path": "../../grid/tsconfig.json" },
+    { "path": "../../client/tsconfig.json" },
   ]
 }

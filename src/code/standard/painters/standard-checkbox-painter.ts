@@ -4,7 +4,7 @@ import {
     CachedCanvasRenderingContext2D,
     GridSettings,
     Rectangle
-} from '../../grid/internal-api';
+} from '../../client/internal-api';
 
 /** @public */
 export class StandardCheckboxPainter {

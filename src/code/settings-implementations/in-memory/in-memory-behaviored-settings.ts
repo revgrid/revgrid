@@ -4,7 +4,7 @@ import {
     GridSettingChangeInvalidateTypeId,
     RevAssertError,
     RevUnreachableCaseError
-} from '../../grid/internal-api';
+} from '../../client/internal-api';
 
 /** @public */
 export abstract class InMemoryBehavioredSettings implements BehavioredSettings {

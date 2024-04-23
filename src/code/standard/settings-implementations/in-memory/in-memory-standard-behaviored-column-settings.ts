@@ -1,6 +1,6 @@
 import {
     GridSettings
-} from '../../../grid/internal-api';
+} from '../../../client/internal-api';
 import { InMemoryBehavioredColumnSettings } from '../../../settings-implementations/internal-api';
 import { HorizontalAlign, TextTruncateType } from '../../painters/internal-api';
 import { StandardBehavioredColumnSettings, StandardColumnSettings, StandardGridSettings, StandardOnlyColumnSettings } from '../../settings/internal-api';

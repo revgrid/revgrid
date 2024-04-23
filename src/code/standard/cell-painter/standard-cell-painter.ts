@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CachedCanvasRenderingContext2D, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../grid/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CachedCanvasRenderingContext2D, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../client/internal-api';
 
 /** @public */
 export abstract class StandardCellPainter<

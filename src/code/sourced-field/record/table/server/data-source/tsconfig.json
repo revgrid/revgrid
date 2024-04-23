@@ -16,6 +16,6 @@
     { "path": "../../../../sourced-field/server/tsconfig.json" },
     { "path": "../../../../../record/server/tsconfig.json" },
     { "path": "../../../../../column-layout/server/tsconfig.json" },
-    { "path": "../../../../../grid/tsconfig.json" },
+    { "path": "../../../../../client/tsconfig.json" },
   ]
 }

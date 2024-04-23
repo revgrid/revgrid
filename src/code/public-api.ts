@@ -1,8 +1,8 @@
 // Public API
 
+export * from './client/internal-api';
 export * from './column-layout/internal-api';
 export * from './data-row-array/internal-api';
-export * from './grid/internal-api';
 export * from './header/internal-api';
 export * from './record/internal-api';
 export * from './render-value/internal-api';

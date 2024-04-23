@@ -5,7 +5,7 @@ import {
     IndexedRecord,
     Integer
 } from '@xilytix/sysutils';
-import { DataServer } from '../../../../grid/internal-api';
+import { DataServer } from '../../../../client/internal-api';
 import { RevRecordField } from '../../../../record/server/internal-api';
 import { RevRenderValue } from '../../../../render-value/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';

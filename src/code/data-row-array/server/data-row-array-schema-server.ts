@@ -1,5 +1,5 @@
 import { Integer } from '@xilytix/sysutils';
-import { RevApiError, RevAssertError, SchemaField, SchemaServer } from '../../grid/internal-api';
+import { RevApiError, RevAssertError, SchemaField, SchemaServer } from '../../client/internal-api';
 
 /** @public */
 export class RevDataRowArraySchemaServer<SF extends SchemaField> implements SchemaServer<SF> {

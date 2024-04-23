@@ -1,4 +1,4 @@
-import { DataServer } from '../../grid/internal-api';
+import { DataServer } from '../../client/internal-api';
 import { RevRecord } from './record';
 import { RevRecordField } from './record-field';
 
