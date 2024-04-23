@@ -10,10 +10,6 @@
   ],
 
   "references": [
-    { "path": "./table/tsconfig.json" },
-    { "path": "./record-sourced-field/tsconfig.json" },
-    { "path": "./multi-heading-data-row-array-sourced-field/tsconfig.json" },
-    { "path": "./single-heading-data-row-array-sourced-field/tsconfig.json" },
     { "path": "./sourced-field/tsconfig.json" },
     { "path": "./record/tsconfig.json" },
     { "path": "./data-row-array/tsconfig.json" },

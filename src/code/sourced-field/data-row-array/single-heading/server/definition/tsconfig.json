@@ -1,0 +1,18 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
+{
+  "extends": "../../../../../tsconfig.code.json",
+
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../../../../../../tsbuildinfo/code-sourced-field-data-row-array-single-heading-server-definition.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../../../../sourced-field/server/tsconfig.json" },
+    { "path": "../../../../../standard/tsconfig.json" },
+  ]
+}

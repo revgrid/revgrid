@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.code.json",
+
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../../../tsbuildinfo/code-sourced-field-record.tsbuildinfo",
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "./table/tsconfig.json" },
+    { "path": "./record/tsconfig.json" },
+  ]
+}

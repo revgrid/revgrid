@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.code.json",
+
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../../../tsbuildinfo/code-sourced-field-data-row-array.tsbuildinfo",
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "./multi-heading/tsconfig.json" },
+    { "path": "./single-heading/tsconfig.json" },
+  ]
+}

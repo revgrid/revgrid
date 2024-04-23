@@ -1,0 +1,20 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
+{
+  "extends": "../../../tsconfig.code.json",
+
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-sourced-field-record-record.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "./server/tsconfig.json" },
+    { "path": "../../sourced-field/tsconfig.json" },
+    { "path": "../../../record/tsconfig.json" },
+    { "path": "../../../grid/tsconfig.json" },
+  ]
+}
