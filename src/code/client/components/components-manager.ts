@@ -3,9 +3,9 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { SchemaServer } from '../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevClientObject } from '../types-utils/client-object';
 import { CssTypes } from '../types-utils/css-types';
 import { RevAssertError } from '../types-utils/revgrid-error';
-import { RevgridObject } from '../types-utils/revgrid-object';
 import { Canvas } from './canvas/canvas';
 import { ColumnsManager } from './column/columns-manager';
 import { Focus } from './focus/focus';
@@ -17,7 +17,7 @@ import { SubgridsManager } from './subgrid/subgrids-manager';
 import { ViewLayout } from './view/view-layout';
 
 /** @internal */
-export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     readonly canvas: Canvas<BGS>;
     readonly focus: Focus<BGS, BCS, SF>;
     readonly selection: Selection<BGS, BCS, SF>;
@@ -31,8 +31,8 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
     readonly verticalScroller: Scroller<BGS, BCS, SF>;
 
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         gridSettings: BGS,
         hostElement: HTMLElement,
         schemaServer: SchemaServer<SF>,
@@ -48,7 +48,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         // }
 
         this.canvas = new Canvas(
-            this.revgridId,
+            this.clientId,
             this,
             hostElement,
             canvasOverflowOverride,
@@ -57,7 +57,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         );
 
         this.columnsManager = new ColumnsManager<BCS, SF>(
-            this.revgridId,
+            this.clientId,
             this,
             schemaServer,
             gridSettings,
@@ -68,7 +68,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             throw new RevAssertError('CBM43330', 'Adapter set missing Subgrid specs');
         } else {
             this.subgridsManager = new SubgridsManager(
-                this.revgridId,
+                this.clientId,
                 this,
                 gridSettings,
                 this.columnsManager,
@@ -76,7 +76,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.viewLayout = new ViewLayout(
-                this.revgridId,
+                this.clientId,
                 this,
                 gridSettings,
                 this.canvas,
@@ -85,7 +85,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.focus = new Focus(
-                this.revgridId,
+                this.clientId,
                 this,
                 gridSettings,
                 this.canvas,
@@ -95,7 +95,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.selection = new Selection(
-                this.revgridId,
+                this.clientId,
                 this,
                 gridSettings,
                 this.columnsManager,
@@ -103,14 +103,14 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.mouse = new Mouse(
-                this.revgridId,
+                this.clientId,
                 this,
                 this.canvas,
                 this.viewLayout,
             );
 
             this.renderer = new Renderer(
-                this.revgridId,
+                this.clientId,
                 this,
                 gridSettings,
                 this.canvas,
@@ -123,7 +123,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.verticalScroller = new Scroller(
-                this.revgridId,
+                this.clientId,
                 this,
                 gridSettings,
                 hostElement,
@@ -136,7 +136,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             );
 
             this.horizontalScroller = new Scroller(
-                this.revgridId,
+                this.clientId,
                 this,
                 gridSettings,
                 hostElement,

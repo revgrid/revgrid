@@ -3,17 +3,17 @@ import { Selection } from '../components/selection/selection';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevClientObject } from '../types-utils/client-object';
 import { RevAssertError } from '../types-utils/revgrid-error';
-import { RevgridObject } from '../types-utils/revgrid-object';
 
-export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     private _requestNestCount = 0;
     private _focusStash: Focus.Stash | undefined;
     private _selectionStash: Selection.Stash<BCS, SF> | undefined;
 
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         /** @internal */
         private readonly _focus: Focus<BGS, BCS, SF>,
         /** @internal */

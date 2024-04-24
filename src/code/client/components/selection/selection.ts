@@ -6,9 +6,9 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevClientObject } from '../../types-utils/client-object';
 import { Rectangle } from '../../types-utils/rectangle';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevgridObject } from '../../types-utils/revgrid-object';
 import { SelectionAreaType, SelectionAreaTypeId } from '../../types-utils/selection-area-type';
 import { SelectionAreaTypeSpecifier } from '../../types-utils/types';
 import { ColumnsManager } from '../column/columns-manager';
@@ -27,7 +27,7 @@ import { SelectionRectangleList } from './selection-rectangle-list';
  * @public
  */
 
-export class Selection<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class Selection<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     /** @internal */
     changedEventerForRenderer: Selection.ChangedEventer;
     /** @internal */
@@ -59,8 +59,8 @@ export class Selection<BGS extends BehavioredGridSettings, BCS extends Behaviore
 
     /** @internal */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         /** @internal */
         private readonly _gridSettings: GridSettings,
         /** @internal */

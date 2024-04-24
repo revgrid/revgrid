@@ -2,9 +2,9 @@ import { numberToPixels } from '@xilytix/sysutils';
 import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevClientObject } from '../../types-utils/client-object';
 import { CssTypes } from '../../types-utils/css-types';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevgridObject } from '../../types-utils/revgrid-object';
 import { SizeUnitEnum } from '../../types-utils/size-unit';
 import { SizeWithUnit } from '../../types-utils/size-with-unit';
 import { Canvas } from '../canvas/canvas';
@@ -16,7 +16,7 @@ import { ViewLayout } from '../view/view-layout';
 // const BAR_STYLE = 'position: absolute;';
 
 /** @public */
-export class Scroller<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class Scroller<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     readonly bar: HTMLDivElement;
     readonly barCssClass: string;
     readonly axisBarCssClass: string;
@@ -125,8 +125,8 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
      * @internal
      */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
@@ -148,7 +148,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
         const thumb = document.createElement('div');
         this._thumb = thumb;
-        thumb.id = `${revgridId}-${axis}-${Scroller.thumbCssSuffix}`;
+        thumb.id = `${clientId}-${axis}-${Scroller.thumbCssSuffix}`;
         thumb.style.position = 'absolute';
 
         this.thumbCssClass = `${CssTypes.libraryName}-${Scroller.thumbCssSuffix}`;
@@ -160,7 +160,7 @@ export class Scroller<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
         const bar = document.createElement('div');
         this.bar = bar;
-        bar.id = `${revgridId}-${axis}-${Scroller.barCssSuffix}`;
+        bar.id = `${clientId}-${axis}-${Scroller.barCssSuffix}`;
         bar.style.position = 'absolute';
         const leadingKey = this._axisProperties.leading;
         bar.style.setProperty(leadingKey, '0');

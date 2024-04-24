@@ -14,13 +14,13 @@ import { Column } from '../interfaces/dataless/column';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevClientObject } from '../types-utils/client-object';
 import { Point } from '../types-utils/point';
 import { RevAssertError } from '../types-utils/revgrid-error';
-import { RevgridObject } from '../types-utils/revgrid-object';
 import { RevListChangedTypeId } from '../types-utils/types';
 
 /** @public */
-export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     /** @internal */
     uiKeyDownEventer: EventBehavior.UiKeyDownEventer;
     /** @internal */
@@ -69,8 +69,8 @@ export class EventBehavior<BGS extends BehavioredGridSettings, BCS extends Behav
 
     /** @internal */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         dispatchEnabled: boolean,
         /** @internal */
         private readonly _canvas: Canvas<BGS>,

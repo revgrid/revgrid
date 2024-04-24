@@ -5,12 +5,12 @@ import { ViewCell } from '../interfaces/data/view-cell';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevgridObject } from '../types-utils/revgrid-object';
+import { RevClientObject } from '../types-utils/client-object';
 
-export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         private readonly _viewLayout: ViewLayout<BGS, BCS, SF>
     ) {
     }

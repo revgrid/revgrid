@@ -10,7 +10,7 @@ import { ViewLayout } from '../components/view/view-layout';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevgridObject } from '../types-utils/revgrid-object';
+import { RevClientObject } from '../types-utils/client-object';
 import { CellPropertiesBehavior } from './cell-properties-behavior';
 import { DataExtractBehavior } from './data-extract-behavior';
 import { EventBehavior } from './event-behavior';
@@ -21,7 +21,7 @@ import { RowPropertiesBehavior } from './row-properties-behavior';
 import { ServerNotificationBehavior } from './server-notification-behavior';
 
 /** @internal */
-export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
     readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
     readonly eventBehavior: EventBehavior<BGS, BCS, SF>;
@@ -33,8 +33,8 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
     private readonly _serverNotificationBehavior: ServerNotificationBehavior<BGS, BCS, SF>;
 
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         gridSettings: BGS,
         canvas: Canvas<BGS>,
         columnsManager: ColumnsManager<BCS, SF>,
@@ -49,7 +49,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         descendantEventer: EventBehavior.DescendantEventer<BCS, SF>,
     ) {
         this.eventBehavior = new EventBehavior(
-            this.revgridId,
+            this.clientId,
             this,
             gridSettings.eventDispatchEnabled,
             canvas,
@@ -66,14 +66,14 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         );
 
         this.reindexBehavior = new ReindexBehavior(
-            this.revgridId,
+            this.clientId,
             this,
             focus,
             selection
         );
 
         this._serverNotificationBehavior = new ServerNotificationBehavior(
-            this.revgridId,
+            this.clientId,
             this,
             columnsManager,
             subgridsManager,
@@ -86,7 +86,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         );
 
         this.focusScrollBehavior = new FocusScrollBehavior(
-            this.revgridId,
+            this.clientId,
             this,
             gridSettings,
             columnsManager,
@@ -96,7 +96,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         );
 
         this.focusSelectBehavior = new FocusSelectBehavior(
-            this.revgridId,
+            this.clientId,
             this,
             gridSettings,
             selection,
@@ -105,13 +105,13 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         );
 
         this.rowPropertiesBehavior = new RowPropertiesBehavior(
-            this.revgridId,
+            this.clientId,
             this,
             viewLayout,
         );
 
         this.cellPropertiesBehavior = new CellPropertiesBehavior(
-            this.revgridId,
+            this.clientId,
             this,
             columnsManager,
             subgridsManager,
@@ -119,7 +119,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
         );
 
         this.dataExtractBehavior = new DataExtractBehavior(
-            this.revgridId,
+            this.clientId,
             this,
             selection,
             columnsManager

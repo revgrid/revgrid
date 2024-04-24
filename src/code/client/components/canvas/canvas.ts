@@ -1,13 +1,13 @@
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
+import { RevClientObject } from '../../types-utils/client-object';
 import { CssTypes } from '../../types-utils/css-types';
 import { Point } from '../../types-utils/point';
 import { Rectangle } from '../../types-utils/rectangle';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevgridObject } from '../../types-utils/revgrid-object';
 
 /** @public */
-export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject {
+export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObject {
     readonly element: HTMLCanvasElement;
     readonly gc: CachedCanvasRenderingContext2D;
 
@@ -236,8 +236,8 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
 
     /** @internal */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         readonly hostElement: HTMLElement,
         canvasOverflowOverride: CssTypes.Overflow | undefined,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
@@ -246,7 +246,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevgridObject
     ) {
         // create and append the canvas
         this.element = document.createElement('canvas');
-        this.element.id = `${revgridId}-${Canvas.canvasCssSuffix}`;
+        this.element.id = `${clientId}-${Canvas.canvasCssSuffix}`;
         this.element.draggable = true;
         this.element.tabIndex = 0;
         this.element.style.display = CssTypes.Display.block;

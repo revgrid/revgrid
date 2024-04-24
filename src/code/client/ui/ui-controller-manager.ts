@@ -18,8 +18,8 @@ import { LinedHoverCell } from '../interfaces/data/hover-cell';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevClientObject } from '../types-utils/client-object';
 import { RevAssertError } from '../types-utils/revgrid-error';
-import { RevgridObject } from '../types-utils/revgrid-object';
 import { CellClickUiController } from './controller/cell-click-ui-controller';
 import { ClipboardUiController } from './controller/clipboard-ui-controller';
 import { ColumnMovingUiController } from './controller/column-moving-ui-controller';
@@ -37,7 +37,7 @@ import { UiController } from './controller/ui-controller';
 import { UiControllerFactory } from './ui-controller-factory';
 
 /** @public */
-export class UiManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class UiManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     /** @internal */
     private readonly _uiControllerFactory = new UiControllerFactory<BGS, BCS, SF>();
     /** @internal */
@@ -54,8 +54,8 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
 
     /** @internal */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         hostElement: HTMLElement,
         private readonly _gridSettings: BGS,
         canvas: Canvas<BGS>,
@@ -83,7 +83,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         };
 
         this._services = new UiControllerServices(
-            this.revgridId,
+            this.clientId,
             this.internalParent,
             this._sharedState,
             hostElement,

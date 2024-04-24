@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CachedCanvasRenderingContext2D, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CachedCanvasRenderingContext2D, DataServer, DatalessViewCell, Rectangle, RevClientGrid, SchemaField } from '../../client/internal-api';
 
 /** @public */
 export abstract class StandardCellPainter<
@@ -10,7 +10,7 @@ export abstract class StandardCellPainter<
     protected readonly _renderingContext: CachedCanvasRenderingContext2D;
 
     constructor(
-        protected readonly _grid: Revgrid<BGS, BCS, SF>,
+        protected readonly _grid: RevClientGrid<BGS, BCS, SF>,
         protected readonly _dataServer: DataServer<SF>,
     ) {
         const grid = this._grid;

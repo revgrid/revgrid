@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, RevAssertError, Revgrid, SchemaField } from '../../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, RevAssertError, RevClientGrid, SchemaField } from '../../client/internal-api';
 import { StandardInputElementCellEditor } from './standard-input-element-cell-editor';
 
 /** @public */
@@ -7,7 +7,7 @@ export class StandardRangeInputCellEditor<
     BCS extends BehavioredColumnSettings,
     SF extends SchemaField
 > extends StandardInputElementCellEditor<BGS, BCS, SF> {
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
+    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
         super(grid, dataServer, 'range');
         this.element.classList.add('revgrid-range-input-editor');
     }

@@ -1,5 +1,6 @@
 // Public API
 
+export { RevClientGrid } from './client-grid';
 export { Canvas } from './components/canvas/canvas';
 export { ColumnsManager } from './components/column/columns-manager';
 export { DispatchableEvent } from './components/dispatchable-event/dispatchable-event';
@@ -41,8 +42,8 @@ export { GridSettingChangeInvalidateType, GridSettingChangeInvalidateTypeId, Gri
 export { GridSettings } from './interfaces/settings/grid-settings';
 export { OnlyColumnSettings } from './interfaces/settings/only-column-settings';
 export { OnlyGridSettings } from './interfaces/settings/only-grid-settings';
-export { Revgrid } from './revgrid';
 export { CachedCanvasRenderingContext2D } from './types-utils/cached-canvas-rendering-context-2d';
+export { RevClientObject } from './types-utils/client-object';
 export { CssTypes } from './types-utils/css-types';
 export { InexclusiveArea } from './types-utils/inexclusive-area';
 export { InexclusiveRectangle } from './types-utils/inexclusive-rectangle';
@@ -50,7 +51,6 @@ export { ModifierKey, ModifierKeyEnum } from './types-utils/modifier-key';
 export { PartialPoint, Point, WritablePoint } from './types-utils/point';
 export { Rectangle } from './types-utils/rectangle';
 export * from './types-utils/revgrid-error';
-export { RevgridObject } from './types-utils/revgrid-object';
 export * from './types-utils/selection-area-type';
 export * from './types-utils/types';
 export * from './types-utils/utils';

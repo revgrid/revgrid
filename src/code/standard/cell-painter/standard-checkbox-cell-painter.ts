@@ -1,6 +1,6 @@
 
 import { IndexSignatureHack } from '@xilytix/sysutils';
-import { DataServer, DatalessViewCell, GridSettings, Rectangle, Revgrid, SchemaField, safeConvertUnknownToBoolean } from '../../client/internal-api';
+import { DataServer, DatalessViewCell, GridSettings, Rectangle, RevClientGrid, SchemaField, safeConvertUnknownToBoolean } from '../../client/internal-api';
 import { StandardCheckboxPainter } from '../painters/internal-api';
 import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
 import { StandardCellPainter } from './standard-cell-painter';
@@ -15,7 +15,7 @@ export class StandardCheckboxCellPainter<
     private readonly _checkboxPainter: StandardCheckboxPainter;
 
     constructor(
-        grid: Revgrid<BGS, BCS, SF>,
+        grid: RevClientGrid<BGS, BCS, SF>,
         dataServer: DataServer<SF>,
         private readonly _editable: boolean,
     ) {

@@ -5,13 +5,13 @@ import { SchemaServer } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { ColumnSettings } from '../../interfaces/settings/column-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevClientObject } from '../../types-utils/client-object';
 import { RevApiError, RevAssertError } from '../../types-utils/revgrid-error';
-import { RevgridObject } from '../../types-utils/revgrid-object';
 import { RevListChangedEventer, RevListChangedTypeId, RevUiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
 import { ColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     /** @internal */
     invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
@@ -35,8 +35,8 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
 
     /** @internal */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         readonly schemaServer: SchemaServer<SF>,
         readonly gridSettings: GridSettings,
         public getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,

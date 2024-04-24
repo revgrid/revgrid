@@ -9,16 +9,16 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevClientObject } from '../../types-utils/client-object';
 import { PartialPoint, Point } from '../../types-utils/point';
 import { RevAssertError } from '../../types-utils/revgrid-error';
-import { RevgridObject } from '../../types-utils/revgrid-object';
 import { calculateAdjustmentForRangeMoved } from '../../types-utils/utils';
 import { Canvas } from '../canvas/canvas';
 import { ColumnsManager } from '../column/columns-manager';
 import { ViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     getCellEditorEventer: Focus.GetCellEditorEventer<BCS, SF> | undefined;
     editorKeyDownEventer: Focus.EditorKeyDownEventer;
 
@@ -56,8 +56,8 @@ export class Focus<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 
     /** @internal */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         /** @internal */
         private readonly _gridSettings: GridSettings,
         /** @internal */

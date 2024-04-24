@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { BehavioredColumnSettings, BehavioredGridSettings, DatalessSubgrid, RevApiError, RevAssertError, Revgrid, Subgrid } from '../../../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DatalessSubgrid, RevApiError, RevAssertError, RevClientGrid, Subgrid } from '../../../client/internal-api';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../../../data-row-array/internal-api';
 import { SingleHeadingDataServer } from '../../../header/internal-api';
 import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';
@@ -19,16 +19,16 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<
         getHeaderCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
         getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
         settings: BGS,
-        customiseSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>,
+        customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
         /** @internal */
         private readonly _createFieldEventer: RevSingleHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>,
-        options?: Revgrid.Options<BGS, BCS, SF>,
+        options?: RevClientGrid.Options<BGS, BCS, SF>,
     ) {
         const schemaServer = new RevDataRowArraySchemaServer<SF>();
         const mainDataServer = new RevDataRowArrayDataServer<SF>();
         const headerDataServer = new SingleHeadingDataServer<SF>();
 
-        const definition: Revgrid.Definition<BCS, SF> = {
+        const definition: RevClientGrid.Definition<BCS, SF> = {
             schemaServer,
             subgrids: [
                 {

@@ -5,16 +5,16 @@ import { Column } from '../interfaces/dataless/column';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevClientObject } from '../types-utils/client-object';
 import { RevAssertError, RevUnreachableCaseError } from '../types-utils/revgrid-error';
-import { RevgridObject } from '../types-utils/revgrid-object';
 import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
 
 /** @public */
-export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     /** @internal */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         /** @internal */
         private readonly _selection: Selection<BGS, BCS, SF>,
         /** @internal */

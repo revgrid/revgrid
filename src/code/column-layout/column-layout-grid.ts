@@ -1,11 +1,11 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, MultiEvent, UnreachableCaseError } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, Column, ColumnsManager, RevListChangedTypeId, Revgrid, SchemaField } from '../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, Column, ColumnsManager, RevClientGrid, RevListChangedTypeId, SchemaField } from '../client/internal-api';
 import { RevColumnLayout, RevColumnLayoutDefinition } from './server/internal-api';
 
 /** @public */
-export class RevColumnLayoutGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Revgrid<BGS, BCS, SF> {
+export class RevColumnLayoutGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends RevClientGrid<BGS, BCS, SF> {
     private _columnLayout: RevColumnLayout | undefined;
     private _columnLayoutChangedSubscriptionId: MultiEvent.SubscriptionId;
     private _columnLayoutWidthsChangedSubscriptionId: MultiEvent.SubscriptionId;

@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField } from '../../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, DataServer, DatalessViewCell, Focus, RevClientGrid, SchemaField } from '../../client/internal-api';
 
 /** @public */
 export abstract class StandardCellEditor<
@@ -12,7 +12,7 @@ export abstract class StandardCellEditor<
     private _readonly: boolean;
 
     constructor(
-        protected readonly _grid: Revgrid<BGS, BCS, SF>,
+        protected readonly _grid: RevClientGrid<BGS, BCS, SF>,
         protected readonly _dataServer: DataServer<SF>,
     ) {
     }

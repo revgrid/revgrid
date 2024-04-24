@@ -4,7 +4,7 @@ import {
     DataServer,
     DatalessViewCell,
     Rectangle,
-    Revgrid,
+    RevClientGrid,
     SchemaField,
 } from '../../client/internal-api';
 import { StandardTextPainter } from '../painters/internal-api';
@@ -28,7 +28,7 @@ export class StandardAlphaTextCellPainter<
     private readonly _textPainter: StandardTextPainter;
 
     constructor(
-        grid: Revgrid<BGS, BCS, SF>,
+        grid: RevClientGrid<BGS, BCS, SF>,
         dataServer: DataServer<SF>,
     ) {
         super(grid, dataServer);

@@ -7,17 +7,17 @@ import { SchemaField } from '../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../interfaces/settings/grid-settings';
+import { RevClientObject } from '../types-utils/client-object';
 import { EnsureFullyInView, EnsureFullyInViewEnum } from '../types-utils/ensure-fully-in-view';
 import { RevAssertError } from '../types-utils/revgrid-error';
-import { RevgridObject } from '../types-utils/revgrid-object';
 import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
 import { StartLength } from '../types-utils/start-length';
 import { EventBehavior } from './event-behavior';
 
-export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         private readonly _gridSettings: GridSettings,
         private readonly _selection: Selection<BGS, BCS, SF>,
         private readonly _focus: Focus<BGS, BCS, SF>,

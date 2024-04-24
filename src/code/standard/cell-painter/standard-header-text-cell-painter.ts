@@ -3,7 +3,7 @@ import { IndexSignatureHack } from '@xilytix/sysutils';
 import {
     DataServer,
     DatalessViewCell,
-    Revgrid,
+    RevClientGrid,
     SchemaField
 } from '../../client/internal-api';
 import { StandardTextPainter } from '../painters/internal-api';
@@ -27,7 +27,7 @@ export class StandardHeaderTextCellPainter<
     private readonly _textPainter: StandardTextPainter;
 
     constructor(
-        grid: Revgrid<BGS, BCS, SF>,
+        grid: RevClientGrid<BGS, BCS, SF>,
         dataServer: DataServer<SF>,
     ) {
         super(grid, dataServer);

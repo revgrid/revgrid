@@ -18,15 +18,15 @@ import { SchemaField } from '../../../interfaces/schema/schema-field';
 import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
 import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { RevgridObject } from '../../../types-utils/revgrid-object';
+import { RevClientObject } from '../../../types-utils/client-object';
 import { UiControllerSharedState } from './ui-controller-shared-state';
 
 /** @public */
-export class UiControllerServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class UiControllerServices<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     /** @internal */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
 
         readonly sharedState: UiControllerSharedState,
         readonly hostElement: HTMLElement,

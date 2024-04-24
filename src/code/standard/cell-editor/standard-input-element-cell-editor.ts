@@ -1,4 +1,4 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, DataServer, DatalessViewCell, Focus, Revgrid, SchemaField } from '../../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, DataServer, DatalessViewCell, Focus, RevClientGrid, SchemaField } from '../../client/internal-api';
 import { StandardElementCellEditor } from './standard-element-cell-editor';
 
 /** @public */
@@ -11,7 +11,7 @@ export abstract class StandardInputElementCellEditor<
 
     declare protected readonly element: HTMLInputElement;
 
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, inputType: string) {
+    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: DataServer<SF>, inputType: string) {
         const element = document.createElement('input');
         super(grid, dataServer, element);
 

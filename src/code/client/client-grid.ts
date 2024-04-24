@@ -31,22 +31,22 @@ import { SchemaServer } from './interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
 import { ColumnSettings } from './interfaces/settings/column-settings';
+import { RevClientObject } from './types-utils/client-object';
 import { CssTypes } from './types-utils/css-types';
 import { EnsureFullyInViewEnum } from './types-utils/ensure-fully-in-view';
 import { Point } from './types-utils/point';
 import { Rectangle } from './types-utils/rectangle';
 import { RevApiError, RevAssertError } from './types-utils/revgrid-error';
-import { RevgridObject } from './types-utils/revgrid-object';
 import { SelectionAreaType } from './types-utils/selection-area-type';
 import { RevListChangedTypeId } from './types-utils/types';
 import { UiController } from './ui/controller/ui-controller';
 import { UiManager } from './ui/ui-controller-manager';
 
 /** @public */
-export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     readonly id: string;
-    readonly revgridId: string;
-    readonly internalParent: RevgridObject | undefined = undefined;
+    readonly clientId: string;
+    readonly internalParent: RevClientObject | undefined = undefined;
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     readonly externalParent: unknown | undefined;
     readonly hostElement: HTMLElement;
@@ -88,19 +88,19 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     constructor(
         hostElement: string | HTMLElement | undefined,
-        definition: Revgrid.Definition<BCS, SF>,
+        definition: RevClientGrid.Definition<BCS, SF>,
         readonly settings: BGS,
-        getSettingsForNewColumnEventer: Revgrid.GetSettingsForNewColumnEventer<BCS, SF>,
-        options?: Revgrid.Options<BGS, BCS, SF>
+        getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
+        options?: RevClientGrid.Options<BGS, BCS, SF>
     ) {
         //Set up the host for a grid instance
         this.hostElement = this.prepareHost(hostElement);
 
         options = options ?? {};
 
-        const id = Revgrid.idGenerator.generateId(options.id, this.hostElement.id, options.firstGeneratedIdFromBaseIsAlsoNumbered);
+        const id = RevClientGrid.idGenerator.generateId(options.id, this.hostElement.id, options.firstGeneratedIdFromBaseIsAlsoNumbered);
         this.id = id;
-        this.revgridId = this.id;
+        this.clientId = this.id;
         this.externalParent = options.externalParent;
 
         let schemaServer = definition.schemaServer;
@@ -111,7 +111,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this.schemaServer = schemaServer;
 
         this._componentsManager = new ComponentsManager(
-            this.revgridId,
+            this.clientId,
             this,
             settings,
             this.hostElement,
@@ -139,7 +139,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         const descendantEventer = this.createDescendantEventer();
 
         this._behaviorManager = new BehaviorManager(
-            this.revgridId,
+            this.clientId,
             this,
             this.settings,
             this.canvas,
@@ -162,7 +162,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
         this._dataExtractBehavior = this._behaviorManager.dataExtractBehavior;
 
         this._uiManager = new UiManager(
-            this.revgridId,
+            this.clientId,
             this,
             this.hostElement,
             this.settings,
@@ -228,7 +228,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 
     /**
      * Be a responsible citizen and call this function on instance disposal!
-     * If multiple grids are used in an application (simultaneously or not), then {@link (Revgrid:class).destroy} must be called otherwise
+     * If multiple grids are used in an application (simultaneously or not), then {@link (RevClientGrid:class).destroy} must be called otherwise
      * canvase paint loop will continue to run
      */
     destroy() {
@@ -1770,7 +1770,7 @@ export class Revgrid<BGS extends BehavioredGridSettings, BCS extends BehavioredC
 }
 
 /** @public */
-export namespace Revgrid {
+export namespace RevClientGrid {
     export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
         schemaServer: (SchemaServer<SF> | SchemaServer.Constructor<SF>),
         subgrids: Subgrid.Definition<BCS, SF>[],
@@ -1784,7 +1784,7 @@ export namespace Revgrid {
         /** Internally generated ids are numbered using the host HTML element's id as a base and suffixing it with a number. Normally the first id generated from a host element
          * base Id is not numbered.  Subsequent ids generated from that base id are suffixed with numbers beginning with 2. This works well if host elements all have different Ids (so
          * there suffices are not used).  However If host elements have the same id or no id, then it may be better for all internally generated ids to be suffixed with a number (starting
-         * from 1).  Set {@link Revgrid:namespace.Options.interface.firstGeneratedIdFromBaseIsAlsoNumbered} to true to suffix all internally generated ids.
+         * from 1).  Set {@link RevClientGrid:namespace.Options.interface.firstGeneratedIdFromBaseIsAlsoNumbered} to true to suffix all internally generated ids.
          */
         firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
         /** Optional link to Revgrid instance's parent Javascript object. Is used to set externalParent which is not used within Revgrid however may be helpful with debugging */
@@ -1792,7 +1792,7 @@ export namespace Revgrid {
         /** Set alpha to false to speed up rendering if no colors use alpha channel */
 		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
         /** Normally the canvas HTML element created by Revgrid on which to draw the grid has its `overflow` property set to `clip`.  However it may be helpful to set its overflow property
-         * to `visible` when debugging painters. The {@link Revgrid:namespace.Options.interface.canvasOverflowOverride} can be used to override the default value of this property.
+         * to `visible` when debugging painters. The {@link RevClientGrid:namespace.Options.interface.canvasOverflowOverride} can be used to override the default value of this property.
          */
         canvasOverflowOverride?: CssTypes.Overflow;
         customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
@@ -1801,155 +1801,3 @@ export namespace Revgrid {
     /** @internal */
     export const idGenerator = new IdGenerator();
 }
-
-// Begin Selection functions
-// End Selection functions
-
-// Begin Themes
-
-// const styles = [
-//     'BackgroundColor',
-//     'Color',
-//     'Font'
-// ];
-
-// const stylesWithHalign = styles.concat([
-//     'Halign'
-// ]);
-
-// const dataCellStyles = stylesWithHalign.concat([
-//     'cellPadding',
-//     'iconPadding'
-// ]);
-
-// const stylers = [
-//     { prefix: '',                                props: dataCellStyles },
-//     { prefix: 'foregroundSelection',             props: styles },
-//     { prefix: 'columnHeader',                    props: stylesWithHalign },
-//     { prefix: 'columnHeaderForegroundSelection', props: styles },
-//     { prefix: 'rowHeader',                       props: styles },
-//     { prefix: 'rowHeaderForegroundSelection',    props: styles }
-// ];
-
-// const dynamicCosmetics = {
-//     rowHeaderCheckboxes: defaults.rowHeaderCheckboxes,
-//     rowHeaderNumbers: defaults.rowHeaderNumbers,
-//     gridBorder: defaults.gridBorder,
-//     gridBorderTop: defaults.gridBorderTop,
-//     gridBorderRight: defaults.gridBorderRight,
-//     gridBorderBottom: defaults.gridBorderBottom,
-//     gridBorderLeft: defaults.gridBorderLeft,
-//     gridRenderer: defaults.gridRenderer
-// };
-
-// // Create the `defaultTheme` theme by copying over the theme props,
-// // which is a subset of all the props defined in defaults.js, beginning with
-// // they dynamic cosmetics and `themeName`...
-// const defaultTheme = Object.assign({}, dynamicCosmetics, {
-//     themeName: defaults.themeName
-// });
-
-// // ...and then adding non-dynamic cosmetics into `defaultTheme`, by combining the above
-// // prefixes with their styles to get prop names and then copy those props from `defaults`.
-// stylers.reduce((theme, styler) => {
-//     return styler.props.reduce(function(theme, prop) {
-//         prop = styler.prefix + prop;
-//         prop = prop.replace('ForegroundSelectionBackground', 'BackgroundSelection'); // unfortunate!
-//         prop = prop[0].toLowerCase() + prop.substr(1);
-//         theme[prop] = defaults[prop];
-//         return theme;
-//     }, theme);
-// }, defaultTheme);
-
-// /**
-//  * The Hypergrid theme registry.
-//  * @remarks The standard registry consists of a single theme, `default`, built from values in defaults.js.
-//  */
-// const registry = Object.create(null, {
-//     default: { value: defaultTheme }
-// });
-
-// function applyTheme(theme) {
-//     var themeLayer, grids, props, themeObject;
-
-//     if (theme && typeof theme === 'object' && !Object.getOwnPropertyNames(theme).length) {
-//         theme = null;
-//     }
-
-//     if (this._theme) {
-//         grids = [this];
-//         themeLayer = this._theme;
-//         props = this.properties;
-
-//         // If removing theme, reset props to defaults
-//         if (!theme) {
-//             // Delete (non-dynamic) grid props named in this theme, revealing defaults
-//             Object.keys(themeLayer).forEach(function(key) {
-//                 if (!(key in dynamicPropertyDescriptors)) {
-//                     delete props[key];
-//                 }
-//             });
-
-//             // Reset dynamic cosmetic props to defaults
-//             Object.keys(dynamicCosmetics).forEach(function(key) {
-//                 props.var[key] = defaults[key];
-//             });
-//         }
-
-//         // Delete all own props from this grid instance's theme layer (defined by an eariler call)
-//         Object.keys(themeLayer).forEach(function(key) {
-//             delete themeLayer[key];
-//         });
-//     } else {
-//         grids = this.grids;
-//         themeLayer = defaults; // global theme layer
-//         theme = theme || 'default';
-//     }
-
-//     if (typeof theme === 'object') {
-//         themeObject = theme;
-//     } else if (!registry[theme]) {
-//         throw new HypergridError('Unknown theme "' + theme + '"');
-//     } else {
-//         themeObject = registry[theme];
-//     }
-
-//     if (themeObject) {
-//         // When no theme name, set it to explicit `undefined` (to mask defaults.themeName).
-//         if (!themeObject.themeName) {
-//             themeObject.themeName = undefined;
-//         }
-
-//         Object.keys(themeObject).forEach(function(key) {
-//             if (key in dynamicPropertyDescriptors) {
-//                 if (key in dynamicCosmetics) {
-//                     grids.forEach(function(grid) {
-//                         grid.properties[key] = themeObject[key];
-//                     });
-//                 } else {
-//                     // Dynamic properties are defined on properties layer; defining these
-//                     // r-values on the theme layer is ineffective so let's not allow it.
-//                     switch (key) {
-//                         case 'lineColor':
-//                             themeObject.gridLinesHColor = themeObject.gridLinesVColor = themeObject[key];
-//                             break;
-//                         default:
-//                             console.warn('Ignoring unexpected dynamic property ' + key + ' from theme object.');
-//                     }
-//                     // delete themeObject[key];
-//                 }
-//             }
-//         });
-
-//         // No .assign() because themeName is read-only in defaults layer
-//         Object.defineProperties(themeLayer, Object.getOwnPropertyDescriptors(themeObject));
-//     }
-
-//     grids.forEach(function(grid) {
-//         grid.repaint();
-//     });
-
-//     return themeObject;
-// }
-
-// End Themes

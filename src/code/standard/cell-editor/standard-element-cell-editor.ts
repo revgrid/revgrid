@@ -1,5 +1,5 @@
 import { numberToPixels } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, Rectangle, Revgrid, SchemaField } from '../../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, Rectangle, RevClientGrid, SchemaField } from '../../client/internal-api';
 import { StandardCellEditor } from './standard-cell-editor';
 
 /** @public */
@@ -10,7 +10,7 @@ export abstract class StandardElementCellEditor<
 > extends StandardCellEditor<BGS, BCS, SF> {
     protected readonly element: HTMLElement;
 
-    constructor(grid: Revgrid<BGS, BCS, SF>, dataServer: DataServer<SF>, element: HTMLElement) {
+    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: DataServer<SF>, element: HTMLElement) {
         super(grid, dataServer);
         this.element = element;
         element.style.position = 'absolute';

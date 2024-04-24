@@ -5,8 +5,8 @@ import { SchemaField } from '../../interfaces/schema/schema-field';
 import { ServerNotificationId, invalidServerNotificationId, lowestValidServerNotificationId } from '../../interfaces/schema/schema-server';
 import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevClientObject } from '../../types-utils/client-object';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevgridObject } from '../../types-utils/revgrid-object';
 import { Canvas } from '../canvas/canvas';
 import { ColumnsManager } from '../column/columns-manager';
 import { Focus } from '../focus/focus';
@@ -22,7 +22,7 @@ import { RenderAction } from './render-action';
 import { RenderActionQueue } from './render-action-queue';
 
 /** @public */
-export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevgridObject {
+export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
     /** @internal */
     renderedEventer: Renderer.RenderedEventer;
 
@@ -55,8 +55,8 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 
     /** @internal */
     constructor(
-        readonly revgridId: string,
-        readonly internalParent: RevgridObject,
+        readonly clientId: string,
+        readonly internalParent: RevClientObject,
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
