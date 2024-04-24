@@ -2,7 +2,7 @@
 
 import { BehavioredColumnSettings, BehavioredGridSettings, DatalessSubgrid, RevApiError, RevAssertError, RevClientGrid, RevGridDefinition, RevGridOptions, Subgrid } from '../../../client/internal-api';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../../../data-row-array/internal-api';
-import { SingleHeadingDataServer } from '../../../header/internal-api';
+import { RevSingleHeadingDataServer } from '../../../header/internal-api';
 import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';
 import { RevAllowedSingleHeadingDataRowArraySourcedFieldsColumnLayoutDefinition, RevSingleHeadingDataRowArraySourcedField } from './server/internal-api';
 
@@ -12,7 +12,7 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<
     BCS extends BehavioredColumnSettings,
     SF extends RevSingleHeadingDataRowArraySourcedField
 > extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
-    declare headerDataServer: SingleHeadingDataServer<SF>;
+    declare headerDataServer: RevSingleHeadingDataServer<SF>;
 
     constructor(
         gridHostElement: HTMLElement,
@@ -26,7 +26,7 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<
     ) {
         const schemaServer = new RevDataRowArraySchemaServer<SF>();
         const mainDataServer = new RevDataRowArrayDataServer<SF>();
-        const headerDataServer = new SingleHeadingDataServer<SF>();
+        const headerDataServer = new RevSingleHeadingDataServer<SF>();
 
         const definition: RevGridDefinition<BCS, SF> = {
             schemaServer,

@@ -3,6 +3,6 @@
 import { SchemaField } from '../../../client/internal-api';
 
 /** @public */
-export interface SingleHeadingSchemaField extends SchemaField {
+export interface RevSingleHeadingSchemaField extends SchemaField {
     heading: string;
 }

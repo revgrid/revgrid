@@ -2,7 +2,7 @@
 
 import { BehavioredColumnSettings, BehavioredGridSettings, DatalessSubgrid, RevAssertError, RevClientGrid, RevGridDefinition, RevGridOptions, Subgrid } from '../../../client/internal-api';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../../../data-row-array/internal-api';
-import { MultiHeadingDataServer } from '../../../header/internal-api';
+import { RevMultiHeadingDataServer } from '../../../header/internal-api';
 import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';
 import { RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition, RevMultiHeadingDataRowArraySourcedField } from './server/internal-api';
 
@@ -12,7 +12,7 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<
     BCS extends BehavioredColumnSettings,
     SF extends RevMultiHeadingDataRowArraySourcedField
 > extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
-    declare headerDataServer: MultiHeadingDataServer<SF>;
+    declare headerDataServer: RevMultiHeadingDataServer<SF>;
 
     constructor(
         gridHostElement: HTMLElement,
@@ -26,7 +26,7 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<
     ) {
         const schemaServer = new RevDataRowArraySchemaServer<SF>();
         const mainDataServer = new RevDataRowArrayDataServer<SF>();
-        const headerDataServer = new MultiHeadingDataServer<SF>();
+        const headerDataServer = new RevMultiHeadingDataServer<SF>();
 
         const definition: RevGridDefinition<BCS, SF> = {
             schemaServer,

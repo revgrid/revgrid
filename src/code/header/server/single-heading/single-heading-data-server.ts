@@ -1,10 +1,10 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { DataServer, RevAssertError } from '../../../client/internal-api';
-import { SingleHeadingSchemaField } from './single-heading-schema-field';
+import { RevSingleHeadingSchemaField } from './single-heading-schema-field';
 
 /** @public */
-export class SingleHeadingDataServer<SF extends SingleHeadingSchemaField> implements DataServer<SF> {
+export class RevSingleHeadingDataServer<SF extends RevSingleHeadingSchemaField> implements DataServer<SF> {
     private _callbackListeners: DataServer.NotificationsClient[] = [];
 
     subscribeDataNotifications(listener: DataServer.NotificationsClient) {

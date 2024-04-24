@@ -4,12 +4,12 @@ import {
     Integer
 } from '@xilytix/sysutils';
 import { RevDataRowArrayField } from '../../../../data-row-array/server/internal-api';
-import { MultiHeadingSchemaField } from '../../../../header/server/internal-api';
+import { RevMultiHeadingSchemaField } from '../../../../header/server/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';
 import { RevMultiHeadingDataRowArraySourcedFieldDefinition } from './definition/internal-api';
 
 /** @public */
-export class RevMultiHeadingDataRowArraySourcedField implements RevSourcedField, RevDataRowArrayField, MultiHeadingSchemaField {
+export class RevMultiHeadingDataRowArraySourcedField implements RevSourcedField, RevDataRowArrayField, RevMultiHeadingSchemaField {
     readonly name: string;
     index: Integer;
     heading: string; // this is used in column selector

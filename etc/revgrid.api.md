@@ -2161,26 +2161,6 @@ export namespace Mouse {
 }
 
 // @public (undocumented)
-export class MultiHeadingDataServer<SF extends MultiHeadingSchemaField> implements DataServer<SF> {
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getViewValue(field: SF, rowIndex: number): string;
-    // (undocumented)
-    reset(rowCount: number): void;
-    // (undocumented)
-    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-    // (undocumented)
-    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
-}
-
-// @public (undocumented)
-export interface MultiHeadingSchemaField extends SchemaField {
-    // (undocumented)
-    headings: string[];
-}
-
-// @public (undocumented)
 export type OnlyColumnSettings = Pick<OnlyGridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'editorClickableCursorName' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
 
 // @public (undocumented)
@@ -4235,7 +4215,7 @@ export const enum RevListChangedTypeId {
 }
 
 // @public (undocumented)
-export class RevMultiHeadingDataRowArraySourcedField implements RevSourcedField, RevDataRowArrayField, MultiHeadingSchemaField {
+export class RevMultiHeadingDataRowArraySourcedField implements RevSourcedField, RevDataRowArrayField, RevMultiHeadingSchemaField {
     constructor(definition: RevMultiHeadingDataRowArraySourcedFieldDefinition, heading?: string, headings?: string[]);
     // (undocumented)
     readonly definition: RevMultiHeadingDataRowArraySourcedFieldDefinition;
@@ -4270,7 +4250,7 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredG
     // (undocumented)
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]): RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition;
     // (undocumented)
-    headerDataServer: MultiHeadingDataServer<SF>;
+    headerDataServer: RevMultiHeadingDataServer<SF>;
     setData(data: RevDataRowArrayGrid.DataRow[] | (() => RevDataRowArrayGrid.DataRow[]), headerRowCount?: number): void;
 }
 
@@ -4278,6 +4258,26 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredG
 export namespace RevMultiHeadingDataRowArraySourcedFieldGrid {
     // (undocumented)
     export type CreateFieldEventer<SF extends RevMultiHeadingDataRowArraySourcedField> = (this: void, index: number, key: string, headings: string[]) => SF;
+}
+
+// @public (undocumented)
+export class RevMultiHeadingDataServer<SF extends RevMultiHeadingSchemaField> implements DataServer<SF> {
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getViewValue(field: SF, rowIndex: number): string;
+    // (undocumented)
+    reset(rowCount: number): void;
+    // (undocumented)
+    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+    // (undocumented)
+    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
+}
+
+// @public (undocumented)
+export interface RevMultiHeadingSchemaField extends SchemaField {
+    // (undocumented)
+    headings: string[];
 }
 
 // @public (undocumented)
@@ -5153,7 +5153,7 @@ export namespace RevRenderValue {
 }
 
 // @public (undocumented)
-export interface RevSingleHeadingDataRowArraySourcedField extends RevSourcedField, RevDataRowArrayField, SingleHeadingSchemaField {
+export interface RevSingleHeadingDataRowArraySourcedField extends RevSourcedField, RevDataRowArrayField, RevSingleHeadingSchemaField {
 }
 
 // @public (undocumented)
@@ -5181,7 +5181,7 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<BGS extends Behaviored
     // (undocumented)
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]): RevAllowedSingleHeadingDataRowArraySourcedFieldsColumnLayoutDefinition;
     // (undocumented)
-    headerDataServer: SingleHeadingDataServer<SF>;
+    headerDataServer: RevSingleHeadingDataServer<SF>;
     setData(data: RevDataRowArrayGrid.DataRow[] | (() => RevDataRowArrayGrid.DataRow[]), keyIsHeading: boolean): void;
 }
 
@@ -5189,6 +5189,28 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<BGS extends Behaviored
 export namespace RevSingleHeadingDataRowArraySourcedFieldGrid {
     // (undocumented)
     export type CreateFieldEventer<SF extends RevSingleHeadingDataRowArraySourcedField> = (this: void, index: number, key: string, heading: string) => SF;
+}
+
+// @public (undocumented)
+export class RevSingleHeadingDataServer<SF extends RevSingleHeadingSchemaField> implements DataServer<SF> {
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getViewValue(field: SF): string;
+    // (undocumented)
+    invalidateCell(schemaColumnIndex: number, rowIndex?: number): void;
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
+    // (undocumented)
+    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
+}
+
+// @public (undocumented)
+export interface RevSingleHeadingSchemaField extends SchemaField {
+    // (undocumented)
+    heading: string;
 }
 
 // @public (undocumented)
@@ -6424,28 +6446,6 @@ export class SelectionRectangle extends FirstCornerRectangle implements Selectio
 
 // @public (undocumented)
 export type ServerNotificationId = number;
-
-// @public (undocumented)
-export class SingleHeadingDataServer<SF extends SingleHeadingSchemaField> implements DataServer<SF> {
-    // (undocumented)
-    getRowCount(): number;
-    // (undocumented)
-    getViewValue(field: SF): string;
-    // (undocumented)
-    invalidateCell(schemaColumnIndex: number, rowIndex?: number): void;
-    // (undocumented)
-    reset(): void;
-    // (undocumented)
-    subscribeDataNotifications(listener: DataServer.NotificationsClient): void;
-    // (undocumented)
-    unsubscribeDataNotifications(client: DataServer.NotificationsClient): void;
-}
-
-// @public (undocumented)
-export interface SingleHeadingSchemaField extends SchemaField {
-    // (undocumented)
-    heading: string;
-}
 
 // Warning: (ae-internal-missing-underscore) The name "splitStringAtFirstNonNumericChar" should be prefixed with an underscore because the declaration is marked as @internal
 //
