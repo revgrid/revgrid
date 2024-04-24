@@ -2,28 +2,37 @@
 
 import { Integer } from '@xilytix/sysutils';
 import { HorizontalAlign } from '../../../../../standard/internal-api';
-import { RevSourcedFieldDefinition } from '../../../../sourced-field/server/internal-api';
-import { RevMultiHeadingDataRowArraySourcedFieldSourceDefinition } from './multi-heading-data-row-array-sourced-field-source-definition';
+import { RevSourcedFieldDefinition, RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
 
 /** @public */
-export class RevMultiHeadingDataRowArraySourcedFieldDefinition implements RevSourcedFieldDefinition {
-    readonly name: string;
-    readonly defaultHeading: string;
+export interface RevMultiHeadingDataRowArraySourcedFieldDefinition extends RevSourcedFieldDefinition {
+    readonly headings: string[],
+    readonly key?: string,
+}
 
-    constructor(
-        readonly key: string,
-        readonly headings: string[],
-        readonly sourceDefinition: RevMultiHeadingDataRowArraySourcedFieldSourceDefinition,
-        readonly sourcelessName: string,
+/** @public */
+export namespace RevMultiHeadingDataRowArraySourcedFieldDefinition {
+    export function create(
+        sourceDefinition: RevSourcedFieldSourceDefinition,
+        sourcelessName: string,
+        headings: string[],
         defaultHeading: string | undefined,
-        readonly defaultTextAlign: HorizontalAlign,
-        readonly defaultWidth?: Integer,
-    ) {
-        this.name = RevSourcedFieldDefinition.Name.compose(sourceDefinition.name, sourcelessName);
-        if (defaultHeading === undefined) {
-            this.defaultHeading = headings.join('/');
-        } else {
-            this.defaultHeading = defaultHeading;
-        }
+        defaultTextAlign: HorizontalAlign,
+        defaultWidth?: Integer,
+        key?: string,
+    ): RevMultiHeadingDataRowArraySourcedFieldDefinition {
+        const resolvedDefaultHeading = defaultHeading === undefined ? headings.join('/') : defaultHeading;
+
+        return {
+            name: RevSourcedFieldDefinition.Name.compose(sourceDefinition.name, sourcelessName),
+            sourceDefinition,
+            sourcelessName,
+            headings,
+            defaultHeading: resolvedDefaultHeading,
+            defaultTextAlign,
+            defaultWidth,
+            key,
+        };
     }
+
 }

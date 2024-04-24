@@ -2,21 +2,31 @@
 
 import { Integer } from '@xilytix/sysutils';
 import { HorizontalAlign } from '../../../../../standard/internal-api';
-import { RevSourcedFieldDefinition } from '../../../../sourced-field/server/internal-api';
-import { RevSingleHeadingDataRowArraySourcedFieldSourceDefinition } from './single-heading-data-row-array-sourced-field-source-definition';
+import { RevSourcedFieldDefinition, RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
 
 /** @public */
-export class RevSingleHeadingDataRowArraySourcedFieldDefinition implements RevSourcedFieldDefinition {
-    readonly name: string;
+export interface RevSingleHeadingDataRowArraySourcedFieldDefinition extends RevSourcedFieldDefinition {
+    readonly key?: string,
+}
 
-    constructor(
-        readonly key: string,
-        readonly sourceDefinition: RevSingleHeadingDataRowArraySourcedFieldSourceDefinition,
-        readonly sourcelessName: string,
-        readonly defaultHeading: string,
-        readonly defaultTextAlign: HorizontalAlign,
-        readonly defaultWidth?: Integer,
-    ) {
-        this.name = RevSourcedFieldDefinition.Name.compose(sourceDefinition.name, sourcelessName);
+/** @public */
+export namespace RevSingleHeadingDataRowArraySourcedFieldDefinition {
+    export function create(
+        sourceDefinition: RevSourcedFieldSourceDefinition,
+        sourcelessName: string,
+        defaultHeading: string,
+        defaultTextAlign: HorizontalAlign,
+        defaultWidth?: Integer,
+        key?: string,
+    ): RevSingleHeadingDataRowArraySourcedFieldDefinition {
+        return {
+            name: RevSourcedFieldDefinition.Name.compose(sourceDefinition.name, sourcelessName),
+            sourceDefinition,
+            sourcelessName,
+            defaultHeading,
+            defaultTextAlign,
+            defaultWidth,
+            key,
+        };
     }
 }

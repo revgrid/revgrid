@@ -3892,24 +3892,17 @@ export class RevMultiHeadingDataRowArraySourcedField implements RevSourcedField,
 }
 
 // @public (undocumented)
-export class RevMultiHeadingDataRowArraySourcedFieldDefinition implements RevSourcedFieldDefinition {
-    constructor(headings: string[], sourceDefinition: RevMultiHeadingDataRowArraySourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string | undefined, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined, key?: string | undefined);
-    // (undocumented)
-    readonly defaultHeading: string;
-    // (undocumented)
-    readonly defaultTextAlign: HorizontalAlign;
-    // (undocumented)
-    readonly defaultWidth?: number | undefined;
+export interface RevMultiHeadingDataRowArraySourcedFieldDefinition extends RevSourcedFieldDefinition {
     // (undocumented)
     readonly headings: string[];
     // (undocumented)
-    readonly key?: string | undefined;
+    readonly key?: string;
+}
+
+// @public (undocumented)
+export namespace RevMultiHeadingDataRowArraySourcedFieldDefinition {
     // (undocumented)
-    readonly name: string;
-    // (undocumented)
-    readonly sourceDefinition: RevMultiHeadingDataRowArraySourcedFieldSourceDefinition;
-    // (undocumented)
-    readonly sourcelessName: string;
+    export function create(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, headings: string[], defaultHeading: string | undefined, defaultTextAlign: HorizontalAlign, defaultWidth?: Integer, key?: string): RevMultiHeadingDataRowArraySourcedFieldDefinition;
 }
 
 // @public (undocumented)
@@ -3927,13 +3920,6 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredG
 export namespace RevMultiHeadingDataRowArraySourcedFieldGrid {
     // (undocumented)
     export type CreateFieldEventer<SF extends RevMultiHeadingDataRowArraySourcedField> = (this: void, index: number, key: string, headings: string[]) => SF;
-}
-
-// @public (undocumented)
-export class RevMultiHeadingDataRowArraySourcedFieldSourceDefinition implements RevSourcedFieldSourceDefinition {
-    constructor(name: string);
-    // (undocumented)
-    readonly name: string;
 }
 
 // @public (undocumented)
@@ -4809,35 +4795,25 @@ export namespace RevRenderValue {
 }
 
 // @public (undocumented)
-export class RevSingleHeadingDataRowArraySourcedField implements RevSourcedField, RevDataRowArrayField, SingleHeadingSchemaField {
-    constructor(definition: RevSingleHeadingDataRowArraySourcedFieldDefinition, heading?: string);
-    // (undocumented)
-    readonly definition: RevSingleHeadingDataRowArraySourcedFieldDefinition;
-    // (undocumented)
-    heading: string;
-    // (undocumented)
-    index: Integer;
-    // (undocumented)
-    readonly name: string;
+export interface RevSingleHeadingDataRowArraySourcedField extends RevSourcedField, RevDataRowArrayField, SingleHeadingSchemaField {
 }
 
 // @public (undocumented)
-export class RevSingleHeadingDataRowArraySourcedFieldDefinition implements RevSourcedFieldDefinition {
-    constructor(sourceDefinition: RevSingleHeadingDataRowArraySourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined, key?: string | undefined);
+export namespace RevSingleHeadingDataRowArraySourcedField {
     // (undocumented)
-    readonly defaultHeading: string;
+    export function createFromDefinition(definition: RevSingleHeadingDataRowArraySourcedFieldDefinition, heading?: string): RevSingleHeadingDataRowArraySourcedField;
+}
+
+// @public (undocumented)
+export interface RevSingleHeadingDataRowArraySourcedFieldDefinition extends RevSourcedFieldDefinition {
     // (undocumented)
-    readonly defaultTextAlign: HorizontalAlign;
+    readonly key?: string;
+}
+
+// @public (undocumented)
+export namespace RevSingleHeadingDataRowArraySourcedFieldDefinition {
     // (undocumented)
-    readonly defaultWidth?: number | undefined;
-    // (undocumented)
-    readonly key?: string | undefined;
-    // (undocumented)
-    readonly name: string;
-    // (undocumented)
-    readonly sourceDefinition: RevSingleHeadingDataRowArraySourcedFieldSourceDefinition;
-    // (undocumented)
-    readonly sourcelessName: string;
+    export function create(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: HorizontalAlign, defaultWidth?: Integer, key?: string): RevSingleHeadingDataRowArraySourcedFieldDefinition;
 }
 
 // @public (undocumented)
@@ -4855,13 +4831,6 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<BGS extends Behaviored
 export namespace RevSingleHeadingDataRowArraySourcedFieldGrid {
     // (undocumented)
     export type CreateFieldEventer<SF extends RevSingleHeadingDataRowArraySourcedField> = (this: void, index: number, key: string, heading: string) => SF;
-}
-
-// @public (undocumented)
-export class RevSingleHeadingDataRowArraySourcedFieldSourceDefinition implements RevSourcedFieldSourceDefinition {
-    constructor(name: string);
-    // (undocumented)
-    readonly name: string;
 }
 
 // @public (undocumented)
@@ -5722,7 +5691,7 @@ export interface SchemaField {
     // (undocumented)
     index: number;
     // (undocumented)
-    name: string;
+    readonly name: string;
 }
 
 // @public (undocumented)
