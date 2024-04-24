@@ -17,6 +17,8 @@ export { SelectionArea } from './components/selection/selection-area';
 export { SelectionRectangle } from './components/selection/selection-rectangle';
 export { SubgridsManager } from './components/subgrid/subgrids-manager';
 export { ViewLayout } from './components/view/view-layout';
+export { RevGridDefinition } from './grid-definition';
+export { RevGridOptions } from './grid-options';
 export { CellEditor } from './interfaces/data/cell-editor';
 export { CellPainter } from './interfaces/data/cell-painter';
 export { ClickBoxCellPainter } from './interfaces/data/click-box-cell-painter';

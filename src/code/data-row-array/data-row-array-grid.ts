@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { Integer } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, RevClientGrid } from '../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, RevClientGrid, RevGridDefinition, RevGridOptions } from '../client/internal-api';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
 import {
@@ -28,10 +28,10 @@ export class RevDataRowArrayGrid<
 
     constructor(
         gridHostElement: HTMLElement,
-        definition: RevClientGrid.Definition<BCS, SF>,
+        definition: RevGridDefinition<BCS, SF>,
         settings: BGS,
         customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
-        options?: RevClientGrid.Options<BGS, BCS, SF>,
+        options?: RevGridOptions<BGS, BCS, SF>,
     ) {
         super(gridHostElement, definition, settings, customiseSettingsForNewColumnEventer, options);
 

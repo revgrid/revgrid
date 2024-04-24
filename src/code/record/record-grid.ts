@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, Integer } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessSubgrid, LinedHoverCell, MetaModel, RevClientGrid, Subgrid, ViewCell } from '../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessSubgrid, LinedHoverCell, MetaModel, RevClientGrid, RevGridDefinition, RevGridOptions, Subgrid, ViewCell } from '../client/internal-api';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
 import {
@@ -44,13 +44,13 @@ export class RevRecordGrid<
         extraSubgridDefinitions: Subgrid.Definition<BCS, SF>[],
         settings: BGS,
         customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
-        options?: RevClientGrid.Options<BGS, BCS, SF>,
+        options?: RevGridOptions<BGS, BCS, SF>,
         mainSubgridDefinitionOptions?: RevRecordGrid.MainSubgridDefinitionOptions,
     ) {
         const schemaServer = new RevRecordSchemaServer<SF>();
         const mainDataServer = new RevRecordDataServer(schemaServer, recordStore);
 
-        const definition: RevClientGrid.Definition<BCS, SF> = {
+        const definition: RevGridDefinition<BCS, SF> = {
             schemaServer,
             subgrids: [
                 {

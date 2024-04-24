@@ -16,6 +16,8 @@ import { Scroller } from './components/scroller/scroller';
 import { Selection } from './components/selection/selection';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
+import { RevGridDefinition } from './grid-definition';
+import { RevGridOptions } from './grid-options';
 import { IdGenerator } from './id-generator';
 import { CellMetaSettings } from './interfaces/data/cell-meta-settings';
 import { DataServer } from './interfaces/data/data-server';
@@ -39,7 +41,6 @@ import { Rectangle } from './types-utils/rectangle';
 import { RevApiError, RevAssertError } from './types-utils/revgrid-error';
 import { SelectionAreaType } from './types-utils/selection-area-type';
 import { RevListChangedTypeId } from './types-utils/types';
-import { UiController } from './ui/controller/ui-controller';
 import { UiManager } from './ui/ui-controller-manager';
 
 /** @public */
@@ -88,10 +89,10 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
 
     constructor(
         hostElement: string | HTMLElement | undefined,
-        definition: RevClientGrid.Definition<BCS, SF>,
+        definition: RevGridDefinition<BCS, SF>,
         readonly settings: BGS,
         getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
-        options?: RevClientGrid.Options<BGS, BCS, SF>
+        options?: RevGridOptions<BGS, BCS, SF>
     ) {
         //Set up the host for a grid instance
         this.hostElement = this.prepareHost(hostElement);
@@ -1771,32 +1772,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
 
 /** @public */
 export namespace RevClientGrid {
-    export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-        schemaServer: (SchemaServer<SF> | SchemaServer.Constructor<SF>),
-        subgrids: Subgrid.Definition<BCS, SF>[],
-    }
-
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
-
-    export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-        /** Used to distinguish between Revgrid instances in an application.  If undefined, will generate an id from host element */
-        id?: string;
-        /** Internally generated ids are numbered using the host HTML element's id as a base and suffixing it with a number. Normally the first id generated from a host element
-         * base Id is not numbered.  Subsequent ids generated from that base id are suffixed with numbers beginning with 2. This works well if host elements all have different Ids (so
-         * there suffices are not used).  However If host elements have the same id or no id, then it may be better for all internally generated ids to be suffixed with a number (starting
-         * from 1).  Set {@link RevClientGrid:namespace.Options.interface.firstGeneratedIdFromBaseIsAlsoNumbered} to true to suffix all internally generated ids.
-         */
-        firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
-        /** Optional link to Revgrid instance's parent Javascript object. Is used to set externalParent which is not used within Revgrid however may be helpful with debugging */
-        externalParent?: unknown;
-        /** Set alpha to false to speed up rendering if no colors use alpha channel */
-		canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
-        /** Normally the canvas HTML element created by Revgrid on which to draw the grid has its `overflow` property set to `clip`.  However it may be helpful to set its overflow property
-         * to `visible` when debugging painters. The {@link RevClientGrid:namespace.Options.interface.canvasOverflowOverride} can be used to override the default value of this property.
-         */
-        canvasOverflowOverride?: CssTypes.Overflow;
-        customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
-	}
 
     /** @internal */
     export const idGenerator = new IdGenerator();

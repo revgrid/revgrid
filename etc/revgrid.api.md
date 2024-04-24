@@ -2566,7 +2566,7 @@ export class RevAssertError extends InternalError {
 
 // @public (undocumented)
 export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
-    constructor(hostElement: string | HTMLElement | undefined, definition: RevClientGrid.Definition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevClientGrid.Options<BGS, BCS, SF>);
+    constructor(hostElement: string | HTMLElement | undefined, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     activate(): void;
     // (undocumented)
@@ -2989,26 +2989,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
 // @public (undocumented)
 export namespace RevClientGrid {
     // (undocumented)
-    export interface Definition<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-        // (undocumented)
-        schemaServer: (SchemaServer<SF> | SchemaServer.Constructor<SF>);
-        // (undocumented)
-        subgrids: Subgrid.Definition<BCS, SF>[];
-    }
-    // (undocumented)
     export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
-    // (undocumented)
-    export interface Options<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-        // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-        canvasOverflowOverride?: CssTypes.Overflow;
-        canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
-        // (undocumented)
-        customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
-        externalParent?: unknown;
-        // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-        firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
-        id?: string;
-    }
     const // Warning: (ae-forgotten-export) The symbol "IdGenerator" needs to be exported by the entry point public-api.d.ts
     //
     // @internal (undocumented)
@@ -3439,7 +3420,7 @@ export interface RevDataRowArrayField extends SchemaField {
 
 // @public (undocumented)
 export class RevDataRowArrayGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevDataRowArrayField> extends RevColumnLayoutGrid<BGS, BCS, SF> {
-    constructor(gridHostElement: HTMLElement, definition: RevClientGrid.Definition<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevClientGrid.Options<BGS, BCS, SF>);
+    constructor(gridHostElement: HTMLElement, definition: RevGridDefinition<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     get allowedFields(): readonly SF[] | undefined;
     // (undocumented)
@@ -3858,6 +3839,27 @@ export abstract class RevGenericTableValue<T, RenderValueTypeId, RenderAttribute
 }
 
 // @public (undocumented)
+export interface RevGridDefinition<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    // (undocumented)
+    schemaServer: (SchemaServer<SF> | SchemaServer.Constructor<SF>);
+    // (undocumented)
+    subgrids: Subgrid.Definition<BCS, SF>[];
+}
+
+// @public (undocumented)
+export interface RevGridOptions<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    canvasOverflowOverride?: CssTypes.Overflow;
+    canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
+    // (undocumented)
+    customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
+    externalParent?: unknown;
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
+    id?: string;
+}
+
+// @public (undocumented)
 export type RevListChangedEventer = (this: void, typeId: RevListChangedTypeId, index: number, count: number, targetIndex: number | undefined) => void;
 
 // @public (undocumented)
@@ -3891,7 +3893,7 @@ export class RevMultiHeadingDataRowArraySourcedField implements RevSourcedField,
 
 // @public (undocumented)
 export class RevMultiHeadingDataRowArraySourcedFieldDefinition implements RevSourcedFieldDefinition {
-    constructor(key: string, headings: string[], sourceDefinition: RevMultiHeadingDataRowArraySourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string | undefined, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined);
+    constructor(headings: string[], sourceDefinition: RevMultiHeadingDataRowArraySourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string | undefined, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined, key?: string | undefined);
     // (undocumented)
     readonly defaultHeading: string;
     // (undocumented)
@@ -3901,7 +3903,7 @@ export class RevMultiHeadingDataRowArraySourcedFieldDefinition implements RevSou
     // (undocumented)
     readonly headings: string[];
     // (undocumented)
-    readonly key: string;
+    readonly key?: string | undefined;
     // (undocumented)
     readonly name: string;
     // (undocumented)
@@ -3913,7 +3915,7 @@ export class RevMultiHeadingDataRowArraySourcedFieldDefinition implements RevSou
 // @public (undocumented)
 export class RevMultiHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevMultiHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
     constructor(gridHostElement: HTMLElement, getHeaderCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
-    _createFieldEventer: RevMultiHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: RevClientGrid.Options<BGS, BCS, SF>);
+    _createFieldEventer: RevMultiHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]): RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition;
     // (undocumented)
@@ -4199,7 +4201,7 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
 
 // @public (undocumented)
 export class RevRecordGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordField> extends RevColumnLayoutGrid<BGS, BCS, SF> {
-    constructor(gridHostElement: HTMLElement, recordStore: RevRecordStore, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, extraSubgridDefinitions: Subgrid.Definition<BCS, SF>[], settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevClientGrid.Options<BGS, BCS, SF>, mainSubgridDefinitionOptions?: RevRecordGrid.MainSubgridDefinitionOptions);
+    constructor(gridHostElement: HTMLElement, recordStore: RevRecordStore, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, extraSubgridDefinitions: Subgrid.Definition<BCS, SF>[], settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>, mainSubgridDefinitionOptions?: RevRecordGrid.MainSubgridDefinitionOptions);
     // (undocumented)
     get allowedFields(): readonly SF[] | undefined;
     // (undocumented)
@@ -4821,7 +4823,7 @@ export class RevSingleHeadingDataRowArraySourcedField implements RevSourcedField
 
 // @public (undocumented)
 export class RevSingleHeadingDataRowArraySourcedFieldDefinition implements RevSourcedFieldDefinition {
-    constructor(key: string, sourceDefinition: RevSingleHeadingDataRowArraySourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined);
+    constructor(sourceDefinition: RevSingleHeadingDataRowArraySourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: HorizontalAlign, defaultWidth?: number | undefined, key?: string | undefined);
     // (undocumented)
     readonly defaultHeading: string;
     // (undocumented)
@@ -4829,7 +4831,7 @@ export class RevSingleHeadingDataRowArraySourcedFieldDefinition implements RevSo
     // (undocumented)
     readonly defaultWidth?: number | undefined;
     // (undocumented)
-    readonly key: string;
+    readonly key?: string | undefined;
     // (undocumented)
     readonly name: string;
     // (undocumented)
@@ -4841,7 +4843,7 @@ export class RevSingleHeadingDataRowArraySourcedFieldDefinition implements RevSo
 // @public (undocumented)
 export class RevSingleHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevSingleHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
     constructor(gridHostElement: HTMLElement, getHeaderCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
-    _createFieldEventer: RevSingleHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: RevClientGrid.Options<BGS, BCS, SF>);
+    _createFieldEventer: RevSingleHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]): RevAllowedSingleHeadingDataRowArraySourcedFieldsColumnLayoutDefinition;
     // (undocumented)
@@ -5299,7 +5301,7 @@ export interface RevTableFieldSourceDefinitionFactory<TypeId, RenderValueTypeId,
 
 // @public (undocumented)
 export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>> {
-    constructor(gridFieldCustomHeadingsService: RevSourcedFieldCustomHeadingsService, _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, tableRecordSourceDefinitionFactoryService: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, _referenceableDataSourcesService: RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, gridHostElement: HTMLElement, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>, extraSubgridDefinitions: Subgrid.Definition<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>[], settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>, options?: RevClientGrid.Options<BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>);
+    constructor(gridFieldCustomHeadingsService: RevSourcedFieldCustomHeadingsService, _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, tableRecordSourceDefinitionFactoryService: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, _referenceableDataSourcesService: RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, gridHostElement: HTMLElement, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>, extraSubgridDefinitions: Subgrid.Definition<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>[], settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>, options?: RevGridOptions<BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>);
     // (undocumented)
     applyColumnLayoutOrReferenceDefinition(definition: RevColumnLayoutOrReferenceDefinition): void;
     // (undocumented)
