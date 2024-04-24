@@ -12,7 +12,7 @@ export class RevRecordSourcedFieldGrid<
     BGS extends BehavioredGridSettings,
     BCS extends BehavioredColumnSettings,
     SF extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>
-> extends RevRecordGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
+> extends RevRecordGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[]) {
         const definitionColumns = this.createColumnLayoutDefinitionColumns();
         return new RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId>(definitionColumns, allowedFields, this.settings.fixedColumnCount);

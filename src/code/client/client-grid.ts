@@ -1,3 +1,4 @@
+import { Integer } from '@xilytix/sysutils';
 import { BehaviorManager } from './behavior/behavior-manager';
 import { CellPropertiesBehavior } from './behavior/cell-properties-behavior';
 import { DataExtractBehavior } from './behavior/data-extract-behavior';
@@ -16,6 +17,7 @@ import { Scroller } from './components/scroller/scroller';
 import { Selection } from './components/selection/selection';
 import { SubgridsManager } from './components/subgrid/subgrids-manager';
 import { ViewLayout } from './components/view/view-layout';
+import { RevGrid } from './grid';
 import { RevGridDefinition } from './grid-definition';
 import { RevGridOptions } from './grid-options';
 import { IdGenerator } from './id-generator';
@@ -44,7 +46,7 @@ import { RevListChangedTypeId } from './types-utils/types';
 import { UiManager } from './ui/ui-controller-manager';
 
 /** @public */
-export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevGrid<BGS, BCS, SF> {
     readonly id: string;
     readonly clientId: string;
     readonly internalParent: RevClientObject | undefined = undefined;
@@ -296,7 +298,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @returns The data row object at y index.
      * @param y - the row index of interest
      */
-    getSingletonViewDataRow(y: number, subgrid?: Subgrid<BCS, SF>): DataServer.ViewRow {
+    getSingletonViewDataRow(y: Integer, subgrid?: Subgrid<BCS, SF>): DataServer.ViewRow {
         if (subgrid === undefined) {
             return this.mainSubgrid.getSingletonViewDataRow(y);
         } else {
@@ -317,14 +319,14 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
-    getViewValue(x: number, y: number, subgrid?: Subgrid<BCS, SF>) {
+    getViewValue(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this._componentsManager.getViewValue(x, y, subgrid);
     }
 
-    setValue(x: number, y: number, value: number, subgrid?: Subgrid<BCS, SF>) {
+    setValue(x: Integer, y: Integer, value: DataServer.EditValue, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -368,7 +370,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param activeIndex - The column index in question.
      * @returns The given column is fully visible.
      */
-    isColumnVisible(activeIndex: number) {
+    isColumnVisible(activeIndex: Integer) {
         return this.viewLayout.isActiveColumnVisible(activeIndex);
     }
 
@@ -379,7 +381,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param rowIndex - The data row index.
      * @returns The given row is visible.
      */
-    isDataRowVisible(r: number, subgrid?: Subgrid<BCS, SF>) {
+    isDataRowVisible(r: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -392,7 +394,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param rn - The grid row index in question.
      * @returns The given cell is fully is visible.
      */
-    isDataVisible(c: number, rn: number) {
+    isDataVisible(c: Integer, rn: Integer) {
         return this.isDataRowVisible(rn) && this.isColumnVisible(c);
     }
 
@@ -400,7 +402,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * Answer which data cell is under a pixel value mouse point.
      * @param offset - The mouse point to interrogate.
      */
-    findLinedHoverCellAtCanvasOffset(offsetX: number, offsetY: number) {
+    findLinedHoverCellAtCanvasOffset(offsetX: Integer, offsetY: Integer) {
         return this.viewLayout.findLinedHoverCellAtCanvasOffset(offsetX, offsetY);
     }
 
@@ -416,14 +418,14 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         return this.columnsManager.getSchema();
     }
 
-    getAllColumn(allX: number) {
+    getAllColumn(allX: Integer) {
         return this.columnsManager.getFieldColumn(allX);
     }
 
     /**
      * @returns A copy of the all columns array by passing the params to `Array.prototype.slice`.
      */
-    getFieldColumnRange(begin?: number, end?: number): Column<BCS, SF>[] {
+    getFieldColumnRange(begin?: Integer, end?: Integer): Column<BCS, SF>[] {
         const columns = this.columnsManager.fieldColumns;
         return columns.slice(begin, end);
     }
@@ -431,7 +433,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     /**
      * @returns A copy of the active columns array by passing the params to `Array.prototype.slice`.
      */
-    getActiveColumns(begin?: number, end?: number): Column<BCS, SF>[] {
+    getActiveColumns(begin?: Integer, end?: Integer): Column<BCS, SF>[] {
         const columns = this.columnsManager.activeColumns;
         return columns.slice(begin, end);
     }
@@ -470,9 +472,9 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      */
     showHideColumns(
         /** A column index or array of field indices which are to be shown or hidden */
-        fieldColumnIndexes: number | number[],
+        fieldColumnIndexes: Integer | number[],
         /** Set to undefined to add new active columns at end of list.  Set to -1 to hide specified columns */
-        insertIndex?: number,
+        insertIndex?: Integer,
         /** If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false */
         allowDuplicateColumns?: boolean,
         /** Whether this was instigated by a UI action. Default: true */
@@ -481,9 +483,9 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         /** If true, then column indices specify active column indices.  Otherwise field column indices */
         indexesAreActive: boolean,
         /** A column index or array of indices.  If undefined then all of the columns as per isActiveColumnIndexes */
-        columnIndexes?: number | number[],
+        columnIndexes?: Integer | number[],
         /** Set to undefined to add new active columns at end of list.  Set to -1 to hide specified columns */
-        insertIndex?: number,
+        insertIndex?: Integer,
         /** If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false */
         allowDuplicateColumns?: boolean,
         /** Whether this was instigated by a UI action. Default: true */
@@ -491,14 +493,14 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     ): void;
     showHideColumns(
         fieldColumnIndexesOrIndexesAreActive: boolean | number | number[],
-        insertIndexOrColumnIndexes?: number | number[],
+        insertIndexOrColumnIndexes?: Integer | number[],
         allowDuplicateColumnsOrInsertIndex?: boolean | number,
         uiOrAllowDuplicateColumns?: boolean,
         ui = true
     ): void {
         let indexesAreActive: boolean;
-        let columnIndexOrIndices: number | number[] | undefined;
-        let insertIndex: number | undefined;
+        let columnIndexOrIndices: Integer | number[] | undefined;
+        let insertIndex: Integer | undefined;
         let allowDuplicateColumns: boolean;
 
         // Promote args when indexesAreActive omitted
@@ -518,7 +520,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         this.columnsManager.showHideColumns(indexesAreActive, columnIndexOrIndices, insertIndex, allowDuplicateColumns, ui);
     }
 
-    hideActiveColumn(activeColumnIndex: number, ui = true) {
+    hideActiveColumn(activeColumnIndex: Integer, ui = true) {
         this.columnsManager.hideActiveColumn(activeColumnIndex, ui);
     }
 
@@ -526,7 +528,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         this.columnsManager.clearColumns();
     }
 
-    moveActiveColumn(fromIndex: number, toIndex: number, ui: boolean) {
+    moveActiveColumn(fromIndex: Integer, toIndex: Integer, ui: boolean) {
         this.columnsManager.moveActiveColumn(fromIndex, toIndex, ui);
     }
 
@@ -581,7 +583,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         column.autoSizeWidth(widenOnly);
     }
 
-    setColumnScrollAnchor(index: number, offset: number) {
+    setColumnScrollAnchor(index: Integer, offset: Integer) {
         return this.viewLayout.setColumnScrollAnchor(index, offset);
     }
 
@@ -627,142 +629,11 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         return result;
     }
 
-    // calculateColumnScrollContentSizeAndAnchorLimits(
-    //     contentStart: number, // Fixed columns width + fixed gridline width
-    //     viewportSize: number,
-    //     gridRightAligned: boolean,
-    //     columnCount: number,
-    //     fixedColumnCount: number,
-    // ): ViewLayout.ScrollContentSizeAndAnchorLimits {
-    //     let contentSize = this.calculateActiveNonFixedColumnsWidth();
-    //     let anchorLimits: ViewLayout.ScrollAnchorLimits;
-
-    //     const contentOverflowed = contentSize > viewportSize && columnCount > fixedColumnCount
-    //     if (contentOverflowed) {
-    //         let leftAnchorLimitIndex: number;
-    //         let leftAnchorLimitOffset: number;
-    //         let rightAnchorLimitIndex: number;
-    //         let rightAnchorLimitOffset: number;
-
-    //         const gridLinesVWidth = this.settings.verticalGridLinesWidth;
-    //         if (gridRightAligned) {
-    //             rightAnchorLimitIndex = columnCount - 1;
-    //             rightAnchorLimitOffset = 0;
-    //             let prevColumnGridLineFinish = contentStart - 1;
-    //             const lowestViewportFinish = prevColumnGridLineFinish + viewportSize;
-    //             let lowestViewportStartColumnIndex = fixedColumnCount;
-    //             let lowestViewportStartColumnFinish = prevColumnGridLineFinish + this.getActiveColumnWidth(lowestViewportStartColumnIndex);
-    //             while (lowestViewportStartColumnFinish <= lowestViewportFinish) {
-    //                 prevColumnGridLineFinish = lowestViewportStartColumnFinish;
-    //                 lowestViewportStartColumnIndex++;
-    //                 lowestViewportStartColumnFinish = prevColumnGridLineFinish + (this.getActiveColumnWidth(lowestViewportStartColumnIndex) + gridLinesVWidth);
-    //             }
-    //             leftAnchorLimitIndex = lowestViewportStartColumnIndex;
-    //             leftAnchorLimitOffset = lowestViewportStartColumnFinish - lowestViewportFinish;
-    //             if (!this.settings.scrollHorizontallySmoothly) {
-    //                 // Since we cannot show a partial column on right, this may prevent leftmost columns from being displayed in viewport
-    //                 // Extend scrollable size (content size) so that the previous column can be shown on end when viewport is at start of content.
-    //                 contentSize += (lowestViewportFinish - prevColumnGridLineFinish);
-    //                 if (leftAnchorLimitOffset !== 0) {
-    //                     leftAnchorLimitOffset = 0;
-    //                     if (leftAnchorLimitIndex > fixedColumnCount) {
-    //                         leftAnchorLimitIndex--;
-    //                     }
-    //                 }
-    //             }
-    //         } else {
-    //             leftAnchorLimitIndex = fixedColumnCount;
-    //             leftAnchorLimitOffset = 0;
-    //             const highestViewportStart = contentSize - viewportSize;
-    //             let nextColumnLeft = contentSize;
-    //             let highestViewportStartColumnIndex = columnCount - 1;
-    //             let highestViewportStartColumnLeft = nextColumnLeft - this.getActiveColumnWidth(highestViewportStartColumnIndex);
-    //             while (highestViewportStartColumnLeft > highestViewportStart) {
-    //                 nextColumnLeft = highestViewportStartColumnLeft;
-    //                 highestViewportStartColumnIndex--;
-    //                 highestViewportStartColumnLeft = nextColumnLeft - (this.getActiveColumnWidth(highestViewportStartColumnIndex) + gridLinesVWidth);
-    //             }
-    //             rightAnchorLimitIndex = highestViewportStartColumnIndex;
-    //             rightAnchorLimitOffset = highestViewportStart - highestViewportStartColumnLeft;
-    //             if (!this.settings.scrollHorizontallySmoothly) {
-    //                 // Since we cannot show a partial column on left, this may prevent rightmost columns from being displayed in viewport
-    //                 // Extend scrollable size (content size) so that the subsequent column can be shown on start when viewport is at end of content.
-    //                 contentSize += (nextColumnLeft - highestViewportStart);
-    //                 if (rightAnchorLimitOffset !== 0) {
-    //                     rightAnchorLimitOffset = 0;
-    //                     if (rightAnchorLimitIndex < columnCount - 1) {
-    //                         rightAnchorLimitIndex++;
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         anchorLimits = {
-    //             startAnchorLimitIndex: leftAnchorLimitIndex,
-    //             startAnchorLimitOffset: leftAnchorLimitOffset,
-    //             finishAnchorLimitIndex: rightAnchorLimitIndex,
-    //             finishAnchorLimitOffset: rightAnchorLimitOffset,
-    //         }
-    //     } else {
-    //         anchorLimits = this.calculateColumnScrollInactiveAnchorLimits(gridRightAligned, columnCount, fixedColumnCount);
-    //     }
-
-    //     return {
-    //         contentSize,
-    //         contentOverflowed,
-    //         anchorLimits,
-    //     };
-    // }
-
-    // calculateColumnScrollInactiveAnchorLimits(
-    //     gridRightAligned: boolean,
-    //     columnCount: number,
-    //     fixedColumnCount: number
-    // ): ViewLayout.ScrollAnchorLimits {
-    //     let startAnchorLimitIndex: number;
-    //     let finishAnchorLimitIndex: number;
-    //     if (gridRightAligned) {
-    //         finishAnchorLimitIndex = columnCount - 1;
-    //         startAnchorLimitIndex = finishAnchorLimitIndex;
-    //     } else {
-    //         startAnchorLimitIndex = fixedColumnCount;
-    //         finishAnchorLimitIndex = startAnchorLimitIndex;
-    //     }
-    //     return {
-    //         startAnchorLimitIndex,
-    //         startAnchorLimitOffset: 0,
-    //         finishAnchorLimitIndex,
-    //         finishAnchorLimitOffset: 0,
-    //     };
-    // }
-
-    // getColumnScrollableLeft(activeIndex: number) {
-    //     const fixedColumnCount = this.columnsManager.getFixedColumnCount();
-    //     if (activeIndex < fixedColumnCount) {
-    //         throw new AssertError('HGCSL89933');
-    //     } else {
-    //         const gridLinesVWidth = this.settings.verticalGridLinesWidth;
-    //         let result = 0;
-    //         for (let i = fixedColumnCount; i < activeIndex; i++) {
-    //             result += this.getActiveColumnWidth(i);
-    //         }
-
-    //         if (gridLinesVWidth > 0) {
-    //             const scrollableColumnCount = activeIndex - fixedColumnCount;
-    //             if (scrollableColumnCount > 1) {
-    //                 result += (scrollableColumnCount - 1) * gridLinesVWidth;
-    //             }
-    //         }
-
-    //         return result;
-    //     }
-    // }
-
-    getActiveColumn(activeIndex: number) {
+    getActiveColumn(activeIndex: Integer) {
         return this.columnsManager.getActiveColumn(activeIndex);
     }
 
-    getActiveColumnIndexByFieldIndex(fieldIndex: number) {
+    getActiveColumnIndexByFieldIndex(fieldIndex: Integer) {
         return this.columnsManager.getActiveColumnIndexByFieldIndex(fieldIndex);
     }
 
@@ -770,7 +641,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @returns The width of the given column.
      * @param activeIndex - The untranslated column index.
      */
-    getActiveColumnWidth(activeIndex: number) {
+    getActiveColumnWidth(activeIndex: Integer) {
         return this.columnsManager.getActiveColumnWidth(activeIndex);
     }
 
@@ -780,7 +651,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param width - The width in pixels.
      * @returns column if width changed otherwise undefined
      */
-    setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, width: number, ui: boolean) {
+    setActiveColumnWidth(columnOrIndex: Integer | Column<BCS, SF>, width: Integer, ui: boolean) {
         let column: Column<BCS, SF>
         if (typeof columnOrIndex === 'number') {
             if (columnOrIndex >= 0) {
@@ -807,7 +678,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @returns The height of the given row
      * @param rowIndex - The untranslated fixed column index.
      */
-    getRowHeight(rowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+    getRowHeight(rowIndex: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -819,7 +690,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param rowIndex - The row index.
      * @param rowHeight - The width in pixels.
      */
-    setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<BCS, SF>) {
+    setRowHeight(rowIndex: Integer, rowHeight: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -856,7 +727,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     /**
      * @returns The HiDPI ratio.
      */
-    getHiDPI() {
+    getHiDPI(): number {
         return this.canvas.devicePixelRatio;
     }
 
@@ -864,7 +735,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @returns The width of the given (recently rendered) column.
      * @param colIndex - The column index.
      */
-    getRenderedWidth(colIndex: number): number {
+    getRenderedWidth(colIndex: Integer): Integer {
         return this.viewLayout.getRenderedWidth(colIndex);
     }
 
@@ -872,30 +743,14 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @returns The height of the given (recently rendered) row.
      * @param rowIndex - The row index.
      */
-    getRenderedHeight(rowIndex: number): number {
+    getRenderedHeight(rowIndex: Integer): Integer {
         return this.viewLayout.getRenderedHeight(rowIndex);
     }
 
     /**
-     * Repaint the given cell.
-     * @param {number} x - The horizontal coordinate.
-     * @param {number} y - The vertical coordinate.
-     */
-    // repaintCell(x: number, y: number) {
-    //     this.renderer.repaintCell(x, y); // not implemented
-    // }
-
-    /**
-     * @returns The user is currently dragging a column to reorder it.
-     */
-    // isDraggingColumn(): boolean {
-    //     return !!this.renderOverridesCache.dragger;
-    // }
-
-    /**
      * @returns Objects with the values that were just rendered.
      */
-    getRenderedData() {
+    getRenderedData(): DataServer.ViewValue[][] {
         return this.viewLayout.getVisibleCellMatrix();
     }
 
@@ -944,7 +799,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         return this.viewLayout.getRowsCount();
     }
 
-    swapColumns(source: number, target: number) {
+    swapColumns(source: Integer, target: Integer) {
         //Turns out this is called during dragged 'i.e' when the floater column is reshuffled
         //by the currently dragged column. The column positions are constantly reshuffled
         this.columnsManager.swapColumns(source, target);
@@ -954,7 +809,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param activeColumnIndex - Data x coordinate.
      * @returns The properties for a specific column.
      */
-    getActiveColumnSettings(activeColumnIndex: number): BCS {
+    getActiveColumnSettings(activeColumnIndex: Integer): BCS {
         const column = this.columnsManager.getActiveColumn(activeColumnIndex);
         if (column === undefined) {
             throw new RevApiError('RGACS50008', `activeColumnIndex is not a valid index: ${activeColumnIndex}`);
@@ -963,19 +818,20 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
-    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>) {
+    mergeFieldColumnSettings(fieldIndex: Integer, settings: Partial<BCS>) {
         return this.columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
     }
 
-    setFieldColumnSettings(fieldIndex: number, settings: BCS) {
+    setFieldColumnSettings(fieldIndex: Integer, settings: BCS) {
         return this.columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
     }
 
     /**
      * Clears all cell properties of given column or of all columns.
      * @param x - Omit for all columns.
+     * @internal
      */
-    clearAllCellProperties(x?: number) {
+    clearAllCellProperties(x?: Integer) {
         const column = x === undefined ? undefined : this.columnsManager.getFieldColumn(x);
         this._cellPropertiesBehavior.clearAllCellProperties(column)
     }
@@ -995,15 +851,15 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
 
     // FocusScrollBehavior
 
-    tryFocusXYAndEnsureInView(x: number, y: number, cell?: ViewCell<BCS, SF>) {
+    tryFocusXYAndEnsureInView(x: Integer, y: Integer, cell?: ViewCell<BCS, SF>) {
         return this._focusScrollBehavior.tryFocusXYAndEnsureInView(x, y, cell);
     }
 
-    tryFocusXAndEnsureInView(x: number) {
+    tryFocusXAndEnsureInView(x: Integer) {
         return this._focusScrollBehavior.tryFocusXAndEnsureInView(x);
     }
 
-    tryFocusYAndEnsureInView(y: number) {
+    tryFocusYAndEnsureInView(y: Integer) {
         return this._focusScrollBehavior.tryFocusYAndEnsureInView(y);
     }
 
@@ -1113,7 +969,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         // for descendants
     }
 
-    protected descendantProcessRowFocusChanged(_newSubgridRowIndex: number | undefined, _oldSubgridRowIndex: number | undefined) {
+    protected descendantProcessRowFocusChanged(_newSubgridRowIndex: Integer | undefined, _oldSubgridRowIndex: Integer | undefined) {
         // for descendants
     }
 
@@ -1121,11 +977,11 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         // for descendants
     }
 
-    protected descendantProcessFieldColumnListChanged(_typeId: RevListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined) {
+    protected descendantProcessFieldColumnListChanged(_typeId: RevListChangedTypeId, _index: Integer, _count: Integer, _targetIndex: Integer | undefined) {
         // for descendants
     }
 
-    protected descendantProcessActiveColumnListChanged(_typeId: RevListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean) {
+    protected descendantProcessActiveColumnListChanged(_typeId: RevListChangedTypeId, _index: Integer, _count: Integer, _targetIndex: Integer | undefined, _ui: boolean) {
         // for descendants
     }
 
@@ -1268,8 +1124,9 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
+     * @internal
      */
-    getCellOwnProperties(allXOrRenderedCell: number | ViewCell<BCS, SF>, y?: number, subgrid?: Subgrid<BCS, SF>) {
+    getCellOwnProperties(allXOrRenderedCell: Integer | ViewCell<BCS, SF>, y?: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (typeof allXOrRenderedCell === 'object') {
             // xOrCellEvent is cellEvent
             const column = allXOrRenderedCell.viewLayoutColumn.column;
@@ -1296,16 +1153,19 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @returns The properties of the cell at x,y in the grid or falsy if not available.
+     * @internal
      */
     getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS, SF>): MetaModel.CellOwnProperties | false | null | undefined{
         return this._cellPropertiesBehavior.getCellOwnPropertiesFromRenderedCell(renderedCell);
     }
 
-    getCellProperties(allX: number, y: number, subgrid: Subgrid<BCS, SF>): CellMetaSettings {
+    /** @internal */
+    getCellProperties(allX: Integer, y: Integer, subgrid: Subgrid<BCS, SF>): CellMetaSettings {
         const column = this.columnsManager.getFieldColumn(allX);
         return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
     }
 
+    /** @internal */
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS, SF>, key: string): MetaModel.CellOwnProperty | undefined {
         return this._cellPropertiesBehavior.getCellOwnPropertyFromRenderedCell(renderedCell, key);
@@ -1319,12 +1179,15 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param key - Name of property to get.
      * @param subgrid - Subgrid in which contains cell
      * @returns The specified property for the cell at x,y in the grid.
+     * @internal
      */
-    getCellProperty(allX: number, y: number, key: string | number, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty;
-    getCellProperty<T extends keyof ColumnSettings>(allX: number, y: number, key: T, subgrid: Subgrid<BCS, SF>): ColumnSettings[T];
+    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty;
+    /** @internal */
+    getCellProperty<T extends keyof ColumnSettings>(allX: Integer, y: Integer, key: T, subgrid: Subgrid<BCS, SF>): ColumnSettings[T];
+    /** @internal */
     getCellProperty<T extends keyof ColumnSettings>(
-        allX: number,
-        y: number,
+        allX: Integer,
+        y: Integer,
         key: string | T,
         subgrid: Subgrid<BCS, SF>
         // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
@@ -1339,12 +1202,14 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
+     * @internal
      */
     setCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties) {
         const column = cell.viewLayoutColumn.column;
         this._cellPropertiesBehavior.setCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
-    setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
+    /** @internal */
+    setCellOwnProperties(allX: Integer, y: Integer, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
         const column = this.columnsManager.getFieldColumn(allX);
         this._cellPropertiesBehavior.setCellOwnProperties(column, y, properties, subgrid);
     }
@@ -1355,12 +1220,14 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
+     * @internal
      */
     addCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties) {
         const column = cell.viewLayoutColumn.column;
         this._cellPropertiesBehavior.addCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
-    addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
+    /** @internal */
+    addCellOwnProperties(allX: Integer, y: Integer, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>) {
         const column = this.columnsManager.getFieldColumn(allX);
         this._cellPropertiesBehavior.addCellOwnProperties(column, y, properties, subgrid);
     }
@@ -1378,9 +1245,12 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
      * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
+     * @internal
      */
     setCellProperty(cell: ViewCell<BCS, SF>, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
-    setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
+    /** @internal */
+    setCellProperty(allX: Integer, dataY: Integer, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
+    /** @internal */
     setCellProperty(
         allXOrCell: ViewCell<BCS, SF> | number,
         yOrKey: string | number,
@@ -1391,7 +1261,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     ): MetaModel.CellOwnProperties | undefined {
         let optionalCell: ViewCell<BCS, SF> | undefined;
         let column: Column<BCS, SF>;
-        let dataY: number;
+        let dataY: Integer;
         let key: string;
         if (typeof allXOrCell === 'object') {
             optionalCell = allXOrCell;
@@ -1433,21 +1303,21 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         this.selection.clear();
     }
 
-    onlySelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>) {
+    onlySelectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this.selection.onlySelectCell(x, y, subgrid);
     }
 
-    selectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>) {
+    selectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this.selection.selectCell(x, y, subgrid);
     }
 
-    deselectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
+    deselectCell(x: Integer, y: Integer, subgrid: Subgrid<BCS, SF>) {
         const rectangle: Rectangle = {
             x,
             y,
@@ -1457,21 +1327,21 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         this.selection.deselectRectangle(rectangle, subgrid);
     }
 
-    toggleSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean {
+    toggleSelectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this.selection.toggleSelectCell(x, y, subgrid);
     }
 
-    onlySelectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>) {
+    onlySelectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this.selection.onlySelectRectangle(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
     }
 
-    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>) {
+    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1485,35 +1355,35 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         this.selection.deselectRectangle(rectangle, subgrid);
     }
 
-    deselectRow(y: number, subgrid?: Subgrid<BCS, SF>) {
+    deselectRow(y: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this.selection.deselectRows(y, 1, subgrid);
     }
 
-    deselectRows(y: number, count: number, subgrid?: Subgrid<BCS, SF>) {
+    deselectRows(y: Integer, count: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this.selection.deselectRows(y, count, subgrid);
     }
 
-    deselectColumn(x: number, subgrid: Subgrid<BCS, SF>) {
+    deselectColumn(x: Integer, subgrid: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this.selection.deselectColumns(x, 1, subgrid);
     }
 
-    deselectColumns(x: number, count: number, subgrid: Subgrid<BCS, SF>) {
+    deselectColumns(x: Integer, count: Integer, subgrid: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this.selection.deselectColumns(x, count, subgrid);
     }
 
-    isCellSelected(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean {
+    isCellSelected(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1521,14 +1391,14 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     /** Returns undefined if not selected, false if selected with others, true if the only cell selected */
-    isOnlyThisCellSelected(x: number, y: number, subgrid?: DatalessSubgrid): boolean | undefined {
+    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: DatalessSubgrid): boolean | undefined {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this.selection.isOnlyThisCellSelected(x, y, subgrid);
     }
 
-    getOneCellSelectionAreaType(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaType | undefined {
+    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: DatalessSubgrid): SelectionAreaType | undefined {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1541,7 +1411,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         }
     }
 
-    getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaType[] {
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: DatalessSubgrid): SelectionAreaType[] {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1550,8 +1420,8 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     isSelectedCellTheOnlySelectedCell(
-        activeColumnIndex: number,
-        subgridRowIndex: number,
+        activeColumnIndex: Integer,
+        subgridRowIndex: Integer,
         datalessSubgrid: DatalessSubgrid,
         selectedType: SelectionAreaType = 'rectangle',
     ) {
@@ -1593,34 +1463,34 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
 
     // FocusSelectBehavior
 
-    selectColumn(activeColumnIndex: number) {
+    selectColumn(activeColumnIndex: Integer) {
         this._focusSelectBehavior.selectColumn(activeColumnIndex);
     }
 
-    selectColumns(activeColumnIndex: number, count: number) {
+    selectColumns(activeColumnIndex: Integer, count: Integer) {
         this._focusSelectBehavior.selectColumns(activeColumnIndex, count);
     }
 
-    onlySelectColumn(activeColumnIndex: number) {
+    onlySelectColumn(activeColumnIndex: Integer) {
         this._focusSelectBehavior.onlySelectColumn(activeColumnIndex);
     }
 
-    onlySelectColumns(activeColumnIndex: number, count: number) {
+    onlySelectColumns(activeColumnIndex: Integer, count: Integer) {
         this._focusSelectBehavior.onlySelectColumns(activeColumnIndex, count);
     }
 
-    toggleSelectColumn(activeColumnIndex: number) {
+    toggleSelectColumn(activeColumnIndex: Integer) {
         this._focusSelectBehavior.toggleSelectColumn(activeColumnIndex);
     }
 
-    selectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+    selectRow(subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.selectRow(subgridRowIndex, subgrid);
     }
 
-    selectRows(subgridRowIndex: number, count: number, subgrid?: Subgrid<BCS, SF>) {
+    selectRows(subgridRowIndex: Integer, count: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1634,53 +1504,53 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
         this._focusSelectBehavior.selectAllRows(subgrid);
     }
 
-    onlySelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+    onlySelectRow(subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.onlySelectRow(subgridRowIndex, subgrid);
     }
 
-    onlySelectRows(subgridRowIndex: number, count: number, subgrid?: Subgrid<BCS, SF>) {
+    onlySelectRows(subgridRowIndex: Integer, count: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.onlySelectRows(subgridRowIndex, count, subgrid);
     }
 
-    toggleSelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>) {
+    toggleSelectRow(subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.toggleSelectRow(subgridRowIndex, subgrid);
     }
 
-    focusOnlySelectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView = EnsureFullyInViewEnum.Never) {
+    focusOnlySelectRectangle(inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView = EnsureFullyInViewEnum.Never) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.focusOnlySelectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid, ensureFullyInView);
     }
 
-    focusOnlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView = EnsureFullyInViewEnum.Never) {
+    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView = EnsureFullyInViewEnum.Never) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.focusOnlySelectCell(activeColumnIndex, subgridRowIndex, subgrid, ensureFullyInView);
     }
 
-    onlySelectViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number) {
+    onlySelectViewCell(viewLayoutColumnIndex: Integer, viewLayoutRowIndex: Integer) {
         this._focusSelectBehavior.onlySelectViewCell(viewLayoutColumnIndex, viewLayoutRowIndex)
     }
 
-    focusSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView = EnsureFullyInViewEnum.Never) {
+    focusSelectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView = EnsureFullyInViewEnum.Never) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.focusSelectCell(x, y, subgrid, ensureFullyInView);
     }
 
-    focusToggleSelectCell(originX: number, originY: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView = EnsureFullyInViewEnum.Never): boolean {
+    focusToggleSelectCell(originX: Integer, originY: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView = EnsureFullyInViewEnum.Never): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1693,10 +1563,10 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
 
     focusReplaceLastArea(
         areaType: SelectionAreaType,
-        inexclusiveX: number,
-        inexclusiveY: number,
-        width: number,
-        height: number,
+        inexclusiveX: Integer,
+        inexclusiveY: Integer,
+        width: Integer,
+        height: Integer,
         subgrid?: Subgrid<BCS, SF>,
         ensureFullyInView = EnsureFullyInViewEnum.Never,
     ) {
@@ -1708,10 +1578,10 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     }
 
     focusReplaceLastAreaWithRectangle(
-        inexclusiveX: number,
-        inexclusiveY: number,
-        width: number,
-        height: number,
+        inexclusiveX: Integer,
+        inexclusiveY: Integer,
+        width: Integer,
+        height: Integer,
         subgrid?: Subgrid<BCS, SF>,
         ensureFullyInView = EnsureFullyInViewEnum.Never,
     ) {

@@ -1335,7 +1335,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     /**
      * Matrix of unformatted values of visible cells.
      */
-    getVisibleCellMatrix(): unknown[][] {
+    getVisibleCellMatrix(): DataServer.ViewValue[][] {
         const rows = Array<DataServer.ViewValue[]>(this._rows.length);
         for (let y = 0; y < rows.length; ++y) {
             rows[y] = Array<DataServer.ViewValue>(this._columns.length);

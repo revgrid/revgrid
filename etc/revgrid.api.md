@@ -2565,7 +2565,7 @@ export class RevAssertError extends InternalError {
 }
 
 // @public (undocumented)
-export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevGrid<BGS, BCS, SF> {
     constructor(hostElement: string | HTMLElement | undefined, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     activate(): void;
@@ -2578,8 +2578,9 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     get activeColumns(): readonly Column<BCS, SF>[];
     // (undocumented)
     get activeColumnsViewWidth(): number;
-    // (undocumented)
-    addCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
+    // @internal (undocumented)
+    addCellOwnProperties(allX: Integer, y: Integer, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
+    // @internal
     addCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties): void;
     // (undocumented)
     addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
@@ -2602,7 +2603,8 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     calculateRowCount(): number;
     // (undocumented)
     readonly canvas: Canvas<BGS>;
-    clearAllCellProperties(x?: number): void;
+    // @internal
+    clearAllCellProperties(x?: Integer): void;
     // (undocumented)
     clearColumns(): void;
     // (undocumented)
@@ -2622,7 +2624,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     // (undocumented)
     protected descendantEventerFocus(): void;
     // (undocumented)
-    protected descendantProcessActiveColumnListChanged(_typeId: RevListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined, _ui: boolean): void;
+    protected descendantProcessActiveColumnListChanged(_typeId: RevListChangedTypeId, _index: Integer, _count: Integer, _targetIndex: Integer | undefined, _ui: boolean): void;
     // (undocumented)
     protected descendantProcessCellFocusChanged(_newPoint: Point | undefined, _oldPoint: Point | undefined): void;
     // (undocumented)
@@ -2644,7 +2646,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     // (undocumented)
     protected descendantProcessDragStart(_event: DragEvent): void;
     // (undocumented)
-    protected descendantProcessFieldColumnListChanged(_typeId: RevListChangedTypeId, _index: number, _count: number, _targetIndex: number | undefined): void;
+    protected descendantProcessFieldColumnListChanged(_typeId: RevListChangedTypeId, _index: Integer, _count: Integer, _targetIndex: Integer | undefined): void;
     // (undocumented)
     protected descendantProcessHorizontalScrollerAction(_event: Scroller.Action): void;
     // (undocumented)
@@ -2677,7 +2679,7 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     // (undocumented)
     protected descendantProcessResized(): void;
     // (undocumented)
-    protected descendantProcessRowFocusChanged(_newSubgridRowIndex: number | undefined, _oldSubgridRowIndex: number | undefined): void;
+    protected descendantProcessRowFocusChanged(_newSubgridRowIndex: Integer | undefined, _oldSubgridRowIndex: Integer | undefined): void;
     // (undocumented)
     protected descendantProcessSelectionChanged(): void;
     // (undocumented)
@@ -2693,17 +2695,17 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     // (undocumented)
     protected descendantProcessWheelMove(_event: MouseEvent, _hoverCell: LinedHoverCell<BCS, SF> | null | undefined): void;
     // (undocumented)
-    deselectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>): void;
+    deselectCell(x: Integer, y: Integer, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
-    deselectColumn(x: number, subgrid: Subgrid<BCS, SF>): void;
+    deselectColumn(x: Integer, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
-    deselectColumns(x: number, count: number, subgrid: Subgrid<BCS, SF>): void;
+    deselectColumns(x: Integer, count: Integer, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
     deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<BCS, SF>): void;
     // (undocumented)
-    deselectRow(y: number, subgrid?: Subgrid<BCS, SF>): void;
+    deselectRow(y: Integer, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    deselectRows(y: number, count: number, subgrid?: Subgrid<BCS, SF>): void;
+    deselectRows(y: Integer, count: Integer, subgrid?: Subgrid<BCS, SF>): void;
     destroy(): void;
     // (undocumented)
     get destroyed(): boolean;
@@ -2712,68 +2714,71 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     readonly externalParent: unknown | undefined;
     // (undocumented)
     get fieldColumns(): readonly Column<BCS, SF>[];
-    findLinedHoverCellAtCanvasOffset(offsetX: number, offsetY: number): LinedHoverCell<BCS, SF> | undefined;
+    findLinedHoverCellAtCanvasOffset(offsetX: Integer, offsetY: Integer): LinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
     get fixedColumnsViewWidth(): number;
     // (undocumented)
     readonly focus: Focus<BGS, BCS, SF>;
     // (undocumented)
-    focusOnlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
     // Warning: (ae-forgotten-export) The symbol "EnsureFullyInViewEnum" needs to be exported by the entry point public-api.d.ts
     //
     // (undocumented)
-    focusOnlySelectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    focusOnlySelectRectangle(inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
     // (undocumented)
-    focusReplaceLastArea(areaType: SelectionAreaType, inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    focusReplaceLastArea(areaType: SelectionAreaType, inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
     // (undocumented)
-    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    focusReplaceLastAreaWithRectangle(inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
     // (undocumented)
-    focusSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    focusSelectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
     // (undocumented)
-    focusToggleSelectCell(originX: number, originY: number, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): boolean;
+    focusToggleSelectCell(originX: Integer, originY: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): boolean;
     // (undocumented)
-    getActiveColumn(activeIndex: number): Column<BCS, SF>;
+    getActiveColumn(activeIndex: Integer): Column<BCS, SF>;
     // (undocumented)
-    getActiveColumnIndexByFieldIndex(fieldIndex: number): number;
+    getActiveColumnIndexByFieldIndex(fieldIndex: Integer): number;
     // (undocumented)
-    getActiveColumns(begin?: number, end?: number): Column<BCS, SF>[];
+    getActiveColumns(begin?: Integer, end?: Integer): Column<BCS, SF>[];
     // (undocumented)
-    getActiveColumnSettings(activeColumnIndex: number): BCS;
+    getActiveColumnSettings(activeColumnIndex: Integer): BCS;
     // (undocumented)
-    getActiveColumnWidth(activeIndex: number): number;
+    getActiveColumnWidth(activeIndex: Integer): number;
     // (undocumented)
-    getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaType[];
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: DatalessSubgrid): SelectionAreaType[];
     // (undocumented)
-    getAllColumn(allX: number): Column<BCS, SF>;
+    getAllColumn(allX: Integer): Column<BCS, SF>;
     // (undocumented)
     getBoundsOfCell(gridCell: Point): Rectangle;
-    getCellOwnProperties(allXOrRenderedCell: number | ViewCell<BCS, SF>, y?: number, subgrid?: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
+    // @internal
+    getCellOwnProperties(allXOrRenderedCell: Integer | ViewCell<BCS, SF>, y?: Integer, subgrid?: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
+    // @internal
     getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS, SF>): MetaModel.CellOwnProperties | false | null | undefined;
-    // (undocumented)
+    // @internal (undocumented)
     getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS, SF>, key: string): MetaModel.CellOwnProperty | undefined;
     // Warning: (ae-forgotten-export) The symbol "CellMetaSettings" needs to be exported by the entry point public-api.d.ts
     //
+    // @internal (undocumented)
+    getCellProperties(allX: Integer, y: Integer, subgrid: Subgrid<BCS, SF>): CellMetaSettings;
+    // @internal
+    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty;
+    // @internal (undocumented)
+    getCellProperty<T extends keyof ColumnSettings>(allX: Integer, y: Integer, key: T, subgrid: Subgrid<BCS, SF>): ColumnSettings[T];
     // (undocumented)
-    getCellProperties(allX: number, y: number, subgrid: Subgrid<BCS, SF>): CellMetaSettings;
-    getCellProperty(allX: number, y: number, key: string | number, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty;
-    // (undocumented)
-    getCellProperty<T extends keyof ColumnSettings>(allX: number, y: number, key: T, subgrid: Subgrid<BCS, SF>): ColumnSettings[T];
-    // (undocumented)
-    getFieldColumnRange(begin?: number, end?: number): Column<BCS, SF>[];
+    getFieldColumnRange(begin?: Integer, end?: Integer): Column<BCS, SF>[];
     // (undocumented)
     getHiddenColumns(): Column<BCS, SF>[];
     // (undocumented)
     getHiDPI(): number;
     // (undocumented)
-    getOneCellSelectionAreaType(activeColumnIndex: number, subgridRowIndex: number, subgrid: DatalessSubgrid): SelectionAreaType | undefined;
+    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: DatalessSubgrid): SelectionAreaType | undefined;
     // (undocumented)
-    getRenderedData(): unknown[][];
+    getRenderedData(): DataServer.ViewValue[][];
     // (undocumented)
-    getRenderedHeight(rowIndex: number): number;
+    getRenderedHeight(rowIndex: Integer): Integer;
     // (undocumented)
-    getRenderedWidth(colIndex: number): number;
+    getRenderedWidth(colIndex: Integer): Integer;
     // (undocumented)
-    getRowHeight(rowIndex: number, subgrid?: Subgrid<BCS, SF>): number;
+    getRowHeight(rowIndex: Integer, subgrid?: Subgrid<BCS, SF>): number;
     // (undocumented)
     getSchema(): readonly SchemaField[];
     // (undocumented)
@@ -2786,18 +2791,18 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     getSelectedRowCount(includeAllAuto?: boolean): number;
     // (undocumented)
     getSelectedRowIndices(includeAllAuto?: boolean): number[];
-    getSingletonViewDataRow(y: number, subgrid?: Subgrid<BCS, SF>): DataServer.ViewRow;
+    getSingletonViewDataRow(y: Integer, subgrid?: Subgrid<BCS, SF>): DataServer.ViewRow;
     getSubgridRowCount(subgrid: Subgrid<BCS, SF>): number;
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
     getViewData(): readonly DataServer.ViewRow[];
     // (undocumented)
-    getViewValue(x: number, y: number, subgrid?: Subgrid<BCS, SF>): unknown;
+    getViewValue(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): unknown;
     // (undocumented)
     getVisibleColumnsCount(): number;
     // (undocumented)
     getVisibleRowsCount(): number;
     // (undocumented)
-    hideActiveColumn(activeColumnIndex: number, ui?: boolean): void;
+    hideActiveColumn(activeColumnIndex: Integer, ui?: boolean): void;
     // (undocumented)
     readonly horizontalScroller: Scroller<BGS, BCS, SF>;
     // (undocumented)
@@ -2809,41 +2814,41 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     // (undocumented)
     isActiveDocumentElement(): boolean;
     // (undocumented)
-    isCellSelected(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean;
+    isCellSelected(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): boolean;
     // (undocumented)
-    isColumnVisible(activeIndex: number): boolean;
-    isDataRowVisible(r: number, subgrid?: Subgrid<BCS, SF>): boolean;
+    isColumnVisible(activeIndex: Integer): boolean;
+    isDataRowVisible(r: Integer, subgrid?: Subgrid<BCS, SF>): boolean;
     // (undocumented)
-    isDataVisible(c: number, rn: number): boolean;
-    isOnlyThisCellSelected(x: number, y: number, subgrid?: DatalessSubgrid): boolean | undefined;
+    isDataVisible(c: Integer, rn: Integer): boolean;
+    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: DatalessSubgrid): boolean | undefined;
     // (undocumented)
-    isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, datalessSubgrid: DatalessSubgrid, selectedType?: SelectionAreaType): boolean;
+    isSelectedCellTheOnlySelectedCell(activeColumnIndex: Integer, subgridRowIndex: Integer, datalessSubgrid: DatalessSubgrid, selectedType?: SelectionAreaType): boolean;
     // (undocumented)
     readonly mainDataServer: DataServer<SF>;
     // (undocumented)
     readonly mainSubgrid: MainSubgrid<BCS, SF>;
     // (undocumented)
-    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): boolean;
+    mergeFieldColumnSettings(fieldIndex: Integer, settings: Partial<BCS>): boolean;
     // (undocumented)
     readonly mouse: Mouse<BGS, BCS, SF>;
     // (undocumented)
-    moveActiveColumn(fromIndex: number, toIndex: number, ui: boolean): void;
+    moveActiveColumn(fromIndex: Integer, toIndex: Integer, ui: boolean): void;
     // (undocumented)
     get nonFixedColumnsViewWidth(): number;
     // (undocumented)
-    onlySelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
+    onlySelectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
-    onlySelectColumn(activeColumnIndex: number): void;
+    onlySelectColumn(activeColumnIndex: Integer): void;
     // (undocumented)
-    onlySelectColumns(activeColumnIndex: number, count: number): void;
+    onlySelectColumns(activeColumnIndex: Integer, count: Integer): void;
     // (undocumented)
-    onlySelectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
+    onlySelectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
-    onlySelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    onlySelectRow(subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    onlySelectRows(subgridRowIndex: number, count: number, subgrid?: Subgrid<BCS, SF>): void;
+    onlySelectRows(subgridRowIndex: Integer, count: Integer, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    onlySelectViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number): void;
+    onlySelectViewCell(viewLayoutColumnIndex: Integer, viewLayoutRowIndex: Integer): void;
     // (undocumented)
     registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>): void;
     // (undocumented)
@@ -2866,70 +2871,72 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     // (undocumented)
     selectAllRows(subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    selectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
+    selectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
-    selectColumn(activeColumnIndex: number): void;
+    selectColumn(activeColumnIndex: Integer): void;
     // (undocumented)
-    selectColumns(activeColumnIndex: number, count: number): void;
+    selectColumns(activeColumnIndex: Integer, count: Integer): void;
     // (undocumented)
     readonly selection: Selection_2<BGS, BCS, SF>;
     // (undocumented)
     get selectionAllAuto(): boolean;
     set selectionAllAuto(value: boolean);
     // (undocumented)
-    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
     // (undocumented)
-    selectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    selectRow(subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
-    selectRows(subgridRowIndex: number, count: number, subgrid?: Subgrid<BCS, SF>): void;
+    selectRows(subgridRowIndex: Integer, count: Integer, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
     setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
     // (undocumented)
     setActiveColumnsAndWidthsByFieldName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): void;
     // (undocumented)
     setActiveColumnsAutoWidthSizing(widenOnly: boolean): void;
-    setActiveColumnWidth(columnOrIndex: number | Column<BCS, SF>, width: number, ui: boolean): void;
-    // (undocumented)
-    setCellOwnProperties(allX: number, y: number, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
+    setActiveColumnWidth(columnOrIndex: Integer | Column<BCS, SF>, width: Integer, ui: boolean): void;
+    // @internal (undocumented)
+    setCellOwnProperties(allX: Integer, y: Integer, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
+    // @internal
     setCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties): void;
+    // @internal
     setCellProperty(cell: ViewCell<BCS, SF>, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
+    // @internal (undocumented)
+    setCellProperty(allX: Integer, dataY: Integer, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
     // (undocumented)
-    setCellProperty(allX: number, dataY: number, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
-    // (undocumented)
-    setColumnScrollAnchor(index: number, offset: number): boolean;
+    setColumnScrollAnchor(index: Integer, offset: Integer): boolean;
     // (undocumented)
     setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[]): boolean;
     // (undocumented)
     setColumnWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): boolean;
     // (undocumented)
-    setFieldColumnSettings(fieldIndex: number, settings: BCS): boolean;
-    setRowHeight(rowIndex: number, rowHeight: number, subgrid?: Subgrid<BCS, SF>): void;
+    setFieldColumnSettings(fieldIndex: Integer, settings: BCS): boolean;
+    setRowHeight(rowIndex: Integer, rowHeight: Integer, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
     readonly settings: BGS;
     // (undocumented)
-    setValue(x: number, y: number, value: number, subgrid?: Subgrid<BCS, SF>): void;
+    setValue(x: Integer, y: Integer, value: DataServer.EditValue, subgrid?: Subgrid<BCS, SF>): void;
     showHideColumns(
-    fieldColumnIndexes: number | number[],
-    insertIndex?: number,
+    fieldColumnIndexes: Integer | number[],
+    insertIndex?: Integer,
     allowDuplicateColumns?: boolean,
     ui?: boolean): void;
     // (undocumented)
     showHideColumns(
     indexesAreActive: boolean,
-    columnIndexes?: number | number[],
-    insertIndex?: number,
+    columnIndexes?: Integer | number[],
+    insertIndex?: Integer,
     allowDuplicateColumns?: boolean,
     ui?: boolean): void;
     // (undocumented)
     readonly subgridsManager: SubgridsManager<BCS, SF>;
     // (undocumented)
-    swapColumns(source: number, target: number): void;
+    swapColumns(source: Integer, target: Integer): void;
     // (undocumented)
-    toggleSelectCell(x: number, y: number, subgrid?: Subgrid<BCS, SF>): boolean;
+    toggleSelectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): boolean;
     // (undocumented)
-    toggleSelectColumn(activeColumnIndex: number): void;
+    toggleSelectColumn(activeColumnIndex: Integer): void;
     // (undocumented)
-    toggleSelectRow(subgridRowIndex: number, subgrid?: Subgrid<BCS, SF>): void;
+    toggleSelectRow(subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>): void;
     // (undocumented)
     tryExtendLastSelectionAreaAsCloseAsPossibleToFocus(): boolean;
     // (undocumented)
@@ -2941,11 +2948,11 @@ export class RevClientGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     // (undocumented)
     tryFocusTop(): boolean;
     // (undocumented)
-    tryFocusXAndEnsureInView(x: number): boolean;
+    tryFocusXAndEnsureInView(x: Integer): boolean;
     // (undocumented)
-    tryFocusXYAndEnsureInView(x: number, y: number, cell?: ViewCell<BCS, SF>): boolean;
+    tryFocusXYAndEnsureInView(x: Integer, y: Integer, cell?: ViewCell<BCS, SF>): boolean;
     // (undocumented)
-    tryFocusYAndEnsureInView(y: number): boolean;
+    tryFocusYAndEnsureInView(y: Integer): boolean;
     // (undocumented)
     tryMoveFocusDown(): boolean;
     // (undocumented)
@@ -3839,6 +3846,357 @@ export abstract class RevGenericTableValue<T, RenderValueTypeId, RenderAttribute
 }
 
 // @public (undocumented)
+export interface RevGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends RevClientObject {
+    // (undocumented)
+    activate(): void;
+    // (undocumented)
+    active: boolean;
+    // (undocumented)
+    readonly activeColumnCount: Integer;
+    // (undocumented)
+    readonly activeColumns: readonly Column<BCS, SF>[];
+    // (undocumented)
+    readonly activeColumnsViewWidth: Integer;
+    // @internal (undocumented)
+    addCellOwnProperties(allX: Integer, y: Integer, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
+    // @internal
+    addCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties): void;
+    // (undocumented)
+    addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    // (undocumented)
+    areColumnsOrRowsSelected(includeAllAuto?: boolean): boolean;
+    // (undocumented)
+    areColumnsSelected(includeAllAuto?: boolean): boolean;
+    // (undocumented)
+    areRowsSelected(includeAllAuto: boolean): boolean;
+    // (undocumented)
+    autoSizeActiveColumnWidths(widenOnly: boolean): void;
+    // (undocumented)
+    autoSizeFieldColumnWidth(fieldNameOrIndex: string | number, widenOnly: boolean): void;
+    beginSelectionChange(): void;
+    // (undocumented)
+    calculateActiveColumnsWidth(): Integer;
+    // (undocumented)
+    calculateActiveNonFixedColumnsWidth(): Integer;
+    // (undocumented)
+    calculateRowCount(): Integer;
+    // (undocumented)
+    readonly canvas: Canvas<BGS>;
+    // @internal
+    clearAllCellProperties(x?: Integer): void;
+    // (undocumented)
+    clearColumns(): void;
+    // (undocumented)
+    clearFocus(): void;
+    // (undocumented)
+    clearSelection(): void;
+    // (undocumented)
+    readonly clientId: string;
+    // (undocumented)
+    readonly columnScrollAnchorIndex: Integer;
+    // (undocumented)
+    readonly columnScrollAnchorOffset: Integer;
+    // (undocumented)
+    readonly columnsManager: ColumnsManager<BCS, SF>;
+    // (undocumented)
+    deactivate(): void;
+    // (undocumented)
+    deselectCell(x: Integer, y: Integer, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectColumn(x: Integer, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectColumns(x: Integer, count: Integer, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRectangle(rectangle: Rectangle, subgrid: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRow(y: Integer, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRows(y: Integer, count: Integer, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    readonly destroyed: boolean;
+    endSelectionChange(): void;
+    // (undocumented)
+    readonly externalParent: unknown | undefined;
+    // (undocumented)
+    readonly fieldColumns: readonly Column<BCS, SF>[];
+    findLinedHoverCellAtCanvasOffset(offsetX: Integer, offsetY: Integer): LinedHoverCell<BCS, SF> | undefined;
+    // (undocumented)
+    readonly fixedColumnsViewWidth: Integer;
+    // (undocumented)
+    readonly focus: Focus<BGS, BCS, SF>;
+    // (undocumented)
+    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusOnlySelectRectangle(inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusReplaceLastArea(areaType: SelectionAreaType, inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusReplaceLastAreaWithRectangle(inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusSelectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusToggleSelectCell(originX: Integer, originY: Integer, subgrid?: Subgrid<BCS, SF>, ensureFullyInView?: EnsureFullyInViewEnum): boolean;
+    // (undocumented)
+    getActiveColumn(activeIndex: Integer): Column<BCS, SF>;
+    // (undocumented)
+    getActiveColumnIndexByFieldIndex(fieldIndex: Integer): Integer;
+    // (undocumented)
+    getActiveColumns(begin?: Integer, end?: Integer): Column<BCS, SF>[];
+    // (undocumented)
+    getActiveColumnSettings(activeColumnIndex: Integer): BCS;
+    // (undocumented)
+    getActiveColumnWidth(activeIndex: Integer): Integer;
+    // (undocumented)
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: DatalessSubgrid): SelectionAreaType[];
+    // (undocumented)
+    getAllColumn(allX: Integer): Column<BCS, SF>;
+    // (undocumented)
+    getBoundsOfCell(gridCell: Point): Rectangle;
+    // @internal
+    getCellOwnProperties(allXOrRenderedCell: Integer | ViewCell<BCS, SF>, y?: Integer, subgrid?: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
+    // @internal
+    getCellOwnPropertiesFromRenderedCell(renderedCell: ViewCell<BCS, SF>): MetaModel.CellOwnProperties | false | null | undefined;
+    // @internal (undocumented)
+    getCellOwnPropertyFromRenderedCell(renderedCell: ViewCell<BCS, SF>, key: string): MetaModel.CellOwnProperty | undefined;
+    // @internal (undocumented)
+    getCellProperties(allX: Integer, y: Integer, subgrid: Subgrid<BCS, SF>): CellMetaSettings;
+    // @internal
+    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty;
+    // @internal (undocumented)
+    getCellProperty<T extends keyof ColumnSettings>(allX: Integer, y: Integer, key: T, subgrid: Subgrid<BCS, SF>): ColumnSettings[T];
+    // @internal (undocumented)
+    getCellProperty<T extends keyof ColumnSettings>(allX: Integer, y: Integer, key: string | T, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperty | ColumnSettings[T];
+    // (undocumented)
+    getFieldColumnRange(begin?: Integer, end?: Integer): Column<BCS, SF>[];
+    // (undocumented)
+    getHiddenColumns(): Column<BCS, SF>[];
+    // (undocumented)
+    getHiDPI(): number;
+    // (undocumented)
+    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: DatalessSubgrid): SelectionAreaType | undefined;
+    // (undocumented)
+    getRenderedData(): DataServer.ViewValue[][];
+    // (undocumented)
+    getRenderedHeight(rowIndex: Integer): Integer;
+    // (undocumented)
+    getRenderedWidth(colIndex: Integer): Integer;
+    // (undocumented)
+    getRowHeight(rowIndex: Integer, subgrid?: Subgrid<BCS, SF>): Integer;
+    // (undocumented)
+    getSchema(): readonly SchemaField[];
+    // (undocumented)
+    getSelectedAllAutoRowCount(): Integer;
+    // (undocumented)
+    getSelectedAllAutoRowIndices(): Integer[];
+    // (undocumented)
+    getSelectedColumnIndices(includeAllAuto?: boolean): Integer[];
+    // (undocumented)
+    getSelectedRowCount(includeAllAuto?: boolean): Integer;
+    // (undocumented)
+    getSelectedRowIndices(includeAllAuto?: boolean): Integer[];
+    getSingletonViewDataRow(y: Integer, subgrid?: Subgrid<BCS, SF>): DataServer.ViewRow;
+    getSubgridRowCount(subgrid: Subgrid<BCS, SF>): Integer;
+    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
+    getViewData(): readonly DataServer.ViewRow[];
+    // (undocumented)
+    getViewValue(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): DataServer.ViewValue;
+    // (undocumented)
+    getVisibleColumnsCount(): Integer;
+    // (undocumented)
+    getVisibleRowsCount(): Integer;
+    // (undocumented)
+    hideActiveColumn(activeColumnIndex: Integer, ui?: boolean): void;
+    // (undocumented)
+    readonly horizontalScroller: Scroller<BGS, BCS, SF>;
+    // (undocumented)
+    readonly hostElement: HTMLElement;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly internalParent: RevClientObject | undefined;
+    // (undocumented)
+    isActiveDocumentElement(): boolean;
+    // (undocumented)
+    isCellSelected(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): boolean;
+    // (undocumented)
+    isColumnVisible(activeIndex: Integer): boolean;
+    isDataRowVisible(r: Integer, subgrid?: Subgrid<BCS, SF>): boolean;
+    // (undocumented)
+    isDataVisible(c: Integer, rn: Integer): boolean;
+    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: DatalessSubgrid): boolean | undefined;
+    // (undocumented)
+    isSelectedCellTheOnlySelectedCell(activeColumnIndex: Integer, subgridRowIndex: Integer, datalessSubgrid: DatalessSubgrid, selectedType?: SelectionAreaType): boolean;
+    // (undocumented)
+    readonly mainDataServer: DataServer<SF>;
+    // (undocumented)
+    readonly mainSubgrid: MainSubgrid<BCS, SF>;
+    // (undocumented)
+    mergeFieldColumnSettings(fieldIndex: Integer, settings: Partial<BCS>): boolean;
+    // (undocumented)
+    readonly mouse: Mouse<BGS, BCS, SF>;
+    // (undocumented)
+    moveActiveColumn(fromIndex: Integer, toIndex: Integer, ui: boolean): void;
+    // (undocumented)
+    readonly nonFixedColumnsViewWidth: Integer;
+    // (undocumented)
+    onlySelectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    onlySelectColumn(activeColumnIndex: Integer): void;
+    // (undocumented)
+    onlySelectColumns(activeColumnIndex: Integer, count: Integer): void;
+    // (undocumented)
+    onlySelectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    onlySelectRow(subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    onlySelectRows(subgridRowIndex: Integer, count: Integer, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    onlySelectViewCell(viewLayoutColumnIndex: Integer, viewLayoutRowIndex: Integer): void;
+    // (undocumented)
+    registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>): void;
+    // (undocumented)
+    removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    // (undocumented)
+    readonly renderer: Renderer<BGS, BCS, SF>;
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    readonly schemaServer: SchemaServer<SF>;
+    // (undocumented)
+    scrollBottom(): boolean;
+    // (undocumented)
+    scrollFirstColumn(): boolean;
+    // (undocumented)
+    scrollLastColumn(): boolean;
+    // (undocumented)
+    scrollTop(): boolean;
+    // (undocumented)
+    selectAllRows(subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    selectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    selectColumn(activeColumnIndex: Integer): void;
+    // (undocumented)
+    selectColumns(activeColumnIndex: Integer, count: Integer): void;
+    // (undocumented)
+    readonly selection: Selection_2<BGS, BCS, SF>;
+    // (undocumented)
+    selectionAllAuto: boolean;
+    // (undocumented)
+    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid: Subgrid<BCS, SF>): LastSelectionArea;
+    // (undocumented)
+    selectRow(subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    selectRows(subgridRowIndex: Integer, count: Integer, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (Column<BCS, SF> | string | number)[]): void;
+    // (undocumented)
+    setActiveColumnsAndWidthsByFieldName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): void;
+    // (undocumented)
+    setActiveColumnsAutoWidthSizing(widenOnly: boolean): void;
+    setActiveColumnWidth(columnOrIndex: Integer | Column<BCS, SF>, width: Integer, ui: boolean): void;
+    // @internal (undocumented)
+    setCellOwnProperties(allX: Integer, y: Integer, properties: MetaModel.CellOwnProperties, subgrid: Subgrid<BCS, SF>): void;
+    // @internal
+    setCellOwnPropertiesUsingCellEvent(cell: ViewCell<BCS, SF>, properties: MetaModel.CellOwnProperties): void;
+    // @internal
+    setCellProperty(cell: ViewCell<BCS, SF>, key: string, value: MetaModel.CellOwnProperty): MetaModel.CellOwnProperties | undefined;
+    // @internal (undocumented)
+    setCellProperty(allX: Integer, dataY: Integer, key: string, value: MetaModel.CellOwnProperty, subgrid: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
+    // @internal (undocumented)
+    setCellProperty(allXOrCell: ViewCell<BCS, SF> | number, yOrKey: string | number, keyOrValue: string | MetaModel.CellOwnProperty, value?: MetaModel.CellOwnProperty, subgrid?: Subgrid<BCS, SF>): MetaModel.CellOwnProperties | undefined;
+    // (undocumented)
+    setColumnScrollAnchor(index: Integer, offset: Integer): boolean;
+    // (undocumented)
+    setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[]): boolean;
+    // (undocumented)
+    setColumnWidthsByName(columnNameWidths: ColumnsManager.FieldNameAndAutoSizableWidth[]): boolean;
+    // (undocumented)
+    setFieldColumnSettings(fieldIndex: Integer, settings: BCS): boolean;
+    setRowHeight(rowIndex: Integer, rowHeight: Integer, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    readonly settings: BGS;
+    // (undocumented)
+    setValue(x: Integer, y: Integer, value: DataServer.EditValue, subgrid?: Subgrid<BCS, SF>): void;
+    showHideColumns(
+    fieldColumnIndexes: Integer | number[],
+    insertIndex?: Integer,
+    allowDuplicateColumns?: boolean,
+    ui?: boolean): void;
+    // (undocumented)
+    showHideColumns(
+    indexesAreActive: boolean,
+    columnIndexes?: Integer | number[],
+    insertIndex?: Integer,
+    allowDuplicateColumns?: boolean,
+    ui?: boolean): void;
+    // (undocumented)
+    readonly subgridsManager: SubgridsManager<BCS, SF>;
+    // (undocumented)
+    swapColumns(source: Integer, target: Integer): void;
+    // (undocumented)
+    toggleSelectCell(x: Integer, y: Integer, subgrid?: Subgrid<BCS, SF>): boolean;
+    // (undocumented)
+    toggleSelectColumn(activeColumnIndex: Integer): void;
+    // (undocumented)
+    toggleSelectRow(subgridRowIndex: Integer, subgrid?: Subgrid<BCS, SF>): void;
+    // (undocumented)
+    tryExtendLastSelectionAreaAsCloseAsPossibleToFocus(): boolean;
+    // (undocumented)
+    tryFocusBottom(): boolean;
+    // (undocumented)
+    tryFocusFirstColumn(): boolean;
+    // (undocumented)
+    tryFocusLastColumn(): boolean;
+    // (undocumented)
+    tryFocusTop(): boolean;
+    // (undocumented)
+    tryFocusXAndEnsureInView(x: Integer): boolean;
+    // (undocumented)
+    tryFocusXYAndEnsureInView(x: Integer, y: Integer, cell?: ViewCell<BCS, SF>): boolean;
+    // (undocumented)
+    tryFocusYAndEnsureInView(y: Integer): boolean;
+    // (undocumented)
+    tryMoveFocusDown(): boolean;
+    // (undocumented)
+    tryMoveFocusLeft(): boolean;
+    // (undocumented)
+    tryMoveFocusRight(): boolean;
+    // (undocumented)
+    tryMoveFocusUp(): boolean;
+    // (undocumented)
+    tryOnlySelectFocusedCell(): boolean;
+    // (undocumented)
+    tryPageFocusDown(): boolean;
+    // (undocumented)
+    tryPageFocusLeft(): boolean;
+    // (undocumented)
+    tryPageFocusRight(): boolean;
+    // (undocumented)
+    tryPageFocusUp(): boolean;
+    // (undocumented)
+    tryScrollDown(): boolean;
+    // (undocumented)
+    tryScrollLeft(): boolean;
+    // (undocumented)
+    tryScrollPageDown(): boolean;
+    // (undocumented)
+    tryScrollPageLeft(): boolean;
+    // (undocumented)
+    tryScrollPageRight(): boolean;
+    // (undocumented)
+    tryScrollPageUp(): boolean;
+    // (undocumented)
+    tryScrollRight(): boolean;
+    // (undocumented)
+    tryScrollUp(): boolean;
+    // (undocumented)
+    readonly verticalScroller: Scroller<BGS, BCS, SF>;
+    // (undocumented)
+    readonly viewLayout: ViewLayout<BGS, BCS, SF>;
+}
+
+// @public (undocumented)
 export interface RevGridDefinition<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
     // (undocumented)
     schemaServer: (SchemaServer<SF> | SchemaServer.Constructor<SF>);
@@ -3906,7 +4264,7 @@ export namespace RevMultiHeadingDataRowArraySourcedFieldDefinition {
 }
 
 // @public (undocumented)
-export class RevMultiHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevMultiHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
+export class RevMultiHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevMultiHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
     constructor(gridHostElement: HTMLElement, getHeaderCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
     _createFieldEventer: RevMultiHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
@@ -4186,7 +4544,7 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
 }
 
 // @public (undocumented)
-export class RevRecordGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordField> extends RevColumnLayoutGrid<BGS, BCS, SF> {
+export class RevRecordGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordField> extends RevColumnLayoutGrid<BGS, BCS, SF> implements RevColumnLayout.ChangeInitiator {
     constructor(gridHostElement: HTMLElement, recordStore: RevRecordStore, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, extraSubgridDefinitions: Subgrid.Definition<BCS, SF>[], settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>, mainSubgridDefinitionOptions?: RevRecordGrid.MainSubgridDefinitionOptions);
     // (undocumented)
     get allowedFields(): readonly SF[] | undefined;
@@ -4513,7 +4871,7 @@ export class RevRecordSourcedFieldDefinition implements RevSourcedFieldDefinitio
 }
 
 // @public (undocumented)
-export class RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>> extends RevRecordGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
+export class RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>> extends RevRecordGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
     // (undocumented)
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[]): RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId>;
 }
@@ -4817,7 +5175,7 @@ export namespace RevSingleHeadingDataRowArraySourcedFieldDefinition {
 }
 
 // @public (undocumented)
-export class RevSingleHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevSingleHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
+export class RevSingleHeadingDataRowArraySourcedFieldGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevSingleHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
     constructor(gridHostElement: HTMLElement, getHeaderCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
     _createFieldEventer: RevSingleHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
@@ -4937,7 +5295,7 @@ export namespace RevSourcedFieldDefinition {
 }
 
 // @public (undocumented)
-export interface RevSourcedFieldGrid<SF extends RevSourcedField> {
+export interface RevSourcedFieldGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevSourcedField> extends RevGrid<BGS, BCS, SF> {
     // (undocumented)
     readonly allowedFields: readonly SF[] | undefined;
     // (undocumented)
@@ -7034,7 +7392,7 @@ export class ViewLayout<BGS extends BehavioredGridSettings, BCS extends Behavior
     getRowsCount(): number;
     // (undocumented)
     getScrollTop(): number;
-    getVisibleCellMatrix(): unknown[][];
+    getVisibleCellMatrix(): DataServer.ViewValue[][];
     getVisibleDataRow(rowIndex: number, subgrid: Subgrid<BCS, SF>): ViewLayoutRow<BCS, SF> | undefined;
     getVisibleRow(rowIndex: number): ViewLayoutRow<BCS, SF>;
     // Warning: (ae-forgotten-export) The symbol "HorizontalScrollDimension" needs to be exported by the entry point public-api.d.ts
@@ -7334,13 +7692,13 @@ export namespace ViewLayout {
 
 // @public (undocumented)
 export interface ViewLayoutColumn<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    activeColumnIndex: number;
+    activeColumnIndex: Integer;
     // (undocumented)
     column: Column<BCS, SF>;
-    index: number;
-    left: number;
-    rightPlus1: number;
-    width: number;
+    index: Integer;
+    left: Integer;
+    rightPlus1: Integer;
+    width: Integer;
 }
 
 // @public (undocumented)

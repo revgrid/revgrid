@@ -1,3 +1,4 @@
+import { DataServer } from '../interfaces/data/data-server';
 import { Subgrid } from '../interfaces/data/subgrid';
 import { SchemaField } from '../interfaces/schema/schema-field';
 import { SchemaServer } from '../interfaces/schema/schema-server';
@@ -207,7 +208,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param value - New cell data.
      * @param subgrid - `x` and `y` are _data cell coordinates_ in the given subgrid data model. If If omitted, `x` and `y` are _grid cell coordinates._
      */
-    setValue(x: number, y: number, value: unknown, subgrid: Subgrid<BCS, SF>) {
+    setValue(x: number, y: number, value: DataServer.EditValue, subgrid: Subgrid<BCS, SF>) {
         const dataServer = subgrid.dataServer;
         if (dataServer.setEditValue === undefined) {
             throw new RevAssertError('BSV32220');

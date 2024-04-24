@@ -20,7 +20,7 @@ export class RevRecordGrid<
     BGS extends BehavioredGridSettings,
     BCS extends BehavioredColumnSettings,
     SF extends RevRecordField
-> extends RevColumnLayoutGrid<BGS, BCS, SF> {
+> extends RevColumnLayoutGrid<BGS, BCS, SF> implements RevColumnLayout.ChangeInitiator {
     declare schemaServer: RevRecordSchemaServer<SF>;
     declare mainDataServer: RevRecordDataServer<SF>;
     readonly headerDataServer: DataServer<SF> | undefined;

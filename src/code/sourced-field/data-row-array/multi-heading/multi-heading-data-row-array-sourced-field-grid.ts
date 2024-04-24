@@ -11,7 +11,7 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<
     BGS extends BehavioredGridSettings,
     BCS extends BehavioredColumnSettings,
     SF extends RevMultiHeadingDataRowArraySourcedField
-> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<SF> {
+> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
     declare headerDataServer: MultiHeadingDataServer<SF>;
 
     constructor(
