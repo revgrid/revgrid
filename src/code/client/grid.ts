@@ -1,3 +1,5 @@
+// Not used - see RevIClientGrid instead
+
 import { Integer } from '@xilytix/sysutils';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { BehaviorManager } from './behavior/behavior-manager';
