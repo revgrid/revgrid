@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, Integer } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessSubgrid, LinedHoverCell, MetaModel, RevClientGrid, RevGridDefinition, RevGridOptions, Subgrid, ViewCell } from '../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, LinedHoverCell, MetaModel, RevClientGrid, RevGridDefinition, RevGridOptions, ViewCell } from '../client/internal-api';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
 import {
@@ -11,8 +11,7 @@ import {
     RevRecordIndex,
     RevRecordRowOrderDefinition,
     RevRecordSchemaServer,
-    RevRecordSortDefinition,
-    RevRecordStore,
+    RevRecordSortDefinition
 } from './server/internal-api';
 
 /** @public */
@@ -39,31 +38,11 @@ export class RevRecordGrid<
 
     constructor(
         gridHostElement: HTMLElement,
-        recordStore: RevRecordStore,
-        getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
-        extraSubgridDefinitions: Subgrid.Definition<BCS, SF>[],
+        definition: RevGridDefinition<BCS, SF>,
         settings: BGS,
         customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
         options?: RevGridOptions<BGS, BCS, SF>,
-        mainSubgridDefinitionOptions?: RevRecordGrid.MainSubgridDefinitionOptions,
     ) {
-        const schemaServer = new RevRecordSchemaServer<SF>();
-        const mainDataServer = new RevRecordDataServer(schemaServer, recordStore);
-
-        const definition: RevGridDefinition<BCS, SF> = {
-            schemaServer,
-            subgrids: [
-                {
-                    role: DatalessSubgrid.RoleEnum.main,
-                    dataServer: mainDataServer,
-                    getCellPainterEventer: getMainCellPainterEventer,
-                    ...mainSubgridDefinitionOptions,
-                },
-                ...extraSubgridDefinitions,
-            ],
-        }
-
-
         super(gridHostElement, definition, settings, customiseSettingsForNewColumnEventer, options);
 
         const subgridsManager = this.subgridsManager;
