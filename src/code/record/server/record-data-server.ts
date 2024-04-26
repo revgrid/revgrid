@@ -52,6 +52,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         };
     }
 
+    get recordStore() { return this._recordStore; }
     get recentChanges() { return this._recentChanges; }
     get rowCount(): number { return this._rows.length; }
     get recordCount(): number { return this._recordStore.recordCount; }

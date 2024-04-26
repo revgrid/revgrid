@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, Integer } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, LinedHoverCell, MetaModel, RevClientGrid, RevGridDefinition, RevGridOptions, ViewCell } from '../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, LinedHoverCell, MetaModel, RevApiError, RevClientGrid, RevGridDefinition, RevGridOptions, ViewCell } from '../client/internal-api';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
 import {
@@ -11,7 +11,8 @@ import {
     RevRecordIndex,
     RevRecordRowOrderDefinition,
     RevRecordSchemaServer,
-    RevRecordSortDefinition
+    RevRecordSortDefinition,
+    RevRecordStore
 } from './server/internal-api';
 
 /** @public */
@@ -23,6 +24,7 @@ export class RevRecordGrid<
     declare schemaServer: RevRecordSchemaServer<SF>;
     declare mainDataServer: RevRecordDataServer<SF>;
     readonly headerDataServer: DataServer<SF> | undefined;
+    readonly recordStore: RevRecordStore;
 
     recordFocusedEventer: RevRecordGrid.RecordFocusEventer | undefined;
     mainClickEventer: RevRecordGrid.MainClickEventer | undefined;
@@ -46,9 +48,17 @@ export class RevRecordGrid<
         super(gridHostElement, definition, settings, customiseSettingsForNewColumnEventer, options);
 
         const subgridsManager = this.subgridsManager;
-        const headerSubgrid = subgridsManager.headerSubgrid;
-        if (headerSubgrid !== undefined) {
-            this.headerDataServer = headerSubgrid.dataServer;
+        const mainSubgrid = subgridsManager.mainSubgrid;
+        const mainDataServer = mainSubgrid.dataServer;
+        if (!(mainDataServer instanceof RevRecordDataServer)) {
+            throw new RevApiError('RGC50112', 'Main Subgrid DataServer not a subtype of RevRecordDataServer');
+        } else {
+            this.recordStore = mainDataServer.recordStore;
+
+            const headerSubgrid = subgridsManager.headerSubgrid;
+            if (headerSubgrid !== undefined) {
+                this.headerDataServer = headerSubgrid.dataServer;
+            }
         }
     }
 

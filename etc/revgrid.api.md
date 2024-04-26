@@ -4082,6 +4082,8 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
     // (undocumented)
     recordsSpliced(recordIndex: RevRecordIndex, deleteCount: number, insertCount: number): void;
     // (undocumented)
+    get recordStore(): RevRecordStore;
+    // (undocumented)
     get recordUpdatedRecentDuration(): number;
     set recordUpdatedRecentDuration(value: number);
     // (undocumented)
@@ -4200,7 +4202,7 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
 
 // @public (undocumented)
 export class RevRecordGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends RevRecordField> extends RevColumnLayoutGrid<BGS, BCS, SF> implements RevColumnLayout.ChangeInitiator {
-    constructor(gridHostElement: HTMLElement, recordStore: RevRecordStore, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>, extraSubgridDefinitions: Subgrid.Definition<BCS, SF>[], settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>, mainSubgridDefinitionOptions?: RevRecordGrid.MainSubgridDefinitionOptions);
+    constructor(gridHostElement: HTMLElement, definition: RevGridDefinition<BCS, SF>, settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     get allowedFields(): readonly SF[] | undefined;
     // (undocumented)
@@ -4287,6 +4289,8 @@ export class RevRecordGrid<BGS extends BehavioredGridSettings, BCS extends Behav
     get recordFocused(): boolean;
     // (undocumented)
     recordFocusedEventer: RevRecordGrid.RecordFocusEventer | undefined;
+    // (undocumented)
+    readonly recordStore: RevRecordStore;
     // (undocumented)
     recordToRowIndex(recIdx: RevRecordIndex): number;
     // (undocumented)
@@ -5304,8 +5308,8 @@ export interface RevTableFieldSourceDefinitionFactory<TypeId, RenderValueTypeId,
 }
 
 // @public (undocumented)
-export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>> {
-    constructor(gridFieldCustomHeadingsService: RevSourcedFieldCustomHeadingsService, _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, tableRecordSourceDefinitionFactoryService: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, _referenceableDataSourcesService: RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, gridHostElement: HTMLElement, getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>, extraSubgridDefinitions: Subgrid.Definition<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>[], settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>, options?: RevGridOptions<BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>);
+export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId, BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings> extends RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>> {
+    constructor(gridFieldCustomHeadingsService: RevSourcedFieldCustomHeadingsService, _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, tableRecordSourceDefinitionFactoryService: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, _referenceableDataSourcesService: RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, gridHostElement: HTMLElement, definition: RevGridDefinition<BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>, settings: BGS, customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>, options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>);
     // (undocumented)
     applyColumnLayoutOrReferenceDefinition(definition: RevColumnLayoutOrReferenceDefinition): void;
     // (undocumented)
@@ -5315,7 +5319,7 @@ export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableField
     // (undocumented)
     clearRendering(): void;
     // (undocumented)
-    closeGridSource(keepView: boolean): void;
+    closeDataSource(keepView: boolean): void;
     // (undocumented)
     columnLayoutSetEventer: RevTableGrid.ColumnLayoutSetEventer | undefined;
     // (undocumented)
@@ -5323,7 +5327,7 @@ export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableField
     // (undocumented)
     createColumnLayoutOrReferenceDefinition(): RevColumnLayoutOrReferenceDefinition;
     // (undocumented)
-    createGridSourceOrReferenceDefinition(): RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
+    createDataSourceOrReferenceDefinition(): RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
     // (undocumented)
     createRecordDefinition(index: Integer): RevTableRecordDefinition<TableFieldSourceDefinitionTypeId>;
     // (undocumented)
@@ -5347,6 +5351,8 @@ export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableField
     // (undocumented)
     get recordCount(): Integer;
     // (undocumented)
+    readonly recordStore: RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
+    // (undocumented)
     subscribeBadnessChangedEvent(handler: CorrectnessState.BadnessChangedEventHandler): MultiEvent.SubscriptionId;
     // (undocumented)
     readonly tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
@@ -5355,7 +5361,7 @@ export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableField
     // (undocumented)
     tryOpenColumnLayoutOrReferenceDefinition(columnLayoutOrReferenceDefinition: RevColumnLayoutOrReferenceDefinition): Promise<Result<void, RevColumnLayoutOrReference.LockErrorIdPlusTryError>>;
     // (undocumented)
-    tryOpenGridSource(definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, keepView: boolean): Promise<Result<RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, RevDataSourceOrReference.LockErrorIdPlusTryError>>;
+    tryOpenDataSource(definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, keepView: boolean): Promise<Result<RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>, RevDataSourceOrReference.LockErrorIdPlusTryError>>;
     // (undocumented)
     unsubscribeBadnessChangedEvent(subscriptionId: MultiEvent.SubscriptionId): void;
 }

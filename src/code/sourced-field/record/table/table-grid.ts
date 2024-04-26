@@ -1,18 +1,17 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, CorrectnessState, Integer, LockOpenListItem, MultiEvent, Ok, Result } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, RevClientGrid, RevGridOptions, Subgrid } from '../../../client/internal-api';
+import { BehavioredColumnSettings, BehavioredGridSettings, RevApiError, RevClientGrid, RevGridDefinition, RevGridOptions } from '../../../client/internal-api';
 import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayoutsService } from '../../../column-layout/internal-api';
 import { RevRecordGrid, RevRecordRowOrderDefinition } from '../../../record/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from '../../sourced-field/internal-api';
-import { RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedFieldGrid } from '../record/internal-api';
+import { RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedField, RevRecordSourcedFieldGrid } from '../record/internal-api';
 import {
     RevDataSource,
     RevDataSourceOrReference,
     RevDataSourceOrReferenceDefinition,
     RevReferenceableDataSourcesService,
     RevTable,
-    RevTableField,
     RevTableFieldSourceDefinitionCachingFactoryService,
     RevTableRecordDefinition,
     RevTableRecordSource,
@@ -30,8 +29,10 @@ export class RevTableGrid<
     RenderValueTypeId,
     RenderAttributeTypeId,
     BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
-> extends RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>> {
+    BCS extends BehavioredColumnSettings
+> extends RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>> {
+    declare readonly recordStore: RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
+
     opener: LockOpenListItem.Opener;
     keepPreviousLayoutIfPossible = false;
     keptColumnLayoutOrReferenceDefinition: RevColumnLayoutOrReferenceDefinition | undefined;
@@ -39,9 +40,7 @@ export class RevTableGrid<
     openedEventer: RevTableGrid.OpenedEventer | undefined;
     columnLayoutSetEventer: RevTableGrid.ColumnLayoutSetEventer | undefined;
 
-    private readonly _recordStore: RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
-
-    private _lockedGridSourceOrReference: RevDataSourceOrReference<
+    private _lockedDataSourceOrReference: RevDataSourceOrReference<
         Badness,
         TableRecordSourceDefinitionTypeId,
         TableFieldSourceDefinitionTypeId,
@@ -58,7 +57,7 @@ export class RevTableGrid<
 
     private _tableFieldsChangedSubscriptionId: MultiEvent.SubscriptionId;
     private _tableFirstUsableSubscriptionId: MultiEvent.SubscriptionId;
-    private _gridSourceColumnLayoutSetSubscriptionId: MultiEvent.SubscriptionId;
+    private _dataSourceColumnLayoutSetSubscriptionId: MultiEvent.SubscriptionId;
 
     constructor(
         readonly gridFieldCustomHeadingsService: RevSourcedFieldCustomHeadingsService,
@@ -85,15 +84,16 @@ export class RevTableGrid<
             RenderAttributeTypeId
         >,
         gridHostElement: HTMLElement,
-        getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>,
-        extraSubgridDefinitions: Subgrid.Definition<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>[],
+        definition: RevGridDefinition<BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>,
         settings: BGS,
-        customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>,
-        options?: RevGridOptions<BGS, BCS, RevTableField<RenderValueTypeId, RenderAttributeTypeId>>,
+        customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>,
+        options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>,
     ) {
-        const recordStore = new RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>();
-        super(gridHostElement, recordStore, getMainCellPainterEventer, extraSubgridDefinitions, settings, customiseSettingsForNewColumnEventer, options);
-        this._recordStore = recordStore;
+        super(gridHostElement, definition, settings, customiseSettingsForNewColumnEventer, options);
+
+        if (!(this.recordStore instanceof RevTableRecordStore)) {
+            throw new RevApiError('TGC50112', 'RecordStore is not a subtype of RevTableRecordStore');
+        }
     }
 
     get recordCount(): Integer { return this._openedTable === undefined ? 0 : this._openedTable.recordCount; }
@@ -120,7 +120,7 @@ export class RevTableGrid<
         }
     }
 
-    tryOpenGridSource(
+    tryOpenDataSource(
         definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
         keepView: boolean
     ): Promise<
@@ -151,7 +151,7 @@ export class RevTableGrid<
             }
         );
 
-        this.closeGridSource(keepView);
+        this.closeDataSource(keepView);
 
         if (definition.canUpdateColumnLayoutDefinitionOrReference() &&
             this.keepPreviousLayoutIfPossible &&
@@ -173,30 +173,30 @@ export class RevTableGrid<
                 if (lockResult.isErr()) {
                     resolve(lockResult.createType());
                 } else {
-                    const gridSource = dataSourceOrReference.lockedDataSource;
-                    if (gridSource === undefined) {
+                    const dataSource = dataSourceOrReference.lockedDataSource;
+                    if (dataSource === undefined) {
                         throw new AssertInternalError('GSFOGSL22209');
                     } else {
-                        gridSource.openLocked(this.opener);
-                        const table = gridSource.table;
+                        dataSource.openLocked(this.opener);
+                        const table = dataSource.table;
                         if (table === undefined) {
                             throw new AssertInternalError('GSFOGSTA22209');
                         } else {
-                            const layout = gridSource.lockedColumnLayout;
+                            const layout = dataSource.lockedColumnLayout;
                             if (layout === undefined) {
                                 throw new AssertInternalError('GSFOGSGL22209');
                             } else {
-                                this._lockedGridSourceOrReference = dataSourceOrReference;
-                                this._openedDataSource = gridSource;
+                                this._lockedDataSourceOrReference = dataSourceOrReference;
+                                this._openedDataSource = dataSource;
                                 this._openedTable = table;
 
-                                this.notifyOpened(/*gridSourceOrReference*/);
+                                this.notifyOpened(/*dataSourceOrReference*/);
 
-                                this._gridSourceColumnLayoutSetSubscriptionId = this._openedDataSource.subscribeColumnLayoutSetEvent(
-                                    () => this.handleGridSourceColumnLayoutSetEvent()
+                                this._dataSourceColumnLayoutSetSubscriptionId = this._openedDataSource.subscribeColumnLayoutSetEvent(
+                                    () => this.handleDataSourceColumnLayoutSetEvent()
                                 );
 
-                                this._recordStore.setTable(table);
+                                this.recordStore.setTable(table);
                                 this._tableFieldsChangedSubscriptionId = table.subscribeFieldsChangedEvent(
                                     () => super.updateAllowedFields(table.fields)
                                 );
@@ -226,8 +226,8 @@ export class RevTableGrid<
         return resultPromise;
     }
 
-    closeGridSource(keepView: boolean) {
-        if (this._lockedGridSourceOrReference !== undefined) {
+    closeDataSource(keepView: boolean) {
+        if (this._lockedDataSourceOrReference !== undefined) {
             const openedTable = this._openedTable;
             if (openedTable === undefined || this._openedDataSource === undefined) {
                 throw new AssertInternalError('GSF22209');
@@ -237,8 +237,8 @@ export class RevTableGrid<
                 openedTable.unsubscribeFirstUsableEvent(this._tableFirstUsableSubscriptionId); // may not be subscribed
                 this._tableFirstUsableSubscriptionId = undefined;
                 this._tableFieldsChangedSubscriptionId = undefined;
-                this._openedDataSource.unsubscribeColumnLayoutSetEvent(this._gridSourceColumnLayoutSetSubscriptionId);
-                this._gridSourceColumnLayoutSetSubscriptionId = undefined;
+                this._openedDataSource.unsubscribeColumnLayoutSetEvent(this._dataSourceColumnLayoutSetSubscriptionId);
+                this._dataSourceColumnLayoutSetSubscriptionId = undefined;
                 if (this.keepPreviousLayoutIfPossible) {
                     this.keptColumnLayoutOrReferenceDefinition = this.createColumnLayoutOrReferenceDefinition();
                 } else {
@@ -253,8 +253,8 @@ export class RevTableGrid<
                 }
                 const opener = this.opener;
                 this._openedDataSource.closeLocked(opener);
-                this._lockedGridSourceOrReference.unlock(opener);
-                this._lockedGridSourceOrReference = undefined;
+                this._lockedDataSourceOrReference.unlock(opener);
+                this._lockedDataSourceOrReference = undefined;
                 this._openedTable = undefined;
             }
 
@@ -262,12 +262,12 @@ export class RevTableGrid<
         }
     }
 
-    createGridSourceOrReferenceDefinition(): RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
-        if (this._lockedGridSourceOrReference === undefined) {
+    createDataSourceOrReferenceDefinition(): RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+        if (this._lockedDataSourceOrReference === undefined) {
             throw new AssertInternalError('GSFCGSONRD22209');
         } else {
             const rowOrderDefinition = super.getRowOrderDefinition();
-            return this._lockedGridSourceOrReference.createDefinition(rowOrderDefinition);
+            return this._lockedDataSourceOrReference.createDefinition(rowOrderDefinition);
         }
     }
 
@@ -362,7 +362,7 @@ export class RevTableGrid<
         super.applyFirstUsable(rowOrderDefinition, viewAnchor, layout);
     }
 
-    private handleGridSourceColumnLayoutSetEvent() {
+    private handleDataSourceColumnLayoutSetEvent() {
         if (this._openedDataSource === undefined) {
             throw new AssertInternalError('GSFHGSGLSE22209');
         } else {
