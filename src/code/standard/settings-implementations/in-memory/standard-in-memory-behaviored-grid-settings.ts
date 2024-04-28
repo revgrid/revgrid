@@ -1,6 +1,6 @@
 import { RevGridSettings } from '../../../client/internal-api';
 import { RevInMemoryBehavioredGridSettings } from '../../../settings-implementations/internal-api';
-import { RevHorizontalAlign, RevTextTruncateTypeId } from '../../painters/internal-api';
+import { RevHorizontalAlign, RevTextTruncateTypeId } from '../../../text/internal-api';
 import { RevStandardBehavioredGridSettings, RevStandardGridSettings, RevStandardOnlyGridSettings } from '../../settings/internal-api';
 
 /** @public */

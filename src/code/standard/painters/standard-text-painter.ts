@@ -1,6 +1,5 @@
 import { RevCachedCanvasRenderingContext2D, RevRectangle, RevUnreachableCaseError } from '../../client/internal-api';
-import { RevHorizontalAlign } from './horizontal-align';
-import { RevTextTruncateTypeId } from './text-truncate-type';
+import { RevHorizontalAlign, RevTextTruncateTypeId } from '../../text/internal-api';
 
 /** @public */
 export class RevStandardTextPainter {

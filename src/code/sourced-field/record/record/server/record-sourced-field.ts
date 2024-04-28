@@ -7,7 +7,7 @@ import {
 } from '@xilytix/sysutils';
 import { RevDataServer } from '../../../../client/internal-api';
 import { RevRecordField } from '../../../../record/server/internal-api';
-import { RevRenderValue } from '../../../../render-value/internal-api';
+import { RevRenderValue } from '../../../../text/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';
 import { RevRecordSourcedFieldDefinition } from './definition/internal-api';
 

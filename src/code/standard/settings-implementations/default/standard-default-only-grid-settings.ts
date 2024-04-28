@@ -1,4 +1,4 @@
-import { RevTextTruncateTypeId } from '../../painters/internal-api';
+import { RevTextTruncateTypeId } from '../../../text/internal-api';
 import { RevStandardOnlyGridSettings } from '../../settings/internal-api';
 
 /** @public */

@@ -10,13 +10,13 @@
   ],
 
   "references": [
+    { "path": "./standard/tsconfig.json" },
     { "path": "./sourced-field/tsconfig.json" },
     { "path": "./record/tsconfig.json" },
     { "path": "./data-row-array/tsconfig.json" },
     { "path": "./header/tsconfig.json" },
     { "path": "./column-layout/tsconfig.json" },
-    { "path": "./render-value/tsconfig.json" },
-    { "path": "./standard/tsconfig.json" },
+    { "path": "./text/tsconfig.json" },
     { "path": "./settings-implementations/tsconfig.json" },
     { "path": "./client/tsconfig.json" },
   ]

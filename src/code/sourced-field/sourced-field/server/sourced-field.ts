@@ -4,7 +4,7 @@ import {
     EnumInfoOutOfOrderError
 } from '@xilytix/sysutils';
 import { RevSchemaField } from '../../../client/internal-api';
-import { RevHorizontalAlignEnum } from '../../../standard/internal-api';
+import { RevHorizontalAlignEnum } from '../../../text/internal-api';
 import { RevSourcedFieldDefinition } from './definition/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from './sourced-field-custom-headings-service';
 

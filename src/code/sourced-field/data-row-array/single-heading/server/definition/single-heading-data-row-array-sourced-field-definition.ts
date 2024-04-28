@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { Integer } from '@xilytix/sysutils';
-import { RevHorizontalAlign } from '../../../../../standard/internal-api';
+import { RevHorizontalAlign } from '../../../../../text/internal-api';
 import { RevSourcedFieldDefinition, RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
 
 /** @public */

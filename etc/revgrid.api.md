@@ -7373,7 +7373,7 @@ export namespace RevWritablePoint {
 
 // Warnings were encountered during analysis:
 //
-// src/code/standard/painters/standard-text-painter.ts:257:48 - (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+// src/code/standard/painters/standard-text-painter.ts:256:48 - (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
 
 // (No @packageDocumentation comment for this package)
 

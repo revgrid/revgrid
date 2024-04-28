@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { RevRenderValue } from '../../../../../render-value/internal-api';
+import { RevRenderValue } from '../../../../../text/internal-api';
 
 /** @public */
 export abstract class RevTableValue<RenderValueTypeId, RenderAttributeTypeId> {

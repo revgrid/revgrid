@@ -4,8 +4,7 @@ import {
     Integer,
     compareValue
 } from '@xilytix/sysutils';
-import { RevRenderValue } from '../../../../../render-value/internal-api';
-import { RevHorizontalAlign } from '../../../../../standard/internal-api';
+import { RevHorizontalAlign, RevRenderValue } from '../../../../../text/internal-api';
 import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
 import { RevRecordSourcedField, RevRecordSourcedFieldDefinition } from '../../../record/server/internal-api';
 import { RevGenericTableValue, RevTableValue, RevTableValuesRecord } from '../value/internal-api';
